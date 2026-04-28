@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
+import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen } from "lucide-react";
 import { useState } from "react";
@@ -125,6 +126,7 @@ export default function Layout() {
           </motion.div>
         </AnimatePresence>
       </main>
+      <HelpButton />
     </div>
   );
 }
