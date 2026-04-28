@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Upload, X, Loader2, Check } from "lucide-react";
+import { Camera, X, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -56,6 +56,7 @@ export default function PhotoUpload({ onUpload, existingUrl, className }) {
         type="file"
         accept="image/*"
         capture="environment"
+
         className="hidden"
         onChange={handleChange}
       />
@@ -66,13 +67,10 @@ export default function PhotoUpload({ onUpload, existingUrl, className }) {
       ) : (
         <div
           onClick={() => fileRef.current?.click()}
-          className="flex flex-col items-center justify-center gap-2 h-full rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+          className="flex items-center justify-center gap-2 h-full rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
         >
-          <div className="flex items-center gap-2">
-            <Camera className="h-4 w-4 text-muted-foreground" />
-            <Upload className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <span className="text-xs text-muted-foreground font-medium">Take or upload photo</span>
+          <Camera className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">Take Photo</span>
         </div>
       )}
     </div>
