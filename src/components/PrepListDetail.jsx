@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PhotoUpload from "./PhotoUpload";
-import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import StationBadge from "./StationBadge";
+import { toast } from "sonner";
 import PriorityBadge from "./PriorityBadge";
 import StatusBadge from "./StatusBadge";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
@@ -17,6 +18,16 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [photoDialog, setPhotoDialog] = useState(null);
   const [form, setForm] = useState({ name: "", quantity: "", unit: "", notes: "", priority: "medium" });
   const [saving, setSaving] = useState(false);
+  const [uploadingMasterFor, setUploadingMasterFor] = useState(null);
+
+  const uploadMasterPhoto = async (itemId, file) => {
+    setUploadingMasterFor(itemId);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    await base44.entities.PrepItem.update(itemId, { master_photo_url: file_url });
+    setUploadingMasterFor(null);
+    toast.success("Reference photo uploaded");
+    onRefresh();
+  };
 
   const priorityOrder = { high: 0, medium: 1, low: 2 };
   const sortedItems = [...items].sort((a, b) => {
@@ -138,6 +149,25 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                 </div>
                 {item.completed_by && (
                   <p className="text-xs text-muted-foreground mt-1">Completed by {item.completed_by}</p>
+                )}
+              </div>
+              {/* Master reference photo */}
+              <div className="flex-shrink-0">
+                {item.master_photo_url ? (
+                  <div className="relative group">
+                    <img src={item.master_photo_url} alt="Reference" className="h-12 w-12 rounded-lg object-cover border border-border" />
+                    <label className="absolute inset-0 rounded-lg bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100">
+                      <Upload className="h-3.5 w-3.5 text-white" />
+                      <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && uploadMasterPhoto(item.id, e.target.files[0])} />
+                    </label>
+                  </div>
+                ) : (
+                  <label className="h-12 w-12 rounded-lg border border-dashed border-border flex flex-col items-center justify-center gap-0.5 cursor-pointer hover:border-primary transition-colors">
+                    {uploadingMasterFor === item.id
+                      ? <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      : <><Upload className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-[9px] text-muted-foreground">Ref</span></>}
+                    <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && uploadMasterPhoto(item.id, e.target.files[0])} />
+                  </label>
                 )}
               </div>
               {item.photo_url ? (

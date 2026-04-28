@@ -1,19 +1,26 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const adminNavItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/stations", label: "Stations", icon: UtensilsCrossed },
   { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
   { path: "/master", label: "Master List", icon: BookOpen },
 ];
 
+const userNavItems = [
+  { path: "/master", label: "Master List", icon: BookOpen },
+];
+
 export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isAdmin } = useCurrentUser();
+  const navItems = isAdmin ? adminNavItems : userNavItems;
 
   // Hide layout chrome on station prep view
   const isStationView = location.pathname.startsWith("/station/");

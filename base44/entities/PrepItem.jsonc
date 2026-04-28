@@ -18,6 +18,10 @@
       "type": "string",
       "title": "Notes"
     },
+    "completion_notes": {
+      "type": "string",
+      "title": "Completion Notes"
+    },
     "prep_list_id": {
       "type": "string",
       "title": "Prep List ID"
@@ -55,6 +59,10 @@
         "Low"
       ],
       "default": "medium"
+    },
+    "master_photo_url": {
+      "type": "string",
+      "title": "Master Reference Photo URL"
     },
     "photo_url": {
       "type": "string",
