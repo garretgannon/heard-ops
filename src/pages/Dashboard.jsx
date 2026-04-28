@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp } from "lucide-react";
+import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, IceCream, Sandwich, Cake } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import StationBadge from "../components/StationBadge";
@@ -261,21 +261,54 @@ export default function Dashboard() {
       <div>
         <h2 className="text-lg font-semibold mb-4">Station Quick Access</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {stations.map((s, i) => (
-            <Link key={s.id} to={`/station/${s.id}`}>
-              <motion.div
-                className="bg-card rounded-2xl border border-border p-4 text-center"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.25, delay: i * 0.05 }}
-                whileHover={{ scale: 1.03, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <StationBadge name={s.name} color={s.color} className="mb-2" />
-                <p className="text-xs text-muted-foreground mt-1">Tap to open station view</p>
-              </motion.div>
-            </Link>
-          ))}
+          {stations.map((s, i) => {
+            const name = (s.name || "").toLowerCase();
+            const StationIcon =
+              name.includes("grill") || name.includes("hot") || name.includes("fire") ? Flame :
+              name.includes("salad") || name.includes("cold") || name.includes("garde") ? Salad :
+              name.includes("bar") || name.includes("drink") || name.includes("bev") ? Wine :
+              name.includes("fish") || name.includes("seafood") ? Fish :
+              name.includes("meat") || name.includes("butcher") || name.includes("protein") ? Beef :
+              name.includes("soup") || name.includes("sauce") ? Soup :
+              name.includes("pizza") || name.includes("flat") ? Pizza :
+              name.includes("coffee") || name.includes("espresso") ? Coffee :
+              name.includes("dessert") || name.includes("pastry") || name.includes("sweet") ? Cake :
+              name.includes("sandwich") || name.includes("deli") ? Sandwich :
+              CookingPot;
+
+            const colorBgMap = {
+              red: "bg-red-500/15 text-red-400",
+              blue: "bg-blue-500/15 text-blue-400",
+              green: "bg-green-500/15 text-green-400",
+              orange: "bg-orange-500/15 text-orange-400",
+              purple: "bg-purple-500/15 text-purple-400",
+              teal: "bg-teal-500/15 text-teal-400",
+              pink: "bg-pink-500/15 text-pink-400",
+              yellow: "bg-yellow-500/15 text-yellow-400",
+            };
+            const iconColors = colorBgMap[s.color] || "bg-primary/15 text-primary";
+
+            return (
+              <Link key={s.id} to={`/station/${s.id}`}>
+                <motion.div
+                  className="bg-card rounded-2xl border border-border p-4 flex flex-col items-center gap-3"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.25, delay: i * 0.05 }}
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <div className={`h-12 w-12 rounded-2xl flex items-center justify-center ${iconColors}`}>
+                    <StationIcon className="h-6 w-6" />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-sm">{s.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Tap to open</p>
+                  </div>
+                </motion.div>
+              </Link>
+            );
+          })}
           {stations.length === 0 && (
             <div className="col-span-full bg-card rounded-2xl border border-border p-8 text-center">
               <p className="text-muted-foreground text-sm">No stations yet. <Link to="/stations" className="text-primary hover:underline">Create your first station</Link></p>
