@@ -59,7 +59,7 @@ export default function PrepStepsPanel({ itemId, isAdmin }) {
   }
 
   return (
-    <div className="px-4 lg:px-5 pb-4 space-y-3">
+    <div className="px-4 lg:px-5 pt-4 pb-4 space-y-4">
       {steps.length === 0 && !isAdmin && (
         <p className="text-xs text-muted-foreground italic">No prep steps added yet.</p>
       )}
