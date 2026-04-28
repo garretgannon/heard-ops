@@ -42,10 +42,10 @@ export default function Dashboard() {
   const completedItems = prepItems.filter(pi => pi.status === "completed").length;
 
   const stats = [
-    { label: "Stations", value: stations.length, icon: UtensilsCrossed, color: "text-blue-600 bg-blue-50" },
-    { label: "Today's Lists", value: todayLists.length, icon: ClipboardList, color: "text-primary bg-primary/10" },
-    { label: "Active Lists", value: activeLists.length, icon: Clock, color: "text-amber-600 bg-amber-50" },
-    { label: "Items Done", value: `${completedItems}/${totalItems}`, icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50" },
+    { label: "Stations", value: stations.length, icon: UtensilsCrossed, color: "text-blue-600 bg-blue-50", to: "/stations" },
+    { label: "Today's Lists", value: todayLists.length, icon: ClipboardList, color: "text-primary bg-primary/10", to: "/prep-lists" },
+    { label: "Active Lists", value: activeLists.length, icon: Clock, color: "text-amber-600 bg-amber-50", to: "/prep-lists" },
+    { label: "Items Done", value: `${completedItems}/${totalItems}`, icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50", to: "/prep-lists" },
   ];
 
   return (
@@ -66,15 +66,17 @@ export default function Dashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {stats.map(stat => (
-          <div key={stat.label} className="bg-card rounded-2xl border border-border p-4 lg:p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${stat.color}`}>
-                <stat.icon className="h-4 w-4" />
+          <Link key={stat.label} to={stat.to} className="block">
+            <div className="bg-card rounded-2xl border border-border p-4 lg:p-5 hover:shadow-md transition-shadow cursor-pointer">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${stat.color}`}>
+                  <stat.icon className="h-4 w-4" />
+                </div>
               </div>
+              <p className="text-2xl font-bold">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
             </div>
-            <p className="text-2xl font-bold">{stat.value}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
