@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, UtensilsCrossed, Link as LinkIcon, Copy, Check } from "lucide-react";
+import { Plus, Trash2, UtensilsCrossed, Copy, Check, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ export default function Stations() {
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingStation, setEditingStation] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", color: "blue" });
   const [saving, setSaving] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
@@ -29,11 +30,28 @@ export default function Stations() {
 
   useEffect(() => { load(); }, []);
 
+  const openAdd = () => {
+    setEditingStation(null);
+    setForm({ name: "", description: "", color: "blue" });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (s) => {
+    setEditingStation(s);
+    setForm({ name: s.name, description: s.description || "", color: s.color });
+    setDialogOpen(true);
+  };
+
   const handleSave = async () => {
     if (!form.name.trim()) return;
     setSaving(true);
-    await base44.entities.Station.create({ ...form, is_active: true });
+    if (editingStation) {
+      await base44.entities.Station.update(editingStation.id, form);
+    } else {
+      await base44.entities.Station.create({ ...form, is_active: true });
+    }
     setDialogOpen(false);
+    setEditingStation(null);
     setForm({ name: "", description: "", color: "blue" });
     setSaving(false);
     load();
@@ -67,7 +85,7 @@ export default function Stations() {
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Stations</h1>
           <p className="text-muted-foreground mt-1">Manage kitchen stations</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
+        <Button onClick={openAdd}>
           <Plus className="h-4 w-4 mr-2" />
           Add Station
         </Button>
@@ -78,7 +96,7 @@ export default function Stations() {
           icon={UtensilsCrossed}
           title="No stations yet"
           description="Create your first kitchen station to start organizing prep lists."
-          action={<Button onClick={() => setDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />Add Station</Button>}
+          action={<Button onClick={openAdd}><Plus className="h-4 w-4 mr-2" />Add Station</Button>}
         />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -86,9 +104,14 @@ export default function Stations() {
             <div key={s.id} className="bg-card rounded-2xl border border-border p-5 hover:shadow-sm transition-shadow">
               <div className="flex items-start justify-between mb-3">
                 <StationBadge name={s.name} color={s.color} />
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(s.id)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => openEdit(s)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(s.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               {s.description && <p className="text-sm text-muted-foreground mb-3">{s.description}</p>}
               <StationAssignments station={s} />
@@ -111,7 +134,7 @@ export default function Stations() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Station</DialogTitle>
+            <DialogTitle>{editingStation ? "Edit Station" : "Add Station"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
@@ -152,7 +175,7 @@ export default function Stations() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={saving || !form.name.trim()}>
-              {saving ? "Saving..." : "Create Station"}
+              {saving ? "Saving..." : editingStation ? "Save Changes" : "Create Station"}
             </Button>
           </DialogFooter>
         </DialogContent>
