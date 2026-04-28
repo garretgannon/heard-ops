@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Camera, User, Save, Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [role, setRole] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -18,6 +20,7 @@ export default function Profile() {
       setUser(u);
       setDisplayName(u.display_name || u.full_name || "");
       setAvatarUrl(u.avatar_url || "");
+      setRole(u.role || "user");
     });
   }, []);
 
@@ -32,11 +35,20 @@ export default function Profile() {
     toast.success("Profile photo updated");
   };
 
+  const JOB_CODES = [
+    { value: "user", label: "Kitchen Staff (BOH)" },
+    { value: "server", label: "Server" },
+    { value: "bartender", label: "Bartender" },
+    { value: "host", label: "Host" },
+    { value: "busser", label: "Busser" },
+    { value: "food_runner", label: "Food Runner" },
+  ];
+
   const handleSave = async () => {
     setSaving(true);
-    await base44.auth.updateMe({ display_name: displayName });
+    await base44.auth.updateMe({ display_name: displayName, role });
     setSaving(false);
-    toast.success("Display name saved");
+    toast.success("Profile saved");
   };
 
   if (!user) {
@@ -94,6 +106,24 @@ export default function Profile() {
           className="max-w-sm"
         />
       </div>
+
+      {/* Job code */}
+      {user.role !== "admin" && (
+        <div className="space-y-2">
+          <Label>Job Code</Label>
+          <p className="text-xs text-muted-foreground">Determines which sections and tasks you see in the app.</p>
+          <Select value={role} onValueChange={setRole}>
+            <SelectTrigger className="max-w-sm">
+              <SelectValue placeholder="Select your role" />
+            </SelectTrigger>
+            <SelectContent>
+              {JOB_CODES.map(j => (
+                <SelectItem key={j.value} value={j.value}>{j.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <Button onClick={handleSave} disabled={saving || !displayName.trim()}>
         {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
