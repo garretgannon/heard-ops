@@ -41,6 +41,21 @@
       ],
       "default": "pending"
     },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "enumNames": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "medium"
+    },
     "photo_url": {
       "type": "string",
       "title": "Completion Photo URL"

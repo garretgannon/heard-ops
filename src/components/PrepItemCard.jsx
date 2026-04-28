@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle, ChevronDown, ChevronUp } from "lucide-react";
+import PriorityBadge from "./PriorityBadge";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import PhotoUpload from "./PhotoUpload";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
 
 export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
+  const cyclePriority = async (e) => {
+    e.stopPropagation();
+    const cycle = { high: "medium", medium: "low", low: "high" };
+    await base44.entities.PrepItem.update(item.id, { priority: cycle[item.priority || "medium"] });
+    onUpdate(item.id, { priority: cycle[item.priority || "medium"] });
+  };
   const [expanded, setExpanded] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
   const isCompleted = item.status === "completed";
@@ -54,7 +62,10 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
         </motion.button>
 
         <div className="flex-1 min-w-0" onClick={() => !isCompleted && setExpanded(!expanded)}>
-          <p className={cn("font-medium text-sm", isCompleted && "line-through text-muted-foreground")}>{item.name}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className={cn("font-medium text-sm", isCompleted && "line-through text-muted-foreground")}>{item.name}</p>
+            <PriorityBadge priority={item.priority || "medium"} onClick={!isCompleted ? cyclePriority : undefined} />
+          </div>
           <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
             {(item.quantity || item.unit) && (
               <span className="font-mono">{item.quantity}{item.unit ? ` ${item.unit}` : ""}</span>

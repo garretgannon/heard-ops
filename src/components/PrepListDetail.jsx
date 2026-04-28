@@ -1,22 +1,37 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PhotoUpload from "./PhotoUpload";
-import { ArrowLeft, Plus, Trash2, GripVertical, ImageIcon } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import StationBadge from "./StationBadge";
+import PriorityBadge from "./PriorityBadge";
 import StatusBadge from "./StatusBadge";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
 
 export default function PrepListDetail({ prepList, station, items, onBack, onRefresh }) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [sortByPriority, setSortByPriority] = useState(false);
   const [photoDialog, setPhotoDialog] = useState(null);
-  const [form, setForm] = useState({ name: "", quantity: "", unit: "", notes: "" });
+  const [form, setForm] = useState({ name: "", quantity: "", unit: "", notes: "", priority: "medium" });
   const [saving, setSaving] = useState(false);
 
-  const sortedItems = [...items].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  const sortedItems = [...items].sort((a, b) => {
+    if (sortByPriority) {
+      const pd = (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1);
+      if (pd !== 0) return pd;
+    }
+    return (a.sort_order || 0) - (b.sort_order || 0);
+  });
+
+  const cyclePriority = async (item) => {
+    const cycle = { high: "medium", medium: "low", low: "high" };
+    await base44.entities.PrepItem.update(item.id, { priority: cycle[item.priority || "medium"] });
+    onRefresh();
+  };
 
   const handleAddItem = async () => {
     if (!form.name.trim()) return;
@@ -28,7 +43,8 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
       status: "pending",
       sort_order: items.length,
     });
-    setForm({ name: "", quantity: "", unit: "", notes: "" });
+    setForm({ name: "", quantity: "", unit: "", notes: "", priority: "medium" });
+
     setSaving(false);
     setDialogOpen(false);
     onRefresh();
@@ -63,10 +79,20 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
             </div>
             {prepList.notes && <p className="text-sm text-muted-foreground mt-2">{prepList.notes}</p>}
           </div>
-          <Button onClick={() => setDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Item
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={sortByPriority ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSortByPriority(v => !v)}
+            >
+              <ArrowUpDown className="h-4 w-4 mr-1" />
+              Priority
+            </Button>
+            <Button onClick={() => setDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Item
+            </Button>
+          </div>
         </div>
 
         {items.length > 0 && (
@@ -95,11 +121,12 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
             >
               <GripVertical className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className={`font-medium text-sm ${item.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
                     {item.name}
                   </span>
                   <StatusBadge status={item.status} />
+                  <PriorityBadge priority={item.priority || "medium"} onClick={() => cyclePriority(item)} />
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   {(item.quantity || item.unit) && (
@@ -160,6 +187,24 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
             <div>
               <Label>Notes (optional)</Label>
               <Input placeholder="Special instructions..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+            </div>
+            <div>
+              <Label>Priority</Label>
+              <div className="flex gap-2 mt-1">
+                {["high", "medium", "low"].map(p => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setForm({ ...form, priority: p })}
+                    className="flex-1"
+                  >
+                    <PriorityBadge
+                      priority={p}
+                      className={`w-full justify-center ${form.priority === p ? "ring-2 ring-offset-1 ring-offset-background" : "opacity-50"}`}
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>
