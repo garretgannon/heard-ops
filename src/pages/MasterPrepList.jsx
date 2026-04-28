@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { ChevronDown, ChevronRight, ImageIcon, CheckCircle2, Upload, X } from "lucide-react";
+import { ChevronDown, ChevronRight, ImageIcon, CheckCircle2, Upload, X, ListOrdered } from "lucide-react";
+import PrepStepsPanel from "../components/PrepStepsPanel";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import StationBadge from "../components/StationBadge";
@@ -16,6 +17,7 @@ export default function MasterPrepList() {
   const [prepItems, setPrepItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openStations, setOpenStations] = useState({});
+  const [openSteps, setOpenSteps] = useState({});
   const [photoModal, setPhotoModal] = useState(null);
   const [notesItem, setNotesItem] = useState(null);
   const [notesText, setNotesText] = useState("");
@@ -43,6 +45,7 @@ export default function MasterPrepList() {
   useEffect(() => { load(); }, []);
 
   const toggleStation = (id) => setOpenStations(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggleSteps = (id) => setOpenSteps(prev => ({ ...prev, [id]: !prev[id] }));
 
   const priorityOrder = { high: 0, medium: 1, low: 2 };
 
@@ -150,8 +153,8 @@ export default function MasterPrepList() {
                     ) : (
                       <div className="border-t border-border divide-y divide-border">
                         {items.map(item => (
+                          <div key={item.id} className="divide-y divide-border">
                           <div
-                            key={item.id}
                             className={`flex items-center gap-3 px-4 lg:px-5 py-3 ${item.status === "completed" ? "bg-accent/5" : ""}`}
                           >
                             {/* Complete toggle */}
@@ -186,6 +189,16 @@ export default function MasterPrepList() {
 
                             {/* Actions */}
                             <div className="flex items-center gap-2 flex-shrink-0">
+                              {/* Steps toggle */}
+                              <button
+                                onClick={() => toggleSteps(item.id)}
+                                className="flex items-center gap-1 h-7 px-2 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground hover:border-primary transition-colors"
+                                title="Prep steps"
+                              >
+                                <ListOrdered className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Steps</span>
+                              </button>
+
                               {/* Add notes button (users) */}
                               {!isAdmin && (
                                 <Button
@@ -236,6 +249,20 @@ export default function MasterPrepList() {
                                 </div>
                               )}
                             </div>
+                          </div>
+                          <AnimatePresence>
+                            {openSteps[item.id] && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.22, ease: "easeOut" }}
+                                className="overflow-hidden bg-secondary/20"
+                              >
+                                <PrepStepsPanel itemId={item.id} isAdmin={isAdmin} />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                           </div>
                         ))}
                       </div>

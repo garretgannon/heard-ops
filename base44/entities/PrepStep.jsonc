@@ -1,0 +1,27 @@
+{
+  "name": "PrepStep",
+  "type": "object",
+  "properties": {
+    "prep_item_id": {
+      "type": "string",
+      "title": "Prep Item ID"
+    },
+    "step_number": {
+      "type": "number",
+      "title": "Step Number",
+      "default": 1
+    },
+    "instruction": {
+      "type": "string",
+      "title": "Instruction"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Step Photo URL"
+    }
+  },
+  "required": [
+    "prep_item_id",
+    "instruction"
+  ]
+}
