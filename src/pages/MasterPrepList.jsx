@@ -174,9 +174,11 @@ export default function MasterPrepList() {
                                 <PriorityBadge priority={item.priority || "medium"} />
                               </div>
                               {(item.quantity || item.unit) && (
-                                <p className="text-xs text-muted-foreground mt-0.5 font-mono">
-                                  {item.quantity}{item.unit ? ` ${item.unit}` : ""}
-                                </p>
+                                <span className="inline-flex items-center gap-1 mt-1">
+                                  <span className="text-xs font-semibold tracking-wide text-foreground/70 bg-secondary px-2 py-0.5 rounded-md">
+                                    {item.quantity}{item.unit ? ` ${item.unit}` : ""}
+                                  </span>
+                                </span>
                               )}
                               {item.notes && <p className="text-xs text-muted-foreground">{item.notes}</p>}
                               {item.completion_notes && (
