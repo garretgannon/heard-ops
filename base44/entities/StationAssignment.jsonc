@@ -1,0 +1,45 @@
+{
+  "name": "StationAssignment",
+  "type": "object",
+  "properties": {
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "user_email": {
+      "type": "string",
+      "title": "User Email"
+    },
+    "user_name": {
+      "type": "string",
+      "title": "User Name"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "morning",
+        "night"
+      ],
+      "enumNames": [
+        "Morning",
+        "Night"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    }
+  },
+  "required": [
+    "station_id",
+    "user_email",
+    "shift",
+    "date"
+  ]
+}

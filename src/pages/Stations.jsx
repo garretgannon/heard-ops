@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import StationBadge from "../components/StationBadge";
+import StationAssignments from "../components/StationAssignments";
 import EmptyState from "../components/EmptyState";
 import { toast } from "sonner";
 
@@ -90,6 +91,8 @@ export default function Stations() {
                 </Button>
               </div>
               {s.description && <p className="text-sm text-muted-foreground mb-3">{s.description}</p>}
+              <StationAssignments station={s} />
+              <div className="mt-3">
               <Button
                 variant="outline"
                 size="sm"
@@ -99,6 +102,7 @@ export default function Stations() {
                 {copiedId === s.id ? <Check className="h-3 w-3 mr-1.5" /> : <Copy className="h-3 w-3 mr-1.5" />}
                 {copiedId === s.id ? "Copied!" : "Copy station link"}
               </Button>
+              </div>
             </div>
           ))}
         </div>
