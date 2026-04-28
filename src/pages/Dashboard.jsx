@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp } from "lucide-react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import StationBadge from "../components/StationBadge";
 import StatusBadge from "../components/StatusBadge";
@@ -162,6 +163,65 @@ export default function Dashboard() {
             })}
           </div>
         )}
+      </div>
+
+      {/* Prep Progress Chart */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Today's Prep Progress</h2>
+        <div className="bg-card rounded-2xl border border-border p-6 flex flex-col sm:flex-row items-center gap-8">
+          {/* Donut chart */}
+          <div className="relative w-40 h-40 flex-shrink-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: "Completed", value: completedItems || 0 },
+                    { name: "Pending", value: Math.max((totalItems - completedItems), 0) || (totalItems === 0 ? 1 : 0) },
+                  ]}
+                  cx="50%" cy="50%"
+                  innerRadius={46} outerRadius={64}
+                  startAngle={90} endAngle={-270}
+                  dataKey="value"
+                  strokeWidth={0}
+                >
+                  <Cell fill="hsl(165,58%,46%)" />
+                  <Cell fill="hsl(224,12%,18%)" />
+                </Pie>
+                <Tooltip
+                  contentStyle={{ background: "hsl(224,18%,10%)", border: "1px solid hsl(224,14%,18%)", borderRadius: 8, fontSize: 12 }}
+                  itemStyle={{ color: "hsl(220,14%,93%)" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-2xl font-bold">{totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0}%</span>
+              <span className="text-xs text-muted-foreground">done</span>
+            </div>
+          </div>
+
+          {/* Legend & breakdown */}
+          <div className="flex-1 w-full space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-accent inline-block" />Completed</span>
+                <span className="font-semibold">{completedItems}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <motion.div className="h-full bg-accent rounded-full" initial={{ width: 0 }} animate={{ width: totalItems > 0 ? `${(completedItems / totalItems) * 100}%` : "0%" }} transition={{ duration: 0.7, ease: "easeOut" }} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/40 inline-block" />Pending</span>
+                <span className="font-semibold">{totalItems - completedItems}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <motion.div className="h-full bg-muted-foreground/30 rounded-full" initial={{ width: 0 }} animate={{ width: totalItems > 0 ? `${((totalItems - completedItems) / totalItems) * 100}%` : "0%" }} transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }} />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground pt-1">{totalItems} total items across all lists today</p>
+          </div>
+        </div>
       </div>
 
       {/* FOH Side Work Section */}
