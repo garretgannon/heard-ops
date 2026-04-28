@@ -13,5 +13,7 @@ export function useCurrentUser() {
   }, []);
 
   const isAdmin = user?.role === "admin";
-  return { user, loading, isAdmin };
+  const FOH_ROLES = ["server", "bartender", "host", "busser", "food_runner"];
+  const isFOH = isAdmin || FOH_ROLES.includes(user?.role);
+  return { user, loading, isAdmin, isFOH };
 }

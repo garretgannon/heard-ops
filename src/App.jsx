@@ -18,7 +18,7 @@ import SideWork from './pages/SideWork';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const { isAdmin, loading: userLoading } = useCurrentUser();
+  const { isAdmin, isFOH, loading: userLoading } = useCurrentUser();
 
   if (isLoadingPublicSettings || isLoadingAuth || userLoading) {
     return (
@@ -38,7 +38,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/prep-lists" element={<PrepLists />} />}
         <Route path="/station/:stationId" element={<StationPrepView />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/side-work" element={<SideWork />} />
+        {isFOH && <Route path="/side-work" element={<SideWork />} />}
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

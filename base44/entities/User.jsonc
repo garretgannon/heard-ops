@@ -1,0 +1,39 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "The role of the user in the app",
+      "enum": [
+        "admin",
+        "user",
+        "server",
+        "bartender",
+        "host",
+        "busser",
+        "food_runner"
+      ],
+      "enumNames": [
+        "Admin",
+        "Kitchen Staff",
+        "Server",
+        "Bartender",
+        "Host",
+        "Busser",
+        "Food Runner"
+      ]
+    },
+    "display_name": {
+      "type": "string",
+      "title": "Display Name"
+    },
+    "avatar_url": {
+      "type": "string",
+      "title": "Avatar URL"
+    }
+  },
+  "required": [
+    "role"
+  ]
+}

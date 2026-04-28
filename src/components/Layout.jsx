@@ -17,6 +17,10 @@ const adminNavItems = [
 
 const userNavItems = [
   { path: "/master", label: "Master List", icon: BookOpen },
+  { path: "/profile", label: "My Profile", icon: UserCircle },
+];
+
+const fohNavItems = [
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
   { path: "/profile", label: "My Profile", icon: UserCircle },
 ];
@@ -24,8 +28,8 @@ const userNavItems = [
 export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAdmin } = useCurrentUser();
-  const navItems = isAdmin ? adminNavItems : userNavItems;
+  const { isAdmin, isFOH } = useCurrentUser();
+  const navItems = isAdmin ? adminNavItems : (isFOH ? fohNavItems : userNavItems);
 
   // Hide layout chrome on station prep view
   const isStationView = location.pathname.startsWith("/station/");
