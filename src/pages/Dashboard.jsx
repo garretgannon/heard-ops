@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus } from "lucide-react";
+import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import StationBadge from "../components/StationBadge";
 import StatusBadge from "../components/StatusBadge";
@@ -11,18 +11,23 @@ export default function Dashboard() {
   const [stations, setStations] = useState([]);
   const [prepLists, setPrepLists] = useState([]);
   const [prepItems, setPrepItems] = useState([]);
+  const [sideWorkAssignments, setSideWorkAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const load = async () => {
-      const [s, pl, pi] = await Promise.all([
+      const [s, pl, pi, sw] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.PrepList.list("-created_date", 50),
         base44.entities.PrepItem.list("-created_date", 200),
+        base44.entities.SideWorkAssignment.filter({ date: todayStr }),
       ]);
       setStations(s);
       setPrepLists(pl);
       setPrepItems(pi);
+      setSideWorkAssignments(sw);
       setLoading(false);
     };
     load();
@@ -36,11 +41,16 @@ export default function Dashboard() {
     );
   }
 
-  const todayStr = new Date().toISOString().split("T")[0];
+
   const todayLists = prepLists.filter(pl => pl.date === todayStr);
   const activeLists = prepLists.filter(pl => pl.status === "active");
   const totalItems = prepItems.length;
   const completedItems = prepItems.filter(pi => pi.status === "completed").length;
+
+  const swPending = sideWorkAssignments.filter(a => a.status === "pending" || a.status === "rejected").length;
+  const swApprovals = sideWorkAssignments.filter(a => a.status === "completed").length;
+  const swApproved = sideWorkAssignments.filter(a => a.status === "approved").length;
+  const swTotal = sideWorkAssignments.length;
 
   const stats = [
     { label: "Stations", value: stations.length, icon: UtensilsCrossed, color: "text-blue-600 bg-blue-50", to: "/stations" },
@@ -150,6 +160,39 @@ export default function Dashboard() {
                 </Link>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* FOH Side Work Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2"><CheckSquare className="h-5 w-5 text-primary" />Front of House Side Work</h2>
+          <Link to="/side-work" className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
+            Manage <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        {swTotal === 0 ? (
+          <div className="bg-card rounded-2xl border border-border p-6 text-center">
+            <p className="text-muted-foreground text-sm">No side work assigned today. <Link to="/side-work" className="text-primary hover:underline">Assign tasks</Link></p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-card rounded-2xl border border-border p-4">
+              <AlertCircle className="h-5 w-5 text-red-400 mb-2" />
+              <p className="text-2xl font-bold">{swPending}</p>
+              <p className="text-xs text-muted-foreground">Incomplete</p>
+            </div>
+            <div className="bg-card rounded-2xl border border-border p-4">
+              <Clock className="h-5 w-5 text-yellow-400 mb-2" />
+              <p className="text-2xl font-bold">{swApprovals}</p>
+              <p className="text-xs text-muted-foreground">Pending Approval</p>
+            </div>
+            <div className="bg-card rounded-2xl border border-border p-4">
+              <ThumbsUp className="h-5 w-5 text-green-400 mb-2" />
+              <p className="text-2xl font-bold">{swApproved}</p>
+              <p className="text-xs text-muted-foreground">Approved</p>
+            </div>
           </div>
         )}
       </div>
