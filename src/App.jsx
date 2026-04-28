@@ -12,6 +12,7 @@ import Stations from './pages/Stations';
 import PrepLists from './pages/PrepLists';
 import StationPrepView from './pages/StationPrepView';
 import MasterPrepList from './pages/MasterPrepList';
+import StaffHome from './pages/StaffHome';
 import Profile from './pages/Profile';
 import SideWork from './pages/SideWork';
 
@@ -30,7 +31,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={isAdmin ? <Dashboard /> : <MasterPrepList />} />
+        <Route path="/" element={isAdmin ? <Dashboard /> : <StaffHome />} />
         <Route path="/master" element={<MasterPrepList />} />
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
         {isAdmin && <Route path="/stations" element={<Stations />} />}
