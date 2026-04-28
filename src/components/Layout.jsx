@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -38,21 +39,21 @@ export default function Layout() {
         <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)}>
           <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1" onClick={e => e.stopPropagation()}>
             {navItems.map(item => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                  location.pathname === item.path
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary"
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            ))}
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                      location.pathname === item.path
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-secondary"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                  ))}
           </nav>
         </div>
       )}
@@ -75,12 +76,19 @@ export default function Layout() {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                 location.pathname === item.path
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
+              {location.pathname === item.path && (
+                <motion.span
+                  layoutId="nav-indicator"
+                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                />
+              )}
               <item.icon className="h-4 w-4" />
               {item.label}
             </Link>
@@ -96,9 +104,18 @@ export default function Layout() {
 
       {/* Main content */}
       <main className="lg:pl-64 pt-14 lg:pt-0 min-h-screen">
-        <div className="p-4 lg:p-8 max-w-6xl mx-auto">
-          <Outlet />
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="p-4 lg:p-8 max-w-6xl mx-auto"
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );

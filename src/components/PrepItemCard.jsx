@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CheckCircle2, Circle, Camera, ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import PhotoUpload from "./PhotoUpload";
@@ -12,12 +13,7 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
 
   const toggleComplete = async () => {
     if (isCompleted) {
-      await onUpdate(item.id, {
-        status: "pending",
-        completed_by: "",
-        completed_at: "",
-        photo_url: "",
-      });
+      await onUpdate(item.id, { status: "pending", completed_by: "", completed_at: "", photo_url: "" });
     } else {
       setExpanded(true);
     }
@@ -34,18 +30,28 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
   };
 
   return (
-    <div className={cn(
-      "bg-card rounded-xl border border-border overflow-hidden transition-all",
-      isCompleted && "opacity-75"
-    )}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className={cn(
+        "bg-card rounded-xl border border-border overflow-hidden transition-colors",
+        isCompleted && "opacity-75"
+      )}
+    >
       <div className="p-4 flex items-start gap-3">
-        <button onClick={toggleComplete} className="mt-0.5 flex-shrink-0">
+        <motion.button
+          onClick={toggleComplete}
+          className="mt-0.5 flex-shrink-0"
+          whileTap={{ scale: 0.85 }}
+        >
           {isCompleted ? (
             <CheckCircle2 className="h-5 w-5 text-accent" />
           ) : (
             <Circle className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
           )}
-        </button>
+        </motion.button>
 
         <div className="flex-1 min-w-0" onClick={() => !isCompleted && setExpanded(!expanded)}>
           <p className={cn("font-medium text-sm", isCompleted && "line-through text-muted-foreground")}>{item.name}</p>
@@ -72,17 +78,25 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
         ) : null}
       </div>
 
-      {expanded && !isCompleted && (
-        <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
-          <p className="text-xs text-muted-foreground font-medium">Upload a photo of the completed prep, then mark as done:</p>
-          <PhotoUpload onUpload={(url) => markDone(url)} />
-          <Button variant="outline" size="sm" className="w-full" onClick={() => markDone(null)}>
-            Mark done without photo
-          </Button>
-        </div>
-      )}
+      <AnimatePresence>
+        {expanded && !isCompleted && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="px-4 pb-4 border-t border-border pt-3 space-y-3 overflow-hidden"
+          >
+            <p className="text-xs text-muted-foreground font-medium">Upload a photo of the completed prep, then mark as done:</p>
+            <PhotoUpload onUpload={(url) => markDone(url)} />
+            <Button variant="outline" size="sm" className="w-full" onClick={() => markDone(null)}>
+              Mark done without photo
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <PhotoPreviewDialog url={photoPreview} onClose={() => setPhotoPreview(null)} />
-    </div>
+    </motion.div>
   );
 }

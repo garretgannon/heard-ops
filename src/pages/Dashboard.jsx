@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus } from "lucide-react";
@@ -49,7 +50,12 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-8">
+    <motion.div
+      className="space-y-8"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+    >
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -65,9 +71,16 @@ export default function Dashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        {stats.map(stat => (
+        {stats.map((stat, i) => (
           <Link key={stat.label} to={stat.to} className="block">
-            <div className="bg-card rounded-2xl border border-border p-4 lg:p-5 hover:shadow-md transition-shadow cursor-pointer">
+            <motion.div
+              className="bg-card rounded-2xl border border-border p-4 lg:p-5 cursor-pointer"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.07, ease: "easeOut" }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${stat.color}`}>
                   <stat.icon className="h-4 w-4" />
@@ -75,7 +88,7 @@ export default function Dashboard() {
               </div>
               <p className="text-2xl font-bold">{stat.value}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
-            </div>
+            </motion.div>
           </Link>
         ))}
       </div>
@@ -94,7 +107,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="grid gap-3">
-            {activeLists.slice(0, 5).map(pl => {
+            {activeLists.slice(0, 5).map((pl, i) => {
               const items = prepItems.filter(pi => pi.prep_list_id === pl.id);
               const done = items.filter(pi => pi.status === "completed").length;
               const station = stations.find(s => s.id === pl.station_id);
@@ -102,7 +115,13 @@ export default function Dashboard() {
 
               return (
                 <Link key={pl.id} to={`/prep-lists?id=${pl.id}`} className="block">
-                  <div className="bg-card rounded-2xl border border-border p-4 lg:p-5 hover:shadow-md transition-shadow">
+                  <motion.div
+                    className="bg-card rounded-2xl border border-border p-4 lg:p-5"
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.28, delay: i * 0.06, ease: "easeOut" }}
+                    whileHover={{ x: 3 }}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1.5">
@@ -118,14 +137,16 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">{progress}%</span>
                         <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-accent rounded-full transition-all"
-                            style={{ width: `${progress}%` }}
+                          <motion.div
+                            className="h-full bg-accent rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.06 + 0.2 }}
                           />
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </Link>
               );
             })}
@@ -137,12 +158,19 @@ export default function Dashboard() {
       <div>
         <h2 className="text-lg font-semibold mb-4">Station Quick Access</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {stations.map(s => (
+          {stations.map((s, i) => (
             <Link key={s.id} to={`/station/${s.id}`}>
-              <div className="bg-card rounded-2xl border border-border p-4 hover:shadow-md transition-shadow text-center">
+              <motion.div
+                className="bg-card rounded-2xl border border-border p-4 text-center"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.25, delay: i * 0.05 }}
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+              >
                 <StationBadge name={s.name} color={s.color} className="mb-2" />
                 <p className="text-xs text-muted-foreground mt-1">Tap to open station view</p>
-              </div>
+              </motion.div>
             </Link>
           ))}
           {stations.length === 0 && (
@@ -152,6 +180,6 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
