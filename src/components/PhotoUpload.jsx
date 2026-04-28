@@ -50,7 +50,7 @@ export default function PhotoUpload({ onUpload, existingUrl, className }) {
   }
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative h-24", className)}>
       <input
         ref={fileRef}
         type="file"
@@ -60,13 +60,13 @@ export default function PhotoUpload({ onUpload, existingUrl, className }) {
         onChange={handleChange}
       />
       {uploading ? (
-        <div className="flex items-center justify-center h-24 rounded-xl border-2 border-dashed border-border bg-muted/50">
+        <div className="flex items-center justify-center h-full rounded-xl border-2 border-dashed border-border bg-muted/50">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : (
         <div
           onClick={() => fileRef.current?.click()}
-          className="flex flex-col items-center justify-center gap-2 h-24 rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+          className="flex flex-col items-center justify-center gap-2 h-full rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
         >
           <div className="flex items-center gap-2">
             <Camera className="h-4 w-4 text-muted-foreground" />
