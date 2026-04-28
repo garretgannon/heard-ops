@@ -1,0 +1,105 @@
+import { Outlet, Link, useLocation } from "react-router-dom";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+
+const navItems = [
+  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/stations", label: "Stations", icon: UtensilsCrossed },
+  { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
+];
+
+export default function Layout() {
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Hide layout chrome on station prep view
+  const isStationView = location.pathname.startsWith("/station/");
+
+  if (isStationView) {
+    return <Outlet />;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Mobile header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ChefHat className="h-6 w-6 text-primary" />
+          <span className="font-bold text-lg tracking-tight">PrepFlow</span>
+        </div>
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2">
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </header>
+
+      {/* Mobile nav overlay */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)}>
+          <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1" onClick={e => e.stopPropagation()}>
+            {navItems.map(item => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                  location.pathname === item.path
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border bg-card flex-col z-30">
+        <div className="p-6 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
+            <ChefHat className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="font-bold text-lg tracking-tight">PrepFlow</h1>
+            <p className="text-xs text-muted-foreground">Kitchen Prep Manager</p>
+          </div>
+        </div>
+
+        <nav className="flex-1 px-3 space-y-1">
+          {navItems.map(item => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                location.pathname === item.path
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="p-4 mx-3 mb-3 rounded-xl bg-secondary/60 border border-border">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Share station links with your prep team so they can check off tasks and upload photos.
+          </p>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="lg:pl-64 pt-14 lg:pt-0 min-h-screen">
+        <div className="p-4 lg:p-8 max-w-6xl mx-auto">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
+}

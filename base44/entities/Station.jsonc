@@ -1,0 +1,47 @@
+{
+  "name": "Station",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "color": {
+      "type": "string",
+      "title": "Color",
+      "enum": [
+        "red",
+        "blue",
+        "green",
+        "orange",
+        "purple",
+        "teal",
+        "pink",
+        "yellow"
+      ],
+      "enumNames": [
+        "Red",
+        "Blue",
+        "Green",
+        "Orange",
+        "Purple",
+        "Teal",
+        "Pink",
+        "Yellow"
+      ]
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "color"
+  ]
+}

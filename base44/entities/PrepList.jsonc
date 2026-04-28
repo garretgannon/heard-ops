@@ -1,0 +1,49 @@
+{
+  "name": "PrepList",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Prep List Name"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "draft",
+        "active",
+        "completed",
+        "archived"
+      ],
+      "enumNames": [
+        "Draft",
+        "Active",
+        "Completed",
+        "Archived"
+      ],
+      "default": "draft"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name",
+    "date",
+    "station_id"
+  ]
+}
