@@ -1,0 +1,85 @@
+{
+  "name": "SideWorkTask",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Task Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "role": {
+      "type": "string",
+      "title": "Role",
+      "enum": [
+        "server",
+        "bartender",
+        "host",
+        "busser",
+        "food_runner"
+      ],
+      "enumNames": [
+        "Server",
+        "Bartender",
+        "Host",
+        "Busser",
+        "Food Runner"
+      ]
+    },
+    "shift_type": {
+      "type": "string",
+      "title": "Shift Type",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ],
+      "enumNames": [
+        "Opening",
+        "Mid-Shift",
+        "Closing"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "enumNames": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "medium"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (e.g. 5:00 PM)"
+    },
+    "requires_photo": {
+      "type": "boolean",
+      "title": "Requires Photo Proof",
+      "default": false
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "title": "Requires Manager Approval",
+      "default": false
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "role",
+    "shift_type"
+  ]
+}

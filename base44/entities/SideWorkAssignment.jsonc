@@ -1,0 +1,105 @@
+{
+  "name": "SideWorkAssignment",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "title": "Task Template ID"
+    },
+    "task_name": {
+      "type": "string",
+      "title": "Task Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "role": {
+      "type": "string",
+      "title": "Role"
+    },
+    "shift_type": {
+      "type": "string",
+      "title": "Shift Type"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "default": "medium"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time"
+    },
+    "requires_photo": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "title": "Requires Approval",
+      "default": false
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "title": "Assigned To (Email)"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "title": "Assigned To (Name)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "completed",
+        "approved",
+        "rejected"
+      ],
+      "enumNames": [
+        "Pending",
+        "Completed",
+        "Approved",
+        "Rejected"
+      ],
+      "default": "pending"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Completion Photo URL"
+    },
+    "completed_at": {
+      "type": "string",
+      "title": "Completed At"
+    },
+    "completed_by": {
+      "type": "string",
+      "title": "Completed By"
+    },
+    "approved_at": {
+      "type": "string",
+      "title": "Approved At"
+    },
+    "approved_by": {
+      "type": "string",
+      "title": "Approved By"
+    },
+    "rejection_notes": {
+      "type": "string",
+      "title": "Rejection Notes"
+    }
+  },
+  "required": [
+    "task_name",
+    "role",
+    "shift_type",
+    "date"
+  ]
+}

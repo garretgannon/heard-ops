@@ -13,6 +13,7 @@ import PrepLists from './pages/PrepLists';
 import StationPrepView from './pages/StationPrepView';
 import MasterPrepList from './pages/MasterPrepList';
 import Profile from './pages/Profile';
+import SideWork from './pages/SideWork';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -36,6 +37,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/prep-lists" element={<PrepLists />} />}
         <Route path="/station/:stationId" element={<StationPrepView />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/side-work" element={<SideWork />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
