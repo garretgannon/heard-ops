@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import PhotoUpload from "./PhotoUpload";
+import { base44 } from "@/api/base44Client";
 import { ArrowLeft, Plus, Trash2, GripVertical, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -112,12 +114,22 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                   <p className="text-xs text-muted-foreground mt-1">Completed by {item.completed_by}</p>
                 )}
               </div>
-              {item.photo_url && (
+              {item.photo_url ? (
                 <button onClick={() => setPhotoDialog(item.photo_url)} className="flex-shrink-0">
                   <img src={item.photo_url} alt="Completion" className="h-12 w-12 rounded-lg object-cover border border-border" />
                 </button>
+              ) : (
+                <div className="flex-shrink-0 w-24">
+                  <PhotoUpload
+                    onUpload={async (url) => {
+                      if (url) await base44.entities.PrepItem.update(item.id, { photo_url: url });
+                      onRefresh();
+                    }}
+                    className="!h-12"
+                  />
+                </div>
               )}
-              {!item.photo_url && item.status === "completed" && (
+              {false && !item.photo_url && item.status === "completed" && (
                 <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                   <ImageIcon className="h-4 w-4 text-muted-foreground" />
                 </div>

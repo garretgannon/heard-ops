@@ -162,6 +162,11 @@ export default function PrepLists() {
                         <Play className="h-4 w-4" />
                       </Button>
                     )}
+                    {pl.status === "archived" && (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600" onClick={() => handleStatusChange(pl, "active")} title="Unarchive">
+                        <Play className="h-4 w-4" />
+                      </Button>
+                    )}
                     {pl.status === "active" && (
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleStatusChange(pl, "archived")}>
                         <Archive className="h-4 w-4" />
