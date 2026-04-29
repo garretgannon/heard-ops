@@ -1,0 +1,50 @@
+{
+  "name": "CalendarEvent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "time": {
+      "type": "string",
+      "title": "Time (e.g. 6:00 PM)"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "large_party",
+        "order",
+        "delivery",
+        "inventory",
+        "other"
+      ],
+      "enumNames": [
+        "Large Party",
+        "Order",
+        "Delivery",
+        "Inventory",
+        "Other"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "guest_count": {
+      "type": "number",
+      "title": "Guest Count"
+    }
+  },
+  "required": [
+    "title",
+    "date",
+    "category"
+  ]
+}

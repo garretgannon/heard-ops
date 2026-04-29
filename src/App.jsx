@@ -16,6 +16,7 @@ import StaffHome from './pages/StaffHome';
 import Profile from './pages/Profile';
 import SideWork from './pages/SideWork';
 import BusserHome from './pages/BusserHome';
+import Calendar from './pages/Calendar';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -41,6 +42,7 @@ const AuthenticatedApp = () => {
         <Route path="/station/:stationId" element={<StationPrepView />} />
         <Route path="/profile" element={<Profile />} />
         {isFOH && <Route path="/side-work" element={<SideWork />} />}
+        {isAdmin && <Route path="/calendar" element={<Calendar />} />}
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const adminNavItems = [
   { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
   { path: "/master", label: "Master List", icon: BookOpen },
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
+  { path: "/calendar", label: "Calendar", icon: CalendarDays },
   { path: "/profile", label: "My Profile", icon: UserCircle },
 ];
 
