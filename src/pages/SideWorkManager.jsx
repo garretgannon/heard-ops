@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Plus, CheckCircle2, Clock, AlertCircle, Users, Trash2, Zap, FileUp } from "lucide-react";
+import { Plus, CheckCircle2, Clock, AlertCircle, Users, Trash2, Zap, FileUp, ListPlus, X } from "lucide-react";
 import ImportDialog from "../components/ImportDialog";
 
 const ROLES = ["server", "bartender", "host", "busser", "food_runner"];
@@ -33,6 +33,11 @@ export default function SideWorkManager() {
   const [saving, setSaving] = useState(false);
   const [assigningAll, setAssigningAll] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [bulkRole, setBulkRole] = useState("server");
+  const [bulkShift, setBulkShift] = useState("closing");
+  const [bulkRows, setBulkRows] = useState([{ name: "", description: "", priority: "medium", due_time: "", requires_photo: false, requires_approval: false }]);
+  const [bulkSaving, setBulkSaving] = useState(false);
   const [taskForm, setTaskForm] = useState({ name: "", description: "", role: "server", shift_type: "closing", priority: "medium", due_time: "", requires_photo: false, requires_approval: false });
   const [assignForm, setAssignForm] = useState({ task_id: "", assigned_to_email: "", assigned_to_name: "" });
 
@@ -85,6 +90,38 @@ export default function SideWorkManager() {
     setTaskForm({ name: "", description: "", role: "server", shift_type: "closing", priority: "medium", due_time: "", requires_photo: false, requires_approval: false });
     setSaving(false);
     toast.success("Task template created");
+    load();
+  };
+
+  const openBulkDialog = () => {
+    setBulkRole("server");
+    setBulkShift("closing");
+    setBulkRows([{ name: "", description: "", priority: "medium", due_time: "", requires_photo: false, requires_approval: false }]);
+    setShowBulkDialog(true);
+  };
+
+  const addBulkRow = () => setBulkRows(prev => [...prev, { name: "", description: "", priority: "medium", due_time: "", requires_photo: false, requires_approval: false }]);
+  const removeBulkRow = (i) => setBulkRows(prev => prev.filter((_, idx) => idx !== i));
+  const updateBulkRow = (i, field, value) => setBulkRows(prev => prev.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
+
+  const saveBulk = async () => {
+    const valid = bulkRows.filter(r => r.name.trim());
+    if (valid.length === 0) { toast.error("Add at least one task name"); return; }
+    setBulkSaving(true);
+    await base44.entities.SideWorkTask.bulkCreate(valid.map(r => ({
+      name: r.name.trim(),
+      description: r.description || "",
+      role: bulkRole,
+      shift_type: bulkShift,
+      priority: r.priority,
+      due_time: r.due_time || "",
+      requires_photo: r.requires_photo,
+      requires_approval: r.requires_approval,
+      is_active: true,
+    })));
+    setBulkSaving(false);
+    setShowBulkDialog(false);
+    toast.success(`${valid.length} task${valid.length > 1 ? "s" : ""} created`);
     load();
   };
 
@@ -160,6 +197,9 @@ export default function SideWorkManager() {
           </Button>
           <Button size="sm" variant="secondary" onClick={assignAllTasks} disabled={assigningAll}>
             <Zap className="h-4 w-4 mr-1" />{assigningAll ? "Assigning..." : "Assign All Today"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={openBulkDialog}>
+            <ListPlus className="h-4 w-4 mr-1" />Bulk Add Tasks
           </Button>
           <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
             <FileUp className="h-4 w-4 mr-1" />Import Tasks
@@ -334,6 +374,112 @@ export default function SideWorkManager() {
           load();
         }}
       />
+
+      {/* Bulk Add Dialog */}
+      {showBulkDialog && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowBulkDialog(false)}>
+          <div className="bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h2 className="font-semibold text-lg">Bulk Add Tasks</h2>
+              <button onClick={() => setShowBulkDialog(false)}><X className="h-5 w-5 text-muted-foreground" /></button>
+            </div>
+            <div className="p-5 space-y-4 overflow-y-auto flex-1">
+              {/* Role + Shift selector */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Role</label>
+                  <select className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={bulkRole} onChange={e => setBulkRole(e.target.value)}>
+                    {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Shift</label>
+                  <select className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={bulkShift} onChange={e => setBulkShift(e.target.value)}>
+                    {SHIFTS.map(s => <option key={s} value={s}>{SHIFT_LABELS[s]}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Task rows */}
+              <div className="space-y-3">
+                <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground px-1">
+                  <div className="col-span-4">Task Name *</div>
+                  <div className="col-span-3">Description</div>
+                  <div className="col-span-2">Priority</div>
+                  <div className="col-span-2">Due Time</div>
+                  <div className="col-span-1"></div>
+                </div>
+                {bulkRows.map((row, i) => (
+                  <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                    <div className="col-span-4">
+                      <input
+                        className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                        value={row.name}
+                        onChange={e => updateBulkRow(i, "name", e.target.value)}
+                        placeholder="Task name"
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <input
+                        className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                        value={row.description}
+                        onChange={e => updateBulkRow(i, "description", e.target.value)}
+                        placeholder="Optional"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <select
+                        className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                        value={row.priority}
+                        onChange={e => updateBulkRow(i, "priority", e.target.value)}
+                      >
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                      </select>
+                    </div>
+                    <div className="col-span-2">
+                      <input
+                        className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                        value={row.due_time}
+                        onChange={e => updateBulkRow(i, "due_time", e.target.value)}
+                        placeholder="5:00 PM"
+                      />
+                    </div>
+                    <div className="col-span-1 flex justify-center">
+                      {bulkRows.length > 1 && (
+                        <button onClick={() => removeBulkRow(i)} className="text-muted-foreground hover:text-destructive">
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                    {/* Photo / Approval checkboxes on second line */}
+                    <div className="col-span-11 flex gap-4 pl-1">
+                      <label className="flex items-center gap-1.5 text-xs cursor-pointer text-muted-foreground">
+                        <input type="checkbox" checked={row.requires_photo} onChange={e => updateBulkRow(i, "requires_photo", e.target.checked)} />
+                        📷 Photo
+                      </label>
+                      <label className="flex items-center gap-1.5 text-xs cursor-pointer text-muted-foreground">
+                        <input type="checkbox" checked={row.requires_approval} onChange={e => updateBulkRow(i, "requires_approval", e.target.checked)} />
+                        ✓ Approval
+                      </label>
+                    </div>
+                  </div>
+                ))}
+                <button onClick={addBulkRow} className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors pt-1">
+                  <Plus className="h-4 w-4" /> Add another task
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end p-5 border-t border-border">
+              <Button variant="outline" onClick={() => setShowBulkDialog(false)}>Cancel</Button>
+              <Button onClick={saveBulk} disabled={bulkSaving}>
+                {bulkSaving ? "Saving…" : `Save ${bulkRows.filter(r => r.name.trim()).length || ""} Tasks`}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Task Template Dialog */}
       <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
