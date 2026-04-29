@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Circle, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, ListChecks } from "lucide-react";
 import PriorityBadge from "./PriorityBadge";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import PhotoUpload from "./PhotoUpload";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
+import PrepStepsPanel from "./PrepStepsPanel";
 
 export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
   const cyclePriority = async (e) => {
@@ -16,6 +17,7 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
     onUpdate(item.id, { priority: cycle[item.priority || "medium"] });
   };
   const [expanded, setExpanded] = useState(false);
+  const [stepsOpen, setStepsOpen] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
   const isCompleted = item.status === "completed";
 
@@ -73,6 +75,13 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
             {prepList && <span>{prepList.name}</span>}
           </div>
           {item.notes && <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>}
+          <button
+            onClick={e => { e.stopPropagation(); setStepsOpen(v => !v); }}
+            className={`flex items-center gap-1 text-xs font-medium mt-1 transition-colors ${stepsOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <ListChecks className="h-3 w-3" />
+            {stepsOpen ? "Hide Steps" : "View Steps"}
+          </button>
           {isCompleted && item.completed_by && (
             <p className="text-xs text-accent mt-1">✓ {item.completed_by}</p>
           )}
@@ -106,6 +115,12 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {stepsOpen && (
+        <div className="border-t border-border">
+          <PrepStepsPanel itemId={item.id} isAdmin={false} />
+        </div>
+      )}
 
       <PhotoPreviewDialog url={photoPreview} onClose={() => setPhotoPreview(null)} />
     </motion.div>
