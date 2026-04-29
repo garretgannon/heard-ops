@@ -15,6 +15,7 @@ import PriorityBadge from "./PriorityBadge";
 import StatusBadge from "./StatusBadge";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
 import TempLogPanel from "./TempLogPanel";
+import PrepStepsPanel from "./PrepStepsPanel";
 
 export default function PrepListDetail({ prepList, station, items, onBack, onRefresh }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -34,6 +35,8 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [editItem, setEditItem] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [editSaving, setEditSaving] = useState(false);
+  const [expandedSteps, setExpandedSteps] = useState({});
+  const toggleSteps = (id) => setExpandedSteps(prev => ({ ...prev, [id]: !prev[id] }));
 
   const saveHandoverNotes = async () => {
     setSavingHandover(true);
@@ -342,12 +345,15 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
           sortedItems.map(item => (
             <div
               key={item.id}
-              className={`bg-card rounded-xl border p-4 flex items-center gap-3 transition-colors cursor-pointer ${
+              className={`bg-card rounded-xl border transition-colors ${
                 bulkMode && selectedIds.includes(item.id) ? "border-primary/60 bg-primary/5" :
                 item.status === "completed" ? "bg-accent/5 border-accent/20" : "border-border"
               }`}
-              onClick={bulkMode ? () => toggleSelect(item.id) : undefined}
             >
+              <div
+                className="p-4 flex items-center gap-3 cursor-pointer"
+                onClick={bulkMode ? () => toggleSelect(item.id) : undefined}
+              >
               {bulkMode ? (
                 selectedIds.includes(item.id)
                   ? <CheckSquare className="h-4 w-4 text-primary flex-shrink-0" />
@@ -370,6 +376,12 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                     </span>
                   )}
                   {item.notes && <span className="text-xs text-muted-foreground">· {item.notes}</span>}
+                <button
+                  onClick={e => { e.stopPropagation(); toggleSteps(item.id); }}
+                  className={`text-xs font-medium transition-colors ${expandedSteps[item.id] ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {expandedSteps[item.id] ? "▾ Hide Steps" : "▸ Prep Steps"}
+                </button>
                 </div>
                 {item.completed_by && (
                   <p className="text-xs text-muted-foreground mt-1">Completed by {item.completed_by}</p>
@@ -416,6 +428,12 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
+            {expandedSteps[item.id] && (
+              <div className="border-t border-border">
+                <PrepStepsPanel itemId={item.id} isAdmin={true} />
+              </div>
+            )}
+          </div>
           ))
         )}
       </div>
