@@ -2,38 +2,62 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, IceCream, Sandwich, Cake, Search, X } from "lucide-react";
+import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, Sandwich, Cake, Search, X, Users } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StationBadge from "../components/StationBadge";
 import StatusBadge from "../components/StatusBadge";
+import { toast } from "sonner";
+
+const ROLES = [
+  { value: "admin", label: "Admin" },
+  { value: "user", label: "Kitchen Staff" },
+  { value: "busser", label: "Busser" },
+  { value: "server", label: "Server" },
+  { value: "bartender", label: "Bartender" },
+  { value: "host", label: "Host" },
+  { value: "food_runner", label: "Food Runner" },
+];
 
 export default function Dashboard() {
   const [stations, setStations] = useState([]);
   const [prepLists, setPrepLists] = useState([]);
   const [prepItems, setPrepItems] = useState([]);
   const [sideWorkAssignments, setSideWorkAssignments] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [savingRole, setSavingRole] = useState({});
 
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const load = async () => {
-      const [s, pl, pi, sw] = await Promise.all([
+      const [s, pl, pi, sw, u] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.PrepList.list("-created_date", 50),
         base44.entities.PrepItem.list("-created_date", 200),
         base44.entities.SideWorkAssignment.filter({ date: todayStr }),
+        base44.entities.User.list(),
       ]);
       setStations(s);
       setPrepLists(pl);
       setPrepItems(pi);
       setSideWorkAssignments(sw);
+      setUsers(u);
       setLoading(false);
     };
     load();
   }, []);
+
+  const updateRole = async (userId, role) => {
+    setSavingRole(p => ({ ...p, [userId]: true }));
+    await base44.entities.User.update(userId, { role });
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
+    setSavingRole(p => ({ ...p, [userId]: false }));
+    toast.success("Role updated");
+  };
 
   if (loading) {
     return (
@@ -42,7 +66,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
 
   const todayLists = prepLists.filter(pl => pl.date === todayStr);
   const activeLists = prepLists.filter(pl => pl.status === "active");
@@ -62,8 +85,6 @@ export default function Dashboard() {
   ];
 
   const q = search.toLowerCase().trim();
-
-  // Filtered results for search
   const stationResults = q ? stations.filter(s => s.name.toLowerCase().includes(q)) : [];
   const assignmentResults = q ? sideWorkAssignments.filter(a =>
     (a.assigned_to_name && a.assigned_to_name.toLowerCase().includes(q)) ||
@@ -176,6 +197,49 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Team & Roles */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Users className="h-5 w-5 text-primary" />
+          Team &amp; Roles
+        </h2>
+        <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
+          {users.length === 0 && (
+            <div className="p-8 text-center text-muted-foreground text-sm">No users found.</div>
+          )}
+          {users.map(u => (
+            <div key={u.id} className="flex items-center gap-4 px-4 py-3">
+              <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
+                {(u.full_name || u.email || "?")[0].toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm truncate">{u.full_name || u.email}</p>
+                <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Select
+                  value={u.role || "user"}
+                  onValueChange={v => updateRole(u.id, v)}
+                  disabled={savingRole[u.id]}
+                >
+                  <SelectTrigger className="w-36 h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map(r => (
+                      <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {savingRole[u.id] && (
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Active Prep Lists */}
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -241,7 +305,6 @@ export default function Dashboard() {
       <div>
         <h2 className="text-lg font-semibold mb-4">Today's Prep Progress</h2>
         <div className="bg-card rounded-2xl border border-border p-6 flex flex-col sm:flex-row items-center gap-8">
-          {/* Donut chart */}
           <div className="relative w-40 h-40 flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -271,7 +334,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Legend & breakdown */}
           <div className="flex-1 w-full space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
