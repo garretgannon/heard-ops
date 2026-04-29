@@ -2,20 +2,29 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const adminNavItems = [
+const topNavItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/stations", label: "Stations", icon: UtensilsCrossed },
-  { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
-  { path: "/master", label: "Master List", icon: BookOpen },
+];
+
+const fohNavItems_admin = [
+  { path: "/job-codes", label: "Roles", icon: Tag },
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
+];
+
+const bohNavItems = [
+  { path: "/master", label: "Master Prep List", icon: BookOpen },
+  { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
+  { path: "/stations", label: "Stations", icon: UtensilsCrossed },
+];
+
+const bottomNavItems = [
   { path: "/calendar", label: "Calendar", icon: CalendarDays },
   { path: "/reports", label: "Reports", icon: BarChart2 },
   { path: "/photo-review", label: "Photo Review", icon: Camera },
-  { path: "/job-codes", label: "Job Codes", icon: Tag },
   { path: "/profile", label: "My Profile", icon: UserCircle },
 ];
 
@@ -32,8 +41,10 @@ const fohNavItems = [
 export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [fohOpen, setFohOpen] = useState(true);
+  const [bohOpen, setBohOpen] = useState(true);
   const { isAdmin, isFOH } = useCurrentUser();
-  const navItems = isAdmin ? adminNavItems : (isFOH ? fohNavItems : userNavItems);
+  const navItems = isFOH ? fohNavItems : userNavItems;
 
   // Hide layout chrome on station prep view
   const isStationView = location.pathname.startsWith("/station/");
@@ -92,28 +103,109 @@ export default function Layout() {
         </div>
 
         <nav className="flex-1 px-3 space-y-1 overflow-y-auto py-2">
-          {navItems.map(item => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                location.pathname === item.path
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              {location.pathname === item.path && (
-                <motion.span
-                  layoutId="nav-indicator"
-                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
-                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                />
-              )}
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          ))}
+          {isAdmin ? (
+            <>
+              {/* Top items */}
+              {topNavItems.map(item => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                    location.pathname === item.path
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* FOH section */}
+              <button
+                onClick={() => setFohOpen(v => !v)}
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
+              >
+                <span>FOH</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", fohOpen && "rotate-180")} />
+              </button>
+              {fohOpen && fohNavItems_admin.map(item => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    location.pathname === item.path
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* BOH section */}
+              <button
+                onClick={() => setBohOpen(v => !v)}
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
+              >
+                <span>BOH</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", bohOpen && "rotate-180")} />
+              </button>
+              {bohOpen && bohNavItems.map(item => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    location.pathname === item.path
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* Bottom items */}
+              <div className="pt-1">
+                {bottomNavItems.map(item => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                      location.pathname === item.path
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : (
+            navItems.map(item => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                  location.pathname === item.path
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            ))
+          )}
         </nav>
 
         <div className="p-4 mx-3 mb-3 rounded-xl bg-secondary/40 border border-border/40">
