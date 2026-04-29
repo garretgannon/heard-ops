@@ -18,6 +18,7 @@ import SideWork from './pages/SideWork';
 import BusserHome from './pages/BusserHome';
 import Calendar from './pages/Calendar';
 import Reports from './pages/Reports';
+import PhotoReview from './pages/PhotoReview';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -45,6 +46,7 @@ const AuthenticatedApp = () => {
         {isFOH && <Route path="/side-work" element={<SideWork />} />}
         {isAdmin && <Route path="/calendar" element={<Calendar />} />}
         {isAdmin && <Route path="/reports" element={<Reports />} />}
+        {isAdmin && <Route path="/photo-review" element={<PhotoReview />} />}
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
