@@ -1,0 +1,63 @@
+{
+  "name": "TempLogEntry",
+  "type": "object",
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "location_name": {
+      "type": "string",
+      "title": "Location Name"
+    },
+    "location_type": {
+      "type": "string",
+      "title": "Type",
+      "enum": [
+        "refrigerator",
+        "hot_well",
+        "cooling"
+      ],
+      "enumNames": [
+        "Refrigerator",
+        "Hot Well",
+        "Cooling Log"
+      ]
+    },
+    "temperature": {
+      "type": "number",
+      "title": "Temperature (\u00b0F)"
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    },
+    "logged_at": {
+      "type": "string",
+      "title": "Logged At"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "safe",
+        "warning",
+        "danger"
+      ],
+      "enumNames": [
+        "Safe",
+        "Warning",
+        "Danger"
+      ]
+    }
+  },
+  "required": [
+    "location_id",
+    "temperature",
+    "logged_at"
+  ]
+}

@@ -21,6 +21,7 @@ import Reports from './pages/Reports';
 import PhotoReview from './pages/PhotoReview';
 import JobCodes from './pages/JobCodes';
 import PrepLibrary from './pages/PrepLibrary';
+import TempLogs from './pages/TempLogs';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -51,6 +52,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/photo-review" element={<PhotoReview />} />}
         {isAdmin && <Route path="/job-codes" element={<JobCodes />} />}
         {isAdmin && <Route path="/prep-library" element={<PrepLibrary />} />}
+        {isAdmin && <Route path="/temp-logs" element={<TempLogs />} />}
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
