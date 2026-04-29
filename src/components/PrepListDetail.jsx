@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import PriorityBadge from "./PriorityBadge";
 import StatusBadge from "./StatusBadge";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
+import TempLogPanel from "./TempLogPanel";
 
 export default function PrepListDetail({ prepList, station, items, onBack, onRefresh }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -417,6 +418,9 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Temperature Log */}
+      <TempLogPanel prepListId={prepList.id} />
 
       {/* Handover Notes */}
       <div className="bg-card rounded-2xl border border-border p-5 space-y-3">

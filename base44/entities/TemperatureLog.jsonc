@@ -1,0 +1,62 @@
+{
+  "name": "TemperatureLog",
+  "type": "object",
+  "properties": {
+    "prep_list_id": {
+      "type": "string",
+      "title": "Prep List ID"
+    },
+    "item_name": {
+      "type": "string",
+      "title": "Food Item Name"
+    },
+    "temperature": {
+      "type": "number",
+      "title": "Temperature (\u00b0F)"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit",
+      "enum": [
+        "F",
+        "C"
+      ],
+      "enumNames": [
+        "\u00b0F",
+        "\u00b0C"
+      ],
+      "default": "F"
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    },
+    "logged_at": {
+      "type": "string",
+      "title": "Logged At"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "safe",
+        "warning",
+        "danger"
+      ],
+      "enumNames": [
+        "Safe",
+        "Warning",
+        "Danger"
+      ]
+    }
+  },
+  "required": [
+    "prep_list_id",
+    "item_name",
+    "temperature"
+  ]
+}
