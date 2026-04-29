@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PhotoUpload from "./PhotoUpload";
-import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square } from "lucide-react";
+import BulkEditPanel from "./BulkEditPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,13 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [form, setForm] = useState({ name: "", quantity: "", unit: "", notes: "", priority: "medium" });
   const [saving, setSaving] = useState(false);
   const [uploadingMasterFor, setUploadingMasterFor] = useState(null);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const toggleSelect = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const selectAll = () => setSelectedIds(sortedItems.map(i => i.id));
+  const clearSelection = () => setSelectedIds([]);
+  const exitBulk = () => { setBulkMode(false); setSelectedIds([]); };
 
   const uploadMasterPhoto = async (itemId, file) => {
     setUploadingMasterFor(itemId);
@@ -99,10 +107,20 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
               <ArrowUpDown className="h-4 w-4 mr-1" />
               Priority
             </Button>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
+            <Button
+              variant={bulkMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => bulkMode ? exitBulk() : setBulkMode(true)}
+            >
+              <CheckSquare className="h-4 w-4 mr-1" />
+              {bulkMode ? "Exit Bulk" : "Bulk Edit"}
             </Button>
+            {!bulkMode && (
+              <Button onClick={() => setDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Item
+              </Button>
+            )}
           </div>
         </div>
 
@@ -116,6 +134,27 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
         )}
       </div>
 
+      {/* Bulk edit panel */}
+      {bulkMode && selectedIds.length > 0 && (
+        <BulkEditPanel
+          selectedIds={selectedIds}
+          items={sortedItems}
+          currentStationId={prepList.station_id}
+          onSave={() => { exitBulk(); onRefresh(); }}
+          onCancel={exitBulk}
+        />
+      )}
+
+      {/* Bulk select all bar */}
+      {bulkMode && (
+        <div className="flex items-center gap-3 text-sm">
+          <button onClick={selectedIds.length === sortedItems.length ? clearSelection : selectAll} className="text-primary hover:underline text-xs font-medium">
+            {selectedIds.length === sortedItems.length ? "Deselect all" : "Select all"}
+          </button>
+          <span className="text-muted-foreground text-xs">{selectedIds.length} selected</span>
+        </div>
+      )}
+
       {/* Items list */}
       <div className="space-y-2">
         {sortedItems.length === 0 ? (
@@ -126,11 +165,19 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
           sortedItems.map(item => (
             <div
               key={item.id}
-              className={`bg-card rounded-xl border border-border p-4 flex items-center gap-3 transition-colors ${
-                item.status === "completed" ? "bg-accent/5 border-accent/20" : ""
+              className={`bg-card rounded-xl border p-4 flex items-center gap-3 transition-colors cursor-pointer ${
+                bulkMode && selectedIds.includes(item.id) ? "border-primary/60 bg-primary/5" :
+                item.status === "completed" ? "bg-accent/5 border-accent/20" : "border-border"
               }`}
+              onClick={bulkMode ? () => toggleSelect(item.id) : undefined}
             >
-              <GripVertical className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
+              {bulkMode ? (
+                selectedIds.includes(item.id)
+                  ? <CheckSquare className="h-4 w-4 text-primary flex-shrink-0" />
+                  : <Square className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
+              ) : (
+                <GripVertical className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className={`font-medium text-sm ${item.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
