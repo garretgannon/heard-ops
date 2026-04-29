@@ -209,38 +209,40 @@ export default function PrepLists() {
                   <span className="text-xs text-muted-foreground">({stationLists.length} lists)</span>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
                   {amLists.length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Morning</h4>
-                      <div className="space-y-4">
+                    <div>
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Morning</h4>
+                      <div className="flex flex-col lg:flex-col gap-4 overflow-x-auto pb-2 lg:space-y-4">
                         {amLists.map((pl, i) => (
-                          <PrepListCard
-                            key={pl.id}
-                            pl={pl}
-                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
-                            i={i}
-                            onSelect={setSelectedList}
-                            onDelete={handleDelete}
-                          />
+                          <div key={pl.id} className="flex-shrink-0 w-full lg:w-auto">
+                            <PrepListCard
+                              pl={pl}
+                              items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
+                              i={i}
+                              onSelect={setSelectedList}
+                              onDelete={handleDelete}
+                            />
+                          </div>
                         ))}
                       </div>
                     </div>
                   )}
 
                   {pmLists.length > 0 && (
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Evening</h4>
-                      <div className="space-y-4">
+                    <div>
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Evening</h4>
+                      <div className="flex flex-col lg:flex-col gap-4 overflow-x-auto pb-2 lg:space-y-4">
                         {pmLists.map((pl, i) => (
-                          <PrepListCard
-                            key={pl.id}
-                            pl={pl}
-                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
-                            i={i}
-                            onSelect={setSelectedList}
-                            onDelete={handleDelete}
-                          />
+                          <div key={pl.id} className="flex-shrink-0 w-full lg:w-auto">
+                            <PrepListCard
+                              pl={pl}
+                              items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
+                              i={i}
+                              onSelect={setSelectedList}
+                              onDelete={handleDelete}
+                            />
+                          </div>
                         ))}
                       </div>
                     </div>
