@@ -2,21 +2,43 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const adminNavItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/stations", label: "Stations", icon: UtensilsCrossed },
-  { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
-  { path: "/master", label: "Master List", icon: BookOpen },
-  { path: "/side-work", label: "Side Work", icon: CheckSquare },
-  { path: "/calendar", label: "Calendar", icon: CalendarDays },
-  { path: "/reports", label: "Reports", icon: BarChart2 },
-  { path: "/photo-review", label: "Photo Review", icon: Camera },
-  { path: "/job-codes", label: "Job Codes", icon: Tag },
-  { path: "/profile", label: "My Profile", icon: UserCircle },
+const adminNavGroups = [
+  {
+    label: "Dashboard",
+    path: "/",
+    icon: LayoutDashboard,
+    single: true,
+  },
+  {
+    label: "Back of House",
+    icon: ChefHat,
+    children: [
+      { path: "/master", label: "Master Prep Items", icon: BookOpen },
+      { path: "/stations", label: "Stations", icon: UtensilsCrossed },
+      { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
+      { path: "/reports", label: "Reports", icon: BarChart2 },
+      { path: "/photo-review", label: "Photo Review", icon: Camera },
+      { path: "/calendar", label: "Calendar", icon: CalendarDays },
+    ],
+  },
+  {
+    label: "Front of House",
+    icon: CheckSquare,
+    children: [
+      { path: "/job-codes", label: "Roles", icon: Tag },
+      { path: "/side-work", label: "Side Work Lists", icon: CheckSquare },
+    ],
+  },
+  {
+    label: "My Profile",
+    path: "/profile",
+    icon: UserCircle,
+    single: true,
+  },
 ];
 
 const userNavItems = [
@@ -29,11 +51,80 @@ const fohNavItems = [
   { path: "/profile", label: "My Profile", icon: UserCircle },
 ];
 
+function NavGroup({ group, location, onClick }) {
+  const isChildActive = group.children?.some(c => location.pathname === c.path);
+  const [open, setOpen] = useState(isChildActive);
+
+  if (group.single) {
+    return (
+      <Link
+        to={group.path}
+        onClick={onClick}
+        className={cn(
+          "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+          location.pathname === group.path
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+        )}
+      >
+        <group.icon className="h-4 w-4" />
+        {group.label}
+      </Link>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={cn(
+          "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200",
+          isChildActive ? "text-primary" : "text-foreground hover:bg-secondary"
+        )}
+      >
+        <group.icon className="h-4 w-4" />
+        <span className="flex-1 text-left">{group.label}</span>
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform text-muted-foreground", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-border pl-3">
+          {group.children.map(item => (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={onClick}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                location.pathname === item.path
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              )}
+            >
+              <item.icon className="h-3.5 w-3.5" />
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isAdmin, isFOH } = useCurrentUser();
-  const navItems = isAdmin ? adminNavItems : (isFOH ? fohNavItems : userNavItems);
+
+  const navGroups = isAdmin ? adminNavGroups : [
+    { label: "Master List", path: "/master", icon: BookOpen, single: true },
+    ...(isFOH ? [
+      { label: "Front of House", icon: CheckSquare, children: [
+        { path: "/job-codes", label: "Roles", icon: Tag },
+        { path: "/side-work", label: "Side Work Lists", icon: CheckSquare },
+      ]},
+    ] : []),
+    { label: "My Profile", path: "/profile", icon: UserCircle, single: true },
+  ];
 
   // Hide layout chrome on station prep view
   const isStationView = location.pathname.startsWith("/station/");
@@ -59,22 +150,9 @@ export default function Layout() {
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)}>
           <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1" onClick={e => e.stopPropagation()}>
-            {navItems.map(item => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-secondary"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                  ))}
+            {navGroups.map((group, i) => (
+              <NavGroup key={i} group={group} location={location} onClick={() => setMobileOpen(false)} />
+            ))}
           </nav>
         </div>
       )}
@@ -91,28 +169,9 @@ export default function Layout() {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1">
-          {navItems.map(item => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                location.pathname === item.path
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              )}
-            >
-              {location.pathname === item.path && (
-                <motion.span
-                  layoutId="nav-indicator"
-                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
-                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                />
-              )}
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
+        <nav className="flex-1 px-3 py-2 space-y-1">
+          {navGroups.map((group, i) => (
+            <NavGroup key={i} group={group} location={location} />
           ))}
         </nav>
 
