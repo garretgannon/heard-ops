@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Plus, ClipboardList, Trash2, Play, Archive, Eye, Repeat, FileUp, Pencil } from "lucide-react";
+import BulkImportDialog from "../components/BulkImportDialog";
 import ImportDialog from "../components/ImportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export default function PrepLists() {
   const [form, setForm] = useState({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
   const [importOpen, setImportOpen] = useState(false);
   const [importTargetList, setImportTargetList] = useState(null);
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const generateRecurring = async (allLists, allItems) => {
@@ -161,9 +163,9 @@ export default function PrepLists() {
           <p className="text-sm text-muted-foreground mt-1">Create and manage prep lists for each station</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setImportOpen(true)} disabled={prepLists.length === 0}>
+          <Button variant="outline" onClick={() => setBulkImportOpen(true)}>
             <FileUp className="h-4 w-4 mr-2" />
-            Import Items
+            Bulk Import
           </Button>
           <Button onClick={() => setDialogOpen(true)} disabled={stations.length === 0}>
             <Plus className="h-4 w-4 mr-2" />
@@ -253,6 +255,13 @@ export default function PrepLists() {
           })}
         </div>
       )}
+
+      <BulkImportDialog
+        open={bulkImportOpen}
+        onOpenChange={setBulkImportOpen}
+        type="prep_items"
+        onImportComplete={load}
+      />
 
       <ImportDialog
         open={importOpen}

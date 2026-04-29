@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, UtensilsCrossed, Copy, Check, Pencil } from "lucide-react";
+import { Plus, Trash2, UtensilsCrossed, Copy, Check, Pencil, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import StationBadge from "../components/StationBadge";
 import StationAssignments from "../components/StationAssignments";
 import EmptyState from "../components/EmptyState";
+import BulkImportDialog from "../components/BulkImportDialog";
 import { toast } from "sonner";
 
 const COLORS = ["red", "blue", "green", "orange", "purple", "teal", "pink", "yellow"];
@@ -17,6 +18,7 @@ export default function Stations() {
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editingStation, setEditingStation] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", color: "blue" });
   const [saving, setSaving] = useState(false);
@@ -80,15 +82,21 @@ export default function Stations() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      <div className="flex items-end justify-between gap-2">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Stations</h1>
           <p className="text-muted-foreground mt-1">Manage kitchen stations</p>
         </div>
-        <Button onClick={openAdd}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Station
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileUp className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <Button onClick={openAdd}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Station
+          </Button>
+        </div>
       </div>
 
       {stations.length === 0 ? (
@@ -130,6 +138,13 @@ export default function Stations() {
           ))}
         </div>
       )}
+
+      <BulkImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        type="station_assignments"
+        onImportComplete={load}
+      />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
