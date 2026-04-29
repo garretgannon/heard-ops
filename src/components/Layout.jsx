@@ -19,6 +19,7 @@ const bohNavItems = [
   { path: "/master", label: "Master Prep List", icon: BookOpen },
   { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
   { path: "/stations", label: "Stations", icon: UtensilsCrossed },
+  { path: "/prep-library", label: "Prep Library", icon: BookOpen },
 ];
 
 const bottomNavItems = [

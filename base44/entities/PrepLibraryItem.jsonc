@@ -1,0 +1,33 @@
+{
+  "name": "PrepLibraryItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
