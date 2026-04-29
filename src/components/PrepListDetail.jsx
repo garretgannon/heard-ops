@@ -365,8 +365,10 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                   <span className={`font-medium text-sm ${item.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
                     {item.name}
                   </span>
-                  <StatusBadge status={item.status} />
-                  <PriorityBadge priority={item.priority || "medium"} onClick={() => cyclePriority(item)} />
+                  <div className="hidden md:flex gap-2">
+                    <StatusBadge status={item.status} />
+                    <PriorityBadge priority={item.priority || "medium"} onClick={() => cyclePriority(item)} />
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   {(item.quantity || item.unit) && (
