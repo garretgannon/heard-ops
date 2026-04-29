@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ClipboardList, Trash2, Play, Archive, Eye, Repeat, FileUp } from "lucide-react";
+import { motion } from "framer-motion";
+import { Plus, ClipboardList, Trash2, Play, Archive, Eye, Repeat, FileUp, Pencil } from "lucide-react";
 import ImportDialog from "../components/ImportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -184,70 +185,64 @@ export default function PrepLists() {
           action={stations.length > 0 && <Button onClick={() => setDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />New List</Button>}
         />
       ) : (
-        <div className="grid gap-3">
-          {prepLists.map(pl => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {prepLists.map((pl, i) => {
             const items = prepItems.filter(pi => pi.prep_list_id === pl.id);
             const done = items.filter(pi => pi.status === "completed").length;
             const station = stations.find(s => s.id === pl.station_id);
             const progress = items.length > 0 ? Math.round((done / items.length) * 100) : 0;
 
             return (
-              <div key={pl.id} className="bg-card rounded-2xl border border-border p-4 lg:p-5 hover:shadow-sm transition-shadow">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedList(pl)}>
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <h3 className="font-semibold">{pl.name}</h3>
-                      <StatusBadge status={pl.status} />
-                      {pl.is_recurring && (
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                          <Repeat className="h-3 w-3" /> Daily {pl.recurring_time}
-                        </span>
-                      )}
-                      {pl.template_list_id && (
-                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                          <Repeat className="h-3 w-3" /> Auto-generated
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
-                      {station && <StationBadge name={station.name} color={station.color} />}
-                      <span>{pl.date}</span>
-                      <span>{done}/{items.length} items</span>
-                    </div>
-                    {items.length > 0 && (
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
-                        </div>
-                        <span className="text-xs font-medium text-muted-foreground">{progress}%</span>
-                      </div>
-                    )}
+              <motion.div
+                key={pl.id}
+                className="bg-card rounded-2xl border border-border overflow-hidden group"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.25, delay: i * 0.04 }}
+              >
+                <div
+                  className="relative h-32 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center cursor-pointer group-hover:from-primary/30 group-hover:to-accent/30 transition-all"
+                  onClick={() => setSelectedList(pl)}
+                >
+                  <div className="text-center">
+                    <ClipboardList className="h-8 w-8 text-muted-foreground mx-auto mb-1" />
+                    <p className="text-xs text-muted-foreground font-medium">{items.length} items</p>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedList(pl)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {pl.status === "draft" && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600" onClick={() => handleStatusChange(pl, "active")}>
-                        <Play className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {pl.status === "archived" && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600" onClick={() => handleStatusChange(pl, "active")} title="Unarchive">
-                        <Play className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {pl.status === "active" && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleStatusChange(pl, "archived")}>
-                        <Archive className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(pl.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={e => { e.stopPropagation(); setSelectedList(pl); }}
+                      className="bg-black/60 rounded-full p-1.5 hover:bg-black/80"
+                    >
+                      <Eye className="h-3 w-3 text-white" />
+                    </button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(pl.id); }}
+                      className="bg-black/60 rounded-full p-1.5 hover:bg-red-600/80"
+                    >
+                      <Trash2 className="h-3 w-3 text-white" />
+                    </button>
                   </div>
                 </div>
-              </div>
+                <div className="p-4 space-y-2">
+                  <p className="font-semibold text-sm truncate">{pl.name}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <StatusBadge status={pl.status} />
+                    {pl.is_recurring && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">Daily</span>
+                    )}
+                  </div>
+                  {station && <StationBadge name={station.name} color={station.color} />}
+                  <p className="text-xs text-muted-foreground">{pl.date}</p>
+                  {items.length > 0 && (
+                    <div className="flex items-center gap-2 pt-2">
+                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
+                      </div>
+                      <span className="text-xs font-medium text-muted-foreground">{progress}%</span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
             );
           })}
         </div>
