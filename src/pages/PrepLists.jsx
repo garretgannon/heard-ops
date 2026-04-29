@@ -13,6 +13,7 @@ import StationBadge from "../components/StationBadge";
 import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
 import PrepListDetail from "../components/PrepListDetail";
+import PrepListCard from "../components/PrepListCard";
 
 const todayStr = new Date().toISOString().split("T")[0];
 
@@ -208,135 +209,43 @@ export default function PrepLists() {
                   <span className="text-xs text-muted-foreground">({stationLists.length} lists)</span>
                 </div>
 
-                {amLists.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Morning</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {amLists.map((pl, i) => {
-                        const items = prepItems.filter(pi => pi.prep_list_id === pl.id);
-                        const done = items.filter(pi => pi.status === "completed").length;
-                        const progress = items.length > 0 ? Math.round((done / items.length) * 100) : 0;
-
-                        return (
-                          <motion.div
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {amLists.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Morning</h4>
+                      <div className="space-y-4">
+                        {amLists.map((pl, i) => (
+                          <PrepListCard
                             key={pl.id}
-                            className="bg-card rounded-2xl border border-border overflow-hidden group"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.25, delay: i * 0.04 }}
-                          >
-                            <div
-                              className="relative h-32 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center cursor-pointer group-hover:from-primary/30 group-hover:to-accent/30 transition-all"
-                              onClick={() => setSelectedList(pl)}
-                            >
-                              <div className="text-center">
-                                <ClipboardList className="h-8 w-8 text-muted-foreground mx-auto mb-1" />
-                                <p className="text-xs text-muted-foreground font-medium">{items.length} items</p>
-                              </div>
-                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  onClick={e => { e.stopPropagation(); setSelectedList(pl); }}
-                                  className="bg-black/60 rounded-full p-1.5 hover:bg-black/80"
-                                >
-                                  <Eye className="h-3 w-3 text-white" />
-                                </button>
-                                <button
-                                  onClick={e => { e.stopPropagation(); handleDelete(pl.id); }}
-                                  className="bg-black/60 rounded-full p-1.5 hover:bg-red-600/80"
-                                >
-                                  <Trash2 className="h-3 w-3 text-white" />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="p-4 space-y-2">
-                              <p className="font-semibold text-sm truncate">{pl.name}</p>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <StatusBadge status={pl.status} />
-                                {pl.is_recurring && (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">Daily</span>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground">{pl.date}</p>
-                              {items.length > 0 && (
-                                <div className="flex items-center gap-2 pt-2">
-                                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                                    <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
-                                  </div>
-                                  <span className="text-xs font-medium text-muted-foreground">{progress}%</span>
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        );
-                      })}
+                            pl={pl}
+                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
+                            i={i}
+                            onSelect={setSelectedList}
+                            onDelete={handleDelete}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {pmLists.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Evening</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {pmLists.map((pl, i) => {
-                        const items = prepItems.filter(pi => pi.prep_list_id === pl.id);
-                        const done = items.filter(pi => pi.status === "completed").length;
-                        const progress = items.length > 0 ? Math.round((done / items.length) * 100) : 0;
-
-                        return (
-                          <motion.div
+                  {pmLists.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Evening</h4>
+                      <div className="space-y-4">
+                        {pmLists.map((pl, i) => (
+                          <PrepListCard
                             key={pl.id}
-                            className="bg-card rounded-2xl border border-border overflow-hidden group"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.25, delay: i * 0.04 }}
-                          >
-                            <div
-                              className="relative h-32 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center cursor-pointer group-hover:from-primary/30 group-hover:to-accent/30 transition-all"
-                              onClick={() => setSelectedList(pl)}
-                            >
-                              <div className="text-center">
-                                <ClipboardList className="h-8 w-8 text-muted-foreground mx-auto mb-1" />
-                                <p className="text-xs text-muted-foreground font-medium">{items.length} items</p>
-                              </div>
-                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  onClick={e => { e.stopPropagation(); setSelectedList(pl); }}
-                                  className="bg-black/60 rounded-full p-1.5 hover:bg-black/80"
-                                >
-                                  <Eye className="h-3 w-3 text-white" />
-                                </button>
-                                <button
-                                  onClick={e => { e.stopPropagation(); handleDelete(pl.id); }}
-                                  className="bg-black/60 rounded-full p-1.5 hover:bg-red-600/80"
-                                >
-                                  <Trash2 className="h-3 w-3 text-white" />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="p-4 space-y-2">
-                              <p className="font-semibold text-sm truncate">{pl.name}</p>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <StatusBadge status={pl.status} />
-                                {pl.is_recurring && (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">Daily</span>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground">{pl.date}</p>
-                              {items.length > 0 && (
-                                <div className="flex items-center gap-2 pt-2">
-                                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                                    <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
-                                  </div>
-                                  <span className="text-xs font-medium text-muted-foreground">{progress}%</span>
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        );
-                      })}
+                            pl={pl}
+                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
+                            i={i}
+                            onSelect={setSelectedList}
+                            onDelete={handleDelete}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
