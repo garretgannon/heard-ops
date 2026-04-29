@@ -19,6 +19,7 @@ import BusserHome from './pages/BusserHome';
 import Calendar from './pages/Calendar';
 import Reports from './pages/Reports';
 import PhotoReview from './pages/PhotoReview';
+import JobCodes from './pages/JobCodes';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -47,6 +48,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/calendar" element={<Calendar />} />}
         {isAdmin && <Route path="/reports" element={<Reports />} />}
         {isAdmin && <Route path="/photo-review" element={<PhotoReview />} />}
+        {isAdmin && <Route path="/job-codes" element={<JobCodes />} />}
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
