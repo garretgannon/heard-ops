@@ -31,6 +31,9 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [showBulkAdd, setShowBulkAdd] = useState(false);
   const [bulkRows, setBulkRows] = useState([{ name: "", quantity: "", unit: "", notes: "", priority: "medium" }]);
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [editSaving, setEditSaving] = useState(false);
 
   const saveHandoverNotes = async () => {
     setSavingHandover(true);
@@ -223,6 +226,21 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
     onRefresh();
   };
 
+  const openEdit = (item) => {
+    setEditItem(item);
+    setEditForm({ name: item.name, quantity: item.quantity || "", unit: item.unit || "", notes: item.notes || "", priority: item.priority || "medium" });
+  };
+
+  const saveEdit = async () => {
+    if (!editForm.name.trim()) return;
+    setEditSaving(true);
+    await base44.entities.PrepItem.update(editItem.id, editForm);
+    setEditSaving(false);
+    setEditItem(null);
+    toast.success("Item updated");
+    onRefresh();
+  };
+
   const progress = items.length > 0
     ? Math.round((items.filter(i => i.status === "completed").length / items.length) * 100)
     : 0;
@@ -391,6 +409,9 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                   />
                 </div>
               )}
+              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-muted-foreground hover:text-foreground" onClick={(e) => { e.stopPropagation(); openEdit(item); }}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteItem(item.id)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -398,6 +419,38 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
           ))
         )}
       </div>
+
+      {/* Edit Item Dialog */}
+      <Dialog open={!!editItem} onOpenChange={open => !open && setEditItem(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Edit Prep Item</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Item Name</Label>
+              <Input value={editForm.name || ""} onChange={e => setEditForm(p => ({...p, name: e.target.value}))} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Quantity</Label><Input value={editForm.quantity || ""} onChange={e => setEditForm(p => ({...p, quantity: e.target.value}))} placeholder="e.g., 5" /></div>
+              <div><Label>Unit</Label><Input value={editForm.unit || ""} onChange={e => setEditForm(p => ({...p, unit: e.target.value}))} placeholder="e.g., lbs" /></div>
+            </div>
+            <div><Label>Notes</Label><Input value={editForm.notes || ""} onChange={e => setEditForm(p => ({...p, notes: e.target.value}))} placeholder="Optional instructions..." /></div>
+            <div>
+              <Label>Priority</Label>
+              <div className="flex gap-2 mt-1">
+                {["high", "medium", "low"].map(p => (
+                  <button key={p} type="button" onClick={() => setEditForm(prev => ({...prev, priority: p}))} className="flex-1">
+                    <PriorityBadge priority={p} className={`w-full justify-center ${editForm.priority === p ? "ring-2 ring-offset-1 ring-offset-background" : "opacity-50"}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditItem(null)}>Cancel</Button>
+            <Button onClick={saveEdit} disabled={editSaving || !editForm.name?.trim()}>{editSaving ? "Saving..." : "Save Changes"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Bulk Add Dialog */}
       {showBulkAdd && (
