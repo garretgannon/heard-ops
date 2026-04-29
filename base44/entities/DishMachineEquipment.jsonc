@@ -1,0 +1,39 @@
+{
+  "name": "DishMachineEquipment",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Equipment Name"
+    },
+    "type": {
+      "type": "string",
+      "title": "Type",
+      "enum": [
+        "dishwasher",
+        "three_compartment_sink"
+      ],
+      "enumNames": [
+        "Dishwashing Machine",
+        "3-Compartment Sink"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "title": "Location/Area"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name",
+    "type"
+  ]
+}

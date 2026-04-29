@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, Upload, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Upload, AlertCircle, Pencil, Droplets } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,8 +25,11 @@ const STATUS_COLORS = {
 
 export default function DishMachines() {
   const [logs, setLogs] = useState([]);
+  const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
+  const [editingEquipment, setEditingEquipment] = useState(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
@@ -38,14 +41,20 @@ export default function DishMachines() {
     photo_url: ""
   });
   const [saving, setSaving] = useState(false);
+  const [equipmentSaving, setEquipmentSaving] = useState(false);
+  const [equipmentForm, setEquipmentForm] = useState({ name: "", type: "dishwasher", location: "", notes: "" });
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const init = async () => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
-      const data = await base44.entities.ChemicalLog.list("-created_date", 100);
-      setLogs(data);
+      const [logData, equipmentData] = await Promise.all([
+        base44.entities.ChemicalLog.list("-created_date", 100),
+        base44.entities.DishMachineEquipment.list()
+      ]);
+      setLogs(logData);
+      setEquipment(equipmentData);
       setLoading(false);
     };
     init();
@@ -88,11 +97,45 @@ export default function DishMachines() {
     toast.success("Chemical reading logged");
   };
 
+  const handleSaveEquipment = async () => {
+    if (!equipmentForm.name.trim()) {
+      toast.error("Please enter equipment name");
+      return;
+    }
+    setEquipmentSaving(true);
+    if (editingEquipment) {
+      await base44.entities.DishMachineEquipment.update(editingEquipment.id, equipmentForm);
+    } else {
+      await base44.entities.DishMachineEquipment.create({ ...equipmentForm, is_active: true });
+    }
+    setEquipmentForm({ name: "", type: "dishwasher", location: "", notes: "" });
+    setEditingEquipment(null);
+    setEquipmentDialogOpen(false);
+    setEquipmentSaving(false);
+    const data = await base44.entities.DishMachineEquipment.list();
+    setEquipment(data);
+    toast.success(editingEquipment ? "Equipment updated" : "Equipment added");
+  };
+
+  const handleDeleteEquipment = async (id) => {
+    await base44.entities.DishMachineEquipment.delete(id);
+    setEquipment(equipment.filter(e => e.id !== id));
+    toast.success("Equipment removed");
+  };
+
+  const openEditEquipment = (eq) => {
+    setEditingEquipment(eq);
+    setEquipmentForm({ name: eq.name, type: eq.type, location: eq.location || "", notes: eq.notes || "" });
+    setEquipmentDialogOpen(true);
+  };
+
   const handleDelete = async (id) => {
     await base44.entities.ChemicalLog.delete(id);
     setLogs(logs.filter(l => l.id !== id));
     toast.success("Log deleted");
   };
+
+  const getEquipmentIcon = (type) => type === "dishwasher" ? "🧽" : "🚰";
 
   if (loading) {
     return (
@@ -113,6 +156,47 @@ export default function DishMachines() {
           <Plus className="h-4 w-4 mr-2" />
           Log Reading
         </Button>
+      </div>
+
+      {/* Equipment Management Section */}
+      <div className="bg-card rounded-2xl border border-border p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Droplets className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Equipment</h2>
+          </div>
+          <Button size="sm" onClick={() => { setEditingEquipment(null); setEquipmentForm({ name: "", type: "dishwasher", location: "", notes: "" }); setEquipmentDialogOpen(true); }}>
+            <Plus className="h-4 w-4 mr-1" />
+            Add Equipment
+          </Button>
+        </div>
+        
+        {equipment.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No equipment added yet. Add your dishwashers and 3-compartment sinks.</p>
+        ) : (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {equipment.map(eq => (
+              <div key={eq.id} className="flex items-start justify-between p-3 rounded-lg bg-background border border-border">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-lg">{getEquipmentIcon(eq.type)}</span>
+                    <h3 className="font-medium text-sm">{eq.name}</h3>
+                  </div>
+                  {eq.location && <p className="text-xs text-muted-foreground">{eq.location}</p>}
+                  {eq.notes && <p className="text-xs text-muted-foreground mt-0.5">{eq.notes}</p>}
+                </div>
+                <div className="flex gap-1 ml-2">
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditEquipment(eq)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDeleteEquipment(eq.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {logs.length === 0 ? (
@@ -156,6 +240,47 @@ export default function DishMachines() {
           ))}
         </div>
       )}
+
+      {/* Equipment Dialog */}
+      <Dialog open={equipmentDialogOpen} onOpenChange={setEquipmentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingEquipment ? "Edit Equipment" : "Add Equipment"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label>Equipment Name</Label>
+              <Input placeholder="e.g., Front Dishwasher, 3-Compartment Sink #1" value={equipmentForm.name} onChange={e => setEquipmentForm({ ...equipmentForm, name: e.target.value })} />
+            </div>
+            <div>
+              <Label>Type</Label>
+              <Select value={equipmentForm.type} onValueChange={v => setEquipmentForm({ ...equipmentForm, type: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dishwasher">Dishwashing Machine</SelectItem>
+                  <SelectItem value="three_compartment_sink">3-Compartment Sink</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Location (optional)</Label>
+              <Input placeholder="e.g., Back left, Main dish pit" value={equipmentForm.location} onChange={e => setEquipmentForm({ ...equipmentForm, location: e.target.value })} />
+            </div>
+            <div>
+              <Label>Notes (optional)</Label>
+              <Textarea placeholder="e.g., Older model, runs hot..." value={equipmentForm.notes} onChange={e => setEquipmentForm({ ...equipmentForm, notes: e.target.value })} rows={2} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEquipmentDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveEquipment} disabled={equipmentSaving || !equipmentForm.name.trim()}>
+              {equipmentSaving ? "Saving..." : editingEquipment ? "Update" : "Add Equipment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
