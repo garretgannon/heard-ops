@@ -395,16 +395,17 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
               <Label>Priority</Label>
               <div className="flex gap-2 mt-1">
                 {["high", "medium", "low"].map(p => (
-                  <div
+                  <button
                     key={p}
+                    type="button"
                     onClick={() => setForm({ ...form, priority: p })}
-                    className="flex-1 cursor-pointer"
+                    className="flex-1"
                   >
                     <PriorityBadge
                       priority={p}
                       className={`w-full justify-center ${form.priority === p ? "ring-2 ring-offset-1 ring-offset-background" : "opacity-50"}`}
                     />
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
