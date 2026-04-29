@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PhotoUpload from "./PhotoUpload";
-import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square, FileDown, MessageSquare } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square, FileDown, MessageSquare, ListPlus, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import BulkEditPanel from "./BulkEditPanel";
 import { jsPDF } from "jspdf";
@@ -28,6 +28,9 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [handoverNotes, setHandoverNotes] = useState(prepList.handover_notes || "");
   const [savingHandover, setSavingHandover] = useState(false);
   const [handoverSaved, setHandoverSaved] = useState(false);
+  const [showBulkAdd, setShowBulkAdd] = useState(false);
+  const [bulkRows, setBulkRows] = useState([{ name: "", quantity: "", unit: "", notes: "", priority: "medium" }]);
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   const saveHandoverNotes = async () => {
     setSavingHandover(true);
@@ -189,6 +192,32 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
     onRefresh();
   };
 
+  const addBulkRow = () => setBulkRows(prev => [...prev, { name: "", quantity: "", unit: "", notes: "", priority: "medium" }]);
+  const removeBulkRow = (i) => setBulkRows(prev => prev.filter((_, idx) => idx !== i));
+  const updateBulkRow = (i, field, value) => setBulkRows(prev => prev.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
+
+  const saveBulkItems = async () => {
+    const valid = bulkRows.filter(r => r.name.trim());
+    if (valid.length === 0) { toast.error("Add at least one item name"); return; }
+    setBulkSaving(true);
+    await base44.entities.PrepItem.bulkCreate(valid.map((r, i) => ({
+      name: r.name.trim(),
+      quantity: r.quantity,
+      unit: r.unit,
+      notes: r.notes,
+      priority: r.priority,
+      prep_list_id: prepList.id,
+      station_id: prepList.station_id,
+      status: "pending",
+      sort_order: items.length + i,
+    })));
+    setBulkSaving(false);
+    setShowBulkAdd(false);
+    setBulkRows([{ name: "", quantity: "", unit: "", notes: "", priority: "medium" }]);
+    toast.success(`${valid.length} item${valid.length > 1 ? "s" : ""} added`);
+    onRefresh();
+  };
+
   const handleDeleteItem = async (id) => {
     await base44.entities.PrepItem.delete(id);
     onRefresh();
@@ -240,6 +269,10 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                 <Button variant="outline" size="sm" onClick={exportPDF}>
                   <FileDown className="h-4 w-4 mr-1" />
                   Export PDF
+                </Button>
+                <Button variant="outline" onClick={() => setShowBulkAdd(true)}>
+                  <ListPlus className="h-4 w-4 mr-1" />
+                  Bulk Add
                 </Button>
                 <Button onClick={() => setDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -365,6 +398,67 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
           ))
         )}
       </div>
+
+      {/* Bulk Add Dialog */}
+      {showBulkAdd && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowBulkAdd(false)}>
+          <div className="bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h2 className="font-semibold text-lg">Bulk Add Items</h2>
+              <button onClick={() => setShowBulkAdd(false)}><X className="h-5 w-5 text-muted-foreground" /></button>
+            </div>
+            <div className="p-5 space-y-3 overflow-y-auto flex-1">
+              <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground px-1">
+                <div className="col-span-4">Item Name *</div>
+                <div className="col-span-2">Qty</div>
+                <div className="col-span-2">Unit</div>
+                <div className="col-span-2">Priority</div>
+                <div className="col-span-1">Notes</div>
+                <div className="col-span-1"></div>
+              </div>
+              {bulkRows.map((row, i) => (
+                <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                  <div className="col-span-4">
+                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.name} onChange={e => updateBulkRow(i, "name", e.target.value)} placeholder="e.g., Dice onions" />
+                  </div>
+                  <div className="col-span-2">
+                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.quantity} onChange={e => updateBulkRow(i, "quantity", e.target.value)} placeholder="5" />
+                  </div>
+                  <div className="col-span-2">
+                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.unit} onChange={e => updateBulkRow(i, "unit", e.target.value)} placeholder="lbs" />
+                  </div>
+                  <div className="col-span-2">
+                    <select className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.priority} onChange={e => updateBulkRow(i, "priority", e.target.value)}>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                  <div className="col-span-1">
+                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.notes} onChange={e => updateBulkRow(i, "notes", e.target.value)} placeholder="…" />
+                  </div>
+                  <div className="col-span-1 flex justify-center">
+                    {bulkRows.length > 1 && (
+                      <button onClick={() => removeBulkRow(i)} className="text-muted-foreground hover:text-destructive">
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button onClick={addBulkRow} className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors pt-1">
+                <Plus className="h-4 w-4" /> Add another item
+              </button>
+            </div>
+            <div className="flex gap-2 justify-end p-5 border-t border-border">
+              <Button variant="outline" onClick={() => setShowBulkAdd(false)}>Cancel</Button>
+              <Button onClick={saveBulkItems} disabled={bulkSaving}>
+                {bulkSaving ? "Saving…" : `Add ${bulkRows.filter(r => r.name.trim()).length || ""} Items`}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add item dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
