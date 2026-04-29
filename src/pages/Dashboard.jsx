@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, Sandwich, Cake, Search, X, Users, Settings, Trash2 } from "lucide-react";
+import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, Sandwich, Cake, Search, X, Users, Settings } from "lucide-react";
+import JobCodeSelector from "../components/JobCodeSelector";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,15 +11,9 @@ import StationBadge from "../components/StationBadge";
 import StatusBadge from "../components/StatusBadge";
 import { toast } from "sonner";
 
-const BASE_ROLES = [
+const ACCESS_LEVELS = [
   { value: "admin", label: "Admin" },
-  { value: "user", label: "Kitchen Staff" },
-  { value: "busser", label: "Busser" },
-  { value: "server", label: "Server" },
-  { value: "bartender", label: "Bartender" },
-  { value: "host", label: "Host" },
-  { value: "food_runner", label: "Food Runner" },
-  { value: "expo", label: "Expo" },
+  { value: "user", label: "Staff" },
 ];
 
 export default function Dashboard() {
@@ -79,7 +74,7 @@ export default function Dashboard() {
     const label = newJobCode.trim();
     if (!label) return;
     const value = label.toLowerCase().replace(/\s+/g, "_");
-    if (allRoles.some(r => r.value === value)) { toast.error("Job code already exists"); return; }
+    if (customRoles.some(r => r.value === value)) { toast.error("Job code already exists"); return; }
     const updated = [...customRoles, { value, label }];
     setCustomRoles(updated);
     await saveCustomRoles(updated);
@@ -93,8 +88,6 @@ export default function Dashboard() {
     await saveCustomRoles(updated);
     toast.success("Job code removed");
   };
-
-  const allRoles = [...BASE_ROLES, ...customRoles];
 
   const inviteUser = async () => {
     if (!inviteEmail.trim()) return;
@@ -112,7 +105,14 @@ export default function Dashboard() {
     await base44.entities.User.update(userId, { role });
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
     setSavingRole(p => ({ ...p, [userId]: false }));
-    toast.success("Role updated");
+    toast.success("Access level updated");
+  };
+
+  const updateJobCodes = async (userId, job_codes) => {
+    setSavingRole(p => ({ ...p, [userId]: true }));
+    await base44.entities.User.update(userId, { job_codes });
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, job_codes } : u));
+    setSavingRole(p => ({ ...p, [userId]: false }));
   };
 
   if (loading) {
@@ -269,9 +269,9 @@ export default function Dashboard() {
             </Button>
           </div>
         </div>
-        {showJobCodes && (
+          {showJobCodes && (
           <div className="bg-card border border-border rounded-xl p-4 mb-4 space-y-3">
-            <p className="text-sm font-medium">Custom Job Codes</p>
+            <p className="text-sm font-medium">Job Codes</p>
             <div className="flex flex-wrap gap-2">
               {customRoles.map(r => (
                 <span key={r.value} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs px-3 py-1.5 rounded-full">
@@ -281,7 +281,7 @@ export default function Dashboard() {
                   </button>
                 </span>
               ))}
-              {customRoles.length === 0 && <p className="text-xs text-muted-foreground">No custom job codes yet.</p>}
+              {customRoles.length === 0 && <p className="text-xs text-muted-foreground">No job codes yet.</p>}
             </div>
             <div className="flex gap-2">
               <input
@@ -316,7 +316,7 @@ export default function Dashboard() {
               <Select value={inviteRole} onValueChange={setInviteRole}>
                 <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {allRoles.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                  {ACCESS_LEVELS.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -339,16 +339,22 @@ export default function Dashboard() {
                 <p className="text-xs text-muted-foreground truncate">{u.email}</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
+                <JobCodeSelector
+                  allCodes={customRoles}
+                  selected={u.job_codes || []}
+                  onChange={codes => updateJobCodes(u.id, codes)}
+                  saving={savingRole[u.id]}
+                />
                 <Select
                   value={u.role || "user"}
                   onValueChange={v => updateRole(u.id, v)}
                   disabled={savingRole[u.id]}
                 >
-                  <SelectTrigger className="w-36 h-8 text-xs">
+                  <SelectTrigger className="w-28 h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {allRoles.map(r => (
+                    {ACCESS_LEVELS.map(r => (
                       <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                     ))}
                   </SelectContent>

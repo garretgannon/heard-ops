@@ -4,38 +4,23 @@
   "properties": {
     "role": {
       "type": "string",
-      "description": "The role of the user in the app",
+      "title": "Access Level",
       "enum": [
         "admin",
-        "user",
-        "server",
-        "bartender",
-        "host",
-        "busser",
-        "food_runner",
-        "expo"
+        "user"
       ],
       "enumNames": [
         "Admin",
-        "Kitchen Staff",
-        "Server",
-        "Bartender",
-        "Host",
-        "Busser",
-        "Food Runner",
-        "Expo"
-      ]
+        "Staff"
+      ],
+      "default": "user"
     },
-    "display_name": {
-      "type": "string",
-      "title": "Display Name"
-    },
-    "avatar_url": {
-      "type": "string",
-      "title": "Avatar URL"
+    "job_codes": {
+      "type": "array",
+      "title": "Job Codes",
+      "items": {
+        "type": "string"
+      }
     }
-  },
-  "required": [
-    "role"
-  ]
+  }
 }
