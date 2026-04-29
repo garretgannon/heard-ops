@@ -15,10 +15,12 @@ import MasterPrepList from './pages/MasterPrepList';
 import StaffHome from './pages/StaffHome';
 import Profile from './pages/Profile';
 import SideWork from './pages/SideWork';
+import BusserHome from './pages/BusserHome';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const { isAdmin, isFOH, loading: userLoading } = useCurrentUser();
+  const { user, isAdmin, isFOH, loading: userLoading } = useCurrentUser();
+  const isBusser = user?.role === 'busser';
 
   if (isLoadingPublicSettings || isLoadingAuth || userLoading) {
     return (
@@ -31,7 +33,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={isAdmin ? <Dashboard /> : <StaffHome />} />
+        <Route path="/" element={isAdmin ? <Dashboard /> : isBusser ? <BusserHome /> : <StaffHome />} />
         <Route path="/master" element={<MasterPrepList />} />
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
         {isAdmin && <Route path="/stations" element={<Stations />} />}

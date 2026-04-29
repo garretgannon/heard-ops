@@ -77,7 +77,7 @@ export default function Layout() {
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border bg-card flex-col z-30">
-        <div className="p-6 flex items-center gap-3">
+        <div className="p-6 flex items-center gap-3 border-b border-border/40">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <ChefHat className="h-5 w-5 text-primary-foreground" />
           </div>
@@ -112,7 +112,7 @@ export default function Layout() {
           ))}
         </nav>
 
-        <div className="p-4 mx-3 mb-3 rounded-xl bg-secondary/60 border border-border">
+        <div className="p-4 mx-3 mb-3 rounded-xl bg-secondary/40 border border-border/40">
           <p className="text-xs text-muted-foreground leading-relaxed">
             Share station links with your prep team so they can check off tasks and upload photos.
           </p>
