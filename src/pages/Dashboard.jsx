@@ -262,7 +262,7 @@ export default function Dashboard() {
             </Button>
           </div>
         )}
-        <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
+        <div className="bg-card rounded-2xl border border-border divide-y divide-border">
           {users.length === 0 && (
             <div className="p-8 text-center text-muted-foreground text-sm">No users found.</div>
           )}
