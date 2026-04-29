@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, IceCream, Sandwich, Cake } from "lucide-react";
+import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, IceCream, Sandwich, Cake, Search, X } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import StationBadge from "../components/StationBadge";
@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [prepItems, setPrepItems] = useState([]);
   const [sideWorkAssignments, setSideWorkAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -60,6 +61,16 @@ export default function Dashboard() {
     { label: "Items Done", value: `${completedItems}/${totalItems}`, icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50", to: "/prep-lists" },
   ];
 
+  const q = search.toLowerCase().trim();
+
+  // Filtered results for search
+  const stationResults = q ? stations.filter(s => s.name.toLowerCase().includes(q)) : [];
+  const assignmentResults = q ? sideWorkAssignments.filter(a =>
+    (a.assigned_to_name && a.assigned_to_name.toLowerCase().includes(q)) ||
+    (a.assigned_to_email && a.assigned_to_email.toLowerCase().includes(q))
+  ) : [];
+  const hasResults = stationResults.length > 0 || assignmentResults.length > 0;
+
   return (
     <motion.div
       className="space-y-8"
@@ -79,6 +90,67 @@ export default function Dashboard() {
           </Button>
         </Link>
       </div>
+
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Search stations or staff…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full h-11 pl-10 pr-10 rounded-xl bg-card border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-all"
+        />
+        {search && (
+          <button onClick={() => setSearch("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Search results */}
+      {q && (
+        <div className="space-y-3">
+          {!hasResults && (
+            <p className="text-sm text-muted-foreground px-1">No results for "{search}"</p>
+          )}
+          {stationResults.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Stations</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {stationResults.map(s => (
+                  <Link key={s.id} to={`/station/${s.id}`}>
+                    <div className="bg-card rounded-2xl border border-border p-4 flex flex-col items-center gap-2 hover:border-primary transition-colors">
+                      <StationBadge name={s.name} color={s.color} />
+                      <p className="text-xs text-muted-foreground">Open station</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          {assignmentResults.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Staff Today</p>
+              <div className="grid gap-2">
+                {assignmentResults.map(a => (
+                  <div key={a.id} className="bg-card rounded-xl border border-border px-4 py-3 flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">{a.assigned_to_name || a.assigned_to_email}</p>
+                      <p className="text-xs text-muted-foreground capitalize">{a.role?.replace("_", " ")} · {a.shift_type}</p>
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      a.status === "approved" ? "bg-green-500/15 text-green-400" :
+                      a.status === "completed" ? "bg-yellow-500/15 text-yellow-400" :
+                      "bg-muted text-muted-foreground"
+                    }`}>{a.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
