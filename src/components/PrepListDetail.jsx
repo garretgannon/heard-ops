@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PhotoUpload from "./PhotoUpload";
-import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square, FileDown } from "lucide-react";
 import BulkEditPanel from "./BulkEditPanel";
+import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,111 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [uploadingMasterFor, setUploadingMasterFor] = useState(null);
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+
+  const exportPDF = () => {
+    const doc = new jsPDF({ unit: "pt", format: "letter" });
+    const margin = 48;
+    const pageW = doc.internal.pageSize.getWidth();
+    let y = margin;
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text(prepList.name, margin, y);
+    y += 26;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100);
+    const meta = [station?.name, prepList.date, `${items.length} items`].filter(Boolean).join("   |   ");
+    doc.text(meta, margin, y);
+    if (prepList.notes) {
+      y += 16;
+      doc.text(prepList.notes, margin, y);
+    }
+    y += 20;
+
+    // Divider
+    doc.setDrawColor(200);
+    doc.line(margin, y, pageW - margin, y);
+    y += 18;
+
+    // Column headers
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(80);
+    doc.text("✓", margin, y);
+    doc.text("ITEM", margin + 20, y);
+    doc.text("QTY", pageW - margin - 120, y);
+    doc.text("PRIORITY", pageW - margin - 60, y);
+    doc.text("STATUS", pageW - margin, y, { align: "right" });
+    y += 6;
+    doc.line(margin, y, pageW - margin, y);
+    y += 14;
+
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    const sorted = [...items].sort((a, b) => (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1));
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    sorted.forEach((item, idx) => {
+      if (y > doc.internal.pageSize.getHeight() - 60) {
+        doc.addPage();
+        y = margin;
+      }
+      const rowBg = idx % 2 === 0 ? 252 : 245;
+      doc.setFillColor(rowBg, rowBg, rowBg);
+      doc.rect(margin, y - 11, pageW - margin * 2, 18, "F");
+
+      // Checkbox
+      doc.setDrawColor(160);
+      doc.rect(margin + 1, y - 8, 10, 10);
+      if (item.status === "completed") {
+        doc.setTextColor(60, 160, 100);
+        doc.text("✓", margin + 2, y);
+      }
+
+      // Name
+      doc.setTextColor(30);
+      const name = item.status === "completed" ? item.name : item.name;
+      doc.text(name, margin + 20, y);
+
+      // Qty
+      const qty = [item.quantity, item.unit].filter(Boolean).join(" ");
+      doc.setTextColor(80);
+      doc.text(qty, pageW - margin - 120, y);
+
+      // Priority
+      const priColor = { high: [200, 60, 60], medium: [200, 140, 40], low: [80, 160, 100] }[item.priority || "medium"];
+      doc.setTextColor(...priColor);
+      doc.text((item.priority || "medium").toUpperCase(), pageW - margin - 60, y);
+
+      // Status
+      doc.setTextColor(item.status === "completed" ? 60 : 150, item.status === "completed" ? 160 : 150, 100);
+      doc.text(item.status === "completed" ? "Done" : "Pending", pageW - margin, y, { align: "right" });
+
+      if (item.notes) {
+        y += 13;
+        doc.setTextColor(130);
+        doc.setFontSize(8);
+        doc.text(`  ${item.notes}`, margin + 20, y);
+        doc.setFontSize(10);
+      }
+      y += 18;
+    });
+
+    // Footer
+    y += 10;
+    doc.setDrawColor(200);
+    doc.line(margin, y, pageW - margin, y);
+    y += 14;
+    doc.setFontSize(8);
+    doc.setTextColor(160);
+    const completed = items.filter(i => i.status === "completed").length;
+    doc.text(`Printed ${new Date().toLocaleDateString()}  |  ${completed}/${items.length} completed`, margin, y);
+
+    doc.save(`${prepList.name.replace(/\s+/g, "_")}_${prepList.date}.pdf`);
+  };
 
   const toggleSelect = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const selectAll = () => setSelectedIds(sortedItems.map(i => i.id));
@@ -116,10 +222,16 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
               {bulkMode ? "Exit Bulk" : "Bulk Edit"}
             </Button>
             {!bulkMode && (
-              <Button onClick={() => setDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Item
-              </Button>
+              <>
+                <Button variant="outline" size="sm" onClick={exportPDF}>
+                  <FileDown className="h-4 w-4 mr-1" />
+                  Export PDF
+                </Button>
+                <Button onClick={() => setDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Item
+                </Button>
+              </>
             )}
           </div>
         </div>
