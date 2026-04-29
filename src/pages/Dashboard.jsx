@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
-import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, Sandwich, Cake, Search, X, Users } from "lucide-react";
+import { ClipboardList, UtensilsCrossed, CheckCircle2, Clock, ArrowRight, Plus, CheckSquare, AlertCircle, ThumbsUp, Flame, Salad, Wine, Fish, Beef, Soup, CookingPot, Pizza, Coffee, Sandwich, Cake, Search, X, Users, Settings, Trash2 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,7 +10,7 @@ import StationBadge from "../components/StationBadge";
 import StatusBadge from "../components/StatusBadge";
 import { toast } from "sonner";
 
-const ROLES = [
+const BASE_ROLES = [
   { value: "admin", label: "Admin" },
   { value: "user", label: "Kitchen Staff" },
   { value: "busser", label: "Busser" },
@@ -34,27 +34,67 @@ export default function Dashboard() {
   const [inviting, setInviting] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [savingRole, setSavingRole] = useState({});
+  const [customRoles, setCustomRoles] = useState([]);
+  const [showJobCodes, setShowJobCodes] = useState(false);
+  const [newJobCode, setNewJobCode] = useState("");
+  const [customRolesSettingId, setCustomRolesSettingId] = useState(null);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const load = async () => {
-      const [s, pl, pi, sw, u] = await Promise.all([
+      const [s, pl, pi, sw, u, settings] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.PrepList.list("-created_date", 50),
         base44.entities.PrepItem.list("-created_date", 200),
         base44.entities.SideWorkAssignment.filter({ date: todayStr }),
         base44.entities.User.list(),
+        base44.entities.Settings.filter({ key: "custom_roles" }),
       ]);
       setStations(s);
       setPrepLists(pl);
       setPrepItems(pi);
       setSideWorkAssignments(sw);
       setUsers(u);
+      if (settings.length > 0) {
+        setCustomRolesSettingId(settings[0].id);
+        setCustomRoles(JSON.parse(settings[0].value || "[]"));
+      }
       setLoading(false);
     };
     load();
   }, []);
+
+  const saveCustomRoles = async (roles) => {
+    const val = JSON.stringify(roles);
+    if (customRolesSettingId) {
+      await base44.entities.Settings.update(customRolesSettingId, { value: val });
+    } else {
+      const rec = await base44.entities.Settings.create({ key: "custom_roles", value: val });
+      setCustomRolesSettingId(rec.id);
+    }
+  };
+
+  const addJobCode = async () => {
+    const label = newJobCode.trim();
+    if (!label) return;
+    const value = label.toLowerCase().replace(/\s+/g, "_");
+    if (allRoles.some(r => r.value === value)) { toast.error("Job code already exists"); return; }
+    const updated = [...customRoles, { value, label }];
+    setCustomRoles(updated);
+    await saveCustomRoles(updated);
+    setNewJobCode("");
+    toast.success("Job code added");
+  };
+
+  const removeJobCode = async (value) => {
+    const updated = customRoles.filter(r => r.value !== value);
+    setCustomRoles(updated);
+    await saveCustomRoles(updated);
+    toast.success("Job code removed");
+  };
+
+  const allRoles = [...BASE_ROLES, ...customRoles];
 
   const inviteUser = async () => {
     if (!inviteEmail.trim()) return;
@@ -220,10 +260,44 @@ export default function Dashboard() {
             <Users className="h-5 w-5 text-primary" />
             Team &amp; Roles
           </h2>
-          <Button size="sm" onClick={() => setShowInvite(v => !v)}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Invite User
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => setShowJobCodes(v => !v)}>
+              <Settings className="h-3.5 w-3.5 mr-1" /> Job Codes
+            </Button>
+            <Button size="sm" onClick={() => setShowInvite(v => !v)}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Invite User
+            </Button>
+          </div>
         </div>
+        {showJobCodes && (
+          <div className="bg-card border border-border rounded-xl p-4 mb-4 space-y-3">
+            <p className="text-sm font-medium">Custom Job Codes</p>
+            <div className="flex flex-wrap gap-2">
+              {customRoles.map(r => (
+                <span key={r.value} className="flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs px-3 py-1.5 rounded-full">
+                  {r.label}
+                  <button onClick={() => removeJobCode(r.value)} className="text-muted-foreground hover:text-destructive transition-colors">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              {customRoles.length === 0 && <p className="text-xs text-muted-foreground">No custom job codes yet.</p>}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="e.g. Line Cook, Prep Cook…"
+                value={newJobCode}
+                onChange={e => setNewJobCode(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && addJobCode()}
+                className="flex-1 h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+              <Button size="sm" onClick={addJobCode} disabled={!newJobCode.trim()}>
+                <Plus className="h-3.5 w-3.5 mr-1" /> Add
+              </Button>
+            </div>
+          </div>
+        )}
         {showInvite && (
           <div className="bg-card border border-border rounded-xl p-4 mb-4 flex flex-col sm:flex-row gap-3 items-end">
             <div className="flex-1 space-y-1">
@@ -242,7 +316,7 @@ export default function Dashboard() {
               <Select value={inviteRole} onValueChange={setInviteRole}>
                 <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {ROLES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                  {allRoles.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -274,7 +348,7 @@ export default function Dashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLES.map(r => (
+                    {allRoles.map(r => (
                       <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                     ))}
                   </SelectContent>
