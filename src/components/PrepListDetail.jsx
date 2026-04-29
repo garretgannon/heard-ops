@@ -267,36 +267,38 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
             </div>
             {prepList.notes && <p className="text-sm text-muted-foreground mt-2">{prepList.notes}</p>}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant={sortByPriority ? "default" : "outline"}
               size="sm"
+              className="text-xs md:text-sm"
               onClick={() => setSortByPriority(v => !v)}
             >
-              <ArrowUpDown className="h-4 w-4 mr-1" />
-              Priority
+              <ArrowUpDown className="h-4 w-4 md:mr-1" />
+              <span className="hidden md:inline">Priority</span>
             </Button>
             <Button
               variant={bulkMode ? "default" : "outline"}
               size="sm"
+              className="text-xs md:text-sm"
               onClick={() => bulkMode ? exitBulk() : setBulkMode(true)}
             >
-              <CheckSquare className="h-4 w-4 mr-1" />
-              {bulkMode ? "Exit Bulk" : "Bulk Edit"}
+              <CheckSquare className="h-4 w-4 md:mr-1" />
+              <span className="hidden md:inline">{bulkMode ? "Exit Bulk" : "Bulk Edit"}</span>
             </Button>
             {!bulkMode && (
               <>
-                <Button variant="outline" size="sm" onClick={exportPDF}>
+                <Button variant="outline" size="sm" className="hidden md:inline-flex" onClick={exportPDF}>
                   <FileDown className="h-4 w-4 mr-1" />
                   Export PDF
                 </Button>
-                <Button variant="outline" onClick={() => setShowBulkAdd(true)}>
+                <Button variant="outline" size="sm" className="hidden md:inline-flex" onClick={() => setShowBulkAdd(true)}>
                   <ListPlus className="h-4 w-4 mr-1" />
                   Bulk Add
                 </Button>
-                <Button onClick={() => setDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Item
+                <Button size="sm" onClick={() => setDialogOpen(true)}>
+                  <Plus className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Add Item</span>
                 </Button>
               </>
             )}
