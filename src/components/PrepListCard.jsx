@@ -38,12 +38,6 @@ export default function PrepListCard({ pl, items, i, onSelect, onDelete }) {
       </div>
       <div className="p-4 space-y-2">
         <p className="font-semibold text-sm truncate">{pl.name}</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <StatusBadge status={pl.status} />
-          {pl.is_recurring && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">Daily</span>
-          )}
-        </div>
         <p className="text-xs text-muted-foreground">{pl.date}</p>
         {items.length > 0 && (
           <span className="text-xs font-medium text-accent">{progress}%</span>
