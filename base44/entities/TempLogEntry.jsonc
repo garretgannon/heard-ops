@@ -15,11 +15,13 @@
       "title": "Type",
       "enum": [
         "refrigerator",
+        "freezer",
         "hot_well",
         "cooling"
       ],
       "enumNames": [
         "Refrigerator",
+        "Freezer",
         "Hot Well",
         "Cooling Log"
       ]

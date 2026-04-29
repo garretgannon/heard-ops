@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 const TYPES = [
   { value: "refrigerator", label: "Refrigerators", defaultMin: 32, defaultMax: 41 },
+  { value: "freezer", label: "Freezers", defaultMin: -10, defaultMax: 0 },
   { value: "hot_well", label: "Hot Wells", defaultMin: 135, defaultMax: 180 },
   { value: "cooling", label: "Cooling Logs", defaultMin: null, defaultMax: 70 },
 ];
