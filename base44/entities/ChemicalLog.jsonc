@@ -1,0 +1,69 @@
+{
+  "name": "ChemicalLog",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "time": {
+      "type": "string",
+      "title": "Time (HH:MM)"
+    },
+    "chemical_type": {
+      "type": "string",
+      "title": "Chemical Type",
+      "enum": [
+        "rinse_aid",
+        "detergent",
+        "sanitizer",
+        "descaler",
+        "other"
+      ],
+      "enumNames": [
+        "Rinse Aid",
+        "Detergent",
+        "Sanitizer",
+        "Descaler",
+        "Other"
+      ]
+    },
+    "reading": {
+      "type": "number",
+      "title": "Reading (ppm or %)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "normal",
+        "low",
+        "critical"
+      ],
+      "enumNames": [
+        "Normal",
+        "Low",
+        "Critical"
+      ]
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Test Strip/Photo URL"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "date",
+    "time",
+    "chemical_type",
+    "reading"
+  ]
+}
