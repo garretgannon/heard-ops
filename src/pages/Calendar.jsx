@@ -36,7 +36,7 @@ export default function Calendar() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [detailDate, setDetailDate] = useState(null);
-  const [form, setForm] = useState({ title: "", date: "", time: "", category: "large_party", notes: "", guest_count: "" });
+  const [form, setForm] = useState({ title: "", date: "", time: "", category: "large_party", notes: "", guest_count: "", recurrence: "none", recurrence_end_date: "" });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -50,10 +50,28 @@ export default function Calendar() {
   const firstDay = new Date(year, month, 1).getDay();
   const todayStr = today.toISOString().split("T")[0];
 
-  const eventsForDate = (dateStr) => events.filter(e => e.date === dateStr);
+  const eventsForDate = (dateStr) => expandedEventsForDate(dateStr);
+
+  // Expand recurring events into virtual instances for the current view
+  const expandedEventsForDate = (dateStr) => {
+    return events.filter(ev => {
+      if (ev.date === dateStr) return true;
+      if (!ev.recurrence || ev.recurrence === "none") return false;
+      const start = new Date(ev.date + "T12:00:00");
+      const target = new Date(dateStr + "T12:00:00");
+      if (target <= start) return false;
+      if (ev.recurrence_end_date && dateStr > ev.recurrence_end_date) return false;
+      const diff = Math.round((target - start) / (1000 * 60 * 60 * 24));
+      if (ev.recurrence === "daily") return true;
+      if (ev.recurrence === "weekly") return diff % 7 === 0;
+      if (ev.recurrence === "monthly") return start.getDate() === target.getDate();
+      if (ev.recurrence === "yearly") return start.getDate() === target.getDate() && start.getMonth() === target.getMonth();
+      return false;
+    });
+  };
 
   const openNew = (dateStr) => {
-    setForm({ title: "", date: dateStr, time: "", category: "large_party", notes: "", guest_count: "" });
+    setForm({ title: "", date: dateStr, time: "", category: "large_party", notes: "", guest_count: "", recurrence: "none", recurrence_end_date: "" });
     setDialogOpen(true);
   };
 
@@ -63,6 +81,8 @@ export default function Calendar() {
     const payload = { ...form };
     if (payload.guest_count) payload.guest_count = Number(payload.guest_count);
     else delete payload.guest_count;
+    if (!payload.recurrence_end_date) delete payload.recurrence_end_date;
+    if (!payload.recurrence) payload.recurrence = "none";
     const created = await base44.entities.CalendarEvent.create(payload);
     setEvents(prev => [...prev, created]);
     setSaving(false);
@@ -191,6 +211,9 @@ export default function Calendar() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium text-sm">{ev.title}</p>
                         <span className={cn("text-xs px-2 py-0.5 rounded-full border font-medium", cat.color)}>{cat.label}</span>
+                        {ev.recurrence && ev.recurrence !== "none" && (
+                          <span className="text-xs px-2 py-0.5 rounded-full border font-medium bg-muted text-muted-foreground border-border capitalize">{ev.recurrence}</span>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground flex-wrap">
                         {ev.time && <span>{ev.time}</span>}
@@ -281,6 +304,25 @@ export default function Calendar() {
                 <Input type="number" placeholder="e.g., 20" value={form.guest_count} onChange={e => setForm({ ...form, guest_count: e.target.value })} />
               </div>
             </div>
+            <div>
+              <Label>Recurrence</Label>
+              <Select value={form.recurrence} onValueChange={v => setForm({ ...form, recurrence: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {form.recurrence !== "none" && (
+              <div>
+                <Label>Repeat Until (optional)</Label>
+                <Input type="date" value={form.recurrence_end_date} onChange={e => setForm({ ...form, recurrence_end_date: e.target.value })} />
+              </div>
+            )}
             <div>
               <Label>Notes (optional)</Label>
               <Textarea placeholder="Special requests, contacts, details..." rows={3} value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className="resize-none" />

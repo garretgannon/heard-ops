@@ -40,6 +40,30 @@
     "guest_count": {
       "type": "number",
       "title": "Guest Count"
+    },
+    "recurrence": {
+      "type": "string",
+      "title": "Recurrence",
+      "enum": [
+        "none",
+        "daily",
+        "weekly",
+        "monthly",
+        "yearly"
+      ],
+      "enumNames": [
+        "None",
+        "Daily",
+        "Weekly",
+        "Monthly",
+        "Yearly"
+      ],
+      "default": "none"
+    },
+    "recurrence_end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Recurrence End Date"
     }
   },
   "required": [
