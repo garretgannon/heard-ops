@@ -9,6 +9,7 @@ export default function PrepLibrary() {
   const [items, setItems] = useState([]);
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStation, setFilterStation] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -185,15 +186,56 @@ export default function PrepLibrary() {
         </div>
       )}
 
+      {/* Station filter */}
+      {stations.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterStation("")}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              filterStation === "" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            All
+          </button>
+          {stations.map(s => (
+            <button
+              key={s.id}
+              onClick={() => setFilterStation(s.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                filterStation === s.id ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {s.name}
+            </button>
+          ))}
+          <button
+            onClick={() => setFilterStation("none")}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              filterStation === "none" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            No Station
+          </button>
+        </div>
+      )}
+
       {/* Item grid */}
-      {items.length === 0 ? (
+      {items.filter(item => {
+        if (!filterStation) return true;
+        if (filterStation === "none") return !item.station_id;
+        return item.station_id === filterStation;
+      }).length === 0 ? (
         <div className="bg-card rounded-2xl border border-border p-12 text-center">
           <ImageIcon className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
           <p className="text-muted-foreground text-sm">No items yet. Add your first prep library item.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {items.map((item, i) => (
+          {items.filter(item => {
+            if (!filterStation) return true;
+            if (filterStation === "none") return !item.station_id;
+            return item.station_id === filterStation;
+          }).map((item, i) => (
             <motion.div
               key={item.id}
               className="bg-card rounded-2xl border border-border overflow-hidden group"
