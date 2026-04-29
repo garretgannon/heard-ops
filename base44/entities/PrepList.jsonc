@@ -39,6 +39,19 @@
     "notes": {
       "type": "string",
       "title": "Notes"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "title": "Recurring Daily",
+      "default": false
+    },
+    "recurring_time": {
+      "type": "string",
+      "title": "Generate At (time, e.g. 06:00)"
+    },
+    "template_list_id": {
+      "type": "string",
+      "title": "Source Template List ID"
     }
   },
   "required": [

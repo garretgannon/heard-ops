@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ClipboardList, Trash2, Play, Archive, Eye } from "lucide-react";
+import { Plus, ClipboardList, Trash2, Play, Archive, Eye, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,8 @@ import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
 import PrepListDetail from "../components/PrepListDetail";
 
+const todayStr = new Date().toISOString().split("T")[0];
+
 export default function PrepLists() {
   const [stations, setStations] = useState([]);
   const [prepLists, setPrepLists] = useState([]);
@@ -19,8 +21,49 @@ export default function PrepLists() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedList, setSelectedList] = useState(null);
-  const [form, setForm] = useState({ name: "", date: new Date().toISOString().split("T")[0], station_id: "", notes: "" });
+  const [form, setForm] = useState({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
   const [saving, setSaving] = useState(false);
+
+  const generateRecurring = async (allLists, allItems) => {
+    const templates = allLists.filter(pl => pl.is_recurring && !pl.template_list_id);
+    const todayLists = allLists.filter(pl => pl.date === todayStr);
+    let generated = false;
+    for (const tmpl of templates) {
+      const alreadyExists = todayLists.some(pl => pl.template_list_id === tmpl.id);
+      if (alreadyExists) continue;
+      if (tmpl.recurring_time) {
+        const [h, m] = tmpl.recurring_time.split(":").map(Number);
+        const now = new Date();
+        if (now.getHours() < h || (now.getHours() === h && now.getMinutes() < m)) continue;
+      }
+      const newList = await base44.entities.PrepList.create({
+        name: tmpl.name,
+        date: todayStr,
+        station_id: tmpl.station_id,
+        station_name: tmpl.station_name,
+        notes: tmpl.notes,
+        status: "draft",
+        template_list_id: tmpl.id,
+      });
+      const tmplItems = allItems.filter(pi => pi.prep_list_id === tmpl.id);
+      await Promise.all(tmplItems.map(pi =>
+        base44.entities.PrepItem.create({
+          name: pi.name,
+          quantity: pi.quantity,
+          unit: pi.unit,
+          notes: pi.notes,
+          priority: pi.priority,
+          master_photo_url: pi.master_photo_url,
+          prep_list_id: newList.id,
+          station_id: tmpl.station_id,
+          status: "pending",
+          sort_order: pi.sort_order,
+        })
+      ));
+      generated = true;
+    }
+    return generated;
+  };
 
   const load = async () => {
     const [s, pl, pi] = await Promise.all([
@@ -29,14 +72,23 @@ export default function PrepLists() {
       base44.entities.PrepItem.list("-created_date", 500),
     ]);
     setStations(s);
-    setPrepLists(pl);
-    setPrepItems(pi);
+    const generated = await generateRecurring(pl, pi);
+    if (generated) {
+      const [pl2, pi2] = await Promise.all([
+        base44.entities.PrepList.list("-created_date", 100),
+        base44.entities.PrepItem.list("-created_date", 500),
+      ]);
+      setPrepLists(pl2);
+      setPrepItems(pi2);
+    } else {
+      setPrepLists(pl);
+      setPrepItems(pi);
+    }
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  // Check URL for pre-selected list
   useEffect(() => {
     if (prepLists.length > 0) {
       const params = new URLSearchParams(window.location.search);
@@ -58,13 +110,12 @@ export default function PrepLists() {
       status: "draft",
     });
     setDialogOpen(false);
-    setForm({ name: "", date: new Date().toISOString().split("T")[0], station_id: "", notes: "" });
+    setForm({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
     setSaving(false);
     load();
   };
 
   const handleDelete = async (id) => {
-    // Delete all items in this list too
     const items = prepItems.filter(pi => pi.prep_list_id === id);
     await Promise.all(items.map(pi => base44.entities.PrepItem.delete(pi.id)));
     await base44.entities.PrepList.delete(id);
@@ -138,6 +189,16 @@ export default function PrepLists() {
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <h3 className="font-semibold">{pl.name}</h3>
                       <StatusBadge status={pl.status} />
+                      {pl.is_recurring && (
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                          <Repeat className="h-3 w-3" /> Daily {pl.recurring_time}
+                        </span>
+                      )}
+                      {pl.template_list_id && (
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                          <Repeat className="h-3 w-3" /> Auto-generated
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                       {station && <StationBadge name={station.name} color={station.color} />}
@@ -214,6 +275,29 @@ export default function PrepLists() {
               <Label>Notes (optional)</Label>
               <Textarea placeholder="Any special instructions..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
             </div>
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  form.is_recurring ? "bg-primary" : "bg-muted"
+                }`}
+              >
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
+                  form.is_recurring ? "translate-x-[18px]" : "translate-x-1"
+                }`} />
+              </button>
+              <Label className="cursor-pointer" onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}>
+                Repeat daily
+              </Label>
+            </div>
+            {form.is_recurring && (
+              <div>
+                <Label>Generate at time</Label>
+                <Input type="time" value={form.recurring_time} onChange={e => setForm({ ...form, recurring_time: e.target.value })} />
+                <p className="text-xs text-muted-foreground mt-1">A fresh copy will be auto-created each day once this time passes, cloning all items.</p>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
