@@ -46,12 +46,7 @@ export default function PrepListCard({ pl, items, i, onSelect, onDelete }) {
         </div>
         <p className="text-xs text-muted-foreground">{pl.date}</p>
         {items.length > 0 && (
-          <div className="flex items-center gap-2 pt-2">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress}%` }} />
-            </div>
-            <span className="text-xs font-medium text-muted-foreground">{progress}%</span>
-          </div>
+          <span className="text-xs font-medium text-accent">{progress}%</span>
         )}
       </div>
     </motion.div>
