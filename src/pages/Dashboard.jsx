@@ -29,6 +29,10 @@ export default function Dashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("user");
+  const [inviting, setInviting] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
   const [savingRole, setSavingRole] = useState({});
 
   const todayStr = new Date().toISOString().split("T")[0];
@@ -51,6 +55,17 @@ export default function Dashboard() {
     };
     load();
   }, []);
+
+  const inviteUser = async () => {
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    await base44.users.inviteUser(inviteEmail.trim(), inviteRole);
+    setInviteEmail("");
+    setInviteRole("user");
+    setShowInvite(false);
+    setInviting(false);
+    toast.success("Invite sent to " + inviteEmail.trim());
+  };
 
   const updateRole = async (userId, role) => {
     setSavingRole(p => ({ ...p, [userId]: true }));
@@ -200,10 +215,42 @@ export default function Dashboard() {
 
       {/* Team & Roles */}
       <div>
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" />
-          Team &amp; Roles
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            Team &amp; Roles
+          </h2>
+          <Button size="sm" onClick={() => setShowInvite(v => !v)}>
+            <Plus className="h-3.5 w-3.5 mr-1" /> Invite User
+          </Button>
+        </div>
+        {showInvite && (
+          <div className="bg-card border border-border rounded-xl p-4 mb-4 flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1 space-y-1">
+              <label className="text-xs text-muted-foreground">Email</label>
+              <input
+                type="email"
+                placeholder="staff@restaurant.com"
+                value={inviteEmail}
+                onChange={e => setInviteEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && inviteUser()}
+                className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Role</label>
+              <Select value={inviteRole} onValueChange={setInviteRole}>
+                <SelectTrigger className="w-36 h-9 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ROLES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button size="sm" onClick={inviteUser} disabled={inviting || !inviteEmail.trim()}>
+              {inviting ? "Sending…" : "Send Invite"}
+            </Button>
+          </div>
+        )}
         <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
           {users.length === 0 && (
             <div className="p-8 text-center text-muted-foreground text-sm">No users found.</div>
