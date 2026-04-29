@@ -155,10 +155,10 @@ export default function PrepLists() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Prep Lists</h1>
-          <p className="text-muted-foreground mt-1">Create and manage prep lists for each station</p>
+          <p className="text-sm text-muted-foreground mt-1">Create and manage prep lists for each station</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setImportOpen(true)} disabled={prepLists.length === 0}>
