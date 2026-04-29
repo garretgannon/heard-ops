@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Plus, CheckCircle2, Clock, AlertCircle, Users, Trash2, Zap } from "lucide-react";
+import { Plus, CheckCircle2, Clock, AlertCircle, Users, Trash2, Zap, FileUp } from "lucide-react";
+import ImportDialog from "../components/ImportDialog";
 
 const ROLES = ["server", "bartender", "host", "busser", "food_runner"];
 const ROLE_LABELS = { server: "Server", bartender: "Bartender", host: "Host", busser: "Busser", food_runner: "Food Runner" };
@@ -31,6 +32,7 @@ export default function SideWorkManager() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [saving, setSaving] = useState(false);
   const [assigningAll, setAssigningAll] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [taskForm, setTaskForm] = useState({ name: "", description: "", role: "server", shift_type: "closing", priority: "medium", due_time: "", requires_photo: false, requires_approval: false });
   const [assignForm, setAssignForm] = useState({ task_id: "", assigned_to_email: "", assigned_to_name: "" });
 
@@ -158,6 +160,9 @@ export default function SideWorkManager() {
           </Button>
           <Button size="sm" variant="secondary" onClick={assignAllTasks} disabled={assigningAll}>
             <Zap className="h-4 w-4 mr-1" />{assigningAll ? "Assigning..." : "Assign All Today"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
+            <FileUp className="h-4 w-4 mr-1" />Import Tasks
           </Button>
         </div>
       </div>
@@ -307,6 +312,28 @@ export default function SideWorkManager() {
           )}
         </div>
       )}
+
+      <ImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        type="sidework_tasks"
+        onImport={async (rows) => {
+          await Promise.all(rows.map(row =>
+            base44.entities.SideWorkTask.create({
+              name: row.name,
+              description: row.description || "",
+              role: ["server","bartender","host","busser","food_runner"].includes(row.role) ? row.role : "server",
+              shift_type: ["opening","mid","closing"].includes(row.shift_type) ? row.shift_type : "closing",
+              priority: ["high","medium","low"].includes(row.priority) ? row.priority : "medium",
+              due_time: row.due_time || "",
+              requires_photo: row.requires_photo === "true" || row.requires_photo === true,
+              requires_approval: row.requires_approval === "true" || row.requires_approval === true,
+              is_active: true,
+            })
+          ));
+          load();
+        }}
+      />
 
       {/* Create Task Template Dialog */}
       <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>

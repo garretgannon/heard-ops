@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ClipboardList, Trash2, Play, Archive, Eye, Repeat } from "lucide-react";
+import { Plus, ClipboardList, Trash2, Play, Archive, Eye, Repeat, FileUp } from "lucide-react";
+import ImportDialog from "../components/ImportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,8 @@ export default function PrepLists() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedList, setSelectedList] = useState(null);
   const [form, setForm] = useState({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
+  const [importOpen, setImportOpen] = useState(false);
+  const [importTargetList, setImportTargetList] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const generateRecurring = async (allLists, allItems) => {
@@ -155,10 +158,16 @@ export default function PrepLists() {
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Prep Lists</h1>
           <p className="text-muted-foreground mt-1">Create and manage prep lists for each station</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)} disabled={stations.length === 0}>
-          <Plus className="h-4 w-4 mr-2" />
-          New List
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)} disabled={prepLists.length === 0}>
+            <FileUp className="h-4 w-4 mr-2" />
+            Import Items
+          </Button>
+          <Button onClick={() => setDialogOpen(true)} disabled={stations.length === 0}>
+            <Plus className="h-4 w-4 mr-2" />
+            New List
+          </Button>
+        </div>
       </div>
 
       {stations.length === 0 && (
@@ -243,6 +252,31 @@ export default function PrepLists() {
           })}
         </div>
       )}
+
+      <ImportDialog
+        open={importOpen}
+        onOpenChange={open => { setImportOpen(open); if (!open) setImportTargetList(null); }}
+        type="prep_items"
+        onImport={async (rows) => {
+          // Import into the most recently active/draft list if no target
+          const target = importTargetList || prepLists.find(pl => pl.status === "active") || prepLists[0];
+          if (!target) { return; }
+          await Promise.all(rows.map((row, i) =>
+            base44.entities.PrepItem.create({
+              name: row.name,
+              quantity: row.quantity || "",
+              unit: row.unit || "",
+              notes: row.notes || "",
+              priority: ["high","medium","low"].includes(row.priority) ? row.priority : "medium",
+              prep_list_id: target.id,
+              station_id: target.station_id,
+              status: "pending",
+              sort_order: (prepItems.filter(pi => pi.prep_list_id === target.id).length) + i,
+            })
+          ));
+          load();
+        }}
+      />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
