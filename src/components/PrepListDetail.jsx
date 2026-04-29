@@ -427,12 +427,12 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
               <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteItem(item.id)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
+              {expandedSteps[item.id] && (
+                <div className="w-64 flex-shrink-0 border-l border-border pl-4">
+                  <PrepStepsPanel itemId={item.id} isAdmin={true} />
+                </div>
+              )}
             </div>
-            {expandedSteps[item.id] && (
-              <div className="border-t border-border">
-                <PrepStepsPanel itemId={item.id} isAdmin={true} />
-              </div>
-            )}
           </div>
           ))
         )}
