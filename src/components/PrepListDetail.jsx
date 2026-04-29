@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PhotoUpload from "./PhotoUpload";
-import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square, FileDown } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square, FileDown, MessageSquare } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import BulkEditPanel from "./BulkEditPanel";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,18 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [uploadingMasterFor, setUploadingMasterFor] = useState(null);
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [handoverNotes, setHandoverNotes] = useState(prepList.handover_notes || "");
+  const [savingHandover, setSavingHandover] = useState(false);
+  const [handoverSaved, setHandoverSaved] = useState(false);
+
+  const saveHandoverNotes = async () => {
+    setSavingHandover(true);
+    await base44.entities.PrepList.update(prepList.id, { handover_notes: handoverNotes });
+    setSavingHandover(false);
+    setHandoverSaved(true);
+    setTimeout(() => setHandoverSaved(false), 2000);
+    toast.success("Handover notes saved");
+  };
 
   const exportPDF = () => {
     const doc = new jsPDF({ unit: "pt", format: "letter" });
@@ -404,6 +417,35 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Handover Notes */}
+      <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-4 w-4 text-primary" />
+          <h3 className="font-semibold text-sm">Handover Notes</h3>
+          <span className="text-xs text-muted-foreground ml-1">Leave comments for the next team coming in</span>
+        </div>
+        <Textarea
+          value={handoverNotes}
+          onChange={e => { setHandoverNotes(e.target.value); setHandoverSaved(false); }}
+          placeholder="e.g., Stock is low on X, double batch needed for tomorrow, fridge #2 needs checking…"
+          rows={4}
+          className="resize-none text-sm"
+        />
+        <div className="flex items-center justify-between">
+          {prepList.handover_notes && handoverNotes === prepList.handover_notes ? (
+            <p className="text-xs text-muted-foreground">Last saved handover notes shown above</p>
+          ) : <span />}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={saveHandoverNotes}
+            disabled={savingHandover || handoverNotes === (prepList.handover_notes || "")}
+          >
+            {savingHandover ? "Saving…" : handoverSaved ? "Saved ✓" : "Save Notes"}
+          </Button>
+        </div>
+      </div>
 
       {/* Photo preview */}
       <PhotoPreviewDialog url={photoDialog} onClose={() => setPhotoDialog(null)} />

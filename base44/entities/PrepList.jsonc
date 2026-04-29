@@ -40,6 +40,10 @@
       "type": "string",
       "title": "Notes"
     },
+    "handover_notes": {
+      "type": "string",
+      "title": "Handover Notes"
+    },
     "is_recurring": {
       "type": "boolean",
       "title": "Recurring Daily",
