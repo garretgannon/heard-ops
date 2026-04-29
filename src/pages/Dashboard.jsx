@@ -18,6 +18,7 @@ const ROLES = [
   { value: "bartender", label: "Bartender" },
   { value: "host", label: "Host" },
   { value: "food_runner", label: "Food Runner" },
+  { value: "expo", label: "Expo" },
 ];
 
 export default function Dashboard() {

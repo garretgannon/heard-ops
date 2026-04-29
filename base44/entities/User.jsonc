@@ -12,7 +12,8 @@
         "bartender",
         "host",
         "busser",
-        "food_runner"
+        "food_runner",
+        "expo"
       ],
       "enumNames": [
         "Admin",
@@ -21,7 +22,8 @@
         "Bartender",
         "Host",
         "Busser",
-        "Food Runner"
+        "Food Runner",
+        "Expo"
       ]
     },
     "display_name": {

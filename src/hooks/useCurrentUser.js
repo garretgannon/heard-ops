@@ -13,7 +13,7 @@ export function useCurrentUser() {
   }, []);
 
   const isAdmin = user?.role === "admin";
-  const FOH_ROLES = ["server", "bartender", "host", "busser", "food_runner"];
+  const FOH_ROLES = ["server", "bartender", "host", "busser", "food_runner", "expo"];
   const isFOH = isAdmin || FOH_ROLES.includes(user?.role);
   return { user, loading, isAdmin, isFOH };
 }
