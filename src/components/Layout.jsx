@@ -7,7 +7,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const topNavItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/", label: "Dashboard", icon: LayoutDashboard, highlight: true },
 ];
 
 const fohNavItems_admin = [
@@ -23,8 +23,8 @@ const bohNavItems = [
 ];
 
 const bottomNavItems = [
-  { path: "/calendar", label: "Calendar", icon: CalendarDays },
-  { path: "/reports", label: "Reports", icon: BarChart2 },
+  { path: "/calendar", label: "Calendar", icon: CalendarDays, highlight: true },
+  { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
   { path: "/photo-review", label: "Photo Review", icon: Camera },
   { path: "/profile", label: "My Profile", icon: UserCircle },
 ];
@@ -115,7 +115,8 @@ export default function Layout() {
                     "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                     location.pathname === item.path
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      : "hover:bg-secondary hover:text-foreground",
+                    location.pathname !== item.path && item.highlight ? "text-primary" : location.pathname !== item.path ? "text-muted-foreground" : ""
                   )}
                 >
                   <item.icon className="h-4 w-4" />
@@ -181,7 +182,8 @@ export default function Layout() {
                       "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                       location.pathname === item.path
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        : "hover:bg-secondary hover:text-foreground",
+                      location.pathname !== item.path && item.highlight ? "text-primary" : location.pathname !== item.path ? "text-muted-foreground" : ""
                     )}
                   >
                     <item.icon className="h-4 w-4" />
