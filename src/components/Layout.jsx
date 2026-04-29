@@ -127,7 +127,7 @@ export default function Layout() {
                 onClick={() => setFohOpen(v => !v)}
                 className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
               >
-                <span>FOH</span>
+                <span className="text-primary">Front of House</span>
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", fohOpen && "rotate-180")} />
               </button>
               {fohOpen && fohNavItems_admin.map(item => (
@@ -151,7 +151,7 @@ export default function Layout() {
                 onClick={() => setBohOpen(v => !v)}
                 className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
               >
-                <span>BOH</span>
+                <span className="text-primary">Back of House</span>
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", bohOpen && "rotate-180")} />
               </button>
               {bohOpen && bohNavItems.map(item => (
