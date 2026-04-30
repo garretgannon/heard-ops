@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, isSameMonth, addMonths, subMonths, parseISO } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, addMonths, subMonths, parseISO } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const EVENT_TYPES = [
   { value: "write_up", label: "Write-Up", icon: AlertTriangle, color: "bg-red-500/20 text-red-400 border-red-500/30" },
@@ -42,7 +43,6 @@ export default function EmployeeCalendar() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [viewEmployee, setViewEmployee] = useState(null);
 
   const [form, setForm] = useState({
     employee_email: "", employee_name: "", date: format(new Date(), "yyyy-MM-dd"),
@@ -73,6 +73,12 @@ export default function EmployeeCalendar() {
 
   const days = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
   const startPadding = getDay(startOfMonth(currentMonth));
+
+  const openFormForDate = (day) => {
+    setSelectedDate(day);
+    setForm(f => ({ ...f, date: format(day, "yyyy-MM-dd") }));
+    setShowForm(true);
+  };
 
   const handleSave = async () => {
     if (!form.employee_email || !form.type || !form.date) {
@@ -118,7 +124,10 @@ export default function EmployeeCalendar() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">Track write-ups, conversations, attendance patterns — management only.</p>
         </div>
-        <Button onClick={() => { setForm(f => ({ ...f, date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd") })); setShowForm(true); }} className="gap-2">
+        <Button onClick={() => {
+          setForm(f => ({ ...f, date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd") }));
+          setShowForm(true);
+        }} className="gap-2">
           <Plus className="h-4 w-4" /> Log Event
         </Button>
       </div>
@@ -138,7 +147,7 @@ export default function EmployeeCalendar() {
           </SelectContent>
         </Select>
         {selectedEmployee !== "all" && (
-          <Button variant="ghost" size="sm" onClick={() => setViewEmployee(selectedEmployee)} className="gap-1 text-primary">
+          <Button variant="ghost" size="sm" className="gap-1 text-primary">
             <User className="h-3.5 w-3.5" /> View Profile
           </Button>
         )}
@@ -146,8 +155,8 @@ export default function EmployeeCalendar() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Calendar */}
-        <div className="xl:col-span-2 bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
+        <div className="xl:col-span-2 bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="font-semibold text-lg">{format(currentMonth, "MMMM yyyy")}</h2>
             <div className="flex gap-1">
               <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setCurrentMonth(m => subMonths(m, 1))}>
@@ -159,43 +168,50 @@ export default function EmployeeCalendar() {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-px mb-1">
+          {/* Day headers */}
+          <div className="grid grid-cols-7 border-b border-border">
             {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
-              <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
+              <div key={d} className="py-2 text-center text-xs font-semibold text-muted-foreground">{d}</div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-px">
-            {Array(startPadding).fill(null).map((_, i) => <div key={`pad-${i}`} />)}
+          {/* Day grid */}
+          <div className="grid grid-cols-7">
+            {Array(startPadding).fill(null).map((_, i) => (
+              <div key={`pad-${i}`} className="min-h-[80px] border-b border-r border-border/50 bg-muted/20" />
+            ))}
             {days.map(day => {
               const dayEvents = eventsForDay(day);
               const isSelected = selectedDate && isSameDay(day, selectedDate);
               const isToday = isSameDay(day, new Date());
               return (
-                <button
+                <div
                   key={day.toISOString()}
-                  onClick={() => {
-                    setSelectedDate(day);
-                    setForm(f => ({ ...f, date: format(day, "yyyy-MM-dd") }));
-                    setShowForm(true);
-                  }}
+                  onClick={() => openFormForDate(day)}
+                  className={cn(
+                    "min-h-[80px] border-b border-r border-border/50 p-1.5 cursor-pointer transition-colors",
+                    isSelected ? "bg-primary/10" : "hover:bg-secondary/40"
+                  )}
                 >
-                  <span className={`text-xs font-medium block text-center mb-1 ${isToday ? "text-primary font-bold" : "text-foreground"}`}>
-                    {format(day, "d")}
-                  </span>
-                  <div className="flex flex-wrap gap-0.5 justify-center">
+                  <div className="flex items-center mb-1">
+                    <span className={cn(
+                      "text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full",
+                      isToday ? "bg-primary text-primary-foreground text-xs" : "text-foreground"
+                    )}>{format(day, "d")}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-0.5">
                     {dayEvents.slice(0, 3).map(e => (
                       <span key={e.id} className={`h-1.5 w-1.5 rounded-full ${dotColors[e.type] || "bg-gray-400"}`} />
                     ))}
                     {dayEvents.length > 3 && <span className="text-[9px] text-muted-foreground">+{dayEvents.length - 3}</span>}
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-border">
+          <div className="flex flex-wrap gap-3 px-5 py-3 border-t border-border">
             {EVENT_TYPES.map(t => (
               <div key={t.value} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span className={`h-2 w-2 rounded-full ${dotColors[t.value]}`} />
