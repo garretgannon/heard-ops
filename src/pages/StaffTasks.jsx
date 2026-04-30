@@ -1,75 +1,71 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Clock, AlertCircle, CheckCircle2 } from "lucide-react";
-import { Link } from "react-router-dom";
-
-const CATEGORIES = {
-  prep: { label: "Prep", color: "bg-blue-500/15 border-blue-500/30", textColor: "text-blue-600" },
-  line: { label: "Line", color: "bg-purple-500/15 border-purple-500/30", textColor: "text-purple-600" },
-  dish: { label: "Dish", color: "bg-cyan-500/15 border-cyan-500/30", textColor: "text-cyan-600" },
-  sidework: { label: "Side Work", color: "bg-orange-500/15 border-orange-500/30", textColor: "text-orange-600" },
-};
-
-const STATUS_COLORS = {
-  pending: "bg-red-500/15 border-red-500/30 text-red-600",
-  in_progress: "bg-yellow-500/15 border-yellow-500/30 text-yellow-600",
-  completed: "bg-green-500/15 border-green-500/30 text-green-600",
-};
-
-const STATUS_ICONS = {
-  pending: AlertCircle,
-  in_progress: Clock,
-  completed: CheckCircle2,
-};
+import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, BookOpen, TrendingUp, FileText } from "lucide-react";
+import ShiftSnapshot from "../components/dashboard/ShiftSnapshot";
+import CompletionCard from "../components/dashboard/CompletionCard";
+import StatusSection from "../components/dashboard/StatusSection";
+import QuickActionBar from "../components/dashboard/QuickActionBar";
 
 export default function StaffTasks() {
-  const { user } = useCurrentUser();
-  const [prepItems, setPrepItems] = useState([]);
-  const [sideWorkTasks, setSideWorkTasks] = useState([]);
-  const [prepLists, setPrepLists] = useState([]);
-  const [stations, setStations] = useState([]);
+  const { user, isAdmin } = useCurrentUser();
+  const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const load = async () => {
-      const [pls, pi, sw, st] = await Promise.all([
-        base44.entities.PrepList.filter({ date: todayStr }),
-        base44.entities.PrepItem.list("-created_date", 200),
-        base44.entities.SideWorkAssignment.filter({ date: todayStr }),
-        base44.entities.Station.list(),
-      ]);
-      
-      setPrepLists(pls);
-      // Filter prep items by role or individual assignment
-      const filteredPrepItems = pi.filter(item => {
-        if (!pls.some(pl => pl.id === item.prep_list_id)) return false;
-        // Show if assigned to user individually
-        if (item.assigned_to_individual === user?.email) return true;
-        // Show if assigned to user's role and not overridden
-        if (item.role_assignment === user?.role && !item.assigned_to_individual) return true;
-        // Show if no role assignment (available to all)
-        if (item.allow_all_roles && !item.role_assignment && !item.assigned_to_individual) return true;
-        return false;
-      });
-      setPrepItems(filteredPrepItems);
-      // Filter side work by role or individual assignment
-      const filteredSideWork = sw.filter(task => {
-        // Show if assigned to user individually
-        if (task.assigned_to_individual && task.assigned_to_email === user?.email) return true;
-        // Show if assigned to user's role
-        if (task.role_assignment === user?.role && !task.assigned_to_individual) return true;
-        // Show if no role assignment (available to all)
-        if (!task.role_assignment && !task.assigned_to_individual) return true;
-        return false;
-      });
-      setSideWorkTasks(filteredSideWork);
-      setStations(st);
-      setLoading(false);
+      try {
+        const [prepLists, prepItems, sideWork, tempLogs, maintenanceReqs, incidents, users] = await Promise.all([
+          base44.entities.PrepList.filter({ date: todayStr }),
+          base44.entities.PrepItem.list("-created_date", 200),
+          base44.entities.SideWorkAssignment.filter({ date: todayStr }),
+          base44.entities.TempLogEntry.filter({ date: todayStr }),
+          base44.entities.MaintenanceRequest.filter({ status: "open" }),
+          base44.entities.IncidentReport.filter({ status: "open" }),
+          base44.entities.User.list(),
+        ]);
+
+        // Filter items by role
+        const filteredPrepItems = prepItems.filter(item => {
+          if (!prepLists.some(pl => pl.id === item.prep_list_id)) return false;
+          if (item.assigned_to_individual === user?.email) return true;
+          if (item.role_assignment === user?.role && !item.assigned_to_individual) return true;
+          if (item.allow_all_roles && !item.role_assignment && !item.assigned_to_individual) return true;
+          return false;
+        });
+
+        const filteredSideWork = sideWork.filter(task => {
+          if (task.assigned_to_individual && task.assigned_to_email === user?.email) return true;
+          if (task.role_assignment === user?.role && !task.assigned_to_individual) return true;
+          if (!task.role_assignment && !task.assigned_to_individual) return true;
+          return false;
+        });
+
+        const prepCompleted = filteredPrepItems.filter(i => i.status === "completed").length;
+        const sideWorkCompleted = filteredSideWork.filter(t => t.status === "completed" || t.status === "approved").length;
+        const tempLogsDue = tempLogs.length;
+        const openIncidents = incidents.filter(i => i.status === "open").length;
+
+        setDashboardData({
+          prepCompletion: { completed: prepCompleted, total: filteredPrepItems.length },
+          sideWorkCompletion: { completed: sideWorkCompleted, total: filteredSideWork.length },
+          tempLogsDue,
+          openIncidents,
+          maintenanceRequests: maintenanceReqs.filter(r => r.status === "open"),
+          incidents: incidents.filter(i => i.status === "open"),
+          staffCount: users.length,
+          shiftsStarting: 0,
+          alerts: openIncidents,
+        });
+      } catch (error) {
+        console.error("Dashboard load error:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-    
+
     if (user?.email) load();
   }, [user?.email]);
 
@@ -81,136 +77,98 @@ export default function StaffTasks() {
     );
   }
 
-  const allTasks = [
-    ...prepItems.map(item => ({
-      id: item.id,
-      name: item.name,
-      status: item.status,
-      priority: item.priority || "medium",
-      category: "prep",
-      station: stations.find(s => s.id === item.station_id)?.name,
-      type: "prep",
-      quantity: item.quantity,
-      unit: item.unit,
-      photo_url: item.photo_url,
-    })),
-    ...sideWorkTasks.map(task => ({
-      id: task.id,
-      name: task.task_name || "Side Work Task",
-      status: task.status === "approved" ? "completed" : task.status === "completed" ? "in_progress" : "pending",
-      priority: "medium",
-      category: "sidework",
-      station: "Front of House",
-      type: "sidework",
-      photo_url: task.photo_url,
-    })),
-  ];
-
-  const completed = allTasks.filter(t => t.status === "completed").length;
-  const total = allTasks.length;
-  const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-  // Group by category, then sort by priority
-  const groupedTasks = {};
-  const priorityOrder = { high: 0, medium: 1, low: 2 };
-  
-  allTasks.forEach(task => {
-    const cat = task.category;
-    if (!groupedTasks[cat]) groupedTasks[cat] = [];
-    groupedTasks[cat].push(task);
-  });
-
-  Object.keys(groupedTasks).forEach(cat => {
-    groupedTasks[cat].sort((a, b) => {
-      const pd = (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1);
-      return pd !== 0 ? pd : a.status === "pending" ? -1 : 1;
-    });
-  });
-
-  const orderedGroups = ["prep", "line", "dish", "sidework"].filter(cat => groupedTasks[cat]?.length);
+  if (!dashboardData) {
+    return (
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        Failed to load dashboard
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Today's Tasks</h1>
-        <p className="text-muted-foreground mt-1">{todayStr}</p>
+        <h1 className="text-4xl lg:text-3xl font-bold tracking-tight">Operations Command Center</h1>
+        <p className="text-muted-foreground mt-2 text-lg lg:text-base">
+          The daily operating system for restaurants — prep, side work, logs, vendors, cash, maintenance, and manager follow-up in one place.
+        </p>
       </div>
 
-      {/* Progress bar */}
-      {total > 0 && (
-        <div className="bg-card rounded-xl border-2 border-border p-4 lg:p-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-base lg:text-sm font-bold">{completed}/{total} Done</span>
-            <span className="text-2xl lg:text-sm font-bold text-primary">{progress}%</span>
-          </div>
-          <div className="h-4 lg:h-3 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-accent rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-      )}
+      {isAdmin ? (
+        <>
+          {/* Shift Snapshot */}
+          <ShiftSnapshot
+            data={{
+              staffCount: dashboardData.staffCount,
+              shiftsStarting: dashboardData.shiftsStarting,
+              alertCount: dashboardData.alerts,
+            }}
+          />
 
-      {/* Tasks by category */}
-      {total === 0 ? (
-        <div className="bg-card rounded-2xl border border-border p-8 text-center">
-          <p className="text-muted-foreground">No tasks today. Great work!</p>
-        </div>
-      ) : (
-        orderedGroups.map(category => (
-          <div key={category} className="space-y-3">
-            <h2 className={`text-sm font-semibold uppercase tracking-wider ${CATEGORIES[category]?.textColor}`}>
-              {CATEGORIES[category]?.label}
-            </h2>
-
-            <div className="grid gap-3 lg:grid-cols-3">
-              {groupedTasks[category].map(task => {
-                const StatusIcon = STATUS_ICONS[task.status];
-                const hasPhoto = task.photo_url && task.status === "completed";
-
-                return (
-                  <Link
-                    key={task.id}
-                    to={task.type === "prep" ? `/prep-lists?id=${task.id}` : "/side-work"}
-                    className="block"
-                  >
-                    <div
-                      className={`rounded-xl border-2 p-4 lg:p-3 transition-all hover:shadow-lg active:scale-95 cursor-pointer ${
-                        STATUS_COLORS[task.status]
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        {StatusIcon && (
-                          <StatusIcon className="h-6 lg:h-5 w-6 lg:w-5 flex-shrink-0 mt-0.5" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-base lg:text-sm leading-tight">{task.name}</p>
-                          {(task.quantity || task.unit || task.station) && (
-                            <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground font-semibold">
-                              {task.station && <span>{task.station}</span>}
-                              {(task.quantity || task.unit) && (
-                                <span>{task.quantity}{task.unit ? ` ${task.unit}` : ""}</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        {hasPhoto && (
-                          <img
-                            src={task.photo_url}
-                            alt="Complete"
-                            className="h-12 lg:h-10 w-12 lg:w-10 rounded-lg object-cover flex-shrink-0"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+          {/* Completion Metrics */}
+          <div className="space-y-2">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Task Completion</h2>
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 lg:gap-3">
+              <CompletionCard
+                title="Prep"
+                completed={dashboardData.prepCompletion.completed}
+                total={dashboardData.prepCompletion.total}
+                icon={ClipboardList}
+                color="text-blue-500"
+              />
+              <CompletionCard
+                title="Side Work"
+                completed={dashboardData.sideWorkCompletion.completed}
+                total={dashboardData.sideWorkCompletion.total}
+                icon={BookOpen}
+                color="text-orange-500"
+              />
+              <CompletionCard
+                title="Temp Logs"
+                completed={dashboardData.tempLogsDue}
+                total={Math.max(dashboardData.tempLogsDue, 1)}
+                icon={Thermometer}
+                color="text-cyan-500"
+              />
+              <CompletionCard
+                title="Issues"
+                completed={dashboardData.openIncidents}
+                total={Math.max(dashboardData.openIncidents, 1)}
+                icon={AlertTriangle}
+                color="text-red-500"
+              />
             </div>
           </div>
-        ))
+
+          {/* Status Sections Grid */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <StatusSection
+              title="Open Maintenance"
+              items={dashboardData.maintenanceRequests}
+              icon={Wrench}
+              emptyMessage="No open maintenance requests"
+            />
+            <StatusSection
+              title="Incident Reports"
+              items={dashboardData.incidents}
+              icon={AlertTriangle}
+              emptyMessage="No open incidents"
+            />
+          </div>
+
+          {/* Quick Actions */}
+          <QuickActionBar isAdmin={true} />
+        </>
+      ) : (
+        /* Non-admin view */
+        <div className="space-y-6">
+          <div className="bg-card rounded-xl border-2 border-border p-6 text-center">
+            <h2 className="text-lg font-bold mb-2">Welcome to Heard Operations</h2>
+            <p className="text-muted-foreground">Access your assigned tasks and workflows from the navigation menu.</p>
+          </div>
+          <QuickActionBar isAdmin={false} />
+        </div>
       )}
     </div>
   );

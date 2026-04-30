@@ -444,7 +444,7 @@ export default function Layout() {
 
         <div className="p-4 mx-3 mb-3 rounded-xl bg-secondary/40 border border-border/40">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Share station links with your prep team so they can check off tasks and upload photos.
+            The daily operating system for restaurants — prep, side work, logs, vendors, cash, maintenance, and manager follow-up in one place.
           </p>
         </div>
       </aside>
