@@ -1,0 +1,69 @@
+{
+  "name": "Vendor",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Vendor Name"
+    },
+    "contact_person": {
+      "type": "string",
+      "title": "Contact Person"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Phone Number"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email Address"
+    },
+    "website": {
+      "type": "string",
+      "title": "Website"
+    },
+    "address": {
+      "type": "string",
+      "title": "Address"
+    },
+    "city": {
+      "type": "string",
+      "title": "City"
+    },
+    "state": {
+      "type": "string",
+      "title": "State"
+    },
+    "zip": {
+      "type": "string",
+      "title": "ZIP Code"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "food_supplier",
+        "beverage_supplier",
+        "equipment",
+        "maintenance",
+        "cleaning",
+        "other"
+      ],
+      "enumNames": [
+        "Food Supplier",
+        "Beverage Supplier",
+        "Equipment",
+        "Maintenance",
+        "Cleaning Supplies",
+        "Other"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
