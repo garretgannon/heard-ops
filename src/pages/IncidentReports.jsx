@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Plus, X, Edit2, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, X, Edit2, Trash2, AlertTriangle, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -55,7 +57,13 @@ export default function IncidentReports() {
     follow_up_required: false,
     follow_up_date: "",
     status: "open",
-    notes: ""
+    notes: "",
+    affected_person_name: "",
+    affected_person_email: "",
+    affected_person_phone: "",
+    affected_person_dob: "",
+    affected_person_gender: "",
+    affected_person_address: ""
   });
 
   useEffect(() => {
@@ -106,6 +114,42 @@ export default function IncidentReports() {
     setEditingId(null);
   };
 
+  const handleEmailForm = async (id) => {
+    const incident = incidents.find(i => i.id === id);
+    if (!incident?.affected_person_email) {
+      toast.error("No email address on file");
+      return;
+    }
+    const body = `
+Incident Report Summary
+
+Incident Type: ${incident.type}
+Date: ${incident.date} ${incident.time || ""}
+Location: ${incident.location}
+Severity: ${incident.severity}
+
+Description:
+${incident.description}
+
+Affected Person:
+Name: ${incident.affected_person_name || "N/A"}
+Phone: ${incident.affected_person_phone || "N/A"}
+DOB: ${incident.affected_person_dob || "N/A"}
+Gender: ${incident.affected_person_gender || "N/A"}
+Address: ${incident.affected_person_address || "N/A"}
+
+Injuries: ${incident.injuries || "None reported"}
+Actions Taken: ${incident.actions_taken || "N/A"}
+Status: ${incident.status}
+    `.trim();
+    await base44.integrations.Core.SendEmail({
+      to: incident.affected_person_email,
+      subject: `Incident Report - ${incident.date}`,
+      body
+    });
+    toast.success("Report emailed");
+  };
+
   const handleDelete = async (id) => {
     if (!confirm("Delete this incident report?")) return;
     await base44.entities.IncidentReport.delete(id);
@@ -134,7 +178,13 @@ export default function IncidentReports() {
       follow_up_required: false,
       follow_up_date: "",
       status: "open",
-      notes: ""
+      notes: "",
+      affected_person_name: "",
+      affected_person_email: "",
+      affected_person_phone: "",
+      affected_person_dob: "",
+      affected_person_gender: "",
+      affected_person_address: ""
     });
     setEditingId(null);
     setShowForm(true);
@@ -201,6 +251,9 @@ export default function IncidentReports() {
                     <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(incident)}>
                       <Edit2 className="h-4 w-4" />
                     </Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleEmailForm(incident.id)} title="Email report">
+                      <Mail className="h-4 w-4" />
+                    </Button>
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDelete(incident.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -237,7 +290,21 @@ export default function IncidentReports() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label>Date *</Label>
-                <Input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left">
+                      {form.date ? format(new Date(form.date + "T00:00:00"), "MMM d, yyyy") : "Pick date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={form.date ? new Date(form.date + "T00:00:00") : undefined}
+                      onSelect={date => setForm(f => ({ ...f, date: format(date, "yyyy-MM-dd") }))}
+                      disabled={date => date > new Date()}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-1">
                 <Label>Time</Label>
@@ -342,9 +409,64 @@ export default function IncidentReports() {
             {form.follow_up_required && (
               <div className="space-y-1">
                 <Label>Follow-Up Date</Label>
-                <Input type="date" value={form.follow_up_date} onChange={e => setForm(f => ({ ...f, follow_up_date: e.target.value }))} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left">
+                      {form.follow_up_date ? format(new Date(form.follow_up_date + "T00:00:00"), "MMM d, yyyy") : "Pick date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={form.follow_up_date ? new Date(form.follow_up_date + "T00:00:00") : undefined}
+                      onSelect={date => setForm(f => ({ ...f, follow_up_date: format(date, "yyyy-MM-dd") }))}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
+
+            <div className="border-t pt-4 mt-4">
+              <h3 className="font-semibold text-sm mb-3">Affected Person Info</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>Name</Label>
+                  <Input value={form.affected_person_name} onChange={e => setForm(f => ({ ...f, affected_person_name: e.target.value }))} placeholder="Full name" />
+                </div>
+                <div className="space-y-1">
+                  <Label>Email</Label>
+                  <Input type="email" value={form.affected_person_email} onChange={e => setForm(f => ({ ...f, affected_person_email: e.target.value }))} placeholder="email@example.com" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <div className="space-y-1">
+                  <Label>Phone</Label>
+                  <Input value={form.affected_person_phone} onChange={e => setForm(f => ({ ...f, affected_person_phone: e.target.value }))} placeholder="(555) 123-4567" />
+                </div>
+                <div className="space-y-1">
+                  <Label>Date of Birth</Label>
+                  <Input type="date" value={form.affected_person_dob} onChange={e => setForm(f => ({ ...f, affected_person_dob: e.target.value }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <div className="space-y-1">
+                  <Label>Gender</Label>
+                  <Select value={form.affected_person_gender} onValueChange={v => setForm(f => ({ ...f, affected_person_gender: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="prefer_not_to_say">Prefer Not to Say</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>Address</Label>
+                  <Input value={form.affected_person_address} onChange={e => setForm(f => ({ ...f, affected_person_address: e.target.value }))} placeholder="Street address" />
+                </div>
+              </div>
+            </div>
 
             <div className="space-y-1">
               <Label>Additional Notes</Label>

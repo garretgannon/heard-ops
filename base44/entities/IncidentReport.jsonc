@@ -108,6 +108,43 @@
     "notes": {
       "type": "string",
       "title": "Additional Notes"
+    },
+    "affected_person_name": {
+      "type": "string",
+      "title": "Affected Person Name"
+    },
+    "affected_person_email": {
+      "type": "string",
+      "title": "Affected Person Email"
+    },
+    "affected_person_phone": {
+      "type": "string",
+      "title": "Affected Person Phone"
+    },
+    "affected_person_dob": {
+      "type": "string",
+      "format": "date",
+      "title": "Date of Birth"
+    },
+    "affected_person_gender": {
+      "type": "string",
+      "title": "Gender",
+      "enum": [
+        "male",
+        "female",
+        "other",
+        "prefer_not_to_say"
+      ],
+      "enumNames": [
+        "Male",
+        "Female",
+        "Other",
+        "Prefer Not to Say"
+      ]
+    },
+    "affected_person_address": {
+      "type": "string",
+      "title": "Address"
     }
   },
   "required": [
