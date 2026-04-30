@@ -13,10 +13,10 @@ const topNavItems = [
 const settingsNavItems = [
   { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
   { path: "/restaurant-team", label: "Restaurant Team", icon: Users },
+  { path: "/job-codes", label: "Roles", icon: Tag },
 ];
 
 const fohNavItems_admin = [
-  { path: "/job-codes", label: "Roles", icon: Tag },
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
   { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
 ];
