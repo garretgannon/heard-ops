@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { CheckCircle2, AlertTriangle, ShoppingBag, Plus, Trash2, Clock, Settings, X } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ShoppingBag, Plus, Trash2, Clock, Settings, X, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { toast } from "sonner";
@@ -49,6 +49,8 @@ export default function BathroomChecks() {
   const [configForm, setConfigForm] = useState({ name: "", interval_minutes: 60, active_start: "", active_end: "", notes: "" });
   const [checkForm, setCheckForm] = useState({ status: "clean", notes: "" });
   const [saving, setSaving] = useState(false);
+  const [editModal, setEditModal] = useState(null); // config object being edited
+  const [editForm, setEditForm] = useState({});
   const { user, isAdmin } = useCurrentUser();
 
   const load = async () => {
@@ -77,6 +79,21 @@ export default function BathroomChecks() {
   const deleteConfig = async (id) => {
     await base44.entities.BathroomCheckConfig.update(id, { is_active: false });
     toast.success("Location removed");
+    load();
+  };
+
+  const openEdit = (c) => {
+    setEditModal(c);
+    setEditForm({ name: c.name, interval_minutes: c.interval_minutes, active_start: c.active_start || "", active_end: c.active_end || "", notes: c.notes || "" });
+  };
+
+  const saveEdit = async () => {
+    if (!editForm.name.trim() || !editForm.interval_minutes) return;
+    setSaving(true);
+    await base44.entities.BathroomCheckConfig.update(editModal.id, editForm);
+    setEditModal(null);
+    toast.success("Location updated");
+    setSaving(false);
     load();
   };
 
@@ -193,9 +210,14 @@ export default function BathroomChecks() {
                         )}
                       </p>
                     </div>
+                    <div className="flex items-center gap-1">
+                    <button onClick={() => openEdit(c)} className="text-muted-foreground hover:text-primary transition-colors p-1">
+                      <Pencil className="h-4 w-4" />
+                    </button>
                     <button onClick={() => deleteConfig(c.id)} className="text-muted-foreground hover:text-destructive transition-colors p-1">
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -297,6 +319,89 @@ export default function BathroomChecks() {
           </div>
         </div>
       )}
+
+      {/* Edit modal */}
+      <AnimatePresence>
+        {editModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-4"
+            onClick={() => setEditModal(null)}
+          >
+            <motion.div
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 40, opacity: 0 }}
+              className="bg-card rounded-2xl border border-border p-5 w-full max-w-md space-y-4"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">Edit Location</h3>
+                <button onClick={() => setEditModal(null)}><X className="h-4 w-4 text-muted-foreground" /></button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Location Name</label>
+                  <input
+                    value={editForm.name}
+                    onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
+                    className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Check Interval (minutes)</label>
+                  <input
+                    type="number"
+                    min={5}
+                    value={editForm.interval_minutes}
+                    onChange={e => setEditForm(p => ({ ...p, interval_minutes: Number(e.target.value) }))}
+                    className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <label className="text-xs text-muted-foreground block mb-1">Active From</label>
+                    <input
+                      type="time"
+                      value={editForm.active_start}
+                      onChange={e => setEditForm(p => ({ ...p, active_start: e.target.value }))}
+                      className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                  <span className="text-muted-foreground mt-5">—</span>
+                  <div className="flex-1">
+                    <label className="text-xs text-muted-foreground block mb-1">Active Until</label>
+                    <input
+                      type="time"
+                      value={editForm.active_end}
+                      onChange={e => setEditForm(p => ({ ...p, active_end: e.target.value }))}
+                      className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">Leave times blank for always-on</p>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Notes (optional)</label>
+                  <textarea
+                    value={editForm.notes}
+                    onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))}
+                    rows={2}
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setEditModal(null)}>Cancel</Button>
+                <Button size="sm" onClick={saveEdit} disabled={saving || !editForm.name.trim()}>
+                  {saving ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Check modal */}
       <AnimatePresence>
