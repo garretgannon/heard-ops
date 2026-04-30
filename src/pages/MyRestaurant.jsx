@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { useCurrentUser } from "../hooks/useCurrentUser";
 import { motion } from "framer-motion";
-import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown, DollarSign, Upload, ImageIcon } from "lucide-react";
+import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown, DollarSign, Upload, ImageIcon, Clock, Users, Palette, Settings, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
@@ -14,19 +16,19 @@ const colorDot = { red:"bg-red-500", blue:"bg-blue-500", green:"bg-green-500", o
 function SectionCard({ icon: Icon, title, color, count, children }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="bg-card rounded-2xl border border-border overflow-hidden">
+    <div className="bg-card rounded-lg border border-border overflow-hidden">
       <button
         onClick={() => setOpen(v => !v)}
-        className={`w-full flex items-center justify-between gap-3 px-5 py-4 border-b border-border transition-colors hover:bg-secondary/30 text-left ${color}`}
+        className={`w-full flex items-center justify-between gap-3 px-5 py-3 border-b border-border transition-colors hover:bg-secondary/30 text-left ${color}`}
       >
         <div className="flex items-center gap-3">
           <Icon className="h-5 w-5" />
-          <h2 className="font-semibold text-base">{title}</h2>
+          <h3 className="font-semibold text-sm">{title}</h3>
           {count > 0 && <span className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">{count}</span>}
         </div>
         <ChevronDown className={`h-4 w-4 transition-transform text-muted-foreground ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="p-5 space-y-4">{children}</div>}
+      {open && <div className="p-4 space-y-3">{children}</div>}
     </div>
   );
 }
@@ -34,8 +36,8 @@ function SectionCard({ icon: Icon, title, color, count, children }) {
 function InlineForm({ fields, onSave, onCancel, saving }) {
   const [values, setValues] = useState(fields.reduce((acc, f) => ({ ...acc, [f.key]: f.default ?? "" }), {}));
   return (
-    <div className="bg-secondary/30 rounded-xl border border-border p-4 space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className="bg-secondary/30 rounded-lg border border-border p-3 space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {fields.map(f => (
           <div key={f.key} className="space-y-1">
             <Label className="text-xs">{f.label}</Label>
@@ -60,7 +62,7 @@ function InlineForm({ fields, onSave, onCancel, saving }) {
       </div>
       <div className="flex gap-2">
         <Button size="sm" onClick={() => onSave(values)} disabled={saving}>
-          <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save"}
+          <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving..." : "Save"}
         </Button>
         <Button size="sm" variant="ghost" onClick={onCancel}><X className="h-3.5 w-3.5" /></Button>
       </div>
@@ -69,6 +71,8 @@ function InlineForm({ fields, onSave, onCancel, saving }) {
 }
 
 export default function MyRestaurant() {
+  const { isAdmin } = useCurrentUser();
+
   const [stations, setStations] = useState([]);
   const [tempLocations, setTempLocations] = useState([]);
   const [dishEquipment, setDishEquipment] = useState([]);
@@ -77,12 +81,17 @@ export default function MyRestaurant() {
   const [pettyCashId, setPettyCashId] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
   const [restaurantNameId, setRestaurantNameId] = useState(null);
+  const [restaurantAddress, setRestaurantAddress] = useState("");
+  const [restaurantAddressId, setRestaurantAddressId] = useState(null);
+  const [restaurantPhone, setRestaurantPhone] = useState("");
+  const [restaurantPhoneId, setRestaurantPhoneId] = useState(null);
+  const [timeZone, setTimeZone] = useState("");
+  const [timeZoneId, setTimeZoneId] = useState(null);
   const [logoUrl, setLogoUrl] = useState("");
   const [logoUrlId, setLogoUrlId] = useState(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   const [addingStation, setAddingStation] = useState(false);
   const [addingTemp, setAddingTemp] = useState(false);
   const [addingDish, setAddingDish] = useState(false);
@@ -90,35 +99,36 @@ export default function MyRestaurant() {
 
   useEffect(() => {
     const load = async () => {
-      const [s, tl, de, cd, settings, nameSettings] = await Promise.all([
+      const [s, tl, de, cd, settings, nameSettings, addressSettings, phoneSettings, tzSettings, logoSettings] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.TempLogLocation.list(),
         base44.entities.DishMachineEquipment.list(),
         base44.entities.CashDrawerConfig.list(),
         base44.entities.Settings.filter({ key: "petty_cash_amount" }),
         base44.entities.Settings.filter({ key: "restaurant_name" }),
+        base44.entities.Settings.filter({ key: "restaurant_address" }),
+        base44.entities.Settings.filter({ key: "restaurant_phone" }),
+        base44.entities.Settings.filter({ key: "time_zone" }),
+        base44.entities.Settings.filter({ key: "logo_url" }),
       ]);
       setStations(s);
       setTempLocations(tl);
       setDishEquipment(de);
       setCashDrawers(cd);
-      if (settings.length > 0) {
-        setPettyCashAmount(settings[0].value || "");
-        setPettyCashId(settings[0].id);
-      }
-      if (nameSettings.length > 0) {
-        setRestaurantName(nameSettings[0].value || "");
-        setRestaurantNameId(nameSettings[0].id);
-      }
-      const logoSettings = await base44.entities.Settings.filter({ key: "logo_url" });
-      if (logoSettings.length > 0) {
-        setLogoUrl(logoSettings[0].value || "");
-        setLogoUrlId(logoSettings[0].id);
-      }
+      if (settings.length > 0) { setPettyCashAmount(settings[0].value || ""); setPettyCashId(settings[0].id); }
+      if (nameSettings.length > 0) { setRestaurantName(nameSettings[0].value || ""); setRestaurantNameId(nameSettings[0].id); }
+      if (addressSettings.length > 0) { setRestaurantAddress(addressSettings[0].value || ""); setRestaurantAddressId(addressSettings[0].id); }
+      if (phoneSettings.length > 0) { setRestaurantPhone(phoneSettings[0].value || ""); setRestaurantPhoneId(phoneSettings[0].id); }
+      if (tzSettings.length > 0) { setTimeZone(tzSettings[0].value || ""); setTimeZoneId(tzSettings[0].id); }
+      if (logoSettings.length > 0) { setLogoUrl(logoSettings[0].value || ""); setLogoUrlId(logoSettings[0].id); }
       setLoading(false);
     };
     load();
   }, []);
+
+  if (!isAdmin) {
+    return <div className="flex items-center justify-center h-64"><p className="text-muted-foreground">Admin only</p></div>;
+  }
 
   const deleteItem = async (entity, id, setter) => {
     await base44.entities[entity].delete(id);
@@ -189,255 +199,228 @@ export default function MyRestaurant() {
     toast.success("Logo saved");
   };
 
-  const saveRestaurantName = async () => {
+  const saveSetting = async (id, setId, value, key) => {
     setSaving(true);
-    if (restaurantNameId) {
-      await base44.entities.Settings.update(restaurantNameId, { value: restaurantName });
+    if (id) {
+      await base44.entities.Settings.update(id, { value });
     } else {
-      const rec = await base44.entities.Settings.create({ key: "restaurant_name", value: restaurantName });
-      setRestaurantNameId(rec.id);
+      const rec = await base44.entities.Settings.create({ key, value });
+      setId(rec.id);
     }
     setSaving(false);
-    toast.success("Restaurant name saved");
+    toast.success("Saved");
   };
 
-  const savePettyCash = async () => {
-    setSaving(true);
-    if (pettyCashId) {
-      await base44.entities.Settings.update(pettyCashId, { value: pettyCashAmount });
-    } else {
-      const rec = await base44.entities.Settings.create({ key: "petty_cash_amount", value: pettyCashAmount });
-      setPettyCashId(rec.id);
-    }
-    setSaving(false);
-    toast.success("Petty cash amount saved");
-  };
-
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
-    <motion.div className="space-y-8" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+    <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       <div>
         <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
           <Building2 className="h-7 w-7 text-primary" /> My Restaurant
         </h1>
-        <p className="text-muted-foreground mt-1">Configure your kitchen layout — stations, refrigeration, and dish equipment. These flow into Prep Lists, Temp Logs, and Dish Machines.</p>
+        <p className="text-muted-foreground mt-1 text-sm">Admin setup and configuration.</p>
       </div>
 
-      {/* Restaurant Name */}
-      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-        <h2 className="font-semibold text-base flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Restaurant Branding</h2>
-        <div className="flex items-start gap-5">
-          {/* Logo upload */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-16 w-16 rounded-xl bg-secondary border border-border flex items-center justify-center overflow-hidden">
-              {logoUrl ? (
-                <img src={logoUrl} alt="logo" className="h-16 w-16 object-cover" />
-              ) : (
-                <ImageIcon className="h-7 w-7 text-muted-foreground" />
-              )}
-            </div>
-            <label className="cursor-pointer">
-              <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} />
-              <span className="text-xs text-primary flex items-center gap-1 hover:underline">
-                <Upload className="h-3 w-3" />{uploadingLogo ? "Uploading…" : "Upload Logo"}
-              </span>
-            </label>
-          </div>
-          {/* Name */}
-          <div className="flex-1 space-y-1">
-            <Label className="text-xs">Restaurant Name</Label>
-            <div className="flex items-center gap-3">
-              <Input
-                placeholder="e.g. The Golden Fork"
-                value={restaurantName}
-                onChange={e => setRestaurantName(e.target.value)}
-                className="max-w-sm"
-              />
-              <Button size="sm" onClick={saveRestaurantName} disabled={saving}>
-                <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save"}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">Displayed in the app header and sidebar.</p>
-          </div>
-        </div>
-      </div>
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 gap-1">
+          <TabsTrigger value="profile" className="text-xs lg:text-sm gap-1"><Building2 className="h-4 w-4 hidden sm:block" /> Profile</TabsTrigger>
+          <TabsTrigger value="hours" className="text-xs lg:text-sm gap-1"><Clock className="h-4 w-4 hidden sm:block" /> Hours</TabsTrigger>
+          <TabsTrigger value="departments" className="text-xs lg:text-sm gap-1"><UtensilsCrossed className="h-4 w-4 hidden sm:block" /> Depts</TabsTrigger>
+          <TabsTrigger value="roles" className="text-xs lg:text-sm gap-1"><Users className="h-4 w-4 hidden sm:block" /> Roles</TabsTrigger>
+          <TabsTrigger value="branding" className="text-xs lg:text-sm gap-1"><Palette className="h-4 w-4 hidden sm:block" /> Brand</TabsTrigger>
+          <TabsTrigger value="settings" className="text-xs lg:text-sm gap-1"><Settings className="h-4 w-4 hidden sm:block" /> Setup</TabsTrigger>
+        </TabsList>
 
-      {/* Prep Stations */}
-      <SectionCard icon={UtensilsCrossed} title="Prep Stations" color="text-blue-400" count={stations.length}>
-        <div className="space-y-2">
-          {stations.length === 0 && <p className="text-sm text-muted-foreground">No stations yet.</p>}
-          {stations.map(s => (
-            <div key={s.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5">
-              <div className="flex items-center gap-3">
-                <span className={`h-3 w-3 rounded-full ${colorDot[s.color] || "bg-gray-400"}`} />
-                <span className="text-sm font-medium">{s.name}</span>
-                {s.description && <span className="text-xs text-muted-foreground hidden sm:block">{s.description}</span>}
-              </div>
-              <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteItem("Station", s.id, setStations)}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))}
-        </div>
-        {addingStation ? (
-          <InlineForm
-            saving={saving}
-            onCancel={() => setAddingStation(false)}
-            onSave={saveStation}
-            fields={[
-              { key: "name", label: "Station Name", placeholder: "e.g. Grill, Salad, Fryer" },
-              { key: "description", label: "Description", placeholder: "Optional" },
-              { key: "color", label: "Color", type: "select", default: "blue", options: STATION_COLORS.map(c => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) })) },
-            ]}
-          />
-        ) : (
-          <Button size="sm" variant="outline" onClick={() => setAddingStation(true)}><Plus className="h-3.5 w-3.5 mr-1" />Add Station</Button>
-        )}
-      </SectionCard>
-
-      {/* Refrigeration & Temperature Locations */}
-      <SectionCard icon={Thermometer} title="Refrigeration & Temperature Locations" color="text-cyan-400" count={tempLocations.length}>
-        <p className="text-xs text-muted-foreground -mt-1 text-left">Refrigerators, freezers, hot wells — these appear in Temp Logs for monitoring.</p>
-        <div className="space-y-2">
-          {tempLocations.length === 0 && <p className="text-sm text-muted-foreground">No locations yet.</p>}
-          {tempLocations.map(loc => (
-            <div key={loc.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5 text-left">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium">{loc.name}</span>
-              </div>
-              <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => deleteItem("TempLogLocation", loc.id, setTempLocations)}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))}
-        </div>
-        {addingTemp ? (
-          <InlineForm
-            saving={saving}
-            onCancel={() => setAddingTemp(false)}
-            onSave={saveTemp}
-            fields={[
-              { key: "name", label: "Name", placeholder: "e.g. Walk-in Cooler, Reach-in #1" },
-              { key: "type", label: "Type", type: "select", options: [
-                { value: "refrigerator", label: "Refrigerator" },
-                { value: "freezer", label: "Freezer" },
-                { value: "hot_well", label: "Hot Well" },
-                { value: "cooling", label: "Cooling Log" },
-              ]},
-              { key: "target_min", label: "Min Safe Temp (°F)", type: "number", placeholder: "e.g. 33" },
-              { key: "target_max", label: "Max Safe Temp (°F)", type: "number", placeholder: "e.g. 41" },
-              { key: "check_interval_minutes", label: "Check Every (minutes)", type: "number", placeholder: "e.g. 240" },
-            ]}
-          />
-        ) : (
-          <Button size="sm" variant="outline" onClick={() => setAddingTemp(true)}><Plus className="h-3.5 w-3.5 mr-1" />Add Location</Button>
-        )}
-      </SectionCard>
-
-      {/* Dish Machines */}
-      <SectionCard icon={Droplet} title="Dish Machines & Sinks" color="text-emerald-400" count={dishEquipment.length}>
-        <p className="text-xs text-muted-foreground -mt-1">Dishwashing machines and 3-compartment sinks — these appear in the Dish Machines chemical log.</p>
-        <div className="space-y-2">
-          {dishEquipment.length === 0 && <p className="text-sm text-muted-foreground">No equipment yet.</p>}
-          {dishEquipment.map(eq => (
-            <div key={eq.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <span className="text-sm font-medium truncate">{eq.name}</span>
-                <span className="text-xs text-muted-foreground hidden sm:block">{eq.type === "dishwasher" ? "Dishwashing Machine" : "3-Compartment Sink"}</span>
-                {eq.location && <span className="text-xs text-muted-foreground hidden md:block">{eq.location}</span>}
-              </div>
-              <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0" onClick={() => deleteItem("DishMachineEquipment", eq.id, setDishEquipment)}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))}
-        </div>
-        {addingDish ? (
-          <InlineForm
-            saving={saving}
-            onCancel={() => setAddingDish(false)}
-            onSave={saveDish}
-            fields={[
-              { key: "name", label: "Equipment Name", placeholder: "e.g. Main Dish Machine" },
-              { key: "type", label: "Type", type: "select", options: [
-                { value: "dishwasher", label: "Dishwashing Machine" },
-                { value: "three_compartment_sink", label: "3-Compartment Sink" },
-              ]},
-              { key: "location", label: "Location/Area", placeholder: "e.g. Back Kitchen" },
-            ]}
-          />
-        ) : (
-          <Button size="sm" variant="outline" onClick={() => setAddingDish(true)}><Plus className="h-3.5 w-3.5 mr-1" />Add Equipment</Button>
-        )}
-      </SectionCard>
-
-
-      {/* Cash Configuration */}
-      <SectionCard icon={DollarSign} title="Cash Configuration" color="text-green-400" count={cashDrawers.length}>
-        <p className="text-xs text-muted-foreground -mt-1">Set up your cash drawers and petty cash starting amounts. These are used as reference in the Cash section.</p>
-
-        <div>
-          <h3 className="text-sm font-semibold mb-2">Cash Drawers</h3>
-          <div className="space-y-2">
-            {cashDrawers.length === 0 && <p className="text-sm text-muted-foreground">No drawers configured yet.</p>}
-            {cashDrawers.map(d => (
-              <div key={d.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium">{d.name}</span>
-                  {d.starting_amount != null && <span className="text-xs text-green-400 font-medium">${Number(d.starting_amount).toFixed(2)} starting</span>}
-                  {d.notes && <span className="text-xs text-muted-foreground hidden sm:block">{d.notes}</span>}
+        <TabsContent value="profile" className="space-y-4">
+          <div className="bg-card border border-border rounded-lg p-4 space-y-3">
+            <h2 className="font-semibold text-sm flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Restaurant Profile</h2>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Name</Label>
+                <div className="flex items-center gap-2">
+                  <Input value={restaurantName} onChange={e => setRestaurantName(e.target.value)} placeholder="e.g. The Golden Fork" className="h-9 text-sm" />
+                  <Button size="sm" onClick={() => saveSetting(restaurantNameId, setRestaurantNameId, restaurantName, "restaurant_name")} disabled={saving} className="h-9"><Save className="h-4 w-4" /></Button>
                 </div>
-                <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteItem("CashDrawerConfig", d.id, setCashDrawers)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
               </div>
-            ))}
-          </div>
-          {addingDrawer ? (
-            <InlineForm
-              saving={saving}
-              onCancel={() => setAddingDrawer(false)}
-              onSave={saveDrawer}
-              fields={[
-                { key: "name", label: "Drawer Name", placeholder: "e.g. Bar, Host, Register 1" },
-                { key: "starting_amount", label: "Starting Amount ($)", type: "number", placeholder: "e.g. 200" },
-                { key: "notes", label: "Notes", placeholder: "Optional" },
-              ]}
-            />
-          ) : (
-            <Button size="sm" variant="outline" className="mt-2" onClick={() => setAddingDrawer(true)}><Plus className="h-3.5 w-3.5 mr-1" />Add Drawer</Button>
-          )}
-        </div>
-
-        <div className="border-t border-border pt-4">
-          <h3 className="text-sm font-semibold mb-2">Petty Cash</h3>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
-              <Input
-                type="number"
-                placeholder="0.00"
-                value={pettyCashAmount}
-                onChange={e => setPettyCashAmount(e.target.value)}
-                className="pl-7 w-40"
-              />
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1"><MapPin className="h-3 w-3" /> Address</Label>
+                <div className="flex items-center gap-2">
+                  <Input value={restaurantAddress} onChange={e => setRestaurantAddress(e.target.value)} placeholder="123 Main St, City, ST 12345" className="h-9 text-sm" />
+                  <Button size="sm" onClick={() => saveSetting(restaurantAddressId, setRestaurantAddressId, restaurantAddress, "restaurant_address")} disabled={saving} className="h-9"><Save className="h-4 w-4" /></Button>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1"><Phone className="h-3 w-3" /> Phone</Label>
+                <div className="flex items-center gap-2">
+                  <Input value={restaurantPhone} onChange={e => setRestaurantPhone(e.target.value)} placeholder="(555) 123-4567" className="h-9 text-sm" />
+                  <Button size="sm" onClick={() => saveSetting(restaurantPhoneId, setRestaurantPhoneId, restaurantPhone, "restaurant_phone")} disabled={saving} className="h-9"><Save className="h-4 w-4" /></Button>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs flex items-center gap-1"><Clock className="h-3 w-3" /> Time Zone</Label>
+                <div className="flex items-center gap-2">
+                  <select value={timeZone} onChange={e => setTimeZone(e.target.value)} className="flex-1 h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                    <option value="">Select timezone...</option>
+                    <option value="America/Los_Angeles">Pacific</option>
+                    <option value="America/Denver">Mountain</option>
+                    <option value="America/Chicago">Central</option>
+                    <option value="America/New_York">Eastern</option>
+                  </select>
+                  <Button size="sm" onClick={() => saveSetting(timeZoneId, setTimeZoneId, timeZone, "time_zone")} disabled={saving} className="h-9"><Save className="h-4 w-4" /></Button>
+                </div>
+              </div>
             </div>
-            <Button size="sm" onClick={savePettyCash} disabled={saving}>
-              <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save"}
-            </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Total petty cash float kept in the restaurant.</p>
-        </div>
-      </SectionCard>
+        </TabsContent>
+
+        <TabsContent value="hours" className="space-y-4">
+          <div className="bg-card border border-border rounded-lg p-4">
+            <h2 className="font-semibold text-sm flex items-center gap-2 mb-2"><Clock className="h-4 w-4 text-primary" /> Operating Hours</h2>
+            <p className="text-xs text-muted-foreground">Configure daily operating hours and shifts. Coming soon.</p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="departments" className="space-y-4">
+          <div className="bg-card border border-border rounded-lg p-4">
+            <h2 className="font-semibold text-sm flex items-center gap-2 mb-2"><UtensilsCrossed className="h-4 w-4 text-primary" /> Departments</h2>
+            <p className="text-xs text-muted-foreground">Define departments (FOH, BOH, Bar, Management). Coming soon.</p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="roles" className="space-y-4">
+          <div className="bg-card border border-border rounded-lg p-4">
+            <h2 className="font-semibold text-sm flex items-center gap-2 mb-2"><Users className="h-4 w-4 text-primary" /> Default Roles</h2>
+            <p className="text-xs text-muted-foreground">Configure default roles and permissions. Coming soon.</p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="branding" className="space-y-4">
+          <div className="bg-card border border-border rounded-lg p-4 space-y-3">
+            <h2 className="font-semibold text-sm flex items-center gap-2"><Palette className="h-4 w-4 text-primary" /> Branding</h2>
+            <div className="flex items-start gap-4">
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-16 w-16 rounded-lg bg-secondary border border-border flex items-center justify-center overflow-hidden">
+                  {logoUrl ? <img src={logoUrl} alt="logo" className="h-16 w-16 object-cover" /> : <ImageIcon className="h-7 w-7 text-muted-foreground" />}
+                </div>
+                <label className="cursor-pointer"><input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} /><span className="text-xs text-primary flex items-center gap-1 hover:underline"><Upload className="h-3 w-3" />{uploadingLogo ? "Uploading..." : "Upload Logo"}</span></label>
+              </div>
+              <div className="flex-1 space-y-1"><Label className="text-xs">Logo</Label><p className="text-xs text-muted-foreground">Displayed in header and sidebar.</p></div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-4">
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-sm mb-3">Kitchen Setup</h3>
+              <SectionCard icon={UtensilsCrossed} title="Prep Stations" color="text-blue-400" count={stations.length}>
+                <div className="space-y-2">
+                  {stations.length === 0 && <p className="text-xs text-muted-foreground">No stations yet.</p>}
+                  {stations.map(s => (
+                    <div key={s.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-3 py-2">
+                      <div className="flex items-center gap-2"><span className={`h-3 w-3 rounded-full ${colorDot[s.color] || "bg-gray-400"}`} /><span className="text-xs font-medium">{s.name}</span></div>
+                      <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => deleteItem("Station", s.id, setStations)}><Trash2 className="h-3 w-3" /></Button>
+                    </div>
+                  ))}
+                </div>
+                {addingStation ? (
+                  <InlineForm saving={saving} onCancel={() => setAddingStation(false)} onSave={saveStation} fields={[
+                    { key: "name", label: "Name", placeholder: "e.g. Grill" },
+                    { key: "color", label: "Color", type: "select", default: "blue", options: STATION_COLORS.map(c => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) })) },
+                  ]} />
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => setAddingStation(true)}><Plus className="h-3 w-3 mr-1" />Add</Button>
+                )}
+              </SectionCard>
+
+              <SectionCard icon={Thermometer} title="Refrigeration" color="text-cyan-400" count={tempLocations.length}>
+                <div className="space-y-2">
+                  {tempLocations.length === 0 && <p className="text-xs text-muted-foreground">No locations yet.</p>}
+                  {tempLocations.map(loc => (
+                    <div key={loc.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-3 py-2">
+                      <span className="text-xs font-medium">{loc.name}</span>
+                      <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => deleteItem("TempLogLocation", loc.id, setTempLocations)}><Trash2 className="h-3 w-3" /></Button>
+                    </div>
+                  ))}
+                </div>
+                {addingTemp ? (
+                  <InlineForm saving={saving} onCancel={() => setAddingTemp(false)} onSave={saveTemp} fields={[
+                    { key: "name", label: "Name", placeholder: "Walk-in Cooler" },
+                    { key: "type", label: "Type", type: "select", options: [
+                      { value: "refrigerator", label: "Refrigerator" },
+                      { value: "freezer", label: "Freezer" },
+                    ]},
+                  ]} />
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => setAddingTemp(true)}><Plus className="h-3 w-3 mr-1" />Add</Button>
+                )}
+              </SectionCard>
+
+              <SectionCard icon={Droplet} title="Dish Machines" color="text-emerald-400" count={dishEquipment.length}>
+                <div className="space-y-2">
+                  {dishEquipment.length === 0 && <p className="text-xs text-muted-foreground">No equipment yet.</p>}
+                  {dishEquipment.map(eq => (
+                    <div key={eq.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-3 py-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0"><span className="text-xs font-medium truncate">{eq.name}</span></div>
+                      <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => deleteItem("DishMachineEquipment", eq.id, setDishEquipment)}><Trash2 className="h-3 w-3" /></Button>
+                    </div>
+                  ))}
+                </div>
+                {addingDish ? (
+                  <InlineForm saving={saving} onCancel={() => setAddingDish(false)} onSave={saveDish} fields={[
+                    { key: "name", label: "Name", placeholder: "Main Dish Machine" },
+                    { key: "type", label: "Type", type: "select", options: [
+                      { value: "dishwasher", label: "Dishwashing Machine" },
+                      { value: "three_compartment_sink", label: "3-Compartment Sink" },
+                    ]},
+                  ]} />
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => setAddingDish(true)}><Plus className="h-3 w-3 mr-1" />Add</Button>
+                )}
+              </SectionCard>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-sm mb-3">Cash and Operations</h3>
+              <SectionCard icon={DollarSign} title="Cash Configuration" color="text-green-400" count={cashDrawers.length}>
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="text-xs font-semibold mb-2">Drawers</h4>
+                    <div className="space-y-2">
+                      {cashDrawers.length === 0 && <p className="text-xs text-muted-foreground">No drawers yet.</p>}
+                      {cashDrawers.map(d => (
+                        <div key={d.id} className="flex items-center justify-between bg-secondary/30 rounded-lg px-3 py-2">
+                          <span className="text-xs font-medium">{d.name}</span>
+                          <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => deleteItem("CashDrawerConfig", d.id, setCashDrawers)}><Trash2 className="h-3 w-3" /></Button>
+                        </div>
+                      ))}
+                    </div>
+                    {addingDrawer ? (
+                      <InlineForm saving={saving} onCancel={() => setAddingDrawer(false)} onSave={saveDrawer} fields={[
+                        { key: "name", label: "Name", placeholder: "Register 1" },
+                      ]} />
+                    ) : (
+                      <Button size="sm" variant="outline" className="mt-2" onClick={() => setAddingDrawer(true)}><Plus className="h-3 w-3 mr-1" />Add</Button>
+                    )}
+                  </div>
+                  <div className="border-t border-border pt-2">
+                    <h4 className="text-xs font-semibold mb-2">Petty Cash</h4>
+                    <div className="flex items-center gap-2">
+                      <Input type="number" placeholder="0.00" value={pettyCashAmount} onChange={e => setPettyCashAmount(e.target.value)} className="h-8 w-32 text-sm" />
+                      <Button size="sm" onClick={() => saveSetting(pettyCashId, setPettyCashId, pettyCashAmount, "petty_cash_amount")} disabled={saving}><Save className="h-3 w-3" /></Button>
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground pb-4">
         <CheckCircle2 className="h-4 w-4 text-accent" />
-        Changes take effect immediately across Prep Lists, Temp Logs, and Dish Machines.
+        Changes take effect immediately.
       </div>
     </motion.div>
   );
