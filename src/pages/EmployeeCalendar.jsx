@@ -174,12 +174,12 @@ export default function EmployeeCalendar() {
               return (
                 <button
                   key={day.toISOString()}
-                  onClick={() => setSelectedDate(isSelected ? null : day)}
-                  className={`min-h-[52px] p-1 rounded-lg text-left transition-all ${
-                    isSelected ? "bg-primary/20 border border-primary/50" :
-                    isToday ? "bg-secondary border border-border" :
-                    "hover:bg-secondary/60"
-                  }`}
+                  onClick={() => {
+                    setSelectedDate(isSelected ? null : day);
+                    const dateStr = format(day, "yyyy-MM-dd");
+                    setForm(f => ({ ...f, date: dateStr }));
+                    setShowForm(true);
+                  }}
                 >
                   <span className={`text-xs font-medium block text-center mb-1 ${isToday ? "text-primary font-bold" : "text-foreground"}`}>
                     {format(day, "d")}
