@@ -115,6 +115,7 @@ export default function Layout() {
           )}
           <div className="leading-tight">
             <span className="font-bold text-base tracking-tight block">Heard</span>
+            <span className="text-xs text-primary font-semibold">Ops</span>
             {restaurantName && <span className="text-xs text-muted-foreground leading-none">{restaurantName}</span>}
           </div>
         </div>
@@ -255,6 +256,7 @@ export default function Layout() {
           </div>
           <div>
             <h1 className="font-bold text-lg tracking-tight">Heard</h1>
+            <p className="text-xs text-primary font-semibold -mt-0.5">Restaurant Ops</p>
             {restaurantName && <p className="text-xs text-primary font-medium -mt-0.5">{restaurantName}</p>}
             {!restaurantName && <p className="text-xs text-muted-foreground">Restaurant Operations</p>}
           </div>
