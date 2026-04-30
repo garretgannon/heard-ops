@@ -17,7 +17,7 @@ function SectionCard({ icon: Icon, title, color, count, children }) {
     <div className="bg-card rounded-2xl border border-border overflow-hidden">
       <button
         onClick={() => setOpen(v => !v)}
-        className={`w-full flex items-center justify-between gap-3 px-5 py-4 border-b border-border transition-colors hover:bg-secondary/30 ${color}`}
+        className={`w-full flex items-center justify-between gap-3 px-5 py-4 border-b border-border transition-colors hover:bg-secondary/30 text-left ${color}`}
       >
         <div className="flex items-center gap-3">
           <Icon className="h-5 w-5" />
