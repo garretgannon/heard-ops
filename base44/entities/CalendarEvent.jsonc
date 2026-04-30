@@ -19,23 +19,33 @@
       "type": "string",
       "title": "Category",
       "enum": [
-        "large_party",
-        "order",
-        "delivery",
-        "inventory",
-        "other"
+        "private_event",
+        "holiday",
+        "catering",
+        "maintenance",
+        "inspection",
+        "training",
+        "staff_event",
+        "promo"
       ],
       "enumNames": [
-        "Large Party",
-        "Order",
-        "Delivery",
-        "Inventory",
-        "Other"
+        "Private Event",
+        "Holiday",
+        "Catering",
+        "Maintenance",
+        "Inspection",
+        "Training",
+        "Staff Event",
+        "Promo"
       ]
     },
     "notes": {
       "type": "string",
       "title": "Notes"
+    },
+    "staffing_notes": {
+      "type": "string",
+      "title": "Staffing Notes"
     },
     "guest_count": {
       "type": "number",
