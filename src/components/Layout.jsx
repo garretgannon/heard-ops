@@ -15,7 +15,6 @@ const settingsNavItems = [
   { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
   { path: "/restaurant-team", label: "Restaurant Team", icon: Users },
   { path: "/job-codes", label: "Roles", icon: Tag },
-  { path: "/vendors", label: "Vendors", icon: Truck },
 ];
 
 const fohNavItems_admin = [
@@ -36,6 +35,7 @@ const bohNavItems = [
 const bottomNavItems = [
   { path: "/manager-log", label: "Manager Log", icon: NotebookPen, highlight: true },
   { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch, highlight: true },
+  { path: "/vendors", label: "Vendors", icon: Truck, highlight: true },
   { path: "/calendar", label: "Calendar", icon: CalendarDays, highlight: true },
   { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
   { path: "/photo-review", label: "Photo Review", icon: Camera, highlight: true },
