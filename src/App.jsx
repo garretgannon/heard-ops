@@ -53,6 +53,7 @@ const AuthenticatedApp = () => {
   const isBusser = user?.role === 'busser';
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const isAuthenticated = !authError || authError?.type !== 'auth_required';
 
   useEffect(() => {
     if (!user || !isAdmin) { setOnboardingChecked(true); return; }
@@ -78,9 +79,9 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
+      <Route path="/" element={isAuthenticated && user ? (needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />) : <Landing />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
-        <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
 
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
         {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
