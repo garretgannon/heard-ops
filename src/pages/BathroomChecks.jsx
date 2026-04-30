@@ -1,16 +1,30 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { CheckCircle2, AlertTriangle, ShoppingBag, Plus, Trash2, Clock, Settings, X, Pencil } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ShoppingBag, Wrench, Plus, Trash2, Clock, Settings, X, Upload, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useCurrentUser } from "../hooks/useCurrentUser";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const STATUS_CONFIG = {
-  clean: { label: "Clean", icon: CheckCircle2, color: "text-green-400", bg: "bg-green-500/15" },
-  needs_attention: { label: "Needs Attention", icon: AlertTriangle, color: "text-yellow-400", bg: "bg-yellow-500/15" },
-  out_of_supplies: { label: "Out of Supplies", icon: ShoppingBag, color: "text-red-400", bg: "bg-red-500/15" },
+  clean: { label: "Clean", icon: CheckCircle2, color: "text-green-600", bg: "bg-green-500/15 border-green-500/30" },
+  needs_attention: { label: "Needs Attention", icon: AlertTriangle, color: "text-yellow-600", bg: "bg-yellow-500/15 border-yellow-500/30" },
+  out_of_supplies: { label: "Out of Supplies", icon: ShoppingBag, color: "text-orange-600", bg: "bg-orange-500/15 border-orange-500/30" },
+  maintenance: { label: "Maintenance Needed", icon: Wrench, color: "text-red-600", bg: "bg-red-500/15 border-red-500/30" },
 };
+
+const SUPPLY_CHECKLIST = [
+  { key: "toilet_paper", label: "Toilet Paper" },
+  { key: "paper_towels", label: "Paper Towels" },
+  { key: "soap", label: "Soap" },
+  { key: "trash", label: "Trash Empty" },
+  { key: "floors", label: "Floors Clean" },
+  { key: "smell", label: "No Bad Smell" },
+  { key: "mirrors", label: "Mirrors Clean" },
+];
 
 function minutesToLabel(mins) {
   if (mins < 60) return `Every ${mins} min`;
@@ -28,7 +42,6 @@ function isWithinActiveHours(config) {
   const startMins = sh * 60 + sm;
   const endMins = eh * 60 + em;
   if (startMins <= endMins) return nowMins >= startMins && nowMins < endMins;
-  // overnight wrap
   return nowMins >= startMins || nowMins < endMins;
 }
 
@@ -45,74 +58,99 @@ export default function BathroomChecks() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
-  const [checkModal, setCheckModal] = useState(null); // config object
-  const [configForm, setConfigForm] = useState({ name: "", interval_minutes: 60, active_start: "", active_end: "", notes: "" });
-  const [checkForm, setCheckForm] = useState({ status: "clean", notes: "" });
+  const [showHistory, setShowHistory] = useState(false);
+  const [currentCheck, setCurrentCheck] = useState(null);
+  const [configForm, setConfigForm] = useState({ name: "", interval_minutes: 60, active_start: "", active_end: "" });
+  const [checkForm, setCheckForm] = useState({ status: "clean", supplies: {}, notes: "", photo_url: "" });
   const [saving, setSaving] = useState(false);
-  const [editModal, setEditModal] = useState(null); // config object being edited
-  const [editForm, setEditForm] = useState({});
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const { user, isAdmin } = useCurrentUser();
 
   const load = async () => {
-    const [c, l] = await Promise.all([
-      base44.entities.BathroomCheckConfig.filter({ is_active: true }),
-      base44.entities.BathroomCheckLog.list("-checked_at", 200),
-    ]);
-    setConfigs(c);
-    setLogs(l);
-    setLoading(false);
+    try {
+      const [c, l] = await Promise.all([
+        base44.entities.BathroomCheckConfig.filter({ is_active: true }),
+        base44.entities.BathroomCheckLog.list("-checked_at", 100),
+      ]);
+      setConfigs(c);
+      setLogs(l);
+      setLoading(false);
+    } catch (err) {
+      console.error("Load error:", err);
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
 
   const addConfig = async () => {
-    if (!configForm.name.trim() || !configForm.interval_minutes) return;
+    if (!configForm.name.trim() || !configForm.interval_minutes) {
+      toast.error("Enter location and interval");
+      return;
+    }
     setSaving(true);
-    await base44.entities.BathroomCheckConfig.create({ ...configForm, is_active: true });
-    setConfigForm({ name: "", interval_minutes: 60, active_start: "", active_end: "", notes: "" });
-
-    toast.success("Bathroom location added");
+    try {
+      await base44.entities.BathroomCheckConfig.create({ ...configForm, is_active: true });
+      setConfigForm({ name: "", interval_minutes: 60, active_start: "", active_end: "" });
+      toast.success("Location added");
+      load();
+    } catch (err) {
+      toast.error("Failed to add location");
+    }
     setSaving(false);
-    load();
   };
 
   const deleteConfig = async (id) => {
-    await base44.entities.BathroomCheckConfig.update(id, { is_active: false });
-    toast.success("Location removed");
-    load();
+    try {
+      await base44.entities.BathroomCheckConfig.update(id, { is_active: false });
+      toast.success("Location removed");
+      load();
+    } catch (err) {
+      toast.error("Failed to delete");
+    }
   };
 
-  const openEdit = (c) => {
-    setEditModal(c);
-    setEditForm({ name: c.name, interval_minutes: c.interval_minutes, active_start: c.active_start || "", active_end: c.active_end || "", notes: c.notes || "" });
-  };
-
-  const saveEdit = async () => {
-    if (!editForm.name.trim() || !editForm.interval_minutes) return;
-    setSaving(true);
-    await base44.entities.BathroomCheckConfig.update(editModal.id, editForm);
-    setEditModal(null);
-    toast.success("Location updated");
-    setSaving(false);
-    load();
+  const handlePhotoUpload = async (file) => {
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setCheckForm(prev => ({ ...prev, photo_url: file_url }));
+      toast.success("Photo uploaded");
+    } catch (err) {
+      toast.error("Photo upload failed");
+    }
+    setUploadingPhoto(false);
   };
 
   const submitCheck = async () => {
-    if (!checkModal) return;
+    if (!currentCheck) return;
     setSaving(true);
-    await base44.entities.BathroomCheckLog.create({
-      config_id: checkModal.id,
-      location_name: checkModal.name,
-      checked_by: user?.full_name || user?.email || "Staff",
-      checked_at: new Date().toISOString(),
-      status: checkForm.status,
-      notes: checkForm.notes,
-    });
-    setCheckModal(null);
-    setCheckForm({ status: "clean", notes: "" });
+    try {
+      await base44.entities.BathroomCheckLog.create({
+        config_id: currentCheck.id,
+        location_name: currentCheck.name,
+        checked_by: user?.full_name || user?.email || "Staff",
+        checked_at: new Date().toISOString(),
+        status: checkForm.status,
+        supplies: Object.keys(checkForm.supplies).filter(k => checkForm.supplies[k]),
+        notes: checkForm.notes,
+        photo_url: checkForm.photo_url,
+      });
+
+      if (checkForm.status !== "clean") {
+        toast.error(`Check logged - Manager notified of issue at ${currentCheck.name}`);
+      } else {
+        toast.success("Clean check logged");
+      }
+
+      setCurrentCheck(null);
+      setCheckForm({ status: "clean", supplies: {}, notes: "", photo_url: "" });
+      load();
+    } catch (err) {
+      toast.error("Failed to save check");
+    }
     setSaving(false);
-    toast.success("Check logged!");
-    load();
   };
 
   if (loading) {
@@ -123,101 +161,66 @@ export default function BathroomChecks() {
     );
   }
 
+  const overdueConfigs = configs.filter(c => isWithinActiveHours(c) && isOverdue(logs.find(l => l.config_id === c.id), c));
+  const nextDue = overdueConfigs.length > 0 ? overdueConfigs[0] : null;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between">
+    <div className="space-y-6 pb-12">
+      <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Bathroom Checks</h1>
-          <p className="text-muted-foreground mt-1">Track cleanliness on custom intervals</p>
+          <h1 className="text-2xl lg:text-3xl font-bold">Bathroom Checks</h1>
+          <p className="text-muted-foreground mt-1">Fast, simple, on-schedule checks</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowHistory(true)}>
+            <History className="h-4 w-4 mr-2" /> History
+          </Button>
           {isAdmin && (
-            <Button variant="outline" size="sm" onClick={() => setShowConfig(v => !v)}>
+            <Button variant="outline" onClick={() => setShowConfig(v => !v)}>
               <Settings className="h-4 w-4 mr-1" /> Configure
             </Button>
           )}
         </div>
       </div>
 
-      {/* Config panel (admin only) */}
+      {/* Config panel */}
       <AnimatePresence>
         {showConfig && isAdmin && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="bg-card rounded-2xl border border-border p-5 space-y-4"
-          >
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="bg-card rounded-2xl border border-border p-5 space-y-4">
             <h2 className="font-semibold">Manage Locations</h2>
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                placeholder="Location name (e.g. Men's Room)"
-                value={configForm.name}
-                onChange={e => setConfigForm(p => ({ ...p, name: e.target.value }))}
-                className="flex-1 h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  placeholder="Interval (min)"
-                  value={configForm.interval_minutes}
-                  onChange={e => setConfigForm(p => ({ ...p, interval_minutes: Number(e.target.value) }))}
-                  className="w-36 h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  min={5}
-                />
-                <span className="text-xs text-muted-foreground whitespace-nowrap">min interval</span>
+            <div className="space-y-3">
+              <div>
+                <input placeholder="Location name" value={configForm.name} onChange={e => setConfigForm(p => ({ ...p, name: e.target.value }))} className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
               </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 items-end">
-                <div className="flex items-center gap-2 flex-1">
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Active From</label>
-                    <input
-                      type="time"
-                      value={configForm.active_start}
-                      onChange={e => setConfigForm(p => ({ ...p, active_start: e.target.value }))}
-                      className="h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    />
-                  </div>
-                  <span className="text-muted-foreground mt-5">—</span>
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Active Until</label>
-                    <input
-                      type="time"
-                      value={configForm.active_end}
-                      onChange={e => setConfigForm(p => ({ ...p, active_end: e.target.value }))}
-                      className="h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-5">Leave blank for always-on</p>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-muted-foreground block mb-1">Interval</label>
+                  <input type="number" value={configForm.interval_minutes} onChange={e => setConfigForm(p => ({ ...p, interval_minutes: Number(e.target.value) }))} placeholder="60" className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" min={5} />
                 </div>
-              <Button size="sm" onClick={addConfig} disabled={saving || !configForm.name.trim()}>
-                <Plus className="h-4 w-4 mr-1" /> Add
-              </Button>
+                <div className="flex-1">
+                  <label className="text-xs text-muted-foreground block mb-1">From</label>
+                  <input type="time" value={configForm.active_start} onChange={e => setConfigForm(p => ({ ...p, active_start: e.target.value }))} className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-muted-foreground block mb-1">To</label>
+                  <input type="time" value={configForm.active_end} onChange={e => setConfigForm(p => ({ ...p, active_end: e.target.value }))} className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                </div>
+                <Button size="sm" onClick={addConfig} disabled={saving || !configForm.name.trim()} className="mt-6">
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
             </div>
             {configs.length > 0 && (
-              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+              <div className="divide-y divide-border rounded-lg border border-border overflow-hidden">
                 {configs.map(c => (
                   <div key={c.id} className="flex items-center justify-between px-4 py-3 bg-background/40">
                     <div>
                       <p className="font-medium text-sm">{c.name}</p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <Clock className="h-3 w-3" /> {minutesToLabel(c.interval_minutes)}
-                        {c.active_start && c.active_end && (
-                          <span className="ml-1">&middot; {c.active_start}–{c.active_end}</span>
-                        )}
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{minutesToLabel(c.interval_minutes)}</p>
                     </div>
-                    <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(c)} className="text-muted-foreground hover:text-primary transition-colors p-1">
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button onClick={() => deleteConfig(c.id)} className="text-muted-foreground hover:text-destructive transition-colors p-1">
+                    <button onClick={() => deleteConfig(c.id)} className="text-destructive hover:text-destructive/80">
                       <Trash2 className="h-4 w-4" />
                     </button>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -226,241 +229,152 @@ export default function BathroomChecks() {
         )}
       </AnimatePresence>
 
-      {/* Location cards */}
-      {configs.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-border p-10 text-center text-muted-foreground">
-          {isAdmin ? "No bathroom locations configured yet. Use Configure to add one." : "No bathroom locations set up."}
-        </div>
+      {/* Current check required */}
+      {nextDue ? (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className={cn("rounded-2xl border-2 p-6 space-y-4", overdueConfigs.length > 0 ? "border-red-500/40 bg-red-500/5" : "border-yellow-500/40 bg-yellow-500/5")}>
+          <div>
+            <p className="text-sm text-muted-foreground">Current check required:</p>
+            <h2 className="text-2xl font-bold mt-1">{nextDue.name}</h2>
+            <p className="text-xs text-muted-foreground mt-1">{minutesToLabel(nextDue.interval_minutes)}</p>
+          </div>
+
+          {logs.find(l => l.config_id === nextDue.id) && (
+            <p className="text-xs text-muted-foreground">
+              Last check: {new Date(logs.find(l => l.config_id === nextDue.id)?.checked_at).toLocaleTimeString()} by {logs.find(l => l.config_id === nextDue.id)?.checked_by}
+            </p>
+          )}
+
+          <Button className="w-full h-12 text-base" onClick={() => { setCurrentCheck(nextDue); setCheckForm({ status: "clean", supplies: {}, notes: "", photo_url: "" }); }}>
+            Log Check
+          </Button>
+        </motion.div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {configs.map((c, i) => {
-            const recentLog = logs.filter(l => l.config_id === c.id)[0];
-            const withinHours = isWithinActiveHours(c);
-            const overdue = isOverdue(recentLog, c);
-            const lastStatus = recentLog ? STATUS_CONFIG[recentLog.status] : null;
-            const LastIcon = lastStatus?.icon;
+        <div className="rounded-2xl border border-border p-6 text-center text-muted-foreground">
+          <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-green-600" />
+          <p className="font-semibold">All caught up!</p>
+          <p className="text-sm">No bathroom checks due right now.</p>
+        </div>
+      )}
 
-            return (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: i * 0.06 }}
-                className={`bg-card rounded-2xl border p-5 space-y-4 ${overdue && withinHours ? "border-yellow-500/40" : "border-border"}`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold">{c.name}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <Clock className="h-3 w-3" /> {minutesToLabel(c.interval_minutes)}
-                      {c.active_start && c.active_end && (
-                        <span>&middot; {c.active_start}–{c.active_end}</span>
-                      )}
-                    </p>
-                  </div>
-                  {!withinHours ? (
-                    <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium">Closed</span>
-                  ) : overdue ? (
-                    <span className="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full font-medium">Due</span>
-                  ) : (
-                    <span className="text-xs bg-green-500/15 text-green-400 px-2 py-0.5 rounded-full font-medium">OK</span>
-                  )}
-                </div>
+      {/* Check Modal */}
+      <Dialog open={!!currentCheck} onOpenChange={() => setCurrentCheck(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Check: {currentCheck?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
+            {/* Status buttons */}
+            <div>
+              <label className="text-sm font-bold block mb-2">Status</label>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(STATUS_CONFIG).map(([key, sc]) => {
+                  const Icon = sc.icon;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setCheckForm(p => ({ ...p, status: key }))}
+                      className={cn("flex flex-col items-center gap-2 px-3 py-3 rounded-lg border-2 transition-all", checkForm.status === key ? `${sc.bg} border-current` : "border-border hover:border-primary/40")}
+                    >
+                      <Icon className={cn("h-5 w-5", sc.color)} />
+                      <span className="text-xs font-semibold text-center leading-tight">{sc.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-                {recentLog ? (
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${lastStatus?.bg}`}>
-                    {LastIcon && <LastIcon className={`h-4 w-4 ${lastStatus?.color}`} />}
-                    <div>
-                      <p className={`text-xs font-medium ${lastStatus?.color}`}>{lastStatus?.label}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {recentLog.checked_by} · {new Date(recentLog.checked_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </p>
+            {/* Supply checklist */}
+            <div>
+              <label className="text-sm font-bold block mb-2">Supplies and Condition</label>
+              <div className="space-y-1.5">
+                {SUPPLY_CHECKLIST.map(item => (
+                  <label key={item.key} className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checkForm.supplies[item.key] || false}
+                      onChange={(e) => setCheckForm(prev => ({ ...prev, supplies: { ...prev.supplies, [item.key]: e.target.checked } }))}
+                      className="rounded w-4 h-4"
+                    />
+                    <span className="text-sm">{item.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Photo */}
+            <div>
+              <label className="text-sm font-bold block mb-2">Photo (optional)</label>
+              <label className="block">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handlePhotoUpload(e.target.files[0])}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  disabled={uploadingPhoto}
+                  onClick={e => e.currentTarget.parentElement.querySelector('input').click()}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploadingPhoto ? "Uploading..." : checkForm.photo_url ? "Photo uploaded" : "Upload Photo"}
+                </Button>
+              </label>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="text-sm font-bold block mb-1">Notes (optional)</label>
+              <Textarea
+                value={checkForm.notes}
+                onChange={(e) => setCheckForm(p => ({ ...p, notes: e.target.value }))}
+                placeholder="Any issues..."
+                className="min-h-16"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCurrentCheck(null)}>Cancel</Button>
+            <Button onClick={submitCheck} disabled={saving} className="flex-1">
+              {saving ? "Logging..." : "Log Check"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* History Modal */}
+      <Dialog open={showHistory} onOpenChange={setShowHistory}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Check History</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+            {logs.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">No checks logged yet</p>
+            ) : (
+              logs.map(log => {
+                const sc = STATUS_CONFIG[log.status];
+                const Icon = sc?.icon;
+                return (
+                  <div key={log.id} className={cn("flex items-start gap-3 p-3 rounded-lg border", sc?.bg)}>
+                    <div className="mt-1">
+                      {Icon && <Icon className={cn("h-4 w-4", sc?.color)} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm">{log.location_name}</p>
+                      <p className="text-xs text-muted-foreground">{log.checked_by} · {new Date(log.checked_at).toLocaleString()}</p>
+                      <p className={cn("text-xs font-semibold mt-1", sc?.color)}>{sc?.label}</p>
+                      {log.supplies?.length > 0 && <p className="text-xs text-muted-foreground mt-1">Items checked: {log.supplies.length}</p>}
+                      {log.notes && <p className="text-xs text-muted-foreground mt-1 italic">"{log.notes}"</p>}
                     </div>
                   </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground">No checks logged yet.</p>
-                )}
-
-                <Button
-                  size="sm"
-                  className="w-full"
-                  variant={overdue ? "default" : "outline"}
-                  onClick={() => { setCheckModal(c); setCheckForm({ status: "clean", notes: "" }); }}
-                >
-                  Log Check
-                </Button>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Recent log */}
-      {logs.length > 0 && (
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Recent Checks</h2>
-          <div className="bg-card rounded-2xl border border-border divide-y divide-border overflow-hidden">
-            {logs.slice(0, 15).map(log => {
-              const sc = STATUS_CONFIG[log.status];
-              const Icon = sc?.icon;
-              return (
-                <div key={log.id} className="flex items-center gap-3 px-4 py-3">
-                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 ${sc?.bg}`}>
-                    {Icon && <Icon className={`h-4 w-4 ${sc?.color}`} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{log.location_name}</p>
-                    <p className="text-xs text-muted-foreground">{log.checked_by} · {new Date(log.checked_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc?.bg} ${sc?.color}`}>{sc?.label}</span>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
-        </div>
-      )}
-
-      {/* Edit modal */}
-      <AnimatePresence>
-        {editModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-4"
-            onClick={() => setEditModal(null)}
-          >
-            <motion.div
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 40, opacity: 0 }}
-              className="bg-card rounded-2xl border border-border p-5 w-full max-w-md space-y-4"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Edit Location</h3>
-                <button onClick={() => setEditModal(null)}><X className="h-4 w-4 text-muted-foreground" /></button>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs text-muted-foreground block mb-1">Location Name</label>
-                  <input
-                    value={editForm.name}
-                    onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))}
-                    className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground block mb-1">Check Interval (minutes)</label>
-                  <input
-                    type="number"
-                    min={5}
-                    value={editForm.interval_minutes}
-                    onChange={e => setEditForm(p => ({ ...p, interval_minutes: Number(e.target.value) }))}
-                    className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <label className="text-xs text-muted-foreground block mb-1">Active From</label>
-                    <input
-                      type="time"
-                      value={editForm.active_start}
-                      onChange={e => setEditForm(p => ({ ...p, active_start: e.target.value }))}
-                      className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    />
-                  </div>
-                  <span className="text-muted-foreground mt-5">—</span>
-                  <div className="flex-1">
-                    <label className="text-xs text-muted-foreground block mb-1">Active Until</label>
-                    <input
-                      type="time"
-                      value={editForm.active_end}
-                      onChange={e => setEditForm(p => ({ ...p, active_end: e.target.value }))}
-                      className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">Leave times blank for always-on</p>
-                <div>
-                  <label className="text-xs text-muted-foreground block mb-1">Notes (optional)</label>
-                  <textarea
-                    value={editForm.notes}
-                    onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))}
-                    rows={2}
-                    className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" size="sm" onClick={() => setEditModal(null)}>Cancel</Button>
-                <Button size="sm" onClick={saveEdit} disabled={saving || !editForm.name.trim()}>
-                  {saving ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Check modal */}
-      <AnimatePresence>
-        {checkModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-4"
-            onClick={() => setCheckModal(null)}
-          >
-            <motion.div
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 40, opacity: 0 }}
-              className="bg-card rounded-2xl border border-border p-5 w-full max-w-sm space-y-4"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Log Check — <span className="font-normal text-muted-foreground">{checkModal.name}</span></h3>
-                <button onClick={() => setCheckModal(null)}><X className="h-4 w-4 text-muted-foreground" /></button>
-              </div>
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Status</p>
-                <div className="grid grid-cols-1 gap-2">
-                  {Object.entries(STATUS_CONFIG).map(([key, sc]) => {
-                    const Icon = sc.icon;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => setCheckForm(p => ({ ...p, status: key }))}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
-                          checkForm.status === key ? "border-primary bg-primary/10" : "border-border hover:border-primary/40"
-                        }`}
-                      >
-                        <Icon className={`h-4 w-4 ${sc.color}`} />
-                        <span className="text-sm font-medium">{sc.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">Notes (optional)</p>
-                <textarea
-                  placeholder="Any issues to note..."
-                  value={checkForm.notes}
-                  onChange={e => setCheckForm(p => ({ ...p, notes: e.target.value }))}
-                  rows={2}
-                  className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none"
-                />
-              </div>
-              <Button className="w-full" onClick={submitCheck} disabled={saving}>
-                {saving ? "Saving..." : "Submit Check"}
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
