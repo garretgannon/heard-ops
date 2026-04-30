@@ -1,47 +1,63 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { Wrench, Plus, Trash2, CheckCircle2, Clock, AlertTriangle, Zap, Filter, Camera, X } from "lucide-react";
+import { Wrench, Plus, Trash2, CheckCircle2, Clock, AlertTriangle, Zap, Camera, X, Phone, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const PRIORITY_CONFIG = {
-  low:    { label: "Low",    color: "text-muted-foreground", bg: "bg-secondary",          icon: Clock },
-  medium: { label: "Medium", color: "text-amber-400",        bg: "bg-amber-500/15 border border-amber-500/30", icon: AlertTriangle },
-  high:   { label: "High",   color: "text-orange-400",       bg: "bg-orange-500/15 border border-orange-500/30", icon: AlertTriangle },
-  urgent: { label: "Urgent", color: "text-destructive",      bg: "bg-red-500/15 border border-red-500/30",  icon: Zap },
+  low:       { label: "Low",       color: "text-muted-foreground", bg: "bg-secondary" },
+  normal:    { label: "Normal",    color: "text-amber-400",        bg: "bg-amber-500/15 border border-amber-500/30" },
+  urgent:    { label: "Urgent",    color: "text-orange-400",       bg: "bg-orange-500/15 border border-orange-500/30" },
+  emergency: { label: "Emergency", color: "text-destructive",      bg: "bg-red-500/15 border border-red-500/30" },
 };
 
 const STATUS_CONFIG = {
-  open:        { label: "Open",        color: "text-blue-400",   bg: "bg-blue-500/15 border border-blue-500/30" },
-  in_progress: { label: "In Progress", color: "text-amber-400",  bg: "bg-amber-500/15 border border-amber-500/30" },
-  resolved:    { label: "Resolved",    color: "text-green-400",  bg: "bg-green-500/15 border border-green-500/30" },
+  new:                { label: "New",               color: "text-blue-400" },
+  assigned:           { label: "Assigned",          color: "text-blue-400" },
+  waiting_on_vendor:  { label: "Waiting on Vendor", color: "text-amber-400" },
+  in_progress:        { label: "In Progress",       color: "text-orange-400" },
+  complete:           { label: "Complete",         color: "text-green-400" },
 };
 
-const emptyForm = { title: "", location: "", description: "", priority: "medium", status: "open", reported_by: "", notes: "" };
+const emptyForm = {
+  title: "", location: "", description: "", priority: "normal", status: "new",
+  reported_by: "", vendor_id: "", assigned_to: "", estimated_cost: "", 
+  photo_url: "", invoice_url: "", notes: ""
+};
 
 export default function MaintenanceRequests() {
   const [requests, setRequests] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialog, setDialog] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editForm, setEditForm] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("all");
   const [uploading, setUploading] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [invoicePreview, setInvoicePreview] = useState(null);
 
   const load = async () => {
-    const data = await base44.entities.MaintenanceRequest.list("-created_date", 200);
-    setRequests(data);
-    setLoading(false);
+    try {
+      const [reqs, vends] = await Promise.all([
+        base44.entities.MaintenanceRequest.list("-created_date", 300),
+        base44.entities.Vendor.list("-created_date", 200),
+      ]);
+      setRequests(reqs);
+      setVendors(vends);
+      setLoading(false);
+    } catch (err) {
+      console.error("Load error:", err);
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -50,209 +66,225 @@ export default function MaintenanceRequests() {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm(f => ({ ...f, photo_url: file_url }));
-    setPhotoPreview(URL.createObjectURL(file));
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setForm(f => ({ ...f, photo_url: file_url }));
+      setPhotoPreview(URL.createObjectURL(file));
+      toast.success("Photo uploaded");
+    } catch (err) {
+      toast.error("Photo upload failed");
+    }
     setUploading(false);
-    toast.success("Photo uploaded");
+  };
+
+  const handleInvoiceUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setEditForm(f => ({ ...f, invoice_url: file_url }));
+      setInvoicePreview(file.name);
+      toast.success("Invoice uploaded");
+    } catch (err) {
+      toast.error("Invoice upload failed");
+    }
+    setUploading(false);
   };
 
   const handleSave = async () => {
-    if (!form.title || !form.location) return;
+    if (!form.title || !form.location) {
+      toast.error("Title and location required");
+      return;
+    }
     setSaving(true);
-    await base44.entities.MaintenanceRequest.create({ ...form });
+    try {
+      const newReq = await base44.entities.MaintenanceRequest.create({ ...form });
+      
+      // Notify manager if urgent/emergency
+      if (["urgent", "emergency"].includes(form.priority)) {
+        await base44.integrations.Core.SendEmail({
+          to: "manager@restaurant.com",
+          subject: `⚠️ ${form.priority.toUpperCase()} Maintenance Request: ${form.title}`,
+          body: `Location: ${form.location}\nPriority: ${form.priority}\nReported by: ${form.reported_by}\n\nDescription: ${form.description}`,
+        }).catch(() => {});
+      }
+      
+      setRequests(prev => [newReq, ...prev]);
+      toast.success("Request submitted");
+      setDialog(false);
+      setForm(emptyForm);
+      setPhotoPreview(null);
+    } catch (err) {
+      toast.error("Save failed");
+    }
     setSaving(false);
-    setDialog(false);
-    setForm(emptyForm);
-    setPhotoPreview(null);
-    toast.success("Request submitted");
-    load();
   };
 
   const handleUpdate = async () => {
     setSaving(true);
-    const updates = { ...editForm };
-    if (editForm.status === "resolved" && !editForm.resolved_at) {
-      updates.resolved_at = new Date().toISOString();
+    try {
+      const updated = await base44.entities.MaintenanceRequest.update(editForm.id, editForm);
+      setRequests(prev => prev.map(r => r.id === editForm.id ? updated : r));
+      toast.success("Request updated");
+      setEditDialog(false);
+      setEditForm(null);
+      setInvoicePreview(null);
+    } catch (err) {
+      toast.error("Update failed");
     }
-    await base44.entities.MaintenanceRequest.update(editForm.id, updates);
     setSaving(false);
-    setEditDialog(false);
-    setEditForm(null);
-    toast.success("Updated");
-    load();
   };
 
   const handleDelete = async (id) => {
-    await base44.entities.MaintenanceRequest.delete(id);
-    toast.success("Deleted");
-    load();
+    if (!confirm("Delete this request?")) return;
+    try {
+      await base44.entities.MaintenanceRequest.delete(id);
+      setRequests(prev => prev.filter(r => r.id !== id));
+      toast.success("Deleted");
+    } catch (err) {
+      toast.error("Delete failed");
+    }
   };
 
-  const filtered = filterStatus === "all" ? requests : requests.filter(r => r.status === filterStatus);
-  const openCount = requests.filter(r => r.status === "open").length;
-  const urgentCount = requests.filter(r => r.priority === "urgent" && r.status !== "resolved").length;
+  // Filter requests by tab
+  const open = requests.filter(r => ["new", "assigned"].includes(r.status));
+  const urgent = requests.filter(r => ["urgent", "emergency"].includes(r.priority) && r.status !== "complete");
+  const waiting = requests.filter(r => r.status === "waiting_on_vendor");
+  const completed = requests.filter(r => r.status === "complete");
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+    <div className="space-y-6 pb-12">
+      {/* Header */}
+      <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
-            <Wrench className="h-7 w-7 text-primary" /> Maintenance
+          <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
+            <Wrench className="h-6 w-6" /> Maintenance
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">Track and manage facility issues and repair requests.</p>
+          <p className="text-sm text-muted-foreground mt-1">Track facility issues and repairs</p>
         </div>
         <Button onClick={() => { setForm(emptyForm); setDialog(true); }}>
-          <Plus className="h-4 w-4 mr-2" />New Request
+          <Plus className="h-4 w-4 mr-2" /> New Request
         </Button>
       </div>
 
-      {/* Summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-xl p-4">
-          <p className="text-xs text-muted-foreground">Open</p>
-          <p className="text-2xl font-bold text-blue-400">{openCount}</p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4">
-          <p className="text-xs text-muted-foreground">Urgent</p>
-          <p className={cn("text-2xl font-bold", urgentCount > 0 ? "text-destructive" : "text-muted-foreground")}>{urgentCount}</p>
-        </div>
-        <div className="bg-card border border-border rounded-xl p-4">
-          <p className="text-xs text-muted-foreground">Total</p>
-          <p className="text-2xl font-bold">{requests.length}</p>
-        </div>
-      </div>
+      {/* Tabs */}
+      <Tabs defaultValue="open" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="open">
+            Open ({open.length})
+          </TabsTrigger>
+          <TabsTrigger value="urgent">
+            Urgent {urgent.length > 0 && <span className="ml-1 h-5 w-5 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">{urgent.length}</span>}
+          </TabsTrigger>
+          <TabsTrigger value="waiting">Waiting ({waiting.length})</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+        </TabsList>
 
-      {/* Filter */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <Filter className="h-4 w-4 text-muted-foreground" />
-        {["all", "open", "in_progress", "resolved"].map(s => (
-          <button
-            key={s}
-            onClick={() => setFilterStatus(s)}
-            className={cn(
-              "text-xs px-3 py-1.5 rounded-full border transition-colors",
-              filterStatus === s ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:bg-secondary"
-            )}
-          >
-            {s === "all" ? "All" : STATUS_CONFIG[s]?.label}
-          </button>
-        ))}
-      </div>
+        {/* Open */}
+        <TabsContent value="open" className="space-y-3">
+          {open.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No open requests
+            </div>
+          ) : (
+            open.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
+          )}
+        </TabsContent>
 
-      {/* List */}
-      {filtered.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-10 text-center text-muted-foreground text-sm">
-          {filterStatus === "all" ? "No maintenance requests yet." : `No ${STATUS_CONFIG[filterStatus]?.label.toLowerCase()} requests.`}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map(req => {
-            const p = PRIORITY_CONFIG[req.priority] || PRIORITY_CONFIG.medium;
-            const s = STATUS_CONFIG[req.status] || STATUS_CONFIG.open;
-            const PIcon = p.icon;
-            return (
-              <div key={req.id} className="bg-card border border-border rounded-xl p-4 flex gap-4 items-start">
-                <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0", p.bg)}>
-                  <PIcon className={cn("h-4 w-4", p.color)} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm">{req.title}</span>
-                    <span className={cn("text-xs px-2 py-0.5 rounded-full", s.bg, s.color)}>{s.label}</span>
-                    <span className={cn("text-xs font-medium", p.color)}>{p.label} priority</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{req.location}</p>
-                  {req.description && <p className="text-xs text-muted-foreground mt-1">{req.description}</p>}
-                  <div className="flex items-center gap-3 mt-1 flex-wrap">
-                    {req.reported_by && <span className="text-xs text-muted-foreground">by {req.reported_by}</span>}
-                    {req.resolved_at && <span className="text-xs text-muted-foreground">Resolved {new Date(req.resolved_at).toLocaleDateString()}</span>}
-                    {req.notes && <span className="text-xs text-muted-foreground italic">{req.notes}</span>}
-                  </div>
-                  {req.photo_url && (
-                    <a href={req.photo_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block">
-                      <img src={req.photo_url} alt="Issue photo" className="h-20 w-32 object-cover rounded-lg border border-border hover:opacity-80 transition-opacity" />
-                    </a>
-                  )}
-                </div>
-                <div className="flex gap-1 flex-shrink-0">
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => { setEditForm({ ...req }); setEditDialog(true); }}>
-                    Edit
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(req.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+        {/* Urgent */}
+        <TabsContent value="urgent" className="space-y-3">
+          {urgent.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No urgent requests
+            </div>
+          ) : (
+            urgent.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
+          )}
+        </TabsContent>
+
+        {/* Waiting */}
+        <TabsContent value="waiting" className="space-y-3">
+          {waiting.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No requests waiting on vendor
+            </div>
+          ) : (
+            waiting.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
+          )}
+        </TabsContent>
+
+        {/* Completed */}
+        <TabsContent value="completed" className="space-y-3">
+          {completed.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No completed requests
+            </div>
+          ) : (
+            completed.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* New Request Dialog */}
       <Dialog open={dialog} onOpenChange={setDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>New Maintenance Request</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label>Issue Title</Label>
-              <Input placeholder="e.g., Ice machine not making ice" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+              <Label>Issue Title *</Label>
+              <Input placeholder="e.g., Ice machine not working" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
             </div>
             <div>
-              <Label>Location / Area</Label>
-              <Input placeholder="e.g., Bar, Walk-in, Men's Restroom" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+              <Label>Location *</Label>
+              <Input placeholder="e.g., Bar, Kitchen, Men's Restroom" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
             </div>
             <div>
-              <Label>Description (optional)</Label>
-              <Textarea rows={2} className="resize-none" placeholder="More detail about the issue..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+              <Label>Description</Label>
+              <Textarea rows={2} className="resize-none" placeholder="Detailed description..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Priority</Label>
-              <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Reported By</Label>
-              <Input placeholder="Your name" value={form.reported_by} onChange={e => setForm({ ...form, reported_by: e.target.value })} />
-            </div>
-            </div>
-            <div>
-            <Label>Photo (optional)</Label>
-            {photoPreview ? (
-              <div className="relative mt-1.5">
-                <img src={photoPreview} alt="Preview" className="w-full max-h-48 object-cover rounded-lg border border-border" />
-                <button
-                  type="button"
-                  onClick={() => { setPhotoPreview(null); setForm(f => ({ ...f, photo_url: "" })); }}
-                  className="absolute top-2 right-2 bg-black/60 rounded-full p-1 text-white hover:bg-black/80"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
+              <div>
+                <Label>Priority</Label>
+                <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                    <SelectItem value="emergency">Emergency</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            ) : (
-              <label className={cn(
-                "mt-1.5 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer transition-colors hover:border-primary/50 hover:bg-secondary/30",
-                uploading && "opacity-60 pointer-events-none"
-              )}>
-                <Camera className="h-6 w-6 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">{uploading ? "Uploading…" : "Tap to add a photo"}</span>
-                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} />
-              </label>
-            )}
+              <div>
+                <Label>Reported By</Label>
+                <Input placeholder="Your name" value={form.reported_by} onChange={e => setForm({ ...form, reported_by: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <Label>Photo</Label>
+              {photoPreview ? (
+                <div className="relative mt-1.5">
+                  <img src={photoPreview} alt="Preview" className="w-full max-h-40 object-cover rounded-lg border border-border" />
+                  <button onClick={() => { setPhotoPreview(null); setForm(f => ({ ...f, photo_url: "" })); }} className="absolute top-2 right-2 bg-black/60 rounded-full p-1 text-white hover:bg-black/80">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <label className="mt-1.5 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50">
+                  <Camera className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">{uploading ? "Uploading…" : "Add a photo"}</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                </label>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -262,10 +294,10 @@ export default function MaintenanceRequests() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit / Update Dialog */}
+      {/* Edit Dialog */}
       {editForm && (
         <Dialog open={editDialog} onOpenChange={setEditDialog}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Update Request</DialogTitle></DialogHeader>
             <div className="space-y-4 py-2">
               <div>
@@ -273,9 +305,11 @@ export default function MaintenanceRequests() {
                 <Select value={editForm.status} onValueChange={v => setEditForm({ ...editForm, status: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="assigned">Assigned</SelectItem>
+                    <SelectItem value="waiting_on_vendor">Waiting on Vendor</SelectItem>
                     <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="complete">Complete</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -285,15 +319,48 @@ export default function MaintenanceRequests() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
                     <SelectItem value="urgent">Urgent</SelectItem>
+                    <SelectItem value="emergency">Emergency</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Notes / Updates</Label>
-                <Textarea rows={3} className="resize-none" placeholder="Add any update notes..." value={editForm.notes || ""} onChange={e => setEditForm({ ...editForm, notes: e.target.value })} />
+                <Label>Assign to Vendor</Label>
+                <Select value={editForm.vendor_id || ""} onValueChange={v => setEditForm({ ...editForm, vendor_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>None</SelectItem>
+                    {vendors.map(v => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Assign to Person</Label>
+                <Input placeholder="e.g., John Smith" value={editForm.assigned_to || ""} onChange={e => setEditForm({ ...editForm, assigned_to: e.target.value })} />
+              </div>
+              <div>
+                <Label>Estimated Cost</Label>
+                <Input placeholder="$0.00" value={editForm.estimated_cost || ""} onChange={e => setEditForm({ ...editForm, estimated_cost: e.target.value })} />
+              </div>
+              <div>
+                <Label>Invoice / Receipt</Label>
+                {editForm.invoice_url ? (
+                  <div className="mt-1.5 p-3 bg-green-500/10 rounded-lg flex items-center justify-between">
+                    <span className="text-xs text-green-600 font-semibold">✓ {invoicePreview || "Invoice uploaded"}</span>
+                    <button onClick={() => setEditForm({ ...editForm, invoice_url: "" })} className="text-xs text-destructive hover:underline">Remove</button>
+                  </div>
+                ) : (
+                  <label className="mt-1.5 flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-4 cursor-pointer hover:border-primary/50">
+                    <Upload className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">{uploading ? "Uploading…" : "Upload invoice"}</span>
+                    <input type="file" accept="image/*,application/pdf" className="hidden" onChange={handleInvoiceUpload} />
+                  </label>
+                )}
+              </div>
+              <div>
+                <Label>Notes</Label>
+                <Textarea rows={2} className="resize-none" placeholder="Update notes..." value={editForm.notes || ""} onChange={e => setEditForm({ ...editForm, notes: e.target.value })} />
               </div>
             </div>
             <DialogFooter>
@@ -303,6 +370,69 @@ export default function MaintenanceRequests() {
           </DialogContent>
         </Dialog>
       )}
-    </motion.div>
+    </div>
+  );
+}
+
+function RequestCard({ req, vendors, onEdit, onDelete }) {
+  const p = PRIORITY_CONFIG[req.priority] || PRIORITY_CONFIG.normal;
+  const s = STATUS_CONFIG[req.status] || STATUS_CONFIG.new;
+  const vendor = req.vendor_id ? vendors.find(v => v.id === req.vendor_id) : null;
+
+  return (
+    <div className={cn("bg-card border-2 rounded-xl p-4 space-y-3", ["emergency", "urgent"].includes(req.priority) ? "border-red-500/40" : "border-border")}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-bold">{req.title}</h3>
+            <span className={cn("text-xs px-2 py-0.5 rounded-full", p.bg, p.color)}>{p.label}</span>
+            <span className={cn("text-xs px-2 py-0.5 rounded-full bg-secondary", s.color)}>{s.label}</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">{req.location}</p>
+          {req.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{req.description}</p>}
+        </div>
+        <div className="flex gap-1 flex-shrink-0">
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onEdit(req)}>
+            📝
+          </Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => onDelete(req.id)}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+        {req.reported_by && <div>Reported by: <span className="font-semibold">{req.reported_by}</span></div>}
+        {req.created_date && <div>Date: <span className="font-semibold">{new Date(req.created_date).toLocaleDateString()}</span></div>}
+        {vendor && <div>Vendor: <span className="font-semibold">{vendor.name}</span></div>}
+        {req.assigned_to && <div>Assigned to: <span className="font-semibold">{req.assigned_to}</span></div>}
+        {req.estimated_cost && <div>Est. Cost: <span className="font-semibold">${req.estimated_cost}</span></div>}
+      </div>
+
+      {/* Call Vendor Button */}
+      {vendor && vendor.phone && (
+        <a href={`tel:${vendor.phone}`}>
+          <Button size="sm" variant="outline" className="w-full gap-2">
+            <Phone className="h-4 w-4" /> Call {vendor.name}
+          </Button>
+        </a>
+      )}
+
+      {/* Photo & Invoice */}
+      <div className="flex gap-2 flex-wrap">
+        {req.photo_url && (
+          <a href={req.photo_url} target="_blank" rel="noopener noreferrer">
+            <img src={req.photo_url} alt="Issue" className="h-16 w-24 object-cover rounded border border-border hover:opacity-80" />
+          </a>
+        )}
+        {req.invoice_url && (
+          <a href={req.invoice_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs bg-green-500/10 text-green-600 px-2 py-1 rounded-lg hover:opacity-80">
+            📄 Invoice
+          </a>
+        )}
+      </div>
+
+      {req.notes && <p className="text-xs italic text-muted-foreground">"{req.notes}"</p>}
+    </div>
   );
 }
