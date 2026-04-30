@@ -4,7 +4,25 @@
   "properties": {
     "name": {
       "type": "string",
-      "title": "Drink / Cocktail Name"
+      "title": "Drink Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Cocktails",
+        "Beer",
+        "Wine",
+        "NA Drinks",
+        "Batch Recipes"
+      ],
+      "enumNames": [
+        "Cocktails",
+        "Beer",
+        "Wine",
+        "NA Drinks",
+        "Batch Recipes"
+      ]
     },
     "photo_url": {
       "type": "string",
@@ -14,10 +32,6 @@
       "type": "string",
       "title": "Recipe / Instructions"
     },
-    "category": {
-      "type": "string",
-      "title": "Category"
-    },
     "ingredients": {
       "type": "string",
       "title": "Ingredients"
@@ -26,17 +40,34 @@
       "type": "string",
       "title": "Glassware / Serving"
     },
-    "notes": {
-      "type": "string",
-      "title": "Notes / Variations"
-    },
     "base_spirit": {
       "type": "string",
       "title": "Base Spirit"
+    },
+    "garnish": {
+      "type": "string",
+      "title": "Garnish"
+    },
+    "allergens": {
+      "type": "string",
+      "title": "Allergens"
+    },
+    "talking_points": {
+      "type": "string",
+      "title": "Talking Points"
+    },
+    "pairings": {
+      "type": "string",
+      "title": "Food Pairings"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Variations"
     }
   },
   "required": [
     "name",
+    "category",
     "photo_url"
   ]
 }
