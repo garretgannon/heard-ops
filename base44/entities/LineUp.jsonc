@@ -1,0 +1,47 @@
+{
+  "name": "LineUp",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "morning",
+        "evening"
+      ],
+      "enumNames": [
+        "Morning",
+        "Evening"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Focus Areas"
+    },
+    "specials": {
+      "type": "string",
+      "title": "Specials / Menu Updates"
+    },
+    "staffing": {
+      "type": "string",
+      "title": "Station Assignments"
+    },
+    "prep_priorities": {
+      "type": "string",
+      "title": "Prep Priorities"
+    },
+    "issues": {
+      "type": "string",
+      "title": "Issues / Concerns"
+    }
+  },
+  "required": [
+    "date",
+    "shift"
+  ]
+}

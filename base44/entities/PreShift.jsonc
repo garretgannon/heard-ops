@@ -1,0 +1,45 @@
+{
+  "name": "PreShift",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "morning",
+        "afternoon",
+        "evening"
+      ],
+      "enumNames": [
+        "Morning",
+        "Afternoon",
+        "Evening"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Talking Points"
+    },
+    "staffing_notes": {
+      "type": "string",
+      "title": "Staffing Notes"
+    },
+    "specials": {
+      "type": "string",
+      "title": "Specials / Promotions"
+    },
+    "issues": {
+      "type": "string",
+      "title": "Issues to Address"
+    }
+  },
+  "required": [
+    "date",
+    "shift"
+  ]
+}

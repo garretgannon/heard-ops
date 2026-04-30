@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ const settingsNavItems = [
 ];
 
 const fohNavItems_admin = [
+  { path: "/pre-shift", label: "Pre-Shift", icon: UsersIcon },
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
   { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
   { path: "/cash", label: "Cash", icon: DollarSign },
@@ -25,6 +26,7 @@ const fohNavItems_admin = [
 ];
 
 const bohNavItems = [
+  { path: "/line-up", label: "Line-Up", icon: Flame },
   { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
   { path: "/stations", label: "Stations", icon: UtensilsCrossed },
   { path: "/prep-library", label: "Prep Library", icon: BookOpen },
