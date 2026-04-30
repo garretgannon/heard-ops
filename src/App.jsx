@@ -39,6 +39,7 @@ import PreShift from './pages/PreShift';
 import LineUp from './pages/LineUp';
 import BuildBook from './pages/BuildBook';
 import BarBook from './pages/BarBook';
+import MSDS from './pages/MSDS';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -96,6 +97,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
         {isFOH && <Route path="/bar-book" element={<BarBook />} />}
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
+        {isAdmin && <Route path="/msds" element={<MSDS />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />

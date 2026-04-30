@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame, Book, Wine } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame, Book, Wine, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -44,6 +44,10 @@ const operationsNavItems = [
   { path: "/maintenance", label: "Maintenance", icon: Wrench },
 ];
 
+const healthDeptNavItems = [
+  { path: "/msds", label: "MSDS", icon: FileText },
+];
+
 const bottomNavItems = [
   { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
   { path: "/photo-review", label: "Photo Review", icon: Camera, highlight: true },
@@ -72,6 +76,8 @@ export default function Layout() {
   const [bohOpen, setBohOpen] = useState(true);
   const [operationsOpen, setOperationsOpen] = useState(false);
   const [mobileOperationsOpen, setMobileOperationsOpen] = useState(false);
+  const [healthDeptOpen, setHealthDeptOpen] = useState(false);
+  const [mobileHealthDeptOpen, setMobileHealthDeptOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
   const { isAdmin, isFOH } = useCurrentUser();
@@ -168,6 +174,21 @@ export default function Layout() {
                   <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileOperationsOpen && "rotate-180")} />
                 </button>
                 {mobileOperationsOpen && operationsNavItems.map(item => (
+                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
+                    )}>
+                    <item.icon className="h-4 w-4" />{item.label}
+                  </Link>
+                ))}
+
+                <button onClick={() => setMobileHealthDeptOpen(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
+                  <span className="text-primary">Health Department</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileHealthDeptOpen && "rotate-180")} />
+                </button>
+                {mobileHealthDeptOpen && healthDeptNavItems.map(item => (
                   <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
                     className={cn(
                       "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
@@ -315,6 +336,30 @@ export default function Layout() {
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", operationsOpen && "rotate-180")} />
               </button>
               {operationsOpen && operationsNavItems.map(item => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    location.pathname === item.path
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* Health Department section */}
+              <button
+                onClick={() => setHealthDeptOpen(v => !v)}
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
+              >
+                <span className="text-primary">Health Department</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", healthDeptOpen && "rotate-180")} />
+              </button>
+              {healthDeptOpen && healthDeptNavItems.map(item => (
                 <Link
                   key={item.path}
                   to={item.path}
