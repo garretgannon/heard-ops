@@ -27,6 +27,39 @@
       "type": "string",
       "title": "Logged By"
     },
+    "department": {
+      "type": "string",
+      "title": "Department",
+      "enum": [
+        "FOH",
+        "BOH",
+        "Bar",
+        "All"
+      ],
+      "enumNames": [
+        "FOH",
+        "BOH",
+        "Bar",
+        "All"
+      ]
+    },
+    "urgency": {
+      "type": "string",
+      "title": "Urgency",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "enumNames": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "medium"
+    },
     "items_86d": {
       "type": "string",
       "title": "86'd Items"
@@ -76,7 +109,8 @@
           "Cash",
           "Guest",
           "Staff",
-          "Urgent"
+          "Vendor",
+          "Prep"
         ],
         "enumNames": [
           "FOH",
@@ -86,9 +120,18 @@
           "Cash",
           "Guest",
           "Staff",
-          "Urgent"
+          "Vendor",
+          "Prep"
         ]
       }
+    },
+    "resolved_items": {
+      "type": "array",
+      "title": "Resolved Items",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of items marked as resolved"
     }
   },
   "required": [

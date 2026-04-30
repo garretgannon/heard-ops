@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertTriangle, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, ChevronDown, Plus, Trash2, Check, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
-const TAGS = ["FOH", "BOH", "Bar", "Maintenance", "Cash", "Guest", "Staff", "Urgent"];
+const TAGS = ["FOH", "BOH", "Bar", "Maintenance", "Cash", "Guest", "Staff", "Vendor", "Prep"];
 const TAG_COLORS = {
   FOH: "bg-blue-500/20 text-blue-700 border-blue-300",
   BOH: "bg-orange-500/20 text-orange-700 border-orange-300",
@@ -15,7 +17,15 @@ const TAG_COLORS = {
   Cash: "bg-green-500/20 text-green-700 border-green-300",
   Guest: "bg-cyan-500/20 text-cyan-700 border-cyan-300",
   Staff: "bg-pink-500/20 text-pink-700 border-pink-300",
-  Urgent: "bg-red-500/20 text-red-700 border-red-300",
+  Vendor: "bg-indigo-500/20 text-indigo-700 border-indigo-300",
+  Prep: "bg-amber-500/20 text-amber-700 border-amber-300",
+};
+
+const URGENCY_CONFIG = {
+  low: { label: "Low", bg: "bg-blue-500/20 text-blue-600" },
+  medium: { label: "Medium", bg: "bg-amber-500/20 text-amber-600" },
+  high: { label: "High", bg: "bg-orange-500/20 text-orange-600" },
+  critical: { label: "Critical", bg: "bg-red-500/20 text-red-600" },
 };
 
 export default function ShiftHandoff() {
@@ -23,9 +33,15 @@ export default function ShiftHandoff() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [filterShift, setFilterShift] = useState("");
+  const [filterDept, setFilterDept] = useState("");
+  const [filterUrgency, setFilterUrgency] = useState("");
+  const [filterManager, setFilterManager] = useState("");
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split("T")[0],
+    date: format(new Date(), "yyyy-MM-dd"),
     shift: "evening",
+    department: "All",
+    urgency: "medium",
     items_86d: "",
     staff_issues: "",
     guest_issues: "",
@@ -38,13 +54,10 @@ export default function ShiftHandoff() {
     tags: [],
   });
 
-  const todayStr = new Date().toISOString().split("T")[0];
-
   useEffect(() => {
     const load = async () => {
       try {
-        const user = await base44.auth.me();
-        const data = await base44.entities.ShiftHandoff.filter({ date: todayStr }, "-created_date", 20);
+        const data = await base44.entities.ShiftHandoff.list("-created_date", 100);
         setHandoffs(data);
       } catch (error) {
         console.error("Load error:", error);
@@ -52,7 +65,6 @@ export default function ShiftHandoff() {
         setLoading(false);
       }
     };
-
     load();
   }, []);
 
@@ -64,8 +76,10 @@ export default function ShiftHandoff() {
         logged_by: user?.full_name || user?.email,
       });
       setFormData({
-        date: todayStr,
+        date: format(new Date(), "yyyy-MM-dd"),
         shift: "evening",
+        department: "All",
+        urgency: "medium",
         items_86d: "",
         staff_issues: "",
         guest_issues: "",
@@ -77,7 +91,7 @@ export default function ShiftHandoff() {
         notes_for_next_manager: "",
         tags: [],
       });
-      const updated = await base44.entities.ShiftHandoff.filter({ date: todayStr }, "-created_date", 20);
+      const updated = await base44.entities.ShiftHandoff.list("-created_date", 100);
       setHandoffs(updated);
       setShowForm(false);
     } catch (error) {
@@ -103,6 +117,24 @@ export default function ShiftHandoff() {
     }));
   };
 
+  const markResolved = async (id, item) => {
+    try {
+      const handoff = handoffs.find(h => h.id === id);
+      const resolved = handoff.resolved_items || [];
+      await base44.entities.ShiftHandoff.update(id, {
+        resolved_items: [...new Set([...resolved, item])]
+      });
+      const updated = await base44.entities.ShiftHandoff.list("-created_date", 100);
+      setHandoffs(updated);
+    } catch (error) {
+      console.error("Resolve error:", error);
+    }
+  };
+
+  const isResolved = (handoff, item) => {
+    return handoff.resolved_items?.includes(item) || false;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -111,13 +143,98 @@ export default function ShiftHandoff() {
     );
   }
 
+  // Filter handoffs
+  const filtered = handoffs.filter(h => {
+    if (filterShift && h.shift !== filterShift) return false;
+    if (filterDept && h.department !== filterDept && h.department !== "All") return false;
+    if (filterUrgency && h.urgency !== filterUrgency) return false;
+    if (filterManager && h.logged_by !== filterManager) return false;
+    return true;
+  });
+
+  // Separate urgent from regular
+  const urgent = filtered.filter(h => h.urgency === "critical");
+  const regular = filtered.filter(h => h.urgency !== "critical");
+  const managers = [...new Set(handoffs.map(h => h.logged_by).filter(Boolean))];
+
   return (
     <div className="space-y-6 pb-12">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Shift Handoff</h1>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-2xl lg:text-3xl font-bold">Manager Handoff Hub</h1>
+        <Button onClick={() => setShowForm(true)} size="lg" className="gap-2">
           <Plus className="h-4 w-4" /> New Handoff
         </Button>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-card border border-border rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <p className="text-sm font-semibold">Filters</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Select value={filterShift} onValueChange={setFilterShift}>
+            <SelectTrigger><SelectValue placeholder="All Shifts" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value={null}>All Shifts</SelectItem>
+              <SelectItem value="morning">Morning</SelectItem>
+              <SelectItem value="afternoon">Afternoon</SelectItem>
+              <SelectItem value="evening">Evening</SelectItem>
+              <SelectItem value="night">Night</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterDept} onValueChange={setFilterDept}>
+            <SelectTrigger><SelectValue placeholder="All Depts" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value={null}>All Depts</SelectItem>
+              <SelectItem value="FOH">FOH</SelectItem>
+              <SelectItem value="BOH">BOH</SelectItem>
+              <SelectItem value="Bar">Bar</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterUrgency} onValueChange={setFilterUrgency}>
+            <SelectTrigger><SelectValue placeholder="All Urgency" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value={null}>All Urgency</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterManager} onValueChange={setFilterManager}>
+            <SelectTrigger><SelectValue placeholder="All Managers" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value={null}>All Managers</SelectItem>
+              {managers.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Urgent Handoffs */}
+      {urgent.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="font-bold text-sm text-destructive flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" /> Critical Handoffs
+          </h2>
+          {urgent.map(handoff => (
+            <HandoffCard key={handoff.id} handoff={handoff} expanded={expandedId === handoff.id} onToggle={() => setExpandedId(expandedId === handoff.id ? null : handoff.id)} onDelete={handleDelete} onMarkResolved={markResolved} isResolved={isResolved} />
+          ))}
+        </div>
+      )}
+
+      {/* All Handoffs */}
+      <div className="space-y-3">
+        {regular.length === 0 && urgent.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No shift handoffs found.
+          </div>
+        ) : (
+          regular.map(handoff => (
+            <HandoffCard key={handoff.id} handoff={handoff} expanded={expandedId === handoff.id} onToggle={() => setExpandedId(expandedId === handoff.id ? null : handoff.id)} onDelete={handleDelete} onMarkResolved={markResolved} isResolved={isResolved} />
+          ))
+        )}
       </div>
 
       {/* Form Dialog */}
@@ -130,132 +247,100 @@ export default function ShiftHandoff() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">Date</label>
-                <Input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                />
+                <label className="block text-sm font-semibold mb-2">Shift</label>
+                <Select value={formData.shift} onValueChange={v => setFormData(prev => ({ ...prev, shift: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="morning">Morning</SelectItem>
+                    <SelectItem value="afternoon">Afternoon</SelectItem>
+                    <SelectItem value="evening">Evening</SelectItem>
+                    <SelectItem value="night">Night</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-2">Shift</label>
-                <select
-                  value={formData.shift}
-                  onChange={(e) => setFormData(prev => ({ ...prev, shift: e.target.value }))}
-                  className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm"
-                >
-                  <option value="morning">Morning</option>
-                  <option value="afternoon">Afternoon</option>
-                  <option value="evening">Evening</option>
-                  <option value="night">Night</option>
-                </select>
+                <label className="block text-sm font-semibold mb-2">Department</label>
+                <Select value={formData.department} onValueChange={v => setFormData(prev => ({ ...prev, department: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FOH">FOH</SelectItem>
+                    <SelectItem value="BOH">BOH</SelectItem>
+                    <SelectItem value="Bar">Bar</SelectItem>
+                    <SelectItem value="All">All</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2">Date</label>
+                <Input type="date" value={formData.date} onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-2">Urgency</label>
+                <Select value={formData.urgency} onValueChange={v => setFormData(prev => ({ ...prev, urgency: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Items 86'd</label>
-              <textarea
-                value={formData.items_86d}
-                onChange={(e) => setFormData(prev => ({ ...prev, items_86d: e.target.value }))}
-                placeholder="List items that ran out..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.items_86d} onChange={(e) => setFormData(prev => ({ ...prev, items_86d: e.target.value }))} placeholder="List items that ran out..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Staff Issues</label>
-              <textarea
-                value={formData.staff_issues}
-                onChange={(e) => setFormData(prev => ({ ...prev, staff_issues: e.target.value }))}
-                placeholder="Any staff issues or concerns..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.staff_issues} onChange={(e) => setFormData(prev => ({ ...prev, staff_issues: e.target.value }))} placeholder="Any staff concerns..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Guest Issues</label>
-              <textarea
-                value={formData.guest_issues}
-                onChange={(e) => setFormData(prev => ({ ...prev, guest_issues: e.target.value }))}
-                placeholder="Any guest issues or complaints..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.guest_issues} onChange={(e) => setFormData(prev => ({ ...prev, guest_issues: e.target.value }))} placeholder="Guest complaints..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Maintenance Problems</label>
-              <textarea
-                value={formData.maintenance_problems}
-                onChange={(e) => setFormData(prev => ({ ...prev, maintenance_problems: e.target.value }))}
-                placeholder="Any equipment or facility issues..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.maintenance_problems} onChange={(e) => setFormData(prev => ({ ...prev, maintenance_problems: e.target.value }))} placeholder="Equipment or facility issues..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Cash Issues</label>
-              <textarea
-                value={formData.cash_issues}
-                onChange={(e) => setFormData(prev => ({ ...prev, cash_issues: e.target.value }))}
-                placeholder="Drawer discrepancies, short/over amounts..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.cash_issues} onChange={(e) => setFormData(prev => ({ ...prev, cash_issues: e.target.value }))} placeholder="Drawer discrepancies..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Prep Concerns</label>
-              <textarea
-                value={formData.prep_concerns}
-                onChange={(e) => setFormData(prev => ({ ...prev, prep_concerns: e.target.value }))}
-                placeholder="Issues with prep for next service..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.prep_concerns} onChange={(e) => setFormData(prev => ({ ...prev, prep_concerns: e.target.value }))} placeholder="Prep for next service..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Vendor Issues</label>
-              <textarea
-                value={formData.vendor_issues}
-                onChange={(e) => setFormData(prev => ({ ...prev, vendor_issues: e.target.value }))}
-                placeholder="Missing deliveries, quality issues..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.vendor_issues} onChange={(e) => setFormData(prev => ({ ...prev, vendor_issues: e.target.value }))} placeholder="Missing deliveries..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Events or Reservations to Watch</label>
-              <textarea
-                value={formData.reservations_to_watch}
-                onChange={(e) => setFormData(prev => ({ ...prev, reservations_to_watch: e.target.value }))}
-                placeholder="Large reservations, VIP tables, special events..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.reservations_to_watch} onChange={(e) => setFormData(prev => ({ ...prev, reservations_to_watch: e.target.value }))} placeholder="Large reservations, VIP..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-2">Notes for Next Manager</label>
-              <textarea
-                value={formData.notes_for_next_manager}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes_for_next_manager: e.target.value }))}
-                placeholder="Any other important notes..."
-                className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20"
-              />
+              <textarea value={formData.notes_for_next_manager} onChange={(e) => setFormData(prev => ({ ...prev, notes_for_next_manager: e.target.value }))} placeholder="Any important notes..." className="w-full p-2 rounded-md border border-input bg-transparent text-sm min-h-20" />
             </div>
 
             <div>
               <label className="block text-sm font-semibold mb-3">Tags</label>
               <div className="flex flex-wrap gap-2">
                 {TAGS.map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-semibold border transition-all",
-                      formData.tags.includes(tag)
-                        ? `${TAG_COLORS[tag]}`
-                        : "bg-muted border-border text-muted-foreground"
-                    )}
-                  >
+                  <button key={tag} onClick={() => toggleTag(tag)} className={cn("px-3 py-1.5 rounded-full text-xs font-semibold border transition-all", formData.tags.includes(tag) ? `${TAG_COLORS[tag]}` : "bg-muted border-border text-muted-foreground")}>
                     {tag}
                   </button>
                 ))}
@@ -269,119 +354,73 @@ export default function ShiftHandoff() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
 
-      {/* Handoff List */}
-      <div className="space-y-3">
-        {handoffs.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            No shift handoffs logged yet.
+function HandoffCard({ handoff, expanded, onToggle, onDelete, onMarkResolved, isResolved }) {
+  const urgencyConfig = URGENCY_CONFIG[handoff.urgency] || URGENCY_CONFIG.medium;
+
+  const items = [
+    { key: "items_86d", label: "86'd Items" },
+    { key: "staff_issues", label: "Staff Issues" },
+    { key: "guest_issues", label: "Guest Issues" },
+    { key: "maintenance_problems", label: "Maintenance" },
+    { key: "cash_issues", label: "Cash Issues" },
+    { key: "prep_concerns", label: "Prep Concerns" },
+    { key: "vendor_issues", label: "Vendor Issues" },
+    { key: "reservations_to_watch", label: "Events/Reservations" },
+    { key: "notes_for_next_manager", label: "Manager Notes" },
+  ];
+
+  return (
+    <div className={cn("bg-card border-2 rounded-xl overflow-hidden transition-all", handoff.urgency === "critical" ? "border-destructive/40" : "border-border")}>
+      <button onClick={onToggle} className="w-full p-4 flex items-center justify-between hover:bg-secondary/20 transition-colors">
+        <div className="flex items-center gap-3 flex-1 text-left">
+          <div className={cn("px-2 py-1 rounded text-xs font-bold", urgencyConfig.bg)}>
+            {URGENCY_CONFIG[handoff.urgency]?.label}
           </div>
-        ) : (
-          handoffs.map(handoff => (
-            <div
-              key={handoff.id}
-              className={cn(
-                "bg-card border rounded-xl overflow-hidden transition-all",
-                handoff.tags.includes("Urgent") ? "border-red-500/50" : "border-border"
-              )}
-            >
-              <button
-                onClick={() => setExpandedId(expandedId === handoff.id ? null : handoff.id)}
-                className="w-full p-4 flex items-center justify-between hover:bg-secondary/20 transition-colors"
-              >
-                <div className="flex items-center gap-4 flex-1 text-left">
-                  <div>
-                    <p className="font-semibold">{handoff.shift.charAt(0).toUpperCase() + handoff.shift.slice(1)} Shift</p>
-                    <p className="text-xs text-muted-foreground">{handoff.date} • {handoff.logged_by}</p>
-                  </div>
-                  {handoff.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {handoff.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className={cn("px-2 py-0.5 rounded text-xs font-semibold", TAG_COLORS[tag])}>
-                          {tag}
-                        </span>
-                      ))}
-                      {handoff.tags.length > 3 && (
-                        <span className="px-2 py-0.5 rounded text-xs font-semibold bg-muted text-muted-foreground">
-                          +{handoff.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <ChevronDown className={cn("h-5 w-5 text-muted-foreground transition-transform", expandedId === handoff.id && "rotate-180")} />
-              </button>
+          <div>
+            <p className="font-semibold">{handoff.shift.charAt(0).toUpperCase() + handoff.shift.slice(1)} Shift • {handoff.department}</p>
+            <p className="text-xs text-muted-foreground">{handoff.date} • {handoff.logged_by}</p>
+          </div>
+          {handoff.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-1 ml-2">
+              {handoff.tags.slice(0, 2).map(tag => (
+                <span key={tag} className={cn("px-1.5 py-0.5 rounded text-xs font-semibold", TAG_COLORS[tag])}>
+                  {tag}
+                </span>
+              ))}
+              {handoff.tags.length > 2 && <span className="px-1.5 py-0.5 rounded text-xs font-semibold bg-muted">+{handoff.tags.length - 2}</span>}
+            </div>
+          )}
+        </div>
+        <ChevronDown className={cn("h-5 w-5 text-muted-foreground transition-transform flex-shrink-0", expanded && "rotate-180")} />
+      </button>
 
-              {expandedId === handoff.id && (
-                <div className="border-t border-border p-4 bg-secondary/5 space-y-3 text-sm">
-                  {handoff.items_86d && (
-                    <div>
-                      <p className="font-semibold mb-1">Items 86'd</p>
-                      <p className="text-muted-foreground">{handoff.items_86d}</p>
-                    </div>
-                  )}
-                  {handoff.staff_issues && (
-                    <div>
-                      <p className="font-semibold mb-1">Staff Issues</p>
-                      <p className="text-muted-foreground">{handoff.staff_issues}</p>
-                    </div>
-                  )}
-                  {handoff.guest_issues && (
-                    <div>
-                      <p className="font-semibold mb-1">Guest Issues</p>
-                      <p className="text-muted-foreground">{handoff.guest_issues}</p>
-                    </div>
-                  )}
-                  {handoff.maintenance_problems && (
-                    <div>
-                      <p className="font-semibold mb-1">Maintenance Problems</p>
-                      <p className="text-muted-foreground">{handoff.maintenance_problems}</p>
-                    </div>
-                  )}
-                  {handoff.cash_issues && (
-                    <div>
-                      <p className="font-semibold mb-1">Cash Issues</p>
-                      <p className="text-muted-foreground">{handoff.cash_issues}</p>
-                    </div>
-                  )}
-                  {handoff.prep_concerns && (
-                    <div>
-                      <p className="font-semibold mb-1">Prep Concerns</p>
-                      <p className="text-muted-foreground">{handoff.prep_concerns}</p>
-                    </div>
-                  )}
-                  {handoff.vendor_issues && (
-                    <div>
-                      <p className="font-semibold mb-1">Vendor Issues</p>
-                      <p className="text-muted-foreground">{handoff.vendor_issues}</p>
-                    </div>
-                  )}
-                  {handoff.reservations_to_watch && (
-                    <div>
-                      <p className="font-semibold mb-1">Events/Reservations to Watch</p>
-                      <p className="text-muted-foreground">{handoff.reservations_to_watch}</p>
-                    </div>
-                  )}
-                  {handoff.notes_for_next_manager && (
-                    <div>
-                      <p className="font-semibold mb-1">Notes for Next Manager</p>
-                      <p className="text-muted-foreground">{handoff.notes_for_next_manager}</p>
-                    </div>
-                  )}
-                  <div className="flex justify-end pt-2 border-t border-border">
-                    <button
-                      onClick={() => handleDelete(handoff.id)}
-                      className="text-red-500 hover:text-red-600 text-xs font-semibold flex items-center gap-1"
-                    >
-                      <Trash2 className="h-3 w-3" /> Delete
-                    </button>
-                  </div>
-                </div>
+      {expanded && (
+        <div className="border-t border-border p-4 bg-secondary/5 space-y-3 text-sm">
+          {items.map(({ key, label }) => handoff[key] && (
+            <div key={key} className="space-y-1">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold">{label}</p>
+                {isResolved(handoff, key) && <Check className="h-4 w-4 text-green-600" />}
+              </div>
+              <p className={cn("text-muted-foreground", isResolved(handoff, key) && "line-through opacity-50")}>{handoff[key]}</p>
+              {!isResolved(handoff, key) && (
+                <button onClick={() => onMarkResolved(handoff.id, key)} className="text-xs text-primary hover:underline font-semibold">
+                  Mark resolved
+                </button>
               )}
             </div>
-          ))
-        )}
-      </div>
+          ))}
+          <div className="flex justify-end pt-2 border-t border-border">
+            <button onClick={() => onDelete(handoff.id)} className="text-destructive hover:text-destructive/80 text-xs font-semibold flex items-center gap-1">
+              <Trash2 className="h-3 w-3" /> Delete
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
