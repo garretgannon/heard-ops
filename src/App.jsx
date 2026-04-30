@@ -25,6 +25,7 @@ import TempLogs from './pages/TempLogs';
 import DishMachines from './pages/DishMachines';
 import MyRestaurant from './pages/MyRestaurant';
 import ManagerLog from './pages/ManagerLog';
+import RestaurantTeam from './pages/RestaurantTeam';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/temp-logs" element={<TempLogs />} />}
         <Route path="/dish-machines" element={<DishMachines />} />
         {isAdmin && <Route path="/my-restaurant" element={<MyRestaurant />} />}
+        {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
         <Route path="*" element={<PageNotFound />} />
       </Route>
