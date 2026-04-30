@@ -9,11 +9,11 @@ import { useCurrentUser } from './hooks/useCurrentUser';
 import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Stations from './pages/Stations';
 import PrepLists from './pages/PrepLists';
 import StationPrepView from './pages/StationPrepView';
-
 import StaffHome from './pages/StaffHome';
 import Profile from './pages/Profile';
 import SideWork from './pages/SideWork';
@@ -44,7 +44,6 @@ import ManagerDashboard from './pages/ManagerDashboard';
 import MSDS from './pages/MSDS';
 import NotificationSettings from './pages/NotificationSettings';
 import WeeklyReport from './pages/WeeklyReport';
-import Landing from './pages/Landing';
 import ShiftHandoff from './pages/ShiftHandoff';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 
@@ -73,15 +72,15 @@ const AuthenticatedApp = () => {
     );
   }
 
-  if (authError?.type === 'auth_required') {
-    return <Landing />;
+  if (authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
   }
 
   return (
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<TodaysCommandCenter />} />
+        <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
 
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
         {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
@@ -122,9 +121,7 @@ const AuthenticatedApp = () => {
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
