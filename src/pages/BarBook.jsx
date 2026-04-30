@@ -16,7 +16,7 @@ export default function BarBook() {
   const [editingId, setEditingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [categories, setCategories] = useState([]);
+  const [batchFilter, setBatchFilter] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -26,7 +26,8 @@ export default function BarBook() {
     ingredients: "",
     glassware: "",
     notes: "",
-    base_spirit: ""
+    base_spirit: "",
+    is_batch_recipe: false
   });
 
   useEffect(() => {
@@ -36,8 +37,6 @@ export default function BarBook() {
         base44.auth.me()
       ]);
       setDrinks(data);
-      const cats = [...new Set(data.map(d => d.category).filter(Boolean))];
-      setCategories(cats);
       setIsAdmin(user?.role === "admin");
       setLoading(false);
     };
@@ -49,7 +48,8 @@ export default function BarBook() {
       d.base_spirit?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       d.ingredients?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !categoryFilter || d.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    const matchesBatch = !batchFilter || d.is_batch_recipe;
+    return matchesSearch && matchesCategory && matchesBatch;
   });
 
   const handleSave = async () => {
@@ -65,8 +65,6 @@ export default function BarBook() {
     } else {
       const created = await base44.entities.BarBook.create(form);
       setDrinks(prev => [created, ...prev]);
-      const newCat = form.category && !categories.includes(form.category) ? [...categories, form.category] : categories;
-      setCategories(newCat);
       toast.success("Recipe added");
     }
     setSaving(false);
@@ -80,7 +78,8 @@ export default function BarBook() {
       ingredients: "",
       glassware: "",
       notes: "",
-      base_spirit: ""
+      base_spirit: "",
+      is_batch_recipe: false
     });
   };
 
@@ -106,7 +105,8 @@ export default function BarBook() {
       ingredients: "",
       glassware: "",
       notes: "",
-      base_spirit: ""
+      base_spirit: "",
+      is_batch_recipe: false
     });
     setEditingId(null);
     setShowForm(true);
@@ -136,31 +136,57 @@ export default function BarBook() {
 
       {/* Filters */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs">Search</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Drink name, spirit, ingredients..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+        <div className="space-y-2">
+          <Label className="text-xs">Search</Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Drink name, spirit, ingredients..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Category</Label>
-            <select
-              value={categoryFilter}
-              onChange={e => setCategoryFilter(e.target.value)}
-              className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs">Category</Label>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={!categoryFilter && !batchFilter ? "default" : "outline"}
+              size="sm"
+              onClick={() => { setCategoryFilter(""); setBatchFilter(false); }}
             >
-              <option value="">All Categories</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+              All
+            </Button>
+            <Button
+              variant={categoryFilter === "Beer" && !batchFilter ? "default" : "outline"}
+              size="sm"
+              onClick={() => { setCategoryFilter("Beer"); setBatchFilter(false); }}
+            >
+              Beer
+            </Button>
+            <Button
+              variant={categoryFilter === "Cocktails" && !batchFilter ? "default" : "outline"}
+              size="sm"
+              onClick={() => { setCategoryFilter("Cocktails"); setBatchFilter(false); }}
+            >
+              Cocktails
+            </Button>
+            <Button
+              variant={categoryFilter === "Wine" && !batchFilter ? "default" : "outline"}
+              size="sm"
+              onClick={() => { setCategoryFilter("Wine"); setBatchFilter(false); }}
+            >
+              Wine
+            </Button>
+            <Button
+              variant={batchFilter ? "default" : "outline"}
+              size="sm"
+              onClick={() => { setBatchFilter(!batchFilter); setCategoryFilter(""); }}
+            >
+              Batch Recipes
+            </Button>
           </div>
         </div>
       </div>
@@ -186,6 +212,11 @@ export default function BarBook() {
             >
               {/* Photo */}
               <div className="relative w-full h-48 bg-secondary overflow-hidden">
+                {drink.is_batch_recipe && (
+                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full z-10">
+                    Batch
+                  </div>
+                )}
                 <img
                   src={drink.photo_url}
                   alt={drink.name}
@@ -271,11 +302,16 @@ export default function BarBook() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label>Category</Label>
-                  <Input
+                  <select
                     value={form.category}
                     onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                    placeholder="e.g., Cocktails"
-                  />
+                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    <option value="">Select Category</option>
+                    <option value="Beer">Beer</option>
+                    <option value="Cocktails">Cocktails</option>
+                    <option value="Wine">Wine</option>
+                  </select>
                 </div>
                 <div className="space-y-1">
                   <Label>Base Spirit</Label>
@@ -325,6 +361,16 @@ export default function BarBook() {
                   onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                 />
               </div>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={form.is_batch_recipe}
+                  onChange={e => setForm(f => ({ ...f, is_batch_recipe: e.target.checked }))}
+                  className="w-4 h-4 rounded border-input"
+                />
+                <span className="text-sm">Batch Recipe</span>
+              </label>
 
               <div className="flex gap-2 pt-2">
                 <Button onClick={handleSave} disabled={saving} className="flex-1">
