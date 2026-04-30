@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown, DollarSign } from "lucide-react";
+import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown, DollarSign, Upload, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -77,6 +77,9 @@ export default function MyRestaurant() {
   const [pettyCashId, setPettyCashId] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
   const [restaurantNameId, setRestaurantNameId] = useState(null);
+  const [logoUrl, setLogoUrl] = useState("");
+  const [logoUrlId, setLogoUrlId] = useState(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -106,6 +109,11 @@ export default function MyRestaurant() {
       if (nameSettings.length > 0) {
         setRestaurantName(nameSettings[0].value || "");
         setRestaurantNameId(nameSettings[0].id);
+      }
+      const logoSettings = await base44.entities.Settings.filter({ key: "logo_url" });
+      if (logoSettings.length > 0) {
+        setLogoUrl(logoSettings[0].value || "");
+        setLogoUrlId(logoSettings[0].id);
       }
       setLoading(false);
     };
@@ -165,6 +173,22 @@ export default function MyRestaurant() {
     toast.success("Drawer added");
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setLogoUrl(file_url);
+    if (logoUrlId) {
+      await base44.entities.Settings.update(logoUrlId, { value: file_url });
+    } else {
+      const rec = await base44.entities.Settings.create({ key: "logo_url", value: file_url });
+      setLogoUrlId(rec.id);
+    }
+    setUploadingLogo(false);
+    toast.success("Logo saved");
+  };
+
   const saveRestaurantName = async () => {
     setSaving(true);
     if (restaurantNameId) {
@@ -205,20 +229,42 @@ export default function MyRestaurant() {
       </div>
 
       {/* Restaurant Name */}
-      <div className="bg-card border border-border rounded-2xl p-5">
-        <h2 className="font-semibold text-base mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Restaurant Name</h2>
-        <div className="flex items-center gap-3">
-          <Input
-            placeholder="e.g. The Golden Fork"
-            value={restaurantName}
-            onChange={e => setRestaurantName(e.target.value)}
-            className="max-w-sm"
-          />
-          <Button size="sm" onClick={saveRestaurantName} disabled={saving}>
-            <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save"}
-          </Button>
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+        <h2 className="font-semibold text-base flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Restaurant Branding</h2>
+        <div className="flex items-start gap-5">
+          {/* Logo upload */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-16 w-16 rounded-xl bg-secondary border border-border flex items-center justify-center overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="logo" className="h-16 w-16 object-cover" />
+              ) : (
+                <ImageIcon className="h-7 w-7 text-muted-foreground" />
+              )}
+            </div>
+            <label className="cursor-pointer">
+              <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} />
+              <span className="text-xs text-primary flex items-center gap-1 hover:underline">
+                <Upload className="h-3 w-3" />{uploadingLogo ? "Uploading…" : "Upload Logo"}
+              </span>
+            </label>
+          </div>
+          {/* Name */}
+          <div className="flex-1 space-y-1">
+            <Label className="text-xs">Restaurant Name</Label>
+            <div className="flex items-center gap-3">
+              <Input
+                placeholder="e.g. The Golden Fork"
+                value={restaurantName}
+                onChange={e => setRestaurantName(e.target.value)}
+                className="max-w-sm"
+              />
+              <Button size="sm" onClick={saveRestaurantName} disabled={saving}>
+                <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save"}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Displayed in the app header and sidebar.</p>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-1.5">This name appears in the app header and sidebar.</p>
       </div>
 
       {/* Prep Stations */}
