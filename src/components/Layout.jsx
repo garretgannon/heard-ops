@@ -46,6 +46,8 @@ const fohNavItems = [
 export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileFohOpen, setMobileFohOpen] = useState(true);
+  const [mobileBohOpen, setMobileBohOpen] = useState(true);
   const [fohOpen, setFohOpen] = useState(true);
   const [bohOpen, setBohOpen] = useState(true);
   const { isAdmin, isFOH } = useCurrentUser();
@@ -75,27 +77,73 @@ export default function Layout() {
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)}>
           <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            {(isAdmin ? [
-              ...topNavItems,
-              ...fohNavItems_admin,
-              ...bohNavItems,
-              ...bottomNavItems,
-            ] : navItems).map(item => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
+            {isAdmin ? (
+              <>
+                {topNavItems.map(item => (
+                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-secondary"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
+                      location.pathname === item.path ? "bg-primary text-primary-foreground" :
+                      item.highlight ? "text-primary hover:bg-secondary" : "text-muted-foreground hover:bg-secondary"
+                    )}>
+                    <item.icon className="h-4 w-4" />{item.label}
                   </Link>
+                ))}
+
+                <button onClick={() => setMobileFohOpen(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
+                  <span className="text-primary">Front of House</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileFohOpen && "rotate-180")} />
+                </button>
+                {mobileFohOpen && fohNavItems_admin.map(item => (
+                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
+                    )}>
+                    <item.icon className="h-4 w-4" />{item.label}
+                  </Link>
+                ))}
+
+                <button onClick={() => setMobileBohOpen(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
+                  <span className="text-primary">Back of House</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileBohOpen && "rotate-180")} />
+                </button>
+                {mobileBohOpen && bohNavItems.map(item => (
+                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
+                    )}>
+                    <item.icon className="h-4 w-4" />{item.label}
+                  </Link>
+                ))}
+
+                <div className="pt-1">
+                  {bottomNavItems.map(item => (
+                    <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                        location.pathname === item.path ? "bg-primary text-primary-foreground" :
+                        item.highlight ? "text-primary hover:bg-secondary" : "text-muted-foreground hover:bg-secondary"
+                      )}>
+                      <item.icon className="h-4 w-4" />{item.label}
+                    </Link>
                   ))}
+                </div>
+              </>
+            ) : (
+              navItems.map(item => (
+                <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                    location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
+                  )}>
+                  <item.icon className="h-4 w-4" />{item.label}
+                </Link>
+              ))
+            )}
           </nav>
         </div>
       )}
