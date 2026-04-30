@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -5,6 +6,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
+import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -28,14 +30,25 @@ import ManagerLog from './pages/ManagerLog';
 import BathroomChecks from './pages/BathroomChecks';
 import Cash from './pages/Cash';
 import MaintenanceRequests from './pages/MaintenanceRequests';
+import Onboarding from './pages/Onboarding';
 import RestaurantTeam from './pages/RestaurantTeam';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const { user, isAdmin, isFOH, loading: userLoading } = useCurrentUser();
   const isBusser = user?.role === 'busser';
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
-  if (isLoadingPublicSettings || isLoadingAuth || userLoading) {
+  useEffect(() => {
+    if (!user || !isAdmin) { setOnboardingChecked(true); return; }
+    base44.entities.Settings.filter({ key: 'onboarding_complete' }).then(results => {
+      setNeedsOnboarding(results.length === 0);
+      setOnboardingChecked(true);
+    });
+  }, [user, isAdmin]);
+
+  if (isLoadingPublicSettings || isLoadingAuth || userLoading || !onboardingChecked) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
@@ -43,8 +56,17 @@ const AuthenticatedApp = () => {
     );
   }
 
+  if (needsOnboarding && isAdmin && window.location.pathname !== '/onboarding') {
+    return (
+      <Routes>
+        <Route path="*" element={<Onboarding />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
+      <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
         <Route path="/" element={isAdmin ? <Dashboard /> : isBusser ? <BusserHome /> : <StaffHome />} />
 
