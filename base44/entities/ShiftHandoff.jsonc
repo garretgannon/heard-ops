@@ -1,0 +1,98 @@
+{
+  "name": "ShiftHandoff",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "morning",
+        "afternoon",
+        "evening",
+        "night"
+      ],
+      "enumNames": [
+        "Morning",
+        "Afternoon",
+        "Evening",
+        "Night"
+      ]
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    },
+    "items_86d": {
+      "type": "string",
+      "title": "86'd Items"
+    },
+    "staff_issues": {
+      "type": "string",
+      "title": "Staff Issues"
+    },
+    "guest_issues": {
+      "type": "string",
+      "title": "Guest Issues"
+    },
+    "maintenance_problems": {
+      "type": "string",
+      "title": "Maintenance Problems"
+    },
+    "cash_issues": {
+      "type": "string",
+      "title": "Cash Issues"
+    },
+    "prep_concerns": {
+      "type": "string",
+      "title": "Prep Concerns"
+    },
+    "vendor_issues": {
+      "type": "string",
+      "title": "Vendor Issues"
+    },
+    "reservations_to_watch": {
+      "type": "string",
+      "title": "Events or Reservations to Watch"
+    },
+    "notes_for_next_manager": {
+      "type": "string",
+      "title": "Notes for Next Manager"
+    },
+    "tags": {
+      "type": "array",
+      "title": "Tags",
+      "items": {
+        "type": "string",
+        "enum": [
+          "FOH",
+          "BOH",
+          "Bar",
+          "Maintenance",
+          "Cash",
+          "Guest",
+          "Staff",
+          "Urgent"
+        ],
+        "enumNames": [
+          "FOH",
+          "BOH",
+          "Bar",
+          "Maintenance",
+          "Cash",
+          "Guest",
+          "Staff",
+          "Urgent"
+        ]
+      }
+    }
+  },
+  "required": [
+    "date",
+    "shift"
+  ]
+}

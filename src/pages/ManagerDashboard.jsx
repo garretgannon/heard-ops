@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { AlertTriangle, CheckCircle2, ListTodo, Eye, Clock, Zap } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ShiftHandoffCard from "../components/ShiftHandoffCard";
 
 export default function ManagerDashboard() {
   const { user, isAdmin } = useCurrentUser();
@@ -12,6 +13,7 @@ export default function ManagerDashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [photoDialog, setPhotoDialog] = useState(null);
+  const [latestHandoff, setLatestHandoff] = useState(null);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -19,17 +21,19 @@ export default function ManagerDashboard() {
     if (!isAdmin) return;
     
     const load = async () => {
-      const [pls, pi, sw, us] = await Promise.all([
+      const [pls, pi, sw, us, handoffs] = await Promise.all([
         base44.entities.PrepList.filter({ date: todayStr }),
         base44.entities.PrepItem.list("-created_date", 500),
         base44.entities.SideWorkAssignment.filter({ date: todayStr }),
         base44.entities.User.list(),
+        base44.entities.ShiftHandoff.filter({ date: todayStr }, "-created_date", 1),
       ]);
       
       setPrepLists(pls);
       setPrepItems(pi.filter(item => pls.some(pl => pl.id === item.prep_list_id)));
       setSideWorkTasks(sw);
       setUsers(us);
+      if (handoffs.length > 0) setLatestHandoff(handoffs[0]);
       setLoading(false);
     };
     
@@ -192,6 +196,14 @@ export default function ManagerDashboard() {
           />
         </div>
       </div>
+
+      {/* Latest Shift Handoff */}
+      {latestHandoff && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Latest Shift Handoff</h2>
+          <ShiftHandoffCard handoff={latestHandoff} />
+        </div>
+      )}
 
       {/* Employee Performance */}
       <div className="space-y-3">

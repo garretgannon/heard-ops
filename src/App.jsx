@@ -45,6 +45,7 @@ import MSDS from './pages/MSDS';
 import NotificationSettings from './pages/NotificationSettings';
 import WeeklyReport from './pages/WeeklyReport';
 import Landing from './pages/Landing';
+import ShiftHandoff from './pages/ShiftHandoff';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -110,6 +111,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/msds" element={<MSDS />} />}
         {isAdmin && <Route path="/notifications" element={<NotificationSettings />} />}
         {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
+        {isAdmin && <Route path="/shift-handoff" element={<ShiftHandoff />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
