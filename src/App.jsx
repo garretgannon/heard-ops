@@ -78,11 +78,12 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={!user ? <Landing /> : (needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />)} />
+      <Route path="/" element={!user ? <Landing /> : null} />
       {user && (
         <>
           <Route path="/onboarding" element={<Onboarding />} />
           <Route element={<Layout />}>
+            <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
             {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
             {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
             <Route path="/today" element={<StaffTasks />} />
