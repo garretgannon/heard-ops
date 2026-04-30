@@ -4,44 +4,78 @@
   "properties": {
     "name": {
       "type": "string",
-      "title": "Recipe / Dish Name"
+      "title": "Dish Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Starters",
+        "Salads",
+        "Entrees",
+        "Desserts",
+        "Brunch",
+        "Kids",
+        "Specials"
+      ],
+      "enumNames": [
+        "Starters",
+        "Salads",
+        "Entrees",
+        "Desserts",
+        "Brunch",
+        "Kids",
+        "Specials"
+      ]
     },
     "photo_url": {
       "type": "string",
       "title": "Completed Dish Photo URL"
     },
+    "ingredients": {
+      "type": "string",
+      "title": "Ingredients"
+    },
+    "allergens": {
+      "type": "string",
+      "title": "Allergens (e.g., Nuts, Dairy, Gluten)"
+    },
     "instructions": {
       "type": "string",
       "title": "Instructions / Recipe"
     },
-    "category": {
+    "modifications": {
       "type": "string",
-      "title": "Category"
+      "title": "Possible Modifications (substitutions, removals)"
+    },
+    "eighty_six_notes": {
+      "type": "string",
+      "title": "86 / Out of Stock Notes"
+    },
+    "pairings": {
+      "type": "string",
+      "title": "Wine/Drink Pairings & Upsells"
+    },
+    "talking_points": {
+      "type": "string",
+      "title": "Talking Points for Staff"
     },
     "menu_items": {
       "type": "string",
-      "title": "Menu Items (comma separated)"
+      "title": "Menu Item Names"
     },
     "batch_size": {
       "type": "string",
       "title": "Batch Size / Yield"
     },
-    "ingredients": {
-      "type": "string",
-      "title": "Ingredients"
-    },
     "notes": {
       "type": "string",
-      "title": "Notes / Tips"
-    },
-    "is_batch_recipe": {
-      "type": "boolean",
-      "title": "Batch Recipe",
-      "default": false
+      "title": "Additional Notes"
     }
   },
   "required": [
     "name",
+    "category",
     "photo_url"
   ]
 }
