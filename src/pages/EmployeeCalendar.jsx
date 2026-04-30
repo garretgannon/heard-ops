@@ -118,7 +118,7 @@ export default function EmployeeCalendar() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">Track write-ups, conversations, attendance patterns — management only.</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
+        <Button onClick={() => { setForm(f => ({ ...f, date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd") })); setShowForm(true); }} className="gap-2">
           <Plus className="h-4 w-4" /> Log Event
         </Button>
       </div>
@@ -174,12 +174,7 @@ export default function EmployeeCalendar() {
               return (
                 <button
                   key={day.toISOString()}
-                  onClick={() => {
-                    setSelectedDate(isSelected ? null : day);
-                    const dateStr = format(day, "yyyy-MM-dd");
-                    setForm(f => ({ ...f, date: dateStr }));
-                    setShowForm(true);
-                  }}
+                  onClick={() => setSelectedDate(isSelected ? null : day)}
                 >
                   <span className={`text-xs font-medium block text-center mb-1 ${isToday ? "text-primary font-bold" : "text-foreground"}`}>
                     {format(day, "d")}
