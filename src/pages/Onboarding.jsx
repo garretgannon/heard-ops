@@ -31,6 +31,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [restaurantName, setRestaurantName] = useState("");
 
   // Stations
   const [stations, setStations] = useState([{ name: "", color: "blue" }]);
@@ -69,6 +70,9 @@ export default function Onboarding() {
       const validRoles = roles.filter(r => r.name.trim());
       const validDrawers = drawers.filter(d => d.name.trim());
 
+      if (restaurantName.trim()) {
+        await base44.entities.Settings.create({ key: "restaurant_name", value: restaurantName.trim() });
+      }
       await Promise.all(validStations.map(s => base44.entities.Station.create({ name: s.name.trim(), color: s.color, is_active: true })));
       if (validRoles.length) {
         await base44.entities.Settings.create({ key: "job_roles", value: JSON.stringify(validRoles.map(r => r.name.trim())) });
@@ -119,6 +123,17 @@ export default function Onboarding() {
               {i < STEPS.length - 1 && <div className={cn("flex-1 h-px mx-3", i < step ? "bg-primary" : "bg-border")} />}
             </div>
           ))}
+        </div>
+
+        {/* Restaurant Name */}
+        <div className="bg-card border border-border rounded-2xl p-4 mb-4">
+          <Label className="text-sm font-medium">Restaurant Name</Label>
+          <Input
+            className="mt-1.5"
+            placeholder="e.g. The Golden Fork"
+            value={restaurantName}
+            onChange={e => setRestaurantName(e.target.value)}
+          />
         </div>
 
         {/* Step Card */}
