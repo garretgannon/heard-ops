@@ -44,6 +44,7 @@ import ManagerDashboard from './pages/ManagerDashboard';
 import MSDS from './pages/MSDS';
 import NotificationSettings from './pages/NotificationSettings';
 import WeeklyReport from './pages/WeeklyReport';
+import Landing from './pages/Landing';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -70,7 +71,9 @@ const AuthenticatedApp = () => {
     );
   }
 
-
+  if (authError?.type === 'auth_required') {
+    return <Landing />;
+  }
 
   return (
     <Routes>
