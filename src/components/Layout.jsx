@@ -50,7 +50,6 @@ const healthDeptNavItems = [
 
 const bottomNavItems = [
   { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
-  { path: "/photo-review", label: "Photo Review", icon: Camera, highlight: true },
   { path: "/profile", label: "My Profile", icon: UserCircle, highlight: true },
 ];
 
