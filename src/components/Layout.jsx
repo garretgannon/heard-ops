@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame, Book, Wine, FileText } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame, Book, Wine, FileText, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,7 @@ const bohNavItems = [
 ];
 
 const operationsNavItems = [
+  { path: "/manager", label: "Manager Dashboard", icon: TrendingUp },
   { path: "/manager-log", label: "Manager Log", icon: NotebookPen },
   { path: "/incidents", label: "Incident Reports", icon: AlertTriangle },
   { path: "/vendors", label: "Vendors", icon: Truck },

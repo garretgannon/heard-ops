@@ -40,6 +40,7 @@ import LineUp from './pages/LineUp';
 import BuildBook from './pages/BuildBook';
 import BarBook from './pages/BarBook';
 import StaffTasks from './pages/StaffTasks';
+import ManagerDashboard from './pages/ManagerDashboard';
 import MSDS from './pages/MSDS';
 
 const AuthenticatedApp = () => {
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<StaffTasks />} />
 
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
+        {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
         <Route path="/today" element={<StaffTasks />} />
         {isAdmin && <Route path="/stations" element={<Stations />} />}
         {isAdmin && <Route path="/prep-lists" element={<PrepLists />} />}
