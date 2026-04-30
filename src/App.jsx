@@ -65,13 +65,7 @@ const AuthenticatedApp = () => {
     );
   }
 
-  if (needsOnboarding && isAdmin && window.location.pathname !== '/onboarding') {
-    return (
-      <Routes>
-        <Route path="*" element={<Onboarding />} />
-      </Routes>
-    );
-  }
+
 
   return (
     <Routes>
