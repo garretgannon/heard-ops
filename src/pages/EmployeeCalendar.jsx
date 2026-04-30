@@ -174,7 +174,11 @@ export default function EmployeeCalendar() {
               return (
                 <button
                   key={day.toISOString()}
-                  onClick={() => setSelectedDate(isSelected ? null : day)}
+                  onClick={() => {
+                    setSelectedDate(day);
+                    setForm(f => ({ ...f, date: format(day, "yyyy-MM-dd") }));
+                    setShowForm(true);
+                  }}
                 >
                   <span className={`text-xs font-medium block text-center mb-1 ${isToday ? "text-primary font-bold" : "text-foreground"}`}>
                     {format(day, "d")}
