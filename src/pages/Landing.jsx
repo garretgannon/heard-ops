@@ -59,7 +59,7 @@ export default function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          KitchenFlow keeps prep, side work, temp logs, maintenance, cash, vendors, incidents, and manager handoff organized in one place.
+          KitchenFlow keeps prep, side work, temp logs, maintenance, vendors, cash, incidents, training, and manager handoff organized in one place.
         </motion.p>
 
         <motion.div
@@ -85,15 +85,15 @@ export default function Landing() {
           <div className="grid md:grid-cols-3 gap-6 pt-6">
             <div className="bg-background border border-border rounded-xl p-6">
               <h3 className="font-semibold mb-2">Scattered Systems</h3>
-              <p className="text-sm text-muted-foreground">Prep on paper, side work on clipboard, temps in a notebook.</p>
+              <p className="text-sm text-muted-foreground">Managers waste time chasing checklists. Prep on paper, side work on clipboard, temps scattered everywhere.</p>
             </div>
             <div className="bg-background border border-border rounded-xl p-6">
-              <h3 className="font-semibold mb-2">No Accountability</h3>
-              <p className="text-sm text-muted-foreground">Hard to prove tasks were done or remember why something failed.</p>
+              <h3 className="font-semibold mb-2">Answering Repeat Questions</h3>
+              <p className="text-sm text-muted-foreground">Staff ask the same questions every shift. No easy access to recipes, vendor info, or what happened last shift.</p>
             </div>
             <div className="bg-background border border-border rounded-xl p-6">
-              <h3 className="font-semibold mb-2">Compliance Risk</h3>
-              <p className="text-sm text-muted-foreground">Temperature logs missing. Incident reports incomplete. Health inspections stressful.</p>
+              <h3 className="font-semibold mb-2">Compliance Gap</h3>
+              <p className="text-sm text-muted-foreground">Temperature logs missing. Repairs not tracked. Hard to prove tasks were completed or find incident notes.</p>
             </div>
           </div>
         </div>
