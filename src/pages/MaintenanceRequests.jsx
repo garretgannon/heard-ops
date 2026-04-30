@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Wrench, Plus, Trash2, CheckCircle2, Clock, AlertTriangle, Zap, Filter } from "lucide-react";
+import { Wrench, Plus, Trash2, CheckCircle2, Clock, AlertTriangle, Zap, Filter, Camera, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,8 @@ export default function MaintenanceRequests() {
   const [editForm, setEditForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [uploading, setUploading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
 
   const load = async () => {
     const data = await base44.entities.MaintenanceRequest.list("-created_date", 200);
@@ -44,6 +46,17 @@ export default function MaintenanceRequests() {
 
   useEffect(() => { load(); }, []);
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, photo_url: file_url }));
+    setPhotoPreview(URL.createObjectURL(file));
+    setUploading(false);
+    toast.success("Photo uploaded");
+  };
+
   const handleSave = async () => {
     if (!form.title || !form.location) return;
     setSaving(true);
@@ -51,6 +64,7 @@ export default function MaintenanceRequests() {
     setSaving(false);
     setDialog(false);
     setForm(emptyForm);
+    setPhotoPreview(null);
     toast.success("Request submitted");
     load();
   };
@@ -161,6 +175,11 @@ export default function MaintenanceRequests() {
                     {req.resolved_at && <span className="text-xs text-muted-foreground">Resolved {new Date(req.resolved_at).toLocaleDateString()}</span>}
                     {req.notes && <span className="text-xs text-muted-foreground italic">{req.notes}</span>}
                   </div>
+                  {req.photo_url && (
+                    <a href={req.photo_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block">
+                      <img src={req.photo_url} alt="Issue photo" className="h-20 w-32 object-cover rounded-lg border border-border hover:opacity-80 transition-opacity" />
+                    </a>
+                  )}
                 </div>
                 <div className="flex gap-1 flex-shrink-0">
                   <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={() => { setEditForm({ ...req }); setEditDialog(true); }}>
@@ -194,22 +213,46 @@ export default function MaintenanceRequests() {
               <Textarea rows={2} className="resize-none" placeholder="More detail about the issue..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Priority</Label>
-                <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div>
+              <Label>Priority</Label>
+              <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Reported By</Label>
+              <Input placeholder="Your name" value={form.reported_by} onChange={e => setForm({ ...form, reported_by: e.target.value })} />
+            </div>
+            </div>
+            <div>
+            <Label>Photo (optional)</Label>
+            {photoPreview ? (
+              <div className="relative mt-1.5">
+                <img src={photoPreview} alt="Preview" className="w-full max-h-48 object-cover rounded-lg border border-border" />
+                <button
+                  type="button"
+                  onClick={() => { setPhotoPreview(null); setForm(f => ({ ...f, photo_url: "" })); }}
+                  className="absolute top-2 right-2 bg-black/60 rounded-full p-1 text-white hover:bg-black/80"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
-              <div>
-                <Label>Reported By</Label>
-                <Input placeholder="Your name" value={form.reported_by} onChange={e => setForm({ ...form, reported_by: e.target.value })} />
-              </div>
+            ) : (
+              <label className={cn(
+                "mt-1.5 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer transition-colors hover:border-primary/50 hover:bg-secondary/30",
+                uploading && "opacity-60 pointer-events-none"
+              )}>
+                <Camera className="h-6 w-6 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">{uploading ? "Uploading…" : "Tap to add a photo"}</span>
+                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoUpload} />
+              </label>
+            )}
             </div>
           </div>
           <DialogFooter>
