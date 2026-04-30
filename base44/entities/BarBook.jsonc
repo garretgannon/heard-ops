@@ -1,0 +1,42 @@
+{
+  "name": "BarBook",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Drink / Cocktail Name"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Completed Drink Photo URL"
+    },
+    "recipe": {
+      "type": "string",
+      "title": "Recipe / Instructions"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category"
+    },
+    "ingredients": {
+      "type": "string",
+      "title": "Ingredients"
+    },
+    "glassware": {
+      "type": "string",
+      "title": "Glassware / Serving"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Variations"
+    },
+    "base_spirit": {
+      "type": "string",
+      "title": "Base Spirit"
+    }
+  },
+  "required": [
+    "name",
+    "photo_url"
+  ]
+}
