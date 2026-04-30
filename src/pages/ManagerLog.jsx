@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Plus, ChevronLeft, ChevronRight, X, Save, Trash2 } from "lucide-react";
+import { BookOpen, Plus, ChevronLeft, ChevronRight, X, Save, Trash2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,39 +9,59 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-const CATEGORIES = [
-  { value: "general", label: "General", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-  { value: "incident", label: "Incident", color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  { value: "maintenance", label: "Maintenance", color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-  { value: "staff", label: "Staff", color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
-  { value: "food_safety", label: "Food Safety", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-  { value: "financial", label: "Financial", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-];
+const COLOR_MAP = {
+  blue: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  green: "bg-green-500/20 text-green-400 border-green-500/30",
+  red: "bg-red-500/20 text-red-400 border-red-500/30",
+  yellow: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  purple: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  orange: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  pink: "bg-pink-500/20 text-pink-400 border-pink-500/30",
+  teal: "bg-teal-500/20 text-teal-400 border-teal-500/30",
+  indigo: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
+  slate: "bg-slate-500/20 text-slate-400 border-slate-500/30",
+};
 
-const catStyle = (cat) => CATEGORIES.find(c => c.value === cat) || CATEGORIES[0];
+const getDefaultCategories = () => [
+  { name: "General", color: "blue" },
+  { name: "Incident", color: "red" },
+  { name: "Maintenance", color: "orange" },
+  { name: "Staff", color: "purple" },
+  { name: "Food Safety", color: "yellow" },
+  { name: "Financial", color: "green" },
+];
 
 const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 export default function ManagerLog() {
   const [logs, setLogs] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: "", body: "", category: "general", author_name: "" });
+  const [form, setForm] = useState({ title: "", body: "", category: "", author_name: "" });
+  const [categoryForm, setCategoryForm] = useState({ name: "", color: "blue" });
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const load = async () => {
-      const [l, me] = await Promise.all([
+      const [l, me, cats] = await Promise.all([
         base44.entities.ManagerLog.list("-date", 300),
         base44.auth.me(),
+        base44.entities.LogCategory.list(),
       ]);
       setLogs(l);
       setUser(me);
+      setIsAdmin(me?.role === "admin");
+      const finalCats = cats.length > 0 ? cats : getDefaultCategories().map((c, i) => ({ ...c, id: `default-${i}` }));
+      setCategories(finalCats);
+      if (finalCats.length > 0) setForm(f => ({ ...f, category: finalCats[0].name }));
       const today = new Date().toISOString().split("T")[0];
       setSelectedDate(today);
       setLoading(false);
@@ -70,13 +90,13 @@ export default function ManagerLog() {
 
   const openNew = () => {
     setEditing(null);
-    setForm({ title: "", body: "", category: "general", author_name: user?.full_name || "" });
+    setForm({ title: "", body: "", category: categories[0]?.name || "", author_name: user?.full_name || "" });
     setShowForm(true);
   };
 
   const openEdit = (log) => {
     setEditing(log);
-    setForm({ title: log.title, body: log.body || "", category: log.category || "general", author_name: log.author_name || "" });
+    setForm({ title: log.title, body: log.body || "", category: log.category || categories[0]?.name || "", author_name: log.author_name || "" });
     setShowForm(true);
   };
 
@@ -101,6 +121,26 @@ export default function ManagerLog() {
     toast.success("Entry deleted");
   };
 
+  const addCategory = async () => {
+    if (!categoryForm.name.trim()) return;
+    const cat = await base44.entities.LogCategory.create(categoryForm);
+    setCategories(prev => [...prev, cat]);
+    setCategoryForm({ name: "", color: "blue" });
+    setShowCategoryForm(false);
+    toast.success("Category added");
+  };
+
+  const deleteCategory = async (id) => {
+    await base44.entities.LogCategory.delete(id);
+    setCategories(prev => prev.filter(c => c.id !== id));
+    toast.success("Category deleted");
+  };
+
+  const getCatStyle = (catName) => {
+    const cat = categories.find(c => c.name === catName);
+    return cat ? COLOR_MAP[cat.color] || COLOR_MAP.blue : COLOR_MAP.blue;
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center h-64">
       <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -116,11 +156,18 @@ export default function ManagerLog() {
           </h1>
           <p className="text-muted-foreground mt-1">Daily shift notes, incidents, and observations.</p>
         </div>
-        {selectedDate && (
-          <Button onClick={openNew}>
-            <Plus className="h-4 w-4 mr-1" /> Add Entry
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {isAdmin && (
+            <Button variant="outline" onClick={() => setShowCategoryForm(true)} className="gap-2">
+              <Settings className="h-4 w-4" /> Categories
+            </Button>
+          )}
+          {selectedDate && (
+            <Button onClick={openNew}>
+              <Plus className="h-4 w-4 mr-1" /> Add Entry
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -187,7 +234,7 @@ export default function ManagerLog() {
 
           <AnimatePresence>
             {selectedLogs.map(log => {
-              const cat = catStyle(log.category);
+              const catStyle = getCatStyle(log.category);
               return (
                 <motion.div
                   key={log.id}
@@ -198,7 +245,7 @@ export default function ManagerLog() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${cat.color}`}>{cat.label}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${catStyle}`}>{log.category}</span>
                       <h3 className="font-semibold text-sm">{log.title}</h3>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
@@ -241,10 +288,10 @@ export default function ManagerLog() {
                 <div className="space-y-1">
                   <Label className="text-xs">Category</Label>
                   <Select value={form.category} onValueChange={v => setForm(p => ({ ...p, category: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                    </SelectContent>
+                   <SelectTrigger><SelectValue /></SelectTrigger>
+                   <SelectContent>
+                     {categories.map(c => <SelectItem key={c.id || c.name} value={c.name}>{c.name}</SelectItem>)}
+                   </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1">
@@ -261,6 +308,56 @@ export default function ManagerLog() {
                 <Button onClick={save} disabled={saving || !form.title.trim()}>
                   <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save Entry"}
                 </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Category management modal */}
+      <AnimatePresence>
+        {showCategoryForm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <motion.div
+              className="bg-card rounded-2xl border border-border w-full max-w-sm p-6 space-y-4 shadow-2xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold">Manage Categories</h2>
+                <button onClick={() => setShowCategoryForm(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+              </div>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">New Category Name</Label>
+                  <Input placeholder="e.g. Staffing" value={categoryForm.name} onChange={e => setCategoryForm(p => ({ ...p, name: e.target.value }))} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Color</Label>
+                  <Select value={categoryForm.color} onValueChange={v => setCategoryForm(p => ({ ...p, color: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(COLOR_MAP).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={addCategory} className="w-full"><Plus className="h-3.5 w-3.5 mr-1" />Add Category</Button>
+              </div>
+              <div className="max-h-64 overflow-y-auto space-y-2">
+                {categories.map(cat => (
+                  <div key={cat.id || cat.name} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${COLOR_MAP[cat.color]?.split(" ")[0]}`} />
+                      <span className="text-sm font-medium">{cat.name}</span>
+                    </div>
+                    {!cat.id?.startsWith("default") && (
+                      <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => deleteCategory(cat.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
             </motion.div>
           </div>

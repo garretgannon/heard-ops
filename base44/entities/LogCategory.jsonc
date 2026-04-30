@@ -1,0 +1,45 @@
+{
+  "name": "LogCategory",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Category Name"
+    },
+    "color": {
+      "type": "string",
+      "title": "Color",
+      "enum": [
+        "blue",
+        "green",
+        "red",
+        "yellow",
+        "purple",
+        "orange",
+        "pink",
+        "teal",
+        "indigo",
+        "slate"
+      ],
+      "enumNames": [
+        "Blue",
+        "Green",
+        "Red",
+        "Yellow",
+        "Purple",
+        "Orange",
+        "Pink",
+        "Teal",
+        "Indigo",
+        "Slate"
+      ]
+    },
+    "icon": {
+      "type": "string",
+      "title": "Icon Name"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
