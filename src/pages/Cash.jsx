@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, DollarSign, Wallet, BookOpen, TrendingUp, TrendingDown, Trash2 } from "lucide-react";
+import { Plus, DollarSign, Wallet, TrendingUp, TrendingDown, Trash2, Upload, Download, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -12,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const todayStr = new Date().toISOString().split("T")[0];
+const THRESHOLD = 2; // Flag variances outside +/- $2
 
 const DENOMINATIONS = [
   { key: "hundreds", label: "$100", value: 100 },
@@ -26,20 +26,14 @@ const DENOMINATIONS = [
   { key: "pennies", label: "Pennies", value: 0.01 },
 ];
 
-// Rolled coin: each entry is (rolls × face value per roll)
 const ROLLED_COINS = [
   { key: "rolled_quarters", label: "Quarters", valuePerRoll: 10 },
-  { key: "rolled_dimes",    label: "Dimes",    valuePerRoll: 5 },
-  { key: "rolled_nickels", label: "Nickels",   valuePerRoll: 2 },
-  { key: "rolled_pennies", label: "Pennies",   valuePerRoll: 0.50 },
+  { key: "rolled_dimes", label: "Dimes", valuePerRoll: 5 },
+  { key: "rolled_nickels", label: "Nickels", valuePerRoll: 2 },
+  { key: "rolled_pennies", label: "Pennies", valuePerRoll: 0.50 },
 ];
 
-const emptyDrawer = { date: todayStr, shift: "morning", drawer_name: "", hundreds: 0, fifties: 0, twenties: 0, tens: 0, fives: 0, ones: 0, quarters: 0, dimes: 0, nickels: 0, pennies: 0, rolled_quarters: 0, rolled_dimes: 0, rolled_nickels: 0, rolled_pennies: 0, expected: "", notes: "", counted_by: "" };
-
-function formatTimestamp(ts) {
-  if (!ts) return null;
-  return new Date(ts).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
-}
+const emptyDrawer = { date: todayStr, shift: "morning", drawer_name: "", hundreds: 0, fifties: 0, twenties: 0, tens: 0, fives: 0, ones: 0, quarters: 0, dimes: 0, nickels: 0, pennies: 0, rolled_quarters: 0, rolled_dimes: 0, rolled_nickels: 0, rolled_pennies: 0, expected: "", counted_by: "", manager_initials: "", manager_notes: "", closeout_photo: "" };
 
 function calcTotal(form) {
   const bills = DENOMINATIONS.reduce((sum, d) => sum + (Number(form[d.key]) || 0) * d.value, 0);
@@ -53,244 +47,340 @@ export default function Cash() {
   const [loading, setLoading] = useState(true);
   const [drawerDialog, setDrawerDialog] = useState(false);
   const [txDialog, setTxDialog] = useState(false);
+  const [user, setUser] = useState(null);
   const [drawerForm, setDrawerForm] = useState(emptyDrawer);
   const [txForm, setTxForm] = useState({ date: todayStr, type: "cash_log", amount: "", description: "", category: "other", logged_by: "", notes: "" });
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const load = async () => {
-    const [d, t] = await Promise.all([
-      base44.entities.DrawerCount.list("-date", 100),
-      base44.entities.CashTransaction.list("-date", 200),
-    ]);
-    setDrawers(d);
-    setTransactions(t);
-    setLoading(false);
+    try {
+      const currentUser = await base44.auth.me();
+      setUser(currentUser);
+      const [d, t] = await Promise.all([
+        base44.entities.DrawerCount.list("-date", 100),
+        base44.entities.CashTransaction.list("-date", 200),
+      ]);
+      setDrawers(d);
+      setTransactions(t);
+      setLoading(false);
+    } catch (err) {
+      console.error("Load error:", err);
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
 
-  const drawerTotal = calcTotal(drawerForm);
-  const drawerVariance = drawerForm.expected !== "" ? drawerTotal - Number(drawerForm.expected) : null;
-
-  const handleSaveDrawer = async () => {
-    setSaving(true);
-    const total = calcTotal(drawerForm);
-    const variance = drawerForm.expected !== "" ? total - Number(drawerForm.expected) : null;
-    const logged_at = new Date().toISOString();
-    await base44.entities.DrawerCount.create({ ...drawerForm, total, logged_at, variance: variance ?? undefined, expected: drawerForm.expected !== "" ? Number(drawerForm.expected) : undefined });
-    setSaving(false);
-    setDrawerDialog(false);
-    setDrawerForm(emptyDrawer);
-    toast.success("Drawer count saved");
-    load();
-  };
-
-  const handleSaveTx = async () => {
-    setSaving(true);
-    const logged_at = new Date().toISOString();
-    await base44.entities.CashTransaction.create({ ...txForm, amount: Number(txForm.amount), logged_at });
-    setSaving(false);
-    setTxDialog(false);
-    setTxForm({ date: todayStr, type: "cash_log", amount: "", description: "", category: "other", logged_by: "", notes: "" });
-    toast.success("Entry saved");
-    load();
-  };
-
-  const handleDeleteDrawer = async (id) => {
-    await base44.entities.DrawerCount.delete(id);
-    toast.success("Deleted");
-    load();
-  };
-
-  const handleDeleteTx = async (id) => {
-    await base44.entities.CashTransaction.delete(id);
-    toast.success("Deleted");
-    load();
-  };
-
+  const todayDrawers = drawers.filter(d => d.date === todayStr);
+  const olderDrawers = drawers.filter(d => d.date !== todayStr);
   const pettyCashIn = transactions.filter(t => t.type === "petty_cash_in").reduce((s, t) => s + (t.amount || 0), 0);
   const pettyCashOut = transactions.filter(t => t.type === "petty_cash_out").reduce((s, t) => s + (t.amount || 0), 0);
   const pettyCashBalance = pettyCashIn - pettyCashOut;
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  const drawerTotal = calcTotal(drawerForm);
+  const drawerVariance = drawerForm.expected !== "" ? drawerTotal - Number(drawerForm.expected) : null;
+  const isVarianceFlagged = drawerVariance !== null && Math.abs(drawerVariance) > THRESHOLD;
+
+  const handlePhotoUpload = async (file) => {
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setDrawerForm(prev => ({ ...prev, closeout_photo: file_url }));
+      toast.success("Photo uploaded");
+    } catch (err) {
+      toast.error("Photo upload failed");
+    }
+    setUploadingPhoto(false);
+  };
+
+  const handleSaveDrawer = async () => {
+    if (!drawerForm.drawer_name.trim()) {
+      toast.error("Drawer name required");
+      return;
+    }
+    setSaving(true);
+    try {
+      const total = calcTotal(drawerForm);
+      const variance = drawerForm.expected !== "" ? total - Number(drawerForm.expected) : null;
+      const logged_at = new Date().toISOString();
+      await base44.entities.DrawerCount.create({ ...drawerForm, total, logged_at, variance: variance ?? undefined, expected: drawerForm.expected !== "" ? Number(drawerForm.expected) : undefined });
+      toast.success("Drawer count saved");
+      setDrawerDialog(false);
+      setDrawerForm(emptyDrawer);
+      load();
+    } catch (err) {
+      toast.error("Failed to save");
+    }
+    setSaving(false);
+  };
+
+  const handleSaveTx = async () => {
+    if (!txForm.amount || !txForm.description.trim()) {
+      toast.error("Amount and description required");
+      return;
+    }
+    setSaving(true);
+    try {
+      const logged_at = new Date().toISOString();
+      await base44.entities.CashTransaction.create({ ...txForm, amount: Number(txForm.amount), logged_at });
+      toast.success("Entry saved");
+      setTxDialog(false);
+      setTxForm({ date: todayStr, type: "cash_log", amount: "", description: "", category: "other", logged_by: "", notes: "" });
+      load();
+    } catch (err) {
+      toast.error("Failed to save");
+    }
+    setSaving(false);
+  };
+
+  const handleDeleteDrawer = async (id) => {
+    try {
+      await base44.entities.DrawerCount.delete(id);
+      toast.success("Deleted");
+      load();
+    } catch (err) {
+      toast.error("Delete failed");
+    }
+  };
+
+  const handleDeleteTx = async (id) => {
+    try {
+      await base44.entities.CashTransaction.delete(id);
+      toast.success("Deleted");
+      load();
+    } catch (err) {
+      toast.error("Delete failed");
+    }
+  };
+
+  const handleExportDaily = async () => {
+    const todayData = todayDrawers.map(d => ({
+      Drawer: d.drawer_name,
+      Shift: d.shift,
+      Expected: `$${(d.expected || 0).toFixed(2)}`,
+      Counted: `$${(d.total || 0).toFixed(2)}`,
+      Variance: `$${(d.variance || 0).toFixed(2)}`,
+      "Manager Initials": d.manager_initials || "—",
+      "Counted By": d.counted_by || "—",
+    }));
+    const csv = [Object.keys(todayData[0] || {}), ...todayData.map(r => Object.values(r))].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cash-report-${todayStr}.csv`;
+    a.click();
+    toast.success("Report exported");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Cash</h1>
-        <p className="text-sm text-muted-foreground mt-1">Drawer counts, cash log, and petty cash</p>
+    <div className="space-y-6 pb-12">
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold">Cash Management</h1>
+          <p className="text-sm text-muted-foreground mt-1">Drawer counts, drops, and discrepancies</p>
+        </div>
+        <Button onClick={() => { setDrawerForm(emptyDrawer); setDrawerDialog(true); }}>
+          <Plus className="h-4 w-4 mr-2" />Count Drawer
+        </Button>
       </div>
 
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-            <DollarSign className="h-5 w-5 text-green-400" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Last Drawer Total</p>
-            <p className="text-lg font-bold">{drawers[0] ? `$${(drawers[0].total || 0).toFixed(2)}` : "—"}</p>
-          </div>
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-xs text-muted-foreground font-semibold">TODAY'S TOTAL</p>
+          <p className="text-2xl font-bold mt-1">${todayDrawers.reduce((s, d) => s + (d.total || 0), 0).toFixed(2)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{todayDrawers.length} drawer{todayDrawers.length !== 1 ? "s" : ""}</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center">
-            <Wallet className="h-5 w-5 text-blue-400" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Petty Cash Balance</p>
-            <p className={cn("text-lg font-bold", pettyCashBalance < 0 ? "text-destructive" : "")}>${pettyCashBalance.toFixed(2)}</p>
-          </div>
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-xs text-muted-foreground font-semibold">FLAGGED VARIANCES</p>
+          <p className="text-2xl font-bold mt-1 text-red-600">{todayDrawers.filter(d => d.variance !== null && Math.abs(d.variance) > THRESHOLD).length}</p>
+          <p className="text-xs text-muted-foreground mt-1">Outside ±${THRESHOLD}</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
-            <BookOpen className="h-5 w-5 text-amber-400" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Log Entries (total)</p>
-            <p className="text-lg font-bold">{transactions.length}</p>
-          </div>
+        <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-xs text-muted-foreground font-semibold">PETTY CASH BALANCE</p>
+          <p className={cn("text-2xl font-bold mt-1", pettyCashBalance < 0 ? "text-red-600" : "text-green-600")}>${pettyCashBalance.toFixed(2)}</p>
         </div>
       </div>
 
-      <Tabs defaultValue="drawers">
+      {/* Tabs */}
+      <Tabs defaultValue="today">
         <TabsList className="mb-4">
-          <TabsTrigger value="drawers">Drawer Counts</TabsTrigger>
-          <TabsTrigger value="cashlog">Cash Log</TabsTrigger>
+          <TabsTrigger value="today">Today's Drawers</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
           <TabsTrigger value="petty">Petty Cash</TabsTrigger>
+          <TabsTrigger value="log">Log</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="drawers" className="space-y-4">
-          <div className="flex justify-end">
-            <Button onClick={() => { setDrawerForm(emptyDrawer); setDrawerDialog(true); }}>
-              <Plus className="h-4 w-4 mr-2" />Count Drawer
-            </Button>
-          </div>
-          {drawers.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">No drawer counts yet.</div>
-          ) : (
-            <div className="space-y-2">
-              {drawers.map(d => (
-                <div key={d.id} className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-sm">{d.drawer_name || "Drawer"}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{d.shift}</span>
-                      <span className="text-xs text-muted-foreground">{d.date}</span>
-                    </div>
-                    <div className="flex items-center gap-4 mt-1 text-sm flex-wrap">
-                      <span className="font-bold text-green-400">${(d.total || 0).toFixed(2)}</span>
-                      {d.expected != null && (
-                        <span className={cn("text-xs font-medium", d.variance > 0 ? "text-green-400" : d.variance < 0 ? "text-destructive" : "text-muted-foreground")}>
-                          {d.variance >= 0 ? "+" : ""}${(d.variance || 0).toFixed(2)} variance
-                        </span>
-                      )}
-                      {d.counted_by && <span className="text-xs text-muted-foreground">by {d.counted_by}</span>}
-                    </div>
-                    <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-                      {d.logged_at && <span className="text-xs text-muted-foreground/60">{formatTimestamp(d.logged_at)}</span>}
-                      {d.notes && <span className="text-xs text-muted-foreground">{d.notes}</span>}
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteDrawer(d.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ))}
+        {/* Today's Drawers */}
+        <TabsContent value="today" className="space-y-3">
+          {todayDrawers.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No drawer counts logged yet today.
             </div>
+          ) : (
+            <>
+              <div className="flex justify-end">
+                <Button variant="outline" size="sm" onClick={handleExportDaily}>
+                  <Download className="h-4 w-4 mr-2" /> Export Report
+                </Button>
+              </div>
+              {todayDrawers.map(d => {
+                const isFlagged = d.variance !== null && Math.abs(d.variance) > THRESHOLD;
+                return (
+                  <div key={d.id} className={cn("rounded-xl border-2 p-4 space-y-3", isFlagged ? "bg-red-500/5 border-red-500/40" : "bg-card border-border")}>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-bold text-base">{d.drawer_name}</h3>
+                        <p className="text-xs text-muted-foreground">{d.shift} shift</p>
+                      </div>
+                      {isFlagged && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />}
+                    </div>
+
+                    {/* Expected vs Counted */}
+                    <div className="grid grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-0.5">Expected</p>
+                        <p className="font-bold">${(d.expected || 0).toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-0.5">Counted</p>
+                        <p className="font-bold text-green-600">${(d.total || 0).toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-0.5">Variance</p>
+                        <p className={cn("font-bold", d.variance === 0 ? "text-green-600" : d.variance > 0 ? "text-blue-600" : "text-red-600")}>
+                          {d.variance >= 0 ? "+" : ""}${(d.variance || 0).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Manager Section */}
+                    <div className="bg-secondary/40 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        {d.manager_initials && <span className="font-bold">Manager: {d.manager_initials}</span>}
+                        {d.counted_by && <span className="text-muted-foreground">Counted by: {d.counted_by}</span>}
+                      </div>
+                      {d.manager_notes && <p className="text-xs text-muted-foreground italic">"{d.manager_notes}"</p>}
+                    </div>
+
+                    {/* Photo */}
+                    {d.closeout_photo && (
+                      <a href={d.closeout_photo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                        📸 View closeout photo
+                      </a>
+                    )}
+
+                    <button onClick={() => handleDeleteDrawer(d.id)} className="text-xs text-destructive hover:text-destructive/80">
+                      Delete
+                    </button>
+                  </div>
+                );
+              })}
+            </>
           )}
         </TabsContent>
 
-        <TabsContent value="cashlog" className="space-y-4">
-          <div className="flex justify-end">
-            <Button onClick={() => { setTxForm({ date: todayStr, type: "cash_log", amount: "", description: "", category: "deposit", logged_by: "", notes: "" }); setTxDialog(true); }}>
-              <Plus className="h-4 w-4 mr-2" />Add Entry
-            </Button>
-          </div>
-          {transactions.filter(t => t.type === "cash_log").length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">No cash log entries yet.</div>
-          ) : (
-            <div className="space-y-2">
-              {transactions.filter(t => t.type === "cash_log").map(tx => (
-                <div key={tx.id} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-sm">{tx.description}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{tx.category}</span>
-                      <span className="text-xs text-muted-foreground">{tx.date}</span>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                      {tx.logged_by && <span className="text-xs text-muted-foreground">by {tx.logged_by}</span>}
-                      {tx.logged_at && <span className="text-xs text-muted-foreground/60">{formatTimestamp(tx.logged_at)}</span>}
-                    </div>
-                    {tx.notes && <p className="text-xs text-muted-foreground">{tx.notes}</p>}
-                  </div>
-                  <span className="font-bold text-sm text-green-400">${(tx.amount || 0).toFixed(2)}</span>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteTx(tx.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ))}
+        {/* History */}
+        <TabsContent value="history" className="space-y-3">
+          {olderDrawers.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No older drawer counts.
             </div>
+          ) : (
+            olderDrawers.map(d => (
+              <div key={d.id} className="bg-card border border-border rounded-xl p-4 space-y-2">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-bold text-sm">{d.drawer_name}</h3>
+                    <p className="text-xs text-muted-foreground">{d.date} · {d.shift} shift</p>
+                  </div>
+                  <p className="font-bold text-sm">${(d.total || 0).toFixed(2)}</p>
+                </div>
+                {d.variance !== null && <p className="text-xs text-muted-foreground">{d.variance >= 0 ? "+" : ""}${d.variance.toFixed(2)} variance</p>}
+                <button onClick={() => handleDeleteDrawer(d.id)} className="text-xs text-destructive hover:text-destructive/80">
+                  Delete
+                </button>
+              </div>
+            ))
           )}
         </TabsContent>
 
-        <TabsContent value="petty" className="space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5 text-sm">
-                <TrendingUp className="h-4 w-4 text-green-400" />
-                <span className="text-muted-foreground">In:</span>
-                <span className="font-semibold text-green-400">${pettyCashIn.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-sm">
-                <TrendingDown className="h-4 w-4 text-destructive" />
-                <span className="text-muted-foreground">Out:</span>
-                <span className="font-semibold text-destructive">${pettyCashOut.toFixed(2)}</span>
-              </div>
-              <div className="text-sm font-bold">Balance: <span className={pettyCashBalance < 0 ? "text-destructive" : "text-green-400"}>${pettyCashBalance.toFixed(2)}</span></div>
+        {/* Petty Cash */}
+        <TabsContent value="petty" className="space-y-3">
+          <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground">Balance</p>
+              <p className={cn("text-2xl font-bold mt-1", pettyCashBalance < 0 ? "text-red-600" : "text-green-600")}>${pettyCashBalance.toFixed(2)}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => { setTxForm({ date: todayStr, type: "petty_cash_in", amount: "", description: "", category: "other", logged_by: "", notes: "" }); setTxDialog(true); }}>
-                <Plus className="h-3.5 w-3.5 mr-1" />In
+                <Plus className="h-3.5 w-3.5 mr-1" /> In
               </Button>
               <Button size="sm" onClick={() => { setTxForm({ date: todayStr, type: "petty_cash_out", amount: "", description: "", category: "supplies", logged_by: "", notes: "" }); setTxDialog(true); }}>
-                <Plus className="h-3.5 w-3.5 mr-1" />Out
+                <Plus className="h-3.5 w-3.5 mr-1" /> Out
               </Button>
             </div>
           </div>
           {transactions.filter(t => t.type !== "cash_log").length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">No petty cash entries yet.</div>
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No petty cash entries.
+            </div>
           ) : (
             <div className="space-y-2">
               {transactions.filter(t => t.type !== "cash_log").map(tx => (
-                <div key={tx.id} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                  <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0 border", tx.type === "petty_cash_in" ? "bg-green-500/15 border-green-500/30" : "bg-red-500/15 border-red-500/30")}>
-                    {tx.type === "petty_cash_in" ? <TrendingUp className="h-4 w-4 text-green-400" /> : <TrendingDown className="h-4 w-4 text-destructive" />}
+                <div key={tx.id} className="bg-card border border-border rounded-lg p-3 flex items-center gap-3">
+                  <div className={cn("h-7 w-7 rounded flex items-center justify-center flex-shrink-0 text-xs font-bold", tx.type === "petty_cash_in" ? "bg-green-500/15 text-green-600" : "bg-red-500/15 text-red-600")}>
+                    {tx.type === "petty_cash_in" ? "+" : "−"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-sm">{tx.description}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{tx.category}</span>
-                      <span className="text-xs text-muted-foreground">{tx.date}</span>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                      {tx.logged_by && <span className="text-xs text-muted-foreground">by {tx.logged_by}</span>}
-                      {tx.logged_at && <span className="text-xs text-muted-foreground/60">{formatTimestamp(tx.logged_at)}</span>}
-                    </div>
-                    {tx.notes && <p className="text-xs text-muted-foreground">{tx.notes}</p>}
+                    <p className="text-sm font-semibold">{tx.description}</p>
+                    <p className="text-xs text-muted-foreground">{tx.date}</p>
                   </div>
-                  <span className={cn("font-bold text-sm", tx.type === "petty_cash_in" ? "text-green-400" : "text-destructive")}>
-                    {tx.type === "petty_cash_in" ? "+" : "-"}${(tx.amount || 0).toFixed(2)}
-                  </span>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteTx(tx.id)}>
+                  <p className={cn("font-bold text-sm", tx.type === "petty_cash_in" ? "text-green-600" : "text-red-600")}>${(tx.amount || 0).toFixed(2)}</p>
+                  <button onClick={() => handleDeleteTx(tx.id)} className="text-destructive hover:text-destructive/80 p-1">
                     <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  </button>
                 </div>
               ))}
             </div>
+          )}
+        </TabsContent>
+
+        {/* Cash Log */}
+        <TabsContent value="log" className="space-y-3">
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => { setTxForm({ date: todayStr, type: "cash_log", amount: "", description: "", category: "deposit", logged_by: "", notes: "" }); setTxDialog(true); }}>
+              <Plus className="h-4 w-4 mr-2" /> Add Entry
+            </Button>
+          </div>
+          {transactions.filter(t => t.type === "cash_log").length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No cash log entries.
+            </div>
+          ) : (
+            transactions.filter(t => t.type === "cash_log").map(tx => (
+              <div key={tx.id} className="bg-card border border-border rounded-lg p-3 flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{tx.description}</p>
+                  <p className="text-xs text-muted-foreground">{tx.date} · {tx.category}</p>
+                </div>
+                <p className="font-bold text-sm text-green-600">${(tx.amount || 0).toFixed(2)}</p>
+                <button onClick={() => handleDeleteTx(tx.id)} className="text-destructive hover:text-destructive/80 p-1">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))
           )}
         </TabsContent>
       </Tabs>
@@ -302,11 +392,11 @@ export default function Cash() {
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Date</Label>
-                <Input type="date" value={drawerForm.date} onChange={e => setDrawerForm({ ...drawerForm, date: e.target.value })} />
+                <label className="text-sm font-bold block mb-1">Drawer Name *</label>
+                <Input placeholder="e.g., Bar, Register 1" value={drawerForm.drawer_name} onChange={e => setDrawerForm({ ...drawerForm, drawer_name: e.target.value })} />
               </div>
               <div>
-                <Label>Shift</Label>
+                <label className="text-sm font-bold block mb-1">Shift</label>
                 <Select value={drawerForm.shift} onValueChange={v => setDrawerForm({ ...drawerForm, shift: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -316,82 +406,84 @@ export default function Cash() {
                 </Select>
               </div>
             </div>
+
             <div>
-              <Label>Drawer / Register Name</Label>
-              <Input placeholder="e.g., Bar, Host, Register 1" value={drawerForm.drawer_name} onChange={e => setDrawerForm({ ...drawerForm, drawer_name: e.target.value })} />
-            </div>
-            <div>
-              <Label className="mb-2 block">Bills and Coins</Label>
-              <div className="space-y-2">
+              <label className="text-sm font-bold block mb-2">Bills and Coins</label>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto">
                 {DENOMINATIONS.map(d => (
-                  <div key={d.key} className="flex items-center gap-3">
-                    <span className="text-sm text-muted-foreground w-20">{d.label}</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      value={drawerForm[d.key] || ""}
-                      onChange={e => setDrawerForm({ ...drawerForm, [d.key]: e.target.value })}
-                      className="w-24"
-                    />
-                    <span className="text-xs text-muted-foreground">= ${((Number(drawerForm[d.key]) || 0) * d.value).toFixed(2)}</span>
+                  <div key={d.key} className="flex items-center gap-2 text-xs">
+                    <span className="w-16 text-muted-foreground">{d.label}</span>
+                    <Input type="number" min="0" placeholder="0" value={drawerForm[d.key] || ""} onChange={e => setDrawerForm({ ...drawerForm, [d.key]: e.target.value })} className="w-16 h-7 text-xs" />
+                    <span className="text-muted-foreground">${((Number(drawerForm[d.key]) || 0) * d.value).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
             </div>
+
             <div>
-              <Label className="mb-2 block">Rolled Coin</Label>
-              <div className="space-y-2">
+              <label className="text-sm font-bold block mb-2">Rolled Coins</label>
+              <div className="space-y-1.5">
                 {ROLLED_COINS.map(d => (
-                  <div key={d.key} className="flex items-center gap-3">
-                    <span className="text-sm text-muted-foreground w-20">{d.label}</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      placeholder="0 rolls"
-                      value={drawerForm[d.key] || ""}
-                      onChange={e => setDrawerForm({ ...drawerForm, [d.key]: e.target.value })}
-                      className="w-24"
-                    />
-                    <span className="text-xs text-muted-foreground">= ${((Number(drawerForm[d.key]) || 0) * d.valuePerRoll).toFixed(2)}</span>
+                  <div key={d.key} className="flex items-center gap-2 text-xs">
+                    <span className="w-16 text-muted-foreground">{d.label}</span>
+                    <Input type="number" min="0" placeholder="0 rolls" value={drawerForm[d.key] || ""} onChange={e => setDrawerForm({ ...drawerForm, [d.key]: e.target.value })} className="w-16 h-7 text-xs" />
+                    <span className="text-muted-foreground">${((Number(drawerForm[d.key]) || 0) * d.valuePerRoll).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-secondary/40 rounded-lg p-3 flex items-center justify-between">
-              <span className="font-semibold">Total Counted</span>
-              <span className="text-xl font-bold text-green-400">${drawerTotal.toFixed(2)}</span>
+
+            <div className="bg-primary/10 rounded-lg p-3 flex items-center justify-between">
+              <span className="font-semibold text-sm">Total Counted</span>
+              <span className="text-xl font-bold text-primary">${drawerTotal.toFixed(2)}</span>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Expected ($)</Label>
-                <Input type="number" placeholder="e.g., 200.00" value={drawerForm.expected} onChange={e => setDrawerForm({ ...drawerForm, expected: e.target.value })} />
+                <label className="text-sm font-bold block mb-1">Expected ($)</label>
+                <Input type="number" placeholder="0.00" value={drawerForm.expected} onChange={e => setDrawerForm({ ...drawerForm, expected: e.target.value })} />
               </div>
-              <div className="flex flex-col justify-end">
-                {drawerVariance !== null && (
-                  <div className={cn("text-sm font-semibold text-center py-2 rounded-lg", drawerVariance === 0 ? "bg-green-500/15 text-green-400" : drawerVariance > 0 ? "bg-blue-500/15 text-blue-400" : "bg-red-500/15 text-destructive")}>
-                    {drawerVariance >= 0 ? "+" : ""}${drawerVariance.toFixed(2)} variance
-                  </div>
-                )}
-              </div>
+              {drawerVariance !== null && (
+                <div className={cn("rounded-lg p-3 flex items-center justify-center font-bold text-sm", isVarianceFlagged ? "bg-red-500/15 text-red-600" : "bg-green-500/15 text-green-600")}>
+                  {drawerVariance >= 0 ? "+" : ""}${drawerVariance.toFixed(2)}
+                </div>
+              )}
             </div>
+
             <div>
-              <Label>Counted By</Label>
+              <label className="text-sm font-bold block mb-1">Manager Initials</label>
+              <Input placeholder="e.g., JD" maxLength="3" value={drawerForm.manager_initials} onChange={e => setDrawerForm({ ...drawerForm, manager_initials: e.target.value })} />
+            </div>
+
+            <div>
+              <label className="text-sm font-bold block mb-1">Counted By</label>
               <Input placeholder="Your name" value={drawerForm.counted_by} onChange={e => setDrawerForm({ ...drawerForm, counted_by: e.target.value })} />
             </div>
+
             <div>
-              <Label>Notes (optional)</Label>
-              <Textarea rows={2} className="resize-none" value={drawerForm.notes} onChange={e => setDrawerForm({ ...drawerForm, notes: e.target.value })} />
+              <label className="text-sm font-bold block mb-1">Manager Notes (for variance)</label>
+              <Textarea placeholder="Document any discrepancies..." value={drawerForm.manager_notes} onChange={e => setDrawerForm({ ...drawerForm, manager_notes: e.target.value })} className="min-h-12" />
+            </div>
+
+            <div>
+              <label className="text-sm font-bold block mb-2">Closeout Slip Photo (optional)</label>
+              <label className="block">
+                <input type="file" accept="image/*" onChange={(e) => handlePhotoUpload(e.target.files[0])} className="hidden" />
+                <Button variant="outline" className="w-full" disabled={uploadingPhoto} onClick={e => e.currentTarget.parentElement.querySelector('input').click()}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploadingPhoto ? "Uploading..." : drawerForm.closeout_photo ? "Photo uploaded" : "Upload Photo"}
+                </Button>
+              </label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDrawerDialog(false)}>Cancel</Button>
-            <Button onClick={handleSaveDrawer} disabled={saving}>Save Count</Button>
+            <Button onClick={handleSaveDrawer} disabled={saving}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Cash Log / Petty Cash Dialog */}
+      {/* Transaction Dialog */}
       <Dialog open={txDialog} onOpenChange={setTxDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -400,20 +492,20 @@ export default function Cash() {
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Date</Label>
+                <label className="text-sm font-bold block mb-1">Date</label>
                 <Input type="date" value={txForm.date} onChange={e => setTxForm({ ...txForm, date: e.target.value })} />
               </div>
               <div>
-                <Label>Amount ($)</Label>
+                <label className="text-sm font-bold block mb-1">Amount ($)</label>
                 <Input type="number" placeholder="0.00" value={txForm.amount} onChange={e => setTxForm({ ...txForm, amount: e.target.value })} />
               </div>
             </div>
             <div>
-              <Label>Description</Label>
+              <label className="text-sm font-bold block mb-1">Description</label>
               <Input placeholder="What is this for?" value={txForm.description} onChange={e => setTxForm({ ...txForm, description: e.target.value })} />
             </div>
             <div>
-              <Label>Category</Label>
+              <label className="text-sm font-bold block mb-1">Category</label>
               <Select value={txForm.category} onValueChange={v => setTxForm({ ...txForm, category: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -421,7 +513,6 @@ export default function Cash() {
                     <>
                       <SelectItem value="deposit">Deposit</SelectItem>
                       <SelectItem value="variance">Variance</SelectItem>
-                      <SelectItem value="tips">Tips</SelectItem>
                       <SelectItem value="refund">Refund</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                     </>
@@ -429,7 +520,6 @@ export default function Cash() {
                     <>
                       <SelectItem value="supplies">Supplies</SelectItem>
                       <SelectItem value="refund">Refund</SelectItem>
-                      <SelectItem value="tips">Tips</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                     </>
                   )}
@@ -437,11 +527,11 @@ export default function Cash() {
               </Select>
             </div>
             <div>
-              <Label>Logged By</Label>
+              <label className="text-sm font-bold block mb-1">Logged By</label>
               <Input placeholder="Your name" value={txForm.logged_by} onChange={e => setTxForm({ ...txForm, logged_by: e.target.value })} />
             </div>
             <div>
-              <Label>Notes (optional)</Label>
+              <label className="text-sm font-bold block mb-1">Notes (optional)</label>
               <Textarea rows={2} className="resize-none" value={txForm.notes} onChange={e => setTxForm({ ...txForm, notes: e.target.value })} />
             </div>
           </div>
