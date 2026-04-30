@@ -64,10 +64,14 @@ export default function Layout() {
   const { isAdmin, isFOH } = useCurrentUser();
   const navItems = isFOH ? fohNavItems : userNavItems;
   const [restaurantName, setRestaurantName] = useState("Heard");
+  const [logoUrl, setLogoUrl] = useState(null);
 
   useEffect(() => {
     base44.entities.Settings.filter({ key: "restaurant_name" }).then(results => {
       if (results.length > 0 && results[0].value) setRestaurantName(results[0].value);
+    });
+    base44.entities.Settings.filter({ key: "logo_url" }).then(results => {
+      if (results.length > 0 && results[0].value) setLogoUrl(results[0].value);
     });
   }, []);
 
@@ -83,7 +87,11 @@ export default function Layout() {
       {/* Mobile header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ChefHat className="h-6 w-6 text-primary" />
+          {logoUrl ? (
+            <img src={logoUrl} alt="logo" className="h-7 w-7 rounded object-cover" />
+          ) : (
+            <ChefHat className="h-6 w-6 text-primary" />
+          )}
           <span className="font-bold text-lg tracking-tight">{restaurantName}</span>
         </div>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2">
@@ -184,8 +192,12 @@ export default function Layout() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border bg-card flex-col z-30">
         <div className="p-6 flex items-center gap-3 border-b border-border/40">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-            <ChefHat className="h-5 w-5 text-primary-foreground" />
+          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
+            {logoUrl ? (
+              <img src={logoUrl} alt="logo" className="h-10 w-10 object-cover" />
+            ) : (
+              <ChefHat className="h-5 w-5 text-primary-foreground" />
+            )}
           </div>
           <div>
             <h1 className="font-bold text-lg tracking-tight">{restaurantName}</h1>
