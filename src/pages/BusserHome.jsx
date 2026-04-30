@@ -1,17 +1,24 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { CheckCircle2, Circle, Camera, Loader2, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  CheckCircle2, Circle, Loader2, Clock, Wrench, FileText, AlertCircle
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export default function BusserHome() {
   const { user } = useCurrentUser();
-  const [tasks, setTasks] = useState([]);
+  const navigate = useNavigate();
+  const [sideWork, setSideWork] = useState([]);
+  const [bathroomChecks, setBathroomChecks] = useState([]);
+  const [preShift, setPreShift] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(null);
-  const [uploading, setUploading] = useState(null);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -22,208 +29,228 @@ export default function BusserHome() {
     return "Good evening";
   };
 
-  const load = async () => {
-    const all = await base44.entities.SideWorkAssignment.filter({ date: todayStr });
-    const mine = all.filter(a => {
-      const roleMatch = a.role === (user?.role || "busser");
-      const shiftMatch = a.shift_type === "opening";
-      const assignedMatch = !a.assigned_to_email || a.assigned_to_email === user?.email;
-      return roleMatch && shiftMatch && assignedMatch;
-    });
-    // Sort: pending/rejected first, then completed, approved last
-    const order = { pending: 0, rejected: 1, completed: 2, approved: 3 };
-    mine.sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
-    setTasks(mine);
-    setLoading(false);
-  };
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.email) return;
 
-  useEffect(() => { if (user) load(); }, [user]);
+      const [sideWorkData, bathroomData, preShiftData] = await Promise.all([
+        base44.entities.SideWorkAssignment.filter({
+          assigned_to_email: user.email,
+          date: todayStr,
+        }),
+        base44.entities.BathroomCheckLog.filter({
+          assigned_to_email: user.email,
+          date: todayStr,
+        }),
+        base44.entities.PreShift.filter({ date: todayStr }),
+      ]);
 
-  const handleComplete = async (task, file) => {
+      const order = { pending: 0, rejected: 1, completed: 2, approved: 3 };
+      sideWorkData.sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
+
+      setSideWork(sideWorkData);
+      setBathroomChecks(bathroomData);
+      setPreShift(preShiftData?.[0] || null);
+      setLoading(false);
+    };
+    load();
+  }, [user]);
+
+  const handleCompleteTask = async (task) => {
     setSaving(task.id);
-    let photo_url = task.photo_url || "";
-    if (file) {
-      setUploading(task.id);
-      const res = await base44.integrations.Core.UploadFile({ file });
-      photo_url = res.file_url;
-      setUploading(null);
-    }
     await base44.entities.SideWorkAssignment.update(task.id, {
       status: task.requires_approval ? "completed" : "approved",
-      photo_url,
       completed_at: new Date().toISOString(),
-      completed_by: user?.display_name || user?.full_name || user?.email,
-      rejection_notes: "",
+      completed_by: user?.full_name || user?.email,
     });
     setSaving(null);
-    toast.success(task.requires_approval ? "Submitted for review" : "Done!");
-    load();
+    toast.success("Task completed!");
+    const updated = await base44.entities.SideWorkAssignment.filter({
+      assigned_to_email: user.email,
+      date: todayStr,
+    });
+    const order = { pending: 0, rejected: 1, completed: 2, approved: 3 };
+    updated.sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0));
+    setSideWork(updated);
   };
 
-  const done = tasks.filter(t => t.status === "approved" || t.status === "completed").length;
-  const total = tasks.length;
-  const progress = total > 0 ? done / total : 0;
+  const handleCompleteBathroom = async (check) => {
+    setSaving(check.id);
+    await base44.entities.BathroomCheckLog.update(check.id, {
+      status: "completed",
+      completed_at: new Date().toISOString(),
+      completed_by: user?.full_name || user?.email,
+    });
+    setSaving(null);
+    toast.success("Bathroom check logged!");
+    const updated = await base44.entities.BathroomCheckLog.filter({
+      assigned_to_email: user.email,
+      date: todayStr,
+    });
+    setBathroomChecks(updated);
+  };
 
-  const firstName = user?.display_name || user?.full_name?.split(" ")[0] || "there";
+  const pendingTasks = sideWork.filter(t => !["approved", "completed"].includes(t.status));
+  const completedTasks = sideWork.filter(t => ["approved", "completed"].includes(t.status));
+  const pendingBathroom = bathroomChecks.filter(b => b.status !== "completed");
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-5 h-5 border-2 border-foreground/20 border-t-foreground/80 rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-5 h-5 border-2 border-foreground/20 border-t-foreground/80 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const firstName = user?.full_name?.split(" ")[0] || "there";
 
   return (
-    <div className="max-w-lg mx-auto px-0 pb-16 space-y-8 pt-2">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-        className="space-y-1"
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="max-w-lg mx-auto pb-20 space-y-4"
+    >
+      {/* Greeting */}
+      <div className="space-y-1">
         <p className="text-sm text-muted-foreground font-medium">
           {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {greeting()}, {firstName}.
-        </h1>
-        <p className="text-muted-foreground">Opening side work</p>
-      </motion.div>
+        <h1 className="text-3xl font-bold">{greeting()}, {firstName}.</h1>
+      </div>
 
-      {/* Progress ring + summary */}
-      {total > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="flex items-center gap-5 bg-card rounded-2xl border border-border/60 p-5"
-        >
-          {/* Thin progress circle */}
-          <div className="relative h-16 w-16 flex-shrink-0">
-            <svg className="h-16 w-16 -rotate-90" viewBox="0 0 56 56">
-              <circle cx="28" cy="28" r="23" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
-              <motion.circle
-                cx="28" cy="28" r="23" fill="none"
-                stroke="hsl(var(--accent))" strokeWidth="4"
-                strokeLinecap="round"
-                strokeDasharray={`${2 * Math.PI * 23}`}
-                initial={{ strokeDashoffset: 2 * Math.PI * 23 }}
-                animate={{ strokeDashoffset: 2 * Math.PI * 23 * (1 - progress) }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-bold">{Math.round(progress * 100)}%</span>
-            </div>
-          </div>
-          <div>
-            <p className="text-xl font-semibold">{done} of {total} complete</p>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {total - done > 0 ? `${total - done} task${total - done !== 1 ? "s" : ""} remaining` : "All done — great work!"}
-            </p>
-          </div>
-        </motion.div>
+      {/* Pre-Shift Notes */}
+      {preShift && (
+        <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 text-sm">
+          <p className="font-semibold mb-1">📋 Today's Notes</p>
+          <p className="text-sm text-foreground">{preShift.notes || preShift.issues || "No notes"}</p>
+        </div>
       )}
 
-      {/* Empty state */}
-      {total === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-20 space-y-2"
+      {/* Quick Action Buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          onClick={() => navigate("/bathroom-checks")}
+          variant="outline"
+          className="h-20 flex flex-col items-center justify-center gap-1 text-sm font-semibold"
         >
-          <CheckCircle2 className="h-10 w-10 text-accent mx-auto mb-4" />
-          <p className="font-semibold text-lg">Nothing assigned yet</p>
-          <p className="text-sm text-muted-foreground">Check back with your manager for today's opening tasks.</p>
-        </motion.div>
-      )}
-
-      {/* Checklist */}
-      {tasks.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.15 }}
-          className="bg-card rounded-2xl border border-border/60 overflow-hidden"
+          <AlertCircle className="h-6 w-6" />
+          <span>Bathroom</span>
+        </Button>
+        <Button
+          onClick={() => navigate("/maintenance")}
+          variant="outline"
+          className="h-20 flex flex-col items-center justify-center gap-1 text-sm font-semibold"
         >
-          {tasks.map((task, i) => {
-            const isApproved = task.status === "approved";
-            const isCompleted = task.status === "completed";
-            const isRejected = task.status === "rejected";
-            const isDone = isApproved || isCompleted;
-            const isBusy = saving === task.id || uploading === task.id;
+          <Wrench className="h-6 w-6" />
+          <span>Report Issue</span>
+        </Button>
+      </div>
 
-            return (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, x: -6 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
+      {/* Bathroom Checks */}
+      {bathroomChecks.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="font-semibold text-sm">Bathroom Checks ({pendingBathroom.length})</h2>
+          <div className="bg-card border border-border rounded-lg overflow-hidden divide-y divide-border">
+            {bathroomChecks.map(check => (
+              <div
+                key={check.id}
                 className={cn(
-                  "flex items-center gap-4 px-5 py-4 transition-colors",
-                  i < tasks.length - 1 && "border-b border-border/50",
-                  isDone && "opacity-60"
+                  "p-3 flex items-center justify-between",
+                  check.status === "completed" && "opacity-50"
                 )}
               >
-                {/* Checkbox */}
-                <div className="flex-shrink-0">
-                  {isBusy ? (
-                    <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
-                  ) : isApproved ? (
-                    <CheckCircle2 className="h-6 w-6 text-accent" />
-                  ) : isCompleted ? (
-                    <CheckCircle2 className="h-6 w-6 text-yellow-400" />
-                  ) : (
-                    task.requires_photo ? (
-                      <label className="cursor-pointer">
-                        <Circle className="h-6 w-6 text-muted-foreground/40 hover:text-primary transition-colors" />
-                        <input
-                          type="file" accept="image/*" capture="environment" className="hidden"
-                          onChange={e => e.target.files[0] && handleComplete(task, e.target.files[0])}
-                        />
-                      </label>
-                    ) : (
-                      <button onClick={() => handleComplete(task, null)}>
-                        <Circle className="h-6 w-6 text-muted-foreground/40 hover:text-primary transition-colors" />
-                      </button>
-                    )
+                <div>
+                  <p className="font-medium text-sm">{check.location || "Bathroom"}</p>
+                  {check.due_time && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <Clock className="h-3 w-3" /> {check.due_time}
+                  </p>}
+                </div>
+                {check.status === "completed" ? (
+                  <CheckCircle2 className="h-5 w-5 text-accent flex-shrink-0" />
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                    disabled={saving === check.id}
+                    onClick={() => handleCompleteBathroom(check)}
+                  >
+                    {saving === check.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Done"}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Side Work - Pending */}
+      {pendingTasks.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="font-semibold text-sm">My Tasks ({pendingTasks.length})</h2>
+          <div className="bg-card border border-border rounded-lg overflow-hidden divide-y divide-border">
+            {pendingTasks.map(task => (
+              <div
+                key={task.id}
+                className="p-3 flex items-center justify-between gap-3"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm">{task.task_name}</p>
+                  {task.due_time && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                      <Clock className="h-3 w-3" /> {task.due_time}
+                    </p>
                   )}
                 </div>
+                <Button
+                  size="sm"
+                  className="text-xs flex-shrink-0"
+                  disabled={saving === task.id}
+                  onClick={() => handleCompleteTask(task)}
+                >
+                  {saving === task.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Done"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-                {/* Task name + meta */}
-                <div className="flex-1 min-w-0">
-                  <p className={cn("font-medium", isDone && "line-through text-muted-foreground")}>
-                    {task.task_name}
-                  </p>
-                  <div className="flex items-center gap-3 mt-0.5">
-                    {task.due_time && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" />{task.due_time}
-                      </span>
-                    )}
-                    {task.requires_photo && !isDone && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Camera className="h-3 w-3" />Photo required
-                      </span>
-                    )}
-                    {isCompleted && (
-                      <span className="text-xs text-yellow-400">Pending review</span>
-                    )}
-                    {isRejected && task.rejection_notes && (
-                      <span className="text-xs text-red-400">Rejected — redo</span>
-                    )}
-                  </div>
+      {/* Side Work - Completed (Collapsible) */}
+      {completedTasks.length > 0 && (
+        <div className="space-y-2">
+          <button
+            onClick={() => setShowCompleted(!showCompleted)}
+            className="text-sm font-semibold text-muted-foreground hover:text-foreground transition flex items-center gap-1"
+          >
+            {showCompleted ? "▼" : "▶"} Completed ({completedTasks.length})
+          </button>
+          {showCompleted && (
+            <div className="bg-card border border-border rounded-lg overflow-hidden divide-y divide-border opacity-60">
+              {completedTasks.map(task => (
+                <div key={task.id} className="p-3 flex items-center gap-3">
+                  <CheckCircle2 className="h-4 w-4 text-accent flex-shrink-0" />
+                  <p className="text-sm line-through text-muted-foreground">{task.task_name}</p>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-                {/* Photo proof thumbnail */}
-                {task.photo_url && (
-                  <img src={task.photo_url} alt="Proof" className="h-10 w-10 rounded-lg object-cover border border-border flex-shrink-0" />
-                )}
-              </motion.div>
-            );
-          })}
+      {/* Empty State */}
+      {pendingTasks.length === 0 && pendingBathroom.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-16 space-y-2"
+        >
+          <CheckCircle2 className="h-10 w-10 text-accent mx-auto mb-3" />
+          <p className="font-semibold">All set!</p>
+          <p className="text-sm text-muted-foreground">All tasks completed for now.</p>
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
