@@ -46,6 +46,7 @@ import NotificationSettings from './pages/NotificationSettings';
 import WeeklyReport from './pages/WeeklyReport';
 import Landing from './pages/Landing';
 import ShiftHandoff from './pages/ShiftHandoff';
+import TodaysCommandCenter from './pages/TodaysCommandCenter';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -80,7 +81,7 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<StaffTasks />} />
+        <Route path="/" element={<TodaysCommandCenter />} />
 
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
         {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
