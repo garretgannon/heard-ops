@@ -4,71 +4,73 @@
   "properties": {
     "name": {
       "type": "string",
-      "title": "Item Name"
+      "title": "Recipe / Prep Name"
     },
-    "station_id": {
+    "category": {
       "type": "string",
-      "title": "Station ID"
-    },
-    "day_of_week": {
-      "type": "string",
-      "title": "Day of Week",
+      "title": "Category",
       "enum": [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
+        "Sauce",
+        "Protein",
+        "Produce",
+        "Bakery",
+        "Garnish",
+        "Batch Prep",
+        "Bar Prep"
       ],
-      "description": "Leave empty for every day"
+      "enumNames": [
+        "Sauce",
+        "Protein",
+        "Produce",
+        "Bakery",
+        "Garnish",
+        "Batch Prep",
+        "Bar Prep"
+      ]
     },
-    "quantity": {
+    "yield": {
       "type": "string",
-      "title": "Default Quantity"
+      "title": "Yield / Portion Size"
     },
-    "unit": {
+    "ingredients": {
       "type": "string",
-      "title": "Unit of Measure",
-      "description": "e.g., lbs, gallons, pieces"
+      "title": "Ingredients"
     },
-    "par_level": {
+    "steps": {
       "type": "string",
-      "title": "Par Level",
-      "description": "Safety stock level"
+      "title": "Preparation Steps"
     },
-    "due_time": {
+    "shelf_life": {
       "type": "string",
-      "title": "Due Time (HH:MM)"
+      "title": "Shelf Life / Storage Duration"
     },
-    "requires_photo": {
-      "type": "boolean",
-      "title": "Requires Photo",
-      "default": false
-    },
-    "recipe_link": {
+    "storage": {
       "type": "string",
-      "title": "Recipe Link"
+      "title": "Storage Instructions"
+    },
+    "allergens": {
+      "type": "string",
+      "title": "Allergens"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Recipe Photo URL"
+    },
+    "video_link": {
+      "type": "string",
+      "title": "Video Tutorial Link"
     },
     "notes": {
       "type": "string",
-      "title": "Notes"
+      "title": "Tips & Notes"
     },
-    "priority": {
-      "type": "string",
-      "title": "Priority",
-      "enum": [
-        "high",
-        "medium",
-        "low"
-      ],
-      "enumNames": [
-        "High",
-        "Medium",
-        "Low"
-      ],
-      "default": "medium"
+    "prep_links": {
+      "type": "array",
+      "title": "Linked Prep Tasks",
+      "items": {
+        "type": "string"
+      },
+      "description": "PrepItem IDs that use this recipe"
     },
     "active": {
       "type": "boolean",
@@ -78,6 +80,6 @@
   },
   "required": [
     "name",
-    "station_id"
+    "category"
   ]
 }
