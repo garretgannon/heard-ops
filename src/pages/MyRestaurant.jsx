@@ -187,11 +187,11 @@ export default function MyRestaurant() {
 
       {/* Refrigeration & Temperature Locations */}
       <SectionCard icon={Thermometer} title="Refrigeration & Temperature Locations" color="text-cyan-400" count={tempLocations.length}>
-        <p className="text-xs text-muted-foreground -mt-1">Refrigerators, freezers, hot wells — these appear in Temp Logs for monitoring.</p>
+        <p className="text-xs text-muted-foreground -mt-1 text-left">Refrigerators, freezers, hot wells — these appear in Temp Logs for monitoring.</p>
         <div className="space-y-2">
           {tempLocations.length === 0 && <p className="text-sm text-muted-foreground">No locations yet.</p>}
           {tempLocations.map(loc => (
-            <div key={loc.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5">
+            <div key={loc.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5 text-left">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium">{loc.name}</span>
               </div>
