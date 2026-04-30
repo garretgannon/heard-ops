@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ClipboardList, FileUp } from "lucide-react";
+import { Plus, ClipboardList, FileUp, Search, Filter, ChevronDown } from "lucide-react";
 import BulkImportDialog from "../components/BulkImportDialog";
-import ImportDialog from "../components/ImportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import StationBadge from "../components/StationBadge";
-import EmptyState from "../components/EmptyState";
 import PrepListDetail from "../components/PrepListDetail";
-import PrepListCard from "../components/PrepListCard";
+import { cn } from "@/lib/utils";
 
 const todayStr = new Date().toISOString().split("T")[0];
 
@@ -21,14 +17,19 @@ export default function PrepLists() {
   const [prepLists, setPrepLists] = useState([]);
   const [prepItems, setPrepItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedList, setSelectedList] = useState(null);
-  const [form, setForm] = useState({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
-  const [importOpen, setImportOpen] = useState(false);
-  const [importTargetList, setImportTargetList] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [filterStation, setFilterStation] = useState("");
+
+  // Filters
+  const [dateFilter, setDateFilter] = useState(todayStr);
+  const [stationFilter, setStationFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedStations, setExpandedStations] = useState({});
+
+  const [form, setForm] = useState({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
 
   const generateRecurring = async (allLists, allItems) => {
     const templates = allLists.filter(pl => pl.is_recurring && !pl.template_list_id);
@@ -129,11 +130,6 @@ export default function PrepLists() {
     load();
   };
 
-  const handleStatusChange = async (pl, newStatus) => {
-    await base44.entities.PrepList.update(pl.id, { status: newStatus });
-    load();
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -154,158 +150,171 @@ export default function PrepLists() {
     );
   }
 
+  // Filter logic
+  let filteredLists = prepLists.filter(pl => {
+    if (dateFilter && pl.date !== dateFilter) return false;
+    if (stationFilter && pl.station_id !== stationFilter) return false;
+    if (statusFilter && pl.status !== statusFilter) return false;
+    return true;
+  });
+
+  const getListProgress = (listId) => {
+    const items = prepItems.filter(pi => pi.prep_list_id === listId);
+    if (items.length === 0) return { completed: 0, total: 0, percentage: 0 };
+    const completed = items.filter(i => i.status === "completed").length;
+    return { completed, total: items.length, percentage: Math.round((completed / items.length) * 100) };
+  };
+
+  const getStationStats = (stationId) => {
+    const lists = filteredLists.filter(pl => pl.station_id === stationId);
+    if (lists.length === 0) return null;
+    
+    let totalItems = 0, completedItems = 0, overdueItems = 0, photoPending = 0;
+    lists.forEach(list => {
+      const items = prepItems.filter(pi => pi.prep_list_id === list.id);
+      totalItems += items.length;
+      completedItems += items.filter(i => i.status === "completed").length;
+      overdueItems += items.filter(i => i.status !== "completed" && i.priority === "high").length;
+      photoPending += items.filter(i => i.status === "completed" && i.requires_photo && !i.photo_url).length;
+    });
+
+    return { lists, totalItems, completedItems, overdueItems, photoPending, percentage: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0 };
+  };
+
+  const visibleStations = stations.filter(s => {
+    const stats = getStationStats(s.id);
+    return stats && stats.lists.length > 0;
+  });
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div className="space-y-6 pb-12">
+      {/* Header */}
+      <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Prep Lists</h1>
-          <p className="text-sm text-muted-foreground mt-1">Create and manage prep lists for each station</p>
+          <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Prep Progress</h1>
+          <p className="text-muted-foreground mt-1">Track kitchen prep by station</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setBulkImportOpen(true)}>
-            <FileUp className="h-4 w-4 mr-2" />
-            Bulk Import
-          </Button>
+
+        {/* Search & Filters */}
+        <div className="flex flex-col lg:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search prep items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="lg:w-40" />
+          <Select value={stationFilter} onValueChange={setStationFilter}>
+            <SelectTrigger className="lg:w-40">
+              <SelectValue placeholder="All Stations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={null}>All Stations</SelectItem>
+              {stations.map(s => (
+                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="lg:w-40">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={null}>All Status</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
           <Button onClick={() => setDialogOpen(true)} disabled={stations.length === 0}>
             <Plus className="h-4 w-4 mr-2" />
             New List
           </Button>
+          <Button variant="outline" onClick={() => setBulkImportOpen(true)}>
+            <FileUp className="h-4 w-4 mr-2" />
+            Import
+          </Button>
         </div>
       </div>
 
-      {stations.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setFilterStation("")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              filterStation === "" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            All
-          </button>
-          {stations.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setFilterStation(s.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                filterStation === s.id ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {s.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {stations.length === 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-          Create stations first before making prep lists.
-        </div>
-      )}
-
-      {prepLists.length === 0 ? (
-        <EmptyState
-          icon={ClipboardList}
-          title="No prep lists yet"
-          description="Create your first prep list and assign it to a station."
-          action={stations.length > 0 && <Button onClick={() => setDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />New List</Button>}
-        />
-      ) : (
-        <div className="space-y-8">
-          {stations.filter(station => !filterStation || station.id === filterStation).map(station => {
-            const stationLists = prepLists.filter(pl => pl.station_id === station.id);
-            if (stationLists.length === 0) return null;
-
-            const amLists = stationLists.filter(pl => {
-              const time = pl.recurring_time || "12:00";
-              const [h] = time.split(":").map(Number);
-              return h < 12;
-            });
-            const pmLists = stationLists.filter(pl => {
-              const time = pl.recurring_time || "12:00";
-              const [h] = time.split(":").map(Number);
-              return h >= 12;
-            });
+      {/* Station Cards */}
+      <div className="space-y-4">
+        {visibleStations.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No prep lists for selected filters.
+          </div>
+        ) : (
+          visibleStations.map(station => {
+            const stats = getStationStats(station.id);
+            const isExpanded = expandedStations[station.id] !== false;
 
             return (
-              <div key={station.id} className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <StationBadge name={station.name} color={station.color} />
-                  <span className="text-xs text-muted-foreground">({stationLists.length} lists)</span>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {amLists.length > 0 && (
-                    <div>
-                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Morning</h4>
-                      <div className="space-y-3">
-                        {amLists.map((pl, i) => (
-                          <PrepListCard
-                            key={pl.id}
-                            pl={pl}
-                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
-                            i={i}
-                            onSelect={setSelectedList}
-                            onDelete={handleDelete}
-                          />
-                        ))}
-                      </div>
+              <div key={station.id} className="bg-card border-2 border-border rounded-xl overflow-hidden">
+                {/* Station Header */}
+                <button
+                  onClick={() => setExpandedStations(prev => ({ ...prev, [station.id]: !prev[station.id] }))}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-secondary/30 transition-colors"
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <StationBadge name={station.name} color={station.color} />
+                    <div className="text-left flex-1 hidden md:block">
+                      <p className="text-sm text-muted-foreground">{stats.completedItems} of {stats.totalItems} items</p>
                     </div>
-                  )}
-
-                  {pmLists.length > 0 && (
-                    <div>
-                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Evening</h4>
-                      <div className="space-y-3">
-                        {pmLists.map((pl, i) => (
-                          <PrepListCard
-                            key={pl.id}
-                            pl={pl}
-                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
-                            i={i}
-                            onSelect={setSelectedList}
-                            onDelete={handleDelete}
-                          />
-                        ))}
+                    <div className="flex items-center gap-4">
+                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary" style={{ width: `${stats.percentage}%` }} />
                       </div>
+                      <span className="text-lg font-bold text-primary min-w-12 text-right">{stats.percentage}%</span>
+                      {stats.overdueItems > 0 && (
+                        <span className="px-2 py-1 bg-red-500/20 text-red-700 text-xs font-bold rounded-md">{stats.overdueItems} Overdue</span>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                  <ChevronDown className={cn("h-5 w-5 transition-transform", !isExpanded && "rotate-180")} />
+                </button>
+
+                {/* Lists */}
+                {isExpanded && (
+                  <div className="border-t border-border px-6 py-4 space-y-3">
+                    {stats.lists.map(list => {
+                      const progress = getListProgress(list.id);
+                      return (
+                        <button
+                          key={list.id}
+                          onClick={() => setSelectedList(list)}
+                          className="w-full text-left p-4 bg-secondary/20 hover:bg-secondary/40 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm">{list.name}</h4>
+                              <p className="text-xs text-muted-foreground">
+                                {progress.completed}/{progress.total} items • {list.status.toUpperCase()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-primary">{progress.percentage}%</p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
-          })}
-        </div>
-      )}
+          })
+        )}
+      </div>
 
+      {/* Dialogs */}
       <BulkImportDialog
         open={bulkImportOpen}
         onOpenChange={setBulkImportOpen}
         type="prep_items"
         onImportComplete={load}
-      />
-
-      <ImportDialog
-        open={importOpen}
-        onOpenChange={open => { setImportOpen(open); if (!open) setImportTargetList(null); }}
-        type="prep_items"
-        onImport={async (rows) => {
-          const target = importTargetList || prepLists.find(pl => pl.status === "active") || prepLists[0];
-          if (!target) { return; }
-          await Promise.all(rows.map((row, i) =>
-            base44.entities.PrepItem.create({
-              name: row.name,
-              quantity: row.quantity || "",
-              unit: row.unit || "",
-              notes: row.notes || "",
-              priority: ["high","medium","low"].includes(row.priority) ? row.priority : "medium",
-              prep_list_id: target.id,
-              station_id: target.station_id,
-              status: "pending",
-              sort_order: (prepItems.filter(pi => pi.prep_list_id === target.id).length) + i,
-            })
-          ));
-          load();
-        }}
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -315,15 +324,15 @@ export default function PrepLists() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label>List Name</Label>
+              <label className="text-sm font-semibold">List Name</label>
               <Input placeholder="e.g., AM Prep, Dinner Setup" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
             </div>
             <div>
-              <Label>Date</Label>
+              <label className="text-sm font-semibold">Date</label>
               <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
             </div>
             <div>
-              <Label>Station</Label>
+              <label className="text-sm font-semibold">Station</label>
               <Select value={form.station_id} onValueChange={v => setForm({ ...form, station_id: v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select station..." />
@@ -335,38 +344,29 @@ export default function PrepLists() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Notes (optional)</Label>
-              <Textarea placeholder="Any special instructions..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
-            </div>
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                  form.is_recurring ? "bg-primary" : "bg-muted"
-                }`}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${form.is_recurring ? "bg-primary" : "bg-muted"}`}
               >
-                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
-                  form.is_recurring ? "translate-x-[18px]" : "translate-x-1"
-                }`} />
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${form.is_recurring ? "translate-x-[18px]" : "translate-x-1"}`} />
               </button>
-              <Label className="cursor-pointer" onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}>
+              <label className="text-sm font-semibold cursor-pointer" onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}>
                 Repeat daily
-              </Label>
+              </label>
             </div>
             {form.is_recurring && (
               <div>
-                <Label>Generate at time</Label>
+                <label className="text-sm font-semibold">Generate at time</label>
                 <Input type="time" value={form.recurring_time} onChange={e => setForm({ ...form, recurring_time: e.target.value })} />
-                <p className="text-xs text-muted-foreground mt-1">A fresh copy will be auto-created each day once this time passes, cloning all items.</p>
               </div>
             )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleCreate} disabled={saving || !form.name.trim() || !form.station_id}>
-              {saving ? "Creating..." : "Create List"}
+              {saving ? "Creating..." : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>
