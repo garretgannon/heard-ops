@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Plus, ChevronLeft, ChevronRight, Trash2, Users, Package, Truck, ClipboardCheck, CalendarDays } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,9 @@ export default function Calendar() {
   const [detailDate, setDetailDate] = useState(null);
   const [form, setForm] = useState({ title: "", date: "", time: "", category: "large_party", notes: "", guest_count: "", recurrence: "none", recurrence_end_date: "" });
   const [saving, setSaving] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerMonth, setPickerMonth] = useState(today.getMonth());
+  const [pickerYear, setPickerYear] = useState(today.getFullYear());
 
   useEffect(() => {
     base44.entities.CalendarEvent.list("-date", 500).then(e => { setEvents(e); setLoading(false); });
@@ -276,7 +280,51 @@ export default function Calendar() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Date</Label>
-              <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+              <Popover open={pickerOpen} onOpenChange={open => {
+                setPickerOpen(open);
+                if (open && form.date) {
+                  const d = new Date(form.date + "T12:00:00");
+                  setPickerMonth(d.getMonth());
+                  setPickerYear(d.getFullYear());
+                }
+              }}>
+                <PopoverTrigger asChild>
+                  <button type="button" className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm text-left hover:bg-secondary/40 transition-colors">
+                    {form.date ? new Date(form.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) : <span className="text-muted-foreground">Pick a date…</span>}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3" align="start">
+                  {(() => {
+                    const pDays = getDaysInMonth(pickerYear, pickerMonth);
+                    const pFirst = new Date(pickerYear, pickerMonth, 1).getDay();
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <button onClick={() => { if (pickerMonth === 0) { setPickerMonth(11); setPickerYear(y => y-1); } else setPickerMonth(m => m-1); }} className="p-1 rounded hover:bg-secondary transition-colors"><ChevronLeft className="h-4 w-4" /></button>
+                          <span className="text-sm font-semibold">{MONTHS[pickerMonth]} {pickerYear}</span>
+                          <button onClick={() => { if (pickerMonth === 11) { setPickerMonth(0); setPickerYear(y => y+1); } else setPickerMonth(m => m+1); }} className="p-1 rounded hover:bg-secondary transition-colors"><ChevronRight className="h-4 w-4" /></button>
+                        </div>
+                        <div className="grid grid-cols-7 text-center">
+                          {DAYS.map(d => <div key={d} className="text-[10px] font-semibold text-muted-foreground pb-1">{d}</div>)}
+                          {Array.from({ length: pFirst }).map((_, i) => <div key={"e"+i} />)}
+                          {Array.from({ length: pDays }).map((_, i) => {
+                            const d = i + 1;
+                            const ds = pickerYear + "-" + String(pickerMonth+1).padStart(2,"0") + "-" + String(d).padStart(2,"0");
+                            const isSelected = form.date === ds;
+                            const isTod = ds === todayStr;
+                            return (
+                              <button key={d} type="button" onClick={() => { setForm(f => ({...f, date: ds})); setPickerOpen(false); }}
+                                className={cn("h-7 w-7 mx-auto rounded-full text-xs transition-colors", isSelected ? "bg-primary text-primary-foreground" : isTod ? "border border-primary text-primary" : "hover:bg-secondary")}>
+                                {d}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </PopoverContent>
+              </Popover>
               {form.date && (
                 <p className="text-xs text-muted-foreground mt-1">
                   {new Date(form.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
