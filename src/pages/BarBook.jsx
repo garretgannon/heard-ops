@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Plus, X, Edit2, Trash2, Wine, Search } from "lucide-react";
+import { Plus, X, Edit2, Trash2, Wine, Search, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,11 +23,14 @@ export default function BarBook() {
     photo_url: "",
     recipe: "",
     category: "",
-    ingredients: "",
+    ingredients: [],
     glassware: "",
     notes: "",
     base_spirit: ""
   });
+  const [uploading, setUploading] = useState(false);
+
+  const categoryOptions = ["Bottled Beer", "Draft Beer", "Wine", "Cocktails", "Mocktails"];
 
   useEffect(() => {
     const load = async () => {
@@ -36,8 +39,7 @@ export default function BarBook() {
         base44.auth.me()
       ]);
       setDrinks(data);
-      const cats = [...new Set(data.map(d => d.category).filter(Boolean))];
-      setCategories(cats);
+      setCategories(categoryOptions);
       setIsAdmin(user?.role === "admin");
       setLoading(false);
     };
@@ -52,21 +54,38 @@ export default function BarBook() {
     return matchesSearch && matchesCategory;
   });
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setForm(f => ({ ...f, photo_url: file_url }));
+      toast.success("Photo uploaded");
+    } catch (err) {
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!form.name.trim() || !form.photo_url.trim()) {
       toast.error("Name and photo are required");
       return;
     }
+    const ingredientsStr = Array.isArray(form.ingredients) 
+      ? form.ingredients.filter(i => i.name).map(i => `${i.quantity} ${i.units} ${i.name}`).join(", ")
+      : form.ingredients;
     setSaving(true);
+    const dataToSave = { ...form, ingredients: ingredientsStr };
     if (editingId) {
-      await base44.entities.BarBook.update(editingId, form);
-      setDrinks(prev => prev.map(d => d.id === editingId ? { ...d, ...form } : d));
+      await base44.entities.BarBook.update(editingId, dataToSave);
+      setDrinks(prev => prev.map(d => d.id === editingId ? { ...d, ...dataToSave } : d));
       toast.success("Recipe updated");
     } else {
-      const created = await base44.entities.BarBook.create(form);
+      const created = await base44.entities.BarBook.create(dataToSave);
       setDrinks(prev => [created, ...prev]);
-      const newCat = form.category && !categories.includes(form.category) ? [...categories, form.category] : categories;
-      setCategories(newCat);
       toast.success("Recipe added");
     }
     setSaving(false);
@@ -77,7 +96,7 @@ export default function BarBook() {
       photo_url: "",
       recipe: "",
       category: "",
-      ingredients: "",
+      ingredients: [],
       glassware: "",
       notes: "",
       base_spirit: ""
@@ -92,7 +111,13 @@ export default function BarBook() {
   };
 
   const openEdit = (drink) => {
-    setForm(drink);
+    const ingredientArray = typeof drink.ingredients === 'string'
+      ? drink.ingredients.split(", ").map(ing => {
+          const parts = ing.trim().split(/\s+/);
+          return { quantity: parts[0] || "", units: parts[1] || "", name: parts.slice(2).join(" ") || "" };
+        })
+      : drink.ingredients || [];
+    setForm({ ...drink, ingredients: ingredientArray });
     setEditingId(drink.id);
     setShowForm(true);
   };
@@ -103,7 +128,7 @@ export default function BarBook() {
       photo_url: "",
       recipe: "",
       category: "",
-      ingredients: "",
+      ingredients: [{ quantity: "", units: "", name: "" }],
       glassware: "",
       notes: "",
       base_spirit: ""
@@ -255,27 +280,36 @@ export default function BarBook() {
               </div>
 
               <div className="space-y-1">
-                <Label>Drink Photo URL *</Label>
-                <Input
-                  value={form.photo_url}
-                  onChange={e => setForm(f => ({ ...f, photo_url: e.target.value }))}
-                  placeholder="https://..."
-                />
-                {form.photo_url && (
-                  <div className="mt-2 w-32 h-32 rounded-lg overflow-hidden border border-border">
-                    <img src={form.photo_url} alt="preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
+                <Label>Drink Photo *</Label>
+                <div className="flex gap-2 items-end">
+                  <label className="flex-1">
+                    <div className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md border border-input hover:bg-secondary transition">
+                      <Upload className="h-4 w-4" />
+                      <span className="text-sm">Upload Photo</span>
+                    </div>
+                    <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} className="hidden" />
+                  </label>
+                  {form.photo_url && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden border border-border">
+                      <img src={form.photo_url} alt="preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label>Category</Label>
-                  <Input
+                  <select
                     value={form.category}
                     onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                    placeholder="e.g., Cocktails"
-                  />
+                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    <option value="">Select category...</option>
+                    {categoryOptions.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-1">
                   <Label>Base Spirit</Label>
@@ -298,12 +332,59 @@ export default function BarBook() {
 
               <div className="space-y-1">
                 <Label>Ingredients</Label>
-                <textarea
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[80px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  placeholder="List all ingredients with measurements..."
-                  value={form.ingredients}
-                  onChange={e => setForm(f => ({ ...f, ingredients: e.target.value }))}
-                />
+                <div className="space-y-2 border border-border rounded-md p-3">
+                  <div className="grid grid-cols-3 gap-2 text-xs font-medium text-muted-foreground pb-2">
+                    <div>Quantity</div>
+                    <div>Units</div>
+                    <div>Ingredient</div>
+                  </div>
+                  {Array.isArray(form.ingredients) && form.ingredients.map((ing, idx) => (
+                    <div key={idx} className="grid grid-cols-3 gap-2">
+                      <Input
+                        size="sm"
+                        placeholder="1.5"
+                        value={ing.quantity}
+                        onChange={e => setForm(f => ({
+                          ...f,
+                          ingredients: f.ingredients.map((i, j) => j === idx ? { ...i, quantity: e.target.value } : i)
+                        }))}
+                        className="h-8"
+                      />
+                      <Input
+                        size="sm"
+                        placeholder="oz"
+                        value={ing.units}
+                        onChange={e => setForm(f => ({
+                          ...f,
+                          ingredients: f.ingredients.map((i, j) => j === idx ? { ...i, units: e.target.value } : i)
+                        }))}
+                        className="h-8"
+                      />
+                      <Input
+                        size="sm"
+                        placeholder="Ingredient"
+                        value={ing.name}
+                        onChange={e => setForm(f => ({
+                          ...f,
+                          ingredients: f.ingredients.map((i, j) => j === idx ? { ...i, name: e.target.value } : i)
+                        }))}
+                        className="h-8"
+                      />
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setForm(f => ({
+                      ...f,
+                      ingredients: [...f.ingredients, { quantity: "", units: "", name: "" }]
+                    }))}
+                    className="w-full text-xs mt-2"
+                  >
+                    <Plus className="h-3 w-3" /> Add Ingredient
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-1">
