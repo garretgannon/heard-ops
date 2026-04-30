@@ -1,66 +1,70 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame, Book, Wine, FileText, TrendingUp, Bell } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
 
-const topNavItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard, highlight: true },
-];
-
-const settingsNavItems = [
-  { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-  { path: "/restaurant-team", label: "Restaurant Team", icon: Users },
-  { path: "/job-codes", label: "Roles", icon: Tag },
-  { path: "/notifications", label: "Notifications", icon: Bell },
-];
-
-const fohNavItems_admin = [
-  { path: "/pre-shift", label: "Pre-Shift", icon: UsersIcon },
-  { path: "/bar-book", label: "Bar Book", icon: Wine },
-  { path: "/side-work", label: "Side Work", icon: CheckSquare },
-  { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
-  { path: "/cash", label: "Cash", icon: DollarSign },
-];
-
-const bohNavItems = [
-  { path: "/line-up", label: "Line-Up", icon: Flame },
-  { path: "/build-book", label: "Build Book", icon: Book },
-  { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
-  { path: "/stations", label: "Stations", icon: UtensilsCrossed },
-  { path: "/prep-library", label: "Prep Library", icon: BookOpen },
-  { path: "/temp-logs", label: "Temp Logs", icon: Thermometer },
-  { path: "/dish-machines", label: "Dish Machines", icon: Droplet },
-];
-
-const operationsNavItems = [
-  { path: "/manager", label: "Manager Dashboard", icon: TrendingUp },
-  { path: "/manager-log", label: "Manager Log", icon: NotebookPen },
-  { path: "/incidents", label: "Incident Reports", icon: AlertTriangle },
-  { path: "/vendors", label: "Vendors", icon: Truck },
-  { path: "/calendar", label: "Calendar", icon: CalendarDays },
-  { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch },
-  { path: "/weekly-report", label: "Weekly Report", icon: BarChart2 },
-  { path: "/maintenance", label: "Maintenance", icon: Wrench },
-];
-
-const healthDeptNavItems = [
-  { path: "/msds", label: "MSDS", icon: FileText },
-];
-
-const bottomNavItems = [
-  { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
-  { path: "/profile", label: "My Profile", icon: UserCircle, highlight: true },
-];
-
-const userNavItems = [
-  { path: "/profile", label: "My Profile", icon: UserCircle },
-];
+const navSections = {
+  dailyOps: {
+    label: "Daily Operations",
+    items: [
+      { path: "/", label: "Today's Command Center", icon: LayoutDashboard },
+      { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
+      { path: "/side-work", label: "Side Work", icon: CheckSquare },
+      { path: "/pre-shift", label: "Pre-Shift", icon: Users },
+      { path: "/line-up", label: "Line Up", icon: Flame },
+      { path: "/shift-handoff", label: "Shift Handoff", icon: TrendingUp },
+    ]
+  },
+  complianceLogs: {
+    label: "Compliance & Logs",
+    items: [
+      { path: "/temp-logs", label: "Temperature Logs", icon: Thermometer },
+      { path: "/dish-machines", label: "Dish Machines", icon: Droplet },
+      { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
+      { path: "/msds", label: "MSDS", icon: FileText },
+    ]
+  },
+  managerTools: {
+    label: "Manager Tools",
+    items: [
+      { path: "/photo-review", label: "Photo Review", icon: Camera },
+      { path: "/incidents", label: "Incident Reports", icon: AlertTriangle },
+      { path: "/reports", label: "Reports", icon: BarChart2 },
+      { path: "/weekly-report", label: "Weekly Report", icon: TrendingUp },
+      { path: "/notifications", label: "Notification Settings", icon: Bell },
+    ]
+  },
+  teamTraining: {
+    label: "Team & Training",
+    items: [
+      { path: "/home", label: "Staff Home", icon: UserCircle },
+      { path: "/today", label: "Staff Tasks", icon: CheckSquare },
+      { path: "/onboarding", label: "Onboarding", icon: BookMarked },
+      { path: "/restaurant-team", label: "Restaurant Team", icon: Users },
+      { path: "/job-codes", label: "Job Codes", icon: Tag },
+      { path: "/build-book", label: "Build Book", icon: Book },
+      { path: "/bar-book", label: "Bar Book", icon: Wine },
+    ]
+  },
+  admin: {
+    label: "Admin",
+    items: [
+      { path: "/cash", label: "Cash", icon: DollarSign },
+      { path: "/calendar", label: "Calendar", icon: CalendarDays },
+      { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch },
+      { path: "/vendors", label: "Vendors", icon: Truck },
+      { path: "/maintenance", label: "Maintenance Requests", icon: Wrench },
+      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+    ]
+  },
+};
 
 const fohNavItems = [
+  { path: "/home", label: "Staff Home", icon: UserCircle },
   { path: "/bar-book", label: "Bar Book", icon: Wine },
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
   { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
@@ -72,18 +76,15 @@ const fohNavItems = [
 export default function Layout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileFohOpen, setMobileFohOpen] = useState(true);
-  const [mobileBohOpen, setMobileBohOpen] = useState(true);
-  const [fohOpen, setFohOpen] = useState(true);
-  const [bohOpen, setBohOpen] = useState(true);
-  const [operationsOpen, setOperationsOpen] = useState(false);
-  const [mobileOperationsOpen, setMobileOperationsOpen] = useState(false);
-  const [healthDeptOpen, setHealthDeptOpen] = useState(false);
-  const [mobileHealthDeptOpen, setMobileHealthDeptOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+  const [expandedMobileSections, setExpandedMobileSections] = useState({});
+  const [expandedDesktopSections, setExpandedDesktopSections] = useState({
+    dailyOps: true,
+    complianceLogs: true,
+    managerTools: false,
+    teamTraining: false,
+    admin: false,
+  });
   const { isAdmin, isFOH } = useCurrentUser();
-  const navItems = isFOH ? fohNavItems : userNavItems;
   const [logoUrl, setLogoUrl] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
 
@@ -95,6 +96,14 @@ export default function Layout() {
       if (results.length > 0 && results[0].value) setLogoUrl(results[0].value);
     });
   }, []);
+
+  const toggleMobileSection = (key) => {
+    setExpandedMobileSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const toggleDesktopSection = (key) => {
+    setExpandedDesktopSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   // Hide layout chrome on station prep view
   const isStationView = location.pathname.startsWith("/station/");
@@ -130,107 +139,29 @@ export default function Layout() {
           <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             {isAdmin ? (
               <>
-                {topNavItems.map(item => (
-                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path ? "bg-primary text-primary-foreground" :
-                      item.highlight ? "text-primary hover:bg-secondary" : "text-muted-foreground hover:bg-secondary"
-                    )}>
-                    <item.icon className="h-4 w-4" />{item.label}
-                  </Link>
-                ))}
-
-                <button onClick={() => setMobileFohOpen(v => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
-                  <span className="text-primary">Front of House</span>
-                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileFohOpen && "rotate-180")} />
-                </button>
-                {mobileFohOpen && fohNavItems_admin.map(item => (
-                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
-                    )}>
-                    <item.icon className="h-4 w-4" />{item.label}
-                  </Link>
-                ))}
-
-                <button onClick={() => setMobileBohOpen(v => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
-                  <span className="text-primary">Back of House</span>
-                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileBohOpen && "rotate-180")} />
-                </button>
-                {mobileBohOpen && bohNavItems.map(item => (
-                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
-                    )}>
-                    <item.icon className="h-4 w-4" />{item.label}
-                  </Link>
-                ))}
-
-                <button onClick={() => setMobileOperationsOpen(v => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
-                  <span className="text-primary">Operations</span>
-                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileOperationsOpen && "rotate-180")} />
-                </button>
-                {mobileOperationsOpen && operationsNavItems.map(item => (
-                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
-                    )}>
-                    <item.icon className="h-4 w-4" />{item.label}
-                  </Link>
-                ))}
-
-                <button onClick={() => setMobileHealthDeptOpen(v => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
-                  <span className="text-primary">Health Department</span>
-                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileHealthDeptOpen && "rotate-180")} />
-                </button>
-                {mobileHealthDeptOpen && healthDeptNavItems.map(item => (
-                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
-                    )}>
-                    <item.icon className="h-4 w-4" />{item.label}
-                  </Link>
-                ))}
-
-                <div className="pt-1">
-                  {bottomNavItems.map(item => (
-                    <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                        location.pathname === item.path ? "bg-primary text-primary-foreground" :
-                        item.highlight ? "text-primary hover:bg-secondary" : "text-muted-foreground hover:bg-secondary"
-                      )}>
-                      <item.icon className="h-4 w-4" />{item.label}
-                    </Link>
-                  ))}
-                </div>
-
-                <button onClick={() => setMobileSettingsOpen(v => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
-                  <span className="text-muted-foreground flex items-center gap-2"><Settings className="h-3.5 w-3.5" /> Settings</span>
-                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform text-muted-foreground", mobileSettingsOpen && "rotate-180")} />
-                </button>
-                {mobileSettingsOpen && settingsNavItems.map(item => (
-                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
-                    )}>
-                    <item.icon className="h-4 w-4" />{item.label}
-                  </Link>
+                {Object.entries(navSections).map(([key, section]) => (
+                  <div key={key}>
+                    <button
+                      onClick={() => toggleMobileSection(key)}
+                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-primary hover:bg-secondary/40 transition-all duration-200"
+                    >
+                      <span>{section.label}</span>
+                      <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expandedMobileSections[key] && "rotate-180")} />
+                    </button>
+                    {expandedMobileSections[key] && section.items.map(item => (
+                      <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 pl-8 pr-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                          location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
+                        )}>
+                        <item.icon className="h-4 w-4" />{item.label}
+                      </Link>
+                    ))}
+                  </div>
                 ))}
               </>
             ) : (
-              navItems.map(item => (
+              fohNavItems.map(item => (
                 <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
@@ -262,135 +193,26 @@ export default function Layout() {
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto py-2">
+        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto py-2">
           {isAdmin ? (
-            <>
-              {/* Top items */}
-              {topNavItems.map(item => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === item.path
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "hover:bg-secondary hover:text-foreground",
-                    location.pathname !== item.path && item.highlight ? "text-primary" : location.pathname !== item.path ? "text-muted-foreground" : ""
-                  )}
+            Object.entries(navSections).map(([key, section]) => (
+              <div key={key}>
+                <button
+                  onClick={() => toggleDesktopSection(key)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-primary hover:bg-secondary/30 transition-all duration-200"
                 >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* FOH section */}
-              <button
-                onClick={() => setFohOpen(v => !v)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
-              >
-                <span className="text-primary">Front of House</span>
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", fohOpen && "rotate-180")} />
-              </button>
-              {fohOpen && fohNavItems_admin.map(item => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === item.path
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* BOH section */}
-              <button
-                onClick={() => setBohOpen(v => !v)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
-              >
-                <span className="text-primary">Back of House</span>
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", bohOpen && "rotate-180")} />
-              </button>
-              {bohOpen && bohNavItems.map(item => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === item.path
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* Operations section */}
-              <button
-                onClick={() => setOperationsOpen(v => !v)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
-              >
-                <span className="text-primary">Operations</span>
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", operationsOpen && "rotate-180")} />
-              </button>
-              {operationsOpen && operationsNavItems.map(item => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === item.path
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* Health Department section */}
-              <button
-                onClick={() => setHealthDeptOpen(v => !v)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
-              >
-                <span className="text-primary">Health Department</span>
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", healthDeptOpen && "rotate-180")} />
-              </button>
-              {healthDeptOpen && healthDeptNavItems.map(item => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === item.path
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-
-              {/* Bottom items */}
-              <div className="pt-1">
-                {bottomNavItems.map(item => (
+                  <span>{section.label}</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expandedDesktopSections[key] && "rotate-180")} />
+                </button>
+                {expandedDesktopSections[key] && section.items.map(item => (
                   <Link
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                      "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                       location.pathname === item.path
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "hover:bg-secondary hover:text-foreground",
-                      location.pathname !== item.path && item.highlight ? "text-primary" : location.pathname !== item.path ? "text-muted-foreground" : ""
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                   >
                     <item.icon className="h-4 w-4" />
@@ -398,33 +220,9 @@ export default function Layout() {
                   </Link>
                 ))}
               </div>
-
-              {/* Settings section */}
-              <button
-                onClick={() => setSettingsOpen(v => !v)}
-                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
-              >
-                <span className="flex items-center gap-2"><Settings className="h-4 w-4" /> Settings</span>
-                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", settingsOpen && "rotate-180")} />
-              </button>
-              {settingsOpen && settingsNavItems.map(item => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === item.path
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-            </>
+            ))
           ) : (
-            navItems.map(item => (
+            fohNavItems.map(item => (
               <Link
                 key={item.path}
                 to={item.path}
