@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown } from "lucide-react";
+import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,23 +72,34 @@ export default function MyRestaurant() {
   const [stations, setStations] = useState([]);
   const [tempLocations, setTempLocations] = useState([]);
   const [dishEquipment, setDishEquipment] = useState([]);
+  const [cashDrawers, setCashDrawers] = useState([]);
+  const [pettyCashAmount, setPettyCashAmount] = useState("");
+  const [pettyCashId, setPettyCashId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [addingStation, setAddingStation] = useState(false);
   const [addingTemp, setAddingTemp] = useState(false);
   const [addingDish, setAddingDish] = useState(false);
+  const [addingDrawer, setAddingDrawer] = useState(false);
 
   useEffect(() => {
     const load = async () => {
-      const [s, tl, de] = await Promise.all([
+      const [s, tl, de, cd, settings] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.TempLogLocation.list(),
         base44.entities.DishMachineEquipment.list(),
+        base44.entities.CashDrawerConfig.list(),
+        base44.entities.Settings.filter({ key: "petty_cash_amount" }),
       ]);
       setStations(s);
       setTempLocations(tl);
       setDishEquipment(de);
+      setCashDrawers(cd);
+      if (settings.length > 0) {
+        setPettyCashAmount(settings[0].value || "");
+        setPettyCashId(settings[0].id);
+      }
       setLoading(false);
     };
     load();
@@ -135,6 +146,28 @@ export default function MyRestaurant() {
     setAddingDish(false);
     setSaving(false);
     toast.success("Equipment added");
+  };
+
+  const saveDrawer = async (values) => {
+    if (!values.name) return;
+    setSaving(true);
+    const rec = await base44.entities.CashDrawerConfig.create({ name: values.name, starting_amount: values.starting_amount ? Number(values.starting_amount) : 0, notes: values.notes });
+    setCashDrawers(p => [...p, rec]);
+    setAddingDrawer(false);
+    setSaving(false);
+    toast.success("Drawer added");
+  };
+
+  const savePettyCash = async () => {
+    setSaving(true);
+    if (pettyCashId) {
+      await base44.entities.Settings.update(pettyCashId, { value: pettyCashAmount });
+    } else {
+      const rec = await base44.entities.Settings.create({ key: "petty_cash_amount", value: pettyCashAmount });
+      setPettyCashId(rec.id);
+    }
+    setSaving(false);
+    toast.success("Petty cash amount saved");
   };
 
   if (loading) return (
@@ -261,6 +294,64 @@ export default function MyRestaurant() {
         )}
       </SectionCard>
 
+
+      {/* Cash Configuration */}
+      <SectionCard icon={DollarSign} title="Cash Configuration" color="text-green-400" count={cashDrawers.length}>
+        <p className="text-xs text-muted-foreground -mt-1">Set up your cash drawers and petty cash starting amounts. These are used as reference in the Cash section.</p>
+
+        <div>
+          <h3 className="text-sm font-semibold mb-2">Cash Drawers</h3>
+          <div className="space-y-2">
+            {cashDrawers.length === 0 && <p className="text-sm text-muted-foreground">No drawers configured yet.</p>}
+            {cashDrawers.map(d => (
+              <div key={d.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium">{d.name}</span>
+                  {d.starting_amount != null && <span className="text-xs text-green-400 font-medium">${Number(d.starting_amount).toFixed(2)} starting</span>}
+                  {d.notes && <span className="text-xs text-muted-foreground hidden sm:block">{d.notes}</span>}
+                </div>
+                <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteItem("CashDrawerConfig", d.id, setCashDrawers)}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          {addingDrawer ? (
+            <InlineForm
+              saving={saving}
+              onCancel={() => setAddingDrawer(false)}
+              onSave={saveDrawer}
+              fields={[
+                { key: "name", label: "Drawer Name", placeholder: "e.g. Bar, Host, Register 1" },
+                { key: "starting_amount", label: "Starting Amount ($)", type: "number", placeholder: "e.g. 200" },
+                { key: "notes", label: "Notes", placeholder: "Optional" },
+              ]}
+            />
+          ) : (
+            <Button size="sm" variant="outline" className="mt-2" onClick={() => setAddingDrawer(true)}><Plus className="h-3.5 w-3.5 mr-1" />Add Drawer</Button>
+          )}
+        </div>
+
+        <div className="border-t border-border pt-4">
+          <h3 className="text-sm font-semibold mb-2">Petty Cash</h3>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+              <Input
+                type="number"
+                placeholder="0.00"
+                value={pettyCashAmount}
+                onChange={e => setPettyCashAmount(e.target.value)}
+                className="pl-7 w-40"
+              />
+            </div>
+            <Button size="sm" onClick={savePettyCash} disabled={saving}>
+              <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Total petty cash float kept in the restaurant.</p>
+        </div>
+      </SectionCard>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground pb-4">
         <CheckCircle2 className="h-4 w-4 text-accent" />

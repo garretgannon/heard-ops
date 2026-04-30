@@ -1,0 +1,21 @@
+{
+  "name": "CashDrawerConfig",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Drawer Name"
+    },
+    "starting_amount": {
+      "type": "number",
+      "title": "Starting Amount ($)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
