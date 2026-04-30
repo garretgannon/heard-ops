@@ -76,7 +76,7 @@ export default function Dashboard() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Kitchen prep overview</p>
+          <p className="text-muted-foreground mt-1">Kitchen operations overview</p>
         </div>
         <Link to="/prep-lists">
           <Button>

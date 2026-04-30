@@ -139,7 +139,7 @@ export default function TodaysCommandCenter() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-8">
         <div className="space-y-2">
-          <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Todays Command Center</h1>
+          <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Today's Command Center</h1>
           <p className="text-lg text-muted-foreground">
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </p>

@@ -24,7 +24,10 @@ export default function Landing() {
           Stop Chasing Your Restaurant
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-          A restaurant operations system built by restaurant people. Prep, side work, logs, vendors, cash, maintenance, and manager follow-up in one place.
+          The daily operating system for restaurants.
+        </p>
+        <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+          Prep, side work, temperature logs, maintenance, vendors, cash, training, incidents, and manager handoff in one place.
         </p>
         <div className="flex flex-col lg:flex-row gap-4 justify-center">
           <Button size="lg" className="h-12 px-8">
