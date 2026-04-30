@@ -28,6 +28,7 @@ export default function PrepLists() {
   const [importTargetList, setImportTargetList] = useState(null);
   const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [filterStation, setFilterStation] = useState("");
 
   const generateRecurring = async (allLists, allItems) => {
     const templates = allLists.filter(pl => pl.is_recurring && !pl.template_list_id);
@@ -172,6 +173,30 @@ export default function PrepLists() {
         </div>
       </div>
 
+      {stations.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterStation("")}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              filterStation === "" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            All
+          </button>
+          {stations.map(s => (
+            <button
+              key={s.id}
+              onClick={() => setFilterStation(s.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                filterStation === s.id ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {stations.length === 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
           Create stations first before making prep lists.
@@ -187,7 +212,7 @@ export default function PrepLists() {
         />
       ) : (
         <div className="space-y-8">
-          {stations.map(station => {
+          {stations.filter(station => !filterStation || station.id === filterStation).map(station => {
             const stationLists = prepLists.filter(pl => pl.station_id === station.id);
             if (stationLists.length === 0) return null;
 
