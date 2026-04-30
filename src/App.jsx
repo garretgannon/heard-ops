@@ -78,8 +78,9 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={!user ? <Landing /> : null} />
-      {user && (
+      {!user ? (
+        <Route path="*" element={<Landing />} />
+      ) : (
         <>
           <Route path="/onboarding" element={<Onboarding />} />
           <Route element={<Layout />}>
@@ -121,7 +122,6 @@ const AuthenticatedApp = () => {
           </Route>
         </>
       )}
-      <Route path="*" element={!user ? <Landing /> : <PageNotFound />} />
     </Routes>
   );
 };
