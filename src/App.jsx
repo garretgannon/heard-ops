@@ -24,6 +24,7 @@ import PrepLibrary from './pages/PrepLibrary';
 import TempLogs from './pages/TempLogs';
 import DishMachines from './pages/DishMachines';
 import MyRestaurant from './pages/MyRestaurant';
+import ManagerLog from './pages/ManagerLog';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -57,6 +58,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/temp-logs" element={<TempLogs />} />}
         <Route path="/dish-machines" element={<DishMachines />} />
         {isAdmin && <Route path="/my-restaurant" element={<MyRestaurant />} />}
+        {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

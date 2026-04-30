@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2 } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +26,7 @@ const bohNavItems = [
 ];
 
 const bottomNavItems = [
+  { path: "/manager-log", label: "Manager Log", icon: NotebookPen, highlight: true },
   { path: "/calendar", label: "Calendar", icon: CalendarDays, highlight: true },
   { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
   { path: "/photo-review", label: "Photo Review", icon: Camera },
