@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,7 @@ const bohNavItems = [
 const bottomNavItems = [
   { path: "/manager-log", label: "Manager Log", icon: NotebookPen, highlight: true },
   { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch, highlight: true },
+  { path: "/incidents", label: "Incident Reports", icon: AlertTriangle, highlight: true },
   { path: "/vendors", label: "Vendors", icon: Truck, highlight: true },
   { path: "/calendar", label: "Calendar", icon: CalendarDays, highlight: true },
   { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },

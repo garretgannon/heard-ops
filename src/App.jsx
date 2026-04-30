@@ -34,6 +34,7 @@ import Onboarding from './pages/Onboarding';
 import RestaurantTeam from './pages/RestaurantTeam';
 import EmployeeCalendar from './pages/EmployeeCalendar';
 import Vendors from './pages/Vendors';
+import IncidentReports from './pages/IncidentReports';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -89,6 +90,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
         {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
         {isAdmin && <Route path="/vendors" element={<Vendors />} />}
+        {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />

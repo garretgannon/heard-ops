@@ -1,0 +1,119 @@
+{
+  "name": "IncidentReport",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Incident Date"
+    },
+    "time": {
+      "type": "string",
+      "title": "Time (HH:MM)"
+    },
+    "type": {
+      "type": "string",
+      "title": "Incident Type",
+      "enum": [
+        "accident",
+        "injury",
+        "property_damage",
+        "food_safety",
+        "customer_complaint",
+        "staff_conflict",
+        "security",
+        "other"
+      ],
+      "enumNames": [
+        "Accident",
+        "Injury",
+        "Property Damage",
+        "Food Safety",
+        "Customer Complaint",
+        "Staff Conflict",
+        "Security",
+        "Other"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "title": "Location"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description of Incident"
+    },
+    "people_involved": {
+      "type": "string",
+      "title": "People Involved (names/emails)"
+    },
+    "severity": {
+      "type": "string",
+      "title": "Severity",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "enumNames": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "medium"
+    },
+    "injuries": {
+      "type": "string",
+      "title": "Injuries (if any)"
+    },
+    "actions_taken": {
+      "type": "string",
+      "title": "Actions Taken"
+    },
+    "reported_by": {
+      "type": "string",
+      "title": "Reported By"
+    },
+    "witness_names": {
+      "type": "string",
+      "title": "Witness Names"
+    },
+    "follow_up_required": {
+      "type": "boolean",
+      "title": "Follow-Up Required",
+      "default": false
+    },
+    "follow_up_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Follow-Up Date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "open",
+        "investigating",
+        "resolved"
+      ],
+      "enumNames": [
+        "Open",
+        "Investigating",
+        "Resolved"
+      ],
+      "default": "open"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Additional Notes"
+    }
+  },
+  "required": [
+    "date",
+    "type",
+    "location",
+    "description"
+  ]
+}
