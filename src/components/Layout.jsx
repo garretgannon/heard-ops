@@ -63,13 +63,9 @@ export default function Layout() {
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
   const { isAdmin, isFOH } = useCurrentUser();
   const navItems = isFOH ? fohNavItems : userNavItems;
-  const [restaurantName, setRestaurantName] = useState("Heard");
   const [logoUrl, setLogoUrl] = useState(null);
 
   useEffect(() => {
-    base44.entities.Settings.filter({ key: "restaurant_name" }).then(results => {
-      if (results.length > 0 && results[0].value) setRestaurantName(results[0].value);
-    });
     base44.entities.Settings.filter({ key: "logo_url" }).then(results => {
       if (results.length > 0 && results[0].value) setLogoUrl(results[0].value);
     });
@@ -92,7 +88,7 @@ export default function Layout() {
           ) : (
             <ChefHat className="h-6 w-6 text-primary" />
           )}
-          <span className="font-bold text-lg tracking-tight">{restaurantName}</span>
+          <span className="font-bold text-lg tracking-tight">Heard</span>
         </div>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2">
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -200,7 +196,7 @@ export default function Layout() {
             )}
           </div>
           <div>
-            <h1 className="font-bold text-lg tracking-tight">{restaurantName}</h1>
+            <h1 className="font-bold text-lg tracking-tight">Heard</h1>
             <p className="text-xs text-muted-foreground">Restaurant Operations</p>
           </div>
         </div>
