@@ -1,0 +1,21 @@
+{
+  "name": "NotificationSettings",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "title": "Setting Key"
+    },
+    "value": {
+      "type": "string",
+      "title": "Value"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    }
+  },
+  "required": [
+    "key"
+  ]
+}
