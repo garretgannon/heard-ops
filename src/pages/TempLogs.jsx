@@ -1,145 +1,172 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { Plus, Trash2, Settings, X, Thermometer, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Trash2, Settings, X, Thermometer, CheckCircle2, AlertTriangle, XCircle, Upload, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const TYPES = [
-  { value: "refrigerator", label: "Refrigerators", defaultMin: 32, defaultMax: 41 },
-  { value: "freezer", label: "Freezers", defaultMin: -10, defaultMax: 0 },
-  { value: "hot_well", label: "Hot Wells", defaultMin: 135, defaultMax: 180 },
-  { value: "cooling", label: "Cooling Logs", defaultMin: null, defaultMax: 70 },
+// Predefined locations matching kitchen zones
+const LOCATIONS = [
+  { name: "Walk-in Cooler", type: "cooler", min: 32, max: 41 },
+  { name: "Freezer", type: "freezer", min: -10, max: 0 },
+  { name: "Line Cooler", type: "cooler", min: 32, max: 41 },
+  { name: "Prep Cooler", type: "cooler", min: 32, max: 41 },
+  { name: "Hot Holding", type: "hot", min: 135, max: 180 },
+  { name: "Dish Machine", type: "dishwasher", min: null, max: 180 },
 ];
 
-const statusColor = {
-  safe: "text-green-500",
-  warning: "text-yellow-500",
-  danger: "text-red-500",
+const getStatus = (temp, min, max) => {
+  if (temp < min || temp > max) return "fail";
+  return "pass";
 };
 
-const StatusIcon = ({ status }) => {
-  if (status === "safe") return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-  if (status === "warning") return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-  return <XCircle className="h-4 w-4 text-red-500" />;
+const StatusBadge = ({ status }) => {
+  if (status === "pass") return <span className="bg-green-500/20 text-green-700 px-2 py-0.5 rounded font-bold text-sm">✓ Pass</span>;
+  return <span className="bg-red-500/20 text-red-700 px-2 py-0.5 rounded font-bold text-sm">✗ Fail</span>;
 };
-
-function getStatus(temp, location) {
-  if (!location) return "safe";
-  const { target_min, target_max } = location;
-  if (target_max !== undefined && target_max !== null && temp > target_max) return "danger";
-  if (target_min !== undefined && target_min !== null && temp < target_min) return "danger";
-  return "safe";
-}
 
 export default function TempLogs() {
-  const [activeTab, setActiveTab] = useState("refrigerator");
   const [locations, setLocations] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showAddLocation, setShowAddLocation] = useState(false);
   const [showLogForm, setShowLogForm] = useState(false);
-  const [showLocationForm, setShowLocationForm] = useState(false);
-  const [editLocation, setEditLocation] = useState(null);
-
-  const blankLog = { location_id: "", temperature: "", notes: "" };
-  const [logForm, setLogForm] = useState(blankLog);
-  const blankLoc = { name: "", type: activeTab, target_min: "", target_max: "", check_interval_minutes: "", is_active: true };
-  const [locForm, setLocForm] = useState(blankLoc);
+  const [showFailDialog, setShowFailDialog] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [formData, setFormData] = useState({ temperature: "", notes: "", photo_url: "" });
+  const [managerInitials, setManagerInitials] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  const load = async () => {
+    try {
       const [locs, ents] = await Promise.all([
         base44.entities.TempLogLocation.list(),
-        base44.entities.TempLogEntry.list("-logged_at", 200),
+        base44.entities.TempLogEntry.filter({ date: todayStr }),
       ]);
-      setLocations(locs);
+      setLocations(locs.filter(l => l.is_active !== false));
       setEntries(ents);
       setLoading(false);
-    };
-    load();
-  }, []);
+    } catch (err) {
+      console.error("Load error:", err);
+      setLoading(false);
+    }
+  };
 
-  const tabLocations = locations.filter(l => l.type === activeTab && l.is_active !== false);
-  const tabEntries = entries.filter(e => e.location_type === activeTab);
+  useEffect(() => { load(); }, []);
 
-  // Group entries by location, show latest per location + recent history
-  const entriesByLocation = {};
-  tabEntries.forEach(e => {
-    if (!entriesByLocation[e.location_id]) entriesByLocation[e.location_id] = [];
-    entriesByLocation[e.location_id].push(e);
-  });
+  const todayEntries = entries.filter(e => e.date === todayStr);
+  const completed = todayEntries.filter(e => e.status);
+  const pending = locations.filter(l => !todayEntries.find(e => e.location_id === l.id));
 
-  const openLogForm = () => {
-    setLogForm({ ...blankLog, location_id: tabLocations[0]?.id || "" });
+  const handleOpenLog = (location) => {
+    setSelectedLocation(location);
+    setFormData({ temperature: "", notes: "", photo_url: "" });
     setShowLogForm(true);
   };
 
-  const openLocationForm = (loc = null) => {
-    if (loc) {
-      setLocForm({ name: loc.name, type: loc.type, target_min: loc.target_min ?? "", target_max: loc.target_max ?? "", check_interval_minutes: loc.check_interval_minutes ?? "", is_active: loc.is_active ?? true });
-      setEditLocation(loc);
-    } else {
-      setLocForm({ ...blankLoc, type: activeTab });
-      setEditLocation(null);
+  const handleUploadPhoto = async (file) => {
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({ ...prev, photo_url: file_url }));
+      toast.success("Photo uploaded");
+    } catch (err) {
+      toast.error("Photo upload failed");
     }
-    setShowLocationForm(true);
+    setUploadingPhoto(false);
   };
 
-  const saveLog = async () => {
-    if (!logForm.location_id || logForm.temperature === "") return toast.error("Select a location and enter a temperature");
+  const handleSaveLog = async () => {
+    const temp = parseFloat(formData.temperature);
+    if (!temp && temp !== 0) {
+      toast.error("Enter a temperature");
+      return;
+    }
+
+    const status = getStatus(temp, selectedLocation.target_min, selectedLocation.target_max);
+    if (status === "fail" && !managerInitials.trim()) {
+      toast.error("Manager initials required for failed temps");
+      return;
+    }
+
     setSaving(true);
-    const location = locations.find(l => l.id === logForm.location_id);
-    const temp = parseFloat(logForm.temperature);
-    const status = getStatus(temp, location);
-    const now = new Date().toISOString();
-    const entry = await base44.entities.TempLogEntry.create({
-      location_id: logForm.location_id,
-      location_name: location?.name || "",
-      location_type: activeTab,
-      temperature: temp,
-      logged_at: now,
-      notes: logForm.notes,
-      status,
-    });
-    setEntries(prev => [entry, ...prev]);
+    try {
+      const entry = await base44.entities.TempLogEntry.create({
+        location_id: selectedLocation.id,
+        location_name: selectedLocation.name,
+        temperature: temp,
+        status: status === "pass",
+        date: todayStr,
+        logged_at: new Date().toISOString(),
+        notes: formData.notes,
+        photo_url: formData.photo_url,
+        manager_initials: status === "fail" ? managerInitials : null,
+        corrective_action: status === "fail" ? formData.notes : null,
+      });
+
+      setEntries(prev => [...prev, entry]);
+      setShowLogForm(false);
+      setShowFailDialog(null);
+      setFormData({ temperature: "", notes: "", photo_url: "" });
+      setManagerInitials("");
+
+      const result = status === "pass" ? "✓ Logged" : "✗ Logged & flagged";
+      toast.success(result);
+    } catch (err) {
+      toast.error("Failed to save");
+    }
     setSaving(false);
-    setShowLogForm(false);
-    toast.success(`Logged ${temp}°F — ${status}`);
   };
 
-  const saveLocation = async () => {
-    if (!locForm.name.trim()) return toast.error("Name is required");
-    setSaving(true);
-    const data = {
-      ...locForm,
-      target_min: locForm.target_min !== "" ? parseFloat(locForm.target_min) : null,
-      target_max: locForm.target_max !== "" ? parseFloat(locForm.target_max) : null,
-      check_interval_minutes: locForm.check_interval_minutes !== "" ? parseInt(locForm.check_interval_minutes) : null,
-    };
-    if (editLocation) {
-      await base44.entities.TempLogLocation.update(editLocation.id, data);
-      setLocations(prev => prev.map(l => l.id === editLocation.id ? { ...l, ...data } : l));
-      toast.success("Location updated");
-    } else {
-      const created = await base44.entities.TempLogLocation.create(data);
+  const handleAddLocation = async (template) => {
+    try {
+      const created = await base44.entities.TempLogLocation.create({
+        name: template.name,
+        type: template.type,
+        target_min: template.min,
+        target_max: template.max,
+        is_active: true,
+      });
       setLocations(prev => [...prev, created]);
+      setShowAddLocation(false);
       toast.success("Location added");
+    } catch (err) {
+      toast.error("Failed to add location");
     }
-    setSaving(false);
-    setShowLocationForm(false);
   };
 
-  const deleteLocation = async (id) => {
-    await base44.entities.TempLogLocation.delete(id);
-    setLocations(prev => prev.filter(l => l.id !== id));
-    toast.success("Location removed");
+  const handleDeleteLocation = async (id) => {
+    try {
+      await base44.entities.TempLogLocation.delete(id);
+      setLocations(prev => prev.filter(l => l.id !== id));
+      toast.success("Location removed");
+    } catch (err) {
+      toast.error("Failed to delete");
+    }
   };
 
-  const deleteEntry = async (id) => {
-    await base44.entities.TempLogEntry.delete(id);
-    setEntries(prev => prev.filter(e => e.id !== id));
+  const handleExportReport = () => {
+    const csv = ["Location,Temperature,Status,Time,Notes,Manager Initials"]
+      .concat(
+        completed.map(e => `"${e.location_name}",${e.temperature},"${e.status ? "Pass" : "Fail"}",${new Date(e.logged_at).toLocaleTimeString()},"${e.notes || ""}","${e.manager_initials || ""}"`)
+      )
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `temp-logs-${todayStr}.csv`;
+    a.click();
+    toast.success("Report exported");
   };
 
   if (loading) {
@@ -151,263 +178,226 @@ export default function TempLogs() {
   }
 
   return (
-    <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-      {/* Header */}
-      <div className="flex items-end justify-between">
+    <motion.div className="space-y-6 pb-12" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+      <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Temperature Logs</h1>
-          <p className="text-muted-foreground mt-1">Track temperatures across refrigerators, hot wells, and cooling</p>
+          <h1 className="text-2xl lg:text-3xl font-bold">Temperature Logs</h1>
+          <p className="text-muted-foreground mt-1">{todayStr} • {pending.length} pending, {completed.length} logged</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowSettings(v => !v)}>
-            <Settings className="h-4 w-4 mr-2" /> Manage Locations
-          </Button>
-          <Button onClick={openLogForm}>
-            <Plus className="h-4 w-4 mr-2" /> Log Temp
+          {completed.length > 0 && (
+            <Button variant="outline" onClick={handleExportReport}>
+              <Download className="h-4 w-4 mr-2" /> Export
+            </Button>
+          )}
+          <Button onClick={() => setShowAddLocation(true)}>
+            <Plus className="h-4 w-4 mr-2" /> Add Location
           </Button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-secondary/50 p-1 rounded-xl w-fit">
-        {TYPES.map(t => (
-          <button
-            key={t.value}
-            onClick={() => setActiveTab(t.value)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === t.value ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Manage Locations Panel */}
-      {showSettings && (
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Manage {TYPES.find(t => t.value === activeTab)?.label}</h3>
-            <Button size="sm" onClick={() => openLocationForm()}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Add Location
-            </Button>
-          </div>
-          {locations.filter(l => l.type === activeTab).length === 0 ? (
-            <p className="text-sm text-muted-foreground">No locations yet. Add one above.</p>
-          ) : (
-            <div className="space-y-2">
-              {locations.filter(l => l.type === activeTab).map(loc => (
-                <div key={loc.id} className="flex items-center justify-between bg-secondary/40 rounded-xl px-4 py-2.5">
-                  <div>
-                    <p className="text-sm font-medium">{loc.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {loc.target_min != null && loc.target_max != null
-                        ? `Safe range: ${loc.target_min}°F – ${loc.target_max}°F`
-                        : loc.target_max != null
-                        ? `Max: ${loc.target_max}°F`
-                        : "No range set"}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => openLocationForm(loc)} className="text-xs text-primary hover:underline">Edit</button>
-                    <button onClick={() => deleteLocation(loc.id)} className="text-xs text-destructive hover:underline">Delete</button>
-                  </div>
+      {/* Pending logs (required for today) */}
+      {pending.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-bold text-red-600 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" /> Required Today ({pending.length})
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {pending.map(location => (
+              <div key={location.id} className="bg-card border-2 border-red-500/30 rounded-xl p-4 space-y-3">
+                <div>
+                  <h3 className="font-bold text-base">{location.name}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Safe range: {location.target_min}°F – {location.target_max}°F
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
+                <Button className="w-full" onClick={() => handleOpenLog(location)}>
+                  <Thermometer className="h-4 w-4 mr-2" /> Log Temperature
+                </Button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Location cards with latest readings */}
-      {tabLocations.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-border p-12 text-center">
-          <Thermometer className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">No locations yet. Click "Manage Locations" to add some.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {tabLocations.map(loc => {
-            const locEntries = (entriesByLocation[loc.id] || []).sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at));
-            const latest = locEntries[0];
-            const isOverdue = loc.check_interval_minutes && (
-              !latest || (Date.now() - new Date(latest.logged_at).getTime()) > loc.check_interval_minutes * 60 * 1000
-            );
-            return (
-              <div key={loc.id} className={`bg-card border rounded-2xl overflow-hidden ${isOverdue ? "border-yellow-500" : "border-border"}`}>
-                <div className="p-4 border-b border-border/50 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{loc.name}</p>
-                      {isOverdue && <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-medium">Overdue</span>}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {loc.target_min != null && loc.target_max != null
-                        ? `Safe: ${loc.target_min}–${loc.target_max}°F`
-                        : loc.target_max != null
-                        ? `Max: ${loc.target_max}°F`
-                        : "No range set"}
-                      {loc.check_interval_minutes ? ` · Check every ${loc.check_interval_minutes >= 60 ? `${loc.check_interval_minutes / 60}hr` : `${loc.check_interval_minutes}min`}` : ""}
-                    </p>
-                  </div>
-                  {latest && (
-                    <div className="flex flex-col items-end">
-                      <div className="flex items-center gap-1.5">
-                        <StatusIcon status={latest.status} />
-                        <span className={`text-xl font-bold ${statusColor[latest.status] || ""}`}>{latest.temperature}°F</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">{new Date(latest.logged_at).toLocaleString()}</p>
-                    </div>
-                  )}
+      {/* Completed logs */}
+      {completed.length > 0 && (
+        <details className="border border-border rounded-lg overflow-hidden">
+          <summary className="flex items-center justify-between px-4 py-3 bg-green-500/5 hover:bg-green-500/10 cursor-pointer font-semibold text-green-700">
+            <span>✓ Completed Today ({completed.length})</span>
+            <span className="text-xs">▼</span>
+          </summary>
+          <div className="divide-y divide-border">
+            {completed.map(entry => (
+              <div key={entry.id} className="p-4 flex items-start justify-between bg-card/50">
+                <div className="flex-1">
+                  <p className="font-semibold">{entry.location_name}</p>
+                  <p className="text-sm text-muted-foreground">{new Date(entry.logged_at).toLocaleTimeString()}</p>
+                  {entry.notes && <p className="text-xs text-muted-foreground mt-1">{entry.notes}</p>}
+                  {entry.manager_initials && <p className="text-xs font-semibold text-yellow-600">Manager: {entry.manager_initials}</p>}
                 </div>
-                <div className="p-3 space-y-1 max-h-48 overflow-y-auto">
-                  {locEntries.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-3">No readings yet</p>
-                  ) : (
-                    locEntries.slice(0, 10).map(entry => (
-                      <div key={entry.id} className="flex items-center justify-between text-xs px-2 py-1.5 rounded-lg hover:bg-secondary/40 group">
-                        <div className="flex items-center gap-2">
-                          <StatusIcon status={entry.status} />
-                          <span className="font-medium">{entry.temperature}°F</span>
-                          {entry.notes && <span className="text-muted-foreground truncate max-w-[100px]">{entry.notes}</span>}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">{new Date(entry.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                          <button onClick={() => deleteEntry(entry.id)} className="opacity-0 group-hover:opacity-100 text-destructive">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
+                <div className="text-right">
+                  <p className="text-2xl font-bold">{entry.temperature}°F</p>
+                  <StatusBadge status={entry.status ? "pass" : "fail"} />
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </details>
+      )}
+
+      {/* Manage Locations */}
+      {locations.length > 0 && (
+        <details className="border border-border rounded-lg overflow-hidden">
+          <summary className="flex items-center justify-between px-4 py-3 bg-secondary/50 hover:bg-secondary cursor-pointer font-semibold">
+            <span>Manage Locations</span>
+            <span className="text-xs">▼</span>
+          </summary>
+          <div className="divide-y divide-border">
+            {locations.map(loc => (
+              <div key={loc.id} className="p-4 flex items-center justify-between bg-card/50">
+                <div>
+                  <p className="font-semibold">{loc.name}</p>
+                  <p className="text-xs text-muted-foreground">{loc.target_min}°F – {loc.target_max}°F</p>
+                </div>
+                <button onClick={() => handleDeleteLocation(loc.id)} className="text-destructive hover:text-destructive/80">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </details>
       )}
 
       {/* Log Temp Modal */}
-      {showLogForm && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowLogForm(false)}>
-          <div className="bg-card border border-border rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">Log Temperature</h2>
-              <button onClick={() => setShowLogForm(false)}><X className="h-5 w-5 text-muted-foreground" /></button>
+      <Dialog open={showLogForm} onOpenChange={setShowLogForm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Log Temperature: {selectedLocation?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-bold block mb-2">Temperature (°F) *</label>
+              <Input
+                type="number"
+                value={formData.temperature}
+                onChange={(e) => setFormData(prev => ({ ...prev, temperature: e.target.value }))}
+                placeholder="e.g., 38"
+                className="h-12 text-lg"
+              />
             </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Location</label>
-                <select
-                  className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  value={logForm.location_id}
-                  onChange={e => setLogForm(f => ({ ...f, location_id: e.target.value }))}
-                >
-                  <option value="">— Select location —</option>
-                  {tabLocations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Temperature (°F)</label>
-                <input
-                  type="number"
-                  className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  value={logForm.temperature}
-                  onChange={e => setLogForm(f => ({ ...f, temperature: e.target.value }))}
-                  placeholder="e.g. 38"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Notes (optional)</label>
-                <input
-                  className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  value={logForm.notes}
-                  onChange={e => setLogForm(f => ({ ...f, notes: e.target.value }))}
-                  placeholder="Any notes…"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2 justify-end pt-1">
-              <Button variant="outline" onClick={() => setShowLogForm(false)}>Cancel</Button>
-              <Button onClick={saveLog} disabled={saving}>{saving ? "Saving…" : "Log Temp"}</Button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Location Form Modal */}
-      {showLocationForm && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowLocationForm(false)}>
-          <div className="bg-card border border-border rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">{editLocation ? "Edit Location" : "Add Location"}</h2>
-              <button onClick={() => setShowLocationForm(false)}><X className="h-5 w-5 text-muted-foreground" /></button>
+            <div>
+              <label className="text-sm font-bold block mb-2">Notes</label>
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Any observations..."
+                className="min-h-16"
+              />
             </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Name *</label>
+
+            <div>
+              <label className="text-sm font-bold block mb-2">Thermometer Photo (optional)</label>
+              <label className="block">
                 <input
-                  className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  value={locForm.name}
-                  onChange={e => setLocForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g. Walk-in Cooler, Salad Reach-in"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleUploadPhoto(e.target.files[0])}
+                  className="hidden"
                 />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Type</label>
-                <select
-                  className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  value={locForm.type}
-                  onChange={e => setLocForm(f => ({ ...f, type: e.target.value }))}
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  disabled={uploadingPhoto}
+                  onClick={e => e.currentTarget.parentElement.querySelector('input').click()}
                 >
-                  {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Check Interval</label>
-                <select
-                  className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  value={locForm.check_interval_minutes}
-                  onChange={e => setLocForm(f => ({ ...f, check_interval_minutes: e.target.value }))}
-                >
-                  <option value="">No alert</option>
-                  <option value="30">Every 30 minutes</option>
-                  <option value="60">Every 1 hour</option>
-                  <option value="120">Every 2 hours</option>
-                  <option value="180">Every 3 hours</option>
-                  <option value="240">Every 4 hours</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Min Safe Temp (°F)</label>
-                  <input
-                    type="number"
-                    className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    value={locForm.target_min}
-                    onChange={e => setLocForm(f => ({ ...f, target_min: e.target.value }))}
-                    placeholder="e.g. 32"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Max Safe Temp (°F)</label>
-                  <input
-                    type="number"
-                    className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    value={locForm.target_max}
-                    onChange={e => setLocForm(f => ({ ...f, target_max: e.target.value }))}
-                    placeholder="e.g. 41"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2 justify-end pt-1">
-              <Button variant="outline" onClick={() => setShowLocationForm(false)}>Cancel</Button>
-              <Button onClick={saveLocation} disabled={saving}>{saving ? "Saving…" : editLocation ? "Save Changes" : "Add Location"}</Button>
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploadingPhoto ? "Uploading..." : formData.photo_url ? "Photo uploaded ✓" : "Upload Photo"}
+                </Button>
+              </label>
             </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLogForm(false)}>Cancel</Button>
+            <Button onClick={() => {
+              const temp = parseFloat(formData.temperature);
+              const status = getStatus(temp, selectedLocation.target_min, selectedLocation.target_max);
+              if (status === "fail") {
+                setShowFailDialog(true);
+              } else {
+                handleSaveLog();
+              }
+            }} disabled={saving}>
+              {saving ? "Logging..." : "Log Temperature"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Failed Temp Dialog */}
+      <Dialog open={!!showFailDialog} onOpenChange={() => setShowFailDialog(false)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">⚠️ Temperature Out of Range</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+              <p className="text-sm font-semibold text-red-700">
+                {formData.temperature}°F is outside safe range: {selectedLocation?.target_min}°F – {selectedLocation?.target_max}°F
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-bold block mb-2">Manager Initials *</label>
+              <Input
+                value={managerInitials}
+                onChange={(e) => setManagerInitials(e.target.value.toUpperCase())}
+                placeholder="e.g., JD"
+                className="h-12 text-lg"
+                maxLength={3}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-bold block mb-2">Corrective Action Taken</label>
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="e.g., Adjusted unit, called maintenance..."
+                className="min-h-16"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFailDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveLog} disabled={saving || !managerInitials} className="bg-red-600 hover:bg-red-700">
+              {saving ? "Logging..." : "Log & Flag"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Location Dialog */}
+      <Dialog open={showAddLocation} onOpenChange={setShowAddLocation}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Temperature Location</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-4">
+            {LOCATIONS.map(template => (
+              <button
+                key={template.name}
+                onClick={() => handleAddLocation(template)}
+                className="w-full text-left p-3 border border-border rounded-lg hover:bg-secondary/50 transition-colors"
+              >
+                <p className="font-semibold">{template.name}</p>
+                <p className="text-xs text-muted-foreground">{template.min}°F – {template.max}°F</p>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
