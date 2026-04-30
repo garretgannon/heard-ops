@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown, Users, Mail } from "lucide-react";
+import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,12 +72,8 @@ export default function MyRestaurant() {
   const [stations, setStations] = useState([]);
   const [tempLocations, setTempLocations] = useState([]);
   const [dishEquipment, setDishEquipment] = useState([]);
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviting, setInviting] = useState(false);
-  const [showInvite, setShowInvite] = useState(false);
 
   const [addingStation, setAddingStation] = useState(false);
   const [addingTemp, setAddingTemp] = useState(false);
@@ -85,16 +81,14 @@ export default function MyRestaurant() {
 
   useEffect(() => {
     const load = async () => {
-      const [s, tl, de, u] = await Promise.all([
+      const [s, tl, de] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.TempLogLocation.list(),
         base44.entities.DishMachineEquipment.list(),
-        base44.entities.User.list(),
       ]);
       setStations(s);
       setTempLocations(tl);
       setDishEquipment(de);
-      setUsers(u);
       setLoading(false);
     };
     load();
@@ -267,49 +261,6 @@ export default function MyRestaurant() {
         )}
       </SectionCard>
 
-      {/* Restaurant Team */}
-      <SectionCard icon={Users} title="Restaurant Team" color="text-violet-400" count={users.length}>
-        <div className="space-y-2">
-          {users.length === 0 && <p className="text-sm text-muted-foreground">No team members yet.</p>}
-          {users.map(u => (
-            <div key={u.id} className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-2.5">
-              <div className="flex items-center gap-3">
-                <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                  {(u.full_name || u.email || "?")[0].toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-sm font-medium leading-tight">{u.full_name || u.email}</p>
-                  {u.full_name && <p className="text-xs text-muted-foreground">{u.email}</p>}
-                </div>
-              </div>
-              <span className="text-xs text-muted-foreground capitalize px-2 py-0.5 bg-secondary rounded-full">{u.role || "user"}</span>
-            </div>
-          ))}
-        </div>
-        {showInvite ? (
-          <div className="bg-secondary/30 rounded-xl border border-border p-4 space-y-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Email Address</Label>
-              <Input className="h-8 text-xs" type="email" placeholder="team@restaurant.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" disabled={inviting || !inviteEmail.trim()} onClick={async () => {
-                setInviting(true);
-                await base44.users.inviteUser(inviteEmail.trim(), "user");
-                setInviteEmail("");
-                setShowInvite(false);
-                setInviting(false);
-                toast.success("Invite sent!");
-              }}>
-                <Mail className="h-3.5 w-3.5 mr-1" />{inviting ? "Sending…" : "Send Invite"}
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => { setShowInvite(false); setInviteEmail(""); }}><X className="h-3.5 w-3.5" /></Button>
-            </div>
-          </div>
-        ) : (
-          <Button size="sm" variant="outline" onClick={() => setShowInvite(true)}><Plus className="h-3.5 w-3.5 mr-1" />Invite Team Member</Button>
-        )}
-      </SectionCard>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground pb-4">
         <CheckCircle2 className="h-4 w-4 text-accent" />
