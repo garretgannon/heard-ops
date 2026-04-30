@@ -79,9 +79,10 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated && user ? (needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />) : <Landing />} />
+      <Route path="/" element={isAuthenticated && user ? <div /> : <Landing />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
+        <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
 
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
         {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
