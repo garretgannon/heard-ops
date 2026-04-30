@@ -11,6 +11,16 @@
       "title": "Check Interval (minutes)",
       "description": "How often this bathroom should be checked"
     },
+    "active_start": {
+      "type": "string",
+      "title": "Active Start Time (HH:MM)",
+      "description": "Time when checks should start being required"
+    },
+    "active_end": {
+      "type": "string",
+      "title": "Active End Time (HH:MM)",
+      "description": "Time when checks stop being required"
+    },
     "is_active": {
       "type": "boolean",
       "title": "Active",

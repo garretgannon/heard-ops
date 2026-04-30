@@ -19,11 +19,25 @@ function minutesToLabel(mins) {
   return m > 0 ? `Every ${h}h ${m}m` : `Every ${h}h`;
 }
 
-function isOverdue(log, intervalMinutes) {
+function isWithinActiveHours(config) {
+  if (!config.active_start || !config.active_end) return true;
+  const now = new Date();
+  const [sh, sm] = config.active_start.split(":").map(Number);
+  const [eh, em] = config.active_end.split(":").map(Number);
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const startMins = sh * 60 + sm;
+  const endMins = eh * 60 + em;
+  if (startMins <= endMins) return nowMins >= startMins && nowMins < endMins;
+  // overnight wrap
+  return nowMins >= startMins || nowMins < endMins;
+}
+
+function isOverdue(log, config) {
+  if (!isWithinActiveHours(config)) return false;
   if (!log) return true;
   const last = new Date(log.checked_at);
   const now = new Date();
-  return (now - last) / 60000 > intervalMinutes;
+  return (now - last) / 60000 > config.interval_minutes;
 }
 
 export default function BathroomChecks() {
@@ -32,7 +46,7 @@ export default function BathroomChecks() {
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
   const [checkModal, setCheckModal] = useState(null); // config object
-  const [configForm, setConfigForm] = useState({ name: "", interval_minutes: 60, notes: "" });
+  const [configForm, setConfigForm] = useState({ name: "", interval_minutes: 60, active_start: "", active_end: "", notes: "" });
   const [checkForm, setCheckForm] = useState({ status: "clean", notes: "" });
   const [saving, setSaving] = useState(false);
   const { user, isAdmin } = useCurrentUser();
@@ -53,7 +67,8 @@ export default function BathroomChecks() {
     if (!configForm.name.trim() || !configForm.interval_minutes) return;
     setSaving(true);
     await base44.entities.BathroomCheckConfig.create({ ...configForm, is_active: true });
-    setConfigForm({ name: "", interval_minutes: 60, notes: "" });
+    setConfigForm({ name: "", interval_minutes: 60, active_start: "", active_end: "", notes: "" });
+
     toast.success("Bathroom location added");
     setSaving(false);
     load();
@@ -117,7 +132,8 @@ export default function BathroomChecks() {
             className="bg-card rounded-2xl border border-border p-5 space-y-4"
           >
             <h2 className="font-semibold">Manage Locations</h2>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
               <input
                 placeholder="Location name (e.g. Men's Room)"
                 value={configForm.name}
@@ -135,9 +151,34 @@ export default function BathroomChecks() {
                 />
                 <span className="text-xs text-muted-foreground whitespace-nowrap">min interval</span>
               </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 items-end">
+                <div className="flex items-center gap-2 flex-1">
+                  <div>
+                    <label className="text-xs text-muted-foreground block mb-1">Active From</label>
+                    <input
+                      type="time"
+                      value={configForm.active_start}
+                      onChange={e => setConfigForm(p => ({ ...p, active_start: e.target.value }))}
+                      className="h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                  <span className="text-muted-foreground mt-5">—</span>
+                  <div>
+                    <label className="text-xs text-muted-foreground block mb-1">Active Until</label>
+                    <input
+                      type="time"
+                      value={configForm.active_end}
+                      onChange={e => setConfigForm(p => ({ ...p, active_end: e.target.value }))}
+                      className="h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-5">Leave blank for always-on</p>
+                </div>
               <Button size="sm" onClick={addConfig} disabled={saving || !configForm.name.trim()}>
                 <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
+              </div>
             </div>
             {configs.length > 0 && (
               <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
@@ -147,6 +188,9 @@ export default function BathroomChecks() {
                       <p className="font-medium text-sm">{c.name}</p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                         <Clock className="h-3 w-3" /> {minutesToLabel(c.interval_minutes)}
+                        {c.active_start && c.active_end && (
+                          <span className="ml-1">&middot; {c.active_start}–{c.active_end}</span>
+                        )}
                       </p>
                     </div>
                     <button onClick={() => deleteConfig(c.id)} className="text-muted-foreground hover:text-destructive transition-colors p-1">
@@ -169,7 +213,8 @@ export default function BathroomChecks() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {configs.map((c, i) => {
             const recentLog = logs.filter(l => l.config_id === c.id)[0];
-            const overdue = isOverdue(recentLog, c.interval_minutes);
+            const withinHours = isWithinActiveHours(c);
+            const overdue = isOverdue(recentLog, c);
             const lastStatus = recentLog ? STATUS_CONFIG[recentLog.status] : null;
             const LastIcon = lastStatus?.icon;
 
@@ -179,16 +224,21 @@ export default function BathroomChecks() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.06 }}
-                className={`bg-card rounded-2xl border p-5 space-y-4 ${overdue ? "border-yellow-500/40" : "border-border"}`}
+                className={`bg-card rounded-2xl border p-5 space-y-4 ${overdue && withinHours ? "border-yellow-500/40" : "border-border"}`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold">{c.name}</p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                       <Clock className="h-3 w-3" /> {minutesToLabel(c.interval_minutes)}
+                      {c.active_start && c.active_end && (
+                        <span>&middot; {c.active_start}–{c.active_end}</span>
+                      )}
                     </p>
                   </div>
-                  {overdue ? (
+                  {!withinHours ? (
+                    <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium">Closed</span>
+                  ) : overdue ? (
                     <span className="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full font-medium">Due</span>
                   ) : (
                     <span className="text-xs bg-green-500/15 text-green-400 px-2 py-0.5 rounded-full font-medium">OK</span>
