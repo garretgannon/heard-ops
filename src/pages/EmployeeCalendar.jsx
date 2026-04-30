@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import {
   CalendarDays, Plus, X, Save, ChevronLeft, ChevronRight,
-  AlertTriangle, ThumbsUp, ThumbsDown, Clock, UserX, User, Filter
+  Calendar, BookOpen, Award, Cake, Heart, CheckCircle, AlertCircle, User, Filter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,49 +11,65 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, addMonths, subMonths, parseISO } from "date-fns";
+import { format, addMonths, subMonths, parseISO, addDays, isWithinInterval, isSameDay, startOfMonth, endOfMonth, getDay } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const EVENT_TYPES = [
-  { value: "write_up", label: "Write-Up", icon: AlertTriangle, color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  { value: "positive_conversation", label: "Positive Conversation", icon: ThumbsUp, color: "bg-green-500/20 text-green-400 border-green-500/30" },
-  { value: "negative_conversation", label: "Negative Conversation", icon: ThumbsDown, color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-  { value: "late_arrival", label: "Late Arrival", icon: Clock, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-  { value: "no_show", label: "No Show", icon: UserX, color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
+  { value: "time_off", label: "Time Off", icon: Calendar, color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  { value: "training", label: "Training", icon: BookOpen, color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30" },
+  { value: "certification", label: "Certification", icon: Award, color: "bg-green-500/20 text-green-400 border-green-500/30" },
+  { value: "birthday", label: "Birthday", icon: Cake, color: "bg-pink-500/20 text-pink-400 border-pink-500/30" },
+  { value: "anniversary", label: "Anniversary", icon: Heart, color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  { value: "review", label: "Review", icon: CheckCircle, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
+  { value: "availability_change", label: "Availability Change", icon: AlertCircle, color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
 ];
 
 const dotColors = {
-  write_up: "bg-red-500",
-  positive_conversation: "bg-green-500",
-  negative_conversation: "bg-orange-500",
-  late_arrival: "bg-yellow-400",
-  no_show: "bg-purple-500",
+  time_off: "bg-blue-500",
+  training: "bg-cyan-500",
+  certification: "bg-green-500",
+  birthday: "bg-pink-500",
+  anniversary: "bg-red-500",
+  review: "bg-yellow-400",
+  availability_change: "bg-orange-500",
 };
 
 function getTypeInfo(type) {
   return EVENT_TYPES.find(t => t.value === type) || EVENT_TYPES[0];
 }
 
+function getDateRange() {
+  const today = new Date();
+  return { start: today, end: addDays(today, 13) };
+}
+
 export default function EmployeeCalendar() {
+  const { user, isAdmin } = useCurrentUser();
   const [events, setEvents] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState("all");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+
+  const { start: rangeStart, end: rangeEnd } = getDateRange();
+  const departments = [...new Set(employees.map(e => e.role || "Staff"))].filter(Boolean);
 
   const [form, setForm] = useState({
-    employee_email: "", employee_name: "", date: format(new Date(), "yyyy-MM-dd"),
-    type: "", notes: "", follow_up_date: "", attachment_url: ""
+    employee_email: "", employee_name: "", department: "",
+    type: "", start_date: format(new Date(), "yyyy-MM-dd"), end_date: "",
+    title: "", notes: "", status: "approved", recurring: false
   });
 
   useEffect(() => {
     const load = async () => {
       const [evts, users] = await Promise.all([
-        base44.entities.EmployeeEvent.list("-date", 500),
+        base44.entities.EmployeeCalendarEvent.list("-start_date", 500),
         base44.entities.User.list(),
       ]);
       setEvents(evts);
@@ -63,65 +79,63 @@ export default function EmployeeCalendar() {
     load();
   }, []);
 
-  const filteredEvents = selectedEmployee === "all"
-    ? events
-    : events.filter(e => e.employee_email === selectedEmployee);
+  const filteredEvents = events.filter(e => {
+    if (selectedEmployee !== "all" && e.employee_email !== selectedEmployee) return false;
+    if (selectedDepartment !== "all" && e.department !== selectedDepartment) return false;
+    if (selectedType !== "all" && e.type !== selectedType) return false;
+    return isWithinInterval(parseISO(e.start_date), { start: rangeStart, end: rangeEnd });
+  });
 
   const eventsForDay = (day) =>
-    filteredEvents.filter(e => e.date && isSameDay(parseISO(e.date), day));
+    events.filter(e => {
+      const start = parseISO(e.start_date);
+      const end = e.end_date ? parseISO(e.end_date) : start;
+      return isWithinInterval(day, { start, end });
+    });
 
   const eventsForSelected = selectedDate ? eventsForDay(selectedDate) : [];
-
-  const days = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
-  const startPadding = getDay(startOfMonth(currentMonth));
+  const upcomingEvents = filteredEvents.sort((a, b) => a.start_date.localeCompare(b.start_date));
 
   const openFormForDate = (day) => {
     setSelectedDate(day);
-    setForm(f => ({ ...f, date: format(day, "yyyy-MM-dd") }));
+    setForm(f => ({ ...f, start_date: format(day, "yyyy-MM-dd") }));
     setShowForm(true);
   };
 
   const handleSave = async () => {
-    if (!form.employee_email || !form.type || !form.date) {
-      toast.error("Please fill in required fields");
+    if (!form.employee_email || !form.type || !form.start_date) {
+      toast.error("Please fill required fields");
       return;
     }
     setSaving(true);
-    const user = await base44.auth.me();
-    const rec = await base44.entities.EmployeeEvent.create({
-      ...form,
-      logged_by: user?.full_name || user?.email || "Manager",
-    });
+    const rec = await base44.entities.EmployeeCalendarEvent.create(form);
     setEvents(prev => [rec, ...prev]);
     setShowForm(false);
-    setForm({ employee_email: "", employee_name: "", date: format(new Date(), "yyyy-MM-dd"), type: "", notes: "", follow_up_date: "", attachment_url: "" });
+    setForm({
+      employee_email: "", employee_name: "", department: "",
+      type: "", start_date: format(new Date(), "yyyy-MM-dd"), end_date: "",
+      title: "", notes: "", status: "approved", recurring: false
+    });
     setSaving(false);
-    toast.success("Event logged");
-  };
-
-  const handleFileUpload = async (file) => {
-    if (!file) return;
-    setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm(f => ({ ...f, attachment_url: file_url }));
-    setUploading(false);
+    toast.success("Event added");
   };
 
   const handleDelete = async (id) => {
-    await base44.entities.EmployeeEvent.delete(id);
+    await base44.entities.EmployeeCalendarEvent.delete(id);
     setEvents(prev => prev.filter(e => e.id !== id));
     toast.success("Removed");
-  };
-
-  const employeeStats = (email) => {
-    const emp = events.filter(e => e.employee_email === email);
-    return EVENT_TYPES.map(t => ({ ...t, count: emp.filter(e => e.type === t.value).length }));
   };
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
       <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
+  );
+
+  const startPadding = getDay(startOfMonth(currentMonth));
+  const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+  const calendarDays = Array.from({ length: daysInMonth }, (_, i) => 
+    new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i + 1)
   );
 
   return (
@@ -131,13 +145,13 @@ export default function EmployeeCalendar() {
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
             <CalendarDays className="h-7 w-7 text-primary" /> Employee Calendar
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">Track write-ups, conversations, attendance patterns — management only.</p>
+          <p className="text-muted-foreground mt-1 text-sm">Upcoming 14 days: time off, training, reviews, availability.</p>
         </div>
         <Button onClick={() => {
-          setForm(f => ({ ...f, date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd") }));
+          setForm(f => ({ ...f, start_date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd") }));
           setShowForm(true);
         }} className="gap-2">
-          <Plus className="h-4 w-4" /> Log Event
+          <Plus className="h-4 w-4" /> Add Event
         </Button>
       </div>
 
@@ -145,26 +159,45 @@ export default function EmployeeCalendar() {
       <div className="flex items-center gap-3 flex-wrap">
         <Filter className="h-4 w-4 text-muted-foreground" />
         <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-          <SelectTrigger className="w-52">
-            <SelectValue placeholder="All Employees" />
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="All" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Employees</SelectItem>
             {employees.map(u => (
-              <SelectItem key={u.email} value={u.email}>{u.full_name || u.email}</SelectItem>
+              <SelectItem key={u.email} value={u.email}>{u.full_name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        {selectedEmployee !== "all" && (
-          <Button variant="ghost" size="sm" className="gap-1 text-primary">
-            <User className="h-3.5 w-3.5" /> View Profile
-          </Button>
+        {departments.length > 1 && (
+          <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              {departments.map(d => (
+                <SelectItem key={d} value={d}>{d}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
+        <Select value={selectedType} onValueChange={setSelectedType}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            {EVENT_TYPES.map(t => (
+              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Calendar */}
-        <div className="xl:col-span-2 bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="lg:col-span-2 bg-card border border-border rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="font-semibold text-lg">{format(currentMonth, "MMMM yyyy")}</h2>
             <div className="flex gap-1">
@@ -189,7 +222,7 @@ export default function EmployeeCalendar() {
             {Array(startPadding).fill(null).map((_, i) => (
               <div key={`pad-${i}`} className="min-h-[80px] border-b border-r border-border/50 bg-muted/20" />
             ))}
-            {days.map(day => {
+            {calendarDays.map(day => {
               const dayEvents = eventsForDay(day);
               const isSelected = selectedDate && isSameDay(day, selectedDate);
               const isToday = isSameDay(day, new Date());
@@ -230,168 +263,125 @@ export default function EmployeeCalendar() {
           </div>
         </div>
 
-        {/* Day detail / recent */}
+        {/* Sidebar */}
         <div className="space-y-4">
-          {selectedDate ? (
-            <div className="bg-card border border-border rounded-2xl p-5">
-              <h3 className="font-semibold mb-3">{format(selectedDate, "MMMM d, yyyy")}</h3>
-              {eventsForSelected.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No events on this day.</p>
-              ) : (
-                <div className="space-y-3">
-                  {eventsForSelected.map(ev => {
-                    const info = getTypeInfo(ev.type);
-                    const Icon = info.icon;
-                    return (
-                      <div key={ev.id} className={`rounded-xl border p-3 ${info.color}`}>
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <Icon className="h-4 w-4 flex-shrink-0" />
-                            <div>
-                              <p className="text-sm font-semibold">{ev.employee_name}</p>
-                              <p className="text-xs opacity-80">{info.label}</p>
-                            </div>
-                          </div>
-                          <button onClick={() => handleDelete(ev.id)} className="opacity-50 hover:opacity-100 transition-opacity">
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                        {ev.notes && <p className="text-xs mt-2 opacity-80">{ev.notes}</p>}
-                        {ev.attachment_url && (
-                          <a href={ev.attachment_url} target="_blank" rel="noopener noreferrer" className="text-xs mt-1 underline opacity-70 hover:opacity-100 block">📎 View Signed Write-Up</a>
-                        )}
-                        {ev.follow_up_date && <p className="text-xs mt-1 opacity-60">Follow-up: {ev.follow_up_date}</p>}
-                        {ev.logged_by && <p className="text-xs mt-1 opacity-50">Logged by {ev.logged_by}</p>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="bg-card border border-border rounded-2xl p-5">
-              <h3 className="font-semibold mb-3">Recent Events</h3>
-              <div className="space-y-2 max-h-72 overflow-y-auto">
-                {filteredEvents.slice(0, 15).map(ev => {
+          {/* Upcoming 14 days */}
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <h3 className="font-semibold mb-3">Next 14 Days</h3>
+            {upcomingEvents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No events scheduled.</p>
+            ) : (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {upcomingEvents.map(ev => {
                   const info = getTypeInfo(ev.type);
                   const Icon = info.icon;
+                  const isMultiDay = ev.end_date && ev.end_date > ev.start_date;
                   return (
-                    <div key={ev.id} className="flex items-center gap-3 py-2 border-b border-border/40 last:border-0">
-                      <Icon className={`h-4 w-4 flex-shrink-0 ${info.color.split(" ")[1]}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{ev.employee_name}</p>
-                        <p className="text-xs text-muted-foreground">{info.label} · {ev.date}</p>
+                    <div
+                      key={ev.id}
+                      className={cn(
+                        "rounded-lg border p-3 space-y-1 group hover:shadow-md transition-shadow",
+                        info.color
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <Icon className="h-4 w-4 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{ev.title || ev.employee_name}</p>
+                            <p className="text-xs opacity-75">
+                              {isMultiDay ? `${format(parseISO(ev.start_date), "MMM d")} - ${format(parseISO(ev.end_date), "MMM d")}` : format(parseISO(ev.start_date), "MMM d, yyyy")}
+                            </p>
+                          </div>
+                        </div>
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleDelete(ev.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
                       </div>
+                      {isAdmin && ev.notes && (
+                        <p className="text-xs opacity-75 line-clamp-2">{ev.notes}</p>
+                      )}
+                      {ev.recurring && <p className="text-xs opacity-60">Repeats annually</p>}
                     </div>
                   );
                 })}
-                {filteredEvents.length === 0 && <p className="text-sm text-muted-foreground">No events yet.</p>}
               </div>
-            </div>
-          )}
-
-          {/* Employee summary */}
-          {selectedEmployee !== "all" && (
-            <div className="bg-card border border-border rounded-2xl p-5">
-              <h3 className="font-semibold mb-3">Pattern Summary</h3>
-              <div className="space-y-2">
-                {employeeStats(selectedEmployee).map(t => (
-                  <div key={t.value} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className={`h-2 w-2 rounded-full ${dotColors[t.value]}`} />
-                      {t.label}
-                    </div>
-                    <span className={`text-sm font-semibold ${t.count > 0 ? "text-foreground" : "text-muted-foreground"}`}>
-                      {t.count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Log Event Dialog */}
+      {/* Add Event Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Log Employee Event</DialogTitle>
+            <DialogTitle>Add Calendar Event</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="space-y-1">
-              <Label>Employee</Label>
+              <Label>Employee *</Label>
               <Select value={form.employee_email} onValueChange={v => {
                 const emp = employees.find(u => u.email === v);
-                setForm(f => ({ ...f, employee_email: v, employee_name: emp?.full_name || v }));
+                setForm(f => ({ ...f, employee_email: v, employee_name: emp?.full_name || v, department: emp?.role || "" }));
               }}>
-                <SelectTrigger><SelectValue placeholder="Select employee" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   {employees.map(u => (
-                    <SelectItem key={u.email} value={u.email}>{u.full_name || u.email}</SelectItem>
+                    <SelectItem key={u.email} value={u.email}>{u.full_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-1">
+              <Label>Event Type *</Label>
+              <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  {EVENT_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Title / Summary</Label>
+              <Input placeholder="e.g., Annual review, Certification course" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Date</Label>
-                <Input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+                <Label>Start Date *</Label>
+                <Input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
               </div>
               <div className="space-y-1">
-                <Label>Event Type</Label>
-                <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
-                  <SelectContent>
-                    {EVENT_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Label>End Date</Label>
+                <Input type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
               </div>
             </div>
             <div className="space-y-1">
-              <Label>Notes</Label>
+              <Label>Notes (Manager Only)</Label>
               <textarea
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[80px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                placeholder="Details about the conversation or incident..."
+                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[60px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                placeholder="Internal notes..."
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               />
             </div>
-            {form.type === "write_up" && (
-              <div className="space-y-1">
-                <Label>Signed Write-Up (optional)</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/*,application/pdf"
-                    className="hidden"
-                    id="writeup-upload"
-                    onChange={e => handleFileUpload(e.target.files[0])}
-                  />
-                  <label
-                    htmlFor="writeup-upload"
-                    className="flex items-center gap-2 px-3 py-2 rounded-md border border-input bg-transparent text-sm cursor-pointer hover:bg-secondary transition-colors"
-                  >
-                    {uploading ? "Uploading…" : form.attachment_url ? "Replace File" : "Upload File"}
-                  </label>
-                  {form.attachment_url && !uploading && (
-                    <a href={form.attachment_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View</a>
-                  )}
-                  {form.attachment_url && (
-                    <button type="button" onClick={() => setForm(f => ({ ...f, attachment_url: "" }))} className="text-muted-foreground hover:text-destructive">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-            <div className="space-y-1">
-              <Label>Follow-Up Date (optional)</Label>
-              <Input type="date" value={form.follow_up_date} onChange={e => setForm(f => ({ ...f, follow_up_date: e.target.value }))} />
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="recurring"
+                checked={form.recurring}
+                onChange={e => setForm(f => ({ ...f, recurring: e.target.checked }))}
+                className="h-4 w-4 rounded border-input"
+              />
+              <Label htmlFor="recurring" className="text-sm font-normal cursor-pointer">Repeats annually</Label>
             </div>
             <div className="flex gap-2 pt-1">
               <Button onClick={handleSave} disabled={saving} className="flex-1">
-                <Save className="h-4 w-4 mr-1" />{saving ? "Saving…" : "Log Event"}
+                {saving ? "Saving…" : "Add Event"}
               </Button>
               <Button variant="ghost" onClick={() => setShowForm(false)}><X className="h-4 w-4" /></Button>
             </div>

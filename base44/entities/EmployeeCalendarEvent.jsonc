@@ -1,0 +1,83 @@
+{
+  "name": "EmployeeCalendarEvent",
+  "type": "object",
+  "properties": {
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
+    },
+    "department": {
+      "type": "string",
+      "title": "Department"
+    },
+    "type": {
+      "type": "string",
+      "title": "Event Type",
+      "enum": [
+        "time_off",
+        "training",
+        "certification",
+        "birthday",
+        "anniversary",
+        "review",
+        "availability_change"
+      ],
+      "enumNames": [
+        "Time Off",
+        "Training",
+        "Certification",
+        "Birthday",
+        "Anniversary",
+        "Review",
+        "Availability Change"
+      ]
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date (optional)"
+    },
+    "title": {
+      "type": "string",
+      "title": "Title / Summary"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes (manager-only)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "approved",
+        "completed"
+      ],
+      "enumNames": [
+        "Pending",
+        "Approved",
+        "Completed"
+      ]
+    },
+    "recurring": {
+      "type": "boolean",
+      "title": "Recurring Annually",
+      "default": false
+    }
+  },
+  "required": [
+    "employee_email",
+    "employee_name",
+    "type",
+    "start_date"
+  ]
+}
