@@ -34,7 +34,7 @@ export default function Landing() {
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-sm font-bold text-primary-foreground">K</span>
             </div>
-            <span className="font-bold text-lg">KitchenFlow</span>
+            <span className="font-bold text-lg">Heard</span>
           </div>
           <Link to="/profile">
             <Button variant="outline" size="sm">Sign In</Button>
@@ -59,7 +59,7 @@ export default function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          KitchenFlow keeps prep, side work, temp logs, maintenance, vendors, cash, incidents, training, and manager handoff organized in one place.
+          The daily operating system for restaurants.
         </motion.p>
 
         <motion.div
@@ -278,7 +278,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2026 KitchenFlow. Built for restaurants, by restaurant people.</p>
+          <p>© 2026 Heard. The daily operating system for restaurants.</p>
         </div>
       </footer>
     </div>
