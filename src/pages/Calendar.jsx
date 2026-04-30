@@ -142,23 +142,17 @@ export default function Calendar() {
             return (
               <div
                 key={dateStr}
-                onClick={() => setDetailDate(isSelected ? null : dateStr)}
+                onClick={() => openNew(dateStr)}
                 className={cn(
                   "min-h-[80px] border-b border-r border-border/50 p-1.5 cursor-pointer transition-colors",
                   isSelected ? "bg-primary/10" : "hover:bg-secondary/40"
                 )}
               >
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center mb-1">
                   <span className={cn(
                     "text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full",
                     isToday ? "bg-primary text-primary-foreground text-xs" : "text-foreground"
                   )}>{day}</span>
-                  <button
-                    onClick={e => { e.stopPropagation(); openNew(dateStr); }}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </button>
                 </div>
                 <div className="space-y-0.5">
                   {dayEvents.slice(0, 2).map(ev => {
@@ -275,15 +269,20 @@ export default function Calendar() {
             <DialogTitle>Add Event</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+          <div>
+            <Label>Title</Label>
+            <Input placeholder="e.g., Smith party of 20, Wine delivery" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Title</Label>
-              <Input placeholder="e.g., Smith party of 20, Wine delivery" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+              <Label>Date</Label>
+              <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+              {form.date && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {new Date(form.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                </p>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Date</Label>
-                <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
-              </div>
               <div>
                 <Label>Time (optional)</Label>
                 <Input placeholder="e.g., 7:00 PM" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} />
