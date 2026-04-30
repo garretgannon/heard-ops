@@ -127,8 +127,7 @@ export default function Onboarding() {
       status: progress === 100 ? "completed" : "in_progress",
     });
 
-    const updated = await base44.entities.OnboardingItem.list("-created_date");
-    setOnboardings(updated);
+    setOnboardings(onboardings.map(o => o.id === onboardingId ? { ...o, items: updatedItems, progress_percentage: progress, status: progress === 100 ? "completed" : "in_progress" } : o));
     setSaving(null);
     toast.success("Item updated");
   };
@@ -140,8 +139,7 @@ export default function Onboarding() {
       status: "completed",
       completed_at: new Date().toISOString(),
     });
-    const updated = await base44.entities.OnboardingItem.list("-created_date");
-    setOnboardings(updated);
+    setOnboardings(onboardings.map(o => o.id === onboardingId ? { ...o, manager_email: user?.email, status: "completed", completed_at: new Date().toISOString() } : o));
     setSaving(null);
     toast.success("Signed off");
   };
