@@ -23,7 +23,6 @@ const fohNavItems_admin = [
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
   { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
   { path: "/cash", label: "Cash", icon: DollarSign },
-  { path: "/maintenance", label: "Maintenance", icon: Wrench },
 ];
 
 const bohNavItems = [
@@ -42,6 +41,7 @@ const operationsNavItems = [
   { path: "/vendors", label: "Vendors", icon: Truck },
   { path: "/calendar", label: "Calendar", icon: CalendarDays },
   { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch },
+  { path: "/maintenance", label: "Maintenance", icon: Wrench },
 ];
 
 const bottomNavItems = [
