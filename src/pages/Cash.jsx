@@ -28,6 +28,11 @@ const DENOMINATIONS = [
 
 const emptyDrawer = { date: todayStr, shift: "morning", drawer_name: "", hundreds: 0, fifties: 0, twenties: 0, tens: 0, fives: 0, ones: 0, quarters: 0, dimes: 0, nickels: 0, pennies: 0, expected: "", notes: "", counted_by: "" };
 
+function formatTimestamp(ts) {
+  if (!ts) return null;
+  return new Date(ts).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+}
+
 function calcTotal(form) {
   return DENOMINATIONS.reduce((sum, d) => sum + (Number(form[d.key]) || 0) * d.value, 0);
 }
@@ -61,7 +66,8 @@ export default function Cash() {
     setSaving(true);
     const total = calcTotal(drawerForm);
     const variance = drawerForm.expected !== "" ? total - Number(drawerForm.expected) : null;
-    await base44.entities.DrawerCount.create({ ...drawerForm, total, variance: variance ?? undefined, expected: drawerForm.expected !== "" ? Number(drawerForm.expected) : undefined });
+    const logged_at = new Date().toISOString();
+    await base44.entities.DrawerCount.create({ ...drawerForm, total, logged_at, variance: variance ?? undefined, expected: drawerForm.expected !== "" ? Number(drawerForm.expected) : undefined });
     setSaving(false);
     setDrawerDialog(false);
     setDrawerForm(emptyDrawer);
@@ -71,7 +77,8 @@ export default function Cash() {
 
   const handleSaveTx = async () => {
     setSaving(true);
-    await base44.entities.CashTransaction.create({ ...txForm, amount: Number(txForm.amount) });
+    const logged_at = new Date().toISOString();
+    await base44.entities.CashTransaction.create({ ...txForm, amount: Number(txForm.amount), logged_at });
     setSaving(false);
     setTxDialog(false);
     setTxForm({ date: todayStr, type: "cash_log", amount: "", description: "", category: "other", logged_by: "", notes: "" });
@@ -172,7 +179,10 @@ export default function Cash() {
                       )}
                       {d.counted_by && <span className="text-xs text-muted-foreground">by {d.counted_by}</span>}
                     </div>
-                    {d.notes && <p className="text-xs text-muted-foreground mt-0.5">{d.notes}</p>}
+                    <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                      {d.logged_at && <span className="text-xs text-muted-foreground/60">{formatTimestamp(d.logged_at)}</span>}
+                      {d.notes && <span className="text-xs text-muted-foreground">{d.notes}</span>}
+                    </div>
                   </div>
                   <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteDrawer(d.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
@@ -201,7 +211,10 @@ export default function Cash() {
                       <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{tx.category}</span>
                       <span className="text-xs text-muted-foreground">{tx.date}</span>
                     </div>
-                    {tx.logged_by && <p className="text-xs text-muted-foreground mt-0.5">by {tx.logged_by}</p>}
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                      {tx.logged_by && <span className="text-xs text-muted-foreground">by {tx.logged_by}</span>}
+                      {tx.logged_at && <span className="text-xs text-muted-foreground/60">{formatTimestamp(tx.logged_at)}</span>}
+                    </div>
                     {tx.notes && <p className="text-xs text-muted-foreground">{tx.notes}</p>}
                   </div>
                   <span className="font-bold text-sm text-green-400">${(tx.amount || 0).toFixed(2)}</span>
@@ -253,7 +266,10 @@ export default function Cash() {
                       <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground capitalize">{tx.category}</span>
                       <span className="text-xs text-muted-foreground">{tx.date}</span>
                     </div>
-                    {tx.logged_by && <p className="text-xs text-muted-foreground mt-0.5">by {tx.logged_by}</p>}
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                      {tx.logged_by && <span className="text-xs text-muted-foreground">by {tx.logged_by}</span>}
+                      {tx.logged_at && <span className="text-xs text-muted-foreground/60">{formatTimestamp(tx.logged_at)}</span>}
+                    </div>
                     {tx.notes && <p className="text-xs text-muted-foreground">{tx.notes}</p>}
                   </div>
                   <span className={cn("font-bold text-sm", tx.type === "petty_cash_in" ? "text-green-400" : "text-destructive")}>

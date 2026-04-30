@@ -53,6 +53,10 @@
       "type": "string",
       "title": "Logged By"
     },
+    "logged_at": {
+      "type": "string",
+      "title": "Timestamp"
+    },
     "receipt_url": {
       "type": "string",
       "title": "Receipt Photo URL"

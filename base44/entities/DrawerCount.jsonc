@@ -89,6 +89,10 @@
       "type": "string",
       "title": "Counted By"
     },
+    "logged_at": {
+      "type": "string",
+      "title": "Timestamp"
+    },
     "notes": {
       "type": "string",
       "title": "Notes"
