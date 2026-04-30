@@ -43,6 +43,7 @@ const operationsNavItems = [
   { path: "/vendors", label: "Vendors", icon: Truck },
   { path: "/calendar", label: "Calendar", icon: CalendarDays },
   { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch },
+  { path: "/weekly-report", label: "Weekly Report", icon: BarChart2 },
   { path: "/maintenance", label: "Maintenance", icon: Wrench },
 ];
 

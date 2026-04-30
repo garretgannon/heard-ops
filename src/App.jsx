@@ -43,6 +43,7 @@ import StaffTasks from './pages/StaffTasks';
 import ManagerDashboard from './pages/ManagerDashboard';
 import MSDS from './pages/MSDS';
 import NotificationSettings from './pages/NotificationSettings';
+import WeeklyReport from './pages/WeeklyReport';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -105,6 +106,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
         {isAdmin && <Route path="/msds" element={<MSDS />} />}
         {isAdmin && <Route path="/notifications" element={<NotificationSettings />} />}
+        {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
