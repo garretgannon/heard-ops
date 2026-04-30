@@ -39,6 +39,7 @@ import PreShift from './pages/PreShift';
 import LineUp from './pages/LineUp';
 import BuildBook from './pages/BuildBook';
 import BarBook from './pages/BarBook';
+import StaffTasks from './pages/StaffTasks';
 import MSDS from './pages/MSDS';
 
 const AuthenticatedApp = () => {
@@ -72,13 +73,15 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
-        <Route path="/" element={isAdmin ? <Dashboard /> : isBusser ? <BusserHome /> : <StaffHome />} />
+        <Route path="/" element={<StaffTasks />} />
 
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
+        <Route path="/today" element={<StaffTasks />} />
         {isAdmin && <Route path="/stations" element={<Stations />} />}
         {isAdmin && <Route path="/prep-lists" element={<PrepLists />} />}
         <Route path="/station/:stationId" element={<StationPrepView />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/home" element={isBusser ? <BusserHome /> : <StaffHome />} />
         {isFOH && <Route path="/side-work" element={<SideWork />} />}
         {isAdmin && <Route path="/calendar" element={<Calendar />} />}
         {isAdmin && <Route path="/reports" element={<Reports />} />}
