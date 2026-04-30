@@ -77,9 +77,16 @@ const AuthenticatedApp = () => {
     return <UserNotRegisteredError />;
   }
 
+  if (!isAuthenticated || !user) {
+    return (
+      <Routes>
+        <Route path="*" element={<Landing />} />
+      </Routes>
+    );
+  }
+
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated && user ? <div /> : <Landing />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
