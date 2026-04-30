@@ -8,6 +8,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StationBadge from "../components/StationBadge";
+import ShiftStatusPanel from "../components/ShiftStatusPanel";
 import StatusBadge from "../components/StatusBadge";
 import { toast } from "sonner";
 
@@ -422,6 +423,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <ShiftStatusPanel prepLists={prepLists} prepItems={prepItems} stations={stations} />
 
       {/* FOH Side Work Section */}
       <div>
