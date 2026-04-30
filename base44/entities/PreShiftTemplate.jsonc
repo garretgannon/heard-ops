@@ -1,0 +1,44 @@
+{
+  "name": "PreShiftTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Template Name"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "morning",
+        "afternoon",
+        "evening"
+      ],
+      "enumNames": [
+        "Morning",
+        "Afternoon",
+        "Evening"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Default Notes / Talking Points"
+    },
+    "staffing_notes": {
+      "type": "string",
+      "title": "Default Staffing Notes"
+    },
+    "specials": {
+      "type": "string",
+      "title": "Default Specials / Promotions"
+    },
+    "issues": {
+      "type": "string",
+      "title": "Default Issues to Address"
+    }
+  },
+  "required": [
+    "name",
+    "shift"
+  ]
+}

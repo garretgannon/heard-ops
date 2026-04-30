@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Plus, X, Edit2, Trash2, Users } from "lucide-react";
+import { Plus, X, Edit2, Trash2, Users, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,10 +20,22 @@ const SHIFTS = [
 
 export default function PreShift() {
   const [briefings, setBriefings] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [templateForm, setTemplateForm] = useState({
+    name: "",
+    shift: "morning",
+    notes: "",
+    staffing_notes: "",
+    specials: "",
+    issues: ""
+  });
   const [form, setForm] = useState({
     date: format(new Date(), "yyyy-MM-dd"),
     shift: "morning",
@@ -35,8 +47,14 @@ export default function PreShift() {
 
   useEffect(() => {
     const load = async () => {
-      const data = await base44.entities.PreShift.list("-date", 100);
+      const [data, templates, user] = await Promise.all([
+        base44.entities.PreShift.list("-date", 100),
+        base44.entities.PreShiftTemplate.list(),
+        base44.auth.me(),
+      ]);
       setBriefings(data);
+      setTemplates(templates);
+      setIsAdmin(user?.role === "admin");
       setLoading(false);
     };
     load();
@@ -83,6 +101,21 @@ export default function PreShift() {
     setShowForm(true);
   };
 
+  const applyTemplate = (template) => {
+    setForm({
+      date: format(new Date(), "yyyy-MM-dd"),
+      shift: template.shift,
+      notes: template.notes || "",
+      staffing_notes: template.staffing_notes || "",
+      specials: template.specials || "",
+      issues: template.issues || ""
+    });
+    setSelectedTemplateId(template.id);
+    setEditingId(null);
+    setShowTemplates(false);
+    setShowForm(true);
+  };
+
   const openNew = () => {
     setForm({
       date: format(new Date(), "yyyy-MM-dd"),
@@ -92,8 +125,34 @@ export default function PreShift() {
       specials: "",
       issues: ""
     });
+    setSelectedTemplateId(null);
     setEditingId(null);
     setShowForm(true);
+  };
+
+  const saveTemplate = async () => {
+    if (!templateForm.name.trim()) {
+      toast.error("Template name is required");
+      return;
+    }
+    const created = await base44.entities.PreShiftTemplate.create(templateForm);
+    setTemplates(prev => [...prev, created]);
+    setTemplateForm({
+      name: "",
+      shift: "morning",
+      notes: "",
+      staffing_notes: "",
+      specials: "",
+      issues: ""
+    });
+    toast.success("Template saved");
+  };
+
+  const deleteTemplate = async (id) => {
+    if (!confirm("Delete this template?")) return;
+    await base44.entities.PreShiftTemplate.delete(id);
+    setTemplates(prev => prev.filter(t => t.id !== id));
+    toast.success("Template deleted");
   };
 
   if (loading) return (
@@ -111,9 +170,14 @@ export default function PreShift() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">Team briefings before each shift</p>
         </div>
-        <Button onClick={openNew} className="gap-2">
-          <Plus className="h-4 w-4" /> New Briefing
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowTemplates(true)} variant="outline" className="gap-2">
+            <Settings className="h-4 w-4" /> Templates
+          </Button>
+          <Button onClick={openNew} className="gap-2">
+            <Plus className="h-4 w-4" /> New Briefing
+          </Button>
+        </div>
       </div>
 
       {briefings.length === 0 ? (
@@ -169,10 +233,70 @@ export default function PreShift() {
         </div>
       )}
 
+      <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Pre-Shift Templates</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {isAdmin && (
+              <div className="space-y-3 p-4 bg-secondary/30 rounded-lg border border-border">
+                <h3 className="font-semibold text-sm">Create New Template</h3>
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Template name"
+                    value={templateForm.name}
+                    onChange={e => setTemplateForm(f => ({ ...f, name: e.target.value }))}
+                  />
+                  <Select value={templateForm.shift} onValueChange={v => setTemplateForm(f => ({ ...f, shift: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SHIFTS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <textarea
+                    placeholder="Default notes..."
+                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[60px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    value={templateForm.notes}
+                    onChange={e => setTemplateForm(f => ({ ...f, notes: e.target.value }))}
+                  />
+                  <Button onClick={saveTemplate} className="w-full"><Plus className="h-4 w-4 mr-1" /> Save Template</Button>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <h3 className="font-semibold text-sm">Available Templates</h3>
+              {templates.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No templates yet</p>
+              ) : (
+                templates.map(template => (
+                  <div key={template.id} className="flex items-start justify-between gap-3 p-3 rounded-lg border border-border hover:bg-secondary/30 transition">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{template.name}</p>
+                      <p className="text-xs text-muted-foreground">{template.shift}</p>
+                      {template.notes && <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{template.notes}</p>}
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button size="sm" variant="outline" onClick={() => applyTemplate(template)}>Use</Button>
+                      {isAdmin && (
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteTemplate(template.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Briefing" : "New Pre-Shift Briefing"}</DialogTitle>
+            <DialogTitle>{editingId ? "Edit Briefing" : selectedTemplateId ? "New Briefing from Template" : "New Pre-Shift Briefing"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-3">
