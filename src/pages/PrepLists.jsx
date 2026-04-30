@@ -215,17 +215,16 @@ export default function PrepLists() {
                   {amLists.length > 0 && (
                     <div>
                       <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Morning</h4>
-                      <div className="flex flex-col lg:flex-col gap-4 overflow-x-auto pb-2 lg:space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {amLists.map((pl, i) => (
-                          <div key={pl.id} className="flex-shrink-0 w-full lg:w-auto">
-                            <PrepListCard
-                              pl={pl}
-                              items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
-                              i={i}
-                              onSelect={setSelectedList}
-                              onDelete={handleDelete}
-                            />
-                          </div>
+                          <PrepListCard
+                            key={pl.id}
+                            pl={pl}
+                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
+                            i={i}
+                            onSelect={setSelectedList}
+                            onDelete={handleDelete}
+                          />
                         ))}
                       </div>
                     </div>
@@ -234,17 +233,16 @@ export default function PrepLists() {
                   {pmLists.length > 0 && (
                     <div>
                       <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Evening</h4>
-                      <div className="flex flex-col lg:flex-col gap-4 overflow-x-auto pb-2 lg:space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {pmLists.map((pl, i) => (
-                          <div key={pl.id} className="flex-shrink-0 w-full lg:w-auto">
-                            <PrepListCard
-                              pl={pl}
-                              items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
-                              i={i}
-                              onSelect={setSelectedList}
-                              onDelete={handleDelete}
-                            />
-                          </div>
+                          <PrepListCard
+                            key={pl.id}
+                            pl={pl}
+                            items={prepItems.filter(pi => pi.prep_list_id === pl.id)}
+                            i={i}
+                            onSelect={setSelectedList}
+                            onDelete={handleDelete}
+                          />
                         ))}
                       </div>
                     </div>
