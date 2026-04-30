@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ const topNavItems = [
 const fohNavItems_admin = [
   { path: "/job-codes", label: "Roles", icon: Tag },
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
+  { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
 ];
 
 const bohNavItems = [
@@ -39,6 +40,7 @@ const userNavItems = [
 
 const fohNavItems = [
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
+  { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
   { path: "/profile", label: "My Profile", icon: UserCircle },
 ];
 

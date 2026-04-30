@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import StationBadge from "../components/StationBadge";
 import ShiftStatusPanel from "../components/ShiftStatusPanel";
 import MasterPrepList from "./MasterPrepList";
+import { ShowerHead } from "lucide-react";
 import StatusBadge from "../components/StatusBadge";
 import { toast } from "sonner";
 
@@ -33,24 +34,30 @@ export default function Dashboard() {
   const [savingRole, setSavingRole] = useState({});
   const [customRoles, setCustomRoles] = useState([]);
   const [customRolesSettingId, setCustomRolesSettingId] = useState(null);
+  const [bathroomConfigs, setBathroomConfigs] = useState([]);
+  const [bathroomLogs, setBathroomLogs] = useState([]);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const load = async () => {
-      const [s, pl, pi, sw, u, settings] = await Promise.all([
+      const [s, pl, pi, sw, u, settings, bc, bl] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.PrepList.list("-created_date", 50),
         base44.entities.PrepItem.list("-created_date", 200),
         base44.entities.SideWorkAssignment.filter({ date: todayStr }),
         base44.entities.User.list(),
         base44.entities.Settings.filter({ key: "custom_roles" }),
+        base44.entities.BathroomCheckConfig.filter({ is_active: true }),
+        base44.entities.BathroomCheckLog.list("-checked_at", 100),
       ]);
       setStations(s);
       setPrepLists(pl);
       setPrepItems(pi);
       setSideWorkAssignments(sw);
       setUsers(u);
+      setBathroomConfigs(bc);
+      setBathroomLogs(bl);
       if (settings.length > 0) {
         setCustomRolesSettingId(settings[0].id);
         setCustomRoles(JSON.parse(settings[0].value || "[]"));
@@ -432,6 +439,40 @@ export default function Dashboard() {
         <h2 className="text-lg font-semibold mb-4">Master Prep List</h2>
         <MasterPrepList />
       </div>
+
+      {/* Bathroom Checks Summary */}
+      {bathroomConfigs.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2"><ShowerHead className="h-5 w-5 text-primary" />Bathroom Checks</h2>
+            <Link to="/bathroom-checks" className="text-sm text-primary font-medium flex items-center gap-1 hover:underline">
+              View all <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {bathroomConfigs.map(c => {
+              const recentLog = bathroomLogs.find(l => l.config_id === c.id);
+              const lastChecked = recentLog ? new Date(recentLog.checked_at) : null;
+              const minutesSince = lastChecked ? (new Date() - lastChecked) / 60000 : Infinity;
+              const overdue = minutesSince > c.interval_minutes;
+              return (
+                <Link key={c.id} to="/bathroom-checks">
+                  <div className={`bg-card rounded-2xl border p-4 flex items-center gap-3 hover:border-primary/40 transition-colors ${overdue ? "border-yellow-500/40" : "border-border"}`}>
+                    <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${overdue ? "bg-yellow-500/15" : "bg-green-500/15"}`}>
+                      <ShowerHead className={`h-4 w-4 ${overdue ? "text-yellow-400" : "text-green-400"}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{c.name}</p>
+                      <p className="text-xs text-muted-foreground">{lastChecked ? `${Math.round(minutesSince)}m ago` : "Never checked"}</p>
+                    </div>
+                    {overdue && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full font-medium flex-shrink-0">Due</span>}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* FOH Side Work Section */}
       <div>

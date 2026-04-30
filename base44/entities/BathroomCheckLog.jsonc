@@ -1,0 +1,46 @@
+{
+  "name": "BathroomCheckLog",
+  "type": "object",
+  "properties": {
+    "config_id": {
+      "type": "string",
+      "title": "Bathroom Config ID"
+    },
+    "location_name": {
+      "type": "string",
+      "title": "Location Name"
+    },
+    "checked_by": {
+      "type": "string",
+      "title": "Checked By"
+    },
+    "checked_at": {
+      "type": "string",
+      "title": "Checked At"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "clean",
+        "needs_attention",
+        "out_of_supplies"
+      ],
+      "enumNames": [
+        "Clean",
+        "Needs Attention",
+        "Out of Supplies"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "config_id",
+    "location_name",
+    "checked_at",
+    "status"
+  ]
+}

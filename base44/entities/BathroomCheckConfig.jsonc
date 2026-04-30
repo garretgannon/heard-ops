@@ -1,0 +1,28 @@
+{
+  "name": "BathroomCheckConfig",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Bathroom / Location Name"
+    },
+    "interval_minutes": {
+      "type": "number",
+      "title": "Check Interval (minutes)",
+      "description": "How often this bathroom should be checked"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name",
+    "interval_minutes"
+  ]
+}
