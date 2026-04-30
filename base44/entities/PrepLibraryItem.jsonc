@@ -6,28 +6,78 @@
       "type": "string",
       "title": "Item Name"
     },
-    "description": {
-      "type": "string",
-      "title": "Description"
-    },
-    "photo_url": {
-      "type": "string",
-      "title": "Photo URL"
-    },
     "station_id": {
       "type": "string",
       "title": "Station ID"
     },
-    "station_name": {
+    "day_of_week": {
       "type": "string",
-      "title": "Station Name"
+      "title": "Day of Week",
+      "enum": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "description": "Leave empty for every day"
+    },
+    "quantity": {
+      "type": "string",
+      "title": "Default Quantity"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit of Measure",
+      "description": "e.g., lbs, gallons, pieces"
+    },
+    "par_level": {
+      "type": "string",
+      "title": "Par Level",
+      "description": "Safety stock level"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "requires_photo": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "recipe_link": {
+      "type": "string",
+      "title": "Recipe Link"
     },
     "notes": {
       "type": "string",
       "title": "Notes"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "enumNames": [
+        "High",
+        "Medium",
+        "Low"
+      ],
+      "default": "medium"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
     }
   },
   "required": [
-    "name"
+    "name",
+    "station_id"
   ]
 }
