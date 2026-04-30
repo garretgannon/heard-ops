@@ -15,6 +15,7 @@ import PriorityBadge from "./PriorityBadge";
 import StatusBadge from "./StatusBadge";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
 import PrepStepsPanel from "./PrepStepsPanel";
+import FastCompleteFlow from "./FastCompleteFlow";
 
 export default function PrepListDetail({ prepList, station, items, onBack, onRefresh }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -36,6 +37,7 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [editSaving, setEditSaving] = useState(false);
   const [expandedSteps, setExpandedSteps] = useState({});
   const toggleSteps = (id) => setExpandedSteps(prev => ({ ...prev, [id]: !prev[id] }));
+  const [fastCompleteItem, setFastCompleteItem] = useState(null);
 
   const saveHandoverNotes = async () => {
     setSavingHandover(true);
@@ -352,8 +354,8 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
               }`}
             >
               <div
-                className="p-4 flex items-center gap-3 cursor-pointer"
-                onClick={bulkMode ? () => toggleSelect(item.id) : undefined}
+                className="p-4 flex items-center gap-3 cursor-pointer hover:bg-muted/30 transition-colors"
+                onClick={bulkMode ? () => toggleSelect(item.id) : !bulkMode && item.status !== "completed" ? () => setFastCompleteItem(item) : undefined}
               >
               {bulkMode ? (
                 selectedIds.includes(item.id)
@@ -618,6 +620,18 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
 
       {/* Photo preview */}
       <PhotoPreviewDialog url={photoDialog} onClose={() => setPhotoDialog(null)} />
+
+      {/* Fast complete flow */}
+      {fastCompleteItem && (
+        <FastCompleteFlow
+          item={fastCompleteItem}
+          onComplete={() => {
+            setFastCompleteItem(null);
+            onRefresh();
+          }}
+          onCancel={() => setFastCompleteItem(null)}
+        />
+      )}
     </div>
   );
 }
