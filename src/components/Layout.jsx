@@ -72,8 +72,13 @@ export default function Layout() {
       {/* Mobile nav overlay */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)}>
-          <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1" onClick={e => e.stopPropagation()}>
-            {navItems.map(item => (
+          <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            {(isAdmin ? [
+              ...topNavItems,
+              ...fohNavItems_admin,
+              ...bohNavItems,
+              ...bottomNavItems,
+            ] : navItems).map(item => (
                   <Link
                     key={item.path}
                     to={item.path}
