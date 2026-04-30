@@ -33,11 +33,6 @@
     "base_spirit": {
       "type": "string",
       "title": "Base Spirit"
-    },
-    "is_batch_recipe": {
-      "type": "boolean",
-      "title": "Batch Recipe",
-      "default": false
     }
   },
   "required": [
