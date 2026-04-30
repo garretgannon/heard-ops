@@ -1,0 +1,110 @@
+{
+  "name": "OnboardingItem",
+  "type": "object",
+  "properties": {
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
+    },
+    "role": {
+      "type": "string",
+      "title": "Role",
+      "enum": [
+        "server",
+        "bartender",
+        "busser",
+        "host",
+        "cook",
+        "dishwasher",
+        "manager"
+      ],
+      "enumNames": [
+        "Server",
+        "Bartender",
+        "Busser",
+        "Host",
+        "Cook",
+        "Dishwasher",
+        "Manager"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed"
+      ],
+      "enumNames": [
+        "Pending",
+        "In Progress",
+        "Completed"
+      ],
+      "default": "pending"
+    },
+    "items": {
+      "type": "array",
+      "title": "Training Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "reading",
+              "video",
+              "quiz",
+              "acknowledgement",
+              "handbook"
+            ]
+          },
+          "completed": {
+            "type": "boolean",
+            "default": false
+          },
+          "completed_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "type"
+        ]
+      }
+    },
+    "progress_percentage": {
+      "type": "number",
+      "title": "Progress %",
+      "default": 0
+    },
+    "completed_at": {
+      "type": "string",
+      "title": "Completed At"
+    },
+    "manager_email": {
+      "type": "string",
+      "title": "Manager Email (Sign-off)"
+    },
+    "manager_notes": {
+      "type": "string",
+      "title": "Manager Notes"
+    }
+  },
+  "required": [
+    "employee_email",
+    "employee_name",
+    "role"
+  ]
+}
