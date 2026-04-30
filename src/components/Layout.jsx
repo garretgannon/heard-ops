@@ -19,6 +19,7 @@ const settingsNavItems = [
 
 const fohNavItems_admin = [
   { path: "/pre-shift", label: "Pre-Shift", icon: UsersIcon },
+  { path: "/bar-book", label: "Bar Book", icon: Wine },
   { path: "/side-work", label: "Side Work", icon: CheckSquare },
   { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
   { path: "/cash", label: "Cash", icon: DollarSign },
