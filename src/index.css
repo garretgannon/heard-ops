@@ -100,8 +100,24 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    font-weight: 500;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  h1 {
+    @apply font-bold;
+  }
+  h2 {
+    @apply font-bold;
+  }
+  h3 {
+    @apply font-semibold;
+  }
+  button {
+    @apply font-bold;
+  }
+  label {
+    @apply font-semibold text-sm;
   }
 
   ::-webkit-scrollbar {

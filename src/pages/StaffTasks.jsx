@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Clock, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const CATEGORIES = {
@@ -139,12 +139,12 @@ export default function StaffTasks() {
 
       {/* Progress bar */}
       {total > 0 && (
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold">{completed}/{total} completed</span>
-            <span className="text-sm font-bold text-primary">{progress}%</span>
+        <div className="bg-card rounded-xl border-2 border-border p-4 lg:p-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-base lg:text-sm font-bold">{completed}/{total} Done</span>
+            <span className="text-2xl lg:text-sm font-bold text-primary">{progress}%</span>
           </div>
-          <div className="h-3 bg-muted rounded-full overflow-hidden">
+          <div className="h-4 lg:h-3 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-accent rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -165,7 +165,7 @@ export default function StaffTasks() {
               {CATEGORIES[category]?.label}
             </h2>
 
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 lg:grid-cols-3">
               {groupedTasks[category].map(task => {
                 const StatusIcon = STATUS_ICONS[task.status];
                 const hasPhoto = task.photo_url && task.status === "completed";
@@ -177,30 +177,30 @@ export default function StaffTasks() {
                     className="block"
                   >
                     <div
-                      className={`rounded-xl border p-4 transition-all hover:shadow-md active:scale-95 cursor-pointer ${
+                      className={`rounded-xl border-2 p-4 lg:p-3 transition-all hover:shadow-lg active:scale-95 cursor-pointer ${
                         STATUS_COLORS[task.status]
                       }`}
                     >
                       <div className="flex items-start gap-3">
                         {StatusIcon && (
-                          <StatusIcon className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                          <StatusIcon className="h-6 lg:h-5 w-6 lg:w-5 flex-shrink-0 mt-0.5" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm leading-tight truncate">{task.name}</p>
-                          <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
-                            {task.station && <span>{task.station}</span>}
-                            {(task.quantity || task.unit) && (
-                              <span className="font-mono">
-                                {task.quantity}{task.unit ? ` ${task.unit}` : ""}
-                              </span>
-                            )}
-                          </div>
+                          <p className="font-bold text-base lg:text-sm leading-tight">{task.name}</p>
+                          {(task.quantity || task.unit || task.station) && (
+                            <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground font-semibold">
+                              {task.station && <span>{task.station}</span>}
+                              {(task.quantity || task.unit) && (
+                                <span>{task.quantity}{task.unit ? ` ${task.unit}` : ""}</span>
+                              )}
+                            </div>
+                          )}
                         </div>
                         {hasPhoto && (
                           <img
                             src={task.photo_url}
                             alt="Complete"
-                            className="h-10 w-10 rounded-lg object-cover flex-shrink-0"
+                            className="h-12 lg:h-10 w-12 lg:w-10 rounded-lg object-cover flex-shrink-0"
                           />
                         )}
                       </div>
