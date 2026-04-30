@@ -1,24 +1,116 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { motion } from 'framer-motion';
-import { Download, Loader2, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Download, Mail, Loader2, ChevronDown, ChevronUp, Edit2, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+
+function dateNDaysAgo(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split("T")[0];
+}
 
 export default function WeeklyReport() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({});
+  const [editingSection, setEditingSection] = useState(null);
+  const [emailDialog, setEmailDialog] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState('');
+  const [editedContent, setEditedContent] = useState('');
+  const [edits, setEdits] = useState({});
 
   useEffect(() => {
-    const load = async () => {
-      const res = await base44.functions.invoke('generateWeeklyReport', {});
-      setReport(res.data);
-      setLoading(false);
+    const init = async () => {
+      try {
+        const cutoff = dateNDaysAgo(7);
+        const [prepItems, sideWork, maintenance, incidents, shifts] = await Promise.all([
+          base44.entities.PrepItem.list("-created_date", 2000),
+          base44.entities.SideWorkAssignment.list("-created_date", 1000),
+          base44.entities.MaintenanceRequest.list("-created_date", 500),
+          base44.entities.IncidentReport.list("-created_date", 500),
+          base44.entities.ShiftHandoff.list("-created_date", 100),
+        ]);
+
+        const weekPrep = prepItems.filter(p => p.completed_at && p.completed_at.split("T")[0] >= cutoff);
+        const weekSideWork = sideWork.filter(s => s.completed_at && s.completed_at.split("T")[0] >= cutoff);
+        const weekMaintenance = maintenance.filter(m => m.date >= cutoff);
+        const weekIncidents = incidents.filter(i => i.date >= cutoff);
+
+        // Calculate wins
+        const prepCompleted = weekPrep.filter(p => p.status === "completed").length;
+        const sideworkCompleted = weekSideWork.filter(s => s.status === "completed" || s.status === "approved").length;
+        const maintResolved = weekMaintenance.filter(m => m.status === "resolved").length;
+
+        // Identify missed tasks
+        const missedPrep = weekPrep.filter(p => p.completion_status === "missed").map(p => p.name);
+        const missedSideWork = weekSideWork.filter(s => s.completion_status === "missed").map(s => s.task_name);
+
+        // Get top performers
+        const empStats = {};
+        weekPrep.forEach(p => {
+          if (p.completed_by) {
+            empStats[p.completed_by] = (empStats[p.completed_by] || 0) + 1;
+          }
+        });
+        weekSideWork.forEach(s => {
+          if (s.completed_by) {
+            empStats[s.completed_by] = (empStats[s.completed_by] || 0) + 1;
+          }
+        });
+        const topPerformers = Object.entries(empStats).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+        // Parse shifts for vendor/cash/training issues
+        const shiftNotes = shifts.map(s => ({ date: s.date, notes: s.notes_for_next_manager, issues: s.vendor_issues, cash: s.cash_issues }));
+
+        const reportData = {
+          weekStart: dateNDaysAgo(6),
+          weekEnd: new Date().toISOString().split("T")[0],
+          wins: {
+            prepCompleted,
+            sideworkCompleted,
+            maintResolved,
+          },
+          missedTasks: {
+            prep: missedPrep,
+            sidework: missedSideWork,
+          },
+          maintenance: weekMaintenance.map(m => ({ name: m.location, status: m.status, type: m.type })),
+          incidents: weekIncidents.map(i => ({ type: i.type, severity: i.severity, description: i.description })),
+          topPerformers: topPerformers.map(([name, count]) => ({ name, tasks: count })),
+          followUps: shiftNotes.filter(s => s.notes).map(s => s.notes),
+        };
+
+        setReport(reportData);
+        setLoading(false);
+      } catch (err) {
+        console.error("Load error:", err);
+        setLoading(false);
+      }
     };
-    load();
+    init();
   }, []);
+
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const startEdit = (section, content) => {
+    setEditingSection(section);
+    setEditedContent(content);
+  };
+
+  const saveEdit = (section) => {
+    setEdits(prev => ({ ...prev, [section]: editedContent }));
+    setEditingSection(null);
+  };
 
   const exportPDF = async () => {
     if (!report) return;
@@ -45,10 +137,70 @@ export default function WeeklyReport() {
         heightLeft -= pdf.internal.pageSize.getHeight();
       }
       pdf.save(`weekly-report-${report.weekStart}.pdf`);
+      toast.success('PDF exported');
     } catch (err) {
       console.error('PDF export failed:', err);
+      toast.error('Export failed');
     }
     setExporting(false);
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailRecipient.trim()) {
+      toast.error('Email required');
+      return;
+    }
+    setSendingEmail(true);
+    try {
+      const reportText = `
+WEEKLY OPERATIONS REPORT
+${report.weekStart} to ${report.weekEnd}
+
+WINS
+- Prep tasks completed: ${report.wins.prepCompleted}
+- Side work tasks completed: ${report.wins.sideworkCompleted}
+- Maintenance resolved: ${report.wins.maintResolved}
+
+${edits.wins || ''}
+
+MISSED TASKS
+- Prep: ${report.missedTasks.prep.length}
+- Side work: ${report.missedTasks.sidework.length}
+
+${edits.missedTasks || ''}
+
+MAINTENANCE
+${report.maintenance.map(m => `- ${m.name}: ${m.status}`).join('\n')}
+
+${edits.maintenance || ''}
+
+INCIDENTS
+${report.incidents.length > 0 ? report.incidents.map(i => `- ${i.type} (${i.severity})`).join('\n') : 'None'}
+
+${edits.incidents || ''}
+
+TOP PERFORMERS
+${report.topPerformers.map(p => `- ${p.name}: ${p.tasks} tasks`).join('\n')}
+
+${edits.topPerformers || ''}
+
+FOLLOW-UPS FOR NEXT WEEK
+${edits.followUps || report.followUps.join('\n')}
+      `.trim();
+
+      await base44.integrations.Core.SendEmail({
+        to: emailRecipient,
+        subject: `Weekly Operations Report - ${report.weekStart} to ${report.weekEnd}`,
+        body: reportText,
+      });
+      toast.success('Email sent');
+      setEmailDialog(false);
+      setEmailRecipient('');
+    } catch (err) {
+      console.error('Email failed:', err);
+      toast.error('Email failed');
+    }
+    setSendingEmail(false);
   };
 
   if (loading) {
@@ -67,223 +219,296 @@ export default function WeeklyReport() {
     );
   }
 
-  const completionRate = report.summary.total
-    ? Math.round((report.summary.totalCompleted / (report.summary.totalCompleted + report.summary.totalMissed)) * 100)
-    : 0;
-
   return (
-    <div className="space-y-6 max-w-6xl">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 pb-12 max-w-4xl">
+      {/* Header */}
+      <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Weekly Performance Report</h1>
-          <p className="text-muted-foreground mt-1">
-            {report.weekStart} to {report.weekEnd}
-          </p>
+          <h1 className="text-3xl font-bold">Weekly Operations Report</h1>
+          <p className="text-sm text-muted-foreground mt-1">{report.weekStart} to {report.weekEnd}</p>
         </div>
-        <Button onClick={exportPDF} disabled={exporting} size="lg">
-          {exporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-          {exporting ? 'Exporting...' : 'Export PDF'}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setEmailDialog(true)}>
+            <Mail className="h-4 w-4 mr-2" /> Email
+          </Button>
+          <Button onClick={exportPDF} disabled={exporting}>
+            {exporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+            PDF
+          </Button>
+        </div>
       </div>
 
-      <div id="report-content" className="space-y-6">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div
-            className="bg-card rounded-2xl border border-border p-5"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+      <div id="report-content" className="space-y-3">
+        {/* Wins Summary */}
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('wins')}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-secondary/20 transition-colors"
           >
-            <CheckCircle2 className="h-5 w-5 text-green-400 mb-2" />
-            <p className="text-2xl font-bold">{report.summary.totalCompleted}</p>
-            <p className="text-xs text-muted-foreground">Tasks Completed</p>
-          </motion.div>
-
-          <motion.div
-            className="bg-card rounded-2xl border border-border p-5"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-          >
-            <AlertCircle className="h-5 w-5 text-red-400 mb-2" />
-            <p className="text-2xl font-bold">{report.summary.totalMissed}</p>
-            <p className="text-xs text-muted-foreground">Tasks Missed</p>
-          </motion.div>
-
-          <motion.div
-            className="bg-card rounded-2xl border border-border p-5"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <TrendingUp className="h-5 w-5 text-primary mb-2" />
-            <p className="text-2xl font-bold">{completionRate}%</p>
-            <p className="text-xs text-muted-foreground">Completion Rate</p>
-          </motion.div>
-
-          <motion.div
-            className="bg-card rounded-2xl border border-border p-5"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-          >
-            <div className="h-5 w-5 text-accent mb-2">📊</div>
-            <p className="text-2xl font-bold">{report.summary.prep.total + report.summary.sidework.total}</p>
-            <p className="text-xs text-muted-foreground">Total Tasks</p>
-          </motion.div>
-        </div>
-
-        {/* Breakdown */}
-        <div className="grid lg:grid-cols-2 gap-4">
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <h2 className="font-semibold mb-4">Prep Tasks</h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Completed</span>
-                <span className="font-semibold">{report.summary.prep.completed}/{report.summary.prep.total}</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-500 rounded-full"
-                  style={{
-                    width: `${report.summary.prep.total > 0 ? (report.summary.prep.completed / report.summary.prep.total) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs pt-2">
-                <div className="text-muted-foreground">Missed: <span className="font-semibold text-red-400">{report.summary.prep.missed}</span></div>
-                <div className="text-muted-foreground">Pending: <span className="font-semibold text-yellow-400">{report.summary.prep.pending}</span></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <h2 className="font-semibold mb-4">Side Work</h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Completed</span>
-                <span className="font-semibold">{report.summary.sidework.completed}/{report.summary.sidework.total}</span>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-500 rounded-full"
-                  style={{
-                    width: `${report.summary.sidework.total > 0 ? (report.summary.sidework.completed / report.summary.sidework.total) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs pt-2">
-                <div className="text-muted-foreground">Missed: <span className="font-semibold text-red-400">{report.summary.sidework.missed}</span></div>
-                <div className="text-muted-foreground">In Review: <span className="font-semibold text-yellow-400">{report.summary.sidework.inReview}</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Daily Trends */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <h2 className="font-semibold mb-4">Daily Trends</h2>
-          <div className="space-y-3">
-            {report.dailyTrends.map((day, i) => (
-              <motion.div
-                key={day.date}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium w-24">{day.date}</span>
-                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-accent rounded-full"
-                      style={{
-                        width: `${day.total > 0 ? (day.completed / day.total) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground w-20 text-right">
-                    {day.completed}/{day.total}
-                  </span>
+            <h2 className="font-bold text-green-600">✓ Wins</h2>
+            {expandedSections.wins ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </button>
+          {expandedSections.wins && (
+            <div className="px-5 pb-4 pt-0 border-t border-border space-y-3">
+              <div className="grid grid-cols-3 gap-3 text-sm">
+                <div className="bg-green-500/10 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs mb-1">Prep Completed</p>
+                  <p className="text-2xl font-bold text-green-600">{report.wins.prepCompleted}</p>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+                <div className="bg-green-500/10 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs mb-1">Side Work Done</p>
+                  <p className="text-2xl font-bold text-green-600">{report.wins.sideworkCompleted}</p>
+                </div>
+                <div className="bg-green-500/10 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs mb-1">Maintenance Fixed</p>
+                  <p className="text-2xl font-bold text-green-600">{report.wins.maintResolved}</p>
+                </div>
+              </div>
+              <div>
+                {editingSection === 'wins' ? (
+                  <div className="space-y-2">
+                    <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} placeholder="Add notes..." />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => saveEdit('wins')}>
+                        <Check className="h-3.5 w-3.5 mr-1" /> Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingSection(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => startEdit('wins', edits.wins || '')} className="flex items-center gap-1 text-xs text-primary hover:underline">
+                    <Edit2 className="h-3.5 w-3.5" /> Add manager notes
+                  </button>
+                )}
+                {edits.wins && <p className="text-sm text-muted-foreground mt-2 italic">"{edits.wins}"</p>}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Repeat Missed Tasks */}
-        {report.repeatMissedTasks.length > 0 && (
-          <div className="bg-card rounded-2xl border border-red-500/20 p-6">
-            <h2 className="font-semibold mb-4 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-              Repeat Missed Tasks
-            </h2>
-            <div className="space-y-2">
-              {report.repeatMissedTasks.map((task, i) => (
-                <motion.div
-                  key={task.name}
-                  className="flex items-center justify-between p-3 bg-red-500/5 rounded-lg border border-red-500/10"
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <span className="text-sm font-medium">{task.name}</span>
-                  <span className="text-xs font-semibold bg-red-500/20 text-red-300 px-2.5 py-1 rounded-full">
-                    {task.count}x missed
-                  </span>
-                </motion.div>
-              ))}
+        {/* Missed Tasks */}
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('missedTasks')}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-secondary/20 transition-colors"
+          >
+            <h2 className="font-bold text-red-600">⚠ Missed Tasks</h2>
+            {expandedSections.missedTasks ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </button>
+          {expandedSections.missedTasks && (
+            <div className="px-5 pb-4 pt-0 border-t border-border space-y-3">
+              {(report.missedTasks.prep.length > 0 || report.missedTasks.sidework.length > 0) ? (
+                <>
+                  {report.missedTasks.prep.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">Prep Items ({report.missedTasks.prep.length})</p>
+                      <ul className="text-sm space-y-1 text-muted-foreground">
+                        {report.missedTasks.prep.slice(0, 5).map((t, i) => <li key={i}>• {t}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {report.missedTasks.sidework.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">Side Work ({report.missedTasks.sidework.length})</p>
+                      <ul className="text-sm space-y-1 text-muted-foreground">
+                        {report.missedTasks.sidework.slice(0, 5).map((t, i) => <li key={i}>• {t}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-green-600 font-semibold">No missed tasks!</p>
+              )}
+              <div>
+                {editingSection === 'missedTasks' ? (
+                  <div className="space-y-2">
+                    <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} placeholder="Root causes & corrective actions..." />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => saveEdit('missedTasks')}>
+                        <Check className="h-3.5 w-3.5 mr-1" /> Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingSection(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => startEdit('missedTasks', edits.missedTasks || '')} className="flex items-center gap-1 text-xs text-primary hover:underline">
+                    <Edit2 className="h-3.5 w-3.5" /> Add analysis
+                  </button>
+                )}
+                {edits.missedTasks && <p className="text-sm text-muted-foreground mt-2 italic">"{edits.missedTasks}"</p>}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Employee Performance */}
-        <div className="bg-card rounded-2xl border border-border p-6">
-          <h2 className="font-semibold mb-4">Employee Performance</h2>
-          <div className="space-y-4">
-            {Object.entries(report.employeeStats)
-              .sort((a, b) => {
-                const aTotal = a[1].prep.total + a[1].sidework.total;
-                const bTotal = b[1].prep.total + b[1].sidework.total;
-                return bTotal - aTotal;
-              })
-              .map(([employee, stats]) => {
-                const total = stats.prep.total + stats.sidework.total;
-                const completed = stats.prep.completed + stats.sidework.completed;
-                const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+        {/* Maintenance */}
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('maintenance')}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-secondary/20 transition-colors"
+          >
+            <h2 className="font-bold">🔧 Maintenance Issues</h2>
+            {expandedSections.maintenance ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </button>
+          {expandedSections.maintenance && (
+            <div className="px-5 pb-4 pt-0 border-t border-border space-y-3">
+              {report.maintenance.length > 0 ? (
+                <ul className="space-y-2 text-sm">
+                  {report.maintenance.map((m, i) => (
+                    <li key={i} className="flex items-center gap-2 p-2 bg-secondary/30 rounded">
+                      <span className={cn("h-2 w-2 rounded-full", m.status === "resolved" ? "bg-green-600" : "bg-orange-600")}></span>
+                      <span>{m.name}</span>
+                      <span className="text-xs text-muted-foreground ml-auto capitalize">{m.status}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-green-600 font-semibold">No maintenance issues</p>
+              )}
+              <div>
+                {editingSection === 'maintenance' ? (
+                  <div className="space-y-2">
+                    <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} placeholder="Priority actions, vendor contacts..." />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => saveEdit('maintenance')}>
+                        <Check className="h-3.5 w-3.5 mr-1" /> Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingSection(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => startEdit('maintenance', edits.maintenance || '')} className="flex items-center gap-1 text-xs text-primary hover:underline">
+                    <Edit2 className="h-3.5 w-3.5" /> Add notes
+                  </button>
+                )}
+                {edits.maintenance && <p className="text-sm text-muted-foreground mt-2 italic">"{edits.maintenance}"</p>}
+              </div>
+            </div>
+          )}
+        </div>
 
-                return (
-                  <motion.div
-                    key={employee}
-                    className="p-4 bg-secondary/30 rounded-lg border border-border"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">{employee}</span>
-                      <span className={`text-sm font-semibold ${rate >= 80 ? 'text-green-400' : rate >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
-                        {rate}%
-                      </span>
+        {/* Incidents */}
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('incidents')}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-secondary/20 transition-colors"
+          >
+            <h2 className="font-bold text-orange-600">🚨 Incidents</h2>
+            {expandedSections.incidents ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </button>
+          {expandedSections.incidents && (
+            <div className="px-5 pb-4 pt-0 border-t border-border space-y-3">
+              {report.incidents.length > 0 ? (
+                <ul className="space-y-2 text-sm">
+                  {report.incidents.map((i, idx) => (
+                    <li key={idx} className="p-2 bg-orange-500/10 rounded border border-orange-500/20">
+                      <p className="font-semibold text-orange-600">{i.type}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{i.severity} severity</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-green-600 font-semibold">No incidents reported</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Top Performers */}
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('topPerformers')}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-secondary/20 transition-colors"
+          >
+            <h2 className="font-bold text-primary">⭐ Top Performers</h2>
+            {expandedSections.topPerformers ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </button>
+          {expandedSections.topPerformers && (
+            <div className="px-5 pb-4 pt-0 border-t border-border">
+              {report.topPerformers.length > 0 ? (
+                <ul className="space-y-2 text-sm">
+                  {report.topPerformers.map((p, i) => (
+                    <li key={i} className="flex items-center justify-between p-2 bg-primary/10 rounded">
+                      <span className="font-semibold">{p.name}</span>
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">{p.tasks} tasks</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">No performance data</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Follow-ups */}
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('followUps')}
+            className="w-full px-5 py-4 flex items-center justify-between hover:bg-secondary/20 transition-colors"
+          >
+            <h2 className="font-bold">📋 Follow-ups for Next Week</h2>
+            {expandedSections.followUps ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </button>
+          {expandedSections.followUps && (
+            <div className="px-5 pb-4 pt-0 border-t border-border space-y-3">
+              <div>
+                {editingSection === 'followUps' ? (
+                  <div className="space-y-2">
+                    <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} placeholder="List key action items for next week..." />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => saveEdit('followUps')}>
+                        <Check className="h-3.5 w-3.5 mr-1" /> Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingSection(null)}>Cancel</Button>
                     </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2">
-                      <div
-                        className={`h-full rounded-full ${rate >= 80 ? 'bg-green-500' : rate >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                        style={{ width: `${rate}%` }}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-muted-foreground">
-                      <div>Prep: {stats.prep.completed}/{stats.prep.total}</div>
-                      <div>Side: {stats.sidework.completed}/{stats.sidework.total}</div>
-                      <div>On Time: {stats.prep.onTime}</div>
-                      <div>Late: {stats.prep.late}</div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-          </div>
+                  </div>
+                ) : (
+                  <>
+                    {edits.followUps ? (
+                      <div className="text-sm space-y-1">
+                        {edits.followUps.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+                      </div>
+                    ) : (
+                      <button onClick={() => startEdit('followUps', edits.followUps || '')} className="flex items-center gap-1 text-xs text-primary hover:underline">
+                        <Edit2 className="h-3.5 w-3.5" /> Add follow-ups
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Email Dialog */}
+      <Dialog open={emailDialog} onOpenChange={setEmailDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Report via Email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <label className="text-sm font-bold block mb-1">Recipient Email</label>
+              <input
+                type="email"
+                placeholder="owner@restaurant.com"
+                value={emailRecipient}
+                onChange={(e) => setEmailRecipient(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-card text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialog(false)}>Cancel</Button>
+            <Button onClick={handleSendEmail} disabled={sendingEmail}>
+              {sendingEmail ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Mail className="h-4 w-4 mr-2" />}
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
