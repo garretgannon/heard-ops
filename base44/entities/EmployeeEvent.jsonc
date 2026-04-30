@@ -45,6 +45,10 @@
     "logged_by": {
       "type": "string",
       "title": "Logged By"
+    },
+    "attachment_url": {
+      "type": "string",
+      "title": "Signed Write-Up Attachment URL"
     }
   },
   "required": [

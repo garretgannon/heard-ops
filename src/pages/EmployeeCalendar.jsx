@@ -43,10 +43,11 @@ export default function EmployeeCalendar() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
     employee_email: "", employee_name: "", date: format(new Date(), "yyyy-MM-dd"),
-    type: "", notes: "", follow_up_date: ""
+    type: "", notes: "", follow_up_date: "", attachment_url: ""
   });
 
   useEffect(() => {
@@ -93,9 +94,17 @@ export default function EmployeeCalendar() {
     });
     setEvents(prev => [rec, ...prev]);
     setShowForm(false);
-    setForm({ employee_email: "", employee_name: "", date: format(new Date(), "yyyy-MM-dd"), type: "", notes: "", follow_up_date: "" });
+    setForm({ employee_email: "", employee_name: "", date: format(new Date(), "yyyy-MM-dd"), type: "", notes: "", follow_up_date: "", attachment_url: "" });
     setSaving(false);
     toast.success("Event logged");
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, attachment_url: file_url }));
+    setUploading(false);
   };
 
   const handleDelete = async (id) => {
@@ -248,6 +257,9 @@ export default function EmployeeCalendar() {
                           </button>
                         </div>
                         {ev.notes && <p className="text-xs mt-2 opacity-80">{ev.notes}</p>}
+                        {ev.attachment_url && (
+                          <a href={ev.attachment_url} target="_blank" rel="noopener noreferrer" className="text-xs mt-1 underline opacity-70 hover:opacity-100 block">📎 View Signed Write-Up</a>
+                        )}
                         {ev.follow_up_date && <p className="text-xs mt-1 opacity-60">Follow-up: {ev.follow_up_date}</p>}
                         {ev.logged_by && <p className="text-xs mt-1 opacity-50">Logged by {ev.logged_by}</p>}
                       </div>
@@ -345,6 +357,34 @@ export default function EmployeeCalendar() {
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               />
             </div>
+            {form.type === "write_up" && (
+              <div className="space-y-1">
+                <Label>Signed Write-Up (optional)</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    id="writeup-upload"
+                    onChange={e => handleFileUpload(e.target.files[0])}
+                  />
+                  <label
+                    htmlFor="writeup-upload"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md border border-input bg-transparent text-sm cursor-pointer hover:bg-secondary transition-colors"
+                  >
+                    {uploading ? "Uploading…" : form.attachment_url ? "Replace File" : "Upload File"}
+                  </label>
+                  {form.attachment_url && !uploading && (
+                    <a href={form.attachment_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary underline">View</a>
+                  )}
+                  {form.attachment_url && (
+                    <button type="button" onClick={() => setForm(f => ({ ...f, attachment_url: "" }))} className="text-muted-foreground hover:text-destructive">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="space-y-1">
               <Label>Follow-Up Date (optional)</Label>
               <Input type="date" value={form.follow_up_date} onChange={e => setForm(f => ({ ...f, follow_up_date: e.target.value }))} />
