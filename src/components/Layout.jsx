@@ -29,8 +29,8 @@ const bottomNavItems = [
   { path: "/manager-log", label: "Manager Log", icon: NotebookPen, highlight: true },
   { path: "/calendar", label: "Calendar", icon: CalendarDays, highlight: true },
   { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
-  { path: "/photo-review", label: "Photo Review", icon: Camera },
-  { path: "/profile", label: "My Profile", icon: UserCircle },
+  { path: "/photo-review", label: "Photo Review", icon: Camera, highlight: true },
+  { path: "/profile", label: "My Profile", icon: UserCircle, highlight: true },
 ];
 
 const userNavItems = [
