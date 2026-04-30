@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
-import { Plus, ClipboardList, Trash2, Play, Archive, Eye, Repeat, FileUp, Pencil } from "lucide-react";
+import { Plus, ClipboardList, FileUp } from "lucide-react";
 import BulkImportDialog from "../components/BulkImportDialog";
 import ImportDialog from "../components/ImportDialog";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import StationBadge from "../components/StationBadge";
-import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/EmptyState";
 import PrepListDetail from "../components/PrepListDetail";
 import PrepListCard from "../components/PrepListCard";
@@ -211,11 +209,11 @@ export default function PrepLists() {
                   <span className="text-xs text-muted-foreground">({stationLists.length} lists)</span>
                 </div>
 
-                <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {amLists.length > 0 && (
                     <div>
                       <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Morning</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="space-y-3">
                         {amLists.map((pl, i) => (
                           <PrepListCard
                             key={pl.id}
@@ -233,7 +231,7 @@ export default function PrepLists() {
                   {pmLists.length > 0 && (
                     <div>
                       <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Evening</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="space-y-3">
                         {pmLists.map((pl, i) => (
                           <PrepListCard
                             key={pl.id}
@@ -266,7 +264,6 @@ export default function PrepLists() {
         onOpenChange={open => { setImportOpen(open); if (!open) setImportTargetList(null); }}
         type="prep_items"
         onImport={async (rows) => {
-          // Import into the most recently active/draft list if no target
           const target = importTargetList || prepLists.find(pl => pl.status === "active") || prepLists[0];
           if (!target) { return; }
           await Promise.all(rows.map((row, i) =>
