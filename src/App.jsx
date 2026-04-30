@@ -77,55 +77,53 @@ const AuthenticatedApp = () => {
     return <UserNotRegisteredError />;
   }
 
-  if (!isAuthenticated || !user) {
-    return (
-      <Routes>
-        <Route path="*" element={<Landing />} />
-      </Routes>
-    );
-  }
-
   return (
     <Routes>
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route element={<Layout />}>
-        <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
+      {!isAuthenticated || !user ? (
+        <Route path="*" element={<Landing />} />
+      ) : (
+        <>
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
 
-        {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
-        {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
-        <Route path="/today" element={<StaffTasks />} />
-        {isAdmin && <Route path="/stations" element={<Stations />} />}
-        {isAdmin && <Route path="/prep-lists" element={<PrepLists />} />}
-        <Route path="/station/:stationId" element={<StationPrepView />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/home" element={isBusser ? <BusserHome /> : <StaffHome />} />
-        {isFOH && <Route path="/side-work" element={<SideWork />} />}
-        {isAdmin && <Route path="/calendar" element={<Calendar />} />}
-        {isAdmin && <Route path="/reports" element={<Reports />} />}
-        {isAdmin && <Route path="/photo-review" element={<PhotoReview />} />}
-        {isAdmin && <Route path="/job-codes" element={<JobCodes />} />}
-        {isAdmin && <Route path="/prep-library" element={<PrepLibrary />} />}
-        {isAdmin && <Route path="/temp-logs" element={<TempLogs />} />}
-        <Route path="/dish-machines" element={<DishMachines />} />
-        {isAdmin && <Route path="/my-restaurant" element={<MyRestaurant />} />}
-        {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
-        {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
-        {isAdmin && <Route path="/vendors" element={<Vendors />} />}
-        {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
-        {isFOH && <Route path="/pre-shift" element={<PreShift />} />}
-        {isAdmin && <Route path="/line-up" element={<LineUp />} />}
-        {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
-        {isFOH && <Route path="/bar-book" element={<BarBook />} />}
-        {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
-        {isAdmin && <Route path="/msds" element={<MSDS />} />}
-        {isAdmin && <Route path="/notifications" element={<NotificationSettings />} />}
-        {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
-        {isAdmin && <Route path="/shift-handoff" element={<ShiftHandoff />} />}
-        <Route path="/bathroom-checks" element={<BathroomChecks />} />
-        <Route path="/cash" element={<Cash />} />
-        <Route path="/maintenance" element={<MaintenanceRequests />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Route>
+            {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
+            {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
+            <Route path="/today" element={<StaffTasks />} />
+            {isAdmin && <Route path="/stations" element={<Stations />} />}
+            {isAdmin && <Route path="/prep-lists" element={<PrepLists />} />}
+            <Route path="/station/:stationId" element={<StationPrepView />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/home" element={isBusser ? <BusserHome /> : <StaffHome />} />
+            {isFOH && <Route path="/side-work" element={<SideWork />} />}
+            {isAdmin && <Route path="/calendar" element={<Calendar />} />}
+            {isAdmin && <Route path="/reports" element={<Reports />} />}
+            {isAdmin && <Route path="/photo-review" element={<PhotoReview />} />}
+            {isAdmin && <Route path="/job-codes" element={<JobCodes />} />}
+            {isAdmin && <Route path="/prep-library" element={<PrepLibrary />} />}
+            {isAdmin && <Route path="/temp-logs" element={<TempLogs />} />}
+            <Route path="/dish-machines" element={<DishMachines />} />
+            {isAdmin && <Route path="/my-restaurant" element={<MyRestaurant />} />}
+            {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
+            {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
+            {isAdmin && <Route path="/vendors" element={<Vendors />} />}
+            {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
+            {isFOH && <Route path="/pre-shift" element={<PreShift />} />}
+            {isAdmin && <Route path="/line-up" element={<LineUp />} />}
+            {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
+            {isFOH && <Route path="/bar-book" element={<BarBook />} />}
+            {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
+            {isAdmin && <Route path="/msds" element={<MSDS />} />}
+            {isAdmin && <Route path="/notifications" element={<NotificationSettings />} />}
+            {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
+            {isAdmin && <Route path="/shift-handoff" element={<ShiftHandoff />} />}
+            <Route path="/bathroom-checks" element={<BathroomChecks />} />
+            <Route path="/cash" element={<Cash />} />
+            <Route path="/maintenance" element={<MaintenanceRequests />} />
+            <Route path="*" element={<PageNotFound />} />
+          </Route>
+        </>
+      )}
     </Routes>
   );
 };
