@@ -74,7 +74,22 @@
     },
     "completed_at": {
       "type": "string",
-      "title": "Completed At"
+      "title": "Completed At (ISO 8601)"
+    },
+    "completion_status": {
+      "type": "string",
+      "title": "Completion Status",
+      "enum": [
+        "on_time",
+        "late",
+        "missed"
+      ],
+      "enumNames": [
+        "On Time",
+        "Late",
+        "Missed"
+      ],
+      "default": "on_time"
     },
     "sort_order": {
       "type": "number",

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { AlertTriangle, CheckCircle2, ListTodo, Eye } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ListTodo, Eye, Clock, Zap } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function ManagerDashboard() {
@@ -52,16 +52,23 @@ export default function ManagerDashboard() {
     );
   }
 
-  // Combine tasks
-  const allPrepTasks = prepItems.map(item => ({
-    id: item.id,
-    name: item.name,
-    status: item.status,
-    completed_by: item.completed_by,
-    photo_url: item.photo_url,
-    type: "prep",
-    prep_list_id: item.prep_list_id,
-  }));
+  // Combine tasks with timing
+  const allPrepTasks = prepItems.map(item => {
+    const prepList = prepLists.find(pl => pl.id === item.prep_list_id);
+    return {
+      id: item.id,
+      name: item.name,
+      status: item.status,
+      completed_by: item.completed_by,
+      completed_at: item.completed_at,
+      completion_status: item.completion_status,
+      photo_url: item.photo_url,
+      due_time: prepList?.due_time,
+      shift_end_time: prepList?.shift_end_time,
+      type: "prep",
+      prep_list_id: item.prep_list_id,
+    };
+  });
 
   const allSideWorkTasks = sideWorkTasks.map(task => ({
     id: task.id,
@@ -69,7 +76,11 @@ export default function ManagerDashboard() {
     status: task.status === "approved" ? "completed" : task.status,
     assigned_to_name: task.assigned_to_name,
     assigned_to_email: task.assigned_to_email,
+    completed_at: task.completed_at,
+    completion_status: task.completion_status,
     photo_url: task.photo_url,
+    due_time: task.due_time,
+    shift_end_time: task.shift_end_time,
     type: "sidework",
   }));
 
@@ -114,6 +125,12 @@ export default function ManagerDashboard() {
       return (statusOrder[a.status] ?? 2) - (statusOrder[b.status] ?? 2);
     });
 
+  // Completed tasks with timing breakdown
+  const completedTasks = allTasks.filter(t => t.status === "completed");
+  const onTimeTasks = completedTasks.filter(t => t.completion_status === "on_time").length;
+  const lateTasks = completedTasks.filter(t => t.completion_status === "late").length;
+  const missedTasks = allTasks.filter(t => t.completion_status === "missed").length;
+
   return (
     <div className="space-y-6 pb-12">
       {/* Header */}
@@ -143,13 +160,22 @@ export default function ManagerDashboard() {
           <p className="text-xs text-muted-foreground mt-1">{completionRate}%</p>
         </div>
 
+        {/* Late */}
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="h-5 w-5 text-yellow-500" />
+            <span className="text-xs text-muted-foreground font-medium">LATE</span>
+          </div>
+          <p className="text-3xl font-bold">{lateTasks}</p>
+        </div>
+
         {/* Missed */}
         <div className="bg-card rounded-2xl border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="h-5 w-5 text-red-500" />
-            <span className="text-xs text-muted-foreground font-medium">INCOMPLETE</span>
+            <span className="text-xs text-muted-foreground font-medium">MISSED</span>
           </div>
-          <p className="text-3xl font-bold">{missed}</p>
+          <p className="text-3xl font-bold">{missedTasks}</p>
         </div>
       </div>
 
@@ -200,6 +226,66 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
+      {/* Completed Tasks Timing */}
+      {completedTasks.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-blue-500" />
+            <h2 className="text-lg font-semibold">Completed Tasks - Timing ({completedTasks.length})</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div className="bg-green-500/10 rounded-lg border border-green-500/30 p-3">
+              <p className="text-xs text-muted-foreground font-medium">On Time</p>
+              <p className="text-2xl font-bold text-green-600">{onTimeTasks}</p>
+            </div>
+            <div className="bg-yellow-500/10 rounded-lg border border-yellow-500/30 p-3">
+              <p className="text-xs text-muted-foreground font-medium">Late</p>
+              <p className="text-2xl font-bold text-yellow-600">{lateTasks}</p>
+            </div>
+            <div className="bg-blue-500/10 rounded-lg border border-blue-500/30 p-3">
+              <p className="text-xs text-muted-foreground font-medium">Completed</p>
+              <p className="text-2xl font-bold text-blue-600">{completedTasks.length}</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {completedTasks.slice(0, 10).map(task => {
+              const completedTime = task.completed_at ? new Date(task.completed_at).toLocaleTimeString([], {hour: "2-digit", minute:"2-digit"}) : "Unknown";
+              const statusColor = 
+                task.completion_status === "late" ? "bg-yellow-500/10 border-yellow-500/30" :
+                task.completion_status === "missed" ? "bg-red-500/10 border-red-500/30" :
+                "bg-green-500/10 border-green-500/30";
+              const statusLabel = 
+                task.completion_status === "late" ? "Late" :
+                task.completion_status === "missed" ? "Missed" :
+                "On Time";
+              const statusTextColor = 
+                task.completion_status === "late" ? "text-yellow-600" :
+                task.completion_status === "missed" ? "text-red-600" :
+                "text-green-600";
+              
+              return (
+                <div key={task.id} className={`rounded-lg border p-3 ${statusColor}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{task.name}</p>
+                      <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground flex-wrap">
+                        <span>{task.completed_by || task.assigned_to_name || "Unassigned"}</span>
+                        <span>·</span>
+                        <span>Completed: {completedTime}</span>
+                        {task.due_time && <span>· Due: {task.due_time}</span>}
+                      </div>
+                    </div>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${statusTextColor}`}>
+                      {statusLabel}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Issues List */}
       {issues.length > 0 && (
         <div className="space-y-3">
@@ -226,6 +312,7 @@ export default function ManagerDashboard() {
                       <span className={task.status === "pending" ? "text-red-600 font-medium" : "text-yellow-600 font-medium"}>
                         {task.status === "pending" ? "Not Started" : "In Progress"}
                       </span>
+                      {task.due_time && <span>· Due: {task.due_time}</span>}
                     </div>
                   </div>
                   {task.photo_url && (

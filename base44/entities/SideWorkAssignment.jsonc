@@ -29,7 +29,11 @@
     },
     "due_time": {
       "type": "string",
-      "title": "Due Time"
+      "title": "Due Time (HH:MM format)"
+    },
+    "shift_end_time": {
+      "type": "string",
+      "title": "Shift End Time (HH:MM format)"
     },
     "requires_photo": {
       "type": "boolean",
@@ -77,11 +81,26 @@
     },
     "completed_at": {
       "type": "string",
-      "title": "Completed At"
+      "title": "Completed At (ISO 8601)"
     },
     "completed_by": {
       "type": "string",
       "title": "Completed By"
+    },
+    "completion_status": {
+      "type": "string",
+      "title": "Completion Status",
+      "enum": [
+        "on_time",
+        "late",
+        "missed"
+      ],
+      "enumNames": [
+        "On Time",
+        "Late",
+        "Missed"
+      ],
+      "default": "on_time"
     },
     "approved_at": {
       "type": "string",

@@ -56,6 +56,14 @@
     "template_list_id": {
       "type": "string",
       "title": "Source Template List ID"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM format)"
+    },
+    "shift_end_time": {
+      "type": "string",
+      "title": "Shift End Time (HH:MM format)"
     }
   },
   "required": [
