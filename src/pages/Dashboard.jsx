@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StationBadge from "../components/StationBadge";
 import ShiftStatusPanel from "../components/ShiftStatusPanel";
+import MasterPrepList from "./MasterPrepList";
 import StatusBadge from "../components/StatusBadge";
 import { toast } from "sonner";
 
@@ -425,6 +426,12 @@ export default function Dashboard() {
       </div>
 
       <ShiftStatusPanel prepLists={prepLists} prepItems={prepItems} stations={stations} />
+
+      {/* Master Prep List */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Master Prep List</h2>
+        <MasterPrepList />
+      </div>
 
       {/* FOH Side Work Section */}
       <div>
