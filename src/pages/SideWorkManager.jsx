@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import SideWorkTaskCard from "../components/sidework/SideWorkTaskCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Plus, CheckCircle2, Clock, AlertCircle, Users, Trash2, Zap, FileUp, ListPlus, X } from "lucide-react";
+import { Plus, ListPlus, FileUp, X, AlertCircle, Clock, CheckCircle2, Users } from "lucide-react";
 import ImportDialog from "../components/ImportDialog";
 
 const ROLES = ["server", "bartender", "host", "busser", "food_runner"];
@@ -19,12 +17,9 @@ const ROLE_LABELS = { server: "Server", bartender: "Bartender", host: "Host", bu
 const SHIFTS = ["opening", "mid", "closing"];
 const SHIFT_LABELS = { opening: "Opening", mid: "Mid-Shift", closing: "Closing" };
 
-const TABS = ["dashboard", "approvals", "tasks", "assign"];
-const TAB_LABELS = { dashboard: "Dashboard", approvals: "Approvals", tasks: "Task Templates", assign: "Assign Today" };
-
 export default function SideWorkManager() {
   const { user } = useCurrentUser();
-  const [tab, setTab] = useState("dashboard");
+  const [tab, setTab] = useState("opening");
   const [tasks, setTasks] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +35,8 @@ export default function SideWorkManager() {
   const [bulkSaving, setBulkSaving] = useState(false);
   const [taskForm, setTaskForm] = useState({ name: "", description: "", role: "server", shift_type: "closing", priority: "medium", due_time: "", requires_photo: false, requires_approval: false });
   const [assignForm, setAssignForm] = useState({ task_id: "", assigned_to_email: "", assigned_to_name: "", role_assignment: "", assigned_to_individual: false });
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -55,32 +52,36 @@ export default function SideWorkManager() {
 
   useEffect(() => { load(); }, []);
 
-  // Dashboard stats
-  const pending = assignments.filter(a => a.status === "pending" || a.status === "rejected");
-  const pendingApprovals = assignments.filter(a => a.status === "completed");
-  const approved = assignments.filter(a => a.status === "approved");
-
-  const now = new Date();
-  const late = pending.filter(a => {
-    if (!a.due_time) return false;
-    const [time, ampm] = a.due_time.split(" ");
-    if (!time) return false;
-    const [h, m] = time.split(":").map(Number);
-    let hours = h;
-    if (ampm === "PM" && h !== 12) hours += 12;
-    if (ampm === "AM" && h === 12) hours = 0;
-    const due = new Date(); due.setHours(hours, m || 0, 0, 0);
-    return now > due;
-  });
-
   // By employee
   const byEmployee = {};
   assignments.forEach(a => {
     const key = a.assigned_to_name || a.assigned_to_email || "Unassigned";
-    if (!byEmployee[key]) byEmployee[key] = { total: 0, done: 0 };
+    if (!byEmployee[key]) byEmployee[key] = { total: 0, done: 0, pending: 0 };
     byEmployee[key].total++;
     if (a.status === "approved" || a.status === "completed") byEmployee[key].done++;
+    if (a.status === "pending") byEmployee[key].pending++;
   });
+
+  // Get assignments by shift with filters
+  const getAssignmentsByShift = (shift) => {
+    let result = assignments.filter(a => a.shift_type === shift);
+    if (roleFilter !== "all") result = result.filter(a => a.role === roleFilter);
+    if (statusFilter !== "all") result = result.filter(a => a.status === statusFilter);
+    return result;
+  };
+
+  // Group by role
+  const getGroupedByRole = (shift) => {
+    const filtered = getAssignmentsByShift(shift);
+    const grouped = {};
+    filtered.forEach(a => {
+      if (!grouped[a.role]) grouped[a.role] = { all: [], pending: [], approved: [] };
+      grouped[a.role].all.push(a);
+      if (a.status === "pending" || a.status === "rejected") grouped[a.role].pending.push(a);
+      if (a.status === "approved") grouped[a.role].approved.push(a);
+    });
+    return grouped;
+  };
 
   const createTask = async () => {
     if (!taskForm.name) { toast.error("Task name required"); return; }
@@ -177,118 +178,117 @@ export default function SideWorkManager() {
     load();
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Side Work Manager</h1>
+          <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Side Work Manager</h1>
           <p className="text-muted-foreground mt-1">Today — {todayStr}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button size="sm" variant="outline" onClick={() => setShowTaskDialog(true)}>
-            <Plus className="h-4 w-4 mr-1" />New Template
+            <Plus className="h-4 w-4 mr-1" />Template
           </Button>
           <Button size="sm" onClick={() => setShowAssignDialog(true)}>
             <Plus className="h-4 w-4 mr-1" />Assign Task
           </Button>
           <Button size="sm" variant="secondary" onClick={assignAllTasks} disabled={assigningAll}>
-            <Zap className="h-4 w-4 mr-1" />{assigningAll ? "Assigning..." : "Assign All Today"}
+            {assigningAll ? "Assigning..." : "Assign All"}
           </Button>
           <Button size="sm" variant="outline" onClick={openBulkDialog}>
-            <ListPlus className="h-4 w-4 mr-1" />Bulk Add Tasks
+            <ListPlus className="h-4 w-4 mr-1" />Bulk
           </Button>
           <Button size="sm" variant="outline" onClick={() => setImportOpen(true)}>
-            <FileUp className="h-4 w-4 mr-1" />Import Tasks
+            <FileUp className="h-4 w-4 mr-1" />Import
           </Button>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-card border border-border rounded-lg p-1 w-fit flex-wrap">
-        {TABS.map(t => (
+        {["opening", "closing", "templates"].map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={cn("px-4 py-2 rounded-md text-sm font-medium transition-colors", tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}>
-            {TAB_LABELS[t]}
-            {t === "approvals" && pendingApprovals.length > 0 && (
-              <span className="ml-1.5 bg-yellow-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">{pendingApprovals.length}</span>
-            )}
+            {t === "opening" ? "Opening" : t === "closing" ? "Closing" : "Templates"}
           </button>
         ))}
       </div>
 
-      {/* Dashboard Tab */}
-      {tab === "dashboard" && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { label: "To Do", value: pending.length, icon: AlertCircle, color: "text-red-400" },
-              { label: "Pending Approval", value: pendingApprovals.length, icon: Clock, color: "text-yellow-400" },
-              { label: "Late Tasks", value: late.length, icon: AlertCircle, color: "text-orange-400" },
-              { label: "Approved", value: approved.length, icon: CheckCircle2, color: "text-green-400" },
-            ].map(stat => (
-              <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
-                <stat.icon className={cn("h-5 w-5 mb-2", stat.color)} />
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-              </div>
+      {/* Filters for shift views */}
+      {(tab === "opening" || tab === "closing") && (
+        <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
+            <button onClick={() => setRoleFilter("all")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-colors", roleFilter === "all" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground")}>All Roles</button>
+            {ROLES.map(r => (
+              <button key={r} onClick={() => setRoleFilter(r)} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-colors", roleFilter === r ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground")}>{ROLE_LABELS[r]}</button>
             ))}
           </div>
+          <div className="flex gap-1 bg-card border border-border rounded-lg p-1">
+            <button onClick={() => setStatusFilter("all")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-colors", statusFilter === "all" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground")}>All</button>
+            <button onClick={() => setStatusFilter("pending")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-colors", statusFilter === "pending" ? "bg-red-500/20 text-red-700" : "text-muted-foreground hover:text-foreground")}>Pending</button>
+            <button onClick={() => setStatusFilter("approved")} className={cn("px-3 py-1 rounded-md text-xs font-medium transition-colors", statusFilter === "approved" ? "bg-green-500/20 text-green-700" : "text-muted-foreground hover:text-foreground")}>Approved</button>
+          </div>
+        </div>
+      )}
 
-          {/* By employee */}
-          <div className="bg-card border border-border rounded-xl p-4">
-            <h2 className="text-sm font-semibold mb-3 flex items-center gap-2"><Users className="h-4 w-4" />By Employee</h2>
-            {Object.keys(byEmployee).length === 0 ? (
-              <p className="text-sm text-muted-foreground">No assignments yet today.</p>
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(byEmployee).map(([name, { total, done }]) => (
-                  <div key={name}>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="font-medium">{name}</span>
-                      <span className="text-muted-foreground text-xs">{done}/{total}</span>
-                    </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-accent rounded-full" style={{ width: `${total > 0 ? (done / total) * 100 : 0}%` }} />
+      {/* Opening/Closing Shift View */}
+      {(tab === "opening" || tab === "closing") && (
+        <div className="space-y-4">
+          {Object.entries(getGroupedByRole(tab)).map(([role, data]) => (
+            <div key={role} className="bg-card border border-border rounded-xl overflow-hidden">
+              {/* Role Header */}
+              <div className="px-4 py-3 border-b border-border bg-secondary/30">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-sm capitalize">{ROLE_LABELS[role]}</span>
+                  <span className="text-xs text-muted-foreground">{data.approved.length}/{data.all.length}</span>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-accent rounded-full" style={{ width: `${data.all.length > 0 ? (data.approved.length / data.all.length) * 100 : 0}%` }} />
+                </div>
+              </div>
+              {/* Tasks */}
+              <div className="divide-y divide-border">
+                {data.pending.length > 0 && (
+                  <div className="px-4 py-3 bg-red-500/5">
+                    <p className="text-xs font-semibold text-red-700 mb-2">Pending ({data.pending.length})</p>
+                    <div className="space-y-2">
+                      {data.pending.map(a => (
+                        <SideWorkTaskCard key={a.id} assignment={a} currentUser={user} isManager={true} onRefresh={load} />
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
+                {data.approved.length > 0 && (
+                  <div className="px-4 py-3 bg-green-500/5">
+                    <p className="text-xs font-semibold text-green-700 mb-2">Approved ({data.approved.length})</p>
+                    <div className="space-y-2 opacity-60">
+                      {data.approved.map(a => (
+                        <SideWorkTaskCard key={a.id} assignment={a} currentUser={user} isManager={true} onRefresh={load} />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* All today's tasks */}
-          <div className="space-y-2">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">All Today's Tasks</h2>
-            {assignments.length === 0 ? (
-              <div className="bg-card border border-border rounded-xl p-8 text-center text-muted-foreground text-sm">
-                No tasks assigned today. Use "Assign All Today" to load from templates.
-              </div>
-            ) : assignments.map(a => (
-              <SideWorkTaskCard key={a.id} assignment={a} currentUser={user} isManager={true} onRefresh={load} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Approvals Tab */}
-      {tab === "approvals" && (
-        <div className="space-y-3">
-          {pendingApprovals.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-12 text-center text-muted-foreground">No pending approvals.</div>
-          ) : pendingApprovals.map(a => (
-            <SideWorkTaskCard key={a.id} assignment={a} currentUser={user} isManager={true} onRefresh={load} />
+            </div>
           ))}
+          {Object.keys(getGroupedByRole(tab)).length === 0 && (
+            <div className="bg-card border border-border rounded-xl p-12 text-center text-muted-foreground text-sm">
+              No tasks assigned for {tab} shift.
+            </div>
+          )}
         </div>
       )}
 
-      {/* Task Templates Tab */}
-      {tab === "tasks" && (
+      {/* Templates Tab */}
+      {tab === "templates" && (
         <div className="space-y-3">
           {tasks.length === 0 && (
             <div className="bg-card border border-border rounded-xl p-12 text-center text-muted-foreground">No task templates yet. Create one!</div>
@@ -316,7 +316,7 @@ export default function SideWorkManager() {
                         {task.due_time && <p className="text-xs text-muted-foreground">Due: {task.due_time}</p>}
                       </div>
                       <button onClick={() => deleteTask(task.id)} className="text-muted-foreground hover:text-destructive transition-colors p-1">
-                        <Trash2 className="h-4 w-4" />
+                        <X className="h-4 w-4" />
                       </button>
                     </div>
                   ))}
@@ -324,34 +324,6 @@ export default function SideWorkManager() {
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* Assign Tab */}
-      {tab === "assign" && (
-        <div className="space-y-3">
-          {SHIFTS.map(shift => {
-            const shiftAssignments = assignments.filter(a => a.shift_type === shift);
-            if (shiftAssignments.length === 0) return null;
-            return (
-              <div key={shift} className="bg-card border border-border rounded-xl overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-secondary/30">
-                  <span className="font-semibold text-sm">{SHIFT_LABELS[shift]}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">{shiftAssignments.filter(a => a.status === "approved").length}/{shiftAssignments.length} done</span>
-                </div>
-                <div className="p-3 space-y-2">
-                  {shiftAssignments.map(a => (
-                    <SideWorkTaskCard key={a.id} assignment={a} currentUser={user} isManager={true} onRefresh={load} />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-          {assignments.length === 0 && (
-            <div className="bg-card border border-border rounded-xl p-12 text-center text-muted-foreground text-sm">
-              No tasks assigned today.
-            </div>
-          )}
         </div>
       )}
 
@@ -364,9 +336,9 @@ export default function SideWorkManager() {
             base44.entities.SideWorkTask.create({
               name: row.name,
               description: row.description || "",
-              role: ["server","bartender","host","busser","food_runner"].includes(row.role) ? row.role : "server",
-              shift_type: ["opening","mid","closing"].includes(row.shift_type) ? row.shift_type : "closing",
-              priority: ["high","medium","low"].includes(row.priority) ? row.priority : "medium",
+              role: ["server", "bartender", "host", "busser", "food_runner"].includes(row.role) ? row.role : "server",
+              shift_type: ["opening", "mid", "closing"].includes(row.shift_type) ? row.shift_type : "closing",
+              priority: ["high", "medium", "low"].includes(row.priority) ? row.priority : "medium",
               due_time: row.due_time || "",
               requires_photo: row.requires_photo === "true" || row.requires_photo === true,
               requires_approval: row.requires_approval === "true" || row.requires_approval === true,
@@ -386,7 +358,6 @@ export default function SideWorkManager() {
               <button onClick={() => setShowBulkDialog(false)}><X className="h-5 w-5 text-muted-foreground" /></button>
             </div>
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-              {/* Role + Shift selector */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">Role</label>
@@ -402,7 +373,6 @@ export default function SideWorkManager() {
                 </div>
               </div>
 
-              {/* Task rows */}
               <div className="space-y-3">
                 <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground px-1">
                   <div className="col-span-4">Task Name *</div>
@@ -455,7 +425,6 @@ export default function SideWorkManager() {
                         </button>
                       )}
                     </div>
-                    {/* Photo / Approval checkboxes on second line */}
                     <div className="col-span-11 flex gap-4 pl-1">
                       <label className="flex items-center gap-1.5 text-xs cursor-pointer text-muted-foreground">
                         <input type="checkbox" checked={row.requires_photo} onChange={e => updateBulkRow(i, "requires_photo", e.target.checked)} />
@@ -488,19 +457,19 @@ export default function SideWorkManager() {
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>New Task Template</DialogTitle></DialogHeader>
           <div className="space-y-3 py-2">
-            <div><Label>Task Name</Label><Input className="mt-1" value={taskForm.name} onChange={e => setTaskForm(p => ({...p, name: e.target.value}))} placeholder="e.g., Roll silverware" /></div>
-            <div><Label>Description</Label><Textarea className="mt-1" rows={2} value={taskForm.description} onChange={e => setTaskForm(p => ({...p, description: e.target.value}))} placeholder="Optional instructions..." /></div>
+            <div><Label>Task Name</Label><Input className="mt-1" value={taskForm.name} onChange={e => setTaskForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g., Roll silverware" /></div>
+            <div><Label>Description</Label><Input className="mt-1" value={taskForm.description} onChange={e => setTaskForm(p => ({ ...p, description: e.target.value }))} placeholder="Optional instructions..." /></div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Role</Label>
-                <Select value={taskForm.role} onValueChange={v => setTaskForm(p => ({...p, role: v}))}>
+                <Select value={taskForm.role} onValueChange={v => setTaskForm(p => ({ ...p, role: v }))}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>{ROLES.map(r => <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Shift</Label>
-                <Select value={taskForm.shift_type} onValueChange={v => setTaskForm(p => ({...p, shift_type: v}))}>
+                <Select value={taskForm.shift_type} onValueChange={v => setTaskForm(p => ({ ...p, shift_type: v }))}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>{SHIFTS.map(s => <SelectItem key={s} value={s}>{SHIFT_LABELS[s]}</SelectItem>)}</SelectContent>
                 </Select>
@@ -509,7 +478,7 @@ export default function SideWorkManager() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Priority</Label>
-                <Select value={taskForm.priority} onValueChange={v => setTaskForm(p => ({...p, priority: v}))}>
+                <Select value={taskForm.priority} onValueChange={v => setTaskForm(p => ({ ...p, priority: v }))}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="high">High</SelectItem>
@@ -518,15 +487,15 @@ export default function SideWorkManager() {
                   </SelectContent>
                 </Select>
               </div>
-              <div><Label>Due Time</Label><Input className="mt-1" value={taskForm.due_time} onChange={e => setTaskForm(p => ({...p, due_time: e.target.value}))} placeholder="e.g., 5:00 PM" /></div>
+              <div><Label>Due Time</Label><Input className="mt-1" value={taskForm.due_time} onChange={e => setTaskForm(p => ({ ...p, due_time: e.target.value }))} placeholder="e.g., 5:00 PM" /></div>
             </div>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="checkbox" checked={taskForm.requires_photo} onChange={e => setTaskForm(p => ({...p, requires_photo: e.target.checked}))} className="rounded" />
+                <input type="checkbox" checked={taskForm.requires_photo} onChange={e => setTaskForm(p => ({ ...p, requires_photo: e.target.checked }))} className="rounded" />
                 Requires Photo
               </label>
               <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="checkbox" checked={taskForm.requires_approval} onChange={e => setTaskForm(p => ({...p, requires_approval: e.target.checked}))} className="rounded" />
+                <input type="checkbox" checked={taskForm.requires_approval} onChange={e => setTaskForm(p => ({ ...p, requires_approval: e.target.checked }))} className="rounded" />
                 Requires Approval
               </label>
             </div>
@@ -545,25 +514,25 @@ export default function SideWorkManager() {
           <div className="space-y-3 py-2">
             <div>
               <Label>Task Template</Label>
-              <Select value={assignForm.task_id} onValueChange={v => setAssignForm(p => ({...p, task_id: v}))}>
+              <Select value={assignForm.task_id} onValueChange={v => setAssignForm(p => ({ ...p, task_id: v }))}>
                 <SelectTrigger className="mt-1"><SelectValue placeholder="Select a task..." /></SelectTrigger>
                 <SelectContent>{tasks.map(t => <SelectItem key={t.id} value={t.id}>{ROLE_LABELS[t.role]} — {t.name} ({SHIFT_LABELS[t.shift_type]})</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
               <Label>Assign to Role (optional)</Label>
-              <Input className="mt-1" value={assignForm.role_assignment} onChange={e => setAssignForm(p => ({...p, role_assignment: e.target.value}))} placeholder="e.g., Server, Bartender" />
+              <Input className="mt-1" value={assignForm.role_assignment} onChange={e => setAssignForm(p => ({ ...p, role_assignment: e.target.value }))} placeholder="e.g., Server, Bartender" />
             </div>
             <div>
               <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="checkbox" checked={assignForm.assigned_to_individual} onChange={e => setAssignForm(p => ({...p, assigned_to_individual: e.target.checked}))} className="rounded" />
-                Assign to specific person (override)
+                <input type="checkbox" checked={assignForm.assigned_to_individual} onChange={e => setAssignForm(p => ({ ...p, assigned_to_individual: e.target.checked }))} className="rounded" />
+                Assign to specific person
               </label>
             </div>
             {assignForm.assigned_to_individual && (
               <>
-                <div><Label>Staff Name</Label><Input className="mt-1" value={assignForm.assigned_to_name} onChange={e => setAssignForm(p => ({...p, assigned_to_name: e.target.value}))} placeholder="e.g., Sarah" /></div>
-                <div><Label>Staff Email</Label><Input className="mt-1" value={assignForm.assigned_to_email} onChange={e => setAssignForm(p => ({...p, assigned_to_email: e.target.value}))} placeholder="staff@example.com" /></div>
+                <div><Label>Staff Name</Label><Input className="mt-1" value={assignForm.assigned_to_name} onChange={e => setAssignForm(p => ({ ...p, assigned_to_name: e.target.value }))} placeholder="e.g., Sarah" /></div>
+                <div><Label>Staff Email</Label><Input className="mt-1" value={assignForm.assigned_to_email} onChange={e => setAssignForm(p => ({ ...p, assigned_to_email: e.target.value }))} placeholder="staff@example.com" /></div>
               </>
             )}
           </div>
