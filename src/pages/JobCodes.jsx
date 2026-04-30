@@ -399,3 +399,5 @@ export default function JobCodes() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

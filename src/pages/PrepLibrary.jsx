@@ -434,6 +434,8 @@ export default function PrepLibrary() {
   );
 }
 
+export const hideBase44Index = true;
+
 function RecipeCard({ recipe, onClose }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">

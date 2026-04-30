@@ -392,3 +392,5 @@ export default function DishMachines() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

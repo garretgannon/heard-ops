@@ -243,6 +243,8 @@ export default function LineUp() {
   );
 }
 
+export const hideBase44Index = true;
+
 function LineupCard({ lineup, onEdit, onDelete }) {
   const [expandedSections, setExpandedSections] = useState({ reservations: true, vips: true });
   const [acknowledgedStaff, setAcknowledgedStaff] = useState(lineup.acknowledged_staff || []);

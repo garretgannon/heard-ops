@@ -425,3 +425,5 @@ export default function MyRestaurant() {
     </motion.div>
   );
 }
+
+export const hideBase44Index = true;

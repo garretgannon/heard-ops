@@ -132,3 +132,5 @@ export default function Profile() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

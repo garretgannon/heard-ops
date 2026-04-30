@@ -374,6 +374,8 @@ export default function MaintenanceRequests() {
   );
 }
 
+export const hideBase44Index = true;
+
 function RequestCard({ req, vendors, onEdit, onDelete }) {
   const p = PRIORITY_CONFIG[req.priority] || PRIORITY_CONFIG.normal;
   const s = STATUS_CONFIG[req.status] || STATUS_CONFIG.new;

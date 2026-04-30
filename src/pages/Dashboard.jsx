@@ -335,3 +335,5 @@ export default function Dashboard() {
     </motion.div>
   );
 }
+
+export const hideBase44Index = true;

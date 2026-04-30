@@ -388,6 +388,8 @@ export default function PreShift() {
   );
 }
 
+export const hideBase44Index = true;
+
 function PreShiftCard({ briefing, onEdit, onDelete }) {
   const [markingBriefed, setMarkingBriefed] = useState(false);
   const [currentBriefed, setCurrentBriefed] = useState(briefing.briefed_staff || []);

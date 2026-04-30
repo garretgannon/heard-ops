@@ -450,3 +450,5 @@ export default function MSDS() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

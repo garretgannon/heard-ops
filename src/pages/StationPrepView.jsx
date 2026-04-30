@@ -236,6 +236,8 @@ export default function StationPrepView() {
   );
 }
 
+export const hideBase44Index = true;
+
 // Individual prep item card optimized for cooks
 function PrepItemTaskCard({ item, prepList, onUpdate, onHelp, onUnavailable }) {
   const [isCompleting, setIsCompleting] = useState(false);

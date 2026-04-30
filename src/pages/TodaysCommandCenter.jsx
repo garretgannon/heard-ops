@@ -273,3 +273,5 @@ export default function TodaysCommandCenter() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

@@ -403,3 +403,5 @@ export default function BuildBook() {
     </motion.div>
   );
 }
+
+export const hideBase44Index = true;

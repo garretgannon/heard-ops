@@ -539,3 +539,5 @@ export default function BarBook() {
     </motion.div>
   );
 }
+
+export const hideBase44Index = true;

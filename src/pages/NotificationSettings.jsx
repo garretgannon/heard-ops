@@ -285,3 +285,5 @@ export default function NotificationSettings() {
     </motion.div>
   );
 }
+
+export const hideBase44Index = true;

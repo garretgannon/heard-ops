@@ -378,3 +378,5 @@ export default function BathroomChecks() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

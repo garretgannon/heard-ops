@@ -544,3 +544,5 @@ export default function Cash() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

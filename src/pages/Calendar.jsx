@@ -462,6 +462,8 @@ function AgendaView({ events, todayStr, openNew }) {
   );
 }
 
+export const hideBase44Index = true;
+
 function EventDetail({ date, events, openNew, handleDelete }) {
   const d = new Date(date + "T12:00:00");
 

@@ -363,3 +363,5 @@ export default function ManagerDashboard() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

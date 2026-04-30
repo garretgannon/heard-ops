@@ -389,6 +389,8 @@ export default function Vendors() {
   );
 }
 
+export const hideBase44Index = true;
+
 function VendorCard({ vendor, onEdit, onDelete, expanded, onToggleExpand }) {
   const cat = CATEGORIES.find(c => c.value === vendor.category);
 

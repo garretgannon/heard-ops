@@ -393,3 +393,5 @@ export default function StaffTasks() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

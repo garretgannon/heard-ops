@@ -415,3 +415,5 @@ export default function RestaurantTeam() {
     </motion.div>
   );
 }
+
+export const hideBase44Index = true;

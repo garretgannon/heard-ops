@@ -512,3 +512,5 @@ ${edits.followUps || report.followUps.join('\n')}
     </div>
   );
 }
+
+export const hideBase44Index = true;

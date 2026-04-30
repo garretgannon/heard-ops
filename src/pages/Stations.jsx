@@ -365,3 +365,5 @@ export default function Stations() {
     </div>
   );
 }
+
+export const hideBase44Index = true;
