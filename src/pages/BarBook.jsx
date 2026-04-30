@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Plus, X, Edit2, Trash2, Wine, Search } from "lucide-react";
+import { Plus, X, Edit2, Trash2, Wine, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import ManagerLog from "./ManagerLog";
+import Calendar from "./Calendar";
+import Vendors from "./Vendors";
+import IncidentReports from "./IncidentReports";
 
 export default function BarBook() {
   const [drinks, setDrinks] = useState([]);
@@ -18,6 +24,7 @@ export default function BarBook() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [activeTab, setActiveTab] = useState("recipes");
   const [form, setForm] = useState({
     name: "",
     photo_url: "",
@@ -127,261 +134,325 @@ export default function BarBook() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">Cocktail and drink recipes</p>
         </div>
-        {isAdmin && (
+        {isAdmin && activeTab === "recipes" && (
           <Button onClick={openNew} className="gap-2">
             <Plus className="h-4 w-4" /> Add Recipe
           </Button>
         )}
       </div>
 
-      {/* Filters */}
-      <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-        <div className="space-y-2">
-          <Label className="text-xs">Search</Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Drink name, spirit, ingredients..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="recipes">Recipes</TabsTrigger>
+          <TabsTrigger value="operations">Operations</TabsTrigger>
+        </TabsList>
 
-        <div className="space-y-2">
-          <Label className="text-xs">Category</Label>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={!categoryFilter && !batchFilter ? "default" : "outline"}
-              size="sm"
-              onClick={() => { setCategoryFilter(""); setBatchFilter(false); }}
-            >
-              All
-            </Button>
-            <Button
-              variant={categoryFilter === "Beer" && !batchFilter ? "default" : "outline"}
-              size="sm"
-              onClick={() => { setCategoryFilter("Beer"); setBatchFilter(false); }}
-            >
-              Beer
-            </Button>
-            <Button
-              variant={categoryFilter === "Cocktails" && !batchFilter ? "default" : "outline"}
-              size="sm"
-              onClick={() => { setCategoryFilter("Cocktails"); setBatchFilter(false); }}
-            >
-              Cocktails
-            </Button>
-            <Button
-              variant={categoryFilter === "Wine" && !batchFilter ? "default" : "outline"}
-              size="sm"
-              onClick={() => { setCategoryFilter("Wine"); setBatchFilter(false); }}
-            >
-              Wine
-            </Button>
-            <Button
-              variant={batchFilter ? "default" : "outline"}
-              size="sm"
-              onClick={() => { setBatchFilter(!batchFilter); setCategoryFilter(""); }}
-            >
-              Batch Recipes
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Drinks Grid */}
-      {filteredDrinks.length === 0 ? (
-        <div className="bg-card border border-border rounded-2xl p-12 text-center">
-          <p className="text-muted-foreground mb-4">No recipes found</p>
-          {isAdmin && (
-            <Button onClick={openNew} variant="outline" className="gap-2">
-              <Plus className="h-4 w-4" /> Add First Recipe
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredDrinks.map(drink => (
-            <motion.div
-              key={drink.id}
-              className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary transition flex flex-col h-full"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {/* Photo */}
-              <div className="relative w-full h-48 bg-secondary overflow-hidden">
-                {drink.is_batch_recipe && (
-                  <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full z-10">
-                    Batch
-                  </div>
-                )}
-                <img
-                  src={drink.photo_url}
-                  alt={drink.name}
-                  className="w-full h-full object-cover hover:scale-105 transition"
-                  onError={e => e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23374151' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' fill='%23999' font-size='12' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E"}
-                />
-              </div>
-
-              {/* Content */}
-              <div className="p-4 flex-1 flex flex-col">
-                <h3 className="font-semibold text-sm mb-1">{drink.name}</h3>
-                {drink.category && <p className="text-xs text-primary mb-2">{drink.category}</p>}
-
-                <div className="space-y-2 text-xs mb-3 flex-1">
-                  {drink.base_spirit && (
-                    <div>
-                      <p className="text-muted-foreground font-medium">Spirit</p>
-                      <p className="text-muted-foreground">{drink.base_spirit}</p>
-                    </div>
-                  )}
-                  {drink.glassware && (
-                    <div>
-                      <p className="text-muted-foreground font-medium">Glassware</p>
-                      <p className="text-muted-foreground">{drink.glassware}</p>
-                    </div>
-                  )}
-                  {drink.ingredients && (
-                    <div>
-                      <p className="text-muted-foreground font-medium">Ingredients</p>
-                      <p className="text-muted-foreground line-clamp-2">{drink.ingredients}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Actions */}
-                {isAdmin && (
-                  <div className="flex gap-1 pt-2 border-t border-border">
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(drink)} title="Edit">
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDelete(drink.id)} title="Delete">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Form Dialog */}
-      {isAdmin && (
-        <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingId ? "Edit Recipe" : "Add Recipe to Bar Book"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <div className="space-y-1">
-                <Label>Drink Name *</Label>
+        <TabsContent value="recipes" className="space-y-6">
+          {/* Filters */}
+          <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+            <div className="space-y-2">
+              <Label className="text-xs">Search</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g., Margarita"
+                  placeholder="Drink name, spirit, ingredients..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="pl-9"
                 />
-              </div>
-
-              <div className="space-y-1">
-                <Label>Drink Photo URL *</Label>
-                <Input
-                  value={form.photo_url}
-                  onChange={e => setForm(f => ({ ...f, photo_url: e.target.value }))}
-                  placeholder="https://..."
-                />
-                {form.photo_url && (
-                  <div className="mt-2 w-32 h-32 rounded-lg overflow-hidden border border-border">
-                    <img src={form.photo_url} alt="preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label>Category</Label>
-                  <select
-                    value={form.category}
-                    onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                    className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  >
-                    <option value="">Select Category</option>
-                    <option value="Beer">Beer</option>
-                    <option value="Cocktails">Cocktails</option>
-                    <option value="Wine">Wine</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <Label>Base Spirit</Label>
-                  <Input
-                    value={form.base_spirit}
-                    onChange={e => setForm(f => ({ ...f, base_spirit: e.target.value }))}
-                    placeholder="e.g., Tequila"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <Label>Glassware / Serving</Label>
-                <Input
-                  value={form.glassware}
-                  onChange={e => setForm(f => ({ ...f, glassware: e.target.value }))}
-                  placeholder="e.g., Rocks Glass"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label>Ingredients</Label>
-                <textarea
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[80px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  placeholder="List all ingredients with measurements..."
-                  value={form.ingredients}
-                  onChange={e => setForm(f => ({ ...f, ingredients: e.target.value }))}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label>Recipe / Instructions</Label>
-                <textarea
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[100px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  placeholder="Step-by-step instructions..."
-                  value={form.recipe}
-                  onChange={e => setForm(f => ({ ...f, recipe: e.target.value }))}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label>Notes / Variations</Label>
-                <textarea
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[60px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  placeholder="Tips, garnishes, variations..."
-                  value={form.notes}
-                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                />
-              </div>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={form.is_batch_recipe}
-                  onChange={e => setForm(f => ({ ...f, is_batch_recipe: e.target.checked }))}
-                  className="w-4 h-4 rounded border-input"
-                />
-                <span className="text-sm">Batch Recipe</span>
-              </label>
-
-              <div className="flex gap-2 pt-2">
-                <Button onClick={handleSave} disabled={saving} className="flex-1">
-                  {saving ? "Saving…" : (editingId ? "Update" : "Add")} Recipe
-                </Button>
-                <Button variant="ghost" onClick={() => setShowForm(false)}><X className="h-4 w-4" /></Button>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      )}
+
+            <div className="space-y-2">
+              <Label className="text-xs">Category</Label>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={!categoryFilter && !batchFilter ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => { setCategoryFilter(""); setBatchFilter(false); }}
+                >
+                  All
+                </Button>
+                <Button
+                  variant={categoryFilter === "Beer" && !batchFilter ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => { setCategoryFilter("Beer"); setBatchFilter(false); }}
+                >
+                  Beer
+                </Button>
+                <Button
+                  variant={categoryFilter === "Cocktails" && !batchFilter ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => { setCategoryFilter("Cocktails"); setBatchFilter(false); }}
+                >
+                  Cocktails
+                </Button>
+                <Button
+                  variant={categoryFilter === "Wine" && !batchFilter ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => { setCategoryFilter("Wine"); setBatchFilter(false); }}
+                >
+                  Wine
+                </Button>
+                <Button
+                  variant={batchFilter ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => { setBatchFilter(!batchFilter); setCategoryFilter(""); }}
+                >
+                  Batch Recipes
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Drinks Grid */}
+          {filteredDrinks.length === 0 ? (
+            <div className="bg-card border border-border rounded-2xl p-12 text-center">
+              <p className="text-muted-foreground mb-4">No recipes found</p>
+              {isAdmin && (
+                <Button onClick={openNew} variant="outline" className="gap-2">
+                  <Plus className="h-4 w-4" /> Add First Recipe
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredDrinks.map(drink => (
+                <motion.div
+                  key={drink.id}
+                  className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary transition flex flex-col h-full"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {/* Photo */}
+                  <div className="relative w-full h-48 bg-secondary overflow-hidden">
+                    {drink.is_batch_recipe && (
+                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full z-10">
+                        Batch
+                      </div>
+                    )}
+                    <img
+                      src={drink.photo_url}
+                      alt={drink.name}
+                      className="w-full h-full object-cover hover:scale-105 transition"
+                      onError={e => e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23374151' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' fill='%23999' font-size='12' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E"}
+                    />
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <h3 className="font-semibold text-sm mb-1">{drink.name}</h3>
+                    {drink.category && <p className="text-xs text-primary mb-2">{drink.category}</p>}
+
+                    <div className="space-y-2 text-xs mb-3 flex-1">
+                      {drink.base_spirit && (
+                        <div>
+                          <p className="text-muted-foreground font-medium">Spirit</p>
+                          <p className="text-muted-foreground">{drink.base_spirit}</p>
+                        </div>
+                      )}
+                      {drink.glassware && (
+                        <div>
+                          <p className="text-muted-foreground font-medium">Glassware</p>
+                          <p className="text-muted-foreground">{drink.glassware}</p>
+                        </div>
+                      )}
+                      {drink.ingredients && (
+                        <div>
+                          <p className="text-muted-foreground font-medium">Ingredients</p>
+                          <p className="text-muted-foreground line-clamp-2">{drink.ingredients}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    {isAdmin && (
+                      <div className="flex gap-1 pt-2 border-t border-border">
+                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(drink)} title="Edit">
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDelete(drink.id)} title="Delete">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {/* Form Dialog */}
+          {isAdmin && (
+            <Dialog open={showForm} onOpenChange={setShowForm}>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{editingId ? "Edit Recipe" : "Add Recipe to Bar Book"}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div className="space-y-1">
+                    <Label>Drink Name *</Label>
+                    <Input
+                      value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                      placeholder="e.g., Margarita"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Drink Photo URL *</Label>
+                    <Input
+                      value={form.photo_url}
+                      onChange={e => setForm(f => ({ ...f, photo_url: e.target.value }))}
+                      placeholder="https://..."
+                    />
+                    {form.photo_url && (
+                      <div className="mt-2 w-32 h-32 rounded-lg overflow-hidden border border-border">
+                        <img src={form.photo_url} alt="preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label>Category</Label>
+                      <select
+                        value={form.category}
+                        onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                        className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <option value="">Select Category</option>
+                        <option value="Beer">Beer</option>
+                        <option value="Cocktails">Cocktails</option>
+                        <option value="Wine">Wine</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Base Spirit</Label>
+                      <Input
+                        value={form.base_spirit}
+                        onChange={e => setForm(f => ({ ...f, base_spirit: e.target.value }))}
+                        placeholder="e.g., Tequila"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Glassware / Serving</Label>
+                    <Input
+                      value={form.glassware}
+                      onChange={e => setForm(f => ({ ...f, glassware: e.target.value }))}
+                      placeholder="e.g., Rocks Glass"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Ingredients</Label>
+                    <textarea
+                      className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[80px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      placeholder="List all ingredients with measurements..."
+                      value={form.ingredients}
+                      onChange={e => setForm(f => ({ ...f, ingredients: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Recipe / Instructions</Label>
+                    <textarea
+                      className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[100px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      placeholder="Step-by-step instructions..."
+                      value={form.recipe}
+                      onChange={e => setForm(f => ({ ...f, recipe: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Notes / Variations</Label>
+                    <textarea
+                      className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[60px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      placeholder="Tips, garnishes, variations..."
+                      value={form.notes}
+                      onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={form.is_batch_recipe}
+                      onChange={e => setForm(f => ({ ...f, is_batch_recipe: e.target.checked }))}
+                      className="w-4 h-4 rounded border-input"
+                    />
+                    <span className="text-sm">Batch Recipe</span>
+                  </label>
+
+                  <div className="flex gap-2 pt-2">
+                    <Button onClick={handleSave} disabled={saving} className="flex-1">
+                      {saving ? "Saving…" : (editingId ? "Update" : "Add")} Recipe
+                    </Button>
+                    <Button variant="ghost" onClick={() => setShowForm(false)}><X className="h-4 w-4" /></Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </TabsContent>
+
+        <TabsContent value="operations" className="space-y-4">
+          {/* Manager Log */}
+          <Collapsible defaultOpen={false}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <span>Manager Log</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2 bg-card border border-border rounded-lg p-4">
+              <ManagerLog />
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Calendar */}
+          <Collapsible defaultOpen={false}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <span>Calendar</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2 bg-card border border-border rounded-lg p-4">
+              <Calendar />
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Vendors */}
+          <Collapsible defaultOpen={false}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <span>Vendors</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2 bg-card border border-border rounded-lg p-4">
+              <Vendors />
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Incident Reports */}
+          <Collapsible defaultOpen={false}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <span>Incident Reports</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2 bg-card border border-border rounded-lg p-4">
+              <IncidentReports />
+            </CollapsibleContent>
+          </Collapsible>
+        </TabsContent>
+      </Tabs>
     </motion.div>
   );
 }
