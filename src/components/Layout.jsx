@@ -36,12 +36,15 @@ const bohNavItems = [
   { path: "/dish-machines", label: "Dish Machines", icon: Droplet },
 ];
 
+const operationsNavItems = [
+  { path: "/manager-log", label: "Manager Log", icon: NotebookPen },
+  { path: "/incidents", label: "Incident Reports", icon: AlertTriangle },
+  { path: "/vendors", label: "Vendors", icon: Truck },
+  { path: "/calendar", label: "Calendar", icon: CalendarDays },
+  { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch },
+];
+
 const bottomNavItems = [
-  { path: "/manager-log", label: "Manager Log", icon: NotebookPen, highlight: true },
-  { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch, highlight: true },
-  { path: "/incidents", label: "Incident Reports", icon: AlertTriangle, highlight: true },
-  { path: "/vendors", label: "Vendors", icon: Truck, highlight: true },
-  { path: "/calendar", label: "Calendar", icon: CalendarDays, highlight: true },
   { path: "/reports", label: "Reports", icon: BarChart2, highlight: true },
   { path: "/photo-review", label: "Photo Review", icon: Camera, highlight: true },
   { path: "/profile", label: "My Profile", icon: UserCircle, highlight: true },
@@ -67,6 +70,8 @@ export default function Layout() {
   const [mobileBohOpen, setMobileBohOpen] = useState(true);
   const [fohOpen, setFohOpen] = useState(true);
   const [bohOpen, setBohOpen] = useState(true);
+  const [operationsOpen, setOperationsOpen] = useState(false);
+  const [mobileOperationsOpen, setMobileOperationsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
   const { isAdmin, isFOH } = useCurrentUser();
@@ -148,6 +153,21 @@ export default function Layout() {
                   <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileBohOpen && "rotate-180")} />
                 </button>
                 {mobileBohOpen && bohNavItems.map(item => (
+                  <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                      location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
+                    )}>
+                    <item.icon className="h-4 w-4" />{item.label}
+                  </Link>
+                ))}
+
+                <button onClick={() => setMobileOperationsOpen(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 mt-1">
+                  <span className="text-primary">Operations</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", mobileOperationsOpen && "rotate-180")} />
+                </button>
+                {mobileOperationsOpen && operationsNavItems.map(item => (
                   <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
                     className={cn(
                       "flex items-center gap-3 pl-8 pr-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
@@ -271,6 +291,30 @@ export default function Layout() {
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", bohOpen && "rotate-180")} />
               </button>
               {bohOpen && bohNavItems.map(item => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    location.pathname === item.path
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* Operations section */}
+              <button
+                onClick={() => setOperationsOpen(v => !v)}
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-200 mt-1"
+              >
+                <span className="text-primary">Operations</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", operationsOpen && "rotate-180")} />
+              </button>
+              {operationsOpen && operationsNavItems.map(item => (
                 <Link
                   key={item.path}
                   to={item.path}
