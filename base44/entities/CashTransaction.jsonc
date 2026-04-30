@@ -1,0 +1,71 @@
+{
+  "name": "CashTransaction",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "type": {
+      "type": "string",
+      "title": "Type",
+      "enum": [
+        "cash_log",
+        "petty_cash_in",
+        "petty_cash_out"
+      ],
+      "enumNames": [
+        "Cash Log Entry",
+        "Petty Cash In",
+        "Petty Cash Out"
+      ]
+    },
+    "amount": {
+      "type": "number",
+      "title": "Amount ($)"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "deposit",
+        "variance",
+        "supplies",
+        "tips",
+        "refund",
+        "other"
+      ],
+      "enumNames": [
+        "Deposit",
+        "Variance",
+        "Supplies",
+        "Tips",
+        "Refund",
+        "Other"
+      ]
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    },
+    "receipt_url": {
+      "type": "string",
+      "title": "Receipt Photo URL"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "date",
+    "type",
+    "amount",
+    "description"
+  ]
+}

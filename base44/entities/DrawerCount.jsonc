@@ -1,0 +1,101 @@
+{
+  "name": "DrawerCount",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "morning",
+        "night"
+      ],
+      "enumNames": [
+        "Morning",
+        "Night"
+      ]
+    },
+    "drawer_name": {
+      "type": "string",
+      "title": "Drawer / Register"
+    },
+    "hundreds": {
+      "type": "number",
+      "title": "$100 Bills",
+      "default": 0
+    },
+    "fifties": {
+      "type": "number",
+      "title": "$50 Bills",
+      "default": 0
+    },
+    "twenties": {
+      "type": "number",
+      "title": "$20 Bills",
+      "default": 0
+    },
+    "tens": {
+      "type": "number",
+      "title": "$10 Bills",
+      "default": 0
+    },
+    "fives": {
+      "type": "number",
+      "title": "$5 Bills",
+      "default": 0
+    },
+    "ones": {
+      "type": "number",
+      "title": "$1 Bills",
+      "default": 0
+    },
+    "quarters": {
+      "type": "number",
+      "title": "Quarters",
+      "default": 0
+    },
+    "dimes": {
+      "type": "number",
+      "title": "Dimes",
+      "default": 0
+    },
+    "nickels": {
+      "type": "number",
+      "title": "Nickels",
+      "default": 0
+    },
+    "pennies": {
+      "type": "number",
+      "title": "Pennies",
+      "default": 0
+    },
+    "total": {
+      "type": "number",
+      "title": "Total ($)"
+    },
+    "expected": {
+      "type": "number",
+      "title": "Expected ($)"
+    },
+    "variance": {
+      "type": "number",
+      "title": "Variance ($)"
+    },
+    "counted_by": {
+      "type": "string",
+      "title": "Counted By"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "date",
+    "shift"
+  ]
+}
