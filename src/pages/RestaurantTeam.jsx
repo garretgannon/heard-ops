@@ -1,125 +1,113 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Users, Mail, X, ChevronLeft, ChevronRight, UserCircle, Plus } from "lucide-react";
+import {
+  Users, Mail, X, Plus, Search, Archive, MoreVertical, ExternalLink,
+  AlertCircle, CheckCircle, Clock, Phone, Calendar, Award
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay } from "date-fns";
+import { cn } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
-const SHIFTS = ["morning", "night"];
-const SHIFT_LABELS = { morning: "AM", night: "PM" };
+const DEPARTMENTS = ["FOH", "BOH", "Bar"];
+const STATUSES = [
+  { value: "active", label: "Active", icon: CheckCircle, color: "text-green-500" },
+  { value: "inactive", label: "Inactive", icon: Clock, color: "text-yellow-500" },
+  { value: "archived", label: "Archived", icon: Archive, color: "text-muted-foreground" },
+];
 
-const ROLE_OPTIONS = [
-  { value: "admin", label: "Admin / Manager" },
-  { value: "user", label: "BOH Staff" },
-  { value: "foh", label: "FOH Staff" },
+const ROLES = [
+  { value: "admin", label: "Admin" },
+  { value: "foh", label: "FOH" },
+  { value: "user", label: "BOH" },
   { value: "busser", label: "Busser" },
 ];
 
-function WeekNav({ weekStart, onPrev, onNext }) {
-  const weekEnd = addDays(weekStart, 6);
-  return (
-    <div className="flex items-center gap-3">
-      <Button size="icon" variant="outline" className="h-8 w-8" onClick={onPrev}><ChevronLeft className="h-4 w-4" /></Button>
-      <span className="text-sm font-medium text-foreground min-w-[180px] text-center">
-        {format(weekStart, "MMM d")} &ndash; {format(weekEnd, "MMM d, yyyy")}
-      </span>
-      <Button size="icon" variant="outline" className="h-8 w-8" onClick={onNext}><ChevronRight className="h-4 w-4" /></Button>
-    </div>
-  );
+function getStatusInfo(status) {
+  return STATUSES.find(s => s.value === status) || STATUSES[0];
 }
 
 export default function RestaurantTeam() {
-  const [users, setUsers] = useState([]);
-  const [stations, setStations] = useState([]);
-  const [assignments, setAssignments] = useState([]);
+  const { user: currentUser, isAdmin } = useCurrentUser();
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviting, setInviting] = useState(false);
+  const [search, setSearch] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("active");
   const [showInvite, setShowInvite] = useState(false);
-  const [updatingRole, setUpdatingRole] = useState(null);
-
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  const weekEnd = addDays(weekStart, 6);
-
-  const loadAssignments = async () => {
-    const from = format(weekStart, "yyyy-MM-dd");
-    const to = format(weekEnd, "yyyy-MM-dd");
-    const all = await base44.entities.StationAssignment.list("-date", 500);
-    setAssignments(all.filter(a => a.date >= from && a.date <= to));
-  };
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [invitingRole, setInvitingRole] = useState("user");
+  const [inviting, setInviting] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const load = async () => {
-      const [u, s] = await Promise.all([
-        base44.entities.User.list(),
-        base44.entities.Station.list(),
-      ]);
-      setUsers(u);
-      setStations(s);
+      const all = await base44.entities.User.list();
+      setEmployees(all);
       setLoading(false);
     };
     load();
   }, []);
 
-  useEffect(() => {
-    loadAssignments();
-  }, [weekStart]);
-
-  const getAssignment = (userEmail, date, shift) => {
-    const dateStr = format(date, "yyyy-MM-dd");
-    return assignments.find(a => a.user_email === userEmail && a.date === dateStr && a.shift === shift);
-  };
-
-  const handleAssignmentChange = async (user, date, shift, stationId) => {
-    const dateStr = format(date, "yyyy-MM-dd");
-    const existing = assignments.find(a => a.user_email === user.email && a.date === dateStr && a.shift === shift);
-    if (stationId === "__clear__") {
-      if (existing) {
-        await base44.entities.StationAssignment.delete(existing.id);
-        setAssignments(prev => prev.filter(a => a.id !== existing.id));
-      }
-      return;
+  const filteredEmployees = employees.filter(emp => {
+    if (!isAdmin && emp.status === "archived") return false;
+    if (selectedStatus !== "all" && emp.status !== selectedStatus) return false;
+    if (selectedDepartment !== "all" && emp.department !== selectedDepartment) return false;
+    if (search && !emp.full_name?.toLowerCase().includes(search.toLowerCase()) &&
+        !emp.email?.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  }).sort((a, b) => {
+    const statusOrder = { active: 0, inactive: 1, archived: 2 };
+    const aDept = a.department || "ZZ";
+    const bDept = b.department || "ZZ";
+    if (statusOrder[a.status] !== statusOrder[b.status]) {
+      return statusOrder[a.status] - statusOrder[b.status];
     }
-    const station = stations.find(s => s.id === stationId);
-    if (existing) {
-      const updated = await base44.entities.StationAssignment.update(existing.id, {
-        station_id: stationId, station_name: station?.name || "",
-      });
-      setAssignments(prev => prev.map(a => a.id === existing.id ? updated : a));
-    } else {
-      const created = await base44.entities.StationAssignment.create({
-        station_id: stationId,
-        station_name: station?.name || "",
-        user_email: user.email,
-        user_name: user.full_name || user.email,
-        shift,
-        date: dateStr,
-      });
-      setAssignments(prev => [...prev, created]);
-    }
-  };
-
-  const handleRoleChange = async (userId, newRole) => {
-    setUpdatingRole(userId);
-    await base44.entities.User.update(userId, { role: newRole });
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
-    setUpdatingRole(null);
-    toast.success("Role updated");
-  };
+    return aDept.localeCompare(bDept);
+  });
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
     setInviting(true);
-    await base44.users.inviteUser(inviteEmail.trim(), "user");
+    await base44.users.inviteUser(inviteEmail.trim(), invitingRole);
     toast.success("Invite sent!");
     setInviteEmail("");
+    setInvitingRole("user");
     setShowInvite(false);
     setInviting(false);
+  };
+
+  const handleSaveEmployee = async () => {
+    if (!editingEmployee) return;
+    setSaving(true);
+    const updated = await base44.entities.User.update(editingEmployee.id, editForm);
+    setEmployees(prev => prev.map(e => e.id === editingEmployee.id ? updated : e));
+    setEditingEmployee(null);
+    setSaving(false);
+    toast.success("Updated");
+  };
+
+  const handleChangeStatus = async (empId, newStatus) => {
+    const updated = await base44.entities.User.update(empId, { status: newStatus });
+    setEmployees(prev => prev.map(e => e.id === empId ? updated : e));
+    toast.success("Status updated");
+  };
+
+  const handleChangeRole = async (empId, newRole) => {
+    const updated = await base44.entities.User.update(empId, { role: newRole });
+    setEmployees(prev => prev.map(e => e.id === empId ? updated : e));
+    toast.success("Role updated");
   };
 
   if (loading) return (
@@ -128,131 +116,302 @@ export default function RestaurantTeam() {
     </div>
   );
 
+  const activeCount = employees.filter(e => e.status === "active").length;
+  const inactiveCount = employees.filter(e => e.status === "inactive").length;
+
   return (
-    <motion.div className="space-y-8" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
             <Users className="h-7 w-7 text-primary" /> Restaurant Team
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">Manage staff roles and weekly station assignments.</p>
+          <p className="text-muted-foreground mt-1 text-sm">Employee directory, roles, and permissions.</p>
         </div>
-        {!showInvite ? (
-          <Button size="sm" onClick={() => setShowInvite(true)}>
-            <Plus className="h-4 w-4 mr-1" /> Invite Member
-          </Button>
-        ) : (
-          <div className="flex items-end gap-2">
-            <div>
-              <Label className="text-xs">Email</Label>
-              <Input className="h-8 text-xs w-52" type="email" placeholder="staff@restaurant.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
-            </div>
-            <Button size="sm" disabled={inviting || !inviteEmail.trim()} onClick={handleInvite}>
-              <Mail className="h-3.5 w-3.5 mr-1" />{inviting ? "Sending..." : "Send"}
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => { setShowInvite(false); setInviteEmail(""); }}><X className="h-3.5 w-3.5" /></Button>
+        <Button onClick={() => setShowInvite(true)} className="gap-2">
+          <Plus className="h-4 w-4" /> Invite
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-card border border-border rounded-lg p-3">
+          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-2xl font-bold">{employees.length}</p>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-3">
+          <p className="text-xs text-muted-foreground">Active</p>
+          <p className="text-2xl font-bold text-green-500">{activeCount}</p>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-3">
+          <p className="text-xs text-muted-foreground">Inactive</p>
+          <p className="text-2xl font-bold text-yellow-500">{inactiveCount}</p>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-3">
+          <p className="text-xs text-muted-foreground">Departments</p>
+          <p className="text-2xl font-bold">{new Set(employees.filter(e => e.department).map(e => e.department)).size}</p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex-1 min-w-[200px] relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search name or email..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            {STATUSES.map(s => (
+              <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Departments</SelectItem>
+            {DEPARTMENTS.map(d => (
+              <SelectItem key={d} value={d}>{d}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Employee Directory */}
+      <div className="grid gap-4">
+        {filteredEmployees.length === 0 ? (
+          <div className="bg-card border border-border rounded-lg p-8 text-center">
+            <p className="text-muted-foreground">No employees found.</p>
           </div>
+        ) : (
+          filteredEmployees.map(emp => {
+            const statusInfo = getStatusInfo(emp.status);
+            const StatusIcon = statusInfo.icon;
+            const canSeePrivate = isAdmin || emp.email === currentUser?.email;
+            return (
+              <div key={emp.id} className="bg-card border border-border rounded-lg p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-sm truncate">{emp.full_name || emp.email}</h3>
+                      <StatusIcon className={cn("h-4 w-4 flex-shrink-0", statusInfo.color)} />
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">{emp.email}</p>
+                    <div className="flex items-center gap-4 flex-wrap text-xs">
+                      {emp.department && (
+                        <span className="px-2 py-1 bg-secondary rounded-full">{emp.department}</span>
+                      )}
+                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
+                        {ROLES.find(r => r.value === emp.role)?.label || "User"}
+                      </span>
+                      {emp.start_date && (
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" /> {format(parseISO(emp.start_date), "MMM d, yyyy")}
+                        </span>
+                      )}
+                      {emp.phone && (
+                        <span className="text-muted-foreground flex items-center gap-1">
+                          <Phone className="h-3 w-3" /> {emp.phone}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 flex-shrink-0"
+                    onClick={() => setSelectedEmployee(emp)}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Certifications */}
+                {emp.certifications && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <Award className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                    <div className="flex flex-wrap gap-1">
+                      {emp.certifications.split(",").map((cert, i) => (
+                        <span key={i} className="px-2 py-1 bg-primary/10 rounded text-primary">
+                          {cert.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-border/50">
+                  <Select value={emp.status} onValueChange={v => handleChangeStatus(emp.id, v)}>
+                    <SelectTrigger className="h-7 text-xs w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUSES.map(s => (
+                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={emp.role || "user"} onValueChange={v => handleChangeRole(emp.id, v)}>
+                    <SelectTrigger className="h-7 text-xs w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROLES.map(r => (
+                        <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="sm" className="text-xs gap-1 ml-auto">
+                    <ExternalLink className="h-3 w-3" /> View
+                  </Button>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
 
-      {/* Team roster */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex items-center gap-2">
-          <UserCircle className="h-4 w-4 text-primary" />
-          <h2 className="font-semibold text-sm">Team Members</h2>
-          <span className="text-xs text-muted-foreground ml-auto">{users.length} members</span>
-        </div>
-        <div className="divide-y divide-border">
-          {users.length === 0 && <p className="px-5 py-6 text-sm text-muted-foreground">No team members yet.</p>}
-          {users.map(u => (
-            <div key={u.id} className="flex items-center justify-between px-5 py-3 gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">
-                  {(u.full_name || u.email || "?")[0].toUpperCase()}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{u.full_name || u.email}</p>
-                  {u.full_name && <p className="text-xs text-muted-foreground truncate">{u.email}</p>}
-                </div>
-              </div>
-              <Select
-                value={u.role || "user"}
-                onValueChange={v => handleRoleChange(u.id, v)}
-                disabled={updatingRole === u.id}
-              >
-                <SelectTrigger className="h-7 text-xs w-40 flex-shrink-0">
+      {/* Invite Dialog */}
+      <Dialog open={showInvite} onOpenChange={setShowInvite}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Invite Team Member</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-1">
+              <Label>Email Address</Label>
+              <Input
+                type="email"
+                placeholder="staff@restaurant.com"
+                value={inviteEmail}
+                onChange={e => setInviteEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Initial Role</Label>
+              <Select value={invitingRole} onValueChange={setInvitingRole}>
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {ROLE_OPTIONS.map(r => (
+                  {ROLES.map(r => (
                     <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowInvite(false)}>Cancel</Button>
+            <Button onClick={handleInvite} disabled={inviting || !inviteEmail.trim()}>
+              {inviting ? "Sending..." : "Send Invite"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Weekly station assignments */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h2 className="font-semibold text-sm">Weekly Station Assignments</h2>
-          <WeekNav weekStart={weekStart} onPrev={() => setWeekStart(w => subWeeks(w, 1))} onNext={() => setWeekStart(w => addWeeks(w, 1))} />
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs min-w-[700px]">
-            <thead>
-              <tr className="border-b border-border bg-secondary/30">
-                <th className="text-left px-4 py-2 font-medium text-muted-foreground w-40">Staff / Shift</th>
-                {weekDays.map(day => (
-                  <th key={day.toISOString()} className={`text-center px-2 py-2 font-medium ${isSameDay(day, new Date()) ? "text-primary" : "text-muted-foreground"}`}>
-                    <div>{format(day, "EEE")}</div>
-                    <div className={`text-xs font-bold ${isSameDay(day, new Date()) ? "text-primary" : ""}`}>{format(day, "d")}</div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {users.map(u => (
-                SHIFTS.map((shift, si) => (
-                  <tr key={`${u.id}-${shift}`} className={si === 1 ? "bg-secondary/10" : ""}>
-                    <td className="px-4 py-1.5 font-medium">
-                      {si === 0 && <span className="text-foreground text-xs">{u.full_name || u.email}</span>}
-                      <span className="block text-[10px] text-muted-foreground">{SHIFT_LABELS[shift]} Shift</span>
-                    </td>
-                    {weekDays.map(day => {
-                      const assignment = getAssignment(u.email, day, shift);
-                      return (
-                        <td key={day.toISOString()} className="px-1 py-1">
-                          <Select
-                            value={assignment?.station_id || "__clear__"}
-                            onValueChange={v => handleAssignmentChange(u, day, shift, v)}
-                          >
-                            <SelectTrigger className="h-7 text-[10px] px-1.5 border-border/50">
-                              <SelectValue placeholder="off" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="__clear__">Off</SelectItem>
-                              {stations.map(s => (
-                                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))
-              ))}
-              {users.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-6 text-center text-muted-foreground">No team members yet.</td></tr>
+      {/* Employee Details */}
+      <Dialog open={!!selectedEmployee} onOpenChange={() => setSelectedEmployee(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Employee</DialogTitle>
+          </DialogHeader>
+          {selectedEmployee && (
+            <div className="space-y-4 mt-4">
+              <div className="space-y-1">
+                <Label>Name</Label>
+                <p className="text-sm text-foreground">{selectedEmployee.full_name || selectedEmployee.email}</p>
+              </div>
+              <div className="space-y-1">
+                <Label>Email</Label>
+                <p className="text-sm text-foreground">{selectedEmployee.email}</p>
+              </div>
+              <div className="space-y-1">
+                <Label>Department</Label>
+                <Select value={selectedEmployee.department || ""} onValueChange={v => setSelectedEmployee({ ...selectedEmployee, department: v })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEPARTMENTS.map(d => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label>Phone</Label>
+                <Input
+                  placeholder="+1 (555) 000-0000"
+                  value={selectedEmployee.phone || ""}
+                  onChange={e => setSelectedEmployee({ ...selectedEmployee, phone: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Start Date</Label>
+                <Input
+                  type="date"
+                  value={selectedEmployee.start_date || ""}
+                  onChange={e => setSelectedEmployee({ ...selectedEmployee, start_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Certifications (comma-separated)</Label>
+                <Input
+                  placeholder="ServSafe, TIPS, Mixology"
+                  value={selectedEmployee.certifications || ""}
+                  onChange={e => setSelectedEmployee({ ...selectedEmployee, certifications: e.target.value })}
+                />
+              </div>
+              {isAdmin && (
+                <>
+                  <div className="space-y-1">
+                    <Label>Emergency Contact (Private)</Label>
+                    <Input
+                      placeholder="Name"
+                      value={selectedEmployee.emergency_contact || ""}
+                      onChange={e => setSelectedEmployee({ ...selectedEmployee, emergency_contact: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Emergency Phone (Private)</Label>
+                    <Input
+                      placeholder="+1 (555) 000-0000"
+                      value={selectedEmployee.emergency_contact_phone || ""}
+                      onChange={e => setSelectedEmployee({ ...selectedEmployee, emergency_contact_phone: e.target.value })}
+                    />
+                  </div>
+                </>
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setSelectedEmployee(null)}>Cancel</Button>
+                <Button onClick={async () => {
+                  setSaving(true);
+                  const updated = await base44.entities.User.update(selectedEmployee.id, selectedEmployee);
+                  setEmployees(prev => prev.map(e => e.id === selectedEmployee.id ? updated : e));
+                  setSelectedEmployee(null);
+                  setSaving(false);
+                  toast.success("Updated");
+                }} disabled={saving}>
+                  {saving ? "Saving..." : "Save"}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }

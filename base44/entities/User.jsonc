@@ -4,23 +4,71 @@
   "properties": {
     "role": {
       "type": "string",
-      "title": "Access Level",
+      "title": "App Role",
       "enum": [
         "admin",
-        "user"
+        "user",
+        "foh",
+        "busser"
       ],
       "enumNames": [
         "Admin",
-        "Staff"
+        "BOH Staff",
+        "FOH Staff",
+        "Busser"
       ],
       "default": "user"
     },
-    "job_codes": {
-      "type": "array",
-      "title": "Job Codes",
-      "items": {
-        "type": "string"
-      }
+    "department": {
+      "type": "string",
+      "title": "Department",
+      "enum": [
+        "FOH",
+        "BOH",
+        "Bar"
+      ],
+      "enumNames": [
+        "FOH",
+        "BOH",
+        "Bar"
+      ]
+    },
+    "phone": {
+      "type": "string",
+      "title": "Phone Number"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "active",
+        "inactive",
+        "archived"
+      ],
+      "enumNames": [
+        "Active",
+        "Inactive",
+        "Archived"
+      ],
+      "default": "active"
+    },
+    "certifications": {
+      "type": "string",
+      "title": "Certifications (comma-separated)"
+    },
+    "emergency_contact": {
+      "type": "string",
+      "title": "Emergency Contact (Private)"
+    },
+    "emergency_contact_phone": {
+      "type": "string",
+      "title": "Emergency Phone (Private)"
     }
-  }
+  },
+  "required": []
 }
