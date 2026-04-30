@@ -298,3 +298,5 @@ export default function Reports() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

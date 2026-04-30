@@ -358,6 +358,8 @@ export default function ShiftHandoff() {
   );
 }
 
+export const hideBase44Index = true;
+
 function HandoffCard({ handoff, expanded, onToggle, onDelete, onMarkResolved, isResolved }) {
   const urgencyConfig = URGENCY_CONFIG[handoff.urgency] || URGENCY_CONFIG.medium;
 

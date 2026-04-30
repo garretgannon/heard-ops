@@ -284,3 +284,5 @@ export default function Landing() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

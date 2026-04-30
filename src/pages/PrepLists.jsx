@@ -374,3 +374,5 @@ export default function PrepLists() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

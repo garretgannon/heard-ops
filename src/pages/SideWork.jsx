@@ -13,3 +13,5 @@ export default function SideWork() {
 
   return isAdmin ? <SideWorkManager /> : <SideWorkStaff />;
 }
+
+export const hideBase44Index = true;
