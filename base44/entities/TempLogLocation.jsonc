@@ -30,6 +30,11 @@
       "type": "number",
       "title": "Max Safe Temp (\u00b0F)"
     },
+    "check_interval_minutes": {
+      "type": "number",
+      "title": "Check Every (minutes)",
+      "description": "How often a temperature reading should be taken"
+    },
     "is_active": {
       "type": "boolean",
       "title": "Active",

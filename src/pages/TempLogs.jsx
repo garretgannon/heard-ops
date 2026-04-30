@@ -44,7 +44,7 @@ export default function TempLogs() {
 
   const blankLog = { location_id: "", temperature: "", notes: "" };
   const [logForm, setLogForm] = useState(blankLog);
-  const blankLoc = { name: "", type: activeTab, target_min: "", target_max: "", is_active: true };
+  const blankLoc = { name: "", type: activeTab, target_min: "", target_max: "", check_interval_minutes: "", is_active: true };
   const [locForm, setLocForm] = useState(blankLoc);
   const [saving, setSaving] = useState(false);
 
@@ -78,7 +78,7 @@ export default function TempLogs() {
 
   const openLocationForm = (loc = null) => {
     if (loc) {
-      setLocForm({ name: loc.name, type: loc.type, target_min: loc.target_min ?? "", target_max: loc.target_max ?? "", is_active: loc.is_active ?? true });
+      setLocForm({ name: loc.name, type: loc.type, target_min: loc.target_min ?? "", target_max: loc.target_max ?? "", check_interval_minutes: loc.check_interval_minutes ?? "", is_active: loc.is_active ?? true });
       setEditLocation(loc);
     } else {
       setLocForm({ ...blankLoc, type: activeTab });
@@ -116,6 +116,7 @@ export default function TempLogs() {
       ...locForm,
       target_min: locForm.target_min !== "" ? parseFloat(locForm.target_min) : null,
       target_max: locForm.target_max !== "" ? parseFloat(locForm.target_max) : null,
+      check_interval_minutes: locForm.check_interval_minutes !== "" ? parseInt(locForm.check_interval_minutes) : null,
     };
     if (editLocation) {
       await base44.entities.TempLogLocation.update(editLocation.id, data);
@@ -229,17 +230,24 @@ export default function TempLogs() {
           {tabLocations.map(loc => {
             const locEntries = (entriesByLocation[loc.id] || []).sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at));
             const latest = locEntries[0];
+            const isOverdue = loc.check_interval_minutes && (
+              !latest || (Date.now() - new Date(latest.logged_at).getTime()) > loc.check_interval_minutes * 60 * 1000
+            );
             return (
-              <div key={loc.id} className="bg-card border border-border rounded-2xl overflow-hidden">
+              <div key={loc.id} className={`bg-card border rounded-2xl overflow-hidden ${isOverdue ? "border-yellow-500" : "border-border"}`}>
                 <div className="p-4 border-b border-border/50 flex items-center justify-between">
                   <div>
-                    <p className="font-semibold">{loc.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold">{loc.name}</p>
+                      {isOverdue && <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-medium">Overdue</span>}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {loc.target_min != null && loc.target_max != null
                         ? `Safe: ${loc.target_min}–${loc.target_max}°F`
                         : loc.target_max != null
                         ? `Max: ${loc.target_max}°F`
                         : "No range set"}
+                      {loc.check_interval_minutes ? ` · Check every ${loc.check_interval_minutes >= 60 ? `${loc.check_interval_minutes / 60}hr` : `${loc.check_interval_minutes}min`}` : ""}
                     </p>
                   </div>
                   {latest && (
@@ -353,6 +361,21 @@ export default function TempLogs() {
                   onChange={e => setLocForm(f => ({ ...f, type: e.target.value }))}
                 >
                   {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Check Interval</label>
+                <select
+                  className="w-full h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  value={locForm.check_interval_minutes}
+                  onChange={e => setLocForm(f => ({ ...f, check_interval_minutes: e.target.value }))}
+                >
+                  <option value="">No alert</option>
+                  <option value="30">Every 30 minutes</option>
+                  <option value="60">Every 1 hour</option>
+                  <option value="120">Every 2 hours</option>
+                  <option value="180">Every 3 hours</option>
+                  <option value="240">Every 4 hours</option>
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-2">
