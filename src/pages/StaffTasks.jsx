@@ -43,8 +43,29 @@ export default function StaffTasks() {
       ]);
       
       setPrepLists(pls);
-      setPrepItems(pi.filter(item => pls.some(pl => pl.id === item.prep_list_id)));
-      setSideWorkTasks(sw.filter(task => task.assigned_to_email === user?.email || !task.assigned_to_email));
+      // Filter prep items by role or individual assignment
+      const filteredPrepItems = pi.filter(item => {
+        if (!pls.some(pl => pl.id === item.prep_list_id)) return false;
+        // Show if assigned to user individually
+        if (item.assigned_to_individual === user?.email) return true;
+        // Show if assigned to user's role and not overridden
+        if (item.role_assignment === user?.role && !item.assigned_to_individual) return true;
+        // Show if no role assignment (available to all)
+        if (item.allow_all_roles && !item.role_assignment && !item.assigned_to_individual) return true;
+        return false;
+      });
+      setPrepItems(filteredPrepItems);
+      // Filter side work by role or individual assignment
+      const filteredSideWork = sw.filter(task => {
+        // Show if assigned to user individually
+        if (task.assigned_to_individual && task.assigned_to_email === user?.email) return true;
+        // Show if assigned to user's role
+        if (task.role_assignment === user?.role && !task.assigned_to_individual) return true;
+        // Show if no role assignment (available to all)
+        if (!task.role_assignment && !task.assigned_to_individual) return true;
+        return false;
+      });
+      setSideWorkTasks(filteredSideWork);
       setStations(st);
       setLoading(false);
     };

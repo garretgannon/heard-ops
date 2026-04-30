@@ -113,6 +113,15 @@
     "rejection_notes": {
       "type": "string",
       "title": "Rejection Notes"
+    },
+    "role_assignment": {
+      "type": "string",
+      "title": "Assign to Role"
+    },
+    "assigned_to_individual": {
+      "type": "boolean",
+      "title": "Manager Override (Specific Person)",
+      "default": false
     }
   },
   "required": [

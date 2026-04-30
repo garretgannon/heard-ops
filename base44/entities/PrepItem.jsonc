@@ -95,6 +95,19 @@
       "type": "number",
       "title": "Sort Order",
       "default": 0
+    },
+    "role_assignment": {
+      "type": "string",
+      "title": "Assign to Role"
+    },
+    "assigned_to_individual": {
+      "type": "string",
+      "title": "Assign to Individual (Email)"
+    },
+    "allow_all_roles": {
+      "type": "boolean",
+      "title": "Allow All Roles",
+      "default": true
     }
   },
   "required": [

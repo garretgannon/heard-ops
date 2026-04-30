@@ -37,12 +37,27 @@ export default function SideWorkStaff() {
 
   useEffect(() => { load(); }, []);
 
-  // My assignments: either assigned to me or unassigned (open for anyone in role)
+  // My assignments: role-based or individually assigned
   const myAssignments = assignments.filter(a => {
-    const isForMe = !a.assigned_to_email || a.assigned_to_email === user?.email;
-    const roleMatch = roleFilter === "all" || a.role === roleFilter;
-    const shiftMatch = shiftFilter === "all" || a.shift_type === shiftFilter;
-    return isForMe && roleMatch && shiftMatch;
+    // Show if assigned to user individually
+    if (a.assigned_to_individual && a.assigned_to_email === user?.email) {
+      const roleMatch = roleFilter === "all" || a.role === roleFilter;
+      const shiftMatch = shiftFilter === "all" || a.shift_type === shiftFilter;
+      return roleMatch && shiftMatch;
+    }
+    // Show if assigned to user's role
+    if (a.role_assignment === user?.role && !a.assigned_to_individual) {
+      const roleMatch = roleFilter === "all" || a.role === roleFilter;
+      const shiftMatch = shiftFilter === "all" || a.shift_type === shiftFilter;
+      return roleMatch && shiftMatch;
+    }
+    // Show if no role assignment (available to all)
+    if (!a.role_assignment && !a.assigned_to_individual) {
+      const roleMatch = roleFilter === "all" || a.role === roleFilter;
+      const shiftMatch = shiftFilter === "all" || a.shift_type === shiftFilter;
+      return roleMatch && shiftMatch;
+    }
+    return false;
   });
 
   const pending = myAssignments.filter(a => a.status === "pending" || a.status === "rejected");

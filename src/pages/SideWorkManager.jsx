@@ -39,7 +39,7 @@ export default function SideWorkManager() {
   const [bulkRows, setBulkRows] = useState([{ name: "", description: "", priority: "medium", due_time: "", requires_photo: false, requires_approval: false }]);
   const [bulkSaving, setBulkSaving] = useState(false);
   const [taskForm, setTaskForm] = useState({ name: "", description: "", role: "server", shift_type: "closing", priority: "medium", due_time: "", requires_photo: false, requires_approval: false });
-  const [assignForm, setAssignForm] = useState({ task_id: "", assigned_to_email: "", assigned_to_name: "" });
+  const [assignForm, setAssignForm] = useState({ task_id: "", assigned_to_email: "", assigned_to_name: "", role_assignment: "", assigned_to_individual: false });
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -149,10 +149,12 @@ export default function SideWorkManager() {
       date: todayStr,
       assigned_to_email: assignForm.assigned_to_email,
       assigned_to_name: assignForm.assigned_to_name,
+      role_assignment: assignForm.role_assignment,
+      assigned_to_individual: assignForm.assigned_to_individual,
       status: "pending",
     });
     setShowAssignDialog(false);
-    setAssignForm({ task_id: "", assigned_to_email: "", assigned_to_name: "" });
+    setAssignForm({ task_id: "", assigned_to_email: "", assigned_to_name: "", role_assignment: "", assigned_to_individual: false });
     setSaving(false);
     toast.success("Task assigned for today");
     load();
@@ -548,8 +550,22 @@ export default function SideWorkManager() {
                 <SelectContent>{tasks.map(t => <SelectItem key={t.id} value={t.id}>{ROLE_LABELS[t.role]} — {t.name} ({SHIFT_LABELS[t.shift_type]})</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div><Label>Staff Name (optional)</Label><Input className="mt-1" value={assignForm.assigned_to_name} onChange={e => setAssignForm(p => ({...p, assigned_to_name: e.target.value}))} placeholder="e.g., Sarah" /></div>
-            <div><Label>Staff Email (optional)</Label><Input className="mt-1" value={assignForm.assigned_to_email} onChange={e => setAssignForm(p => ({...p, assigned_to_email: e.target.value}))} placeholder="staff@example.com" /></div>
+            <div>
+              <Label>Assign to Role (optional)</Label>
+              <Input className="mt-1" value={assignForm.role_assignment} onChange={e => setAssignForm(p => ({...p, role_assignment: e.target.value}))} placeholder="e.g., Server, Bartender" />
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="checkbox" checked={assignForm.assigned_to_individual} onChange={e => setAssignForm(p => ({...p, assigned_to_individual: e.target.checked}))} className="rounded" />
+                Assign to specific person (override)
+              </label>
+            </div>
+            {assignForm.assigned_to_individual && (
+              <>
+                <div><Label>Staff Name</Label><Input className="mt-1" value={assignForm.assigned_to_name} onChange={e => setAssignForm(p => ({...p, assigned_to_name: e.target.value}))} placeholder="e.g., Sarah" /></div>
+                <div><Label>Staff Email</Label><Input className="mt-1" value={assignForm.assigned_to_email} onChange={e => setAssignForm(p => ({...p, assigned_to_email: e.target.value}))} placeholder="staff@example.com" /></div>
+              </>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAssignDialog(false)}>Cancel</Button>

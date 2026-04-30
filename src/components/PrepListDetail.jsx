@@ -21,7 +21,7 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sortByPriority, setSortByPriority] = useState(false);
   const [photoDialog, setPhotoDialog] = useState(null);
-  const [form, setForm] = useState({ name: "", quantity: "", unit: "", notes: "", priority: "medium" });
+  const [form, setForm] = useState({ name: "", quantity: "", unit: "", notes: "", priority: "medium", role_assignment: "", assigned_to_individual: "" });
   const [saving, setSaving] = useState(false);
   const [uploadingMasterFor, setUploadingMasterFor] = useState(null);
   const [bulkMode, setBulkMode] = useState(false);
@@ -191,8 +191,9 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
       station_id: prepList.station_id,
       status: "pending",
       sort_order: items.length,
+      allow_all_roles: !form.role_assignment && !form.assigned_to_individual,
     });
-    setForm({ name: "", quantity: "", unit: "", notes: "", priority: "medium" });
+    setForm({ name: "", quantity: "", unit: "", notes: "", priority: "medium", role_assignment: "", assigned_to_individual: "" });
 
     setSaving(false);
     setDialogOpen(false);
@@ -232,7 +233,7 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
 
   const openEdit = (item) => {
     setEditItem(item);
-    setEditForm({ name: item.name, quantity: item.quantity || "", unit: item.unit || "", notes: item.notes || "", priority: item.priority || "medium" });
+    setEditForm({ name: item.name, quantity: item.quantity || "", unit: item.unit || "", notes: item.notes || "", priority: item.priority || "medium", role_assignment: item.role_assignment || "", assigned_to_individual: item.assigned_to_individual || "" });
   };
 
   const saveEdit = async () => {
@@ -467,7 +468,15 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                 ))}
               </div>
             </div>
-          </div>
+            <div>
+              <Label>Assign to Role (optional)</Label>
+              <Input value={editForm.role_assignment || ""} onChange={e => setEditForm(p => ({...p, role_assignment: e.target.value}))} placeholder="e.g., Prep Cook, Line Cook" />
+            </div>
+            <div>
+              <Label>Or Assign to Individual (email)</Label>
+              <Input value={editForm.assigned_to_individual || ""} onChange={e => setEditForm(p => ({...p, assigned_to_individual: e.target.value}))} placeholder="user@example.com" />
+            </div>
+            </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditItem(null)}>Cancel</Button>
             <Button onClick={saveEdit} disabled={editSaving || !editForm.name?.trim()}>{editSaving ? "Saving..." : "Save Changes"}</Button>
@@ -578,6 +587,14 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                   </button>
                 ))}
               </div>
+            </div>
+            <div>
+              <Label>Assign to Role (optional)</Label>
+              <Input placeholder="e.g., Prep Cook, Line Cook" value={form.role_assignment} onChange={e => setForm({ ...form, role_assignment: e.target.value })} />
+            </div>
+            <div>
+              <Label>Or Assign to Individual (email)</Label>
+              <Input placeholder="user@example.com" value={form.assigned_to_individual} onChange={e => setForm({ ...form, assigned_to_individual: e.target.value })} />
             </div>
           </div>
           <DialogFooter>
