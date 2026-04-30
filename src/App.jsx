@@ -32,6 +32,7 @@ import Cash from './pages/Cash';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import Onboarding from './pages/Onboarding';
 import RestaurantTeam from './pages/RestaurantTeam';
+import EmployeeCalendar from './pages/EmployeeCalendar';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -85,6 +86,7 @@ const AuthenticatedApp = () => {
         <Route path="/dish-machines" element={<DishMachines />} />
         {isAdmin && <Route path="/my-restaurant" element={<MyRestaurant />} />}
         {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
+        {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />
