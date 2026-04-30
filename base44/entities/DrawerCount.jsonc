@@ -55,22 +55,42 @@
     },
     "quarters": {
       "type": "number",
-      "title": "Quarters",
+      "title": "Quarters (loose)",
       "default": 0
     },
     "dimes": {
       "type": "number",
-      "title": "Dimes",
+      "title": "Dimes (loose)",
       "default": 0
     },
     "nickels": {
       "type": "number",
-      "title": "Nickels",
+      "title": "Nickels (loose)",
       "default": 0
     },
     "pennies": {
       "type": "number",
-      "title": "Pennies",
+      "title": "Pennies (loose)",
+      "default": 0
+    },
+    "rolled_quarters": {
+      "type": "number",
+      "title": "Rolled Quarters (rolls)",
+      "default": 0
+    },
+    "rolled_dimes": {
+      "type": "number",
+      "title": "Rolled Dimes (rolls)",
+      "default": 0
+    },
+    "rolled_nickels": {
+      "type": "number",
+      "title": "Rolled Nickels (rolls)",
+      "default": 0
+    },
+    "rolled_pennies": {
+      "type": "number",
+      "title": "Rolled Pennies (rolls)",
       "default": 0
     },
     "total": {

@@ -26,7 +26,15 @@ const DENOMINATIONS = [
   { key: "pennies", label: "Pennies", value: 0.01 },
 ];
 
-const emptyDrawer = { date: todayStr, shift: "morning", drawer_name: "", hundreds: 0, fifties: 0, twenties: 0, tens: 0, fives: 0, ones: 0, quarters: 0, dimes: 0, nickels: 0, pennies: 0, expected: "", notes: "", counted_by: "" };
+// Rolled coin: each entry is (rolls × face value per roll)
+const ROLLED_COINS = [
+  { key: "rolled_quarters", label: "Quarters", valuePerRoll: 10 },
+  { key: "rolled_dimes",    label: "Dimes",    valuePerRoll: 5 },
+  { key: "rolled_nickels", label: "Nickels",   valuePerRoll: 2 },
+  { key: "rolled_pennies", label: "Pennies",   valuePerRoll: 0.50 },
+];
+
+const emptyDrawer = { date: todayStr, shift: "morning", drawer_name: "", hundreds: 0, fifties: 0, twenties: 0, tens: 0, fives: 0, ones: 0, quarters: 0, dimes: 0, nickels: 0, pennies: 0, rolled_quarters: 0, rolled_dimes: 0, rolled_nickels: 0, rolled_pennies: 0, expected: "", notes: "", counted_by: "" };
 
 function formatTimestamp(ts) {
   if (!ts) return null;
@@ -34,7 +42,9 @@ function formatTimestamp(ts) {
 }
 
 function calcTotal(form) {
-  return DENOMINATIONS.reduce((sum, d) => sum + (Number(form[d.key]) || 0) * d.value, 0);
+  const bills = DENOMINATIONS.reduce((sum, d) => sum + (Number(form[d.key]) || 0) * d.value, 0);
+  const rolled = ROLLED_COINS.reduce((sum, d) => sum + (Number(form[d.key]) || 0) * d.valuePerRoll, 0);
+  return bills + rolled;
 }
 
 export default function Cash() {
@@ -325,6 +335,25 @@ export default function Cash() {
                       className="w-24"
                     />
                     <span className="text-xs text-muted-foreground">= ${((Number(drawerForm[d.key]) || 0) * d.value).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label className="mb-2 block">Rolled Coin</Label>
+              <div className="space-y-2">
+                {ROLLED_COINS.map(d => (
+                  <div key={d.key} className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground w-20">{d.label}</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="0 rolls"
+                      value={drawerForm[d.key] || ""}
+                      onChange={e => setDrawerForm({ ...drawerForm, [d.key]: e.target.value })}
+                      className="w-24"
+                    />
+                    <span className="text-xs text-muted-foreground">= ${((Number(drawerForm[d.key]) || 0) * d.valuePerRoll).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
