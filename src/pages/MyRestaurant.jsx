@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Pencil, Trash2, CheckCircle2, Save, X } from "lucide-react";
+import { Building2, Thermometer, Droplet, UtensilsCrossed, Plus, Trash2, CheckCircle2, Save, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,14 +11,22 @@ import { toast } from "sonner";
 const STATION_COLORS = ["red","blue","green","orange","purple","teal","pink","yellow"];
 const colorDot = { red:"bg-red-500", blue:"bg-blue-500", green:"bg-green-500", orange:"bg-orange-500", purple:"bg-purple-500", teal:"bg-teal-500", pink:"bg-pink-500", yellow:"bg-yellow-400" };
 
-function SectionCard({ icon: Icon, title, color, children }) {
+function SectionCard({ icon: Icon, title, color, count, children }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="bg-card rounded-2xl border border-border overflow-hidden">
-      <div className={`flex items-center gap-3 px-5 py-4 border-b border-border ${color}`}>
-        <Icon className="h-5 w-5" />
-        <h2 className="font-semibold text-base">{title}</h2>
-      </div>
-      <div className="p-5 space-y-4">{children}</div>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={`w-full flex items-center justify-between gap-3 px-5 py-4 border-b border-border transition-colors hover:bg-secondary/30 ${color}`}
+      >
+        <div className="flex items-center gap-3">
+          <Icon className="h-5 w-5" />
+          <h2 className="font-semibold text-base">{title}</h2>
+          {count > 0 && <span className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">{count}</span>}
+        </div>
+        <ChevronDown className={`h-4 w-4 transition-transform text-muted-foreground ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <div className="p-5 space-y-4">{children}</div>}
     </div>
   );
 }
@@ -145,7 +153,7 @@ export default function MyRestaurant() {
       </div>
 
       {/* Prep Stations */}
-      <SectionCard icon={UtensilsCrossed} title="Prep Stations" color="text-blue-400">
+      <SectionCard icon={UtensilsCrossed} title="Prep Stations" color="text-blue-400" count={stations.length}>
         <div className="space-y-2">
           {stations.length === 0 && <p className="text-sm text-muted-foreground">No stations yet.</p>}
           {stations.map(s => (
@@ -178,7 +186,7 @@ export default function MyRestaurant() {
       </SectionCard>
 
       {/* Refrigeration & Temperature Locations */}
-      <SectionCard icon={Thermometer} title="Refrigeration & Temperature Locations" color="text-cyan-400">
+      <SectionCard icon={Thermometer} title="Refrigeration & Temperature Locations" color="text-cyan-400" count={tempLocations.length}>
         <p className="text-xs text-muted-foreground -mt-1">Refrigerators, freezers, hot wells — these appear in Temp Logs for monitoring.</p>
         <div className="space-y-2">
           {tempLocations.length === 0 && <p className="text-sm text-muted-foreground">No locations yet.</p>}
@@ -221,7 +229,7 @@ export default function MyRestaurant() {
       </SectionCard>
 
       {/* Dish Machines */}
-      <SectionCard icon={Droplet} title="Dish Machines & Sinks" color="text-emerald-400">
+      <SectionCard icon={Droplet} title="Dish Machines & Sinks" color="text-emerald-400" count={dishEquipment.length}>
         <p className="text-xs text-muted-foreground -mt-1">Dishwashing machines and 3-compartment sinks — these appear in the Dish Machines chemical log.</p>
         <div className="space-y-2">
           {dishEquipment.length === 0 && <p className="text-sm text-muted-foreground">No equipment yet.</p>}
