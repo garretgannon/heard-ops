@@ -52,6 +52,8 @@ const AuthenticatedApp = () => {
     base44.entities.Settings.filter({ key: 'onboarding_complete' }).then(results => {
       setNeedsOnboarding(results.length === 0);
       setOnboardingChecked(true);
+    }).catch(() => {
+      setOnboardingChecked(true);
     });
   }, [user, isAdmin]);
 
