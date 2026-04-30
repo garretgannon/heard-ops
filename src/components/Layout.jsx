@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Users as UsersIcon, Flame, Book } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ const fohNavItems_admin = [
 
 const bohNavItems = [
   { path: "/line-up", label: "Line-Up", icon: Flame },
+  { path: "/build-book", label: "Build Book", icon: Book },
   { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
   { path: "/stations", label: "Stations", icon: UtensilsCrossed },
   { path: "/prep-library", label: "Prep Library", icon: BookOpen },

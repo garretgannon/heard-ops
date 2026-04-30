@@ -1,0 +1,47 @@
+{
+  "name": "BuildBook",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Recipe / Dish Name"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Completed Dish Photo URL"
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instructions / Recipe"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category"
+    },
+    "menu_items": {
+      "type": "string",
+      "title": "Menu Items (comma separated)"
+    },
+    "batch_size": {
+      "type": "string",
+      "title": "Batch Size / Yield"
+    },
+    "ingredients": {
+      "type": "string",
+      "title": "Ingredients"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Tips"
+    },
+    "is_batch_recipe": {
+      "type": "boolean",
+      "title": "Batch Recipe",
+      "default": false
+    }
+  },
+  "required": [
+    "name",
+    "photo_url"
+  ]
+}
