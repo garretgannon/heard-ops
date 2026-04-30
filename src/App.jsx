@@ -27,6 +27,7 @@ import MyRestaurant from './pages/MyRestaurant';
 import ManagerLog from './pages/ManagerLog';
 import BathroomChecks from './pages/BathroomChecks';
 import Cash from './pages/Cash';
+import MaintenanceRequests from './pages/MaintenanceRequests';
 import RestaurantTeam from './pages/RestaurantTeam';
 
 const AuthenticatedApp = () => {
@@ -65,6 +66,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />
+        <Route path="/maintenance" element={<MaintenanceRequests />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

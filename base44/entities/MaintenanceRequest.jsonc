@@ -1,0 +1,71 @@
+{
+  "name": "MaintenanceRequest",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Issue Title"
+    },
+    "location": {
+      "type": "string",
+      "title": "Location / Area"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "enumNames": [
+        "Low",
+        "Medium",
+        "High",
+        "Urgent"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved"
+      ],
+      "enumNames": [
+        "Open",
+        "In Progress",
+        "Resolved"
+      ],
+      "default": "open"
+    },
+    "reported_by": {
+      "type": "string",
+      "title": "Reported By"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Updates"
+    },
+    "resolved_at": {
+      "type": "string",
+      "title": "Resolved At"
+    }
+  },
+  "required": [
+    "title",
+    "location",
+    "priority"
+  ]
+}
