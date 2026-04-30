@@ -75,6 +75,8 @@ export default function MyRestaurant() {
   const [cashDrawers, setCashDrawers] = useState([]);
   const [pettyCashAmount, setPettyCashAmount] = useState("");
   const [pettyCashId, setPettyCashId] = useState(null);
+  const [restaurantName, setRestaurantName] = useState("");
+  const [restaurantNameId, setRestaurantNameId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -85,12 +87,13 @@ export default function MyRestaurant() {
 
   useEffect(() => {
     const load = async () => {
-      const [s, tl, de, cd, settings] = await Promise.all([
+      const [s, tl, de, cd, settings, nameSettings] = await Promise.all([
         base44.entities.Station.list(),
         base44.entities.TempLogLocation.list(),
         base44.entities.DishMachineEquipment.list(),
         base44.entities.CashDrawerConfig.list(),
         base44.entities.Settings.filter({ key: "petty_cash_amount" }),
+        base44.entities.Settings.filter({ key: "restaurant_name" }),
       ]);
       setStations(s);
       setTempLocations(tl);
@@ -99,6 +102,10 @@ export default function MyRestaurant() {
       if (settings.length > 0) {
         setPettyCashAmount(settings[0].value || "");
         setPettyCashId(settings[0].id);
+      }
+      if (nameSettings.length > 0) {
+        setRestaurantName(nameSettings[0].value || "");
+        setRestaurantNameId(nameSettings[0].id);
       }
       setLoading(false);
     };
@@ -158,6 +165,18 @@ export default function MyRestaurant() {
     toast.success("Drawer added");
   };
 
+  const saveRestaurantName = async () => {
+    setSaving(true);
+    if (restaurantNameId) {
+      await base44.entities.Settings.update(restaurantNameId, { value: restaurantName });
+    } else {
+      const rec = await base44.entities.Settings.create({ key: "restaurant_name", value: restaurantName });
+      setRestaurantNameId(rec.id);
+    }
+    setSaving(false);
+    toast.success("Restaurant name saved");
+  };
+
   const savePettyCash = async () => {
     setSaving(true);
     if (pettyCashId) {
@@ -183,6 +202,23 @@ export default function MyRestaurant() {
           <Building2 className="h-7 w-7 text-primary" /> My Restaurant
         </h1>
         <p className="text-muted-foreground mt-1">Configure your kitchen layout — stations, refrigeration, and dish equipment. These flow into Prep Lists, Temp Logs, and Dish Machines.</p>
+      </div>
+
+      {/* Restaurant Name */}
+      <div className="bg-card border border-border rounded-2xl p-5">
+        <h2 className="font-semibold text-base mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Restaurant Name</h2>
+        <div className="flex items-center gap-3">
+          <Input
+            placeholder="e.g. The Golden Fork"
+            value={restaurantName}
+            onChange={e => setRestaurantName(e.target.value)}
+            className="max-w-sm"
+          />
+          <Button size="sm" onClick={saveRestaurantName} disabled={saving}>
+            <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save"}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1.5">This name appears in the app header and sidebar.</p>
       </div>
 
       {/* Prep Stations */}
