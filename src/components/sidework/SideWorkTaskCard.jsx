@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { haptics } from "@/utils/haptics";
 import SwipeableCard from "../SwipeableCard";
 import { base44 } from "@/api/base44Client";
 import { CheckCircle2, Circle, Camera, Clock, AlertCircle, ThumbsUp, ThumbsDown, Loader2, XCircle, ImageIcon } from "lucide-react";
@@ -36,6 +37,7 @@ export default function SideWorkTaskCard({ assignment, currentUser, isManager, o
       photo_url = res.file_url;
       setUploading(false);
     }
+    haptics.success();
     await base44.entities.SideWorkAssignment.update(assignment.id, {
       status: assignment.requires_approval ? "completed" : "approved",
       photo_url,
@@ -54,6 +56,7 @@ export default function SideWorkTaskCard({ assignment, currentUser, isManager, o
   };
 
   const handleApprove = async () => {
+    haptics.medium();
     setSaving(true);
     await base44.entities.SideWorkAssignment.update(assignment.id, {
       status: "approved",
@@ -66,7 +69,8 @@ export default function SideWorkTaskCard({ assignment, currentUser, isManager, o
   };
 
   const handleReject = async () => {
-    if (!rejectNotes.trim()) { toast.error("Please add rejection notes"); return; }
+    if (!rejectNotes.trim()) { haptics.warning(); toast.error("Please add rejection notes"); return; }
+    haptics.medium();
     setSaving(true);
     await base44.entities.SideWorkAssignment.update(assignment.id, {
       status: "rejected",

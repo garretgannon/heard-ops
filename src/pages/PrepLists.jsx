@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { haptics } from "@/utils/haptics";
 import { base44 } from "@/api/base44Client";
 import { Plus, FileUp, Search, AlertCircle, Clock, CheckCircle2, Camera, Play } from "lucide-react";
 import BulkImportDialog from "../components/BulkImportDialog";
@@ -127,7 +128,9 @@ export default function PrepLists() {
   // Action handler: optimistic update + flash + auto-advance
   const handleItemAction = async (e, item, newStatus, currentFilteredIds) => {
     e.stopPropagation();
-    // Optimistic update
+    // Haptic + optimistic update
+    if (newStatus === "completed") haptics.success();
+    else haptics.swipe();
     setLocalStatus(prev => ({ ...prev, [item.id]: newStatus }));
     // Flash checkmark
     setFlashDone(prev => new Set([...prev, item.id]));

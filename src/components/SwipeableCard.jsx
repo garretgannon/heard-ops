@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { haptics } from "@/utils/haptics";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,8 +29,10 @@ export default function SwipeableCard({ children, onSwipeRight, onSwipeLeft, dis
 
   const onTouchEnd = () => {
     if (dx > THRESHOLD && onSwipeRight) {
+      haptics.swipe();
       onSwipeRight();
     } else if (dx < -THRESHOLD && onSwipeLeft) {
+      haptics.swipe();
       onSwipeLeft();
     }
     setDx(0);
