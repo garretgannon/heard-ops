@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SwipeableCard from "./SwipeableCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, ListChecks } from "lucide-react";
 import PriorityBadge from "./PriorityBadge";
@@ -40,6 +41,11 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
   };
 
   return (
+    <SwipeableCard
+      onSwipeRight={!isCompleted ? () => setExpanded(true) : undefined}
+      onSwipeLeft={!isCompleted ? () => {} : undefined}
+      disabled={isCompleted}
+    >
     <motion.div
       layout
       initial={{ opacity: 0, y: 8 }}
@@ -124,5 +130,6 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
 
       <PhotoPreviewDialog url={photoPreview} onClose={() => setPhotoPreview(null)} />
     </motion.div>
+    </SwipeableCard>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SwipeableCard from "../SwipeableCard";
 import { base44 } from "@/api/base44Client";
 import { CheckCircle2, Circle, Camera, Clock, AlertCircle, ThumbsUp, ThumbsDown, Loader2, XCircle, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,11 @@ export default function SideWorkTaskCard({ assignment, currentUser, isManager, o
   };
 
   return (
+    <SwipeableCard
+      onSwipeRight={!isManager && isPending ? () => handleComplete(null) : undefined}
+      onSwipeLeft={!isManager && isPending ? () => {} : undefined}
+      disabled={isDone && !isRejected}
+    >
     <div className={cn(
       "bg-card rounded-xl border p-4 space-y-3 transition-all",
       isApproved ? "border-green-500/30 bg-green-500/5" : isRejected ? "border-red-500/30 bg-red-500/5" : "border-border"
@@ -203,5 +209,6 @@ export default function SideWorkTaskCard({ assignment, currentUser, isManager, o
         </div>
       )}
     </div>
+    </SwipeableCard>
   );
 }

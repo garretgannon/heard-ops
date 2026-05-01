@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Clock, AlertCircle, Upload, MessageSquare, Zap, X } from "lucide-react";
+import SwipeableCard from "../components/SwipeableCard";
 import { toast } from "sonner";
 
 const TASK_SOURCES = {
@@ -218,7 +219,12 @@ export default function StaffTasks() {
   }
 
   const renderTaskCard = (task) => (
-    <div key={task.id} className="bg-card border-l-4 border-primary rounded-lg p-4">
+    <SwipeableCard
+      key={task.id}
+      onSwipeRight={() => handleCompleteTask(task)}
+      onSwipeLeft={() => setShowBlockedDialog(task.id)}
+    >
+    <div className="bg-card border-l-4 border-primary rounded-lg p-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1">
@@ -239,24 +245,15 @@ export default function StaffTasks() {
       {task.due_time && <p className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" />Due: {task.due_time}</p>}
       {task.requires_photo && <p className="text-xs text-primary font-semibold mt-1">📷 Photo required</p>}
 
+      {/* Swipe hint */}
+      <p className="text-[10px] text-muted-foreground mt-2 italic">← Flag issue &nbsp;|&nbsp; Complete →</p>
+
       {/* Actions */}
       <div className="space-y-2 mt-3">
-        {/* Photo Upload */}
         {task.requires_photo && !task.photo_url && (
           <label className="block">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={e => handleUploadPhoto(task.id, e.target.files[0])}
-              className="hidden"
-            />
-            <Button
-              className="w-full"
-              size="sm"
-              variant="outline"
-              disabled={uploadingPhoto[task.id]}
-              onClick={e => e.currentTarget.parentElement.querySelector('input').click()}
-            >
+            <input type="file" accept="image/*" onChange={e => handleUploadPhoto(task.id, e.target.files[0])} className="hidden" />
+            <Button className="w-full" size="sm" variant="outline" disabled={uploadingPhoto[task.id]} onClick={e => e.currentTarget.parentElement.querySelector('input').click()}>
               <Upload className="h-4 w-4 mr-2" />
               {uploadingPhoto[task.id] ? "Uploading..." : "Upload Photo"}
             </Button>
@@ -264,29 +261,18 @@ export default function StaffTasks() {
         )}
         {task.photo_url && <p className="text-xs text-green-600 font-semibold">✓ Photo uploaded</p>}
 
-        {/* Complete Task */}
-        <Button
-          className="w-full bg-green-600 hover:bg-green-700"
-          size="sm"
-          disabled={completingTask[task.id]}
-          onClick={() => handleCompleteTask(task)}
-        >
+        <Button className="w-full bg-green-600 hover:bg-green-700" size="sm" disabled={completingTask[task.id]} onClick={() => handleCompleteTask(task)}>
           <CheckCircle2 className="h-4 w-4 mr-2" />
           {completingTask[task.id] ? "Submitting..." : "Complete"}
         </Button>
 
-        {/* Blocked */}
-        <Button
-          className="w-full"
-          size="sm"
-          variant="outline"
-          onClick={() => setShowBlockedDialog(task.id)}
-        >
+        <Button className="w-full" size="sm" variant="outline" onClick={() => setShowBlockedDialog(task.id)}>
           <MessageSquare className="h-4 w-4 mr-2" />
           Report Issue
         </Button>
       </div>
     </div>
+    </SwipeableCard>
   );
 
   return (
