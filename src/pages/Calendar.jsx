@@ -90,6 +90,8 @@ export default function Calendar() {
   const [saving, setSaving] = useState(false);
   const [detailEvent, setDetailEvent] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [selectedEvents, setSelectedEvents] = useState(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   // Read URL filter param
   useEffect(() => {
@@ -183,6 +185,26 @@ export default function Calendar() {
 
   const isEmployeeCategory = (cat) => getCat(cat)?.employee;
 
+  const toggleEventSelection = (id) => {
+    setSelectedEvents(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedEvents.size === 0 || !confirm(`Delete ${selectedEvents.size} event(s)?`)) return;
+    setDeleting(true);
+    for (const id of selectedEvents) {
+      await base44.entities.CalendarEvent.delete(id);
+    }
+    setEvents(prev => prev.filter(e => !selectedEvents.has(e.id)));
+    setSelectedEvents(new Set());
+    setDeleting(false);
+    toast.success(`Deleted ${selectedEvents.size} event(s)`);
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center h-64">
       <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -214,6 +236,16 @@ export default function Calendar() {
           </Button>
         )}
       </div>
+
+      {/* Bulk Delete Section */}
+      {selectedEvents.size > 0 && (
+        <div className="bg-primary/10 border border-primary rounded-lg p-3 flex items-center justify-between">
+          <p className="text-sm font-semibold">{selectedEvents.size} event{selectedEvents.size !== 1 ? 's' : ''} selected</p>
+          <Button onClick={handleBulkDelete} disabled={deleting} variant="destructive" size="sm">
+            {deleting ? 'Deleting...' : 'Delete Selected'}
+          </Button>
+        </div>
+      )}
 
       {/* View Filter Tabs */}
       <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
@@ -263,7 +295,7 @@ export default function Calendar() {
         onEventClick={setDetailEvent}
       />}
       {view === "day" && <DayView date={dayDate} setDate={setDayDate} expandedEventsForDate={expandedEventsForDate} openNew={isManager ? openNew : null} onEventClick={setDetailEvent} />}
-      {view === "agenda" && <AgendaView events={filteredEvents} todayStr={todayStr} openNew={isManager ? openNew : null} onEventClick={setDetailEvent} />}
+      {view === "agenda" && <AgendaView events={filteredEvents} todayStr={todayStr} openNew={isManager ? openNew : null} onEventClick={setDetailEvent} selectedEvents={selectedEvents} onToggleSelect={toggleEventSelection} />}
 
       {/* Event Detail Dialog */}
       {detailEvent && (
@@ -446,7 +478,7 @@ function UpcomingStrip({ events, todayStr, onEventClick }) {
 }
 
 // ── Agenda View ──────────────────────────────────────────────────────────────
-function AgendaView({ events, todayStr, openNew, onEventClick }) {
+function AgendaView({ events, todayStr, openNew, onEventClick, selectedEvents, onToggleSelect }) {
   const upcoming = events.filter(e => e.date >= todayStr).sort((a, b) => a.date.localeCompare(b.date));
   return (
     <div className="space-y-2">
@@ -461,14 +493,15 @@ function AgendaView({ events, todayStr, openNew, onEventClick }) {
         const cat = getCat(ev.category);
         const d = new Date(ev.date + "T12:00:00");
         return (
-          <button key={ev.id} onClick={() => onEventClick(ev)} className={cn("w-full text-left bg-card rounded-lg border p-3 flex items-start gap-3 hover:opacity-80 transition-opacity", cat.color)}>
-            <div className="flex-1 min-w-0">
+          <div key={ev.id} className={cn("w-full bg-card rounded-lg border p-3 flex items-start gap-3 hover:opacity-80 transition-opacity", cat.color)}>
+            <input type="checkbox" checked={selectedEvents.has(ev.id)} onChange={() => onToggleSelect(ev.id)} className="mt-0.5 cursor-pointer" />
+            <button onClick={() => onEventClick(ev)} className="flex-1 min-w-0 text-left">
               <p className="font-semibold text-sm truncate">{ev.title}</p>
               <p className="text-xs opacity-75">{format(d, "EEE MMM d")}{ev.time ? ` · ${ev.time}` : ""}{ev.employee_name ? ` · ${ev.employee_name}` : ""}</p>
               {ev.notes && <p className="text-xs opacity-60 mt-0.5 line-clamp-1">{ev.notes}</p>}
-            </div>
+            </button>
             <span className="text-xs px-2 py-0.5 rounded-full border font-medium shrink-0">{cat.label}</span>
-          </button>
+          </div>
         );
       })}
     </div>
