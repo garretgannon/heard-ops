@@ -55,7 +55,6 @@ const navSections = {
     items: [
       { path: "/cash", label: "Cash", icon: DollarSign },
       { path: "/calendar", label: "Calendar", icon: CalendarDays },
-      { path: "/employee-calendar", label: "Employee Calendar", icon: CalendarSearch },
       { path: "/vendors", label: "Vendors", icon: Truck },
       { path: "/maintenance", label: "Maintenance Requests", icon: Wrench },
       { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
