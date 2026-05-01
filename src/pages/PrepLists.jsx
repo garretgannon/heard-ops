@@ -1,16 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ClipboardList, FileUp, Search, Filter, ChevronDown } from "lucide-react";
+import { Plus, FileUp, Search, AlertCircle, Clock, CheckCircle2, Camera } from "lucide-react";
 import BulkImportDialog from "../components/BulkImportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import StationBadge from "../components/StationBadge";
 import PrepListDetail from "../components/PrepListDetail";
 import { cn } from "@/lib/utils";
 
 const todayStr = new Date().toISOString().split("T")[0];
+
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "overdue", label: "Overdue" },
+  { id: "pending_review", label: "Needs Photo" },
+  { id: "not_started", label: "Not Started" },
+  { id: "in_progress", label: "In Progress" },
+  { id: "completed", label: "Done" },
+];
+
+const PRIORITY_COLOR = { high: "bg-red-500", medium: "bg-yellow-400", low: "bg-muted" };
+const STATUS_COLOR = { completed: "text-green-500", in_progress: "text-yellow-500", pending: "text-muted-foreground" };
 
 export default function PrepLists() {
   const [stations, setStations] = useState([]);
@@ -21,14 +32,10 @@ export default function PrepLists() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  // Filters
   const [dateFilter, setDateFilter] = useState(todayStr);
-  const [stationFilter, setStationFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedStations, setExpandedStations] = useState({});
-
+  const [itemFilter, setItemFilter] = useState("all");
+  const [activeStation, setActiveStation] = useState("");
   const [form, setForm] = useState({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
 
   const generateRecurring = async (allLists, allItems) => {
@@ -36,37 +43,22 @@ export default function PrepLists() {
     const todayLists = allLists.filter(pl => pl.date === todayStr);
     let generated = false;
     for (const tmpl of templates) {
-      const alreadyExists = todayLists.some(pl => pl.template_list_id === tmpl.id);
-      if (alreadyExists) continue;
+      if (todayLists.some(pl => pl.template_list_id === tmpl.id)) continue;
       if (tmpl.recurring_time) {
         const [h, m] = tmpl.recurring_time.split(":").map(Number);
         const now = new Date();
         if (now.getHours() < h || (now.getHours() === h && now.getMinutes() < m)) continue;
       }
       const newList = await base44.entities.PrepList.create({
-        name: tmpl.name,
-        date: todayStr,
-        station_id: tmpl.station_id,
-        station_name: tmpl.station_name,
-        notes: tmpl.notes,
-        status: "draft",
-        template_list_id: tmpl.id,
+        name: tmpl.name, date: todayStr, station_id: tmpl.station_id,
+        station_name: tmpl.station_name, notes: tmpl.notes, status: "draft", template_list_id: tmpl.id,
       });
       const tmplItems = allItems.filter(pi => pi.prep_list_id === tmpl.id);
-      await Promise.all(tmplItems.map(pi =>
-        base44.entities.PrepItem.create({
-          name: pi.name,
-          quantity: pi.quantity,
-          unit: pi.unit,
-          notes: pi.notes,
-          priority: pi.priority,
-          master_photo_url: pi.master_photo_url,
-          prep_list_id: newList.id,
-          station_id: tmpl.station_id,
-          status: "pending",
-          sort_order: pi.sort_order,
-        })
-      ));
+      await Promise.all(tmplItems.map(pi => base44.entities.PrepItem.create({
+        name: pi.name, quantity: pi.quantity, unit: pi.unit, notes: pi.notes,
+        priority: pi.priority, master_photo_url: pi.master_photo_url,
+        prep_list_id: newList.id, station_id: tmpl.station_id, status: "pending", sort_order: pi.sort_order,
+      })));
       generated = true;
     }
     return generated;
@@ -98,8 +90,7 @@ export default function PrepLists() {
 
   useEffect(() => {
     if (prepLists.length > 0) {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get("id");
+      const id = new URLSearchParams(window.location.search).get("id");
       if (id) {
         const found = prepLists.find(pl => pl.id === id);
         if (found) setSelectedList(found);
@@ -111,11 +102,7 @@ export default function PrepLists() {
     if (!form.name.trim() || !form.station_id) return;
     setSaving(true);
     const station = stations.find(s => s.id === form.station_id);
-    await base44.entities.PrepList.create({
-      ...form,
-      station_name: station?.name || "",
-      status: "draft",
-    });
+    await base44.entities.PrepList.create({ ...form, station_name: station?.name || "", status: "draft" });
     setDialogOpen(false);
     setForm({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
     setSaving(false);
@@ -129,6 +116,59 @@ export default function PrepLists() {
     if (selectedList?.id === id) setSelectedList(null);
     load();
   };
+
+  // Derived data
+  const todayLists = useMemo(() => prepLists.filter(pl => pl.date === dateFilter), [prepLists, dateFilter]);
+  const todayListIds = useMemo(() => new Set(todayLists.map(pl => pl.id)), [todayLists]);
+  const todayItems = useMemo(() => prepItems.filter(pi => todayListIds.has(pi.prep_list_id)), [prepItems, todayListIds]);
+
+  const getStation = (id) => stations.find(s => s.id === id);
+  const getListForItem = (pi) => todayLists.find(pl => pl.id === pi.prep_list_id);
+
+  // Summary stats
+  const summary = useMemo(() => {
+    const total = todayItems.length;
+    const completed = todayItems.filter(i => i.status === "completed").length;
+    const overdue = todayItems.filter(i => i.status !== "completed" && i.priority === "high").length;
+    const needsPhoto = todayItems.filter(i => i.status === "completed" && !i.photo_url && i.master_photo_url).length;
+    const stationsActive = new Set(todayItems.map(i => i.station_id));
+    const stationsNotStarted = stations.filter(s => stationsActive.has(s.id) && todayItems.filter(i => i.station_id === s.id).every(i => i.status === "pending")).length;
+    return { total, completed, overdue, needsPhoto, stationsNotStarted, pct: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  }, [todayItems, stations]);
+
+  // Station stats
+  const stationStats = useMemo(() => {
+    return stations.map(s => {
+      const items = todayItems.filter(i => i.station_id === s.id);
+      if (items.length === 0) return null;
+      const done = items.filter(i => i.status === "completed").length;
+      const overdue = items.filter(i => i.status !== "completed" && i.priority === "high").length;
+      const pct = Math.round((done / items.length) * 100);
+      return { station: s, items, done, total: items.length, overdue, pct };
+    }).filter(Boolean);
+  }, [todayItems, stations]);
+
+  // Filtered items
+  const filteredItems = useMemo(() => {
+    let items = todayItems;
+    if (activeStation) items = items.filter(i => i.station_id === activeStation);
+    if (searchQuery) items = items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (itemFilter === "overdue") items = items.filter(i => i.status !== "completed" && i.priority === "high");
+    else if (itemFilter === "pending_review") items = items.filter(i => i.status === "completed" && !i.photo_url && i.master_photo_url);
+    else if (itemFilter === "not_started") items = items.filter(i => i.status === "pending");
+    else if (itemFilter === "in_progress") items = items.filter(i => i.status === "in_progress");
+    else if (itemFilter === "completed") items = items.filter(i => i.status === "completed");
+    return items;
+  }, [todayItems, activeStation, searchQuery, itemFilter]);
+
+  // Needs attention items
+  const needsAttention = useMemo(() => ({
+    overdue: todayItems.filter(i => i.status !== "completed" && i.priority === "high"),
+    needsPhoto: todayItems.filter(i => i.status === "completed" && !i.photo_url && i.master_photo_url),
+    lowStations: stationStats.filter(s => s.pct < 30 && s.pct > 0),
+  }), [todayItems, stationStats]);
+
+  const hasAttention = needsAttention.overdue.length > 0 || needsAttention.needsPhoto.length > 0 || needsAttention.lowStations.length > 0;
 
   if (loading) {
     return (
@@ -150,178 +190,219 @@ export default function PrepLists() {
     );
   }
 
-  // Filter logic
-  let filteredLists = prepLists.filter(pl => {
-    if (dateFilter && pl.date !== dateFilter) return false;
-    if (stationFilter && pl.station_id !== stationFilter) return false;
-    if (statusFilter && pl.status !== statusFilter) return false;
-    return true;
-  });
-
-  const getListProgress = (listId) => {
-    const items = prepItems.filter(pi => pi.prep_list_id === listId);
-    if (items.length === 0) return { completed: 0, total: 0, percentage: 0 };
-    const completed = items.filter(i => i.status === "completed").length;
-    return { completed, total: items.length, percentage: Math.round((completed / items.length) * 100) };
-  };
-
-  const getStationStats = (stationId) => {
-    const lists = filteredLists.filter(pl => pl.station_id === stationId);
-    if (lists.length === 0) return null;
-    
-    let totalItems = 0, completedItems = 0, overdueItems = 0, photoPending = 0;
-    lists.forEach(list => {
-      const items = prepItems.filter(pi => pi.prep_list_id === list.id);
-      totalItems += items.length;
-      completedItems += items.filter(i => i.status === "completed").length;
-      overdueItems += items.filter(i => i.status !== "completed" && i.priority === "high").length;
-      photoPending += items.filter(i => i.status === "completed" && i.requires_photo && !i.photo_url).length;
-    });
-
-    return { lists, totalItems, completedItems, overdueItems, photoPending, percentage: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0 };
-  };
-
-  const visibleStations = stations.filter(s => {
-    const stats = getStationStats(s.id);
-    return stats && stats.lists.length > 0;
-  });
-
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Prep Progress</h1>
-          <p className="text-muted-foreground mt-1">Track kitchen prep by station</p>
+    <div className="pb-20">
+      {/* Sticky Summary Header */}
+      <div className="sticky top-0 z-20 bg-background border-b border-border pb-3 pt-2 -mx-4 px-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold">Prep Progress</h1>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => setBulkImportOpen(true)}>
+              <FileUp className="h-4 w-4" />
+            </Button>
+            <Button size="sm" onClick={() => setDialogOpen(true)} disabled={stations.length === 0}>
+              <Plus className="h-4 w-4 mr-1" />New
+            </Button>
+          </div>
         </div>
 
-        {/* Search & Filters */}
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search prep items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+        {/* Overall stats row */}
+        <div className="grid grid-cols-4 gap-1.5">
+          <div className="bg-primary/10 rounded-lg p-2 text-center">
+            <div className="text-lg font-bold text-primary">{summary.pct}%</div>
+            <div className="text-[10px] text-muted-foreground">Complete</div>
           </div>
-          <Input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="lg:w-40" />
-          <Select value={stationFilter} onValueChange={setStationFilter}>
-            <SelectTrigger className="lg:w-40">
-              <SelectValue placeholder="All Stations" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={null}>All Stations</SelectItem>
-              {stations.map(s => (
-                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="lg:w-40">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={null}>All Status</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={() => setDialogOpen(true)} disabled={stations.length === 0}>
-            <Plus className="h-4 w-4 mr-2" />
-            New List
-          </Button>
-          <Button variant="outline" onClick={() => setBulkImportOpen(true)}>
-            <FileUp className="h-4 w-4 mr-2" />
-            Import
-          </Button>
+          <div className={cn("rounded-lg p-2 text-center", summary.overdue > 0 ? "bg-red-500/10" : "bg-card")}>
+            <div className={cn("text-lg font-bold", summary.overdue > 0 ? "text-red-500" : "text-foreground")}>{summary.overdue}</div>
+            <div className="text-[10px] text-muted-foreground">Overdue</div>
+          </div>
+          <div className={cn("rounded-lg p-2 text-center", summary.needsPhoto > 0 ? "bg-yellow-500/10" : "bg-card")}>
+            <div className={cn("text-lg font-bold", summary.needsPhoto > 0 ? "text-yellow-500" : "text-foreground")}>{summary.needsPhoto}</div>
+            <div className="text-[10px] text-muted-foreground">Needs Photo</div>
+          </div>
+          <div className={cn("rounded-lg p-2 text-center", summary.stationsNotStarted > 0 ? "bg-orange-500/10" : "bg-card")}>
+            <div className={cn("text-lg font-bold", summary.stationsNotStarted > 0 ? "text-orange-500" : "text-foreground")}>{summary.stationsNotStarted}</div>
+            <div className="text-[10px] text-muted-foreground">Not Started</div>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-1.5 w-full bg-border rounded-full overflow-hidden">
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${summary.pct}%` }} />
+        </div>
+
+        {/* Date + Search */}
+        <div className="flex gap-2">
+          <Input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} className="h-8 text-xs w-36 shrink-0" />
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="h-8 text-xs pl-7" />
+          </div>
         </div>
       </div>
 
-      {/* Station Cards */}
-      <div className="space-y-4">
-        {visibleStations.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            No prep lists for selected filters.
+      <div className="space-y-4 pt-4">
+        {/* Needs Attention */}
+        {hasAttention && (
+          <div className="space-y-1.5">
+            <p className="text-xs font-bold uppercase tracking-wider text-red-500 flex items-center gap-1">
+              <AlertCircle className="h-3 w-3" />Needs Attention
+            </p>
+            {needsAttention.overdue.length > 0 && (
+              <button onClick={() => setItemFilter("overdue")} className="w-full bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 text-left flex items-center justify-between active:scale-95 transition-transform">
+                <span className="text-xs font-semibold text-red-600">{needsAttention.overdue.length} high-priority items not done</span>
+                <span className="text-[10px] text-red-500">Tap to filter →</span>
+              </button>
+            )}
+            {needsAttention.needsPhoto.length > 0 && (
+              <button onClick={() => setItemFilter("pending_review")} className="w-full bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-3 py-2 text-left flex items-center justify-between active:scale-95 transition-transform">
+                <span className="text-xs font-semibold text-yellow-600">{needsAttention.needsPhoto.length} items need photo verification</span>
+                <span className="text-[10px] text-yellow-500">Tap to filter →</span>
+              </button>
+            )}
+            {needsAttention.lowStations.map(s => (
+              <button key={s.station.id} onClick={() => { setActiveStation(s.station.id); setItemFilter("all"); }} className="w-full bg-orange-500/10 border border-orange-500/30 rounded-lg px-3 py-2 text-left flex items-center justify-between active:scale-95 transition-transform">
+                <span className="text-xs font-semibold text-orange-600">{s.station.name}: only {s.pct}% complete</span>
+                <span className="text-[10px] text-orange-500">Tap to filter →</span>
+              </button>
+            ))}
           </div>
-        ) : (
-          visibleStations.map(station => {
-            const stats = getStationStats(station.id);
-            const isExpanded = expandedStations[station.id] !== false;
+        )}
 
-            return (
-              <div key={station.id} className="bg-card border-2 border-border rounded-xl overflow-hidden">
-                {/* Station Header */}
+        {/* Station horizontal scroll cards */}
+        {stationStats.length > 0 && (
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Stations</p>
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+              <button
+                onClick={() => setActiveStation("")}
+                className={cn("flex-shrink-0 rounded-xl border px-3 py-2 text-left transition-all active:scale-95", !activeStation ? "border-primary bg-primary/10" : "border-border bg-card")}
+                style={{ minWidth: 110 }}
+              >
+                <div className="text-xs font-bold truncate">All Stations</div>
+                <div className="text-base font-bold text-primary">{summary.pct}%</div>
+                <div className="h-1 w-full bg-border rounded-full mt-1 overflow-hidden">
+                  <div className="h-1 bg-primary rounded-full" style={{ width: `${summary.pct}%` }} />
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">{summary.completed}/{summary.total}</div>
+              </button>
+              {stationStats.map(({ station, done, total, overdue, pct }) => (
                 <button
-                  onClick={() => setExpandedStations(prev => ({ ...prev, [station.id]: !prev[station.id] }))}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-secondary/30 transition-colors"
+                  key={station.id}
+                  onClick={() => setActiveStation(activeStation === station.id ? "" : station.id)}
+                  className={cn("flex-shrink-0 rounded-xl border px-3 py-2 text-left transition-all active:scale-95", activeStation === station.id ? "border-primary bg-primary/10" : overdue > 0 ? "border-red-500/40 bg-red-500/5" : "border-border bg-card")}
+                  style={{ minWidth: 110 }}
                 >
-                  <div className="flex items-center gap-4 flex-1">
-                    <StationBadge name={station.name} color={station.color} />
-                    <div className="text-left flex-1 hidden md:block">
-                      <p className="text-sm text-muted-foreground">{stats.completedItems} of {stats.totalItems} items</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary" style={{ width: `${stats.percentage}%` }} />
-                      </div>
-                      <span className="text-lg font-bold text-primary min-w-12 text-right">{stats.percentage}%</span>
-                      {stats.overdueItems > 0 && (
-                        <span className="px-2 py-1 bg-red-500/20 text-red-700 text-xs font-bold rounded-md">{stats.overdueItems} Overdue</span>
-                      )}
-                    </div>
+                  <div className="text-xs font-bold truncate">{station.name}</div>
+                  <div className={cn("text-base font-bold", pct === 100 ? "text-green-500" : overdue > 0 ? "text-red-500" : "text-primary")}>{pct}%</div>
+                  <div className="h-1 w-full bg-border rounded-full mt-1 overflow-hidden">
+                    <div className={cn("h-1 rounded-full", pct === 100 ? "bg-green-500" : overdue > 0 ? "bg-red-500" : "bg-primary")} style={{ width: `${pct}%` }} />
                   </div>
-                  <ChevronDown className={cn("h-5 w-5 transition-transform", !isExpanded && "rotate-180")} />
+                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                    {done}/{total}{overdue > 0 ? ` · ${overdue} ⚠️` : ""}
+                  </div>
                 </button>
+              ))}
+            </div>
+          </div>
+        )}
 
-                {/* Lists */}
-                {isExpanded && (
-                  <div className="border-t border-border px-6 py-4 space-y-3">
-                    {stats.lists.map(list => {
-                      const progress = getListProgress(list.id);
-                      return (
-                        <button
-                          key={list.id}
-                          onClick={() => setSelectedList(list)}
-                          className="w-full text-left p-4 bg-secondary/20 hover:bg-secondary/40 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-sm">{list.name}</h4>
-                              <p className="text-xs text-muted-foreground">
-                                {progress.completed}/{progress.total} items • {list.status.toUpperCase()}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-bold text-primary">{progress.percentage}%</p>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
+        {/* Filter chips */}
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+          {FILTERS.map(f => (
+            <button
+              key={f.id}
+              onClick={() => setItemFilter(f.id)}
+              className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all active:scale-95",
+                itemFilter === f.id ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground"
+              )}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Prep Item Cards */}
+        <div className="space-y-2">
+          {filteredItems.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">No items match this filter</div>
+          ) : (
+            filteredItems.map(item => {
+              const list = getListForItem(item);
+              const station = getStation(item.station_id);
+              const isDone = item.status === "completed";
+              const isOverdue = !isDone && item.priority === "high";
+              const needsPhoto = isDone && !item.photo_url && item.master_photo_url;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => list && setSelectedList(list)}
+                  className={cn(
+                    "w-full bg-card border rounded-xl p-3 text-left active:scale-95 transition-transform",
+                    isOverdue ? "border-red-500/40" : needsPhoto ? "border-yellow-500/40" : isDone ? "border-green-500/20" : "border-border"
+                  )}
+                >
+                  {/* Top row */}
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className={cn("w-1.5 h-1.5 rounded-full shrink-0 mt-0.5", PRIORITY_COLOR[item.priority] || "bg-muted")} />
+                      <span className={cn("font-semibold text-sm truncate", isDone && "line-through text-muted-foreground")}>{item.name}</span>
+                    </div>
+                    <span className={cn("text-xs font-bold shrink-0", STATUS_COLOR[item.status] || "text-muted-foreground")}>
+                      {item.status === "completed" ? "✓ Done" : item.status === "in_progress" ? "In Progress" : "Pending"}
+                    </span>
                   </div>
-                )}
-              </div>
-            );
-          })
+
+                  {/* Meta row */}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground pl-3.5">
+                    {station && <span className="font-medium text-foreground/70">{station.name}</span>}
+                    {item.due_time && <span className="flex items-center gap-0.5"><Clock className="h-3 w-3" />{item.due_time}</span>}
+                    {(item.quantity || item.unit) && <span>{item.quantity}{item.unit ? ` ${item.unit}` : ""}</span>}
+                    {item.assigned_to_individual && <span>{item.assigned_to_individual.split("@")[0]}</span>}
+                    {needsPhoto && <span className="flex items-center gap-0.5 text-yellow-500 font-semibold"><Camera className="h-3 w-3" />Photo needed</span>}
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        {/* List-level actions (tap a list from station stats) */}
+        {activeStation && (
+          <div className="pt-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Prep Lists</p>
+            <div className="space-y-2">
+              {todayLists.filter(pl => pl.station_id === activeStation).map(list => {
+                const items = prepItems.filter(pi => pi.prep_list_id === list.id);
+                const done = items.filter(i => i.status === "completed").length;
+                const pct = items.length > 0 ? Math.round((done / items.length) * 100) : 0;
+                return (
+                  <button key={list.id} onClick={() => setSelectedList(list)} className="w-full bg-secondary/20 border border-border rounded-lg px-3 py-2 text-left flex items-center justify-between active:scale-95 transition-transform">
+                    <div>
+                      <div className="text-sm font-semibold">{list.name}</div>
+                      <div className="text-[11px] text-muted-foreground">{done}/{items.length} · {list.status}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-base font-bold text-primary">{pct}%</div>
+                      <div className="h-1 w-16 bg-border rounded-full mt-1 overflow-hidden">
+                        <div className="h-1 bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
 
       {/* Dialogs */}
-      <BulkImportDialog
-        open={bulkImportOpen}
-        onOpenChange={setBulkImportOpen}
-        type="prep_items"
-        onImportComplete={load}
-      />
+      <BulkImportDialog open={bulkImportOpen} onOpenChange={setBulkImportOpen} type="prep_items" onImportComplete={load} />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>New Prep List</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>New Prep List</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div>
               <label className="text-sm font-semibold">List Name</label>
@@ -334,27 +415,18 @@ export default function PrepLists() {
             <div>
               <label className="text-sm font-semibold">Station</label>
               <Select value={form.station_id} onValueChange={v => setForm({ ...form, station_id: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select station..." />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select station..." /></SelectTrigger>
                 <SelectContent>
-                  {stations.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
+                  {stations.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${form.is_recurring ? "bg-primary" : "bg-muted"}`}
-              >
+              <button type="button" onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${form.is_recurring ? "bg-primary" : "bg-muted"}`}>
                 <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${form.is_recurring ? "translate-x-[18px]" : "translate-x-1"}`} />
               </button>
-              <label className="text-sm font-semibold cursor-pointer" onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}>
-                Repeat daily
-              </label>
+              <label className="text-sm font-semibold cursor-pointer" onClick={() => setForm(f => ({ ...f, is_recurring: !f.is_recurring }))}>Repeat daily</label>
             </div>
             {form.is_recurring && (
               <div>
@@ -365,9 +437,7 @@ export default function PrepLists() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} disabled={saving || !form.name.trim() || !form.station_id}>
-              {saving ? "Creating..." : "Create"}
-            </Button>
+            <Button onClick={handleCreate} disabled={saving || !form.name.trim() || !form.station_id}>{saving ? "Creating..." : "Create"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
