@@ -1,6 +1,7 @@
 import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
+import FloatingQuickActions from "./FloatingQuickActions";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -261,6 +262,7 @@ export default function Layout() {
         </AnimatePresence>
       </main>
       <HelpButton />
+      <FloatingQuickActions />
     </div>
   );
 }
