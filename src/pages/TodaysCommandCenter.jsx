@@ -5,32 +5,36 @@ import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, C
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const StatusIcon = ({ status }) => {
-  if (status === 'critical' || status === 'high') return <AlertCircle className="h-4 w-4 text-red-500" />;
-  if (status === 'medium') return <Clock className="h-4 w-4 text-yellow-500" />;
-  return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-};
-
-const DashboardCard = ({ icon: Icon, title, count, status, assigned, onClick, onViewAll }) => {
-  const statusColor = status === 'critical' ? 'border-red-500/40 bg-red-500/5' : status === 'high' ? 'border-yellow-500/40 bg-yellow-500/5' : 'border-border';
+const CompactCard = ({ icon: Icon, title, count, done, total, label, urgentCount, status, onClick }) => {
+  const progress = total > 0 ? Math.round((done / total) * 100) : null;
+  const borderColor = status === 'critical' ? 'border-red-500/50' : status === 'high' ? 'border-yellow-500/40' : 'border-border';
+  const progressColor = status === 'critical' ? 'bg-red-500' : status === 'high' ? 'bg-yellow-400' : 'bg-primary';
 
   return (
-    <div className={cn("bg-card border-2 rounded-xl p-4 hover:shadow-md transition-all", statusColor)}>
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Icon className="h-5 w-5 text-primary" />
-          <h3 className="font-bold text-sm">{title}</h3>
-        </div>
-        <StatusIcon status={status} />
+    <button
+      onClick={onClick}
+      className={cn("bg-card border rounded-xl p-3 flex flex-col justify-between text-left active:scale-95 transition-transform w-full", borderColor)}
+      style={{ minHeight: 96, maxHeight: 110 }}
+    >
+      {/* Top row: icon + title */}
+      <div className="flex items-center gap-1.5">
+        <Icon className="h-4 w-4 text-primary shrink-0" />
+        <span className="text-xs font-semibold text-muted-foreground truncate">{title}</span>
       </div>
 
-      <div className="space-y-3">
-        <div className="text-2xl font-bold text-primary">{count}</div>
-        {assigned && <p className="text-xs text-muted-foreground">Assigned: {assigned}</p>}
-        <Button onClick={onClick} variant="outline" size="sm" className="w-full">Take Action</Button>
-        {onViewAll && <Button onClick={onViewAll} variant="ghost" size="sm" className="w-full">View All</Button>}
+      {/* Middle: main count */}
+      <div className="text-xl font-bold leading-tight my-1">{count}</div>
+
+      {/* Bottom: progress bar + label */}
+      <div className="space-y-1">
+        {progress !== null && (
+          <div className="h-1 w-full bg-border rounded-full overflow-hidden">
+            <div className={cn("h-1 rounded-full transition-all", progressColor)} style={{ width: `${Math.min(progress, 100)}%` }} />
+          </div>
+        )}
+        <p className="text-[10px] text-muted-foreground truncate">{label}</p>
       </div>
-    </div>
+    </button>
   );
 };
 
@@ -194,60 +198,72 @@ export default function TodaysCommandCenter() {
       <div className="space-y-2">
         <h2 className="text-sm font-bold uppercase tracking-wider text-primary">What Needs Attention?</h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <DashboardCard
+      <div className="grid grid-cols-2 gap-3">
+        <CompactCard
           icon={ClipboardList}
-          title="Prep Progress"
-          count={`${metrics.prep.completed}/${metrics.prep.total}`}
-          status={metrics.prep.pending === 0 ? 'low' : metrics.prep.urgent > 0 ? 'high' : 'medium'}
+          title="Prep"
+          count={`${metrics.prep.completed}/${metrics.prep.total} done`}
+          done={metrics.prep.completed}
+          total={metrics.prep.total}
+          label={metrics.prep.urgent > 0 ? `${metrics.prep.urgent} overdue` : "On track"}
+          status={metrics.prep.urgent > 0 ? 'high' : 'low'}
           onClick={() => navigate("/prep-lists")}
         />
-        <DashboardCard
+        <CompactCard
           icon={Camera}
           title="Side Work"
-          count={`${metrics.sideWork.completed}/${metrics.sideWork.total}`}
-          status={metrics.sideWork.pending === 0 ? 'low' : metrics.sideWork.urgent > 0 ? 'high' : 'medium'}
+          count={`${metrics.sideWork.completed}/${metrics.sideWork.total} done`}
+          done={metrics.sideWork.completed}
+          total={metrics.sideWork.total}
+          label={metrics.sideWork.urgent > 0 ? `${metrics.sideWork.urgent} overdue` : "On track"}
+          status={metrics.sideWork.urgent > 0 ? 'high' : 'low'}
           onClick={() => navigate("/side-work")}
         />
-        <DashboardCard
+        <CompactCard
           icon={Thermometer}
           title="Temp Logs"
-          count={metrics.tempLogs.outOfRange > 0 ? `${metrics.tempLogs.outOfRange} ALERT` : "OK"}
+          count={metrics.tempLogs.outOfRange > 0 ? `${metrics.tempLogs.outOfRange} alerts` : "All OK"}
+          label={`${metrics.tempLogs.total} logged today`}
           status={metrics.tempLogs.outOfRange > 0 ? 'high' : 'low'}
           onClick={() => navigate("/temp-logs")}
         />
-        <DashboardCard
+        <CompactCard
           icon={Wrench}
           title="Maintenance"
-          count={metrics.maintenance.open}
-          status={metrics.maintenance.urgent > 0 ? 'high' : 'medium'}
+          count={`${metrics.maintenance.open} open`}
+          label={metrics.maintenance.urgent > 0 ? `${metrics.maintenance.urgent} urgent` : "No urgent items"}
+          status={metrics.maintenance.urgent > 0 ? 'high' : 'low'}
           onClick={() => navigate("/maintenance")}
         />
-        <DashboardCard
+        <CompactCard
           icon={AlertTriangle}
           title="Incidents"
-          count={metrics.incidents.open}
-          status={metrics.incidents.urgent > 0 ? 'critical' : 'medium'}
+          count={`${metrics.incidents.open} open`}
+          label={metrics.incidents.urgent > 0 ? `${metrics.incidents.urgent} critical` : "No critical items"}
+          status={metrics.incidents.urgent > 0 ? 'critical' : 'low'}
           onClick={() => navigate("/incidents")}
         />
-        <DashboardCard
+        <CompactCard
           icon={DollarSign}
-          title="Cash Issues"
-          count={metrics.cash.issues}
+          title="Cash"
+          count={metrics.cash.issues > 0 ? `${metrics.cash.issues} variance` : "Balanced"}
+          label={`${metrics.cash.total} drawers counted`}
           status={metrics.cash.issues > 0 ? 'high' : 'low'}
           onClick={() => navigate("/cash")}
         />
-        <DashboardCard
+        <CompactCard
           icon={Camera}
-          title="Photo Review"
-          count={metrics.photoReview.pending}
+          title="Photos"
+          count={`${metrics.photoReview.pending} pending`}
+          label="Awaiting review"
           status={metrics.photoReview.pending > 0 ? 'medium' : 'low'}
           onClick={() => navigate("/photo-review")}
         />
-        <DashboardCard
+        <CompactCard
           icon={Truck}
-          title="Vendor Follow-Ups"
-          count={metrics.vendors.total}
+          title="Vendors"
+          count={`${metrics.vendors.total} contacts`}
+          label="Tap to view"
           onClick={() => navigate("/vendors")}
         />
       </div>
