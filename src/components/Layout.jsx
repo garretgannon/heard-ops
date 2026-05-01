@@ -123,9 +123,8 @@ export default function Layout() {
             <ChefHat className="h-6 w-6 text-primary" />
           )}
           <div className="leading-tight">
-            <span className="font-bold text-base tracking-tight block">Heard</span>
-            <span className="text-xs text-primary font-semibold">Ops</span>
-            {restaurantName && <span className="text-xs text-muted-foreground leading-none">{restaurantName}</span>}
+            <span className="font-bold text-base tracking-tight">Heard <span className="text-primary">Ops</span></span>
+            {restaurantName && <span className="block text-xs text-muted-foreground leading-none">{restaurantName}</span>}
           </div>
         </div>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2">
@@ -186,9 +185,8 @@ export default function Layout() {
             )}
           </div>
           <div>
-            <h1 className="font-bold text-lg tracking-tight">Heard</h1>
-            <p className="text-xs text-primary font-semibold -mt-0.5">Restaurant Ops</p>
-            {restaurantName && <p className="text-xs text-primary font-medium -mt-0.5">{restaurantName}</p>}
+            <h1 className="font-bold text-lg tracking-tight">Heard <span className="text-primary">Ops</span></h1>
+            {restaurantName && <p className="text-xs text-primary font-medium">{restaurantName}</p>}
             {!restaurantName && <p className="text-xs text-muted-foreground">Restaurant Operations</p>}
           </div>
         </div>
