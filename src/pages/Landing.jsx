@@ -68,7 +68,7 @@ export default function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Button size="lg" className="text-base">View Demo Restaurant</Button>
+          <Link to="/profile"><Button size="lg" className="text-base">View Demo Restaurant</Button></Link>
           <Button size="lg" variant="outline" className="text-base">Request a Demo</Button>
         </motion.div>
       </section>
@@ -269,7 +269,7 @@ export default function Landing() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-base">View Demo Restaurant</Button>
+            <Link to="/profile"><Button size="lg" variant="secondary" className="text-base">View Demo Restaurant</Button></Link>
             <Button size="lg" variant="outline" className="text-base border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">Request a Demo</Button>
           </div>
         </div>
