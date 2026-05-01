@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Upload, FileText, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import UploadStep from "@/components/schedule/UploadStep";
+import R365UploadStep from "@/components/schedule/R365UploadStep";
 import MatchStep from "@/components/schedule/MatchStep";
 import PreviewStep from "@/components/schedule/PreviewStep";
 import PublishStep from "@/components/schedule/PublishStep";
@@ -40,7 +40,7 @@ export default function R365ScheduleImport() {
       {/* Step content */}
       <div className="bg-card border border-border rounded-xl p-6">
         {step === 0 && (
-          <UploadStep
+          <R365UploadStep
             onComplete={(data) => { setScheduleData(data); setStep(1); }}
           />
         )}
