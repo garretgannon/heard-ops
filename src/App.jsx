@@ -35,7 +35,7 @@ import RestaurantTeam from './pages/RestaurantTeam';
 import EmployeeCalendar from './pages/EmployeeCalendar';
 import Vendors from './pages/Vendors';
 import IncidentReports from './pages/IncidentReports';
-import PreShift from './pages/PreShift';
+
 import LineUp from './pages/LineUp';
 import BuildBook from './pages/BuildBook';
 import BarBook from './pages/BarBook';
@@ -111,7 +111,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
         {isAdmin && <Route path="/vendors" element={<Vendors />} />}
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
-        {isFOH && <Route path="/pre-shift" element={<PreShift />} />}
+        {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
         {isAdmin && <Route path="/line-up" element={<LineUp />} />}
         {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
         {isFOH && <Route path="/bar-book" element={<BarBook />} />}
