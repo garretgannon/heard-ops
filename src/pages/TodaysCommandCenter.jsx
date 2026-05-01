@@ -144,6 +144,19 @@ export default function TodaysCommandCenter() {
         </p>
       </div>
 
+      {/* Quick Actions */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Quick Actions</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <Button onClick={() => navigate("/prep-lists")} variant="outline" className="h-auto py-3"><Plus className="h-4 w-4 mr-2" />Add Task</Button>
+          <Button onClick={() => navigate("/pre-shift")} variant="outline" className="h-auto py-3">Start Pre-Shift</Button>
+          <Button onClick={() => navigate("/photo-review")} variant="outline" className="h-auto py-3">Review Photos</Button>
+          <Button onClick={() => navigate("/maintenance")} variant="outline" className="h-auto py-3">Log Issue</Button>
+          <Button onClick={() => navigate("/shift-handoff")} variant="outline" className="h-auto py-3">Create Handoff</Button>
+          <Button onClick={() => navigate("/side-work")} variant="outline" className="h-auto py-3">Assign Tasks</Button>
+        </div>
+      </div>
+
       {/* Urgent Alerts Section */}
       {metrics.urgentAlerts.length > 0 && (
         <div className="space-y-3">
@@ -258,18 +271,6 @@ export default function TodaysCommandCenter() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Quick Actions</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <Button onClick={() => navigate("/prep-lists")} variant="outline" className="h-auto py-3"><Plus className="h-4 w-4 mr-2" />Add Task</Button>
-          <Button onClick={() => navigate("/pre-shift")} variant="outline" className="h-auto py-3">Start Pre-Shift</Button>
-          <Button onClick={() => navigate("/photo-review")} variant="outline" className="h-auto py-3">Review Photos</Button>
-          <Button onClick={() => navigate("/maintenance")} variant="outline" className="h-auto py-3">Log Issue</Button>
-          <Button onClick={() => navigate("/shift-handoff")} variant="outline" className="h-auto py-3">Create Handoff</Button>
-          <Button onClick={() => navigate("/side-work")} variant="outline" className="h-auto py-3">Assign Tasks</Button>
-        </div>
-      </div>
     </div>
   );
 }
