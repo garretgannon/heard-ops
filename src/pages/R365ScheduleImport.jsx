@@ -46,9 +46,9 @@ export default function R365ScheduleImport() {
         )}
         {step === 1 && (
           <MatchStep
-            scheduleData={scheduleData}
+            rows={scheduleData}
             onBack={() => setStep(0)}
-            onComplete={(matched) => { setScheduleData(matched); setStep(2); }}
+            onNext={(matched) => { setScheduleData(matched); setStep(2); }}
           />
         )}
         {step === 2 && (
