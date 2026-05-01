@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet, CalendarDays, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import ScheduledStaffSection from "@/components/ScheduledStaffSection";
 
 const CompactCard = ({ icon: Icon, title, count, done, total, label, urgentCount, status, onClick }) => {
   const progress = total > 0 ? Math.round((done / total) * 100) : null;
@@ -320,26 +321,8 @@ export default function TodaysCommandCenter() {
         </div>
       )}
 
-      {/* Today's Scheduled Staff */}
-      {metrics.staffShifts?.length > 0 && (
-        <div className="bg-card border-2 border-border rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-sm flex items-center gap-2"><Users className="h-4 w-4 text-primary" />Today's Scheduled Staff ({metrics.staffShifts.length})</h2>
-            <Button onClick={() => navigate("/schedule-import")} variant="ghost" size="sm" className="text-xs">Manage</Button>
-          </div>
-          <div className="space-y-1.5">
-            {metrics.staffShifts.map((s, i) => (
-              <div key={i} className="flex items-center justify-between text-sm">
-                <p className="font-medium">{s.employee_name}</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">{s.start_time} – {s.end_time}</span>
-                  <span className="text-xs px-2 py-0.5 bg-muted rounded-full">{s.role || s.department}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Today's Scheduled Staff - Filterable */}
+      <ScheduledStaffSection shifts={metrics.staffShifts || []} onManage={() => navigate("/schedule-import")} />
 
       {/* Latest Shift Handoff */}
       {metrics.latestHandoff && (
