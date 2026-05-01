@@ -24,17 +24,38 @@ const CATEGORIES = [
   { value: "other", label: "Other" },
 ];
 
+const SEVERITIES = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "critical", label: "Critical" },
+];
+
+const STATUSES = [
+  { value: "open", label: "Open" },
+  { value: "investigating", label: "Investigating" },
+  { value: "resolved", label: "Resolved" },
+];
+
 const emptyForm = {
   date: format(new Date(), "yyyy-MM-dd"),
   time: "",
   category: "",
   location: "",
+  severity: "medium",
   description: "",
   people_involved: "",
   witness_names: "",
+  injuries: "",
   actions_taken: "",
+  affected_person_name: "",
+  affected_person_email: "",
+  affected_person_phone: "",
+  affected_person_address: "",
   photo_url: "",
   file_url: "",
+  status: "open",
+  notes: "",
   follow_up_required: false,
   follow_up_date: "",
   sensitive: false,
@@ -271,7 +292,7 @@ export default function IncidentReports() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit Report" : "File Incident Report"}</DialogTitle>
-            <p className="text-xs text-muted-foreground mt-1">Step {step} of 4</p>
+            <p className="text-xs text-muted-foreground mt-1">Step {step} of 5</p>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -310,6 +331,15 @@ export default function IncidentReports() {
                   <Label>Location *</Label>
                   <Input placeholder="Where did this happen?" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
                 </div>
+                <div>
+                  <Label>Severity</Label>
+                  <Select value={form.severity} onValueChange={v => setForm(f => ({ ...f, severity: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select severity" /></SelectTrigger>
+                    <SelectContent>
+                      {SEVERITIES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             )}
 
@@ -328,11 +358,40 @@ export default function IncidentReports() {
                   <Label>Witnesses</Label>
                   <Input placeholder="Names or emails" value={form.witness_names} onChange={e => setForm(f => ({ ...f, witness_names: e.target.value }))} />
                 </div>
+                <div>
+                  <Label>Injuries (if any)</Label>
+                  <Textarea rows={2} placeholder="Describe any injuries..." value={form.injuries} onChange={e => setForm(f => ({ ...f, injuries: e.target.value }))} />
+                </div>
               </div>
             )}
 
-            {/* Step 3: Actions & Media */}
+            {/* Step 3: Affected Person */}
             {step === 3 && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">If a guest or external person was affected, provide their details below.</p>
+                <div>
+                  <Label>Affected Person Name</Label>
+                  <Input placeholder="Full name" value={form.affected_person_name} onChange={e => setForm(f => ({ ...f, affected_person_name: e.target.value }))} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Phone</Label>
+                    <Input placeholder="Phone number" value={form.affected_person_phone} onChange={e => setForm(f => ({ ...f, affected_person_phone: e.target.value }))} />
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <Input placeholder="Email" value={form.affected_person_email} onChange={e => setForm(f => ({ ...f, affected_person_email: e.target.value }))} />
+                  </div>
+                </div>
+                <div>
+                  <Label>Address</Label>
+                  <Input placeholder="Street address" value={form.affected_person_address} onChange={e => setForm(f => ({ ...f, affected_person_address: e.target.value }))} />
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Actions & Media */}
+            {step === 4 && (
               <div className="space-y-4">
                 <div>
                   <Label>Actions Taken</Label>
@@ -373,9 +432,22 @@ export default function IncidentReports() {
               </div>
             )}
 
-            {/* Step 4: Follow-up & Sensitivity */}
-            {step === 4 && (
+            {/* Step 5: Follow-up & Sensitivity */}
+            {step === 5 && (
               <div className="space-y-4">
+                <div>
+                  <Label>Status</Label>
+                  <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                    <SelectContent>
+                      {STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Additional Notes</Label>
+                  <Textarea rows={3} placeholder="Any other details..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
+                </div>
                 <label className="flex items-center gap-3 p-3 bg-secondary/40 rounded-lg cursor-pointer">
                   <input type="checkbox" checked={form.follow_up_required} onChange={e => setForm(f => ({ ...f, follow_up_required: e.target.checked }))} />
                   <span className="text-sm font-semibold">Follow-up required</span>
@@ -410,7 +482,7 @@ export default function IncidentReports() {
           {/* Navigation */}
           <div className="flex gap-2 pt-4 border-t">
             {step > 1 && <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button>}
-            {step < 4 ? (
+            {step < 5 ? (
               <Button onClick={() => setStep(step + 1)} className="flex-1">Next</Button>
             ) : (
               <Button onClick={handleSave} disabled={saving} className="flex-1">{saving ? "Saving…" : "File Report"}</Button>
