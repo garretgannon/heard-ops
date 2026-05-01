@@ -49,6 +49,7 @@ import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import SetupWizard from './pages/SetupWizard';
 import ScheduleImport from './pages/ScheduleImport';
 import R365ScheduleImport from './pages/R365ScheduleImport';
+import ScheduleCenter from './pages/ScheduleCenter';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -124,6 +125,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/schedule-import" element={<ScheduleImport />} />}
         {isAdmin && <Route path="/r365-import" element={<R365ScheduleImport />} />}
         {isAdmin && <Route path="/shift-handoff" element={<ShiftHandoff />} />}
+        {isAdmin && <Route path="/schedule-center" element={<ScheduleCenter />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
