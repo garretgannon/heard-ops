@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, X, Edit2, Trash2, Phone, Mail, Globe, MapPin, Search, ChevronDown, ChevronUp, Star, AlertCircle } from "lucide-react";
+import VendorNoteForm from "../components/forms/VendorNoteForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,7 @@ export default function Vendors() {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingVendor, setEditingVendor] = useState(null);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
@@ -107,20 +109,17 @@ export default function Vendors() {
     }
   };
 
-  const openEdit = (vendor) => {
-    setForm(vendor);
-    setEditingId(vendor.id);
-    setShowForm(true);
-  };
+  const openEdit = (vendor) => { setEditingVendor(vendor); setShowForm(true); };
+  const openNew = () => { setEditingVendor(null); setShowForm(true); };
 
-  const openNew = () => {
-    setForm({
-      name: "", contact_person: "", phone: "", email: "", website: "", address: "", city: "", state: "", zip: "",
-      category: "", notes: "", emergency_number: "", emergency: false, account_number: "", hours: "",
-      preferred_contact: "phone", contract_renewal_date: "", service_history: "", active: true,
-    });
-    setEditingId(null);
-    setShowForm(true);
+  const handleSaved = (result) => {
+    if (editingVendor) {
+      setVendors(prev => prev.map(v => v.id === result.id ? result : v));
+    } else {
+      setVendors(prev => [result, ...prev]);
+    }
+    setShowForm(false);
+    setEditingVendor(null);
   };
 
   // Filter vendors
@@ -249,142 +248,12 @@ export default function Vendors() {
         </>
       )}
 
-      {/* Add/Edit Dialog */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Vendor" : "Add New Vendor"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Vendor Name *</Label>
-                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g., ABC Foods Inc." />
-              </div>
-              <div>
-                <Label>Category</Label>
-                <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Contact Person</Label>
-                <Input value={form.contact_person} onChange={e => setForm(f => ({ ...f, contact_person: e.target.value }))} placeholder="Name" />
-              </div>
-              <div>
-                <Label>Preferred Contact</Label>
-                <Select value={form.preferred_contact} onValueChange={v => setForm(f => ({ ...f, preferred_contact: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="phone">Phone</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="text">Text</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Primary Phone</Label>
-                <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(555) 123-4567" />
-              </div>
-              <div>
-                <Label>Emergency Number</Label>
-                <Input value={form.emergency_number} onChange={e => setForm(f => ({ ...f, emergency_number: e.target.value }))} placeholder="After-hours number" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Email</Label>
-                <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="vendor@example.com" />
-              </div>
-              <div>
-                <Label>Website</Label>
-                <Input value={form.website} onChange={e => setForm(f => ({ ...f, website: e.target.value }))} placeholder="https://example.com" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Account Number</Label>
-                <Input value={form.account_number} onChange={e => setForm(f => ({ ...f, account_number: e.target.value }))} placeholder="Your account #" />
-              </div>
-              <div>
-                <Label>Hours / Availability</Label>
-                <Input value={form.hours} onChange={e => setForm(f => ({ ...f, hours: e.target.value }))} placeholder="Mon-Fri 8am-5pm" />
-              </div>
-            </div>
-
-            <div>
-              <Label>Street Address</Label>
-              <Input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="123 Main St" />
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <Label>City</Label>
-                <Input value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="City" />
-              </div>
-              <div>
-                <Label>State</Label>
-                <Input value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value }))} placeholder="AZ" />
-              </div>
-              <div>
-                <Label>ZIP</Label>
-                <Input value={form.zip} onChange={e => setForm(f => ({ ...f, zip: e.target.value }))} placeholder="85001" />
-              </div>
-            </div>
-
-            <div>
-              <Label>Contract Renewal Date</Label>
-              <Input type="date" value={form.contract_renewal_date} onChange={e => setForm(f => ({ ...f, contract_renewal_date: e.target.value }))} />
-            </div>
-
-            <div>
-              <Label>Service History / Notes</Label>
-              <Textarea value={form.service_history} onChange={e => setForm(f => ({ ...f, service_history: e.target.value }))} placeholder="Last service: 2024-04-15&#10;Issue: Fixed compressor..." rows={3} />
-            </div>
-
-            <div>
-              <Label>General Notes</Label>
-              <Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Special instructions, payment terms, etc." rows={2} />
-            </div>
-
-            <label className="flex items-center gap-2 p-3 bg-secondary/40 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.emergency}
-                onChange={e => setForm(f => ({ ...f, emergency: e.target.checked }))}
-              />
-              <span className="text-sm font-semibold">Mark as emergency vendor (pin at top)</span>
-            </label>
-
-            <label className="flex items-center gap-2 p-3 bg-secondary/40 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.active}
-                onChange={e => setForm(f => ({ ...f, active: e.target.checked }))}
-              />
-              <span className="text-sm font-semibold">Active vendor</span>
-            </label>
-
-            <div className="flex gap-2 pt-2">
-              <Button onClick={handleSave} disabled={saving} className="flex-1">
-                {saving ? "Saving…" : (editingId ? "Update" : "Add")} Vendor
-              </Button>
-              <Button variant="ghost" onClick={() => setShowForm(false)}><X className="h-4 w-4" /></Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <VendorNoteForm
+        open={showForm}
+        onClose={() => { setShowForm(false); setEditingVendor(null); }}
+        onSaved={handleSaved}
+        initialData={editingVendor}
+      />
     </div>
   );
 }

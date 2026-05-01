@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Wrench, Plus, Trash2, CheckCircle2, Clock, AlertTriangle, Zap, Camera, X, Phone, Upload } from "lucide-react";
+import { Wrench, Plus, Trash2, AlertTriangle, Phone, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import MaintenanceForm from "../components/forms/MaintenanceForm";
 
 const PRIORITY_CONFIG = {
   low:       { label: "Low",       color: "text-muted-foreground", bg: "bg-secondary" },
@@ -23,26 +24,18 @@ const STATUS_CONFIG = {
   assigned:           { label: "Assigned",          color: "text-blue-400" },
   waiting_on_vendor:  { label: "Waiting on Vendor", color: "text-amber-400" },
   in_progress:        { label: "In Progress",       color: "text-orange-400" },
-  complete:           { label: "Complete",         color: "text-green-400" },
-};
-
-const emptyForm = {
-  title: "", location: "", description: "", priority: "normal", status: "new",
-  reported_by: "", vendor_id: "", assigned_to: "", estimated_cost: "", 
-  photo_url: "", invoice_url: "", notes: ""
+  complete:           { label: "Complete",          color: "text-green-400" },
 };
 
 export default function MaintenanceRequests() {
   const [requests, setRequests] = useState([]);
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dialog, setDialog] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
-  const [form, setForm] = useState(emptyForm);
   const [editForm, setEditForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [photoPreview, setPhotoPreview] = useState(null);
   const [invoicePreview, setInvoicePreview] = useState(null);
 
   const load = async () => {
@@ -62,21 +55,6 @@ export default function MaintenanceRequests() {
 
   useEffect(() => { load(); }, []);
 
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setForm(f => ({ ...f, photo_url: file_url }));
-      setPhotoPreview(URL.createObjectURL(file));
-      toast.success("Photo uploaded");
-    } catch (err) {
-      toast.error("Photo upload failed");
-    }
-    setUploading(false);
-  };
-
   const handleInvoiceUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -90,35 +68,6 @@ export default function MaintenanceRequests() {
       toast.error("Invoice upload failed");
     }
     setUploading(false);
-  };
-
-  const handleSave = async () => {
-    if (!form.title || !form.location) {
-      toast.error("Title and location required");
-      return;
-    }
-    setSaving(true);
-    try {
-      const newReq = await base44.entities.MaintenanceRequest.create({ ...form });
-      
-      // Notify manager if urgent/emergency
-      if (["urgent", "emergency"].includes(form.priority)) {
-        await base44.integrations.Core.SendEmail({
-          to: "manager@restaurant.com",
-          subject: `⚠️ ${form.priority.toUpperCase()} Maintenance Request: ${form.title}`,
-          body: `Location: ${form.location}\nPriority: ${form.priority}\nReported by: ${form.reported_by}\n\nDescription: ${form.description}`,
-        }).catch(() => {});
-      }
-      
-      setRequests(prev => [newReq, ...prev]);
-      toast.success("Request submitted");
-      setDialog(false);
-      setForm(emptyForm);
-      setPhotoPreview(null);
-    } catch (err) {
-      toast.error("Save failed");
-    }
-    setSaving(false);
   };
 
   const handleUpdate = async () => {
@@ -147,7 +96,6 @@ export default function MaintenanceRequests() {
     }
   };
 
-  // Filter requests by tab
   const open = requests.filter(r => ["new", "assigned"].includes(r.status));
   const urgent = requests.filter(r => ["urgent", "emergency"].includes(r.priority) && r.status !== "complete");
   const waiting = requests.filter(r => r.status === "waiting_on_vendor");
@@ -163,7 +111,6 @@ export default function MaintenanceRequests() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
@@ -171,17 +118,14 @@ export default function MaintenanceRequests() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">Track facility issues and repairs</p>
         </div>
-        <Button onClick={() => { setForm(emptyForm); setDialog(true); }}>
+        <Button onClick={() => setShowNewForm(true)}>
           <Plus className="h-4 w-4 mr-2" /> New Request
         </Button>
       </div>
 
-      {/* Tabs */}
       <Tabs defaultValue="open" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="open">
-            Open ({open.length})
-          </TabsTrigger>
+          <TabsTrigger value="open">Open ({open.length})</TabsTrigger>
           <TabsTrigger value="urgent">
             Urgent {urgent.length > 0 && <span className="ml-1 h-5 w-5 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">{urgent.length}</span>}
           </TabsTrigger>
@@ -189,112 +133,45 @@ export default function MaintenanceRequests() {
           <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
 
-        {/* Open */}
         <TabsContent value="open" className="space-y-3">
           {open.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
-              No open requests
-            </div>
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">No open requests</div>
           ) : (
             open.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
           )}
         </TabsContent>
 
-        {/* Urgent */}
         <TabsContent value="urgent" className="space-y-3">
           {urgent.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
-              No urgent requests
-            </div>
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">No urgent requests</div>
           ) : (
             urgent.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
           )}
         </TabsContent>
 
-        {/* Waiting */}
         <TabsContent value="waiting" className="space-y-3">
           {waiting.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
-              No requests waiting on vendor
-            </div>
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">No requests waiting on vendor</div>
           ) : (
             waiting.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
           )}
         </TabsContent>
 
-        {/* Completed */}
         <TabsContent value="completed" className="space-y-3">
           {completed.length === 0 ? (
-            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
-              No completed requests
-            </div>
+            <div className="bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">No completed requests</div>
           ) : (
             completed.map(req => <RequestCard key={req.id} req={req} vendors={vendors} onEdit={(r) => { setEditForm(r); setEditDialog(true); }} onDelete={handleDelete} />)
           )}
         </TabsContent>
       </Tabs>
 
-      {/* New Request Dialog */}
-      <Dialog open={dialog} onOpenChange={setDialog}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>New Maintenance Request</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <Label>Issue Title *</Label>
-              <Input placeholder="e.g., Ice machine not working" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-            </div>
-            <div>
-              <Label>Location *</Label>
-              <Input placeholder="e.g., Bar, Kitchen, Men's Restroom" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
-            </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea rows={2} className="resize-none" placeholder="Detailed description..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Priority</Label>
-                <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                    <SelectItem value="emergency">Emergency</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Reported By</Label>
-                <Input placeholder="Your name" value={form.reported_by} onChange={e => setForm({ ...form, reported_by: e.target.value })} />
-              </div>
-            </div>
-            <div>
-              <Label>Photo</Label>
-              {photoPreview ? (
-                <div className="relative mt-1.5">
-                  <img src={photoPreview} alt="Preview" className="w-full max-h-40 object-cover rounded-lg border border-border" />
-                  <button onClick={() => { setPhotoPreview(null); setForm(f => ({ ...f, photo_url: "" })); }} className="absolute top-2 right-2 bg-black/60 rounded-full p-1 text-white hover:bg-black/80">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <label className="mt-1.5 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50">
-                  <Camera className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">{uploading ? "Uploading…" : "Add a photo"}</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-                </label>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving || !form.title || !form.location}>Submit</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <MaintenanceForm
+        open={showNewForm}
+        onClose={() => setShowNewForm(false)}
+        onSaved={(r) => setRequests(prev => [r, ...prev])}
+      />
 
-      {/* Edit Dialog */}
       {editForm && (
         <Dialog open={editDialog} onOpenChange={setEditDialog}>
           <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -330,7 +207,6 @@ export default function MaintenanceRequests() {
                 <Select value={editForm.vendor_id || ""} onValueChange={v => setEditForm({ ...editForm, vendor_id: v })}>
                   <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={null}>None</SelectItem>
                     {vendors.map(v => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -394,9 +270,7 @@ function RequestCard({ req, vendors, onEdit, onDelete }) {
           {req.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{req.description}</p>}
         </div>
         <div className="flex gap-1 flex-shrink-0">
-          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onEdit(req)}>
-            📝
-          </Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onEdit(req)}>📝</Button>
           <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => onDelete(req.id)}>
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -411,7 +285,6 @@ function RequestCard({ req, vendors, onEdit, onDelete }) {
         {req.estimated_cost && <div>Est. Cost: <span className="font-semibold">${req.estimated_cost}</span></div>}
       </div>
 
-      {/* Call Vendor Button */}
       {vendor && vendor.phone && (
         <a href={`tel:${vendor.phone}`}>
           <Button size="sm" variant="outline" className="w-full gap-2">
@@ -420,7 +293,6 @@ function RequestCard({ req, vendors, onEdit, onDelete }) {
         </a>
       )}
 
-      {/* Photo & Invoice */}
       <div className="flex gap-2 flex-wrap">
         {req.photo_url && (
           <a href={req.photo_url} target="_blank" rel="noopener noreferrer">

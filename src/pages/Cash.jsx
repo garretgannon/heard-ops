@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, DollarSign, Wallet, TrendingUp, TrendingDown, Trash2, Upload, Download, AlertCircle } from "lucide-react";
+import { Plus, DollarSign, Trash2, Upload, Download, AlertCircle } from "lucide-react";
+import CashLogForm from "../components/forms/CashLogForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +47,7 @@ export default function Cash() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [drawerDialog, setDrawerDialog] = useState(false);
+  const [cashFormOpen, setCashFormOpen] = useState(false);
   const [txDialog, setTxDialog] = useState(false);
   const [user, setUser] = useState(null);
   const [drawerForm, setDrawerForm] = useState(emptyDrawer);
@@ -190,7 +192,7 @@ export default function Cash() {
           <h1 className="text-2xl lg:text-3xl font-bold">Cash Management</h1>
           <p className="text-sm text-muted-foreground mt-1">Drawer counts, drops, and discrepancies</p>
         </div>
-        <Button onClick={() => { setDrawerForm(emptyDrawer); setDrawerDialog(true); }}>
+        <Button onClick={() => setCashFormOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />Count Drawer
         </Button>
       </div>
@@ -385,103 +387,11 @@ export default function Cash() {
         </TabsContent>
       </Tabs>
 
-      {/* Drawer Count Dialog */}
-      <Dialog open={drawerDialog} onOpenChange={setDrawerDialog}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Count Drawer</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-bold block mb-1">Drawer Name *</label>
-                <Input placeholder="e.g., Bar, Register 1" value={drawerForm.drawer_name} onChange={e => setDrawerForm({ ...drawerForm, drawer_name: e.target.value })} />
-              </div>
-              <div>
-                <label className="text-sm font-bold block mb-1">Shift</label>
-                <Select value={drawerForm.shift} onValueChange={v => setDrawerForm({ ...drawerForm, shift: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="morning">Morning</SelectItem>
-                    <SelectItem value="night">Night</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-bold block mb-2">Bills and Coins</label>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                {DENOMINATIONS.map(d => (
-                  <div key={d.key} className="flex items-center gap-2 text-xs">
-                    <span className="w-16 text-muted-foreground">{d.label}</span>
-                    <Input type="number" min="0" placeholder="0" value={drawerForm[d.key] || ""} onChange={e => setDrawerForm({ ...drawerForm, [d.key]: e.target.value })} className="w-16 h-7 text-xs" />
-                    <span className="text-muted-foreground">${((Number(drawerForm[d.key]) || 0) * d.value).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-bold block mb-2">Rolled Coins</label>
-              <div className="space-y-1.5">
-                {ROLLED_COINS.map(d => (
-                  <div key={d.key} className="flex items-center gap-2 text-xs">
-                    <span className="w-16 text-muted-foreground">{d.label}</span>
-                    <Input type="number" min="0" placeholder="0 rolls" value={drawerForm[d.key] || ""} onChange={e => setDrawerForm({ ...drawerForm, [d.key]: e.target.value })} className="w-16 h-7 text-xs" />
-                    <span className="text-muted-foreground">${((Number(drawerForm[d.key]) || 0) * d.valuePerRoll).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-primary/10 rounded-lg p-3 flex items-center justify-between">
-              <span className="font-semibold text-sm">Total Counted</span>
-              <span className="text-xl font-bold text-primary">${drawerTotal.toFixed(2)}</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-bold block mb-1">Expected ($)</label>
-                <Input type="number" placeholder="0.00" value={drawerForm.expected} onChange={e => setDrawerForm({ ...drawerForm, expected: e.target.value })} />
-              </div>
-              {drawerVariance !== null && (
-                <div className={cn("rounded-lg p-3 flex items-center justify-center font-bold text-sm", isVarianceFlagged ? "bg-red-500/15 text-red-600" : "bg-green-500/15 text-green-600")}>
-                  {drawerVariance >= 0 ? "+" : ""}${drawerVariance.toFixed(2)}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="text-sm font-bold block mb-1">Manager Initials</label>
-              <Input placeholder="e.g., JD" maxLength="3" value={drawerForm.manager_initials} onChange={e => setDrawerForm({ ...drawerForm, manager_initials: e.target.value })} />
-            </div>
-
-            <div>
-              <label className="text-sm font-bold block mb-1">Counted By</label>
-              <Input placeholder="Your name" value={drawerForm.counted_by} onChange={e => setDrawerForm({ ...drawerForm, counted_by: e.target.value })} />
-            </div>
-
-            <div>
-              <label className="text-sm font-bold block mb-1">Manager Notes (for variance)</label>
-              <Textarea placeholder="Document any discrepancies..." value={drawerForm.manager_notes} onChange={e => setDrawerForm({ ...drawerForm, manager_notes: e.target.value })} className="min-h-12" />
-            </div>
-
-            <div>
-              <label className="text-sm font-bold block mb-2">Closeout Slip Photo (optional)</label>
-              <label className="block">
-                <input type="file" accept="image/*" onChange={(e) => handlePhotoUpload(e.target.files[0])} className="hidden" />
-                <Button variant="outline" className="w-full" disabled={uploadingPhoto} onClick={e => e.currentTarget.parentElement.querySelector('input').click()}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  {uploadingPhoto ? "Uploading..." : drawerForm.closeout_photo ? "Photo uploaded" : "Upload Photo"}
-                </Button>
-              </label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDrawerDialog(false)}>Cancel</Button>
-            <Button onClick={handleSaveDrawer} disabled={saving}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CashLogForm
+        open={cashFormOpen}
+        onClose={() => setCashFormOpen(false)}
+        onSaved={() => { setCashFormOpen(false); load(); }}
+      />
 
       {/* Transaction Dialog */}
       <Dialog open={txDialog} onOpenChange={setTxDialog}>
