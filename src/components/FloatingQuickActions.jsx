@@ -68,7 +68,7 @@ export default function FloatingQuickActions() {
         animate={{ rotate: open ? 45 : 0 }}
         transition={{ duration: 0.2 }}
         onClick={() => setOpen(!open)}
-        className="h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center active:scale-95 transition-transform"
+        className="h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"
       >
         <Plus className="h-7 w-7" />
       </motion.button>
