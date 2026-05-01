@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +59,8 @@ export default function TodaysCommandCenter() {
           preShift,
           shiftHandoffs,
           cashDrawers,
+          dishLogs,
+          dishMachines,
         ] = await Promise.all([
           base44.entities.PrepList.filter({ date: todayStr }),
           base44.entities.PrepItem.list("-updated_date", 300),
@@ -70,6 +72,8 @@ export default function TodaysCommandCenter() {
           base44.entities.PreShift.filter({ date: todayStr }),
           base44.entities.ShiftHandoff.list("-created_date", 5),
           base44.entities.DrawerCount.filter({ date: todayStr }),
+          base44.entities.DishMachineLog.filter({ date: todayStr }),
+          base44.entities.DishMachineEquipment.list(),
         ]);
 
         const todayPrepItems = prepItems.filter(item => prepLists.some(pl => pl.id === item.prep_list_id));
@@ -98,6 +102,18 @@ export default function TodaysCommandCenter() {
         if (tempLogsOutOfRange > 0) urgentAlerts.push({ type: 'templogs', count: tempLogsOutOfRange, status: 'high' });
         if (sideWorkUrgent.length > 0) urgentAlerts.push({ type: 'sidework', count: sideWorkUrgent.length, status: 'high' });
         if (cashIssues > 0) urgentAlerts.push({ type: 'cash', count: cashIssues, status: 'high' });
+
+        // Dish machine alerts
+        const dishFailed = dishLogs.filter(l => l.status === "fail" && !l.corrective_action_resolved).length;
+        const dishOverdue = dishMachines.filter(m => {
+          if (!m.is_active) return false;
+          const mLogs = dishLogs.filter(l => l.machine_id === m.id && l.status === "pass");
+          if (mLogs.length === 0) return true;
+          const last = mLogs.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at))[0];
+          return (Date.now() - new Date(last.logged_at).getTime()) / 3600000 > (m.check_frequency_hours || 4);
+        }).length;
+        if (dishFailed > 0) urgentAlerts.push({ type: 'dish_failed', count: dishFailed, status: 'critical' });
+        else if (dishOverdue > 0) urgentAlerts.push({ type: 'dish_overdue', count: dishOverdue, status: 'high' });
 
         setMetrics({
           prep: { completed: prepCompleted, total: todayPrepItems.length, pending: prepPending.length, urgent: prepUrgent.length },
@@ -169,6 +185,8 @@ export default function TodaysCommandCenter() {
             {metrics.urgentAlerts.map((alert, i) => {
               const config = {
                 incidents: { icon: AlertTriangle, label: 'Critical Incident', path: '/incidents' },
+                dish_failed: { icon: Droplet, label: 'Dish Machine Failed', path: '/dish-machines' },
+                dish_overdue: { icon: Droplet, label: 'Dish Machine Overdue', path: '/dish-machines' },
                 maintenance: { icon: Wrench, label: 'Urgent Maintenance', path: '/maintenance' },
                 prep: { icon: ClipboardList, label: 'High-Priority Prep', path: '/prep-lists' },
                 templogs: { icon: Thermometer, label: 'Temp Alert', path: '/temp-logs' },

@@ -1,0 +1,90 @@
+{
+  "name": "DishMachineLog",
+  "type": "object",
+  "properties": {
+    "machine_id": {
+      "type": "string",
+      "title": "Machine ID"
+    },
+    "machine_name": {
+      "type": "string",
+      "title": "Machine Name"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "logged_at": {
+      "type": "string",
+      "title": "Logged At (ISO)"
+    },
+    "checked_by": {
+      "type": "string",
+      "title": "Checked By"
+    },
+    "wash_temp": {
+      "type": "number",
+      "title": "Wash Temp (\u00b0F)"
+    },
+    "rinse_temp": {
+      "type": "number",
+      "title": "Rinse Temp (\u00b0F)"
+    },
+    "sanitizer_ppm": {
+      "type": "number",
+      "title": "Sanitizer PPM"
+    },
+    "test_strip_result": {
+      "type": "string",
+      "title": "Test Strip Result",
+      "enum": [
+        "pass",
+        "fail",
+        "borderline"
+      ],
+      "enumNames": [
+        "Pass",
+        "Fail",
+        "Borderline"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "enumNames": [
+        "Pass",
+        "Fail"
+      ],
+      "default": "pass"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "corrective_action": {
+      "type": "string",
+      "title": "Corrective Action"
+    },
+    "corrective_action_resolved": {
+      "type": "boolean",
+      "title": "Corrective Action Resolved",
+      "default": false
+    }
+  },
+  "required": [
+    "machine_id",
+    "machine_name",
+    "date",
+    "wash_temp",
+    "rinse_temp"
+  ]
+}

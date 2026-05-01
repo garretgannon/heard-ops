@@ -4,23 +4,63 @@
   "properties": {
     "name": {
       "type": "string",
-      "title": "Equipment Name"
-    },
-    "type": {
-      "type": "string",
-      "title": "Type",
-      "enum": [
-        "dishwasher",
-        "three_compartment_sink"
-      ],
-      "enumNames": [
-        "Dishwashing Machine",
-        "3-Compartment Sink"
-      ]
+      "title": "Machine Name"
     },
     "location": {
       "type": "string",
-      "title": "Location/Area"
+      "title": "Location / Area"
+    },
+    "check_frequency_hours": {
+      "type": "number",
+      "title": "Check Frequency (hours)",
+      "default": 4
+    },
+    "min_wash_temp": {
+      "type": "number",
+      "title": "Min Wash Temp (\u00b0F)",
+      "default": 140
+    },
+    "max_wash_temp": {
+      "type": "number",
+      "title": "Max Wash Temp (\u00b0F)",
+      "default": 180
+    },
+    "min_rinse_temp": {
+      "type": "number",
+      "title": "Min Rinse Temp (\u00b0F)",
+      "default": 140
+    },
+    "max_rinse_temp": {
+      "type": "number",
+      "title": "Max Rinse Temp (\u00b0F)",
+      "default": 180
+    },
+    "sanitizer_type": {
+      "type": "string",
+      "title": "Sanitizer Type",
+      "enum": [
+        "chlorine",
+        "quat",
+        "iodine",
+        "none"
+      ],
+      "enumNames": [
+        "Chlorine",
+        "Quaternary Ammonium",
+        "Iodine",
+        "None / Heat Sanitize"
+      ],
+      "default": "chlorine"
+    },
+    "min_sanitizer_ppm": {
+      "type": "number",
+      "title": "Min Sanitizer PPM",
+      "default": 50
+    },
+    "max_sanitizer_ppm": {
+      "type": "number",
+      "title": "Max Sanitizer PPM",
+      "default": 400
     },
     "is_active": {
       "type": "boolean",
@@ -33,7 +73,6 @@
     }
   },
   "required": [
-    "name",
-    "type"
+    "name"
   ]
 }
