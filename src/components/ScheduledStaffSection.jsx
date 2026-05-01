@@ -25,8 +25,6 @@ export default function ScheduledStaffSection({ shifts, onManage }) {
 
   const activeFilters = [nameFilter, roleFilter !== "all", timeFilter !== "all"].filter(Boolean).length;
 
-  if (shifts.length === 0) return null;
-
   return (
     <div className="bg-card border-2 border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
