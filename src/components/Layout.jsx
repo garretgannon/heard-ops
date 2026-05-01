@@ -266,3 +266,5 @@ export default function Layout() {
     </div>
   );
 }
+
+export const hideBase44Index = true;

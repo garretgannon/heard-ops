@@ -147,3 +147,5 @@ function App() {
 }
 
 export default App
+
+export const hideBase44Index = true;
