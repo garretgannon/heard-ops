@@ -42,6 +42,7 @@ export default function PrepLists() {
   const [flashDone, setFlashDone] = useState(new Set()); // item ids currently showing checkmark flash
   const [localStatus, setLocalStatus] = useState({}); // optimistic status overrides
   const [allCaughtUp, setAllCaughtUp] = useState(false);
+  const [viewByPerson, setViewByPerson] = useState(false);
   const itemRefs = useRef({});
 
   const generateRecurring = async (allLists, allItems) => {
@@ -352,7 +353,17 @@ export default function PrepLists() {
           </div>
         )}
 
-        {/* Filter chips */}
+        {/* View toggle + Filter chips */}
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={() => setViewByPerson(v => !v)}
+            className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all active:scale-95",
+              viewByPerson ? "bg-accent text-accent-foreground border-accent" : "bg-card border-border text-muted-foreground"
+            )}
+          >
+            👤 By Person
+          </button>
+        </div>
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           {FILTERS.map(f => (
             <button
@@ -376,6 +387,89 @@ export default function PrepLists() {
         )}
 
         {/* Prep Item Cards */}
+        {viewByPerson ? (
+          (() => {
+            const unassigned = "Unassigned";
+            const grouped = {};
+            filteredItems.forEach(item => {
+              const key = item.assigned_to_individual || unassigned;
+              if (!grouped[key]) grouped[key] = [];
+              grouped[key].push(item);
+            });
+            const entries = Object.entries(grouped).sort(([a], [b]) => a === unassigned ? 1 : b === unassigned ? -1 : a.localeCompare(b));
+            if (entries.length === 0) return <div className="text-center py-8 text-muted-foreground text-sm">No items match this filter</div>;
+            return (
+              <div className="space-y-4">
+                {entries.map(([person, items]) => {
+                  const done = items.filter(i => getStatus(i) === "completed").length;
+                  const overdue = items.filter(i => getStatus(i) !== "completed" && i.priority === "high").length;
+                  const pct = Math.round((done / items.length) * 100);
+                  const displayName = person === unassigned ? "Unassigned" : person.includes("@") ? person.split("@")[0] : person;
+                  return (
+                    <div key={person}>
+                      <div className="flex items-center justify-between mb-1.5 px-0.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                            {displayName[0]?.toUpperCase()}
+                          </div>
+                          <span className="text-sm font-bold">{displayName}</span>
+                          {overdue > 0 && <span className="text-[10px] font-bold text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded-full">{overdue} overdue</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 bg-border rounded-full overflow-hidden">
+                            <div className={cn("h-1.5 rounded-full transition-all duration-500", pct === 100 ? "bg-green-500" : overdue > 0 ? "bg-red-500" : "bg-primary")} style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className={cn("text-xs font-bold", pct === 100 ? "text-green-500" : overdue > 0 ? "text-red-500" : "text-primary")}>{pct}%</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {items.map(item => {
+                          const list = getListForItem(item);
+                          const station = getStation(item.station_id);
+                          const status = getStatus(item);
+                          const isDone = status === "completed";
+                          const isInProgress = status === "in_progress";
+                          const isOverdue = !isDone && item.priority === "high";
+                          const needsPhoto = isDone && !item.photo_url && item.master_photo_url;
+                          const isFlashing = flashDone.has(item.id);
+                          return (
+                            <div key={item.id} ref={el => { itemRefs.current[item.id] = el; }}
+                              className={cn("bg-card border rounded-xl p-3 transition-all duration-300",
+                                isFlashing ? "border-green-500 bg-green-500/10 scale-[0.98]" : isOverdue ? "border-red-500/40" : needsPhoto ? "border-yellow-500/40" : isDone ? "border-green-500/20" : "border-border"
+                              )}
+                            >
+                              {isFlashing && <div className="flex items-center gap-1.5 mb-1.5 text-green-500 text-xs font-bold animate-pulse"><CheckCircle2 className="h-4 w-4" /> Updated!</div>}
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <div className="flex items-center gap-2 flex-1 min-w-0" onClick={() => list && setSelectedList(list)}>
+                                  <div className={cn("w-1.5 h-1.5 rounded-full shrink-0 mt-0.5", PRIORITY_COLOR[item.priority] || "bg-muted")} />
+                                  <span className={cn("font-semibold text-sm truncate", isDone && "line-through text-muted-foreground")}>{item.name}</span>
+                                </div>
+                                <span className={cn("text-xs font-bold shrink-0", STATUS_COLOR[status] || "text-muted-foreground")}>{isDone ? "✓ Done" : isInProgress ? "In Progress" : "Pending"}</span>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground pl-3.5 mb-2">
+                                {station && <span className="font-medium text-foreground/70">{station.name}</span>}
+                                {item.due_time && <span className="flex items-center gap-0.5"><Clock className="h-3 w-3" />{item.due_time}</span>}
+                                {(item.quantity || item.unit) && <span>{item.quantity}{item.unit ? ` ${item.unit}` : ""}</span>}
+                                {needsPhoto && <span className="flex items-center gap-0.5 text-yellow-500 font-semibold"><Camera className="h-3 w-3" />Photo needed</span>}
+                              </div>
+                              {!isDone && (
+                                <div className="flex gap-2 pl-3.5">
+                                  {status === "pending" && <button onClick={e => handleItemAction(e, item, "in_progress", filteredIds)} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold active:scale-95 transition-transform border border-primary/20"><Play className="h-3 w-3" /> Start</button>}
+                                  {status === "in_progress" && <button onClick={e => handleItemAction(e, item, "completed", filteredIds)} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-green-500/10 text-green-500 text-xs font-bold active:scale-95 transition-transform border border-green-500/20"><CheckCircle2 className="h-3 w-3" /> Complete</button>}
+                                  {status === "pending" && <button onClick={e => handleItemAction(e, item, "completed", filteredIds)} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted text-muted-foreground text-xs font-semibold active:scale-95 transition-transform border border-border">✓ Mark Done</button>}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()
+        ) : (
         <div className="space-y-2">
           {filteredItems.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-sm">No items match this filter</div>
@@ -399,14 +493,12 @@ export default function PrepLists() {
                     isFlashing ? "border-green-500 bg-green-500/10 scale-[0.98]" : isOverdue ? "border-red-500/40" : needsPhoto ? "border-yellow-500/40" : isDone ? "border-green-500/20" : "border-border"
                   )}
                 >
-                  {/* Flash overlay */}
                   {isFlashing && (
                     <div className="flex items-center gap-1.5 mb-1.5 text-green-500 text-xs font-bold animate-pulse">
                       <CheckCircle2 className="h-4 w-4" /> Updated!
                     </div>
                   )}
 
-                  {/* Top row */}
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 flex-1 min-w-0" onClick={() => list && setSelectedList(list)}>
                       <div className={cn("w-1.5 h-1.5 rounded-full shrink-0 mt-0.5", PRIORITY_COLOR[item.priority] || "bg-muted")} />
@@ -417,7 +509,6 @@ export default function PrepLists() {
                     </span>
                   </div>
 
-                  {/* Meta row */}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground pl-3.5 mb-2">
                     {station && <span className="font-medium text-foreground/70">{station.name}</span>}
                     {item.due_time && <span className="flex items-center gap-0.5"><Clock className="h-3 w-3" />{item.due_time}</span>}
@@ -426,7 +517,6 @@ export default function PrepLists() {
                     {needsPhoto && <span className="flex items-center gap-0.5 text-yellow-500 font-semibold"><Camera className="h-3 w-3" />Photo needed</span>}
                   </div>
 
-                  {/* Action button row */}
                   {!isDone && (
                     <div className="flex gap-2 pl-3.5">
                       {status === "pending" && (
@@ -470,6 +560,7 @@ export default function PrepLists() {
             })
           )}
         </div>
+        )}
 
         {/* Prep Lists for active station */}
         {activeStation && (
