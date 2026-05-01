@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, CheckSquare, Thermometer, Wrench, Truck, DollarSign, AlertTriangle, TrendingUp, Book, Wine, Users } from "lucide-react";
@@ -24,6 +23,8 @@ const personas = [
   { title: "FOH Managers", description: "Coordinate side work and guest experiences" },
   { title: "Bar Managers", description: "Manage inventory, recipes, and staff" },
 ];
+
+const goToLogin = () => base44.auth.redirectToLogin();
 
 export default function Landing() {
   return (
@@ -68,7 +69,7 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Button size="lg" className="text-base" onClick={() => base44.auth.redirectToLogin()}>View Demo Restaurant</Button>
-          <Button size="lg" variant="outline" className="text-base">Request a Demo</Button>
+          <Button size="lg" variant="outline" className="text-base" onClick={() => window.open('mailto:hello@heardops.com?subject=Demo Request', '_blank')}>Request a Demo</Button>
         </motion.div>
       </section>
 
@@ -269,7 +270,7 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-base" onClick={() => base44.auth.redirectToLogin()}>View Demo Restaurant</Button>
-            <Button size="lg" variant="outline" className="text-base border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">Request a Demo</Button>
+            <Button size="lg" variant="outline" className="text-base border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => window.open('mailto:hello@heardops.com?subject=Demo Request', '_blank')}>Request a Demo</Button>
           </div>
         </div>
       </section>
