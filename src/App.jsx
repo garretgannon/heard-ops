@@ -112,7 +112,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/vendors" element={<Vendors />} />}
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
         {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
-        {isAdmin && <Route path="/line-up" element={<LineUp />} />}
+
         {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
         {isFOH && <Route path="/bar-book" element={<BarBook />} />}
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}

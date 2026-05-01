@@ -15,8 +15,7 @@ const navSections = {
       { path: "/", label: "Today's Command Center", icon: LayoutDashboard },
       { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
       { path: "/side-work", label: "Side Work", icon: CheckSquare },
-      { path: "/pre-shift", label: "Pre-Shift", icon: Users },
-      { path: "/line-up", label: "Line Up", icon: Flame },
+      { path: "/pre-shift", label: "Service Line-Up", icon: Flame },
       { path: "/shift-handoff", label: "Shift Handoff", icon: TrendingUp },
     ]
   },
