@@ -1,0 +1,91 @@
+{
+  "name": "StaffShift",
+  "type": "object",
+  "properties": {
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "start_time": {
+      "type": "string",
+      "title": "Start Time"
+    },
+    "end_time": {
+      "type": "string",
+      "title": "End Time"
+    },
+    "role": {
+      "type": "string",
+      "title": "Role"
+    },
+    "department": {
+      "type": "string",
+      "title": "Department",
+      "enum": [
+        "FOH",
+        "BOH",
+        "Bar",
+        "Management"
+      ],
+      "enumNames": [
+        "FOH",
+        "BOH",
+        "Bar",
+        "Management"
+      ]
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "source_file": {
+      "type": "string",
+      "title": "Source File Name"
+    },
+    "imported_by": {
+      "type": "string",
+      "title": "Imported By"
+    },
+    "import_date": {
+      "type": "string",
+      "title": "Import Date (ISO)"
+    },
+    "week_start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Week Start Date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "published",
+        "draft",
+        "needs_review"
+      ],
+      "enumNames": [
+        "Published",
+        "Draft",
+        "Needs Review"
+      ],
+      "default": "draft"
+    }
+  },
+  "required": [
+    "employee_name",
+    "date"
+  ]
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet, CalendarDays } from "lucide-react";
+import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet, CalendarDays, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +62,7 @@ export default function TodaysCommandCenter() {
           dishLogs,
           dishMachines,
           calendarEvents,
+          staffShifts,
         ] = await Promise.all([
           base44.entities.PrepList.filter({ date: todayStr }),
           base44.entities.PrepItem.list("-updated_date", 300),
@@ -76,6 +77,7 @@ export default function TodaysCommandCenter() {
           base44.entities.DishMachineLog.filter({ date: todayStr }),
           base44.entities.DishMachineEquipment.list(),
           base44.entities.CalendarEvent.list("-date", 100),
+          base44.entities.StaffShift.filter({ date: todayStr, status: "published" }).catch(() => []),
         ]);
 
         const todayPrepItems = prepItems.filter(item => prepLists.some(pl => pl.id === item.prep_list_id));
@@ -125,6 +127,8 @@ export default function TodaysCommandCenter() {
         );
 
         setMetrics({ calendar: { upcoming: upcomingCal.slice(0, 3) },
+          staffShifts: staffShifts || [],
+
           prep: { completed: prepCompleted, total: todayPrepItems.length, pending: prepPending.length, urgent: prepUrgent.length },
           sideWork: { completed: sideWorkCompleted, total: sideWork.length, pending: sideWorkPending.length, urgent: sideWorkUrgent.length },
           tempLogs: { outOfRange: tempLogsOutOfRange, total: tempLogs.length },
@@ -310,6 +314,27 @@ export default function TodaysCommandCenter() {
               <div key={i} className="flex items-center justify-between text-sm">
                 <p className="font-medium">{ev.title}</p>
                 <p className="text-xs text-muted-foreground">{ev.date}{ev.time ? ` · ${ev.time}` : ""}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Today's Scheduled Staff */}
+      {metrics.staffShifts?.length > 0 && (
+        <div className="bg-card border-2 border-border rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold text-sm flex items-center gap-2"><Users className="h-4 w-4 text-primary" />Today's Scheduled Staff ({metrics.staffShifts.length})</h2>
+            <Button onClick={() => navigate("/schedule-import")} variant="ghost" size="sm" className="text-xs">Manage</Button>
+          </div>
+          <div className="space-y-1.5">
+            {metrics.staffShifts.map((s, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <p className="font-medium">{s.employee_name}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{s.start_time} – {s.end_time}</span>
+                  <span className="text-xs px-2 py-0.5 bg-muted rounded-full">{s.role || s.department}</span>
+                </div>
               </div>
             ))}
           </div>

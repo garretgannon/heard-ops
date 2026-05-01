@@ -3,7 +3,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import FloatingQuickActions from "./FloatingQuickActions";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -55,6 +55,7 @@ const navSections = {
     items: [
       { path: "/cash", label: "Cash", icon: DollarSign },
       { path: "/calendar", label: "Calendar", icon: CalendarDays },
+      { path: "/schedule-import", label: "Schedule Import", icon: CalendarPlus },
       { path: "/vendors", label: "Vendors", icon: Truck },
       { path: "/maintenance", label: "Maintenance Requests", icon: Wrench },
       { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },

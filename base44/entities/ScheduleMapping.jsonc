@@ -1,0 +1,35 @@
+{
+  "name": "ScheduleMapping",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "title": "Mapping Type",
+      "enum": [
+        "employee",
+        "role"
+      ],
+      "enumNames": [
+        "Employee Name",
+        "Role/Title"
+      ]
+    },
+    "source_name": {
+      "type": "string",
+      "title": "Name in Schedule File"
+    },
+    "mapped_to": {
+      "type": "string",
+      "title": "Mapped To (email for employee, role string for role)"
+    },
+    "mapped_display": {
+      "type": "string",
+      "title": "Display Name of Mapped Value"
+    }
+  },
+  "required": [
+    "type",
+    "source_name",
+    "mapped_to"
+  ]
+}

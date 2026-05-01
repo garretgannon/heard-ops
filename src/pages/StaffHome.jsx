@@ -5,7 +5,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2, Circle, AlertCircle, BookOpen, ClipboardList,
-  MessageSquare, Flag, ChevronRight, Zap
+  MessageSquare, Flag, ChevronRight, Zap, CalendarDays
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -16,7 +16,7 @@ export default function StaffHome() {
   const [tasks, setTasks] = useState([]);
   const [preShift, setPreShift] = useState(null);
   const [sideWork, setSideWork] = useState([]);
-  const [training, setTraining] = useState([]);
+  const [shifts, setShifts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const todayStr = new Date().toISOString().split("T")[0];
@@ -25,7 +25,9 @@ export default function StaffHome() {
     const load = async () => {
       if (!user?.email) return;
 
-      const [tasksData, preShiftData, sideWorkData] = await Promise.all([
+      const weekAhead = new Date(); weekAhead.setDate(weekAhead.getDate() + 7);
+      const weekStr = weekAhead.toISOString().split("T")[0];
+      const [tasksData, preShiftData, sideWorkData, shiftsData] = await Promise.all([
         base44.entities.SideWorkAssignment.filter({
           assigned_to_email: user.email,
           date: todayStr,
@@ -35,9 +37,11 @@ export default function StaffHome() {
         base44.entities.SideWorkAssignment.filter({
           assigned_to_email: user.email,
           date: todayStr
-        })
+        }),
+        base44.entities.StaffShift.filter({ employee_email: user.email }).catch(() => [])
       ]);
 
+      setShifts(shiftsData.filter(s => s.date >= todayStr && s.date <= weekStr).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5));
       setTasks(tasksData.sort((a, b) => {
         const priorityOrder = { high: 0, medium: 1, low: 2 };
         return (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1);
@@ -82,6 +86,25 @@ export default function StaffHome() {
         </h1>
         <p className="text-muted-foreground text-sm mt-1">{todayStr}</p>
       </div>
+
+      {/* Upcoming Shifts */}
+      {shifts.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+          className="space-y-2">
+          <h2 className="font-semibold flex items-center gap-2"><CalendarDays className="h-5 w-5 text-primary" />My Upcoming Shifts</h2>
+          <div className="bg-card border border-border rounded-lg overflow-hidden divide-y divide-border">
+            {shifts.map(s => (
+              <div key={s.id} className="p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">{s.date === todayStr ? "Today" : new Date(s.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</p>
+                  <p className="text-xs text-muted-foreground">{s.start_time} – {s.end_time}{s.station ? " · " + s.station : ""}</p>
+                </div>
+                <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full font-medium">{s.role || s.department}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* Pre-Shift Notes */}
       {preShift && (
