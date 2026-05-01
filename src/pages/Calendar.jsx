@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ChevronLeft, ChevronRight, Trash2, X, CalendarDays, Filter } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Trash2, X, CalendarDays, Filter, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,7 +62,7 @@ function getMonday(d) {
 }
 
 function emptyForm(category = "restaurant_event", date = "") {
-  return { title: "", date: date || format(new Date(), "yyyy-MM-dd"), end_date: "", time: "", category, employee_email: "", employee_name: "", notes: "", staffing_notes: "", guest_count: "", is_sensitive: false, recurrence: "none", recurrence_end_date: "" };
+  return { title: "", date: date || format(new Date(), "yyyy-MM-dd"), end_date: "", time: "", category, employee_email: "", employee_name: "", notes: "", staffing_notes: "", guest_count: "", is_sensitive: false, attachment_url: "", attachment_name: "", recurrence: "none", recurrence_end_date: "" };
 }
 
 const DAYS_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -89,6 +89,7 @@ export default function Calendar() {
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
   const [detailEvent, setDetailEvent] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   // Read URL filter param
   useEffect(() => {
@@ -278,6 +279,12 @@ export default function Calendar() {
               {detailEvent.guest_count && <p><span className="font-semibold">Guests:</span> {detailEvent.guest_count}</p>}
               {detailEvent.notes && <p><span className="font-semibold">Notes:</span> {detailEvent.notes}</p>}
               {isManager && detailEvent.staffing_notes && <p><span className="font-semibold">Staffing:</span> {detailEvent.staffing_notes}</p>}
+              {detailEvent.attachment_url && (
+                <a href={detailEvent.attachment_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-primary text-sm hover:underline">
+                  <Paperclip className="h-3.5 w-3.5" />{detailEvent.attachment_name || "View Attachment"}
+                </a>
+              )}
               {isAdmin && (
                 <Button variant="destructive" size="sm" className="w-full mt-2" onClick={() => handleDelete(detailEvent.id)}>
                   <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete Event
@@ -370,6 +377,24 @@ export default function Calendar() {
                 <div>
                   <Label>Repeat Until</Label>
                   <Input type="date" value={form.recurrence_end_date} onChange={e => setForm({ ...form, recurrence_end_date: e.target.value })} />
+                </div>
+              )}
+            </div>
+            <div>
+              <Label>Attachment (optional)</Label>
+              <input type="file" onChange={async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                setUploading(true);
+                const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                setForm(f => ({ ...f, attachment_url: file_url, attachment_name: file.name }));
+                setUploading(false);
+              }} className="text-sm w-full" />
+              {uploading && <p className="text-xs text-muted-foreground mt-1">Uploading...</p>}
+              {form.attachment_url && (
+                <div className="flex items-center gap-1.5 mt-1 text-xs text-primary">
+                  <Paperclip className="h-3 w-3" />{form.attachment_name}
+                  <button onClick={() => setForm(f => ({ ...f, attachment_url: "", attachment_name: "" }))} className="text-muted-foreground hover:text-destructive ml-1"><X className="h-3 w-3" /></button>
                 </div>
               )}
             </div>

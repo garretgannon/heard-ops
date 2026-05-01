@@ -85,6 +85,14 @@
       "title": "Sensitive / HR Only",
       "default": false
     },
+    "attachment_url": {
+      "type": "string",
+      "title": "Attachment URL"
+    },
+    "attachment_name": {
+      "type": "string",
+      "title": "Attachment File Name"
+    },
     "recurrence": {
       "type": "string",
       "title": "Recurrence",
