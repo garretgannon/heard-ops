@@ -34,7 +34,7 @@ export default function Landing() {
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-sm font-bold text-primary-foreground">K</span>
             </div>
-            <span className="font-bold text-lg">Heard</span>
+            <span className="font-bold text-lg">Heard <span className="text-primary">Ops</span></span>
           </div>
           <Link to="/profile">
             <Button variant="outline" size="sm">Sign In</Button>
