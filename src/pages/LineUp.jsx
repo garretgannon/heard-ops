@@ -19,9 +19,17 @@ const SHIFTS = [
   { value: "evening", label: "Evening" },
 ];
 
+const DEPT_FILTERS = [
+  { id: "all", label: "All" },
+  { id: "FOH", label: "FOH" },
+  { id: "BOH", label: "BOH" },
+  { id: "Management", label: "Management" },
+];
+
 const emptyForm = {
   date: format(new Date(), "yyyy-MM-dd"),
   shift: "morning",
+  department: "FOH",
   specials: "",
   items_86d: "",
   events_reservations: "",
@@ -44,6 +52,7 @@ export default function LineUp() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [expandedHistory, setExpandedHistory] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -94,8 +103,9 @@ export default function LineUp() {
     </div>
   );
 
-  const todayBriefing = briefings.find(b => b.date === today);
-  const oldBriefings = briefings.filter(b => b.date !== today);
+  const filtered = activeFilter === "all" ? briefings : briefings.filter(b => b.department === activeFilter);
+  const todayBriefing = filtered.find(b => b.date === today);
+  const oldBriefings = filtered.filter(b => b.date !== today);
 
   return (
     <div className="space-y-5 pb-12">
@@ -105,7 +115,7 @@ export default function LineUp() {
           <p className="text-muted-foreground text-sm mt-0.5">Daily shift briefing</p>
         </div>
         <div className="flex gap-2">
-          {!todayBriefing && (
+          {!todayBriefing && activeFilter !== "all" && (
             <Button variant="outline" onClick={copyYesterday} className="gap-1.5 text-sm">
               <Copy className="h-3.5 w-3.5" /> Copy Yesterday
             </Button>
@@ -114,6 +124,24 @@ export default function LineUp() {
             <Plus className="h-4 w-4" /> New
           </Button>
         </div>
+      </div>
+
+      {/* Filter chips */}
+      <div className="flex gap-2 flex-wrap">
+        {DEPT_FILTERS.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setActiveFilter(f.id)}
+            className={cn(
+              "px-4 py-1.5 rounded-full text-sm font-semibold border transition-all active:scale-95",
+              activeFilter === f.id
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-card border-border text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {briefings.length === 0 ? (
@@ -149,6 +177,17 @@ export default function LineUp() {
             <DialogTitle>{editingId ? "Edit" : "New"} Service Line-Up</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
+            <div>
+              <Label>Department</Label>
+              <Select value={form.department} onValueChange={v => setForm(f => ({ ...f, department: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FOH">FOH</SelectItem>
+                  <SelectItem value="BOH">BOH</SelectItem>
+                  <SelectItem value="Management">Management</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Date *</Label>
@@ -252,7 +291,7 @@ function BriefingCard({ briefing, onEdit, onDelete }) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-bold">{briefing.shift.charAt(0).toUpperCase() + briefing.shift.slice(1)} Shift</p>
-          <p className="text-xs text-muted-foreground">{briefing.date}</p>
+          <p className="text-xs text-muted-foreground">{briefing.date}{briefing.department ? ` · ${briefing.department}` : ""}</p>
         </div>
         <div className="flex gap-1">
           <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onEdit(briefing)}><Edit2 className="h-3.5 w-3.5" /></Button>
