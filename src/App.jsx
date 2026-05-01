@@ -48,6 +48,7 @@ import ShiftHandoff from './pages/ShiftHandoff';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import SetupWizard from './pages/SetupWizard';
 import ScheduleImport from './pages/ScheduleImport';
+import R365ScheduleImport from './pages/R365ScheduleImport';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -121,6 +122,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/notifications" element={<NotificationSettings />} />}
         {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
         {isAdmin && <Route path="/schedule-import" element={<ScheduleImport />} />}
+        {isAdmin && <Route path="/r365-import" element={<R365ScheduleImport />} />}
         {isAdmin && <Route path="/shift-handoff" element={<ShiftHandoff />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/cash" element={<Cash />} />
