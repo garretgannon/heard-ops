@@ -36,11 +36,13 @@ export default function ScheduleCenter() {
           .split("T")[0];
 
         const [published, drafts] = await Promise.all([
-          base44.entities.StaffShift.filter({ date: weekStart, status: "published" }).catch(() => []),
+          base44.entities.StaffShift.filter({ status: "published" }).catch(() => []),
           base44.entities.StaffShift.filter({ status: "needs_review" }).catch(() => []),
         ]);
 
-        setShifts(published || []);
+        const filteredPublished = published.filter(s => s.date >= weekStart && s.date <= weekEnd);
+
+        setShifts(filteredPublished || []);
         setPendingShifts(drafts || []);
       } catch (error) {
         console.error("Error loading schedule:", error);
