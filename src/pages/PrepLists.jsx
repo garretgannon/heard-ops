@@ -299,7 +299,7 @@ export default function PrepLists() {
                     <div className={cn("h-1 rounded-full", pct === 100 ? "bg-green-500" : overdue > 0 ? "bg-red-500" : "bg-primary")} style={{ width: `${pct}%` }} />
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-0.5">
-                    {done}/{total}{overdue > 0 ? ` · ${overdue} ⚠️` : ""}
+                    {done}/{total} · {pct === 100 ? <span className="text-green-500 font-semibold">All done</span> : done === 0 ? <span className="text-orange-400">Not started</span> : overdue > 0 ? <span className="text-red-400">{overdue} overdue</span> : <span className="text-yellow-400">Behind schedule</span>}
                   </div>
                 </button>
               ))}
