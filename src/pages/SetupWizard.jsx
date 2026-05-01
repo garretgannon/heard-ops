@@ -13,23 +13,18 @@ const DEMO_STATIONS = [
 ];
 
 const SIDE_WORK_TASKS = [
-  // Server opening
   { task_name: "Roll silverware (50 sets)", role: "server", shift_type: "opening", priority: "high", due_time: "10:30", requires_photo: false, requires_approval: false },
   { task_name: "Fill all salt & pepper shakers", role: "server", shift_type: "opening", priority: "medium", due_time: "10:45", requires_photo: false, requires_approval: false },
   { task_name: "Stock server station with napkins", role: "server", shift_type: "opening", priority: "medium", due_time: "10:45", requires_photo: false, requires_approval: false },
   { task_name: "Wipe down all menus", role: "server", shift_type: "opening", priority: "low", due_time: "11:00", requires_photo: false, requires_approval: false },
-  // Server closing
   { task_name: "Roll silverware (50 sets)", role: "server", shift_type: "closing", priority: "high", due_time: "22:00", requires_photo: false, requires_approval: false },
   { task_name: "Wipe down all booths and chairs", role: "server", shift_type: "closing", priority: "high", due_time: "22:15", requires_photo: true, requires_approval: true },
   { task_name: "Restock condiments and sugars", role: "server", shift_type: "closing", priority: "medium", due_time: "22:00", requires_photo: false, requires_approval: false },
-  // Bartender opening
   { task_name: "Cut garnishes (lemons, limes, oranges)", role: "bartender", shift_type: "opening", priority: "high", due_time: "11:00", requires_photo: true, requires_approval: false },
   { task_name: "Stock beer cooler", role: "bartender", shift_type: "opening", priority: "high", due_time: "10:45", requires_photo: false, requires_approval: false },
   { task_name: "Wipe down bar top and stools", role: "bartender", shift_type: "opening", priority: "medium", due_time: "11:00", requires_photo: true, requires_approval: false },
-  // Bartender closing
   { task_name: "Drain and clean blenders", role: "bartender", shift_type: "closing", priority: "high", due_time: "23:00", requires_photo: true, requires_approval: true },
   { task_name: "Restock liquor bottles from back bar", role: "bartender", shift_type: "closing", priority: "medium", due_time: "23:00", requires_photo: false, requires_approval: false },
-  // Busser
   { task_name: "Sweep dining room floor", role: "busser", shift_type: "closing", priority: "high", due_time: "22:30", requires_photo: true, requires_approval: true },
   { task_name: "Clean and sanitize high chairs", role: "busser", shift_type: "closing", priority: "medium", due_time: "22:00", requires_photo: false, requires_approval: false },
   { task_name: "Restock to-go containers at expo", role: "busser", shift_type: "opening", priority: "medium", due_time: "11:00", requires_photo: false, requires_approval: false },
@@ -70,6 +65,23 @@ const PREP_ITEMS_BY_STATION = {
     { name: "Garnish tray — citrus, olives, cherries", priority: "medium", quantity: "1", unit: "tray" },
   ],
 };
+
+const DEMO_MAINTENANCE = [
+  { title: "Ice machine leaking", description: "Water pooling under ice machine near bar", priority: "high", status: "open", location: "Bar", reported_by: "Manager" },
+  { title: "Walk-in cooler door seal worn", description: "Door gasket is torn — cooler losing temp", priority: "high", status: "open", location: "BOH", reported_by: "Chef" },
+  { title: "Table 12 wobbly leg", description: "Guest reported table rocking", priority: "low", status: "open", location: "Dining Room", reported_by: "Server" },
+];
+
+const DEMO_HANDOFFS = [
+  { shift: "evening", urgency: "high", department: "BOH", logged_by: "Chef Marco", items_86d: "Salmon, Ribeye", maintenance_problems: "Ice machine leak getting worse", prep_concerns: "Need more caesar dressing tomorrow AM", notes_for_next_manager: "Vendor delivery pushed to 8am — someone needs to be here" },
+  { shift: "morning", urgency: "medium", department: "FOH", logged_by: "AM Manager", guest_issues: "Table 7 comp — wrong order", staff_issues: "One server called out late", notes_for_next_manager: "Large party of 20 booked at 7pm — prep accordingly" },
+];
+
+const DEMO_MANAGER_LOGS = [
+  { note: "Dinner rush went smoothly. 86'd salmon at 7pm. Vendor confirmed restock tomorrow.", shift: "evening" },
+  { note: "Alex arrived 20 min late — had a conversation, documented.", shift: "morning" },
+  { note: "Called plumber re: ice machine. Coming Thursday between 10-12.", shift: "afternoon" },
+];
 
 export default function SetupWizard({ onComplete }) {
   const [loading, setLoading] = useState(false);
@@ -125,6 +137,21 @@ export default function SetupWizard({ onComplete }) {
       });
     }
 
+    setStatus("Adding maintenance requests...");
+    for (const req of DEMO_MAINTENANCE) {
+      await base44.entities.MaintenanceRequest.create({ ...req, date: today });
+    }
+
+    setStatus("Adding shift handoffs...");
+    for (const handoff of DEMO_HANDOFFS) {
+      await base44.entities.ShiftHandoff.create({ ...handoff, date: today });
+    }
+
+    setStatus("Adding manager logs...");
+    for (const log of DEMO_MANAGER_LOGS) {
+      await base44.entities.ManagerLog.create({ ...log, date: today });
+    }
+
     setStatus("Finishing up...");
     await markComplete();
     onComplete();
@@ -166,7 +193,7 @@ export default function SetupWizard({ onComplete }) {
             {loading ? status || "Setting up..." : "Set Up Demo Restaurant"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Loads sample prep lists, side work tasks, and stations so you can explore the app right away.
+            Loads sample prep lists, side work tasks, maintenance requests, shift handoffs, and more.
           </p>
 
           <Button
