@@ -11,6 +11,11 @@
       "format": "date",
       "title": "Date"
     },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date (optional)"
+    },
     "time": {
       "type": "string",
       "title": "Time (e.g. 6:00 PM)"
@@ -19,25 +24,49 @@
       "type": "string",
       "title": "Category",
       "enum": [
+        "restaurant_event",
         "private_event",
-        "holiday",
         "catering",
+        "reservation_buyout",
         "maintenance",
         "inspection",
+        "vendor_deadline",
+        "staff_meeting",
         "training",
-        "staff_event",
-        "promo"
+        "time_off",
+        "review",
+        "certification",
+        "onboarding",
+        "availability_change",
+        "holiday",
+        "other"
       ],
       "enumNames": [
+        "Restaurant Event",
         "Private Event",
-        "Holiday",
         "Catering",
+        "Reservation / Buyout",
         "Maintenance",
         "Inspection",
+        "Vendor Deadline",
+        "Staff Meeting",
         "Training",
-        "Staff Event",
-        "Promo"
+        "Employee Time Off",
+        "Employee Review",
+        "Certification Expiration",
+        "Onboarding",
+        "Availability Change",
+        "Holiday",
+        "Other"
       ]
+    },
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email (for employee events)"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
     },
     "notes": {
       "type": "string",
@@ -50,6 +79,11 @@
     "guest_count": {
       "type": "number",
       "title": "Guest Count"
+    },
+    "is_sensitive": {
+      "type": "boolean",
+      "title": "Sensitive / HR Only",
+      "default": false
     },
     "recurrence": {
       "type": "string",

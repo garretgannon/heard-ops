@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet } from "lucide-react";
+import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -61,6 +61,7 @@ export default function TodaysCommandCenter() {
           cashDrawers,
           dishLogs,
           dishMachines,
+          calendarEvents,
         ] = await Promise.all([
           base44.entities.PrepList.filter({ date: todayStr }),
           base44.entities.PrepItem.list("-updated_date", 300),
@@ -74,6 +75,7 @@ export default function TodaysCommandCenter() {
           base44.entities.DrawerCount.filter({ date: todayStr }),
           base44.entities.DishMachineLog.filter({ date: todayStr }),
           base44.entities.DishMachineEquipment.list(),
+          base44.entities.CalendarEvent.list("-date", 100),
         ]);
 
         const todayPrepItems = prepItems.filter(item => prepLists.some(pl => pl.id === item.prep_list_id));
@@ -115,7 +117,14 @@ export default function TodaysCommandCenter() {
         if (dishFailed > 0) urgentAlerts.push({ type: 'dish_failed', count: dishFailed, status: 'critical' });
         else if (dishOverdue > 0) urgentAlerts.push({ type: 'dish_overdue', count: dishOverdue, status: 'high' });
 
-        setMetrics({
+        // Calendar: important events today + next 3 days
+        const sevenDaysOut = new Date(); sevenDaysOut.setDate(sevenDaysOut.getDate() + 3);
+        const sevenOutStr = sevenDaysOut.toISOString().split("T")[0];
+        const upcomingCal = calendarEvents.filter(e => e.date >= todayStr && e.date <= sevenOutStr &&
+          ["private_event","catering","reservation_buyout","maintenance","inspection"].includes(e.category)
+        );
+
+        setMetrics({ calendar: { upcoming: upcomingCal.slice(0, 3) },
           prep: { completed: prepCompleted, total: todayPrepItems.length, pending: prepPending.length, urgent: prepUrgent.length },
           sideWork: { completed: sideWorkCompleted, total: sideWork.length, pending: sideWorkPending.length, urgent: sideWorkUrgent.length },
           tempLogs: { outOfRange: tempLogsOutOfRange, total: tempLogs.length },
@@ -285,6 +294,27 @@ export default function TodaysCommandCenter() {
           onClick={() => navigate("/vendors")}
         />
       </div>
+
+      {/* Upcoming Calendar Events */}
+      {metrics.calendar?.upcoming?.length > 0 && (
+        <div className="bg-card border-2 border-border rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-bold text-sm flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-primary" />
+              Upcoming Events (Next 3 Days)
+            </h2>
+            <Button onClick={() => navigate("/calendar")} variant="ghost" size="sm" className="text-xs">View All</Button>
+          </div>
+          <div className="space-y-2">
+            {metrics.calendar.upcoming.map((ev, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <p className="font-medium">{ev.title}</p>
+                <p className="text-xs text-muted-foreground">{ev.date}{ev.time ? ` · ${ev.time}` : ""}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Latest Shift Handoff */}
       {metrics.latestHandoff && (
