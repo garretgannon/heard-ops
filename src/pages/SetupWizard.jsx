@@ -173,9 +173,9 @@ export default function SetupWizard({ onComplete }) {
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome to Heard <span className="text-primary">Ops</span></h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to <span className="text-primary">Heard Ops</span></h1>
           <p className="mt-2 text-muted-foreground">
-            The daily operating system for your restaurant. Let's get you set up.
+            The daily operating system for restaurants.
           </p>
         </div>
 
@@ -193,7 +193,7 @@ export default function SetupWizard({ onComplete }) {
             {loading ? status || "Setting up..." : "Set Up Demo Restaurant"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Loads sample prep lists, side work tasks, maintenance requests, shift handoffs, and more.
+            Loads sample data: prep, side work, temp logs, maintenance, vendors, cash, incidents, schedules, training, and handoffs.
           </p>
 
           <Button

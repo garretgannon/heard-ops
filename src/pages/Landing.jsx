@@ -36,7 +36,7 @@ export default function Landing() {
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-sm font-bold text-primary-foreground">K</span>
             </div>
-            <span className="font-bold text-lg">Heard <span className="text-primary">Ops</span></span>
+            <span className="font-bold text-lg"><span className="text-primary">Heard Ops</span></span>
           </div>
           <Button variant="outline" size="sm" onClick={() => base44.auth.redirectToLogin()}>Sign In</Button>
         </div>
@@ -59,7 +59,7 @@ export default function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          The daily operating system for restaurants.
+          Prep, side work, temp logs, maintenance, vendors, cash, incidents, schedules, training, and manager handoff in one place.
         </motion.p>
 
         <motion.div
