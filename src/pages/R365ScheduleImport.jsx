@@ -61,8 +61,9 @@ export default function R365ScheduleImport() {
         {step === 3 && (
           <PublishStep
             rows={scheduleData}
+            fileName="R365 Schedule"
             onBack={() => setStep(2)}
-            onComplete={() => { setScheduleData([]); setStep(0); }}
+            onDone={() => { setScheduleData([]); setStep(0); }}
           />
         )}
       </div>
