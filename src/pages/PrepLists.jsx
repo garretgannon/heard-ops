@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, FileUp, Search, AlertCircle, Clock, CheckCircle2, Camera } from "lucide-react";
+import { Plus, FileUp, Search, AlertCircle, Clock, CheckCircle2, Camera, Play } from "lucide-react";
 import BulkImportDialog from "../components/BulkImportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,12 @@ export default function PrepLists() {
   const [itemFilter, setItemFilter] = useState("all");
   const [activeStation, setActiveStation] = useState("");
   const [form, setForm] = useState({ name: "", date: todayStr, station_id: "", notes: "", is_recurring: false, recurring_time: "06:00" });
+
+  // Action flow state
+  const [flashDone, setFlashDone] = useState(new Set()); // item ids currently showing checkmark flash
+  const [localStatus, setLocalStatus] = useState({}); // optimistic status overrides
+  const [allCaughtUp, setAllCaughtUp] = useState(false);
+  const itemRefs = useRef({});
 
   const generateRecurring = async (allLists, allItems) => {
     const templates = allLists.filter(pl => pl.is_recurring && !pl.template_list_id);
@@ -117,6 +123,48 @@ export default function PrepLists() {
     load();
   };
 
+  // Action handler: optimistic update + flash + auto-advance
+  const handleItemAction = async (e, item, newStatus, currentFilteredIds) => {
+    e.stopPropagation();
+    // Optimistic update
+    setLocalStatus(prev => ({ ...prev, [item.id]: newStatus }));
+    // Flash checkmark
+    setFlashDone(prev => new Set([...prev, item.id]));
+    setTimeout(() => setFlashDone(prev => { const s = new Set(prev); s.delete(item.id); return s; }), 900);
+
+    // Find next item in filtered list that still needs action
+    const currentIndex = currentFilteredIds.indexOf(item.id);
+    const remainingAfter = currentFilteredIds.slice(currentIndex + 1).filter(id => {
+      const st = localStatus[id] || prepItems.find(p => p.id === id)?.status;
+      return st !== "completed";
+    });
+
+    if (remainingAfter.length > 0) {
+      const nextId = remainingAfter[0];
+      setTimeout(() => {
+        const el = itemRefs.current[nextId];
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 400);
+    } else {
+      // Check if there's anything left at all
+      const anyLeft = currentFilteredIds.filter(id => {
+        const st = localStatus[id] || prepItems.find(p => p.id === id)?.status;
+        return st !== "completed" && id !== item.id;
+      });
+      if (anyLeft.length === 0) {
+        setTimeout(() => setAllCaughtUp(true), 500);
+        setTimeout(() => setAllCaughtUp(false), 3000);
+      }
+    }
+
+    // Persist to backend
+    await base44.entities.PrepItem.update(item.id, { status: newStatus });
+    // Refresh quietly
+    const pi = await base44.entities.PrepItem.list("-created_date", 500);
+    setPrepItems(pi);
+    setLocalStatus(prev => { const s = { ...prev }; delete s[item.id]; return s; });
+  };
+
   // Derived data
   const todayLists = useMemo(() => prepLists.filter(pl => pl.date === dateFilter), [prepLists, dateFilter]);
   const todayListIds = useMemo(() => new Set(todayLists.map(pl => pl.id)), [todayLists]);
@@ -125,50 +173,50 @@ export default function PrepLists() {
   const getStation = (id) => stations.find(s => s.id === id);
   const getListForItem = (pi) => todayLists.find(pl => pl.id === pi.prep_list_id);
 
-  // Summary stats
+  // Merge optimistic status
+  const getStatus = (item) => localStatus[item.id] || item.status;
+
   const summary = useMemo(() => {
     const total = todayItems.length;
-    const completed = todayItems.filter(i => i.status === "completed").length;
-    const overdue = todayItems.filter(i => i.status !== "completed" && i.priority === "high").length;
-    const needsPhoto = todayItems.filter(i => i.status === "completed" && !i.photo_url && i.master_photo_url).length;
+    const completed = todayItems.filter(i => getStatus(i) === "completed").length;
+    const overdue = todayItems.filter(i => getStatus(i) !== "completed" && i.priority === "high").length;
+    const needsPhoto = todayItems.filter(i => getStatus(i) === "completed" && !i.photo_url && i.master_photo_url).length;
     const stationsActive = new Set(todayItems.map(i => i.station_id));
-    const stationsNotStarted = stations.filter(s => stationsActive.has(s.id) && todayItems.filter(i => i.station_id === s.id).every(i => i.status === "pending")).length;
+    const stationsNotStarted = stations.filter(s => stationsActive.has(s.id) && todayItems.filter(i => i.station_id === s.id).every(i => getStatus(i) === "pending")).length;
     return { total, completed, overdue, needsPhoto, stationsNotStarted, pct: total > 0 ? Math.round((completed / total) * 100) : 0 };
-  }, [todayItems, stations]);
+  }, [todayItems, stations, localStatus]);
 
-  // Station stats
   const stationStats = useMemo(() => {
     return stations.map(s => {
       const items = todayItems.filter(i => i.station_id === s.id);
       if (items.length === 0) return null;
-      const done = items.filter(i => i.status === "completed").length;
-      const overdue = items.filter(i => i.status !== "completed" && i.priority === "high").length;
+      const done = items.filter(i => getStatus(i) === "completed").length;
+      const overdue = items.filter(i => getStatus(i) !== "completed" && i.priority === "high").length;
       const pct = Math.round((done / items.length) * 100);
       return { station: s, items, done, total: items.length, overdue, pct };
     }).filter(Boolean);
-  }, [todayItems, stations]);
+  }, [todayItems, stations, localStatus]);
 
-  // Filtered items
   const filteredItems = useMemo(() => {
     let items = todayItems;
     if (activeStation) items = items.filter(i => i.station_id === activeStation);
     if (searchQuery) items = items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    if (itemFilter === "overdue") items = items.filter(i => i.status !== "completed" && i.priority === "high");
-    else if (itemFilter === "pending_review") items = items.filter(i => i.status === "completed" && !i.photo_url && i.master_photo_url);
-    else if (itemFilter === "not_started") items = items.filter(i => i.status === "pending");
-    else if (itemFilter === "in_progress") items = items.filter(i => i.status === "in_progress");
-    else if (itemFilter === "completed") items = items.filter(i => i.status === "completed");
+    if (itemFilter === "overdue") items = items.filter(i => getStatus(i) !== "completed" && i.priority === "high");
+    else if (itemFilter === "pending_review") items = items.filter(i => getStatus(i) === "completed" && !i.photo_url && i.master_photo_url);
+    else if (itemFilter === "not_started") items = items.filter(i => getStatus(i) === "pending");
+    else if (itemFilter === "in_progress") items = items.filter(i => getStatus(i) === "in_progress");
+    else if (itemFilter === "completed") items = items.filter(i => getStatus(i) === "completed");
     return items;
-  }, [todayItems, activeStation, searchQuery, itemFilter]);
+  }, [todayItems, activeStation, searchQuery, itemFilter, localStatus]);
 
-  // Needs attention items
   const needsAttention = useMemo(() => ({
-    overdue: todayItems.filter(i => i.status !== "completed" && i.priority === "high"),
-    needsPhoto: todayItems.filter(i => i.status === "completed" && !i.photo_url && i.master_photo_url),
+    overdue: todayItems.filter(i => getStatus(i) !== "completed" && i.priority === "high"),
+    needsPhoto: todayItems.filter(i => getStatus(i) === "completed" && !i.photo_url && i.master_photo_url),
     lowStations: stationStats.filter(s => s.pct < 30 && s.pct > 0),
-  }), [todayItems, stationStats]);
+  }), [todayItems, stationStats, localStatus]);
 
   const hasAttention = needsAttention.overdue.length > 0 || needsAttention.needsPhoto.length > 0 || needsAttention.lowStations.length > 0;
+  const filteredIds = filteredItems.map(i => i.id);
 
   if (loading) {
     return (
@@ -206,7 +254,6 @@ export default function PrepLists() {
           </div>
         </div>
 
-        {/* Overall stats row */}
         <div className="grid grid-cols-4 gap-1.5">
           <div className="bg-primary/10 rounded-lg p-2 text-center">
             <div className="text-lg font-bold text-primary">{summary.pct}%</div>
@@ -226,12 +273,10 @@ export default function PrepLists() {
           </div>
         </div>
 
-        {/* Progress bar */}
         <div className="h-1.5 w-full bg-border rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${summary.pct}%` }} />
+          <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${summary.pct}%` }} />
         </div>
 
-        {/* Date + Search */}
         <div className="flex gap-2">
           <Input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} className="h-8 text-xs w-36 shrink-0" />
           <div className="relative flex-1">
@@ -269,7 +314,7 @@ export default function PrepLists() {
           </div>
         )}
 
-        {/* Station horizontal scroll cards */}
+        {/* Station cards */}
         {stationStats.length > 0 && (
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Stations</p>
@@ -282,7 +327,7 @@ export default function PrepLists() {
                 <div className="text-xs font-bold truncate">All Stations</div>
                 <div className="text-base font-bold text-primary">{summary.pct}%</div>
                 <div className="h-1 w-full bg-border rounded-full mt-1 overflow-hidden">
-                  <div className="h-1 bg-primary rounded-full" style={{ width: `${summary.pct}%` }} />
+                  <div className="h-1 bg-primary rounded-full transition-all duration-500" style={{ width: `${summary.pct}%` }} />
                 </div>
                 <div className="text-[10px] text-muted-foreground mt-0.5">{summary.completed}/{summary.total}</div>
               </button>
@@ -296,7 +341,7 @@ export default function PrepLists() {
                   <div className="text-xs font-bold truncate">{station.name}</div>
                   <div className={cn("text-base font-bold", pct === 100 ? "text-green-500" : overdue > 0 ? "text-red-500" : "text-primary")}>{pct}%</div>
                   <div className="h-1 w-full bg-border rounded-full mt-1 overflow-hidden">
-                    <div className={cn("h-1 rounded-full", pct === 100 ? "bg-green-500" : overdue > 0 ? "bg-red-500" : "bg-primary")} style={{ width: `${pct}%` }} />
+                    <div className={cn("h-1 rounded-full transition-all duration-500", pct === 100 ? "bg-green-500" : overdue > 0 ? "bg-red-500" : "bg-primary")} style={{ width: `${pct}%` }} />
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-0.5">
                     {done}/{total} · {pct === 100 ? <span className="text-green-500 font-semibold">All done</span> : done === 0 ? <span className="text-orange-400">Not started</span> : overdue > 0 ? <span className="text-red-400">{overdue} overdue</span> : <span className="text-yellow-400">Behind schedule</span>}
@@ -312,7 +357,7 @@ export default function PrepLists() {
           {FILTERS.map(f => (
             <button
               key={f.id}
-              onClick={() => setItemFilter(f.id)}
+              onClick={() => { setItemFilter(f.id); setAllCaughtUp(false); }}
               className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all active:scale-95",
                 itemFilter === f.id ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground"
               )}
@@ -322,6 +367,14 @@ export default function PrepLists() {
           ))}
         </div>
 
+        {/* All caught up banner */}
+        {allCaughtUp && (
+          <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-500 text-sm font-semibold animate-pulse">
+            <CheckCircle2 className="h-4 w-4" />
+            All caught up!
+          </div>
+        )}
+
         {/* Prep Item Cards */}
         <div className="space-y-2">
           {filteredItems.length === 0 ? (
@@ -330,52 +383,102 @@ export default function PrepLists() {
             filteredItems.map(item => {
               const list = getListForItem(item);
               const station = getStation(item.station_id);
-              const isDone = item.status === "completed";
+              const status = getStatus(item);
+              const isDone = status === "completed";
+              const isInProgress = status === "in_progress";
               const isOverdue = !isDone && item.priority === "high";
               const needsPhoto = isDone && !item.photo_url && item.master_photo_url;
+              const isFlashing = flashDone.has(item.id);
 
               return (
-                <button
+                <div
                   key={item.id}
-                  onClick={() => list && setSelectedList(list)}
+                  ref={el => { itemRefs.current[item.id] = el; }}
                   className={cn(
-                    "w-full bg-card border rounded-xl p-3 text-left active:scale-95 transition-transform",
-                    isOverdue ? "border-red-500/40" : needsPhoto ? "border-yellow-500/40" : isDone ? "border-green-500/20" : "border-border"
+                    "bg-card border rounded-xl p-3 transition-all duration-300",
+                    isFlashing ? "border-green-500 bg-green-500/10 scale-[0.98]" : isOverdue ? "border-red-500/40" : needsPhoto ? "border-yellow-500/40" : isDone ? "border-green-500/20" : "border-border"
                   )}
                 >
+                  {/* Flash overlay */}
+                  {isFlashing && (
+                    <div className="flex items-center gap-1.5 mb-1.5 text-green-500 text-xs font-bold animate-pulse">
+                      <CheckCircle2 className="h-4 w-4" /> Updated!
+                    </div>
+                  )}
+
                   {/* Top row */}
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-1 min-w-0" onClick={() => list && setSelectedList(list)}>
                       <div className={cn("w-1.5 h-1.5 rounded-full shrink-0 mt-0.5", PRIORITY_COLOR[item.priority] || "bg-muted")} />
                       <span className={cn("font-semibold text-sm truncate", isDone && "line-through text-muted-foreground")}>{item.name}</span>
                     </div>
-                    <span className={cn("text-xs font-bold shrink-0", STATUS_COLOR[item.status] || "text-muted-foreground")}>
-                      {item.status === "completed" ? "✓ Done" : item.status === "in_progress" ? "In Progress" : "Pending"}
+                    <span className={cn("text-xs font-bold shrink-0", STATUS_COLOR[status] || "text-muted-foreground")}>
+                      {isDone ? "✓ Done" : isInProgress ? "In Progress" : "Pending"}
                     </span>
                   </div>
 
                   {/* Meta row */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground pl-3.5">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground pl-3.5 mb-2">
                     {station && <span className="font-medium text-foreground/70">{station.name}</span>}
                     {item.due_time && <span className="flex items-center gap-0.5"><Clock className="h-3 w-3" />{item.due_time}</span>}
                     {(item.quantity || item.unit) && <span>{item.quantity}{item.unit ? ` ${item.unit}` : ""}</span>}
                     {item.assigned_to_individual && <span>{item.assigned_to_individual.split("@")[0]}</span>}
                     {needsPhoto && <span className="flex items-center gap-0.5 text-yellow-500 font-semibold"><Camera className="h-3 w-3" />Photo needed</span>}
                   </div>
-                </button>
+
+                  {/* Action button row */}
+                  {!isDone && (
+                    <div className="flex gap-2 pl-3.5">
+                      {status === "pending" && (
+                        <button
+                          onClick={e => handleItemAction(e, item, "in_progress", filteredIds)}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold active:scale-95 transition-transform border border-primary/20"
+                        >
+                          <Play className="h-3 w-3" /> Start
+                        </button>
+                      )}
+                      {status === "in_progress" && (
+                        <button
+                          onClick={e => handleItemAction(e, item, "completed", filteredIds)}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-green-500/10 text-green-500 text-xs font-bold active:scale-95 transition-transform border border-green-500/20"
+                        >
+                          <CheckCircle2 className="h-3 w-3" /> Complete
+                        </button>
+                      )}
+                      {status === "pending" && (
+                        <button
+                          onClick={e => handleItemAction(e, item, "completed", filteredIds)}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted text-muted-foreground text-xs font-semibold active:scale-95 transition-transform border border-border"
+                        >
+                          ✓ Mark Done
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {needsPhoto && (
+                    <div className="flex gap-2 pl-3.5 mt-1">
+                      <button
+                        onClick={() => list && setSelectedList(list)}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-yellow-500/10 text-yellow-600 text-xs font-bold active:scale-95 transition-transform border border-yellow-500/20"
+                      >
+                        <Camera className="h-3 w-3" /> Add Photo
+                      </button>
+                    </div>
+                  )}
+                </div>
               );
             })
           )}
         </div>
 
-        {/* List-level actions (tap a list from station stats) */}
+        {/* Prep Lists for active station */}
         {activeStation && (
           <div className="pt-2">
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Prep Lists</p>
             <div className="space-y-2">
               {todayLists.filter(pl => pl.station_id === activeStation).map(list => {
                 const items = prepItems.filter(pi => pi.prep_list_id === list.id);
-                const done = items.filter(i => i.status === "completed").length;
+                const done = items.filter(i => getStatus(i) === "completed").length;
                 const pct = items.length > 0 ? Math.round((done / items.length) * 100) : 0;
                 return (
                   <button key={list.id} onClick={() => setSelectedList(list)} className="w-full bg-secondary/20 border border-border rounded-lg px-3 py-2 text-left flex items-center justify-between active:scale-95 transition-transform">
@@ -386,7 +489,7 @@ export default function PrepLists() {
                     <div className="text-right">
                       <div className="text-base font-bold text-primary">{pct}%</div>
                       <div className="h-1 w-16 bg-border rounded-full mt-1 overflow-hidden">
-                        <div className="h-1 bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-1 bg-primary rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   </button>
