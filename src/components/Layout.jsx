@@ -1,6 +1,7 @@
 import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
+import BottomNav from "./BottomNav";
 import FloatingQuickActions from "./FloatingQuickActions";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus } from "lucide-react";
@@ -258,7 +259,7 @@ export default function Layout() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            className="p-4 lg:p-8 max-w-6xl mx-auto"
+            className="p-4 lg:p-8 max-w-6xl mx-auto pb-24 lg:pb-8"
           >
             <Outlet />
           </motion.div>
@@ -266,6 +267,7 @@ export default function Layout() {
       </main>
       <HelpButton />
       <FloatingQuickActions />
+      <BottomNav />
     </div>
   );
 }
