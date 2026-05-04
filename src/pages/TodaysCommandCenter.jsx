@@ -1,39 +1,37 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet, CalendarDays, Users } from "lucide-react";
+import { ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign, Truck, Camera, TrendingUp, Plus, CheckCircle2, Clock, AlertCircle, Droplet, CalendarDays, Users, Utensils, ArrowRight, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import ScheduledStaffSection from "@/components/ScheduledStaffSection";
 
-const CompactCard = ({ icon: Icon, title, count, done, total, label, urgentCount, status, onClick }) => {
+const CompactCard = ({ icon: Icon, title, count, done, total, label, status, onClick }) => {
   const progress = total > 0 ? Math.round((done / total) * 100) : null;
-  const borderColor = status === 'critical' ? 'border-red-500/50' : status === 'high' ? 'border-yellow-500/40' : 'border-border';
+  const borderColor = status === 'critical' ? 'border-red-500/60' : status === 'high' ? 'border-yellow-500/50' : 'border-border';
   const progressColor = status === 'critical' ? 'bg-red-500' : status === 'high' ? 'bg-yellow-400' : 'bg-primary';
+  const iconColor = status === 'critical' ? 'text-red-400' : status === 'high' ? 'text-yellow-400' : 'text-primary';
 
   return (
     <button
       onClick={onClick}
-      className={cn("bg-card border rounded-xl p-3 flex flex-col justify-between text-left active:scale-95 transition-transform w-full", borderColor)}
-      style={{ minHeight: 96, maxHeight: 110 }}
+      className={cn("bg-card border rounded-xl p-3 flex flex-col gap-1 text-left active:scale-95 transition-transform w-full", borderColor)}
     >
-      {/* Top row: icon + title */}
-      <div className="flex items-center gap-1.5">
-        <Icon className="h-4 w-4 text-primary shrink-0" />
-        <span className="text-xs font-semibold text-muted-foreground truncate">{title}</span>
+      <div className="flex items-center justify-between">
+        <Icon className={cn("h-4 w-4 shrink-0", iconColor)} />
+        {(status === 'critical' || status === 'high') && (
+          <span className={cn("h-1.5 w-1.5 rounded-full", status === 'critical' ? 'bg-red-500' : 'bg-yellow-400')} />
+        )}
       </div>
-
-      {/* Middle: main count */}
-      <div className="text-xl font-bold leading-tight my-1">{count}</div>
-
-      {/* Bottom: progress bar + label */}
+      <p className="text-[11px] font-semibold text-muted-foreground">{title}</p>
+      <p className="text-base font-bold leading-tight text-foreground">{count}</p>
       <div className="space-y-1">
         {progress !== null && (
-          <div className="h-1 w-full bg-border rounded-full overflow-hidden">
-            <div className={cn("h-1 rounded-full transition-all", progressColor)} style={{ width: `${Math.min(progress, 100)}%` }} />
+          <div className="h-0.5 w-full bg-border rounded-full overflow-hidden">
+            <div className={cn("h-0.5 rounded-full transition-all", progressColor)} style={{ width: `${Math.min(progress, 100)}%` }} />
           </div>
         )}
-        <p className="text-[10px] text-muted-foreground truncate">{label}</p>
+        <p className="text-[10px] text-muted-foreground">{label}</p>
       </div>
     </button>
   );
@@ -169,180 +167,125 @@ export default function TodaysCommandCenter() {
   }
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-4 pb-4">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Today's Command Center</h1>
-        <p className="text-lg text-muted-foreground mt-2">
-          {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-        </p>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-primary">Quick Actions</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          <Button onClick={() => navigate("/prep-lists")} variant="outline" className="h-auto py-3"><Plus className="h-4 w-4 mr-2" />Add Task</Button>
-          <Button onClick={() => navigate("/pre-shift")} variant="outline" className="h-auto py-3">Start Pre-Shift</Button>
-          <Button onClick={() => navigate("/photo-review")} variant="outline" className="h-auto py-3">Review Photos</Button>
-          <Button onClick={() => navigate("/maintenance")} variant="outline" className="h-auto py-3">Log Issue</Button>
-          <Button onClick={() => navigate("/shift-handoff")} variant="outline" className="h-auto py-3">Create Handoff</Button>
-          <Button onClick={() => navigate("/side-work")} variant="outline" className="h-auto py-3">Assign Tasks</Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-extrabold tracking-tight">Command Center</h1>
+          <p className="text-xs text-muted-foreground">
+            {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+          </p>
         </div>
+        <Button onClick={() => navigate("/prep-lists")} size="sm" className="gap-1.5 h-8 text-xs">
+          <Plus className="h-3.5 w-3.5" /> New Task
+        </Button>
       </div>
 
-      {/* Urgent Alerts Section */}
-      {metrics.urgentAlerts.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-red-600">🚨 Urgent Today</h2>
-          <div className="grid gap-3">
-            {metrics.urgentAlerts.map((alert, i) => {
-              const config = {
-                incidents: { icon: AlertTriangle, label: 'Critical Incident', path: '/incidents' },
-                dish_failed: { icon: Droplet, label: 'Dish Machine Failed', path: '/dish-machines' },
-                dish_overdue: { icon: Droplet, label: 'Dish Machine Overdue', path: '/dish-machines' },
-                maintenance: { icon: Wrench, label: 'Urgent Maintenance', path: '/maintenance' },
-                prep: { icon: ClipboardList, label: 'High-Priority Prep', path: '/prep-lists' },
-                templogs: { icon: Thermometer, label: 'Temp Alert', path: '/temp-logs' },
-                sidework: { icon: Camera, label: 'Overdue Side Work', path: '/side-work' },
-                cash: { icon: DollarSign, label: 'Cash Variance', path: '/cash' },
-              }[alert.type];
+      {/* Quick Actions — horizontal scroll pills */}
+      <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none">
+        {[
+          { label: "Pre-Shift",   icon: Utensils,      path: "/pre-shift" },
+          { label: "Handoff",     icon: TrendingUp,    path: "/shift-handoff" },
+          { label: "Side Work",   icon: CheckCircle2,  path: "/side-work" },
+          { label: "Photos",      icon: Camera,        path: "/photo-review" },
+          { label: "Log Issue",   icon: ShieldAlert,   path: "/maintenance" },
+        ].map(a => (
+          <button key={a.path} onClick={() => navigate(a.path)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-border bg-card text-xs font-semibold text-foreground whitespace-nowrap hover:bg-secondary active:scale-95 transition-all">
+            <a.icon className="h-3.5 w-3.5 text-primary" />{a.label}
+          </button>
+        ))}
+      </div>
 
-              const Icon = config.icon;
-              return (
-                <div key={i} className="bg-red-500/10 border-l-4 border-red-500 rounded-r-lg p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-5 w-5 text-red-600" />
-                    <div>
-                      <p className="font-semibold text-sm">{config.label}</p>
-                      <p className="text-xs text-muted-foreground">{alert.count} item{alert.count > 1 ? 's' : ''}</p>
-                    </div>
-                  </div>
-                  <Button onClick={() => navigate(config.path)} size="sm" variant="ghost" className="text-red-600">Review</Button>
+      {/* Urgent Alerts */}
+      {metrics.urgentAlerts.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-red-400">⚡ Needs Attention</p>
+          {metrics.urgentAlerts.map((alert, i) => {
+            const config = {
+              incidents:    { icon: AlertTriangle, label: 'Critical Incident',   path: '/incidents' },
+              dish_failed:  { icon: Droplet,       label: 'Dish Machine Failed', path: '/dish-machines' },
+              dish_overdue: { icon: Droplet,       label: 'Dish Machine Overdue',path: '/dish-machines' },
+              maintenance:  { icon: Wrench,        label: 'Urgent Maintenance',  path: '/maintenance' },
+              prep:         { icon: ClipboardList, label: 'High-Priority Prep',  path: '/prep-lists' },
+              templogs:     { icon: Thermometer,   label: 'Temp Alert',          path: '/temp-logs' },
+              sidework:     { icon: Camera,        label: 'Overdue Side Work',   path: '/side-work' },
+              cash:         { icon: DollarSign,    label: 'Cash Variance',       path: '/cash' },
+            }[alert.type];
+            const Icon = config.icon;
+            const isCrit = alert.status === 'critical';
+            return (
+              <button key={i} onClick={() => navigate(config.path)}
+                className={cn("w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left active:scale-[0.98] transition-transform",
+                  isCrit ? "bg-red-500/10 border-red-500/40" : "bg-yellow-500/8 border-yellow-500/30")}>
+                <Icon className={cn("h-4 w-4 shrink-0", isCrit ? "text-red-400" : "text-yellow-400")} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{config.label}</p>
+                  <p className="text-[11px] text-muted-foreground">{alert.count} item{alert.count !== 1 ? 's' : ''} need action</p>
                 </div>
-              );
-            })}
-          </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Main Dashboard Cards */}
-      <div className="space-y-2">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-primary">What Needs Attention?</h2>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <CompactCard
-          icon={ClipboardList}
-          title="Prep"
-          count={`${metrics.prep.completed}/${metrics.prep.total} done`}
-          done={metrics.prep.completed}
-          total={metrics.prep.total}
-          label={metrics.prep.urgent > 0 ? `${metrics.prep.urgent} overdue` : "On track"}
-          status={metrics.prep.urgent > 0 ? 'high' : 'low'}
-          onClick={() => navigate("/prep-lists")}
-        />
-        <CompactCard
-          icon={Camera}
-          title="Side Work"
-          count={`${metrics.sideWork.completed}/${metrics.sideWork.total} done`}
-          done={metrics.sideWork.completed}
-          total={metrics.sideWork.total}
-          label={metrics.sideWork.urgent > 0 ? `${metrics.sideWork.urgent} overdue` : "On track"}
-          status={metrics.sideWork.urgent > 0 ? 'high' : 'low'}
-          onClick={() => navigate("/side-work")}
-        />
-        <CompactCard
-          icon={Thermometer}
-          title="Temp Logs"
-          count={metrics.tempLogs.outOfRange > 0 ? `${metrics.tempLogs.outOfRange} alerts` : "All OK"}
-          label={`${metrics.tempLogs.total} logged today`}
-          status={metrics.tempLogs.outOfRange > 0 ? 'high' : 'low'}
-          onClick={() => navigate("/temp-logs")}
-        />
-        <CompactCard
-          icon={Wrench}
-          title="Maintenance"
-          count={`${metrics.maintenance.open} open`}
-          label={metrics.maintenance.urgent > 0 ? `${metrics.maintenance.urgent} urgent` : "No urgent items"}
-          status={metrics.maintenance.urgent > 0 ? 'high' : 'low'}
-          onClick={() => navigate("/maintenance")}
-        />
-        <CompactCard
-          icon={AlertTriangle}
-          title="Incidents"
-          count={`${metrics.incidents.open} open`}
-          label={metrics.incidents.urgent > 0 ? `${metrics.incidents.urgent} critical` : "No critical items"}
-          status={metrics.incidents.urgent > 0 ? 'critical' : 'low'}
-          onClick={() => navigate("/incidents")}
-        />
-        <CompactCard
-          icon={DollarSign}
-          title="Cash"
-          count={metrics.cash.issues > 0 ? `${metrics.cash.issues} variance` : "Balanced"}
-          label={`${metrics.cash.total} drawers counted`}
-          status={metrics.cash.issues > 0 ? 'high' : 'low'}
-          onClick={() => navigate("/cash")}
-        />
-        <CompactCard
-          icon={Camera}
-          title="Photos"
-          count={`${metrics.photoReview.pending} pending`}
-          label="Awaiting review"
-          status={metrics.photoReview.pending > 0 ? 'medium' : 'low'}
-          onClick={() => navigate("/photo-review")}
-        />
-        <CompactCard
-          icon={Truck}
-          title="Vendors"
-          count={`${metrics.vendors.total} contacts`}
-          label="Tap to view"
-          onClick={() => navigate("/vendors")}
-        />
+      {/* Dashboard Cards */}
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-2">Today's Status</p>
+        <div className="grid grid-cols-2 gap-2">
+          <CompactCard icon={ClipboardList} title="Prep" count={`${metrics.prep.completed}/${metrics.prep.total}`} done={metrics.prep.completed} total={metrics.prep.total} label={metrics.prep.urgent > 0 ? `${metrics.prep.urgent} overdue` : "On track"} status={metrics.prep.urgent > 0 ? 'high' : 'low'} onClick={() => navigate("/prep-lists")} />
+          <CompactCard icon={Camera} title="Side Work" count={`${metrics.sideWork.completed}/${metrics.sideWork.total}`} done={metrics.sideWork.completed} total={metrics.sideWork.total} label={metrics.sideWork.urgent > 0 ? `${metrics.sideWork.urgent} overdue` : "On track"} status={metrics.sideWork.urgent > 0 ? 'high' : 'low'} onClick={() => navigate("/side-work")} />
+          <CompactCard icon={Thermometer} title="Temp Logs" count={metrics.tempLogs.outOfRange > 0 ? `${metrics.tempLogs.outOfRange} alerts` : "All OK"} label={`${metrics.tempLogs.total} logged`} status={metrics.tempLogs.outOfRange > 0 ? 'high' : 'low'} onClick={() => navigate("/temp-logs")} />
+          <CompactCard icon={Wrench} title="Maintenance" count={`${metrics.maintenance.open} open`} label={metrics.maintenance.urgent > 0 ? `${metrics.maintenance.urgent} urgent` : "No urgent"} status={metrics.maintenance.urgent > 0 ? 'high' : 'low'} onClick={() => navigate("/maintenance")} />
+          <CompactCard icon={AlertTriangle} title="Incidents" count={`${metrics.incidents.open} open`} label={metrics.incidents.urgent > 0 ? `${metrics.incidents.urgent} critical` : "All clear"} status={metrics.incidents.urgent > 0 ? 'critical' : 'low'} onClick={() => navigate("/incidents")} />
+          <CompactCard icon={DollarSign} title="Cash" count={metrics.cash.issues > 0 ? `${metrics.cash.issues} variance` : "Balanced"} label={`${metrics.cash.total} drawers`} status={metrics.cash.issues > 0 ? 'high' : 'low'} onClick={() => navigate("/cash")} />
+          <CompactCard icon={Camera} title="Photos" count={`${metrics.photoReview.pending}`} label="Pending review" status={metrics.photoReview.pending > 0 ? 'medium' : 'low'} onClick={() => navigate("/photo-review")} />
+          <CompactCard icon={Truck} title="Vendors" count={`${metrics.vendors.total}`} label="Contacts" onClick={() => navigate("/vendors")} />
+        </div>
       </div>
 
-      {/* Upcoming Calendar Events */}
+      {/* Calendar Events */}
       {metrics.calendar?.upcoming?.length > 0 && (
-        <div className="bg-card border-2 border-border rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-sm flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-primary" />
-              Upcoming Events (Next 3 Days)
-            </h2>
-            <Button onClick={() => navigate("/calendar")} variant="ghost" size="sm" className="text-xs">View All</Button>
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-border/50">
+            <p className="text-xs font-bold flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5 text-primary" />Upcoming (3 days)</p>
+            <button onClick={() => navigate("/calendar")} className="text-[11px] text-primary font-semibold">View all</button>
           </div>
-          <div className="space-y-2">
-            {metrics.calendar.upcoming.map((ev, i) => (
-              <div key={i} className="flex items-center justify-between text-sm">
-                <p className="font-medium">{ev.title}</p>
-                <p className="text-xs text-muted-foreground">{ev.date}{ev.time ? ` · ${ev.time}` : ""}</p>
-              </div>
+          {metrics.calendar.upcoming.map((ev, i) => (
+            <div key={i} className={cn("flex items-center justify-between px-3 py-2.5 text-sm", i < metrics.calendar.upcoming.length - 1 && "border-b border-border/30")}>
+              <p className="font-semibold truncate mr-2">{ev.title}</p>
+              <p className="text-[11px] text-muted-foreground shrink-0">{ev.date}{ev.time ? ` · ${ev.time}` : ""}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Scheduled Staff */}
+      <ScheduledStaffSection shifts={metrics.staffShifts || []} onManage={() => navigate("/schedule-import")} />
+
+      {/* Latest Handoff */}
+      {metrics.latestHandoff && (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-border/50">
+            <p className="text-xs font-bold flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5 text-primary" />Last Shift Handoff</p>
+            <button onClick={() => navigate("/shift-handoff")} className="text-[11px] text-primary font-semibold">View all</button>
+          </div>
+          <div className="px-3 py-2.5 space-y-1.5">
+            {[
+              { key: "items_86d",             label: "86'd" },
+              { key: "staff_issues",           label: "Staff" },
+              { key: "maintenance_problems",   label: "Maint." },
+              { key: "notes_for_next_manager", label: "Notes" },
+            ].filter(f => metrics.latestHandoff[f.key]).map(f => (
+              <p key={f.key} className="text-xs text-muted-foreground">
+                <span className="font-semibold text-foreground">{f.label}: </span>
+                {metrics.latestHandoff[f.key].substring(0, 60)}{metrics.latestHandoff[f.key].length > 60 ? '…' : ''}
+              </p>
             ))}
           </div>
         </div>
       )}
-
-      {/* Today's Scheduled Staff - Filterable */}
-      <ScheduledStaffSection shifts={metrics.staffShifts || []} onManage={() => navigate("/schedule-import")} />
-
-      {/* Latest Shift Handoff */}
-      {metrics.latestHandoff && (
-        <div className="bg-card border-2 border-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Last Shift Summary
-            </h2>
-            <Button onClick={() => navigate("/shift-handoff")} variant="ghost" size="sm">View All</Button>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3 text-sm">
-            {metrics.latestHandoff.items_86d && <p className="text-muted-foreground"><span className="font-semibold">86'd:</span> {metrics.latestHandoff.items_86d.substring(0, 50)}</p>}
-            {metrics.latestHandoff.staff_issues && <p className="text-muted-foreground"><span className="font-semibold">Staff:</span> {metrics.latestHandoff.staff_issues.substring(0, 50)}</p>}
-            {metrics.latestHandoff.maintenance_problems && <p className="text-muted-foreground"><span className="font-semibold">Maintenance:</span> {metrics.latestHandoff.maintenance_problems.substring(0, 50)}</p>}
-            {metrics.latestHandoff.notes_for_next_manager && <p className="text-muted-foreground"><span className="font-semibold">Notes:</span> {metrics.latestHandoff.notes_for_next_manager.substring(0, 50)}</p>}
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
