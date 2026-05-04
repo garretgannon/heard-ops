@@ -253,7 +253,7 @@ export default function Layout() {
       </aside>
 
       {/* Main content */}
-      <main className="lg:pl-64 pt-14 lg:pt-0 min-h-screen">
+      <main className="lg:pl-64 pt-14 lg:pt-0 min-h-screen flex flex-col items-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -261,7 +261,7 @@ export default function Layout() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            className="p-4 lg:p-8 max-w-6xl mx-auto pb-24 lg:pb-8"
+            className="w-full max-w-[430px] lg:max-w-none lg:w-full px-4 pt-4 pb-24 lg:px-8 lg:pb-8 lg:max-w-6xl mx-auto"
           >
             <Outlet />
           </motion.div>
