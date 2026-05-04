@@ -152,21 +152,152 @@ export default function TodaysCommandCenter() {
         const invCritical = (inventoryItems || []).filter(i => ['critical','out'].includes(i.status)).length;
         const invAtRisk = (inventoryItems || []).filter(i => i.required_for_prep && ['critical','out'].includes(i.status)).length;
 
-        // Needs Attention alerts
-        const alerts = [];
-        if (incCrit > 0)    alerts.push({ icon: AlertTriangle, iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Critical Incident",    meta: `${incCrit} unresolved`,                          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",        path: "/incidents" });
-        if (dishFailed > 0) alerts.push({ icon: Droplet,       iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Dish Machine Failed",  meta: `${dishFailed} need attention`,                   badge: "Failed",   badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",        path: "/dish-machines" });
-        if (tempAlerts > 0) alerts.push({ icon: Thermometer,   iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "High Temp Alert",      meta: `${tempAlerts} reading out of range`,              badge: "Alert",    badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/temp-logs" });
-        if (prepOverdue > 0) alerts.push({ icon: ClipboardList, iconColor: "text-red-400", iconBg: "bg-red-500/15", title: `Overdue Prep — ${prepOverdue} item${prepOverdue > 1 ? 's' : ''} missed due time`, meta: `${prepUrgent > 0 ? prepUrgent + ' high priority · ' : ''}Added to Shift Handoff`, badge: "Overdue", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30", path: "/prep-lists" });
-        else if (prepUrgent > 0) alerts.push({ icon: ClipboardList, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Overdue Prep Items",   meta: `${prepUrgent} high-priority not started`,          badge: "Urgent",  badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/prep-lists" });
-        if (swOverdue > 0) alerts.push({ icon: Flame, iconColor: "text-red-400", iconBg: "bg-red-500/15", title: `Overdue Side Work — ${swOverdue} task${swOverdue > 1 ? 's' : ''} missed due time`, meta: swOverdue + ' not completed on time', badge: "Overdue", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30", path: "/side-work" });
-        if (mainUrgent > 0) alerts.push({ icon: Wrench,        iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Urgent Maintenance",   meta: `${mainUrgent} flagged urgent`,                    badge: "Urgent",   badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/maintenance" });
-        if (cashIssues > 0) alerts.push({ icon: DollarSign,    iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Cash Variance",        meta: `${cashIssues} drawer${cashIssues > 1 ? "s" : ""} out of balance`, badge: "Review", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/cash" });
-        if (dishOverdue > 0 && !dishFailed) alerts.push({ icon: Droplet, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Dish Machine Overdue", meta: `${dishOverdue} past check interval`, badge: "Overdue", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/dish-machines" });
-        if (invCritical > 0) alerts.push({ icon: ShieldAlert, iconColor: "text-red-400", iconBg: "bg-red-500/15", title: `${invCritical} Inventory Item${invCritical > 1 ? 's' : ''} Critical / Out`, meta: invAtRisk > 0 ? `${invAtRisk} prep item${invAtRisk > 1 ? 's' : ''} at risk` : 'Below 50% of par level', badge: invAtRisk > 0 ? "Prep At Risk" : "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30", path: "/issues" });
-        else if (invLow > 0) alerts.push({ icon: ShieldAlert, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: `${invLow} Inventory Item${invLow > 1 ? 's' : ''} Low`, meta: 'Below par level — reorder needed', badge: "Low Stock", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/issues" });
+        // ── Needs Attention — severity-sorted intelligence ──────────────
+        // severity: 1=Critical, 2=Overdue, 3=At Risk
+        const rawAlerts = [];
+
+        // TEMPS — critical food-safety
+        const critTemps = tempLogs.filter(t => t.is_above_range || t.is_below_range);
+        critTemps.forEach(t => rawAlerts.push({
+          severity: 1,
+          icon: Thermometer, iconColor: "text-red-400", iconBg: "bg-red-500/15",
+          title: `Temp Alert — ${t.location_name || "Unknown"}: ${t.value ?? t.temperature}°F`,
+          meta: t.is_above_range ? "Above safe range" : "Below safe range",
+          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",
+          path: "/temp-logs",
+        }));
+
+        // DISH MACHINE — failed
+        if (dishFailed > 0) rawAlerts.push({
+          severity: 1,
+          icon: Droplet, iconColor: "text-red-400", iconBg: "bg-red-500/15",
+          title: `Dish Machine Failed — ${dishFailed} unresolved`,
+          meta: "Corrective action required",
+          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",
+          path: "/dish-machines",
+        });
+
+        // ISSUES — critical
+        const critIssues = issues.filter(i => i.status === "critical");
+        const openIssues = issues.filter(i => i.status === "open" || i.status === "in_progress");
+        critIssues.forEach(i => rawAlerts.push({
+          severity: 1,
+          icon: ShieldAlert, iconColor: "text-red-400", iconBg: "bg-red-500/15",
+          title: i.title,
+          meta: `Issue · ${i.category || "Other"}`,
+          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",
+          path: "/issues",
+        }));
+
+        // INCIDENTS — critical
+        incidents.filter(i => ["critical","high"].includes(i.severity)).forEach(i => rawAlerts.push({
+          severity: 1,
+          icon: AlertTriangle, iconColor: "text-red-400", iconBg: "bg-red-500/15",
+          title: i.title || "Critical Incident",
+          meta: `Incident · ${i.category || ""}`,
+          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",
+          path: "/incidents",
+        }));
+
+        // INVENTORY — out / critical with prep impact
+        const invOutItems = (inventoryItems || []).filter(i => ["critical","out"].includes(i.status));
+        if (invOutItems.length > 0) rawAlerts.push({
+          severity: invAtRisk > 0 ? 1 : 2,
+          icon: ShieldAlert, iconColor: "text-red-400", iconBg: "bg-red-500/15",
+          title: `${invOutItems.length} Inventory Item${invOutItems.length > 1 ? "s" : ""} Critical/Out`,
+          meta: invAtRisk > 0 ? `${invAtRisk} prep item${invAtRisk > 1 ? "s" : ""} at risk` : invOutItems.map(i => i.name).slice(0, 2).join(", "),
+          badge: invAtRisk > 0 ? "Prep At Risk" : "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",
+          path: "/issues",
+        });
+
+        // PREP — overdue items
+        const overduePrepItems = todayPrep.filter(i => i.status === "overdue");
+        if (overduePrepItems.length > 0) rawAlerts.push({
+          severity: 2,
+          icon: ClipboardList, iconColor: "text-orange-400", iconBg: "bg-orange-500/15",
+          title: `${overduePrepItems.length} Prep Item${overduePrepItems.length > 1 ? "s" : ""} Overdue`,
+          meta: overduePrepItems.slice(0, 2).map(i => i.name).join(", ") + (overduePrepItems.length > 2 ? " +more" : ""),
+          badge: "Overdue", badgeColor: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+          path: "/prep-lists",
+        });
+
+        // PREP — at risk due to inventory
+        const atRiskPrep = todayPrep.filter(i => i.at_risk && !["completed","approved"].includes(i.status));
+        if (atRiskPrep.length > 0) rawAlerts.push({
+          severity: 3,
+          icon: ClipboardList, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15",
+          title: `${atRiskPrep.length} Prep Item${atRiskPrep.length > 1 ? "s" : ""} At Risk`,
+          meta: atRiskPrep.slice(0, 2).map(i => i.name).join(", ") + (atRiskPrep.length > 2 ? " +more" : ""),
+          badge: "At Risk", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+          path: "/prep-lists",
+        });
+
+        // CLEANING — missed / overdue side work
+        const overdueClean = sideWork.filter(t => t.status === "overdue");
+        if (overdueClean.length > 0) rawAlerts.push({
+          severity: 2,
+          icon: Flame, iconColor: "text-orange-400", iconBg: "bg-orange-500/15",
+          title: `${overdueClean.length} Cleaning Task${overdueClean.length > 1 ? "s" : ""} Missed`,
+          meta: overdueClean.slice(0, 2).map(t => t.task_name).join(", ") + (overdueClean.length > 2 ? " +more" : ""),
+          badge: "Overdue", badgeColor: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+          path: "/side-work",
+        });
+
+        // INVENTORY — low stock (not critical)
+        if (invLow > 0 && invCritical === 0) rawAlerts.push({
+          severity: 3,
+          icon: ShieldAlert, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15",
+          title: `${invLow} Inventory Item${invLow > 1 ? "s" : ""} Low Stock`,
+          meta: "Below par level — reorder needed",
+          badge: "Low Stock", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+          path: "/issues",
+        });
+
+        // OPEN ISSUES — non-critical
+        if (openIssues.length > 0) rawAlerts.push({
+          severity: 3,
+          icon: ShieldAlert, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15",
+          title: `${openIssues.length} Open Issue${openIssues.length > 1 ? "s" : ""} Unresolved`,
+          meta: openIssues.slice(0, 2).map(i => i.title).join(", "),
+          badge: "Open", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+          path: "/issues",
+        });
+
+        // MAINTENANCE — urgent
+        if (mainUrgent > 0) rawAlerts.push({
+          severity: 2,
+          icon: Wrench, iconColor: "text-orange-400", iconBg: "bg-orange-500/15",
+          title: `${mainUrgent} Urgent Maintenance Request${mainUrgent > 1 ? "s" : ""}`,
+          meta: "Flagged as urgent or high priority",
+          badge: "Urgent", badgeColor: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+          path: "/maintenance",
+        });
+
+        // CASH — variance
+        if (cashIssues > 0) rawAlerts.push({
+          severity: 2,
+          icon: DollarSign, iconColor: "text-orange-400", iconBg: "bg-orange-500/15",
+          title: `Cash Variance — ${cashIssues} Drawer${cashIssues > 1 ? "s" : ""} Off`,
+          meta: "Drawer count out of balance",
+          badge: "Review", badgeColor: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+          path: "/cash",
+        });
+
+        // DISH MACHINE — overdue check
+        if (dishOverdue > 0 && !dishFailed) rawAlerts.push({
+          severity: 2,
+          icon: Droplet, iconColor: "text-orange-400", iconBg: "bg-orange-500/15",
+          title: `${dishOverdue} Dish Machine${dishOverdue > 1 ? "s" : ""} Past Check Interval`,
+          meta: "Log required",
+          badge: "Overdue", badgeColor: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+          path: "/dish-machines",
+        });
+
+        // Sort: 1 → 2 → 3, then alphabetically by title within each tier
+        const alerts = rawAlerts.sort((a, b) => a.severity - b.severity || a.title.localeCompare(b.title));
 
         // Today's Priorities
+
         const priorities = [];
         if (todayPrep.length > 0) priorities.push({ icon: ClipboardList, title: "Complete Today's Prep", meta: prepOverdue > 0 ? `${prepOverdue} OVERDUE · ${todayPrep.length - prepDone} remaining` : `${todayPrep.length - prepDone} remaining`, assignee: "Kitchen", actionLabel: "Open",  actionPath: "/prep-lists",  status: prepOverdue > 0 ? "overdue" : prepUrgent > 0 ? "overdue" : prepDone === todayPrep.length ? "ok" : "in-progress" });
         if (tempLogs.length < 2)  priorities.push({ icon: Thermometer,   title: "Temperature Checks",   meta: `${tempLogs.length} logged so far`,         assignee: "All Staff", actionLabel: "Log",   actionPath: "/temp-logs",   status: tempAlerts > 0 ? "overdue" : tempLogs.length === 0 ? "pending" : "in-progress" });
@@ -186,7 +317,8 @@ export default function TodaysCommandCenter() {
         );
 
         setM({
-          alerts: alerts.slice(0, 5),
+          alerts,
+          alertCounts: { critical: rawAlerts.filter(a => a.severity === 1).length, overdue: rawAlerts.filter(a => a.severity === 2).length, atRisk: rawAlerts.filter(a => a.severity === 3).length },
           priorities: priorities.slice(0, 3),
           activity: activity.slice(0, 5),
           latestHandoff: shiftHandoffs[0] || null,
@@ -238,7 +370,16 @@ export default function TodaysCommandCenter() {
       </div>
 
       {/* Needs Attention */}
-      <SectionLabel text="⚡ Needs Attention" />
+      <div className="flex items-center justify-between mb-1.5 mt-4 first:mt-0">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">⚡ Needs Attention</p>
+        {m.alerts.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            {m.alertCounts.critical > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30">{m.alertCounts.critical} Critical</span>}
+            {m.alertCounts.overdue > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30">{m.alertCounts.overdue} Overdue</span>}
+            {m.alertCounts.atRisk > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/30">{m.alertCounts.atRisk} At Risk</span>}
+          </div>
+        )}
+      </div>
       {m.alerts.length > 0 ? (
         <div className="space-y-1.5">
           {m.alerts.map((a, i) => <AlertCard key={i} {...a} onClick={() => navigate(a.path)} />)}
