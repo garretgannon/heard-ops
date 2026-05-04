@@ -130,6 +130,7 @@ export default function TodaysCommandCenter() {
 
         const todayPrep  = prepItems.filter(i => prepLists.some(pl => pl.id === i.prep_list_id));
         const prepDone   = todayPrep.filter(i => i.status === "completed").length;
+        const prepOverdue = todayPrep.filter(i => i.status === "overdue").length;
         const prepUrgent = todayPrep.filter(i => i.priority === "high" && i.status !== "completed").length;
         const swDone     = sideWork.filter(t => ["completed","approved"].includes(t.status)).length;
         const swUrgent   = sideWork.filter(t => t.priority === "high" && t.status === "pending").length;
@@ -151,14 +152,15 @@ export default function TodaysCommandCenter() {
         if (incCrit > 0)    alerts.push({ icon: AlertTriangle, iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Critical Incident",    meta: `${incCrit} unresolved`,                          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",        path: "/incidents" });
         if (dishFailed > 0) alerts.push({ icon: Droplet,       iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Dish Machine Failed",  meta: `${dishFailed} need attention`,                   badge: "Failed",   badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",        path: "/dish-machines" });
         if (tempAlerts > 0) alerts.push({ icon: Thermometer,   iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "High Temp Alert",      meta: `${tempAlerts} reading out of range`,              badge: "Alert",    badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/temp-logs" });
-        if (prepUrgent > 0) alerts.push({ icon: ClipboardList, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Overdue Prep Items",   meta: `${prepUrgent} high-priority not started`,          badge: "Overdue",  badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/prep-lists" });
+        if (prepOverdue > 0) alerts.push({ icon: ClipboardList, iconColor: "text-red-400", iconBg: "bg-red-500/15", title: `Overdue Prep — ${prepOverdue} item${prepOverdue > 1 ? 's' : ''} missed due time`, meta: `${prepUrgent > 0 ? prepUrgent + ' high priority · ' : ''}Added to Shift Handoff`, badge: "Overdue", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30", path: "/prep-lists" });
+        else if (prepUrgent > 0) alerts.push({ icon: ClipboardList, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Overdue Prep Items",   meta: `${prepUrgent} high-priority not started`,          badge: "Urgent",  badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/prep-lists" });
         if (mainUrgent > 0) alerts.push({ icon: Wrench,        iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Urgent Maintenance",   meta: `${mainUrgent} flagged urgent`,                    badge: "Urgent",   badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/maintenance" });
         if (cashIssues > 0) alerts.push({ icon: DollarSign,    iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Cash Variance",        meta: `${cashIssues} drawer${cashIssues > 1 ? "s" : ""} out of balance`, badge: "Review", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/cash" });
         if (dishOverdue > 0 && !dishFailed) alerts.push({ icon: Droplet, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Dish Machine Overdue", meta: `${dishOverdue} past check interval`, badge: "Overdue", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/dish-machines" });
 
         // Today's Priorities
         const priorities = [];
-        if (todayPrep.length > 0) priorities.push({ icon: ClipboardList, title: "Complete Today's Prep", meta: `${todayPrep.length - prepDone} remaining`, assignee: "Kitchen", actionLabel: "Open",  actionPath: "/prep-lists",  status: prepUrgent > 0 ? "overdue" : prepDone === todayPrep.length ? "ok" : "in-progress" });
+        if (todayPrep.length > 0) priorities.push({ icon: ClipboardList, title: "Complete Today's Prep", meta: prepOverdue > 0 ? `${prepOverdue} OVERDUE · ${todayPrep.length - prepDone} remaining` : `${todayPrep.length - prepDone} remaining`, assignee: "Kitchen", actionLabel: "Open",  actionPath: "/prep-lists",  status: prepOverdue > 0 ? "overdue" : prepUrgent > 0 ? "overdue" : prepDone === todayPrep.length ? "ok" : "in-progress" });
         if (tempLogs.length < 2)  priorities.push({ icon: Thermometer,   title: "Temperature Checks",   meta: `${tempLogs.length} logged so far`,         assignee: "All Staff", actionLabel: "Log",   actionPath: "/temp-logs",   status: tempAlerts > 0 ? "overdue" : tempLogs.length === 0 ? "pending" : "in-progress" });
         if (sideWork.length > 0)  priorities.push({ icon: Flame,         title: "Side Work",            meta: `${swDone}/${sideWork.length} done`,          assignee: "FOH",       actionLabel: "View",  actionPath: "/side-work",   status: swUrgent > 0 ? "overdue" : swDone === sideWork.length ? "ok" : "in-progress" });
         if (priorities.length < 3 && issues.length > 0) priorities.push({ icon: ShieldAlert, title: "Open Issues", meta: `${issues.length} unresolved`, assignee: "Management", actionLabel: "View", actionPath: "/issues", status: "pending" });
@@ -181,7 +183,7 @@ export default function TodaysCommandCenter() {
           activity: activity.slice(0, 5),
           latestHandoff: shiftHandoffs[0] || null,
           stats: {
-            tasksDue: (todayPrep.length - prepDone) + swUrgent,
+            tasksDue: (todayPrep.filter(i => i.status !== 'completed').length) + swUrgent,
             tempChecks: tempLogs.length,
             openIssues: issues.length + incidents.length,
             onShift: staffShifts.length,

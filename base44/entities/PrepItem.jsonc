@@ -36,12 +36,14 @@
       "enum": [
         "pending",
         "in_progress",
-        "completed"
+        "completed",
+        "overdue"
       ],
       "enumNames": [
         "Pending",
         "In Progress",
-        "Completed"
+        "Completed",
+        "Overdue"
       ],
       "default": "pending"
     },
@@ -90,6 +92,10 @@
         "Missed"
       ],
       "default": "on_time"
+    },
+    "overdue_flagged_at": {
+      "type": "string",
+      "title": "Overdue Flagged At (ISO 8601)"
     },
     "sort_order": {
       "type": "number",

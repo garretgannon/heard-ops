@@ -21,6 +21,7 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
   const [stepsOpen, setStepsOpen] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
   const isCompleted = item.status === "completed";
+  const isOverdue = item.status === "overdue";
 
   const toggleComplete = async () => {
     if (isCompleted) {
@@ -52,8 +53,10 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
-        "bg-card rounded-xl border border-border overflow-hidden transition-colors",
-        isCompleted && "opacity-75"
+        "bg-card rounded-xl border overflow-hidden transition-colors",
+        isCompleted && "opacity-75 border-border",
+        isOverdue && !isCompleted && "border-red-500/50 bg-red-950/20",
+        !isCompleted && !isOverdue && "border-border"
       )}
     >
       <div className="p-4 flex items-start gap-3">
@@ -71,7 +74,8 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
 
         <div className="flex-1 min-w-0" onClick={() => !isCompleted && setExpanded(!expanded)}>
           <div className="flex items-center gap-2 flex-wrap">
-            <p className={cn("font-medium text-sm", isCompleted && "line-through text-muted-foreground")}>{item.name}</p>
+            <p className={cn("font-medium text-sm", isCompleted && "line-through text-muted-foreground", isOverdue && !isCompleted && "text-red-400")}>{item.name}</p>
+            {isOverdue && !isCompleted && <span className="text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full">OVERDUE</span>}
             <PriorityBadge priority={item.priority || "medium"} onClick={!isCompleted ? cyclePriority : undefined} />
           </div>
           <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
