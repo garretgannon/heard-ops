@@ -30,7 +30,7 @@ export default function BottomNav() {
           <Link
             key={path}
             to={path}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 active:opacity-70 transition-opacity"
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 active:opacity-70 transition-opacity relative"
             style={{ minHeight: 56 }}
           >
             <Icon

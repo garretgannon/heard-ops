@@ -9,10 +9,9 @@
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
 
     /* HeardOS — deep charcoal base */
-    --background: 220 22% 7%;
-    --foreground: 210 20% 92%;
-
-    --card: 220 18% 10%;
+    --background: 220 36% 6%;
+    /* #0B0F14 */
+    --card: 222 40% 11%;
     --card-foreground: 210 20% 92%;
 
     --popover: 220 18% 10%;
