@@ -50,6 +50,7 @@ import SetupWizard from './pages/SetupWizard';
 import ScheduleImport from './pages/ScheduleImport';
 import R365ScheduleImport from './pages/R365ScheduleImport';
 import ScheduleCenter from './pages/ScheduleCenter';
+import IssueTracker from './pages/IssueTracker';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -114,6 +115,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
         {isAdmin && <Route path="/vendors" element={<Vendors />} />}
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
+        {isAdmin && <Route path="/issues" element={<IssueTracker />} />}
         {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
 
         {isAdmin && <Route path="/build-book" element={<BuildBook />} />}

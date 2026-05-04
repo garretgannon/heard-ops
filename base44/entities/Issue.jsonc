@@ -1,0 +1,75 @@
+{
+  "name": "Issue",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "safety",
+        "guest",
+        "equipment",
+        "cash",
+        "team",
+        "other"
+      ],
+      "enumNames": [
+        "Safety",
+        "Guest",
+        "Equipment",
+        "Cash",
+        "Team",
+        "Other"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "open",
+        "in_progress",
+        "critical",
+        "resolved"
+      ],
+      "enumNames": [
+        "Open",
+        "In Progress",
+        "Critical",
+        "Resolved"
+      ],
+      "default": "open"
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "title": "Assigned To (Email)"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "title": "Assigned To (Name)"
+    },
+    "resolved_at": {
+      "type": "string",
+      "title": "Resolved At (ISO)"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "title": "Resolution Notes"
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    }
+  },
+  "required": [
+    "title",
+    "category"
+  ]
+}
