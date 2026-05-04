@@ -3,20 +3,38 @@ import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import {
   ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign,
-  Camera, TrendingUp, Droplet, CalendarDays, ChevronRight,
-  ShieldAlert, Users, CheckCircle2, Clock, FileText,
-  UserCheck, UserX, Plus
+  Droplet, CalendarDays, ChevronRight, ShieldAlert, Users,
+  CheckCircle2, Clock, FileText, UserCheck, UserX, Plus, Flame
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { differenceInHours, formatDistanceToNow, isToday } from "date-fns";
 
-/* ── Reusable atoms ─────────────────────────────────────── */
+/* ── Atoms ──────────────────────────────────────────────── */
 
 function Badge({ label, color }) {
   return <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 whitespace-nowrap", color)}>{label}</span>;
 }
 
-/** Single-row card: icon | title+meta | badge | chevron */
-function Card({ icon: Icon, iconBg = "bg-[#1C2432]", iconColor = "text-[#F5A623]", title, meta, badge, badgeColor, onClick }) {
+function SectionLabel({ text, action, onAction }) {
+  return (
+    <div className="flex items-center justify-between mb-1.5 mt-4 first:mt-0">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">{text}</p>
+      {action && <button onClick={onAction} className="text-[10px] text-[#F5A623] font-bold">{action}</button>}
+    </div>
+  );
+}
+
+function Stat({ icon: Icon, label, value, alert, onClick }) {
+  return (
+    <button onClick={onClick} className="flex-1 flex flex-col items-center gap-1 bg-[#111827] border border-[#1F2937] rounded-xl py-3 px-1.5 active:scale-95 transition-transform min-w-0">
+      <Icon className={cn("h-4 w-4", alert ? "text-red-400" : "text-[#F5A623]")} />
+      <span className={cn("text-xl font-extrabold leading-none", alert ? "text-red-400" : "text-white")}>{value}</span>
+      <span className="text-[10px] text-gray-500 font-semibold text-center leading-tight">{label}</span>
+    </button>
+  );
+}
+
+function AlertCard({ icon: Icon, iconColor, iconBg, title, meta, badge, badgeColor, onClick }) {
   return (
     <button onClick={onClick} className="w-full flex items-center gap-3 bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5 active:scale-[0.98] transition-transform text-left">
       <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
@@ -27,18 +45,17 @@ function Card({ icon: Icon, iconBg = "bg-[#1C2432]", iconColor = "text-[#F5A623]
         {meta && <p className="text-[11px] text-gray-500 mt-0.5 truncate">{meta}</p>}
       </div>
       {badge && <Badge label={badge} color={badgeColor} />}
-      <ChevronRight className="h-3.5 w-3.5 text-gray-600 shrink-0 ml-0.5" />
+      <ChevronRight className="h-3.5 w-3.5 text-gray-600 shrink-0" />
     </button>
   );
 }
 
-/** Ranked priority row with action button */
 function PriorityCard({ rank, icon: Icon, title, meta, assignee, status, actionLabel, actionPath, navigate }) {
   const statusColors = {
-    overdue:     "bg-red-500/15 text-red-400 border-red-500/30",
-    pending:     "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+    overdue:      "bg-red-500/15 text-red-400 border-red-500/30",
+    pending:      "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
     "in-progress":"bg-blue-500/15 text-blue-400 border-blue-500/30",
-    ok:          "bg-green-500/15 text-green-400 border-green-500/30",
+    ok:           "bg-green-500/15 text-green-400 border-green-500/30",
   };
   return (
     <div className="flex items-center gap-3 bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5">
@@ -61,18 +78,6 @@ function PriorityCard({ rank, icon: Icon, title, meta, assignee, status, actionL
   );
 }
 
-/** Stat pill for metric row */
-function Stat({ icon: Icon, label, value, alert, onClick }) {
-  return (
-    <button onClick={onClick} className="flex-1 flex flex-col items-center gap-1 bg-[#111827] border border-[#1F2937] rounded-xl py-3 px-1.5 active:scale-95 transition-transform min-w-0">
-      <Icon className={cn("h-4 w-4", alert ? "text-red-400" : "text-[#F5A623]")} />
-      <span className={cn("text-xl font-extrabold leading-none", alert ? "text-red-400" : "text-white")}>{value}</span>
-      <span className="text-[10px] text-gray-500 font-semibold text-center leading-tight">{label}</span>
-    </button>
-  );
-}
-
-/** Quick action pill */
 function QA({ icon: Icon, label, iconColor, bg, onClick }) {
   return (
     <button onClick={onClick} className="flex-1 flex flex-col items-center gap-1.5 bg-[#111827] border border-[#1F2937] rounded-xl py-3 px-1 active:scale-95 transition-transform min-w-0">
@@ -81,15 +86,6 @@ function QA({ icon: Icon, label, iconColor, bg, onClick }) {
       </div>
       <span className="text-[10px] text-gray-500 font-semibold text-center leading-tight">{label}</span>
     </button>
-  );
-}
-
-function SectionLabel({ text, action, onAction }) {
-  return (
-    <div className="flex items-center justify-between mb-1.5 mt-3">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">{text}</p>
-      {action && <button onClick={onAction} className="text-[10px] text-[#F5A623] font-bold">{action}</button>}
-    </div>
   );
 }
 
@@ -132,7 +128,7 @@ export default function TodaysCommandCenter() {
 
         setUser(me);
 
-        const todayPrep = prepItems.filter(i => prepLists.some(pl => pl.id === i.prep_list_id));
+        const todayPrep  = prepItems.filter(i => prepLists.some(pl => pl.id === i.prep_list_id));
         const prepDone   = todayPrep.filter(i => i.status === "completed").length;
         const prepUrgent = todayPrep.filter(i => i.priority === "high" && i.status !== "completed").length;
         const swDone     = sideWork.filter(t => ["completed","approved"].includes(t.status)).length;
@@ -150,48 +146,60 @@ export default function TodaysCommandCenter() {
           return (Date.now() - new Date(last.logged_at)) / 3600000 > (mach.check_frequency_hours || 4);
         }).length;
 
-        // Alerts
+        // Needs Attention alerts
         const alerts = [];
-        if (incCrit > 0)    alerts.push({ icon: AlertTriangle, iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Critical Incident",      meta: `${incCrit} unresolved`,                          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",      path: "/incidents" });
-        if (dishFailed > 0) alerts.push({ icon: Droplet,       iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Dish Machine Failed",     meta: `${dishFailed} need attention`,                   badge: "Failed",   badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",      path: "/dish-machines" });
-        if (tempAlerts > 0) alerts.push({ icon: Thermometer,   iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Temperature Alert",       meta: `${tempAlerts} out of range`,                     badge: "Alert",    badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/temp-logs" });
-        if (prepUrgent > 0) alerts.push({ icon: ClipboardList, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Overdue Prep Items",      meta: `${prepUrgent} high-priority not started`,         badge: "Overdue",  badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/prep-lists" });
-        if (mainUrgent > 0) alerts.push({ icon: Wrench,        iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Urgent Maintenance",      meta: `${mainUrgent} flagged urgent`,                   badge: "Urgent",   badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/maintenance" });
-        if (cashIssues > 0) alerts.push({ icon: DollarSign,    iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Cash Variance",           meta: `${cashIssues} drawer${cashIssues > 1 ? "s" : ""} out of balance`, badge: "Review", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/cash" });
+        if (incCrit > 0)    alerts.push({ icon: AlertTriangle, iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Critical Incident",    meta: `${incCrit} unresolved`,                          badge: "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",        path: "/incidents" });
+        if (dishFailed > 0) alerts.push({ icon: Droplet,       iconColor: "text-red-400",    iconBg: "bg-red-500/15",    title: "Dish Machine Failed",  meta: `${dishFailed} need attention`,                   badge: "Failed",   badgeColor: "bg-red-500/15 text-red-400 border-red-500/30",        path: "/dish-machines" });
+        if (tempAlerts > 0) alerts.push({ icon: Thermometer,   iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "High Temp Alert",      meta: `${tempAlerts} reading out of range`,              badge: "Alert",    badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/temp-logs" });
+        if (prepUrgent > 0) alerts.push({ icon: ClipboardList, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Overdue Prep Items",   meta: `${prepUrgent} high-priority not started`,          badge: "Overdue",  badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/prep-lists" });
+        if (mainUrgent > 0) alerts.push({ icon: Wrench,        iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Urgent Maintenance",   meta: `${mainUrgent} flagged urgent`,                    badge: "Urgent",   badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/maintenance" });
+        if (cashIssues > 0) alerts.push({ icon: DollarSign,    iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Cash Variance",        meta: `${cashIssues} drawer${cashIssues > 1 ? "s" : ""} out of balance`, badge: "Review", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/cash" });
         if (dishOverdue > 0 && !dishFailed) alerts.push({ icon: Droplet, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Dish Machine Overdue", meta: `${dishOverdue} past check interval`, badge: "Overdue", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/dish-machines" });
 
-        // Priorities
+        // Today's Priorities
         const priorities = [];
-        if (todayPrep.length > 0) priorities.push({ icon: ClipboardList, title: "Complete Today's Prep", meta: `${todayPrep.length - prepDone} remaining`, assignee: "Kitchen", actionLabel: "Open", actionPath: "/prep-lists", status: prepUrgent > 0 ? "overdue" : prepDone === todayPrep.length ? "ok" : "in-progress" });
-        if (tempLogs.length < 2)  priorities.push({ icon: Thermometer,   title: "Temperature Checks",   meta: `${tempLogs.length} logged`,               assignee: "All Staff",actionLabel: "Log",  actionPath: "/temp-logs",   status: tempAlerts > 0 ? "overdue" : tempLogs.length === 0 ? "pending" : "in-progress" });
-        if (sideWork.length > 0)  priorities.push({ icon: Camera,        title: "Side Work",            meta: `${swDone}/${sideWork.length} done`,         assignee: "FOH",      actionLabel: "View", actionPath: "/side-work",   status: swUrgent > 0 ? "overdue" : swDone === sideWork.length ? "ok" : "in-progress" });
+        if (todayPrep.length > 0) priorities.push({ icon: ClipboardList, title: "Complete Today's Prep", meta: `${todayPrep.length - prepDone} remaining`, assignee: "Kitchen", actionLabel: "Open",  actionPath: "/prep-lists",  status: prepUrgent > 0 ? "overdue" : prepDone === todayPrep.length ? "ok" : "in-progress" });
+        if (tempLogs.length < 2)  priorities.push({ icon: Thermometer,   title: "Temperature Checks",   meta: `${tempLogs.length} logged so far`,         assignee: "All Staff", actionLabel: "Log",   actionPath: "/temp-logs",   status: tempAlerts > 0 ? "overdue" : tempLogs.length === 0 ? "pending" : "in-progress" });
+        if (sideWork.length > 0)  priorities.push({ icon: Flame,         title: "Side Work",            meta: `${swDone}/${sideWork.length} done`,          assignee: "FOH",       actionLabel: "View",  actionPath: "/side-work",   status: swUrgent > 0 ? "overdue" : swDone === sideWork.length ? "ok" : "in-progress" });
         if (priorities.length < 3 && issues.length > 0) priorities.push({ icon: ShieldAlert, title: "Open Issues", meta: `${issues.length} unresolved`, assignee: "Management", actionLabel: "View", actionPath: "/issues", status: "pending" });
 
-        // Activity
+        // Recent activity feed
         const activity = [];
-        [...tempLogs].sort((a,b) => new Date(b.created_date)-new Date(a.created_date)).slice(0,2).forEach(t =>
-          activity.push({ icon: Thermometer, iconColor: t.is_above_range || t.is_below_range ? "text-red-400" : "text-green-400", title: `Temp logged — ${t.location_name || "Station"}: ${t.value}°F`, time: t.logged_at ? new Date(t.logged_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : "Today" })
+        [...tempLogs].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 2).forEach(t =>
+          activity.push({ icon: Thermometer, iconColor: t.is_above_range || t.is_below_range ? "text-red-400" : "text-green-400", title: `Temp logged — ${t.location_name || "Station"}: ${t.value}°F`, time: t.logged_at ? new Date(t.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Today" })
         );
-        todayPrep.filter(i=>i.status==="completed").sort((a,b)=>new Date(b.completed_at)-new Date(a.completed_at)).slice(0,2).forEach(p =>
-          activity.push({ icon: CheckCircle2, iconColor: "text-green-400", title: `Prep done — ${p.name}`, time: p.completed_at ? new Date(p.completed_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : "Today" })
+        todayPrep.filter(i => i.status === "completed").sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at)).slice(0, 2).forEach(p =>
+          activity.push({ icon: CheckCircle2, iconColor: "text-green-400", title: `Checklist completed — ${p.name}`, time: p.completed_at ? new Date(p.completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Today" })
         );
-        [...incidents].sort((a,b)=>new Date(b.created_date)-new Date(a.created_date)).slice(0,1).forEach(i =>
-          activity.push({ icon: AlertTriangle, iconColor: "text-red-400", title: `Incident — ${i.title || "Report"}`, time: new Date(i.created_date).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) })
+        [...incidents].sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 1).forEach(i =>
+          activity.push({ icon: AlertTriangle, iconColor: "text-red-400", title: `Issue reported — ${i.title || "Incident"}`, time: new Date(i.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })
         );
 
-        const threeDaysStr = new Date(Date.now()+3*86400000).toISOString().split("T")[0];
-        const upcomingCal = calendarEvents.filter(e => e.date >= todayStr && e.date <= threeDaysStr && ["private_event","catering","reservation_buyout","maintenance","inspection"].includes(e.category)).slice(0,3);
-
-        setM({ alerts: alerts.slice(0,5), priorities: priorities.slice(0,3), activity: activity.slice(0,5), upcomingCal, latestHandoff: shiftHandoffs[0]||null,
-          stats: { tasksDue: todayPrep.length - prepDone + swUrgent, tempChecks: tempLogs.length, openIssues: issues.length + incidents.length, onShift: staffShifts.length },
-          tempAlerts, onShift: staffShifts.length,
+        setM({
+          alerts: alerts.slice(0, 5),
+          priorities: priorities.slice(0, 3),
+          activity: activity.slice(0, 5),
+          latestHandoff: shiftHandoffs[0] || null,
+          stats: {
+            tasksDue: (todayPrep.length - prepDone) + swUrgent,
+            tempChecks: tempLogs.length,
+            openIssues: issues.length + incidents.length,
+            onShift: staffShifts.length,
+          },
+          tempAlerts,
+          onShift: staffShifts.length,
         });
-      } catch(e) { console.error(e); }
+      } catch (e) { console.error(e); }
       finally { setLoading(false); }
     })();
   }, []);
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-7 h-7 border-[3px] border-[#F5A623] border-t-transparent rounded-full animate-spin"/></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-7 h-7 border-[3px] border-[#F5A623] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
   if (!m) return <div className="flex items-center justify-center h-64 text-gray-500 text-sm">Failed to load</div>;
 
   const firstName = user?.full_name?.split(" ")[0] || "there";
@@ -205,29 +213,28 @@ export default function TodaysCommandCenter() {
           <h1 className="text-xl font-extrabold tracking-tight text-white">{getGreeting()}, {firstName}</h1>
           <p className="text-[11px] text-gray-500 mt-0.5">Here's what needs your attention today</p>
         </div>
-        <button onClick={() => navigate("/prep-lists")} className="flex items-center gap-1 text-xs font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/25 px-3 py-2 rounded-xl active:scale-95 transition-transform">
+        <button onClick={() => navigate("/prep-lists")}
+          className="flex items-center gap-1.5 text-xs font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/25 px-3 py-2 rounded-xl active:scale-95 transition-transform">
           <Plus className="h-3.5 w-3.5" /> Task
         </button>
       </div>
 
-      {/* Stats row */}
+      {/* 4 Metric Cards */}
       <div className="flex gap-2 mb-3">
-        <Stat icon={ClipboardList} label="Tasks Due"   value={m.stats.tasksDue}   alert={m.stats.tasksDue > 0}   onClick={() => navigate("/prep-lists")} />
-        <Stat icon={Thermometer}   label="Temp Checks" value={m.stats.tempChecks} alert={m.tempAlerts > 0}       onClick={() => navigate("/temp-logs")} />
-        <Stat icon={AlertTriangle} label="Issues"      value={m.stats.openIssues} alert={m.stats.openIssues > 0} onClick={() => navigate("/incidents")} />
-        <Stat icon={Users}         label="On Shift"    value={m.stats.onShift}                                   onClick={() => navigate("/schedule-center")} />
+        <Stat icon={ClipboardList} label="Tasks Due"    value={m.stats.tasksDue}    alert={m.stats.tasksDue > 0}    onClick={() => navigate("/prep-lists")} />
+        <Stat icon={Thermometer}   label="Temp Checks"  value={m.stats.tempChecks}  alert={m.tempAlerts > 0}        onClick={() => navigate("/temp-logs")} />
+        <Stat icon={AlertTriangle} label="Open Issues"  value={m.stats.openIssues}  alert={m.stats.openIssues > 0}  onClick={() => navigate("/incidents")} />
+        <Stat icon={Users}         label="On Shift"     value={m.stats.onShift}                                     onClick={() => navigate("/schedule-center")} />
       </div>
 
       {/* Needs Attention */}
+      <SectionLabel text="⚡ Needs Attention" />
       {m.alerts.length > 0 ? (
-        <>
-          <SectionLabel text="⚡ Needs Attention" />
-          <div className="space-y-1.5">
-            {m.alerts.map((a, i) => <Card key={i} {...a} onClick={() => navigate(a.path)} />)}
-          </div>
-        </>
+        <div className="space-y-1.5">
+          {m.alerts.map((a, i) => <AlertCard key={i} {...a} onClick={() => navigate(a.path)} />)}
+        </div>
       ) : (
-        <div className="bg-green-500/8 border border-green-500/20 rounded-xl px-3 py-2.5 flex items-center gap-3 mb-1">
+        <div className="bg-green-500/8 border border-green-500/20 rounded-xl px-3 py-2.5 flex items-center gap-3">
           <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0" />
           <div>
             <p className="text-sm font-semibold text-green-400">All Clear</p>
@@ -241,7 +248,9 @@ export default function TodaysCommandCenter() {
         <>
           <SectionLabel text="Today's Priorities" action="All Tasks" onAction={() => navigate("/prep-lists")} />
           <div className="space-y-1.5">
-            {m.priorities.map((p, i) => <PriorityCard key={i} rank={i+1} navigate={navigate} {...p} />)}
+            {m.priorities.map((p, i) => (
+              <PriorityCard key={i} rank={i + 1} navigate={navigate} {...p} />
+            ))}
           </div>
         </>
       )}
@@ -249,19 +258,19 @@ export default function TodaysCommandCenter() {
       {/* Quick Actions */}
       <SectionLabel text="Quick Actions" />
       <div className="flex gap-2">
-        <QA icon={Thermometer}   label="Log Temp"    iconColor="text-[#F5A623]"  bg="bg-[#F5A623]/10" onClick={() => navigate("/temp-logs")} />
-        <QA icon={ClipboardList} label="Checklist"   iconColor="text-blue-400"   bg="bg-blue-500/10"  onClick={() => navigate("/prep-lists")} />
-        <QA icon={AlertTriangle} label="Report Issue" iconColor="text-red-400"   bg="bg-red-500/10"   onClick={() => navigate("/incidents")} />
-        <QA icon={FileText}      label="Add Note"    iconColor="text-purple-400" bg="bg-purple-500/10" onClick={() => navigate("/manager-log")} />
+        <QA icon={Thermometer}   label="Log Temp"      iconColor="text-[#F5A623]"  bg="bg-[#F5A623]/10"  onClick={() => navigate("/temp-logs")} />
+        <QA icon={ClipboardList} label="Start Checklist" iconColor="text-blue-400" bg="bg-blue-500/10"   onClick={() => navigate("/prep-lists")} />
+        <QA icon={AlertTriangle} label="Report Issue"  iconColor="text-red-400"    bg="bg-red-500/10"    onClick={() => navigate("/incidents")} />
+        <QA icon={FileText}      label="Add Note"      iconColor="text-purple-400" bg="bg-purple-500/10" onClick={() => navigate("/manager-log")} />
       </div>
 
       {/* Team Snapshot */}
       <SectionLabel text="Team Snapshot" action="Schedule" onAction={() => navigate("/schedule-center")} />
       <div className="flex gap-2">
         {[
-          { icon: UserCheck, label: "On Shift", value: m.onShift,  color: "text-green-400" },
-          { icon: Clock,     label: "Late",     value: 0,           color: "text-yellow-400" },
-          { icon: UserX,     label: "Absent",   value: 0,           color: "text-red-400" },
+          { icon: UserCheck, label: "On Shift", value: m.onShift, color: "text-green-400" },
+          { icon: Clock,     label: "Late",     value: 0,          color: "text-yellow-400" },
+          { icon: UserX,     label: "Absent",   value: 0,          color: "text-red-400" },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="flex-1 bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5 flex items-center gap-2">
             <Icon className={cn("h-4 w-4 shrink-0", color)} />
@@ -273,37 +282,28 @@ export default function TodaysCommandCenter() {
         ))}
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent Activity Feed */}
       {m.activity.length > 0 && (
         <>
           <SectionLabel text="Recent Activity" />
           <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-1 divide-y divide-[#1F2937]">
-            {m.activity.map((a, i) => (
-              <div key={i} className="flex items-center gap-3 py-2">
-                <div className="h-7 w-7 rounded-lg bg-[#1C2432] flex items-center justify-center shrink-0">
-                  <a.icon className={cn("h-3.5 w-3.5", a.iconColor)} />
+            {m.activity.map((a, i) => {
+              const Icon = a.icon;
+              return (
+                <div key={i} className="flex items-center gap-3 py-2">
+                  <div className="h-7 w-7 rounded-lg bg-[#1C2432] flex items-center justify-center shrink-0">
+                    <Icon className={cn("h-3.5 w-3.5", a.iconColor)} />
+                  </div>
+                  <p className="flex-1 text-xs text-gray-400 leading-snug">{a.title}</p>
+                  <span className="text-[10px] text-gray-600 shrink-0">{a.time}</span>
                 </div>
-                <p className="flex-1 text-xs text-gray-400 leading-snug">{a.title}</p>
-                <span className="text-[10px] text-gray-600 shrink-0">{a.time}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
 
-      {/* Upcoming Events */}
-      {m.upcomingCal.length > 0 && (
-        <>
-          <SectionLabel text="Upcoming Events" action="Calendar" onAction={() => navigate("/calendar")} />
-          <div className="space-y-1.5">
-            {m.upcomingCal.map((ev, i) => (
-              <Card key={i} icon={CalendarDays} title={ev.title} meta={`${ev.date}${ev.time ? ` · ${ev.time}` : ""}`} onClick={() => navigate("/calendar")} />
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Last Handoff */}
+      {/* Last Handoff Note */}
       {m.latestHandoff && (
         <>
           <SectionLabel text="Last Shift Handoff" action="All" onAction={() => navigate("/shift-handoff")} />
@@ -316,7 +316,7 @@ export default function TodaysCommandCenter() {
             ].filter(f => m.latestHandoff[f.key]).map(f => (
               <p key={f.key} className="text-xs text-gray-500 leading-snug">
                 <span className="font-semibold text-gray-300">{f.label}: </span>
-                {m.latestHandoff[f.key].substring(0,80)}{m.latestHandoff[f.key].length > 80 ? "…" : ""}
+                {m.latestHandoff[f.key].substring(0, 80)}{m.latestHandoff[f.key].length > 80 ? "…" : ""}
               </p>
             ))}
           </div>
