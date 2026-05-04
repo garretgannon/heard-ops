@@ -161,11 +161,10 @@ export default function PrepLists() {
       }
     }
 
-    // Persist to backend
+    // Persist to backend (optimistic update already applied above)
     await base44.entities.PrepItem.update(item.id, { status: newStatus });
-    // Refresh quietly
-    const pi = await base44.entities.PrepItem.list("-created_date", 500);
-    setPrepItems(pi);
+    // Sync the real status into prepItems state without a full re-fetch
+    setPrepItems(prev => prev.map(p => p.id === item.id ? { ...p, status: newStatus } : p));
     setLocalStatus(prev => { const s = { ...prev }; delete s[item.id]; return s; });
   };
 
