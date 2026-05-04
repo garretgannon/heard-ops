@@ -29,7 +29,7 @@ const ST = {
   resolved:    { label: "Resolved",    cls: "bg-green-500/15 text-green-400 border-green-500/30" },
 };
 
-const FILTERS = ["all","safety","guest","equipment","cash","team"];
+const FILTERS = ["all","safety","guest","equipment","cash","team","other"];
 const emptyForm = () => ({ title: "", description: "", category: "guest", status: "open", assigned_to_name: "", assigned_to_email: "" });
 
 function Stat({ label, value, color }) {
@@ -106,7 +106,7 @@ export default function IssueTracker() {
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-6 h-6 border-2 border-[#F5A623] border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
-    <div className="pb-2">
+    <div className="mx-auto w-full max-w-[420px] pb-2">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
@@ -204,8 +204,24 @@ export default function IssueTracker() {
         })}
       </div>
 
-      {/* Follow-ups + Trend */}
-      <div className="grid grid-cols-1 gap-2">
+      {/* Trend + Follow-ups */}
+      <div className="flex flex-col gap-2 mb-2">
+
+        {/* Resolution Trend */}
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5">
+          <p className="text-xs font-bold text-white mb-2">Resolution Trend <span className="text-gray-500 font-normal">— last 7 days</span></p>
+          <ResponsiveContainer width="100%" height={80}>
+            <BarChart data={trendData} barSize={14}>
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#6B7280" }} axisLine={false} tickLine={false} />
+              <YAxis hide allowDecimals={false} />
+              <Tooltip contentStyle={{ background: "#0B0F14", border: "1px solid #1F2937", borderRadius: 8, fontSize: 11 }} cursor={{ fill: "rgba(245,166,35,0.06)" }} />
+              <Bar dataKey="count" radius={[4,4,0,0]}>
+                {trendData.map((e, i) => <Cell key={i} fill={e.count > 0 ? "#F5A623" : "#1F2937"} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
         {/* Follow-Ups */}
         <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5">
           <div className="flex items-center gap-2 mb-2">
@@ -223,21 +239,6 @@ export default function IssueTracker() {
               <span className="text-[10px] text-gray-500 shrink-0">{formatDistanceToNow(new Date(i.created_date), { addSuffix: true })}</span>
             </div>
           ))}
-        </div>
-
-        {/* Resolution Trend */}
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5">
-          <p className="text-xs font-bold text-white mb-2">Resolution Trend <span className="text-gray-500 font-normal">— last 7 days</span></p>
-          <ResponsiveContainer width="100%" height={80}>
-            <BarChart data={trendData} barSize={14}>
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#6B7280" }} axisLine={false} tickLine={false} />
-              <YAxis hide allowDecimals={false} />
-              <Tooltip contentStyle={{ background: "#0B0F14", border: "1px solid #1F2937", borderRadius: 8, fontSize: 11 }} cursor={{ fill: "rgba(245,166,35,0.06)" }} />
-              <Bar dataKey="count" radius={[4,4,0,0]}>
-                {trendData.map((e, i) => <Cell key={i} fill={e.count > 0 ? "#F5A623" : "#1F2937"} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
         </div>
       </div>
 
