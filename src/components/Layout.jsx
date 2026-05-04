@@ -115,19 +115,21 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/30 px-4 h-14 flex items-center justify-between" style={{background: 'hsl(220 22% 6% / 0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)'}}>
+        <div className="flex items-center gap-2.5">
           {logoUrl ? (
-            <img src={logoUrl} alt="logo" className="h-7 w-7 rounded object-cover" />
+            <img src={logoUrl} alt="logo" className="h-7 w-7 rounded-lg object-cover" />
           ) : (
-            <ChefHat className="h-6 w-6 text-primary" />
+            <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
+              <ChefHat className="h-3.5 w-3.5 text-primary-foreground" />
+            </div>
           )}
           <div className="leading-tight">
-            <span className="font-bold text-base tracking-tight">Heard <span className="text-primary">Ops</span></span>
-            {restaurantName && <span className="block text-xs text-muted-foreground leading-none">{restaurantName}</span>}
+            <span className="font-extrabold text-sm tracking-tight">Heard<span className="text-primary">OS</span></span>
+            {restaurantName && <span className="block text-[10px] text-primary/70 font-semibold uppercase tracking-wider leading-none">{restaurantName}</span>}
           </div>
         </div>
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2">
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-lg hover:bg-secondary transition-colors">
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </header>
@@ -175,45 +177,45 @@ export default function Layout() {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border bg-card flex-col z-30">
-        <div className="p-6 flex items-center gap-3 border-b border-border/40">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border/30 flex-col z-30" style={{background: 'hsl(var(--sidebar-background))'}}>
+        <div className="px-5 py-5 flex items-center gap-3 border-b border-border/30">
+          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20">
             {logoUrl ? (
-              <img src={logoUrl} alt="logo" className="h-10 w-10 object-cover" />
+              <img src={logoUrl} alt="logo" className="h-9 w-9 object-cover" />
             ) : (
-              <ChefHat className="h-5 w-5 text-primary-foreground" />
+              <ChefHat className="h-4 w-4 text-primary-foreground" />
             )}
           </div>
           <div>
-            <h1 className="font-bold text-lg tracking-tight">Heard <span className="text-primary">Ops</span></h1>
-            {restaurantName && <p className="text-xs text-primary font-medium">{restaurantName}</p>}
-            {!restaurantName && <p className="text-xs text-muted-foreground">Restaurant Operations</p>}
+            <h1 className="font-extrabold text-base tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
+            {restaurantName && <p className="text-[11px] text-primary/80 font-semibold tracking-wide uppercase">{restaurantName}</p>}
+            {!restaurantName && <p className="text-[11px] text-muted-foreground tracking-wide uppercase">Restaurant Ops</p>}
           </div>
         </div>
 
-        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto py-2">
+        <nav className="flex-1 px-2.5 overflow-y-auto py-3 space-y-0.5">
           {isAdmin ? (
             Object.entries(navSections).map(([key, section]) => (
               <div key={key}>
                 <button
                   onClick={() => toggleDesktopSection(key)}
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-primary hover:bg-secondary/30 transition-all duration-200"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[11px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest transition-all duration-200"
                 >
                   <span>{section.label}</span>
-                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expandedDesktopSections[key] && "rotate-180")} />
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", expandedDesktopSections[key] && "rotate-180")} />
                 </button>
                 {expandedDesktopSections[key] && section.items.map(item => (
                   <Link
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 pl-8 pr-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      "flex items-center gap-2.5 pl-4 pr-3 py-2 rounded-xl text-sm font-medium transition-all duration-150",
                       location.pathname === item.path
-                        ? "bg-primary text-primary-foreground shadow-sm"
+                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
+                    <item.icon className="h-3.5 w-3.5 shrink-0" />
                     {item.label}
                   </Link>
                 ))}
@@ -225,23 +227,25 @@ export default function Layout() {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
                   location.pathname === item.path
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 )}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className="h-3.5 w-3.5 shrink-0" />
                 {item.label}
               </Link>
             ))
           )}
         </nav>
 
-        <div className="p-4 mx-3 mb-3 rounded-xl bg-secondary/40 border border-border/40">
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            The daily operating system for restaurants — prep, side work, logs, vendors, cash, maintenance, and manager follow-up in one place.
-          </p>
+        <div className="px-3 pb-4">
+          <div className="rounded-xl bg-primary/8 border border-primary/15 p-3">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              The daily operating system for restaurants — prep, side work, logs, and manager follow-up.
+            </p>
+          </div>
         </div>
       </aside>
 
