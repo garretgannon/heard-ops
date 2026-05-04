@@ -293,35 +293,41 @@ export default function PrepLists() {
         <p className="text-[10px] text-gray-600 mt-0.5">{summary.completed}/{summary.total} items</p>
       </div>
 
-      {/* Station chips — horizontal scroll, compact */}
+      {/* Station cards — horizontal scroll, prominent */}
       {stationStats.length > 0 && (
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2">
+        <div>
           <p className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-1.5">Stations</p>
-          <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
               onClick={() => setActiveStation("")}
-              className={cn("flex-shrink-0 rounded-lg border px-2.5 py-1.5 text-left transition-all active:scale-95 min-w-[90px]",
-                !activeStation ? "border-[#F5A623] bg-[#F5A623]/8" : "border-[#1F2937] bg-[#0B0F14]")
-              }>
-              <p className="text-[10px] font-bold text-gray-400">All</p>
-              <p className={cn("text-[15px] font-extrabold leading-none", summary.pct === 100 ? "text-emerald-400" : "text-[#F5A623]")}>{summary.pct}%</p>
-              <div className="h-0.5 w-full bg-[#1F2937] rounded-full mt-1 overflow-hidden">
-                <div className="h-0.5 bg-[#F5A623] rounded-full" style={{ width: `${summary.pct}%` }} />
+              className={cn(
+                "flex-shrink-0 rounded-xl border px-3 py-2 text-left transition-all active:scale-95 min-w-[100px]",
+                !activeStation ? "border-[#F5A623] bg-[#F5A623]/8" : "border-[#1F2937] bg-[#111827]"
+              )}>
+              <p className="text-[10px] font-bold text-gray-500 mb-1">All Stations</p>
+              <p className={cn("text-[18px] font-extrabold leading-none", summary.pct === 100 ? "text-emerald-400" : "text-[#F5A623]")}>{summary.pct}%</p>
+              <div className="h-1 w-full bg-[#1F2937] rounded-full mt-1.5 overflow-hidden">
+                <div className={cn("h-1 rounded-full transition-all", summary.pct === 100 ? "bg-emerald-500" : "bg-[#F5A623]")} style={{ width: `${summary.pct}%` }} />
               </div>
-              <p className="text-[9px] text-gray-600 mt-0.5">{summary.completed}/{summary.total}</p>
+              <p className="text-[10px] text-gray-600 mt-1 font-semibold">{summary.completed}/{summary.total} done</p>
             </button>
             {stationStats.map(({ station, done, total, overdue, pct }) => (
               <button key={station.id}
                 onClick={() => setActiveStation(activeStation === station.id ? "" : station.id)}
-                className={cn("flex-shrink-0 rounded-lg border px-2.5 py-1.5 text-left transition-all active:scale-95 min-w-[90px]",
-                  activeStation === station.id ? "border-[#F5A623] bg-[#F5A623]/8" : overdue > 0 ? "border-red-500/30 bg-[#0B0F14]" : "border-[#1F2937] bg-[#0B0F14]")
-                }>
-                <p className="text-[10px] font-bold text-gray-400 truncate">{station.name}</p>
-                <p className={cn("text-[15px] font-extrabold leading-none", pct === 100 ? "text-emerald-400" : overdue > 0 ? "text-red-400" : "text-[#F5A623]")}>{pct}%</p>
-                <div className="h-0.5 w-full bg-[#1F2937] rounded-full mt-1 overflow-hidden">
-                  <div className={cn("h-0.5 rounded-full", pct === 100 ? "bg-emerald-500" : overdue > 0 ? "bg-red-500" : "bg-[#F5A623]")} style={{ width: `${pct}%` }} />
+                className={cn(
+                  "flex-shrink-0 rounded-xl border px-3 py-2 text-left transition-all active:scale-95 min-w-[100px]",
+                  activeStation === station.id ? "border-[#F5A623] bg-[#F5A623]/8"
+                  : overdue > 0 ? "border-red-500/30 bg-[#111827]"
+                  : pct === 100 ? "border-emerald-500/20 bg-[#111827]"
+                  : "border-[#1F2937] bg-[#111827]"
+                )}>
+                <p className="text-[10px] font-bold text-gray-500 mb-1 truncate">{station.name}</p>
+                <p className={cn("text-[18px] font-extrabold leading-none", pct === 100 ? "text-emerald-400" : overdue > 0 ? "text-red-400" : "text-[#F5A623]")}>{pct}%</p>
+                <div className="h-1 w-full bg-[#1F2937] rounded-full mt-1.5 overflow-hidden">
+                  <div className={cn("h-1 rounded-full transition-all", pct === 100 ? "bg-emerald-500" : overdue > 0 ? "bg-red-500" : "bg-[#F5A623]")} style={{ width: `${pct}%` }} />
                 </div>
-                <p className="text-[9px] text-gray-600 mt-0.5">{done}/{total}</p>
+                <p className="text-[10px] text-gray-600 mt-1 font-semibold">{done}/{total} done</p>
+                {overdue > 0 && <p className="text-[9px] text-red-400 font-bold mt-0.5">{overdue} late</p>}
               </button>
             ))}
           </div>
@@ -333,15 +339,15 @@ export default function PrepLists() {
         <div className="flex gap-1 overflow-x-auto pb-0.5 scrollbar-hide flex-1">
           {[
             { id: "all",           label: "All" },
-            { id: "overdue",       label: "Late" },
+            { id: "overdue",       label: "⚠ Late" },
             { id: "in_progress",   label: "Active" },
             { id: "not_started",   label: "Pending" },
-            { id: "pending_review",label: "📷" },
+            { id: "pending_review",label: "📷 Photo" },
             { id: "completed",     label: "Done" },
           ].map(f => (
             <button key={f.id} onClick={() => { setItemFilter(f.id); setAllCaughtUp(false); }}
               className={cn(
-                "flex-shrink-0 h-6 px-2.5 rounded-lg text-[10px] font-bold border transition-all active:scale-95 whitespace-nowrap",
+                "flex-shrink-0 h-7 px-2.5 rounded-lg text-[10px] font-bold border transition-all active:scale-95 whitespace-nowrap",
                 itemFilter === f.id
                   ? f.id === "overdue" ? "bg-red-500/15 text-red-400 border-red-500/30"
                     : f.id === "completed" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
@@ -350,14 +356,14 @@ export default function PrepLists() {
               )}>{f.label}</button>
           ))}
           <button onClick={() => setViewByPerson(v => !v)}
-            className={cn("flex-shrink-0 h-6 px-2.5 rounded-lg text-[10px] font-bold border transition-all active:scale-95",
+            className={cn("flex-shrink-0 h-7 px-2.5 rounded-lg text-[10px] font-bold border transition-all active:scale-95",
               viewByPerson ? "bg-[#F5A623]/15 text-[#F5A623] border-[#F5A623]/30" : "bg-[#111827] text-gray-600 border-[#1F2937]"
-            )}>👤</button>
+            )}>👤 Person</button>
         </div>
         <div className="relative shrink-0">
-          <Search className="absolute left-2 top-1.5 h-3 w-3 text-gray-600" />
+          <Search className="absolute left-2 top-2 h-3 w-3 text-gray-600" />
           <input placeholder="Search" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            className="h-6 w-24 pl-6 pr-2 text-[10px] bg-[#111827] border border-[#1F2937] rounded-lg text-white placeholder:text-gray-700 focus:outline-none" />
+            className="h-7 w-24 pl-6 pr-2 text-[10px] bg-[#111827] border border-[#1F2937] rounded-lg text-white placeholder:text-gray-700 focus:outline-none" />
         </div>
       </div>
 
@@ -381,7 +387,7 @@ export default function PrepLists() {
           const byPersonEntries = Object.entries(grouped).sort(([a], [b]) => a === unassigned ? 1 : b === unassigned ? -1 : a.localeCompare(b));
           if (byPersonEntries.length === 0) return <p className="text-center py-6 text-[12px] text-gray-600">No items</p>;
           return (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {byPersonEntries.map(([person, items]) => {
                 const done = items.filter(i => getStatus(i) === "completed").length;
                 const overdue = items.filter(i => getStatus(i) !== "completed" && i.priority === "high").length;
@@ -389,11 +395,11 @@ export default function PrepLists() {
                 const displayName = person === unassigned ? "Unassigned" : person.includes("@") ? person.split("@")[0] : person;
                 return (
                   <div key={person}>
-                    <div className="flex items-center justify-between mb-1 px-0.5">
+                    <div className="flex items-center justify-between mb-1.5 px-0.5">
                       <div className="flex items-center gap-1.5">
                         <div className="w-5 h-5 rounded-full bg-[#F5A623]/15 flex items-center justify-center text-[9px] font-bold text-[#F5A623]">{displayName[0]?.toUpperCase()}</div>
                         <span className="text-[12px] font-bold text-white">{displayName}</span>
-                        {overdue > 0 && <span className="text-[9px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded-full">{overdue}</span>}
+                        {overdue > 0 && <span className="text-[9px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded-full">{overdue} late</span>}
                       </div>
                       <span className={cn("text-[11px] font-bold", pct === 100 ? "text-emerald-400" : overdue > 0 ? "text-red-400" : "text-[#F5A623]")}>{pct}%</span>
                     </div>
