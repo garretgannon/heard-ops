@@ -63,15 +63,19 @@
       "title": "Status",
       "enum": [
         "pending",
+        "in_progress",
         "completed",
         "approved",
-        "rejected"
+        "rejected",
+        "overdue"
       ],
       "enumNames": [
         "Pending",
+        "In Progress",
         "Completed",
         "Approved",
-        "Rejected"
+        "Rejected",
+        "Overdue"
       ],
       "default": "pending"
     },
@@ -122,6 +126,15 @@
       "type": "boolean",
       "title": "Manager Override (Specific Person)",
       "default": false
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "title": "Recurring Task",
+      "default": false
+    },
+    "overdue_flagged_at": {
+      "type": "string",
+      "title": "Overdue Flagged At (ISO 8601)"
     }
   },
   "required": [
