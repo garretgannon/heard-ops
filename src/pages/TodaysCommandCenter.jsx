@@ -108,7 +108,7 @@ export default function TodaysCommandCenter() {
       try {
         const [me, prepLists, prepItems, sideWork, tempLogs, maintenance,
           incidents, shiftHandoffs, cashDrawers, dishLogs, dishMachines,
-          calendarEvents, staffShifts, issues,
+          calendarEvents, staffShifts, issues, inventoryItems,
         ] = await Promise.all([
           base44.auth.me().catch(() => null),
           base44.entities.PrepList.filter({ date: todayStr }),
@@ -124,6 +124,7 @@ export default function TodaysCommandCenter() {
           base44.entities.CalendarEvent.list("-date", 100),
           base44.entities.StaffShift.filter({ date: todayStr, status: "published" }).catch(() => []),
           base44.entities.Issue.filter({ status: "open" }).catch(() => []),
+          base44.entities.InventoryItem.list('-updated_date', 200).catch(() => []),
         ]);
 
         setUser(me);
@@ -147,6 +148,9 @@ export default function TodaysCommandCenter() {
           const last = ok.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at))[0];
           return (Date.now() - new Date(last.logged_at)) / 3600000 > (mach.check_frequency_hours || 4);
         }).length;
+        const invLow = (inventoryItems || []).filter(i => i.status === 'low').length;
+        const invCritical = (inventoryItems || []).filter(i => ['critical','out'].includes(i.status)).length;
+        const invAtRisk = (inventoryItems || []).filter(i => i.required_for_prep && ['critical','out'].includes(i.status)).length;
 
         // Needs Attention alerts
         const alerts = [];
@@ -159,6 +163,8 @@ export default function TodaysCommandCenter() {
         if (mainUrgent > 0) alerts.push({ icon: Wrench,        iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Urgent Maintenance",   meta: `${mainUrgent} flagged urgent`,                    badge: "Urgent",   badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/maintenance" });
         if (cashIssues > 0) alerts.push({ icon: DollarSign,    iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Cash Variance",        meta: `${cashIssues} drawer${cashIssues > 1 ? "s" : ""} out of balance`, badge: "Review", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/cash" });
         if (dishOverdue > 0 && !dishFailed) alerts.push({ icon: Droplet, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: "Dish Machine Overdue", meta: `${dishOverdue} past check interval`, badge: "Overdue", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/dish-machines" });
+        if (invCritical > 0) alerts.push({ icon: ShieldAlert, iconColor: "text-red-400", iconBg: "bg-red-500/15", title: `${invCritical} Inventory Item${invCritical > 1 ? 's' : ''} Critical / Out`, meta: invAtRisk > 0 ? `${invAtRisk} prep item${invAtRisk > 1 ? 's' : ''} at risk` : 'Below 50% of par level', badge: invAtRisk > 0 ? "Prep At Risk" : "Critical", badgeColor: "bg-red-500/15 text-red-400 border-red-500/30", path: "/issues" });
+        else if (invLow > 0) alerts.push({ icon: ShieldAlert, iconColor: "text-yellow-400", iconBg: "bg-yellow-500/15", title: `${invLow} Inventory Item${invLow > 1 ? 's' : ''} Low`, meta: 'Below par level — reorder needed', badge: "Low Stock", badgeColor: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", path: "/issues" });
 
         // Today's Priorities
         const priorities = [];

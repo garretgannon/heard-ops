@@ -1,0 +1,110 @@
+{
+  "name": "InventoryItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "produce",
+        "protein",
+        "dairy",
+        "dry_goods",
+        "beverages",
+        "bar",
+        "cleaning",
+        "paper",
+        "other"
+      ],
+      "enumNames": [
+        "Produce",
+        "Protein",
+        "Dairy",
+        "Dry Goods",
+        "Beverages",
+        "Bar",
+        "Cleaning",
+        "Paper",
+        "Other"
+      ]
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit (e.g. lbs, cases, each)"
+    },
+    "current_stock": {
+      "type": "number",
+      "title": "Current Stock",
+      "default": 0
+    },
+    "par_level": {
+      "type": "number",
+      "title": "Par Level (minimum required)",
+      "default": 0
+    },
+    "reorder_point": {
+      "type": "number",
+      "title": "Reorder Point"
+    },
+    "status": {
+      "type": "string",
+      "title": "Stock Status",
+      "enum": [
+        "ok",
+        "low",
+        "critical",
+        "out"
+      ],
+      "enumNames": [
+        "OK",
+        "Low Stock",
+        "Critical",
+        "Out of Stock"
+      ],
+      "default": "ok"
+    },
+    "prep_item_names": {
+      "type": "array",
+      "title": "Used In Prep Items",
+      "description": "Names of prep items that require this ingredient",
+      "items": {
+        "type": "string"
+      }
+    },
+    "required_for_prep": {
+      "type": "boolean",
+      "title": "Required for Prep",
+      "default": false
+    },
+    "vendor": {
+      "type": "string",
+      "title": "Vendor / Supplier"
+    },
+    "last_counted_at": {
+      "type": "string",
+      "title": "Last Counted At (ISO 8601)"
+    },
+    "last_counted_by": {
+      "type": "string",
+      "title": "Last Counted By"
+    },
+    "alert_triggered": {
+      "type": "boolean",
+      "title": "Alert Triggered",
+      "default": false
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "unit"
+  ]
+}

@@ -37,13 +37,19 @@
         "pending",
         "in_progress",
         "completed",
-        "overdue"
+        "overdue",
+        "pending_review",
+        "approved",
+        "rejected"
       ],
       "enumNames": [
         "Pending",
         "In Progress",
         "Completed",
-        "Overdue"
+        "Overdue",
+        "Pending Review",
+        "Approved",
+        "Rejected"
       ],
       "default": "pending"
     },
@@ -62,6 +68,16 @@
       ],
       "default": "medium"
     },
+    "requires_photo": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "title": "Requires Manager Approval",
+      "default": false
+    },
     "master_photo_url": {
       "type": "string",
       "title": "Master Reference Photo URL"
@@ -77,6 +93,18 @@
     "completed_at": {
       "type": "string",
       "title": "Completed At (ISO 8601)"
+    },
+    "approved_by": {
+      "type": "string",
+      "title": "Approved By"
+    },
+    "approved_at": {
+      "type": "string",
+      "title": "Approved At (ISO 8601)"
+    },
+    "rejection_notes": {
+      "type": "string",
+      "title": "Rejection Notes"
     },
     "completion_status": {
       "type": "string",
@@ -114,6 +142,15 @@
       "type": "boolean",
       "title": "Allow All Roles",
       "default": true
+    },
+    "at_risk": {
+      "type": "boolean",
+      "title": "At Risk (Inventory)",
+      "default": false
+    },
+    "at_risk_reason": {
+      "type": "string",
+      "title": "At Risk Reason"
     }
   },
   "required": [
