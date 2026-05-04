@@ -30,6 +30,10 @@
       "type": "number",
       "title": "Temperature (\u00b0F)"
     },
+    "value": {
+      "type": "number",
+      "title": "Reading Value (\u00b0F)"
+    },
     "logged_by": {
       "type": "string",
       "title": "Logged By"
@@ -55,6 +59,21 @@
         "Warning",
         "Danger"
       ]
+    },
+    "is_above_range": {
+      "type": "boolean",
+      "title": "Above Safe Range",
+      "default": false
+    },
+    "is_below_range": {
+      "type": "boolean",
+      "title": "Below Safe Range",
+      "default": false
+    },
+    "alert_triggered": {
+      "type": "boolean",
+      "title": "Alert Triggered",
+      "default": false
     }
   },
   "required": [
