@@ -1,13 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { CalendarCheck, ClipboardList, Thermometer, TrendingUp, Grid3x3 } from "lucide-react";
+import { Home, Package, Thermometer, Users, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { label: "Today",   path: "/",              icon: CalendarCheck },
-  { label: "Prep",    path: "/prep-lists",    icon: ClipboardList },
+  { label: "Today",   path: "/",              icon: Home },
+  { label: "Prep",    path: "/prep-lists",    icon: Package },
   { label: "Temps",   path: "/temp-logs",     icon: Thermometer },
-  { label: "Handoff", path: "/shift-handoff", icon: TrendingUp },
-  { label: "More",    path: "/manager",       icon: Grid3x3 },
+  { label: "Handoff", path: "/shift-handoff", icon: Users },
+  { label: "More",    path: "/manager",       icon: MoreHorizontal },
 ];
 
 export default function BottomNav() {

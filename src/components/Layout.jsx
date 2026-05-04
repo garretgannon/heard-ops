@@ -5,6 +5,7 @@ import BottomNav from "./BottomNav";
 import FloatingQuickActions from "./FloatingQuickActions";
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus } from "lucide-react";
+
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
@@ -116,23 +117,24 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-border/30 px-4 h-14 flex items-center justify-between" style={{background: 'hsl(220 22% 6% / 0.95)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)'}}>
-        <div className="flex items-center gap-2.5">
-          {logoUrl ? (
-            <img src={logoUrl} alt="logo" className="h-7 w-7 rounded-lg object-cover" />
-          ) : (
-            <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-              <ChefHat className="h-3.5 w-3.5 text-primary-foreground" />
-            </div>
-          )}
-          <div className="leading-tight">
-            <span className="font-extrabold text-sm tracking-tight">Heard<span className="text-primary">OS</span></span>
-            {restaurantName && <span className="block text-[10px] text-primary/70 font-semibold uppercase tracking-wider leading-none">{restaurantName}</span>}
-          </div>
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 px-4 h-14 flex items-center justify-between" style={{background: '#0B0F14', borderBottom: '1px solid #1F2933'}}>
+        <div className="flex flex-col justify-center">
+          <span className="font-extrabold text-lg tracking-tight leading-none" style={{color: '#FFFFFF'}}>
+            Heard<span style={{color: '#F5A623'}}>OS</span>
+          </span>
+          <span className="text-[9px] font-semibold tracking-widest uppercase leading-none mt-0.5" style={{color: '#6B7280'}}>
+            {restaurantName || 'Restaurant Operations System'}
+          </span>
         </div>
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-lg hover:bg-secondary transition-colors">
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button className="relative p-2 rounded-xl" style={{background: '#141920'}}>
+            <Bell className="h-5 w-5" style={{color: '#9CA3AF'}} />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full" style={{background: '#F5A623'}} />
+          </button>
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-xl" style={{background: '#141920'}}>
+            {mobileOpen ? <X className="h-5 w-5" style={{color: '#9CA3AF'}} /> : <Menu className="h-5 w-5" style={{color: '#9CA3AF'}} />}
+          </button>
+        </div>
       </header>
 
       {/* Mobile nav overlay */}
