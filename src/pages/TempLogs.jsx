@@ -263,7 +263,7 @@ export default function TempLogs() {
   );
 
   return (
-    <div className="flex flex-col gap-3 pb-28">
+    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-2.5 pb-28">
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -340,6 +340,21 @@ export default function TempLogs() {
           ))}
         </div>
       )}
+
+      {/* Large QR Scan button */}
+      <button
+        onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
+        className="w-full flex items-center gap-3 bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-4 py-3 active:scale-[0.98] transition-transform"
+      >
+        <div className="h-10 w-10 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
+          <QrCode className="h-5 w-5 text-[#F5A623]" />
+        </div>
+        <div className="text-left">
+          <p className="text-[13px] font-bold text-white">Scan Equipment QR</p>
+          <p className="text-[10px] text-gray-600">Point camera at QR label to log temp instantly</p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-gray-700 ml-auto shrink-0" />
+      </button>
 
       {/* Filter pills */}
       <div className="flex gap-1.5">
