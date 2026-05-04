@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { label: "Prep",    path: "/prep-lists",    icon: Package },
   { label: "Temps",   path: "/temp-logs",     icon: Thermometer },
   { label: "Handoff", path: "/shift-handoff", icon: Users },
-  { label: "More",    path: "/my-restaurant", icon: MoreHorizontal },
+  { label: "More",    path: "/more",          icon: MoreHorizontal },
 ];
 
 export default function BottomNav() {

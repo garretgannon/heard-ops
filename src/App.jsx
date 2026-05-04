@@ -51,6 +51,7 @@ import ScheduleImport from './pages/ScheduleImport';
 import R365ScheduleImport from './pages/R365ScheduleImport';
 import ScheduleCenter from './pages/ScheduleCenter';
 import IssueTracker from './pages/IssueTracker';
+import More from './pages/More';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -129,6 +130,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/shift-handoff" element={<ShiftHandoff />} />}
         {isAdmin && <Route path="/schedule-center" element={<ScheduleCenter />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
+        <Route path="/more" element={<More />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
         <Route path="*" element={<PageNotFound />} />
