@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, Wrench, ChevronLeft, ChevronRight } from "lucide-react";
+import { Notebook, Wrench, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { id: "issues", label: "Issues", icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
+  { id: "manager-log", label: "Manager Log", icon: Notebook, color: "text-primary", bg: "bg-primary/10" },
   { id: "repairs", label: "Repairs", icon: Wrench, color: "text-orange-400", bg: "bg-orange-500/10" },
 ];
 
 const PAGES = {
-  issues: { path: "/issues", label: "Issue Tracker" },
+  "manager-log": { path: "/manager-log", label: "Manager Log" },
   repairs: { path: "/maintenance", label: "Maintenance Requests" },
 };
 
 export default function IssuesUnified() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("issues");
+  const [activeTab, setActiveTab] = useState("manager-log");
 
   const handleTabClick = (id) => {
     setActiveTab(id);
@@ -30,8 +30,8 @@ export default function IssuesUnified() {
           <ChevronLeft className="h-3.5 w-3.5 text-gray-500" />
         </button>
         <div className="flex-1">
-          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Issues</h1>
-          <p className="text-[11px] text-gray-600 mt-0.5">Problems and repairs</p>
+          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Operations</h1>
+          <p className="text-[11px] text-gray-600 mt-0.5">Manager log and maintenance</p>
         </div>
       </div>
 
