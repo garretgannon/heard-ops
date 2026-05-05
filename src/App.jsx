@@ -70,9 +70,12 @@ const AuthenticatedApp = () => {
   }
 
   if (!user) {
+    // If not logged in, redirect to Landing only on root
+    // All other routes redirect to login
     return (
       <Routes>
-        <Route path="*" element={<Landing />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
   }
@@ -83,6 +86,7 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
+        <Route path="/today" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
         <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/logs" element={<Logs />} />
         <Route path="/knowledge" element={<Knowledge />} />
@@ -95,7 +99,8 @@ const AuthenticatedApp = () => {
 
         {/* COMPLIANCE ROUTES */}
         <Route path="/temp-logs" element={<TempLogs />} />
-        <Route path="/waste-log" element={<WasteLog />} />
+        <Route path="/waste-86" element={<WasteLog />} />
+        <Route path="/waste-log" element={<Navigate to="/waste-86" replace />} />
 
         {/* KNOWLEDGE ROUTES */}
         <Route path="/recipes" element={<RecipesAndBuildCards />} />
@@ -142,7 +147,6 @@ const AuthenticatedApp = () => {
         <Route path="/SideWorkProduction" element={<Navigate to="/side-work" replace />} />
         <Route path="/restaurant-team" element={<Navigate to="/team" replace />} />
         <Route path="/schedule-center" element={<Navigate to="/schedule" replace />} />
-        <Route path="/today" element={<Navigate to="/tasks" replace />} />
 
         {/* 404 */}
         <Route path="*" element={<PageNotFound />} />

@@ -151,35 +151,36 @@ export const allRoutes = {
 
   // COMPLIANCE & LOGS
   compliance: {
-    logs: {
-      path: "/logs",
-      label: "Logs",
-      icon: Flame,
-      exact: true,
-      component: "Logs",
-      roles: ["user", "admin"],
-      module: "compliance",
-      description: "Temperature, waste, incident logs",
-      legacyPaths: ["/Logs", "/ManagerLog", "/NewLog"],
-    },
-    tempLogs: {
-      path: "/temp-logs",
-      label: "Temperature Logs",
-      icon: Thermometer,
-      component: "TempLogs",
-      roles: ["user", "admin"],
-      module: "compliance",
-      description: "Track cooler and equipment temperatures",
-    },
-    wasteLog: {
-      path: "/waste-log",
-      label: "Waste & 86",
-      icon: Droplet,
-      component: "WasteLog",
-      roles: ["user", "admin"],
-      module: "compliance",
-      description: "Log waste, compost, and 86'd items",
-    },
+   logs: {
+     path: "/logs",
+     label: "Logs",
+     icon: Flame,
+     exact: true,
+     component: "Logs",
+     roles: ["user", "admin"],
+     module: "compliance",
+     description: "Temperature, waste, incident logs",
+     legacyPaths: ["/Logs", "/ManagerLog", "/NewLog"],
+   },
+   tempLogs: {
+     path: "/temp-logs",
+     label: "Temperature Logs",
+     icon: Thermometer,
+     component: "TempLogs",
+     roles: ["user", "admin"],
+     module: "compliance",
+     description: "Track cooler and equipment temperatures",
+   },
+   wasteLog: {
+     path: "/waste-86",
+     label: "Waste & 86",
+     icon: Droplet,
+     component: "WasteLog",
+     roles: ["user", "admin"],
+     module: "compliance",
+     description: "Log waste, compost, and 86'd items",
+     legacyPaths: ["/waste-log"],
+   },
     bathroomChecks: {
       path: "/bathroom-checks",
       label: "Bathroom Checks",
@@ -340,6 +341,7 @@ export const allRoutes = {
  * Maps old routes to their new consolidated homes
  */
 export const legacyRedirects = {
+  "/": "/today", // Public page fallback
   "/Inventory": "/inventory",
   "/InventoryControl": "/inventory",
   "/InventorySimplified": "/inventory",
@@ -362,6 +364,7 @@ export const legacyRedirects = {
   "/SideWorkManager": "/side-work",
   "/SideWorkStaff": "/side-work",
   "/SideWorkProduction": "/side-work",
+  "/waste-log": "/waste-86",
 };
 
 /**
@@ -379,6 +382,7 @@ export const morePageStructure = {
       "cleaningChecklist",
       "tempLogs",
       "wasteLog",
+      "bathroomChecks",
     ],
   },
   management: {
@@ -416,44 +420,9 @@ export const morePageStructure = {
 
 /**
  * QUICK ACTIONS (Today page)
+ * NOTE: Use quickActionsConfig from lib/quickActionsConfig.js instead
  */
-export const quickActions = [
-  {
-    id: "quick-log",
-    label: "Log Entry",
-    icon: "FileText",
-    targetModal: "QuickLogModal",
-    description: "Quick temperature or incident log",
-  },
-  {
-    id: "add-task",
-    label: "New Task",
-    icon: "CheckCircle2",
-    targetModal: "AddTaskModal",
-    description: "Create a new task",
-  },
-  {
-    id: "add-86",
-    label: "86 Item",
-    icon: "AlertTriangle",
-    targetModal: "Add86Modal",
-    description: "Mark item as 86'd",
-  },
-  {
-    id: "add-prep",
-    label: "Prep Item",
-    icon: "ClipboardList",
-    targetModal: "AddPrepModal",
-    description: "Add prep item",
-  },
-  {
-    id: "maintenance",
-    label: "Maintenance",
-    icon: "Wrench",
-    targetModal: "MaintenanceModal",
-    description: "Report maintenance issue",
-  },
-];
+export const quickActions = []; // Deprecated - use quickActionsConfig
 
 /**
  * UTILITY FUNCTIONS
