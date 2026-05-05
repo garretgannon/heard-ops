@@ -351,7 +351,7 @@ export default function TempLogs() {
           )}
         >
           <Thermometer className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Temperature</span>
+          <span>Temperature</span>
         </button>
         <button
           onClick={() => setActiveTab("chemicals")}
@@ -362,7 +362,7 @@ export default function TempLogs() {
           )}
         >
           <Droplet className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Chemicals</span>
+          <span>Chemicals</span>
         </button>
         <button
           onClick={() => setActiveTab("cooling")}
@@ -373,7 +373,7 @@ export default function TempLogs() {
           )}
         >
           <Snowflake className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Cooling Logs</span>
+          <span>Cooling Logs</span>
         </button>
       </div>
 
