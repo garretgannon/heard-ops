@@ -27,14 +27,13 @@ const getTempStatus = (temp, min, max) => {
 };
 
 const S = {
-  ok:       { label: "Safe",    bg: "bg-emerald-500/12", border: "border-emerald-500/25", text: "text-emerald-400", dot: "bg-emerald-400", icon: "text-emerald-400" },
-  warning:  { label: "Warning", bg: "bg-amber-500/12",   border: "border-amber-500/25",   text: "text-amber-400",   dot: "bg-amber-400",   icon: "text-amber-400" },
-  critical: { label: "Critical",bg: "bg-red-500/12",     border: "border-red-500/30",     text: "text-red-400",     dot: "bg-red-400 animate-pulse", icon: "text-red-400" },
-  none:     { label: "No Log",  bg: "bg-[#181F2C]",      border: "border-[#232D3F]",      text: "text-gray-500",    dot: "bg-gray-600",    icon: "text-gray-600" },
+  ok:       { label: "Safe",     bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400", dot: "bg-emerald-400",               icon: "text-emerald-400" },
+  warning:  { label: "Warning",  bg: "bg-amber-500/10",   border: "border-amber-500/20",   text: "text-amber-400",   dot: "bg-amber-400",                  icon: "text-amber-400" },
+  critical: { label: "Critical", bg: "bg-red-500/10",     border: "border-red-500/30",     text: "text-red-400",     dot: "bg-red-400 animate-pulse",       icon: "text-red-400" },
+  none:     { label: "No Log",   bg: "bg-[#181F2C]",      border: "border-[#232D3F]",      text: "text-gray-500",    dot: "bg-gray-600",                   icon: "text-gray-600" },
 };
 
 /* ── Atoms ─────────────────────────────────────────────── */
-
 function Badge({ status }) {
   const c = S[status] || S.none;
   return (
@@ -54,8 +53,8 @@ function MetricTile({ icon: Icon, label, value, alert, valueColor }) {
   );
 }
 
-/* ── Compact Equipment Row ──────────────────────────────── */
-function EquipmentRow({ loc, entry, status, inputVal, isSaving, onTempChange, onStep, onLog, onCorrectiveAction }) {
+/* ── Equipment Card — compact, log expands inline ──────── */
+function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onActivate, onTempChange, onStep, onLog, onFlag }) {
   const c = S[status] || S.none;
   const displayTemp = entry?.temperature;
   const loggedTime = entry?.logged_at
@@ -65,15 +64,16 @@ function EquipmentRow({ loc, entry, status, inputVal, isSaving, onTempChange, on
   const ps = pendingStatus ? S[pendingStatus] : null;
 
   return (
-    <div className={cn("bg-[#0F1623] border rounded-xl overflow-hidden", c.border, status === "critical" && "shadow-sm shadow-red-500/15")}>
-      {/* Main row */}
+    <div className={cn(
+      "bg-[#0F1623] border rounded-xl overflow-hidden transition-all",
+      status === "critical" ? "border-red-500/40 shadow-sm shadow-red-500/10" : c.border
+    )}>
+      {/* Main row — always visible */}
       <div className="flex items-center gap-2.5 px-3 py-2.5">
-        {/* Left icon */}
         <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", c.bg)}>
           <Thermometer className={cn("h-3.5 w-3.5", c.icon)} />
         </div>
 
-        {/* Title + meta */}
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-bold text-white leading-tight truncate">{loc.name}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
@@ -87,57 +87,67 @@ function EquipmentRow({ loc, entry, status, inputVal, isSaving, onTempChange, on
           </div>
         </div>
 
-        {/* Current temp + badge */}
         <div className="flex items-center gap-2 shrink-0">
           {displayTemp !== undefined && (
-            <span className={cn("text-[15px] font-extrabold leading-none", c.text)}>{displayTemp}°</span>
+            <span className={cn("text-[16px] font-extrabold leading-none", c.text)}>{displayTemp}°</span>
           )}
           <Badge status={status} />
+          <button
+            onClick={onActivate}
+            className={cn(
+              "h-7 px-2.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95",
+              isActive
+                ? "bg-[#1E2A3B] text-gray-400 border-[#2A3A50]"
+                : "bg-primary/10 text-primary border-primary/25"
+            )}
+          >
+            {isActive ? "Cancel" : "Log"}
+          </button>
         </div>
       </div>
 
-      {/* Log strip — always visible, compact */}
-      <div className="flex items-center gap-1.5 px-3 pb-2.5">
-        <button onClick={() => onStep(-1)} className="h-7 w-7 rounded-lg bg-[#171F2D] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform">
-          <Minus className="h-3 w-3 text-gray-500" />
-        </button>
-        <input
-          type="number"
-          value={inputVal}
-          onChange={e => onTempChange(e.target.value)}
-          placeholder="°F"
-          className={cn(
-            "w-14 h-7 text-center text-[13px] font-bold rounded-lg border bg-[#0B0F18] focus:outline-none focus:ring-1 focus:ring-primary transition-colors",
-            ps?.border || "border-[#232D3F]",
-            ps?.text || "text-white"
-          )}
-        />
-        <button onClick={() => onStep(1)} className="h-7 w-7 rounded-lg bg-[#171F2D] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform">
-          <Plus className="h-3 w-3 text-gray-500" />
-        </button>
-        <button
-          onClick={onLog}
-          disabled={!inputVal || isSaving}
-          className={cn(
-            "h-7 px-3 rounded-lg text-[11px] font-bold flex items-center gap-1 active:scale-95 transition-all border",
-            inputVal
-              ? "bg-primary text-primary-foreground border-primary"
-              : "bg-[#171F2D] border-[#232D3F] text-gray-700 cursor-not-allowed"
-          )}
-        >
-          {isSaving
-            ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-            : <><Check className="h-3 w-3" /> Log</>}
-        </button>
-        {status === "critical" && (
-          <button
-            onClick={onCorrectiveAction}
-            className="ml-auto h-7 px-2.5 rounded-lg text-[11px] font-bold text-red-400 bg-red-500/10 border border-red-500/25 active:scale-95 transition-transform whitespace-nowrap"
-          >
-            Flag
+      {/* Log controls — only visible when active */}
+      {isActive && (
+        <div className="flex items-center gap-1.5 px-3 pb-3 border-t border-[#1A2235] pt-2.5">
+          <button onClick={() => onStep(-1)} className="h-8 w-8 rounded-lg bg-[#171F2D] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform">
+            <Minus className="h-3 w-3 text-gray-500" />
           </button>
-        )}
-      </div>
+          <input
+            type="number"
+            value={inputVal}
+            onChange={e => onTempChange(e.target.value)}
+            placeholder="°F"
+            autoFocus
+            className={cn(
+              "flex-1 h-8 text-center text-[14px] font-bold rounded-lg border bg-[#0B0F18] focus:outline-none focus:ring-1 focus:ring-primary transition-colors",
+              ps?.border || "border-[#232D3F]",
+              ps?.text || "text-white"
+            )}
+          />
+          <button onClick={() => onStep(1)} className="h-8 w-8 rounded-lg bg-[#171F2D] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform">
+            <Plus className="h-3 w-3 text-gray-500" />
+          </button>
+          <button
+            onClick={onLog}
+            disabled={!inputVal || isSaving}
+            className={cn(
+              "h-8 px-4 rounded-lg text-[12px] font-bold flex items-center gap-1.5 active:scale-95 transition-all border",
+              inputVal
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-[#171F2D] border-[#232D3F] text-gray-700 cursor-not-allowed"
+            )}
+          >
+            {isSaving
+              ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+              : <><Check className="h-3 w-3" /> Log</>}
+          </button>
+          {status === "critical" && (
+            <button onClick={onFlag} className="h-8 px-2.5 rounded-lg text-[11px] font-bold text-red-400 bg-red-500/10 border border-red-500/25 active:scale-95 transition-transform whitespace-nowrap">
+              Flag
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -149,11 +159,11 @@ export default function TempLogs() {
   const [loading, setLoading] = useState(true);
   const [temps, setTemps] = useState({});
   const [saving, setSaving] = useState({});
+  const [activeLocId, setActiveLocId] = useState(null);
   const [issueSheet, setIssueSheet] = useState(null);
   const [issueNotes, setIssueNotes] = useState("");
   const [managerInitials, setManagerInitials] = useState("");
   const [showAddLocation, setShowAddLocation] = useState(false);
-  const [filter, setFilter] = useState("all");
   const todayStr = new Date().toISOString().split("T")[0];
 
   const load = async () => {
@@ -171,18 +181,29 @@ export default function TempLogs() {
   const getLatestEntry = (locId) =>
     entries.filter(e => e.location_id === locId).sort((a, b) => b.logged_at > a.logged_at ? 1 : -1)[0];
 
-  const logsToday   = entries.length;
-  const missedLogs  = locations.filter(l => !getLatestEntry(l.id)).length;
-  const highAlerts  = locations.filter(l => { const e = getLatestEntry(l.id); return e && getTempStatus(e.temperature, l.target_min, l.target_max) === "critical"; }).length;
-  const logged      = locations.filter(l => getLatestEntry(l.id)).length;
-  const passing     = locations.filter(l => { const e = getLatestEntry(l.id); return e && getTempStatus(e.temperature, l.target_min, l.target_max) === "ok"; }).length;
-  const compPct     = logged > 0 ? Math.round((passing / logged) * 100) : 0;
+  const logsToday  = entries.length;
+  const missedLogs = locations.filter(l => !getLatestEntry(l.id)).length;
+  const highAlerts = locations.filter(l => { const e = getLatestEntry(l.id); return e && getTempStatus(e.temperature, l.target_min, l.target_max) === "critical"; }).length;
+  const logged     = locations.filter(l => getLatestEntry(l.id)).length;
+  const passing    = locations.filter(l => { const e = getLatestEntry(l.id); return e && getTempStatus(e.temperature, l.target_min, l.target_max) === "ok"; }).length;
+  const compPct    = logged > 0 ? Math.round((passing / logged) * 100) : 0;
 
   const criticalLocations = locations.filter(l => {
     const e = getLatestEntry(l.id);
     return e && getTempStatus(e.temperature, l.target_min, l.target_max) === "critical";
   });
 
+  // Sort: critical first, then warning, then no log, then ok (safe last)
+  const sortedLocations = [...locations].sort((a, b) => {
+    const order = { critical: 0, warning: 1, none: 2, ok: 3 };
+    const ea = getLatestEntry(a.id);
+    const eb = getLatestEntry(b.id);
+    const sa = ea ? getTempStatus(ea.temperature, a.target_min, a.target_max) : "none";
+    const sb = eb ? getTempStatus(eb.temperature, b.target_min, b.target_max) : "none";
+    return order[sa] - order[sb];
+  });
+
+  // Trend chart data
   const hourlyBuckets = {};
   entries.forEach(e => {
     const h = new Date(e.logged_at).getHours();
@@ -195,13 +216,6 @@ export default function TempLogs() {
     time: b.label,
     compliance: b.total > 0 ? Math.round((b.pass / b.total) * 100) : 100,
   }));
-
-  const visibleLocations = locations.filter(l => {
-    if (filter === "all") return true;
-    const e = getLatestEntry(l.id);
-    const st = e ? getTempStatus(e.temperature, l.target_min, l.target_max) : "none";
-    return filter === st;
-  });
 
   const handleLogTemp = async (loc, overrideNotes, overrideInitials) => {
     const tempVal = temps[loc.id];
@@ -223,6 +237,7 @@ export default function TempLogs() {
     await load();
     setSaving(prev => ({ ...prev, [loc.id]: false }));
     setTemps(prev => { const n = { ...prev }; delete n[loc.id]; return n; });
+    setActiveLocId(null);
     haptics.success();
     toast.success(status === "critical" ? "Logged and flagged" : "Temp logged ✓");
   };
@@ -263,58 +278,60 @@ export default function TempLogs() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-2.5 pb-28">
+    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-28">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4.5 w-4.5 text-primary" />
+      <div className="flex items-center justify-between pt-1">
+        <div>
           <h1 className="text-[17px] font-extrabold text-white tracking-tight">Food Safety</h1>
-          <span className="text-[10px] text-gray-600 font-semibold mt-0.5">{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+          <p className="text-[11px] text-gray-600 mt-0.5">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</p>
         </div>
         <div className="flex gap-1.5">
           {entries.length > 0 && (
-            <button onClick={handleExport} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 transition-transform">
+            <button onClick={handleExport} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95">
               <Download className="h-3.5 w-3.5 text-gray-500" />
             </button>
           )}
-          <button onClick={() => setShowAddLocation(v => !v)} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 transition-transform">
+          <button onClick={() => setShowAddLocation(v => !v)} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95">
             <Plus className="h-3.5 w-3.5 text-gray-500" />
           </button>
         </div>
       </div>
 
-      {/* Metrics — 4-col grid */}
+      {/* Metrics — 4-col */}
       <div className="grid grid-cols-4 gap-1.5">
         <MetricTile icon={Activity}      label="Logged"  value={logsToday} />
         <MetricTile icon={Clock}         label="Missed"  value={missedLogs} alert={missedLogs > 0} />
         <MetricTile icon={AlertTriangle} label="Alerts"  value={highAlerts} alert={highAlerts > 0} />
-        <MetricTile icon={ShieldCheck}   label="Pass"    value={`${compPct}%`}
+        <MetricTile icon={ShieldCheck}   label="Pass %"
+          value={`${compPct}%`}
           valueColor={compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400"} />
       </div>
 
-      {/* Critical Alerts — compact list */}
+      {/* ── CRITICAL ALERTS (FIRST) ── */}
       {criticalLocations.length > 0 && (
-        <div className="rounded-xl border border-red-500/35 bg-red-500/6 overflow-hidden">
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-red-500/15">
-            <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
-            <span className="text-[12px] font-bold text-red-400 flex-1">Critical — Out of Range</span>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/25">{criticalLocations.length}</span>
+        <div className="rounded-xl border border-red-500/40 bg-red-500/6 overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-red-500/15">
+            <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
+            <span className="text-[13px] font-extrabold text-red-400 flex-1 uppercase tracking-wide">Critical Alerts</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">{criticalLocations.length}</span>
           </div>
           {criticalLocations.map(loc => {
             const e = getLatestEntry(loc.id);
             const temp = e?.temperature;
             const above = temp > loc.target_max;
             return (
-              <div key={loc.id} className="flex items-center gap-2.5 px-3 py-2 border-b border-red-500/8 last:border-0">
-                <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
+              <div key={loc.id} className="flex items-center gap-3 px-3 py-2.5 border-b border-red-500/8 last:border-0">
+                <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-bold text-white truncate">{loc.name}</p>
-                  <p className="text-[10px] text-red-400">{temp}°F — {above ? "↑ high" : "↓ low"} ({loc.target_min}–{loc.target_max}°F)</p>
+                  <p className="text-[13px] font-bold text-white truncate">{loc.name}</p>
+                  <p className="text-[11px] text-red-400 font-semibold">
+                    {temp}°F — {above ? "↑ Too high" : "↓ Too low"} · Safe: {loc.target_min}–{loc.target_max}°F
+                  </p>
                 </div>
                 <button
                   onClick={() => { setIssueSheet({ location: loc, temp }); setIssueNotes(""); setManagerInitials(""); }}
-                  className="h-6 px-2.5 text-[10px] font-bold text-red-400 bg-red-500/12 border border-red-500/25 rounded-lg active:scale-95 transition-transform whitespace-nowrap"
+                  className="h-7 px-2.5 text-[11px] font-bold text-red-400 bg-red-500/12 border border-red-500/25 rounded-lg active:scale-95 whitespace-nowrap"
                 >
                   Flag
                 </button>
@@ -324,7 +341,22 @@ export default function TempLogs() {
         </div>
       )}
 
-      {/* Add Location */}
+      {/* QR Scan Button */}
+      <button
+        onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
+        className="w-full flex items-center gap-3 bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-4 py-3 active:scale-[0.98] transition-transform"
+      >
+        <div className="h-11 w-11 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
+          <QrCode className="h-5 w-5 text-[#F5A623]" />
+        </div>
+        <div className="text-left flex-1">
+          <p className="text-[14px] font-bold text-white">Scan Equipment QR</p>
+          <p className="text-[11px] text-gray-600">Tap to log temp instantly via QR code</p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-gray-700 shrink-0" />
+      </button>
+
+      {/* Add Location panel */}
       {showAddLocation && (
         <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
           <div className="px-3 py-2 border-b border-[#1E2A3B] flex items-center justify-between">
@@ -333,7 +365,7 @@ export default function TempLogs() {
           </div>
           {LOCATIONS.filter(t => !locations.find(l => l.name === t.name)).map(t => (
             <button key={t.name} onClick={() => handleAddLocation(t)}
-              className="w-full flex items-center justify-between px-3 py-2 border-b border-[#1E2A3B] last:border-0 hover:bg-[#141C29] active:scale-[0.99] transition-all text-left">
+              className="w-full flex items-center justify-between px-3 py-2.5 border-b border-[#1E2A3B] last:border-0 hover:bg-[#141C29] active:scale-[0.99] transition-all text-left">
               <span className="text-[13px] font-semibold text-white">{t.name}</span>
               <span className="text-[10px] text-gray-600">{t.min}–{t.max}°F</span>
             </button>
@@ -341,73 +373,47 @@ export default function TempLogs() {
         </div>
       )}
 
-      {/* Large QR Scan button */}
-      <button
-        onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
-        className="w-full flex items-center gap-3 bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-4 py-3 active:scale-[0.98] transition-transform"
-      >
-        <div className="h-10 w-10 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
-          <QrCode className="h-5 w-5 text-[#F5A623]" />
+      {/* Equipment section */}
+      {locations.length > 0 && (
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Equipment</p>
+          <div className="flex flex-col gap-2">
+            {sortedLocations.map(loc => {
+              const entry = getLatestEntry(loc.id);
+              const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
+              const isActive = activeLocId === loc.id;
+              return (
+                <EquipmentCard
+                  key={loc.id}
+                  loc={loc}
+                  entry={entry}
+                  status={status}
+                  isActive={isActive}
+                  inputVal={temps[loc.id] ?? ""}
+                  isSaving={saving[loc.id]}
+                  onActivate={() => setActiveLocId(isActive ? null : loc.id)}
+                  onTempChange={val => setTemps(prev => ({ ...prev, [loc.id]: val }))}
+                  onStep={delta => {
+                    const current = parseFloat(temps[loc.id] ?? "") || 0;
+                    setTemps(prev => ({ ...prev, [loc.id]: String(current + delta) }));
+                    haptics.swipe();
+                  }}
+                  onLog={() => handleLogTemp(loc, undefined, undefined)}
+                  onFlag={() => { setIssueSheet({ location: loc, temp: entry?.temperature }); setIssueNotes(""); setManagerInitials(""); }}
+                />
+              );
+            })}
+          </div>
         </div>
-        <div className="text-left">
-          <p className="text-[13px] font-bold text-white">Scan Equipment QR</p>
-          <p className="text-[10px] text-gray-600">Point camera at QR label to log temp instantly</p>
-        </div>
-        <ChevronRight className="h-4 w-4 text-gray-700 ml-auto shrink-0" />
-      </button>
+      )}
 
-      {/* Filter pills */}
-      <div className="flex gap-1.5">
-        {[["all", "All"], ["critical", "Critical"], ["warning", "Warn"], ["none", "Pending"]].map(([val, label]) => (
-          <button key={val} onClick={() => setFilter(val)}
-            className={cn(
-              "flex-1 py-1.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95",
-              filter === val
-                ? val === "critical" ? "bg-red-500/15 text-red-400 border-red-500/30"
-                  : val === "warning" ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-                  : val === "none" ? "bg-gray-500/15 text-gray-400 border-gray-500/30"
-                  : "bg-primary/15 text-primary border-primary/30"
-                : "bg-[#0F1623] text-gray-600 border-[#1E2A3B]"
-            )}>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Equipment rows */}
-      <div className="flex flex-col gap-2">
-        {visibleLocations.length === 0 && (
-          <p className="text-center py-8 text-[13px] text-gray-600">No equipment in this filter</p>
-        )}
-        {visibleLocations.map(loc => {
-          const entry = getLatestEntry(loc.id);
-          const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
-          return (
-            <EquipmentRow
-              key={loc.id}
-              loc={loc} entry={entry} status={status}
-              inputVal={temps[loc.id] ?? ""}
-              isSaving={saving[loc.id]}
-              onTempChange={val => setTemps(prev => ({ ...prev, [loc.id]: val }))}
-              onStep={delta => {
-                const current = parseFloat(temps[loc.id] ?? "") || 0;
-                setTemps(prev => ({ ...prev, [loc.id]: String(current + delta) }));
-                haptics.swipe();
-              }}
-              onLog={() => handleLogTemp(loc, undefined, undefined)}
-              onCorrectiveAction={() => { setIssueSheet({ location: loc, temp: entry?.temperature }); setIssueNotes(""); setManagerInitials(""); }}
-            />
-          );
-        })}
-      </div>
-
-      {/* Trend chart */}
+      {/* Compliance Trend */}
       {trendData.length > 0 && (
         <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <TrendingUp className="h-3.5 w-3.5 text-primary" />
             <span className="text-[12px] font-bold text-white flex-1">Compliance Trend</span>
-            <span className={cn("text-[11px] font-bold", compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400")}>{compPct}%</span>
+            <span className={cn("text-[12px] font-bold", compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400")}>{compPct}%</span>
           </div>
           <ResponsiveContainer width="100%" height={80}>
             <AreaChart data={trendData} margin={{ top: 2, right: 2, left: -30, bottom: 0 }}>
@@ -431,13 +437,13 @@ export default function TempLogs() {
         </div>
       )}
 
-      {/* Bottom bar */}
+      {/* Bottom bar — Log All */}
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1E2A3B] px-4 py-2.5 flex gap-2 lg:left-64">
         <button
           onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
-          className="h-11 w-11 rounded-xl bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 transition-transform shrink-0"
+          className="h-11 w-11 rounded-xl bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 shrink-0"
         >
-          <QrCode className="h-4.5 w-4.5 text-gray-500" />
+          <QrCode className="h-5 w-5 text-gray-500" />
         </button>
         <button
           onClick={async () => {
@@ -452,7 +458,7 @@ export default function TempLogs() {
         </button>
       </div>
 
-      {/* Issue sheet */}
+      {/* Issue / corrective action sheet */}
       {issueSheet && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/75" onClick={() => setIssueSheet(null)} />
@@ -483,10 +489,10 @@ export default function TempLogs() {
               className="w-full px-3 py-2 text-[13px] border border-[#1E2A3B] rounded-xl bg-[#0F1623] text-white focus:outline-none focus:ring-1 focus:ring-red-500 resize-none placeholder:text-gray-600"
             />
             <div className="flex gap-2">
-              <button onClick={() => setIssueSheet(null)} className="flex-1 py-2.5 rounded-xl border border-[#1E2A3B] text-[13px] font-semibold text-gray-500 active:scale-95 transition-transform">
+              <button onClick={() => setIssueSheet(null)} className="flex-1 py-2.5 rounded-xl border border-[#1E2A3B] text-[13px] font-semibold text-gray-500 active:scale-95">
                 Cancel
               </button>
-              <button onClick={handleIssueSubmit} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-[13px] font-bold active:scale-95 transition-transform">
+              <button onClick={handleIssueSubmit} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-[13px] font-bold active:scale-95">
                 Log + Flag
               </button>
             </div>
