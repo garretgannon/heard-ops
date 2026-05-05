@@ -494,5 +494,6 @@ export default function TodaysCommandCenter() {
       <QuickActionModals activeModal={activeModal} onCloseModal={handleCloseModal} onSuccess={handleModalSuccess} />
     </div>
   );
+}
 
 export const hideBase44Index = true;
