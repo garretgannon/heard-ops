@@ -179,7 +179,7 @@ export default function FloatingManagerLogButton() {
               <button
                 onClick={handleSubmit}
                 disabled={saving || !form.title.trim()}
-                className="w-full h-10 rounded-lg bg-primary text-primary-foreground font-bold text-sm active:scale-95 disabled:opacity-50 transition-all"
+                className="w-full h-10 rounded-lg bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-all disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving...' : 'Add Log Entry'}
               </button>
