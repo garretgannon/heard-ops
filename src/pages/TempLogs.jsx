@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Thermometer, AlertTriangle, Download, Minus, Check, X, QrCode, Clock, ShieldCheck, TrendingUp, Activity, ChevronRight } from "lucide-react";
+import { Plus, Thermometer, AlertTriangle, Download, Minus, Check, X, QrCode, Clock, ShieldCheck, TrendingUp, Activity, ChevronRight, Droplet, Snowflake } from "lucide-react";
 import MetricTile from "../components/MetricTile";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -344,33 +344,36 @@ export default function TempLogs() {
       <div className="flex gap-1.5">
         <button
           onClick={() => setActiveTab("temps")}
-          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all",
+          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5",
             activeTab === "temps"
               ? "bg-primary text-primary-foreground"
               : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
           )}
         >
-          Temperature
+          <Thermometer className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Temperature</span>
         </button>
         <button
           onClick={() => setActiveTab("chemicals")}
-          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all",
+          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5",
             activeTab === "chemicals"
               ? "bg-primary text-primary-foreground"
               : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
           )}
         >
-          Chemicals
+          <Droplet className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Chemicals</span>
         </button>
         <button
           onClick={() => setActiveTab("cooling")}
-          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all",
+          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5",
             activeTab === "cooling"
               ? "bg-primary text-primary-foreground"
               : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
           )}
         >
-          Cooling Logs
+          <Snowflake className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Cooling Logs</span>
         </button>
       </div>
 
