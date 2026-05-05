@@ -352,7 +352,7 @@ export default function ShiftHandoff() {
       )}
 
       {/* ── BOTTOM BAR ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1F2937] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] lg:left-64">
+      <div className="fixed bottom-16 left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1F2937] px-4 py-3 lg:bottom-0 lg:left-64">
         <button onClick={() => setShowForm(true)}
           className="w-full h-12 flex items-center justify-center gap-2 rounded-xl bg-[#F5A623] text-black text-[14px] font-extrabold active:scale-95 transition-transform">
           <Plus className="h-4 w-4" /> Log Handoff Note
