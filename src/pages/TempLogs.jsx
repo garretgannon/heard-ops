@@ -433,7 +433,7 @@ export default function TempLogs() {
       )}
 
       {/* Bottom bar — Log All */}
-      <div className="fixed left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1E2A3B] px-4 py-2.5 flex gap-2 lg:left-64" style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
+      {!activeLocId && <div className="fixed left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1E2A3B] px-4 py-2.5 flex gap-2 lg:left-64" style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
         <button
           onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
           className="h-11 w-11 rounded-xl bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 shrink-0"
@@ -451,7 +451,7 @@ export default function TempLogs() {
           <Thermometer className="h-4 w-4" />
           Log All Temps
         </button>
-      </div>
+      </div>}
 
       {/* Issue / corrective action sheet */}
       {issueSheet && (
