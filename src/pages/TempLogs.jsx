@@ -28,20 +28,11 @@ const getTempStatus = (temp, min, max) => {
 };
 
 const S = {
-  ok:       { label: "Safe",     bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400", dot: "bg-emerald-400",         icon: "text-emerald-400" },
-  warning:  { label: "Warning",  bg: "bg-amber-500/10",   border: "border-amber-500/20",   text: "text-amber-400",   dot: "bg-amber-400",            icon: "text-amber-400" },
-  critical: { label: "Critical", bg: "bg-red-500/10",     border: "border-red-500/30",     text: "text-red-400",     dot: "bg-red-400 animate-pulse", icon: "text-red-400" },
-  none:     { label: "No Log",   bg: "bg-[#181F2C]",      border: "border-[#232D3F]",      text: "text-gray-500",    dot: "bg-gray-600",             icon: "text-gray-600" },
+  ok:       { label: "Safe",     bg: "bg-green-500/10", border: "border-l-green-500", text: "text-green-400" },
+  warning:  { label: "Warning",  bg: "bg-amber-500/10",   border: "border-l-amber-500",   text: "text-amber-400" },
+  critical: { label: "Critical", bg: "bg-red-500/10",     border: "border-l-red-500",     text: "text-red-400" },
+  none:     { label: "No Log",   bg: "bg-muted",      border: "border-l-slate-600",      text: "text-muted-foreground" },
 };
-
-function Badge({ status }) {
-  const c = S[status] || S.none;
-  return (
-    <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0", c.bg, c.border, c.text)}>
-      {c.label}
-    </span>
-  );
-}
 
 function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onActivate, onTempChange, onStep, onLog, onFlag }) {
   const c = S[status] || S.none;
@@ -49,51 +40,27 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
   const loggedTime = entry?.logged_at
     ? new Date(entry.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     : null;
-  const pendingStatus = inputVal !== "" ? getTempStatus(parseFloat(inputVal), loc.target_min, loc.target_max) : null;
-  const ps = pendingStatus ? S[pendingStatus] : null;
 
   return (
-    <div className={cn(
-      "bg-[#0F1623] border rounded-xl overflow-hidden transition-all",
-      status === "critical" ? "border-red-500/40 shadow-sm shadow-red-500/10" : c.border
-    )}>
-      <div className="flex items-center gap-2.5 px-3 py-2.5">
-        <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", c.bg)}>
-          <Thermometer className={cn("h-3.5 w-3.5", c.icon)} />
+    <div className={cn("card-with-border rounded-lg p-3 space-y-2", c.border)}>
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-bold text-foreground">{loc.name}</p>
+          <p className="text-xs text-secondary-text mt-0.5">{loc.min}–{loc.max}°F {loggedTime && `· ${loggedTime}`}</p>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-bold text-white leading-tight truncate">{loc.name}</p>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-[10px] text-gray-600">{loc.target_min}–{loc.target_max}°F</span>
-            {loggedTime && (
-              <>
-                <span className="text-gray-700">·</span>
-                <span className="text-[10px] text-gray-600">{loggedTime}</span>
-              </>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {displayTemp !== undefined && (
-            <span className={cn("text-[16px] font-extrabold leading-none", c.text)}>{displayTemp}°</span>
-          )}
-          <Badge status={status} />
-          <button
-            onClick={onActivate}
-            className={cn(
-              "h-7 px-2.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95",
-              isActive ? "bg-[#1E2A3B] text-gray-400 border-[#2A3A50]" : "bg-primary/10 text-primary border-primary/25"
-            )}
-          >
-            {isActive ? "Cancel" : "Log"}
-          </button>
-        </div>
+        <span className={cn("text-xs font-bold px-2 py-1 rounded-full", c.bg, c.text)}>
+          {c.label}
+        </span>
       </div>
 
+      {displayTemp !== undefined && (
+        <p className={cn("text-3xl font-bold", c.text)}>{displayTemp}°</p>
+      )}
+
       {isActive && (
-        <div className="flex items-center gap-1.5 px-3 pb-3 border-t border-[#1A2235] pt-2.5">
-          <button onClick={() => onStep(-1)} className="h-8 w-8 rounded-lg bg-[#171F2D] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform">
-            <Minus className="h-3 w-3 text-gray-500" />
+        <div className="flex items-center gap-1.5 pt-2 border-t border-border">
+          <button onClick={() => onStep(-1)} className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center active:scale-90">
+            <Minus className="h-4 w-4 text-secondary-text" />
           </button>
           <input
             type="number"
@@ -101,33 +68,26 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
             onChange={e => onTempChange(e.target.value)}
             placeholder="°F"
             autoFocus
-            className={cn(
-              "flex-1 h-8 text-center text-[14px] font-bold rounded-lg border bg-[#0B0F18] focus:outline-none focus:ring-1 focus:ring-primary transition-colors",
-              ps?.border || "border-[#232D3F]",
-              ps?.text || "text-white"
-            )}
+            className="flex-1 h-8 text-center text-sm font-bold rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
-          <button onClick={() => onStep(1)} className="h-8 w-8 rounded-lg bg-[#171F2D] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform">
-            <Plus className="h-3 w-3 text-gray-500" />
+          <button onClick={() => onStep(1)} className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center active:scale-90">
+            <Plus className="h-4 w-4 text-secondary-text" />
           </button>
           <button
             onClick={onLog}
             disabled={!inputVal || isSaving}
-            className={cn(
-              "h-8 px-4 rounded-lg text-[12px] font-bold flex items-center gap-1.5 active:scale-95 transition-all border",
-              inputVal ? "bg-primary text-primary-foreground border-primary" : "bg-[#171F2D] border-[#232D3F] text-gray-700 cursor-not-allowed"
-            )}
+            className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5"
           >
-            {isSaving
-              ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-              : <><Check className="h-3 w-3" /> Log</>}
+            {isSaving ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" /> : <Check className="h-3 w-3" />}
+            Log
           </button>
-          {status === "critical" && (
-            <button onClick={onFlag} className="h-8 px-2.5 rounded-lg text-[11px] font-bold text-red-400 bg-red-500/10 border border-red-500/25 active:scale-95 transition-transform whitespace-nowrap">
-              Flag
-            </button>
-          )}
         </div>
+      )}
+
+      {!isActive && (
+        <button onClick={onActivate} className="btn-secondary w-full text-xs h-8">
+          Log Temperature
+        </button>
       )}
     </div>
   );
@@ -170,21 +130,6 @@ export default function TempLogs() {
     loadCooling();
   }, []);
 
-  useEffect(() => {
-    if (!activeLocId) return;
-    const timer = setTimeout(() => {
-      const el = document.getElementById(`loc-card-${activeLocId}`);
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const bottomClearance = 138 + (window.screen?.height > 800 ? 34 : 0);
-      const viewportBottom = window.innerHeight - bottomClearance;
-      if (rect.bottom > viewportBottom) {
-        window.scrollBy({ top: rect.bottom - viewportBottom, behavior: 'smooth' });
-      }
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [activeLocId]);
-
   const load = async () => {
     const [locs, ents] = await Promise.all([
       base44.entities.TempLogLocation.list(),
@@ -221,19 +166,6 @@ export default function TempLogs() {
     return order[sa] - order[sb];
   });
 
-  const hourlyBuckets = {};
-  entries.forEach(e => {
-    const h = new Date(e.logged_at).getHours();
-    const label = `${h % 12 || 12}${h < 12 ? "a" : "p"}`;
-    if (!hourlyBuckets[label]) hourlyBuckets[label] = { label, total: 0, pass: 0 };
-    hourlyBuckets[label].total++;
-    if (e.status !== false) hourlyBuckets[label].pass++;
-  });
-  const trendData = Object.values(hourlyBuckets).map(b => ({
-    time: b.label,
-    compliance: b.total > 0 ? Math.round((b.pass / b.total) * 100) : 100,
-  }));
-
   const handleLogTemp = async (loc, overrideNotes, overrideInitials) => {
     const tempVal = temps[loc.id];
     if (!tempVal && tempVal !== 0) { haptics.warning(); toast.error("Enter a temperature first"); return; }
@@ -268,52 +200,6 @@ export default function TempLogs() {
     setIssueNotes(""); setManagerInitials("");
   };
 
-  const handleAddLocation = async (template) => {
-    const created = await base44.entities.TempLogLocation.create({
-      name: template.name, type: template.type,
-      target_min: template.min, target_max: template.max, is_active: true,
-    });
-    setLocations(prev => [...prev, created]);
-    setShowAddLocation(false);
-    toast.success("Location added");
-  };
-
-  const handleLogChemical = async (unit) => {
-    const inputs = chemicalInputs[unit];
-    if (!inputs.temp && !inputs.ppm) {
-      haptics.warning();
-      toast.error("Enter temperature or PPM");
-      return;
-    }
-    setLoggingChemical(true);
-    const unitName = unit === "dishwasher" ? "Dish Machine" : "Three Compartment Sink";
-    await base44.entities.ChemicalLog.create({
-      machine_name: unitName,
-      date: todayStr,
-      logged_at: new Date().toISOString(),
-      temperature: inputs.temp ? parseFloat(inputs.temp) : null,
-      sanitizer_ppm: inputs.ppm ? parseFloat(inputs.ppm) : null,
-      status: inputs.ppm && parseFloat(inputs.ppm) >= 50 && parseFloat(inputs.ppm) <= 400 ? "pass" : "warning",
-    });
-    setChemicalInputs({ dishwasher: {}, threeSink: {} });
-    const logs = await base44.entities.ChemicalLog.filter({ date: todayStr }).catch(() => []);
-    setChemicalLogs(logs);
-    setLoggingChemical(false);
-    haptics.success();
-    toast.success("Reading logged ✓");
-  };
-
-  const handleExport = () => {
-    const csv = ["Location,Temperature,Status,Time,Notes,Manager"]
-      .concat(entries.map(e =>
-        `"${e.location_name}",${e.temperature},"${e.status ? "Pass" : "Fail"}",${new Date(e.logged_at).toLocaleTimeString()},"${e.notes || ""}","${e.manager_initials || ""}"`
-      )).join("\n");
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    a.download = `temp-logs-${todayStr}.csv`;
-    a.click();
-  };
-
   if (loading) return (
     <div className="flex items-center justify-center h-48">
       <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -321,466 +207,96 @@ export default function TempLogs() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3" style={{ paddingBottom: 'calc(16rem + env(safe-area-inset-bottom, 0px))' }}>
-
+    <div className="mx-auto w-full max-w-[430px] flex flex-col gap-3 pb-32">
       {/* Header */}
-      <div className="flex items-center justify-between pt-0.5 mb-1">
-        <div>
-          <h1 className="text-base font-bold text-white">Food Safety</h1>
-        </div>
+      <div className="flex items-center justify-between pt-0.5">
+        <h1 className="text-lg font-bold text-foreground">Temperature Control</h1>
         <div className="flex gap-1.5">
           {activeTab === "temps" && entries.length > 0 && (
-            <button onClick={handleExport} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95">
-              <Download className="h-3.5 w-3.5 text-gray-500" />
-            </button>
-          )}
-          {activeTab === "temps" && (
-            <button onClick={() => setShowAddLocation(v => !v)} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95">
-              <Plus className="h-3.5 w-3.5 text-gray-500" />
+            <button className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center hover:bg-secondary">
+              <Download className="h-4 w-4 text-secondary-text" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-3 px-4 py-2 border-b border-border overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("temps")}
-          className={cn("whitespace-nowrap text-xs font-bold transition-all",
-            activeTab === "temps"
-              ? "text-primary"
-              : "text-gray-500"
-          )}
-        >
-          Temps
-        </button>
-        <button
-          onClick={() => setActiveTab("chemicals")}
-          className={cn("whitespace-nowrap text-xs font-bold transition-all",
-            activeTab === "chemicals"
-              ? "text-primary"
-              : "text-gray-500"
-          )}
-        >
-          Chemicals
-        </button>
-        <button
-          onClick={() => setActiveTab("cooling")}
-          className={cn("whitespace-nowrap text-xs font-bold transition-all",
-            activeTab === "cooling"
-              ? "text-primary"
-              : "text-gray-500"
-          )}
-        >
-          Cooling
-        </button>
+      {/* Metric Cards */}
+      <div className="grid grid-cols-4 gap-1">
+        <MetricTile icon={Activity} label="Logged" value={logsToday} />
+        <MetricTile icon={Clock} label="Missed" value={missedLogs} alert={missedLogs > 0} />
+        <MetricTile icon={AlertTriangle} label="Alerts" value={highAlerts} alert={highAlerts > 0} />
+        <MetricTile icon={ShieldCheck} label="Pass %" value={`${compPct}%`} color={compPct >= 90 ? "text-green-400" : compPct >= 70 ? "text-amber-400" : "text-red-400"} />
       </div>
 
-      {/* Temperature Tab */}
-      {activeTab === "temps" && (
-        <>
-          {/* Metrics — 4-col */}
-          <div className="grid grid-cols-4 gap-1">
-            <MetricTile icon={Activity}      label="Logged" value={logsToday} />
-            <MetricTile icon={Clock}         label="Missed" value={missedLogs} alert={missedLogs > 0} />
-            <MetricTile icon={AlertTriangle} label="Alerts" value={highAlerts} alert={highAlerts > 0} />
-            <MetricTile icon={ShieldCheck}   label="Pass %" value={`${compPct}%`} color={compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400"} />
+      {/* Critical Alerts Section */}
+      {criticalLocations.length > 0 && (
+        <div className="card-with-border border-l-red-500 p-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-red-400" />
+            <span className="text-xs font-bold text-red-400 uppercase">Critical Alerts ({criticalLocations.length})</span>
           </div>
-
-          {/* Critical Alerts */}
-          {criticalLocations.length > 0 && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/6 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-red-500/15">
-                <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-                <span className="text-xs font-bold text-red-400 flex-1 uppercase">CRITICAL</span>
-                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400">{criticalLocations.length}</span>
-              </div>
-              {criticalLocations.map(loc => {
-                const e = getLatestEntry(loc.id);
-                const temp = e?.temperature;
-                const above = temp > loc.target_max;
-                return (
-                  <div key={loc.id} className="flex items-center gap-2.5 px-3 py-2 border-b border-red-500/8 last:border-0">
-                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-white truncate">{loc.name}</p>
-                      <p className="text-[10px] text-red-400 font-semibold">
-                        {temp}°F — {above ? "↑ Too high" : "↓ Too low"} · Safe: {loc.target_min}–{loc.target_max}°F
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => { setIssueSheet({ location: loc, temp }); setIssueNotes(""); setManagerInitials(""); }}
-                      className="h-7 px-2.5 text-[11px] font-bold text-red-400 bg-red-500/12 border border-red-500/25 rounded-lg active:scale-95 whitespace-nowrap"
-                    >
-                      Flag
-                    </button>
+          <div className="space-y-1">
+            {criticalLocations.map(loc => {
+              const e = getLatestEntry(loc.id);
+              const temp = e?.temperature;
+              return (
+                <div key={loc.id} className="flex items-center justify-between text-xs p-2 bg-muted rounded">
+                  <div>
+                    <p className="font-bold text-foreground">{loc.name}: {temp}°F</p>
+                    <p className="text-secondary-text">Safe: {loc.target_min}–{loc.target_max}°F</p>
                   </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Location Type Filters */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
-            {["All", "Refrigerators", "Freezers", "Hot Holding"].map(type => (
-              <button
-                key={type}
-                onClick={() => setLocationFilter(type)}
-                className={cn(
-                  "flex-shrink-0 h-8 px-3 rounded-full text-xs font-bold whitespace-nowrap border transition-all",
-                  locationFilter === type
-                    ? "bg-primary/15 text-primary border-primary/30"
-                    : "bg-[#0F1623] border-[#1E2A3B] text-gray-500"
-                )}
-              >
-                {type}
-              </button>
-            ))}
+                  <button className="btn-secondary text-xs px-2 py-1">Flag</button>
+                </div>
+              );
+            })}
           </div>
-
-          {/* QR Scan Button */}
-          <button
-          onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
-          className="w-full flex items-center gap-2.5 bg-[#0F1623] border border-[#1E2A3B] rounded-lg px-3 py-2.5 active:scale-[0.98] transition-transform"
-          >
-          <div className="h-10 w-10 rounded-lg bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
-            <QrCode className="h-4 w-4 text-[#F5A623]" />
-          </div>
-          <div className="text-left flex-1">
-            <p className="text-xs font-bold text-white">Scan QR Code</p>
-          </div>
-            <ChevronRight className="h-4 w-4 text-gray-700 shrink-0" />
-          </button>
-
-          {/* Add Location panel */}
-          {showAddLocation && (
-            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
-              <div className="px-3 py-2 border-b border-[#1E2A3B] flex items-center justify-between">
-                <span className="text-[12px] font-bold text-white">Add Equipment</span>
-                <button onClick={() => setShowAddLocation(false)}><X className="h-3.5 w-3.5 text-gray-500" /></button>
-              </div>
-              {LOCATIONS.filter(t => !locations.find(l => l.name === t.name)).map(t => (
-                <button key={t.name} onClick={() => handleAddLocation(t)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 border-b border-[#1E2A3B] last:border-0 hover:bg-[#141C29] active:scale-[0.99] transition-all text-left">
-                  <span className="text-[13px] font-semibold text-white">{t.name}</span>
-                  <span className="text-[10px] text-gray-600">{t.min}–{t.max}°F</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Equipment section */}
-          {locations.length > 0 && (
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Equipment</p>
-              <div className="flex flex-col gap-2">
-                {sortedLocations.filter(loc => {
-                  if (locationFilter === "All") return true;
-                  if (locationFilter === "Refrigerators") return loc.type === "cooler";
-                  if (locationFilter === "Freezers") return loc.type === "freezer";
-                  if (locationFilter === "Hot Holding") return loc.type === "hot";
-                  return true;
-                }).map(loc => {
-                  const entry = getLatestEntry(loc.id);
-                  const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
-                  const isActive = activeLocId === loc.id;
-                  return (
-                    <div id={`loc-card-${loc.id}`} key={loc.id}>
-                    <EquipmentCard
-                      loc={loc}
-                      entry={entry}
-                      status={status}
-                      isActive={isActive}
-                      inputVal={temps[loc.id] ?? ""}
-                      isSaving={saving[loc.id]}
-                      onActivate={() => setActiveLocId(isActive ? null : loc.id)}
-                      onTempChange={val => setTemps(prev => ({ ...prev, [loc.id]: val }))}
-                      onStep={delta => {
-                        const current = parseFloat(temps[loc.id] ?? "") || 0;
-                        setTemps(prev => ({ ...prev, [loc.id]: String(current + delta) }));
-                        haptics.swipe();
-                      }}
-                      onLog={() => handleLogTemp(loc, undefined, undefined)}
-                      onFlag={() => { setIssueSheet({ location: loc, temp: entry?.temperature }); setIssueNotes(""); setManagerInitials(""); }}
-                    />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Compliance Trend */}
-          {trendData.length > 0 && (
-            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                <span className="text-[12px] font-bold text-white flex-1">Compliance Trend</span>
-                <span className={cn("text-[12px] font-bold", compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400")}>{compPct}%</span>
-              </div>
-              <ResponsiveContainer width="100%" height={80}>
-                <AreaChart data={trendData} margin={{ top: 2, right: 2, left: -30, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#F5A623" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#F5A623" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1A2235" vertical={false} />
-                  <XAxis dataKey="time" tick={{ fill: "#4B5563", fontSize: 9 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fill: "#4B5563", fontSize: 9 }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{ background: "#0F1623", border: "1px solid #1E2A3B", borderRadius: 8, fontSize: 11, padding: "4px 8px" }}
-                    labelStyle={{ color: "#6B7280" }} itemStyle={{ color: "#F5A623" }}
-                    formatter={v => [`${v}%`, "Compliance"]}
-                  />
-                  <Area type="monotone" dataKey="compliance" stroke="#F5A623" strokeWidth={1.5} fill="url(#cg)" dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {/* Bottom bar — Log All */}
-          {!activeLocId && <div className="fixed left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1E2A3B] px-4 py-2.5 flex gap-2 lg:left-64" style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
-            <button
-              onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
-              className="h-11 w-11 rounded-xl bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 shrink-0"
-            >
-              <QrCode className="h-5 w-5 text-gray-500" />
-            </button>
-            <button
-              onClick={async () => {
-                const pending = locations.filter(l => temps[l.id] !== undefined && temps[l.id] !== "");
-                if (!pending.length) { haptics.warning(); toast.error("Enter temperatures first"); return; }
-                for (const loc of pending) await handleLogTemp(loc, undefined, undefined);
-              }}
-              className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-transform"
-            >
-              <Thermometer className="h-4 w-4" />
-              Log All Temps
-            </button>
-          </div>}
-        </>
+        </div>
       )}
 
-      {/* Cooling Logs Tab */}
-      {activeTab === "cooling" && (
-        <>
-          <div className="grid grid-cols-2 gap-1.5">
-            <MetricTile icon={Activity} label="Logged" value={coolingLogs.length} />
-            <MetricTile icon={ShieldCheck} label="Compliant" value={coolingLogs.filter(l => l.compliant !== false).length} />
+      {/* Equipment List */}
+      {locations.length > 0 && (
+        <div>
+          <h2 className="text-xs font-bold uppercase text-secondary-text mb-2">Equipment ({locations.length})</h2>
+          <div className="space-y-1.5">
+            {sortedLocations.map(loc => {
+              const entry = getLatestEntry(loc.id);
+              const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
+              const isActive = activeLocId === loc.id;
+              return (
+                <EquipmentCard
+                  key={loc.id}
+                  loc={loc}
+                  entry={entry}
+                  status={status}
+                  isActive={isActive}
+                  inputVal={temps[loc.id] ?? ""}
+                  isSaving={saving[loc.id]}
+                  onActivate={() => setActiveLocId(isActive ? null : loc.id)}
+                  onTempChange={val => setTemps(prev => ({ ...prev, [loc.id]: val }))}
+                  onStep={delta => {
+                    const current = parseFloat(temps[loc.id] ?? "") || 0;
+                    setTemps(prev => ({ ...prev, [loc.id]: String(current + delta) }));
+                    haptics.swipe();
+                  }}
+                  onLog={() => handleLogTemp(loc, undefined, undefined)}
+                  onFlag={() => { setIssueSheet({ location: loc, temp: entry?.temperature }); }}
+                />
+              );
+            })}
           </div>
-
-          {/* Logging Section */}
-          <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
-            <p className="text-[12px] font-bold text-white">Log Cooling Process</p>
-            <input
-              type="text"
-              placeholder="Item name"
-              value={coolingInputs.item}
-              onChange={e => setCoolingInputs(prev => ({ ...prev, item: e.target.value }))}
-              className="w-full h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="number"
-                placeholder="Start Temp °F"
-                value={coolingInputs.tempStart}
-                onChange={e => setCoolingInputs(prev => ({ ...prev, tempStart: e.target.value }))}
-                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <input
-                type="number"
-                placeholder="End Temp °F"
-                value={coolingInputs.tempEnd}
-                onChange={e => setCoolingInputs(prev => ({ ...prev, tempEnd: e.target.value }))}
-                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="time"
-                value={coolingInputs.startTime}
-                onChange={e => setCoolingInputs(prev => ({ ...prev, startTime: e.target.value }))}
-                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <input
-                type="time"
-                value={coolingInputs.endTime}
-                onChange={e => setCoolingInputs(prev => ({ ...prev, endTime: e.target.value }))}
-                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-            <button
-              onClick={async () => {
-                if (!coolingInputs.item || !coolingInputs.tempStart || !coolingInputs.tempEnd) {
-                  haptics.warning();
-                  toast.error("Fill in all fields");
-                  return;
-                }
-                setLoggingCooling(true);
-                await base44.entities.TemperatureLog.create({
-                  item_name: coolingInputs.item,
-                  start_temperature: parseFloat(coolingInputs.tempStart),
-                  end_temperature: parseFloat(coolingInputs.tempEnd),
-                  start_time: coolingInputs.startTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                  end_time: coolingInputs.endTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                  date: todayStr,
-                  logged_at: new Date().toISOString(),
-                  compliant: parseFloat(coolingInputs.tempEnd) <= 70,
-                });
-                setCoolingInputs({ item: "", tempStart: "", tempEnd: "", startTime: "", endTime: "" });
-                const logs = await base44.entities.TemperatureLog.filter({ date: todayStr }).catch(() => []);
-                setCoolingLogs(logs);
-                setLoggingCooling(false);
-                haptics.success();
-                toast.success("Cooling log recorded ✓");
-              }}
-              disabled={loggingCooling}
-              className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-[12px] font-bold active:scale-95 disabled:opacity-50"
-            >
-              {loggingCooling ? "Logging..." : "Log Cooling"}
-            </button>
-          </div>
-
-          {/* Recent Logs */}
-          {coolingLogs.length > 0 && (
-            <div className="mt-4">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-600 mb-2">Recent Logs</p>
-              <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
-                {coolingLogs.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at)).map((log, idx) => {
-                  const logTime = new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                  const isCompliant = log.compliant !== false;
-                  return (
-                    <div key={idx} className={cn("flex items-center gap-3 px-3 py-2.5", idx < coolingLogs.length - 1 ? "border-b border-[#1A2235]" : "")}>
-                      <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", isCompliant ? "bg-emerald-400" : "bg-red-400")} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-white truncate">{log.item_name}</p>
-                        <p className="text-[9px] text-gray-600 mt-0">{log.start_temperature}°F → {log.end_temperature}°F · {logTime}</p>
-                      </div>
-                      <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
-                        isCompliant ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
-                      )}>
-                        {isCompliant ? "Safe" : "Alert"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </>
+        </div>
       )}
 
-      {/* Chemical Logs Tab */}
-      {activeTab === "chemicals" && (
-        <>
-          <div className="grid grid-cols-2 gap-1.5">
-            <MetricTile icon={Activity} label="Logged" value={chemicalLogs.length} />
-            <MetricTile icon={ShieldCheck} label="Passes" value={chemicalLogs.filter(l => l.status === "pass").length} />
-          </div>
-
-          {/* Logging Section */}
-          <div className="space-y-3">
-            {/* Dishwasher */}
-            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
-              <p className="text-[12px] font-bold text-white">Dish Machine</p>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  placeholder="Temp °F"
-                  value={chemicalInputs.dishwasher.temp || ""}
-                  onChange={e => setChemicalInputs(prev => ({ ...prev, dishwasher: { ...prev.dishwasher, temp: e.target.value } }))}
-                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <input
-                  type="number"
-                  placeholder="PPM"
-                  value={chemicalInputs.dishwasher.ppm || ""}
-                  onChange={e => setChemicalInputs(prev => ({ ...prev, dishwasher: { ...prev.dishwasher, ppm: e.target.value } }))}
-                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <button
-                onClick={() => handleLogChemical("dishwasher")}
-                disabled={loggingChemical}
-                className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-[12px] font-bold active:scale-95 disabled:opacity-50"
-              >
-                {loggingChemical ? "Logging..." : "Log Reading"}
-              </button>
-            </div>
-
-            {/* Three Compartment Sink */}
-            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
-              <p className="text-[12px] font-bold text-white">Three Compartment Sink</p>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  placeholder="Temp °F"
-                  value={chemicalInputs.threeSink.temp || ""}
-                  onChange={e => setChemicalInputs(prev => ({ ...prev, threeSink: { ...prev.threeSink, temp: e.target.value } }))}
-                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <input
-                  type="number"
-                  placeholder="PPM"
-                  value={chemicalInputs.threeSink.ppm || ""}
-                  onChange={e => setChemicalInputs(prev => ({ ...prev, threeSink: { ...prev.threeSink, ppm: e.target.value } }))}
-                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-              <button
-                onClick={() => handleLogChemical("threeSink")}
-                disabled={loggingChemical}
-                className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-[12px] font-bold active:scale-95 disabled:opacity-50"
-              >
-                {loggingChemical ? "Logging..." : "Log Reading"}
-              </button>
-            </div>
-          </div>
-
-          {/* Recent Logs */}
-          {chemicalLogs.length > 0 && (
-            <div className="mt-4">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-600 mb-2">Recent Logs</p>
-              <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
-                {chemicalLogs.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at)).map((log, idx) => {
-                  const logTime = new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                  const isPassing = log.status === "pass";
-                  return (
-                    <div key={idx} className={cn("flex items-center gap-3 px-3 py-2.5", idx < chemicalLogs.length - 1 ? "border-b border-[#1A2235]" : "")}>
-                      <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", isPassing ? "bg-emerald-400" : "bg-amber-400")} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-white truncate">{log.machine_name}</p>
-                              <p className="text-[9px] text-gray-600 mt-0">{log.temperature}°F {log.sanitizer_ppm ? `· ${log.sanitizer_ppm} PPM` : ""} · {logTime}</p>
-                      </div>
-                      <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
-                        isPassing ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
-                      )}>
-                        {isPassing ? "Pass" : "Warning"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Issue / corrective action sheet */}
+      {/* Issue Corrective Action Sheet */}
       {issueSheet && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end">
-          <div className="absolute inset-0 bg-black/75" onClick={() => setIssueSheet(null)} />
-          <div className="relative bg-[#0B1018] border-t border-red-500/25 rounded-t-2xl p-4 space-y-3 z-10" style={{ paddingBottom: 'calc(1rem + 56px + env(safe-area-inset-bottom, 0px))' }}>
-            <div className="w-8 h-0.5 bg-[#1E2A3B] rounded-full mx-auto" />
+        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50">
+          <div className="relative bg-card border-t border-border rounded-t-2xl p-4 space-y-3">
+            <div className="w-8 h-0.5 bg-border rounded-full mx-auto" />
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-red-500/12 border border-red-500/25 flex items-center justify-center shrink-0">
-                <AlertTriangle className="h-4 w-4 text-red-400" />
-              </div>
+              <AlertTriangle className="h-5 w-5 text-red-400" />
               <div>
-                <p className="text-[13px] font-bold text-white">{issueSheet.location.name} — Out of Range</p>
-                <p className="text-[11px] text-red-400">{issueSheet.temp}°F · Safe: {issueSheet.location.target_min}–{issueSheet.location.target_max}°F</p>
+                <p className="text-sm font-bold text-foreground">{issueSheet.location.name}</p>
+                <p className="text-xs text-red-400">{issueSheet.temp}°F • Out of range</p>
               </div>
             </div>
             <input
@@ -789,22 +305,18 @@ export default function TempLogs() {
               onChange={e => setManagerInitials(e.target.value.toUpperCase())}
               placeholder="Manager initials *"
               maxLength={3}
-              className="w-full h-10 px-3 text-[13px] font-bold border border-[#1E2A3B] rounded-xl bg-[#0F1623] text-white focus:outline-none focus:ring-1 focus:ring-red-500 uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal placeholder:font-normal"
+              className="w-full h-9 px-3 text-xs font-bold border border-border rounded-lg bg-input text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <textarea
               value={issueNotes}
               onChange={e => setIssueNotes(e.target.value)}
-              placeholder="Corrective action taken..."
+              placeholder="Corrective action..."
               rows={2}
-              className="w-full px-3 py-2 text-[13px] border border-[#1E2A3B] rounded-xl bg-[#0F1623] text-white focus:outline-none focus:ring-1 focus:ring-red-500 resize-none placeholder:text-gray-600"
+              className="w-full px-3 py-2 text-xs border border-border rounded-lg bg-input text-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
             />
             <div className="flex gap-2">
-              <button onClick={() => setIssueSheet(null)} className="flex-1 py-2.5 rounded-xl border border-[#1E2A3B] text-[13px] font-semibold text-gray-500 active:scale-95">
-                Cancel
-              </button>
-              <button onClick={handleIssueSubmit} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-[13px] font-bold active:scale-95">
-                Log + Flag
-              </button>
+              <button onClick={() => setIssueSheet(null)} className="btn-secondary flex-1 h-9 text-xs">Cancel</button>
+              <button onClick={handleIssueSubmit} className="btn-primary flex-1 h-9 text-xs">Log + Flag</button>
             </div>
           </div>
         </div>

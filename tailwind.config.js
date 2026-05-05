@@ -80,6 +80,10 @@ module.exports = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
+  		},
+  		boxShadow: {
+  			'glow': '0 0 20px rgba(76, 255, 136, 0.15)',
+  			'glow-lg': '0 0 30px rgba(76, 255, 136, 0.25)',
   		}
   	}
   },
