@@ -126,11 +126,13 @@ export default function TemplateBuilder() {
   const [showStationForm, setShowStationForm] = useState(false);
   const [newStationName, setNewStationName] = useState("");
   const [savingStation, setSavingStation] = useState(false);
+  const [jobCodes, setJobCodes] = useState([]);
 
   useEffect(() => { 
     loadTemplates(); 
     loadStats();
     base44.entities.Station.list("-updated_date", 100).then(setStations);
+    base44.entities.JobCode.list("-updated_date", 100).then(setJobCodes);
     if (id === "new") {
       setSelected(emptyTemplate());
       setScreen("edit");
@@ -482,7 +484,10 @@ export default function TemplateBuilder() {
 
                 <div>
                    <label className="text-[10px] text-gray-500 font-semibold">Role</label>
-                   <TextInput value={selected.assigned_role} onChange={v => setSelected(s => ({ ...s, assigned_role: v }))} placeholder="e.g. Line Cook" className="text-[13px]" />
+                   <select value={selected.assigned_role || ""} onChange={e => setSelected(s => ({ ...s, assigned_role: e.target.value || undefined }))} className="w-full bg-[#0B1018] border border-[#1E2A3B] text-[13px] text-white rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-primary">
+                     <option value="">Select job title</option>
+                     {jobCodes.map(jc => <option key={jc.id} value={jc.title}>{jc.title}</option>)}
+                   </select>
                 </div>
 
                 {selected.category === "prep" && (
