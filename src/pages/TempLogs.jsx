@@ -256,7 +256,7 @@ export default function TempLogs() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-28">
+    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-40">
 
       {/* Header */}
       <div className="flex items-center justify-between pt-1">
