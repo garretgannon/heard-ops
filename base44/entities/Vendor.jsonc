@@ -42,25 +42,106 @@
       "type": "string",
       "title": "Category",
       "enum": [
-        "food_supplier",
-        "beverage_supplier",
+        "food",
+        "beverage",
+        "repairs",
         "equipment",
-        "maintenance",
-        "cleaning",
+        "linen",
+        "pest",
+        "grease_trap",
+        "plumbing",
+        "electrical",
+        "pos",
+        "hood_cleaning",
         "other"
       ],
       "enumNames": [
-        "Food Supplier",
-        "Beverage Supplier",
+        "Food",
+        "Beverage",
+        "Repairs",
         "Equipment",
-        "Maintenance",
-        "Cleaning Supplies",
+        "Linen",
+        "Pest Control",
+        "Grease Trap",
+        "Plumbing",
+        "Electrical",
+        "POS",
+        "Hood Cleaning",
         "Other"
       ]
     },
     "notes": {
       "type": "string",
       "title": "Notes"
+    },
+    "emergency_number": {
+      "type": "string",
+      "title": "Emergency / After-Hours Number"
+    },
+    "emergency": {
+      "type": "boolean",
+      "title": "Emergency Contact",
+      "default": false
+    },
+    "is_preferred": {
+      "type": "boolean",
+      "title": "Preferred Vendor",
+      "default": false
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "account_number": {
+      "type": "string",
+      "title": "Account Number"
+    },
+    "hours": {
+      "type": "string",
+      "title": "Business Hours"
+    },
+    "preferred_contact": {
+      "type": "string",
+      "title": "Preferred Contact Method"
+    },
+    "contract_renewal_date": {
+      "type": "string",
+      "title": "Contract Renewal Date"
+    },
+    "service_history": {
+      "type": "string",
+      "title": "Service History"
+    },
+    "delivery_days": {
+      "type": "string",
+      "title": "Delivery Days (e.g. Mon, Wed, Fri)"
+    },
+    "order_frequency": {
+      "type": "number",
+      "title": "Order Frequency (orders per month)",
+      "default": 0
+    },
+    "last_ordered_at": {
+      "type": "string",
+      "title": "Last Ordered At (ISO)"
+    },
+    "has_pending_order": {
+      "type": "boolean",
+      "title": "Has Pending Order",
+      "default": false
+    },
+    "pending_order_notes": {
+      "type": "string",
+      "title": "Pending Order Notes"
+    },
+    "linked_inventory_categories": {
+      "type": "array",
+      "title": "Linked Inventory Categories",
+      "description": "Inventory categories this vendor supplies (used for low-stock alerts)",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

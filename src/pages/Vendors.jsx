@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Search, Phone, ShoppingCart, AlertCircle, UtensilsCrossed, Wine, Wrench, Shirt, Bug, Zap, Droplets, Package, Settings, Edit2, Truck, Star } from "lucide-react";
+import { Plus, Search, Phone, ShoppingCart, AlertCircle, UtensilsCrossed, Wine, Wrench, Shirt, Bug, Zap, Droplets, Package, Settings, Edit2, Truck, Star, Clock, TrendingUp } from "lucide-react";
 import VendorNoteForm from "../components/forms/VendorNoteForm";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -41,16 +41,19 @@ function hasDeliveryToday(vendor) {
   return vendor.delivery_days.includes(todayDay);
 }
 
-function VendorCard({ vendor, onEdit }) {
+function VendorCard({ vendor, onEdit, lowStock }) {
   const meta = getCatMeta(vendor.category);
   const Icon = meta.icon;
   const deliveryToday = hasDeliveryToday(vendor);
+  const hasPending = vendor.has_pending_order;
+  const hasLowStock = lowStock?.length > 0;
 
   return (
     <div className={cn(
-      "flex items-center gap-3 px-3 py-2.5 bg-[#0F1623] border rounded-xl transition-all",
-      vendor.emergency ? "border-red-500/30" : deliveryToday ? "border-primary/25" : "border-[#1E2A3B]"
+      "flex flex-col bg-[#0F1623] border rounded-xl transition-all overflow-hidden",
+      vendor.emergency ? "border-red-500/30" : deliveryToday ? "border-primary/25" : hasPending ? "border-amber-500/20" : hasLowStock ? "border-orange-500/20" : "border-[#1E2A3B]"
     )}>
+    <div className="flex items-center gap-3 px-3 py-2.5">
       <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center shrink-0", meta.bg)}>
         <Icon className={cn("h-4 w-4", meta.color)} />
       </div>
@@ -64,16 +67,24 @@ function VendorCard({ vendor, onEdit }) {
           )}
         </div>
         <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
           {vendor.delivery_days && (
-            <span className="text-[10px] text-gray-600 truncate">{vendor.delivery_days}</span>
+            <span className="text-[10px] text-gray-600">{vendor.delivery_days}</span>
           )}
           {vendor.delivery_days && vendor.contact_person && <span className="text-gray-700 text-[10px]">·</span>}
           {vendor.contact_person && (
-            <span className="text-[10px] text-gray-600 truncate">{vendor.contact_person}</span>
+            <span className="text-[10px] text-gray-600">{vendor.contact_person}</span>
           )}
-          {!vendor.delivery_days && !vendor.contact_person && vendor.notes && (
+          {hasPending && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">ORDER PENDING</span>
+          )}
+          {(vendor.order_frequency > 0) && (
+            <span className="text-[9px] text-gray-700 flex items-center gap-0.5"><TrendingUp className="h-2.5 w-2.5" />{vendor.order_frequency}x/mo</span>
+          )}
+          {!vendor.delivery_days && !vendor.contact_person && !hasPending && vendor.notes && (
             <span className="text-[10px] text-gray-600 truncate">{vendor.notes.slice(0, 40)}</span>
           )}
+        </div>
         </div>
       </div>
 
@@ -89,9 +100,12 @@ function VendorCard({ vendor, onEdit }) {
         )}
         <button
           onClick={() => onEdit(vendor)}
-          className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center active:scale-90 transition-transform"
+          className={cn(
+            "h-8 w-8 rounded-lg border flex items-center justify-center active:scale-90 transition-transform",
+            hasPending ? "bg-amber-500/15 border-amber-500/25" : "bg-primary/10 border-primary/20"
+          )}
         >
-          <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+          <ShoppingCart className={cn("h-3.5 w-3.5", hasPending ? "text-amber-400" : "text-primary")} />
         </button>
         <button
           onClick={() => onEdit(vendor)}
@@ -101,11 +115,21 @@ function VendorCard({ vendor, onEdit }) {
         </button>
       </div>
     </div>
+    {hasLowStock && (
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/8 border-t border-orange-500/15">
+        <AlertCircle className="h-3 w-3 text-orange-400 shrink-0" />
+        <p className="text-[10px] text-orange-400 font-semibold truncate">
+          Low stock: {lowStock.map(i => i.name).join(", ")}
+        </p>
+      </div>
+    )}
+    </div>
   );
 }
 
 export default function Vendors() {
   const [vendors, setVendors] = useState([]);
+  const [lowStockItems, setLowStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
@@ -113,8 +137,12 @@ export default function Vendors() {
   const [filterCat, setFilterCat] = useState("all");
 
   useEffect(() => {
-    base44.entities.Vendor.list("-created_date", 200).then(data => {
-      setVendors(data);
+    Promise.all([
+      base44.entities.Vendor.list("-created_date", 200),
+      base44.entities.InventoryItem.filter({ status: ["low", "critical", "out"] }),
+    ]).then(([vendorData, invData]) => {
+      setVendors(vendorData);
+      setLowStockItems(invData);
       setLoading(false);
     });
   }, []);
@@ -135,14 +163,36 @@ export default function Vendors() {
   const active = vendors.filter(v => v.active !== false);
   const deliveriesToday = active.filter(hasDeliveryToday);
   const emergency = active.filter(v => v.emergency);
+  const pendingOrders = active.filter(v => v.has_pending_order);
+
+  // Sort by frequency (orders/month) desc, then deliveries today, then pending
+  const sorted = useMemo(() => [...active].sort((a, b) => {
+    const aScore = (hasDeliveryToday(a) ? 100 : 0) + (a.has_pending_order ? 50 : 0) + (a.order_frequency || 0);
+    const bScore = (hasDeliveryToday(b) ? 100 : 0) + (b.has_pending_order ? 50 : 0) + (b.order_frequency || 0);
+    return bScore - aScore;
+  }), [active]);
 
   const priorityIds = new Set([
     ...deliveriesToday.map(v => v.id),
+    ...pendingOrders.map(v => v.id),
     ...active.filter(v => v.is_preferred).map(v => v.id),
   ]);
-  const priority = active.filter(v => priorityIds.has(v.id)).slice(0, 5);
+  const priority = sorted.filter(v => priorityIds.has(v.id)).slice(0, 5);
 
-  let filtered = active;
+  // Low stock alerts per vendor
+  const vendorLowStock = useMemo(() => {
+    const map = {};
+    active.forEach(v => {
+      if (!v.linked_inventory_categories?.length) return;
+      const alerts = lowStockItems.filter(item =>
+        v.linked_inventory_categories.includes(item.category)
+      );
+      if (alerts.length) map[v.id] = alerts;
+    });
+    return map;
+  }, [active, lowStockItems]);
+
+  let filtered = sorted;
   if (filterCat !== "all") filtered = filtered.filter(v => v.category === filterCat);
   if (search) {
     const q = search.toLowerCase();
@@ -203,7 +253,7 @@ export default function Vendors() {
         {[
           { label: "Total",    value: active.length },
           { label: "Today",    value: deliveriesToday.length, highlight: deliveriesToday.length > 0 },
-          { label: "Orders",   value: 0 },
+          { label: "Pending",  value: pendingOrders.length, highlight: pendingOrders.length > 0 },
           { label: "Critical", value: emergency.length, alert: emergency.length > 0 },
         ].map(m => (
           <div key={m.label} className={cn(
@@ -223,7 +273,7 @@ export default function Vendors() {
             <AlertCircle className="h-3 w-3 text-primary" /> Priority Vendors
           </p>
           <div className="flex flex-col gap-1.5">
-            {priority.map(v => <VendorCard key={v.id} vendor={v} onEdit={openEdit} />)}
+            {priority.map(v => <VendorCard key={v.id} vendor={v} onEdit={openEdit} lowStock={vendorLowStock[v.id]} />)}
           </div>
         </div>
       )}
@@ -242,7 +292,7 @@ export default function Vendors() {
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            {filtered.map(v => <VendorCard key={v.id} vendor={v} onEdit={openEdit} />)}
+            {filtered.map(v => <VendorCard key={v.id} vendor={v} onEdit={openEdit} lowStock={vendorLowStock[v.id]} />)}
           </div>
         )}
       </div>
