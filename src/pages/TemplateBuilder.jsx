@@ -316,7 +316,7 @@ export default function TemplateBuilder() {
           >
             {/* Header */}
             <div className="px-3 pt-2 pb-2 border-b border-[#1A2235] bg-[#080C14] flex items-center justify-between">
-              <button onClick={() => setScreen("list")} className="h-8 w-8 rounded-lg bg-[#111827] border border-[#1F2937] flex items-center justify-center active:scale-95">
+              <button onClick={() => { setScreen("list"); setSelected(null); }} className="h-8 w-8 rounded-lg bg-[#111827] border border-[#1F2937] flex items-center justify-center active:scale-95">
                 <ChevronLeft className="h-4 w-4 text-gray-500" />
               </button>
               <h1 className="text-[14px] font-extrabold tracking-tight flex-1 text-center">{selected.name}</h1>
@@ -434,7 +434,7 @@ export default function TemplateBuilder() {
           >
             {/* Header */}
             <div className="px-3 pt-2 pb-2 border-b border-[#1A2235] bg-[#080C14] flex items-center justify-between">
-              <button onClick={() => setScreen("detail")} className="h-8 w-8 rounded-lg bg-[#111827] border border-[#1F2937] flex items-center justify-center active:scale-95">
+              <button onClick={() => selected.id ? setScreen("detail") : setScreen("list")} className="h-8 w-8 rounded-lg bg-[#111827] border border-[#1F2937] flex items-center justify-center active:scale-95">
                 <ChevronLeft className="h-4 w-4 text-gray-500" />
               </button>
               <h1 className="text-[14px] font-extrabold tracking-tight flex-1 text-center">Edit Template</h1>
