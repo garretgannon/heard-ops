@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
+import { toast as toastSonner } from "sonner";
+
+const toast = {
+  info: (msg) => toastSonner.info(msg),
+  success: (msg) => toastSonner.success(msg),
+  error: (msg) => toastSonner.error(msg),
+};
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
@@ -108,7 +114,7 @@ export default function RestaurantTeam() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="relative h-9 w-9 rounded-lg bg-card border border-border flex items-center justify-center">
+            <button onClick={() => toast.info('Notifications coming soon')} className="relative h-9 w-9 rounded-lg bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
               <Bell className="h-4 w-4 text-primary" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-status-error rounded-full" />
             </button>
@@ -204,15 +210,15 @@ export default function RestaurantTeam() {
                         {statusInfo.badge}
                       </div>
                       <div className="flex items-center gap-0.5">
-                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                          <MessageSquare className="h-3 w-3 text-foreground" />
-                        </button>
-                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                          <CheckSquare2 className="h-3 w-3 text-foreground" />
-                        </button>
-                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                          <User className="h-3 w-3 text-foreground" />
-                        </button>
+                        <button onClick={() => toast.info('Message feature coming soon')} className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                           <MessageSquare className="h-3 w-3 text-foreground" />
+                         </button>
+                         <button onClick={() => toast.info('Task assignment coming soon')} className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                           <CheckSquare2 className="h-3 w-3 text-foreground" />
+                         </button>
+                         <button onClick={() => navigate(`/profile?userId=${emp.id}`)} className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                           <User className="h-3 w-3 text-foreground" />
+                         </button>
                       </div>
                     </div>
                   </motion.div>
@@ -259,59 +265,59 @@ export default function RestaurantTeam() {
                         {statusInfo.badge}
                       </div>
                       <div className="flex items-center gap-0.5">
-                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <button onClick={() => toast.info('Message feature coming soon')} className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
                           <MessageSquare className="h-3 w-3 text-foreground" />
                         </button>
-                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <button onClick={() => toast.info('Task assignment coming soon')} className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
                           <CheckSquare2 className="h-3 w-3 text-foreground" />
                         </button>
-                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <button onClick={() => navigate(`/profile?userId=${emp.id}`)} className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
                           <User className="h-3 w-3 text-foreground" />
                         </button>
                       </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                      </div>
+                      </motion.div>
+                      );
+                      })}
+                      </div>
+                      </div>
+                      )}
 
-        {filteredEmployees.length === 0 && (
-          <div className="text-center py-12">
-            <Users className="h-12 w-12 text-muted-foreground/30 mx-auto mb-2" />
-            <p className="text-muted-foreground text-sm">No team members found</p>
-          </div>
-        )}
+                      {filteredEmployees.length === 0 && (
+                      <div className="text-center py-12">
+                      <Users className="h-12 w-12 text-muted-foreground/30 mx-auto mb-2" />
+                      <p className="text-muted-foreground text-sm">No team members found</p>
+                      </div>
+                      )}
 
-        {/* Certifications Section */}
-        <div className="mt-6 pt-4 border-t border-border">
-          <h3 className="text-sm font-bold mb-2">Certifications</h3>
-          <div className="bg-card border border-border rounded-lg p-3 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">ServeSafe</span>
-              <span className="text-sm font-bold">12</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Expiring Soon</span>
-              <span className="text-sm font-bold text-status-warning">4</span>
-            </div>
-            <Button variant="outline" size="sm" className="w-full mt-2 text-xs">
-              Review Certifications
-            </Button>
-          </div>
-        </div>
+                      {/* Certifications Section */}
+                      <div className="mt-6 pt-4 border-t border-border">
+                      <h3 className="text-sm font-bold mb-2">Certifications</h3>
+                      <div className="bg-card border border-border rounded-lg p-3 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">ServeSafe</span>
+                      <span className="text-sm font-bold">12</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Expiring Soon</span>
+                      <span className="text-sm font-bold text-status-warning">4</span>
+                      </div>
+                      <Button onClick={() => toast.info('Certifications page coming soon')} variant="outline" size="sm" className="w-full mt-2 text-xs">
+                      Review Certifications
+                      </Button>
+                      </div>
+                      </div>
 
-        {/* Availability Section */}
-        <div>
-          <h3 className="text-sm font-bold mb-2">Availability Requests</h3>
-          <div className="bg-card border border-border rounded-lg p-3">
-            <p className="text-xs text-muted-foreground mb-3">6 pending requests</p>
-            <Button variant="outline" size="sm" className="w-full text-xs">
-              Open Requests
-            </Button>
-          </div>
-        </div>
+                      {/* Availability Section */}
+                      <div>
+                      <h3 className="text-sm font-bold mb-2">Availability Requests</h3>
+                      <div className="bg-card border border-border rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-3">6 pending requests</p>
+                      <Button onClick={() => toast.info('Availability requests coming soon')} variant="outline" size="sm" className="w-full text-xs">
+                      Open Requests
+                      </Button>
+                      </div>
+                      </div>
       </div>
 
       {/* Invite Dialog */}
