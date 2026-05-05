@@ -55,6 +55,7 @@ import More from './pages/More';
 import Standards from './pages/Standards';
 import Cleaning from './pages/Cleaning';
 import OpeningChecklist from './pages/OpeningChecklist';
+import ClosingChecklist from './pages/ClosingChecklist';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -137,6 +138,7 @@ const AuthenticatedApp = () => {
         <Route path="/standards" element={<Standards />} />
         <Route path="/cleaning" element={<Cleaning />} />
         <Route path="/opening" element={<OpeningChecklist />} />
+        <Route path="/closing" element={<ClosingChecklist />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
         <Route path="*" element={<PageNotFound />} />
