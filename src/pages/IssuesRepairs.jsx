@@ -221,13 +221,13 @@ export default function IssuesRepairs() {
                   )}
                   <Clock className="h-3 w-3 shrink-0" />
                   <span>{formatDistanceToNow(new Date(item.created_date), { addSuffix: true })}</span>
-                  {item.assigned_to_name && (
+                  {(item.assigned_to_name || item.assigned_to) && (
                     <>
                       <span>·</span>
                       <div className="h-4 w-4 rounded-full bg-primary/30 flex items-center justify-center text-[8px] font-bold text-primary shrink-0">
-                        {item.assigned_to_name.charAt(0)}
+                        {(item.assigned_to_name || item.assigned_to)?.charAt(0)}
                       </div>
-                      <span>{item.assigned_to_name.split(" ")[0]}</span>
+                      <span>{(item.assigned_to_name || item.assigned_to)?.split(" ")[0]}</span>
                     </>
                   )}
                 </div>
