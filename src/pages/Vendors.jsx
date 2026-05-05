@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, Search, Phone, ShoppingCart, AlertCircle, UtensilsCrossed, Wine, Wrench, Shirt, Bug, Zap, Droplets, Package, Settings, Edit2, Truck, Star, Clock, TrendingUp } from "lucide-react";
+import { Plus, Search, Phone, ShoppingCart, AlertCircle, UtensilsCrossed, Wine, Wrench, Shirt, Bug, Zap, Droplets, Package, Settings, Edit2, Truck, Star, Clock, TrendingUp, ArrowLeft } from "lucide-react";
 import VendorNoteForm from "../components/forms/VendorNoteForm";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -128,6 +129,7 @@ function VendorCard({ vendor, onEdit, lowStock }) {
 }
 
 export default function Vendors() {
+  const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -213,9 +215,14 @@ export default function Vendors() {
     <div className="mx-auto w-full max-w-[480px] flex flex-col gap-3 pb-28">
 
       {/* Header */}
-      <div className="pt-1">
-        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Vendors</h1>
-        <p className="text-[11px] text-gray-600 mt-0.5">Quick access to suppliers and services</p>
+      <div className="pt-1 flex items-center gap-2">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-[#1A2235] rounded-lg transition-colors active:scale-95">
+          <ArrowLeft className="h-4 w-4 text-gray-500" />
+        </button>
+        <div>
+          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Vendors</h1>
+          <p className="text-[11px] text-gray-600 mt-0.5">Quick access to suppliers and services</p>
+        </div>
       </div>
 
       {/* Search */}
