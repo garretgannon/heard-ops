@@ -65,10 +65,12 @@ export default function Standards() {
       </div>
 
       {/* Content */}
-      {(() => {
-        const Component = COMPONENTS[activeTab];
-        return Component ? <Component /> : null;
-      })()}
+      <div className="max-h-[calc(100vh-280px)] overflow-y-auto pb-4">
+        {(() => {
+          const Component = COMPONENTS[activeTab];
+          return Component ? <Component /> : null;
+        })()}
+      </div>
     </div>
   );
 }
