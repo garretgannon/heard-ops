@@ -210,7 +210,7 @@ export default function StaffTasks() {
       <div className="flex items-start justify-between pt-1">
         <div>
           <h1 className="text-[17px] font-extrabold text-white tracking-tight">{getGreeting()}, {firstName}</h1>
-          <p className="text-[11px] text-gray-600 mt-0.5">Here's what needs attention</p>
+          <p className="text-[11px] text-gray-600 mt-0.5">Here's what's wrong right now.</p>
         </div>
         {data && (
           <div className="text-right">
@@ -274,31 +274,13 @@ export default function StaffTasks() {
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-1.5">Quick Actions</p>
         <div className="flex gap-1.5">
           <QA icon={Thermometer}   label="Log Temp"   iconColor="text-[#F5A623]" bg="bg-[#F5A623]/10"  onClick={() => navigate("/temp-logs")} />
-          <QA icon={ClipboardList} label="Prep List"  iconColor="text-blue-400"  bg="bg-blue-500/10"   onClick={() => navigate("/prep-lists")} />
+          <QA icon={ClipboardList} label="Start Prep" iconColor="text-blue-400"  bg="bg-blue-500/10"   onClick={() => navigate("/prep-lists")} />
           <QA icon={AlertTriangle} label="Report"     iconColor="text-red-400"   bg="bg-red-500/10"    onClick={() => setShowBlockedDialog("new")} />
           <QA icon={FileText}      label="Add Note"   iconColor="text-purple-400"bg="bg-purple-500/10" onClick={() => navigate("/manager-log")} />
         </div>
       </div>
 
-      {/* Team Snapshot */}
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-1.5">Team Snapshot</p>
-        <div className="flex gap-1.5">
-          {[
-            { icon: Users,         label: "On Shift", value: data.onShift,  color: "text-emerald-400" },
-            { icon: Clock,         label: "Late",     value: 0,             color: "text-amber-400" },
-            { icon: AlertCircle,   label: "Absent",   value: 0,             color: "text-red-400" },
-          ].map(({ icon: Icon, label, value, color }) => (
-            <div key={label} className="flex-1 bg-[#111827] border border-[#1F2937] rounded-xl px-2.5 py-2 flex items-center gap-2">
-              <Icon className={cn("h-3.5 w-3.5 shrink-0", color)} />
-              <div>
-                <p className="text-[17px] font-extrabold text-white leading-none">{value}</p>
-                <p className="text-[9px] text-gray-600 font-bold mt-0.5 uppercase tracking-wide">{label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+
 
       {/* Activity Feed */}
       {data.recent.length > 0 && (
