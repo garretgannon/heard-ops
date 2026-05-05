@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Plus, Camera, ChevronLeft, Layers, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -112,6 +113,7 @@ function TaskRow({ task, onUpdate, onDelete }) {
 }
 
 export default function TemplateBuilder() {
+  const { id } = useParams();
   const [templates, setTemplates] = useState([]);
   const [screen, setScreen] = useState("list"); // list, detail, edit
   const [selected, setSelected] = useState(null);
@@ -121,7 +123,14 @@ export default function TemplateBuilder() {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [stats, setStats] = useState({});
 
-  useEffect(() => { loadTemplates(); loadStats(); }, []);
+  useEffect(() => { 
+    loadTemplates(); 
+    loadStats();
+    if (id === "new") {
+      setSelected(emptyTemplate());
+      setScreen("edit");
+    }
+  }, [id]);
 
   async function loadStats() {
     const today = new Date().toISOString().split('T')[0];
