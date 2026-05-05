@@ -171,6 +171,15 @@ export const allRoutes = {
      module: "compliance",
      description: "Track cooler and equipment temperatures",
    },
+   tempLogTemplates: {
+     path: "/temp-log-templates",
+     label: "Temperature Log Templates",
+     icon: LayoutTemplate,
+     component: "TemperatureLogTemplates",
+     roles: ["admin"],
+     module: "templates",
+     description: "Create reusable temperature log templates",
+   },
    wasteLog: {
      path: "/waste-86",
      label: "Waste & 86",

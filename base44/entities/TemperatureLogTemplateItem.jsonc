@@ -1,0 +1,150 @@
+{
+  "name": "TemperatureLogTemplateItem",
+  "type": "object",
+  "properties": {
+    "temperatureLogTemplateId": {
+      "type": "string",
+      "title": "Temperature Log Template ID"
+    },
+    "checkName": {
+      "type": "string",
+      "title": "Check Name"
+    },
+    "equipmentName": {
+      "type": "string",
+      "title": "Equipment / Item Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "walk-in-cooler",
+        "walk-in-freezer",
+        "reach-in-cooler",
+        "reach-in-freezer",
+        "prep-table",
+        "hot-holding",
+        "cold-holding",
+        "cook-temperature",
+        "reheat-temperature",
+        "cooling-log",
+        "dishwasher",
+        "bar-cooler",
+        "other"
+      ],
+      "enumNames": [
+        "Walk-in Cooler",
+        "Walk-in Freezer",
+        "Reach-in Cooler",
+        "Reach-in Freezer",
+        "Prep Table",
+        "Hot Holding",
+        "Cold Holding",
+        "Cook Temperature",
+        "Reheat Temperature",
+        "Cooling Log",
+        "Dishwasher",
+        "Bar Cooler",
+        "Other"
+      ]
+    },
+    "targetMin": {
+      "type": "number",
+      "title": "Target Minimum Temperature"
+    },
+    "targetMax": {
+      "type": "number",
+      "title": "Target Maximum Temperature"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit",
+      "enum": [
+        "F",
+        "C"
+      ],
+      "enumNames": [
+        "Fahrenheit",
+        "Celsius"
+      ],
+      "default": "F"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "shiftPhase": {
+      "type": "string",
+      "title": "Shift Phase",
+      "enum": [
+        "start",
+        "mid",
+        "end",
+        "anytime"
+      ],
+      "enumNames": [
+        "Start of Shift",
+        "Mid Shift",
+        "End of Shift",
+        "Anytime"
+      ]
+    },
+    "frequency": {
+      "type": "string",
+      "title": "Frequency",
+      "enum": [
+        "once-per-shift",
+        "twice-per-shift",
+        "hourly",
+        "every-2-hours",
+        "every-4-hours",
+        "custom"
+      ],
+      "enumNames": [
+        "Once per Shift",
+        "Twice per Shift",
+        "Hourly",
+        "Every 2 Hours",
+        "Every 4 Hours",
+        "Custom"
+      ]
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instructions"
+    },
+    "correctiveActionInstructions": {
+      "type": "string",
+      "title": "Corrective Action Instructions"
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "temperatureLogTemplateId",
+    "checkName",
+    "equipmentName",
+    "category"
+  ]
+}

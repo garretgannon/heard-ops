@@ -42,7 +42,7 @@ import TempLogs from './pages/TempLogs';
 import PrepTemplatesManager from './pages/PrepTemplatesManager';
 import SideWorkTemplates from './pages/SideWorkTemplates';
 import CleaningTemplates from './pages/CleaningTemplates';
-import TempLogTemplates from './pages/TempLogTemplates';
+import TemperatureLogTemplates from './pages/TemperatureLogTemplates';
 import WasteTemplates from './pages/WasteTemplates';
 import EightySixTemplates from './pages/86Templates';
 import Stations from './pages/Stations';
@@ -109,6 +109,8 @@ const AuthenticatedApp = () => {
 
         {/* COMPLIANCE ROUTES */}
         <Route path="/temp-logs" element={<TempLogs />} />
+        <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
+        <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
         <Route path="/waste-86" element={<WasteLog />} />
         <Route path="/waste-log" element={<Navigate to="/waste-86" replace />} />
 
@@ -125,7 +127,6 @@ const AuthenticatedApp = () => {
         <Route path="/side-work-templates" element={<SideWorkTemplates />} />
         <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
-        <Route path="/temp-log-templates" element={<TempLogTemplates />} />
         <Route path="/waste-templates" element={<WasteTemplates />} />
         <Route path="/86-templates" element={<EightySixTemplates />} />
 

@@ -1,0 +1,162 @@
+{
+  "name": "DailyTemperatureLogTask",
+  "type": "object",
+  "properties": {
+    "temperatureLogTemplateId": {
+      "type": "string",
+      "title": "Temperature Log Template ID"
+    },
+    "temperatureLogTemplateItemId": {
+      "type": "string",
+      "title": "Temperature Log Template Item ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ]
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "checkName": {
+      "type": "string",
+      "title": "Check Name"
+    },
+    "equipmentName": {
+      "type": "string",
+      "title": "Equipment / Item Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category"
+    },
+    "targetMin": {
+      "type": "number",
+      "title": "Target Minimum Temperature"
+    },
+    "targetMax": {
+      "type": "number",
+      "title": "Target Maximum Temperature"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit",
+      "enum": [
+        "F",
+        "C"
+      ],
+      "default": "F"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "shiftPhase": {
+      "type": "string",
+      "title": "Shift Phase"
+    },
+    "frequency": {
+      "type": "string",
+      "title": "Frequency"
+    },
+    "recordedTemperature": {
+      "type": "number",
+      "title": "Recorded Temperature"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "pending_review",
+        "approved",
+        "overdue"
+      ],
+      "enumNames": [
+        "Pending",
+        "In Progress",
+        "Completed",
+        "Pending Review",
+        "Approved",
+        "Overdue"
+      ],
+      "default": "pending"
+    },
+    "completedBy": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completedAt": {
+      "type": "string",
+      "title": "Completed At (ISO)"
+    },
+    "photoUrl": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "correctiveAction": {
+      "type": "string",
+      "title": "Corrective Action Taken"
+    },
+    "managerReviewedBy": {
+      "type": "string",
+      "title": "Manager Reviewed By (Email)"
+    },
+    "managerReviewedAt": {
+      "type": "string",
+      "title": "Manager Reviewed At (ISO)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "isOutOfRange": {
+      "type": "boolean",
+      "title": "Is Out of Range",
+      "default": false
+    },
+    "isOverdue": {
+      "type": "boolean",
+      "title": "Is Overdue",
+      "default": false
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    }
+  },
+  "required": [
+    "temperatureLogTemplateId",
+    "temperatureLogTemplateItemId",
+    "date",
+    "checkName",
+    "equipmentName"
+  ]
+}
