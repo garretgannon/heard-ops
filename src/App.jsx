@@ -50,7 +50,7 @@ import SetupWizard from './pages/SetupWizard';
 import ScheduleImport from './pages/ScheduleImport';
 import R365ScheduleImport from './pages/R365ScheduleImport';
 import ScheduleCenter from './pages/ScheduleCenter';
-import IssueTracker from './pages/IssueTracker';
+import IssuesRepairs from './pages/IssuesRepairs';
 import More from './pages/More';
 import Standards from './pages/Standards';
 import IssuesUnified from './pages/IssuesUnified';
@@ -130,7 +130,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
         <Route path="/cleaning" element={<Cleaning />} />
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
-        {isAdmin && <Route path="/issues" element={<IssueTracker />} />}
+        <Route path="/issues" element={<IssuesRepairs />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
 
         {/* Admin */}
@@ -161,7 +161,7 @@ const AuthenticatedApp = () => {
         {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
         {isAdmin && <Route path="/schedule-import" element={<ScheduleImport />} />}
         {isAdmin && <Route path="/r365-import" element={<R365ScheduleImport />} />}
-        {isAdmin && <Route path="/issues-unified" element={<IssuesUnified />} />}
+
         <Route path="/opening" element={<OpeningChecklist />} />
         <Route path="/closing" element={<ClosingChecklist />} />
         <Route path="/cash" element={<Cash />} />

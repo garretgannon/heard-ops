@@ -35,7 +35,6 @@ export default function More() {
         { label: "Bar Book", path: "/bar-book", icon: Wine },
         { label: "Cleaning & Deep Clean", path: "/cleaning", icon: ClipboardList },
         { label: "Issues & Repairs", path: "/issues", icon: AlertTriangle },
-        { label: "Maintenance Requests", path: "/maintenance", icon: Wrench },
       ]
     },
     {
