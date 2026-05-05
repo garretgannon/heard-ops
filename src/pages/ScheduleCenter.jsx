@@ -3,9 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Plus, MessageSquare, User, Clock, AlertCircle, CheckCircle2, Upload, Calendar,
-  Users, Inbox, ChevronRight, MapPin, Phone, Mail, MoreVertical, Zap
+  Users, Inbox, ChevronRight, MapPin, Phone, Mail, MoreVertical, Zap, Bell,
+  TrendingUp, AlertTriangle, Clock3
 } from "lucide-react";
-import MetricTile from "../components/MetricTile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,8 +18,8 @@ const TABS = [
   { id: "today", label: "Today", icon: Clock },
   { id: "week", label: "Week", icon: Calendar },
   { id: "team", label: "Team", icon: Users },
-  { id: "import", label: "Import", icon: Upload },
   { id: "requests", label: "Requests", icon: Inbox },
+  { id: "import", label: "Import", icon: Upload },
 ];
 
 const DEPARTMENTS = ["FOH", "BOH", "Bar", "Management"];
@@ -92,7 +92,7 @@ export default function ScheduleCenter() {
     todayShifts.filter(s => {
       const start = new Date(`${s.date}T${s.start_time}`);
       const minFromNow = (start - now) / (1000 * 60);
-      return minFromNow > 0 && minFromNow <= 60;
+      return minFromNow > 0 && minFromNow <= 120;
     }),
     [todayShifts, now]
   );
@@ -142,20 +142,68 @@ export default function ScheduleCenter() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-48">
-      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="w-4 h-4 border-2 border-[#FF6A00] border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   return (
-    <div className="pb-10">
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3 mb-2">
-        <h1 className="text-xl font-bold text-foreground">Schedule Center</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">Manage team shifts &amp; availability</p>
+    <div className="min-h-screen bg-[#0B0B0D] pb-32">
+      {/* STICKY HEADER */}
+      <div className="sticky top-0 z-40 bg-[#0B0B0D]/95 backdrop-blur border-b border-[#1F1F24] px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold text-white">Schedule Center</h1>
+            <p className="text-[10px] text-[#6B7280] mt-0.5">Today's team, shifts, and tools</p>
+          </div>
+          <button className="h-9 w-9 rounded-lg bg-[#141418] border border-[#1F1F24] flex items-center justify-center active:scale-95">
+            <Bell className="h-4 w-4 text-[#A1A1AA]" />
+          </button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto px-4 pb-3 scrollbar-hide">
+      {/* SUMMARY CARDS */}
+      <div className="px-4 py-4">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="h-4 w-4 text-emerald-400" />
+            </div>
+            <p className="text-3xl font-bold text-emerald-400">{stats.onShift}</p>
+            <p className="text-xs text-white font-semibold mt-1">On Shift</p>
+            <p className="text-[10px] text-[#6B7280] mt-0.5">currently working</p>
+          </div>
+
+          <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <Clock3 className="h-4 w-4 text-amber-400" />
+            </div>
+            <p className="text-3xl font-bold text-amber-400">{stats.startingSoon}</p>
+            <p className="text-xs text-white font-semibold mt-1">Starting Soon</p>
+            <p className="text-[10px] text-[#6B7280] mt-0.5\">next 2 hours</p>
+          </div>
+
+          <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <AlertTriangle className="h-4 w-4 text-red-400" />
+            </div>
+            <p className="text-3xl font-bold text-red-400\">0</p>
+            <p className="text-xs text-white font-semibold mt-1\">Open Shifts</p>
+            <p className="text-[10px] text-[#6B7280] mt-0.5\">needs coverage</p>
+          </div>
+
+          <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <Inbox className="h-4 w-4 text-blue-400" />
+            </div>
+            <p className="text-3xl font-bold text-blue-400\">0</p>
+            <p className="text-xs text-white font-semibold mt-1\">Requests</p>
+            <p className="text-[10px] text-[#6B7280] mt-0.5\">pending review</p>
+          </div>
+        </div>
+      </div>
+
+      {/* TABS */}
+      <div className="flex gap-1.5 overflow-x-auto px-4 py-3 scrollbar-hide border-b border-[#1F1F24]">
         {TABS.map(tab => {
           const Icon = tab.icon;
           return (
@@ -163,13 +211,13 @@ export default function ScheduleCenter() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex-shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap",
+                "flex-shrink-0 h-10 px-3 flex items-center gap-2 rounded-lg text-xs font-bold border transition-all whitespace-nowrap active:scale-95",
                 activeTab === tab.id
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card border-border text-muted-foreground"
+                  ? "bg-[#FF6A00] text-black border-[#FF6A00]"
+                  : "bg-[#141418] border-[#1F1F24] text-[#A1A1AA] hover:border-[#262630]"
               )}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-4 w-4" />
               {tab.label}
             </button>
           );
@@ -178,19 +226,11 @@ export default function ScheduleCenter() {
 
       {/* Today Tab */}
       {activeTab === "today" && (
-        <div className="px-4 space-y-4 mb-4">
-          {/* Metrics */}
-          <div className="grid grid-cols-4 gap-1.5">
-            <MetricTile label="On Shift" value={stats.onShift} color="text-emerald-400" />
-            <MetricTile label="Soon" value={stats.startingSoon} alert={stats.startingSoon > 0} />
-            <MetricTile label="Late" value={stats.lateNoShow} alert={stats.lateNoShow > 0} />
-            <MetricTile label="Open" value={0} />
-          </div>
-
+        <div className="px-4 py-4 space-y-4 mb-4">
           {/* On Shift Now */}
           {onShiftNow.length > 0 && (
             <div>
-              <p className="text-xs font-bold uppercase text-muted-foreground mb-2 tracking-widest flex items-center gap-1">
+              <p className="text-xs font-bold uppercase text-[#6B7280] mb-2 tracking-widest flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" /> ON SHIFT NOW ({onShiftNow.length})
               </p>
               <div className="space-y-2">
@@ -204,7 +244,7 @@ export default function ScheduleCenter() {
           {/* Starting Soon */}
           {startingSoon.length > 0 && (
             <div>
-              <p className="text-xs font-bold uppercase text-muted-foreground mb-2 tracking-widest flex items-center gap-1">
+              <p className="text-xs font-bold uppercase text-[#6B7280] mb-2 tracking-widest flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-amber-400" /> STARTING SOON ({startingSoon.length})
               </p>
               <div className="space-y-2">
@@ -218,7 +258,7 @@ export default function ScheduleCenter() {
           {/* Late / No Show */}
           {lateOrNoShow.length > 0 && (
             <div>
-              <p className="text-xs font-bold uppercase text-muted-foreground mb-2 tracking-widest flex items-center gap-1">
+              <p className="text-xs font-bold uppercase text-[#6B7280] mb-2 tracking-widest flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-red-400" /> LATE / NO SHOW ({lateOrNoShow.length})
               </p>
               <div className="space-y-2">
@@ -230,16 +270,16 @@ export default function ScheduleCenter() {
           )}
 
           {onShiftNow.length === 0 && startingSoon.length === 0 && lateOrNoShow.length === 0 && (
-            <div className="text-center py-10 text-muted-foreground text-xs">No shifts today</div>
+            <div className="text-center py-10 text-[#6B7280] text-xs">No shifts today</div>
           )}
         </div>
       )}
 
       {/* Week Tab */}
       {activeTab === "week" && (
-        <div className="px-4 space-y-3 mb-4">
+        <div className="px-4 py-4 space-y-3 mb-4">
           {weekShifts.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground text-xs">No shifts this week</div>
+            <div className="text-center py-10 text-[#6B7280] text-xs">No shifts this week</div>
           ) : (
             weekShifts.map(shift => (
               <ShiftCard key={shift.id} shift={shift} employees={employees} onSelect={() => setShiftDialog(shift)} />
@@ -250,20 +290,20 @@ export default function ScheduleCenter() {
 
       {/* Team Tab */}
       {activeTab === "team" && (
-        <div className="px-4 space-y-3 mb-4">
+        <div className="px-4 py-4 space-y-3 mb-4">
           {employees.filter(e => e.role !== "admin" || isAdmin).map(emp => {
             const empShifts = weekShifts.filter(s => s.employee_email === emp.email);
             return (
-              <div key={emp.id} className="bg-card border border-border rounded-xl p-3">
+              <div key={emp.id} className="bg-[#141418] border border-[#1F1F24] rounded-xl p-3">
                 <div className="flex items-start gap-2.5">
-                  <div className="h-10 w-10 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                  <div className="h-10 w-10 rounded-lg bg-[#FF6A00]/20 border border-[#FF6A00]/30 flex items-center justify-center text-[#FF6A00] text-xs font-bold shrink-0">
                     {emp.full_name?.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground">{emp.full_name}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{emp.role} · {empShifts.length} shifts</p>
+                    <p className="text-sm font-bold text-white">{emp.full_name}</p>
+                    <p className="text-[10px] text-[#6B7280] mt-0.5">{emp.role} · {empShifts.length} shifts</p>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground mt-1" />
+                  <ChevronRight className="h-4 w-4 text-[#6B7280] mt-1" />
                 </div>
               </div>
             );
@@ -271,18 +311,45 @@ export default function ScheduleCenter() {
         </div>
       )}
 
+      {/* Requests Tab */}
+      {activeTab === "requests" && (
+        <div className="px-4 py-4 space-y-3 mb-4">
+          <div>
+            <p className="text-xs font-bold uppercase text-[#6B7280] tracking-widest mb-3">Pending Requests</p>
+            {requests.length === 0 ? (
+              <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-6 text-center">
+                <Inbox className="h-8 w-8 text-[#6B7280]/50 mx-auto mb-2" />
+                <p className="text-xs text-[#6B7280] mt-2">No pending requests</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {requests.map(req => (
+                  <div key={req.id} className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{req.type || "Request"}</p>
+                      <p className="text-xs text-[#A1A1AA] mt-0.5">Pending</p>
+                    </div>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 shrink-0">Review</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Import Tab */}
       {activeTab === "import" && isAdmin && (
-        <div className="px-4 space-y-4 mb-4">
-          <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-            <h3 className="text-sm font-bold text-foreground">Import Schedule</h3>
-            <p className="text-xs text-muted-foreground">Upload a CSV, PDF, or R365 export file to import shifts for your team.</p>
+        <div className="px-4 py-4 space-y-4 mb-4">
+          <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-4 space-y-3">
+            <h3 className="text-sm font-bold text-white">Import Schedule</h3>
+            <p className="text-xs text-[#6B7280]">Upload a CSV, PDF, or R365 export file to import shifts for your team.</p>
             <button
               onClick={() => setImportDialog(true)}
-              className="w-full h-10 flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors"
+              className="w-full h-10 flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#1F1F24] hover:border-[#FF6A00] transition-colors"
             >
-              <Upload className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs font-bold text-muted-foreground">Choose File</span>
+              <Upload className="h-4 w-4 text-[#6B7280]" />
+              <span className="text-xs font-bold text-[#6B7280]">Choose File</span>
             </button>
           </div>
 
@@ -290,7 +357,7 @@ export default function ScheduleCenter() {
           <div>
             <button
               onClick={() => setShiftDialog("new")}
-              className="w-full h-10 flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold active:scale-95 transition-transform"
+              className="w-full h-10 flex items-center justify-center gap-2 rounded-lg bg-[#141418] border border-[#1F1F24] text-xs font-bold text-[#A1A1AA] hover:border-[#FF6A00] active:scale-95 transition-all"
             >
               <Plus className="h-4 w-4" /> Add Shift Manually
             </button>
@@ -298,37 +365,26 @@ export default function ScheduleCenter() {
         </div>
       )}
 
-      {/* Requests Tab */}
-      {activeTab === "requests" && (
-        <div className="px-4 space-y-3 mb-4">
-          <p className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Availability Requests</p>
-          <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <Inbox className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">No pending requests</p>
-          </div>
-        </div>
-      )}
-
       {/* Import Dialog */}
       <Dialog open={importDialog} onOpenChange={setImportDialog}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm bg-[#141418] border border-[#1F1F24]">
           <DialogHeader>
-            <DialogTitle>Import Schedule</DialogTitle>
+            <DialogTitle className="text-white">Import Schedule</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <div>
-              <Label>Select File</Label>
+              <Label className="text-white">Select File</Label>
               <input
                 type="file"
                 onChange={e => setImportFile(e.target.files?.[0] || null)}
                 accept=".csv,.pdf,.xlsx"
-                className="w-full h-9 px-3 text-xs border border-border rounded-lg bg-card text-foreground file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-primary file:text-primary-foreground file:text-xs file:font-bold"
+                className="w-full h-9 px-3 text-xs border border-[#1F1F24] rounded-lg bg-[#0B0B0D] text-white file:mr-2 file:px-2 file:py-1 file:rounded file:border-0 file:bg-[#FF6A00] file:text-black file:text-xs file:font-bold"
               />
             </div>
             <button
               onClick={handleImport}
               disabled={!importFile || uploading}
-              className="w-full h-10 bg-primary text-primary-foreground font-bold rounded-lg disabled:opacity-50 active:scale-95 transition-transform text-sm"
+              className="w-full h-10 bg-[#FF6A00] text-black font-bold rounded-lg disabled:opacity-50 active:scale-95 transition-transform text-sm"
             >
               {uploading ? "Importing..." : "Import"}
             </button>
@@ -339,21 +395,21 @@ export default function ScheduleCenter() {
       {/* Shift Dialog */}
       {(shiftDialog === "new" || shiftDialog) && (
         <Dialog open={!!shiftDialog} onOpenChange={() => setShiftDialog(null)}>
-          <DialogContent className="max-w-sm">
+          <DialogContent className="max-w-sm bg-[#141418] border border-[#1F1F24]">
             <DialogHeader>
-              <DialogTitle>{shiftDialog === "new" ? "Add Shift" : "Shift Details"}</DialogTitle>
+              <DialogTitle className="text-white">{shiftDialog === "new" ? "Add Shift" : "Shift Details"}</DialogTitle>
             </DialogHeader>
             {shiftDialog === "new" ? (
               <div className="space-y-3 pt-2 max-h-96 overflow-y-auto">
                 <div>
-                  <Label>Employee</Label>
+                  <Label className="text-white">Employee</Label>
                   <select
                     value={form.employee_email}
                     onChange={e => {
                       const emp = employees.find(el => el.email === e.target.value);
                       setForm({ ...form, employee_email: e.target.value, employee_name: emp?.full_name || "" });
                     }}
-                    className="w-full h-9 px-3 text-xs border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full h-9 px-3 text-xs border border-[#1F1F24] rounded-lg bg-[#0B0B0D] text-white focus:outline-none focus:ring-1 focus:ring-[#FF6A00]"
                   >
                     <option value="">Select employee...</option>
                     {employees.map(emp => (
@@ -363,29 +419,29 @@ export default function ScheduleCenter() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label>Date</Label>
-                    <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+                    <Label className="text-white">Date</Label>
+                    <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} className="bg-[#0B0B0D] border-[#1F1F24] text-white" />
                   </div>
                   <div>
-                    <Label>Role</Label>
-                    <Input value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="e.g., Server" />
+                    <Label className="text-white">Role</Label>
+                    <Input value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="e.g., Server" className="bg-[#0B0B0D] border-[#1F1F24] text-white" />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <Label>Start Time</Label>
-                    <Input type="time" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} />
+                    <Label className="text-white">Start Time</Label>
+                    <Input type="time" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="bg-[#0B0B0D] border-[#1F1F24] text-white" />
                   </div>
                   <div>
-                    <Label>End Time</Label>
-                    <Input type="time" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} />
+                    <Label className="text-white">End Time</Label>
+                    <Input type="time" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} className="bg-[#0B0B0D] border-[#1F1F24] text-white" />
                   </div>
                   <div>
-                    <Label>Department</Label>
+                    <Label className="text-white">Department</Label>
                     <select
                       value={form.department}
                       onChange={e => setForm({ ...form, department: e.target.value })}
-                      className="w-full h-9 px-2 text-xs border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="w-full h-9 px-2 text-xs border border-[#1F1F24] rounded-lg bg-[#0B0B0D] text-white focus:outline-none focus:ring-1 focus:ring-[#FF6A00]"
                     >
                       <option value="">Select...</option>
                       {DEPARTMENTS.map(d => (
@@ -395,12 +451,12 @@ export default function ScheduleCenter() {
                   </div>
                 </div>
                 <div>
-                  <Label>Notes</Label>
-                  <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} placeholder="Any notes..." />
+                  <Label className="text-white">Notes</Label>
+                  <Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} placeholder="Any notes..." className="bg-[#0B0B0D] border-[#1F1F24] text-white" />
                 </div>
                 <button
                   onClick={handleAddShift}
-                  className="w-full h-10 bg-primary text-primary-foreground font-bold rounded-lg active:scale-95 transition-transform text-sm"
+                  className="w-full h-10 bg-[#FF6A00] text-black font-bold rounded-lg active:scale-95 transition-transform text-sm"
                 >
                   Add Shift
                 </button>
@@ -408,14 +464,14 @@ export default function ScheduleCenter() {
             ) : (
               <div className="space-y-3 pt-2">
                 <div>
-                  <p className="text-xs font-bold uppercase text-muted-foreground mb-1">Details</p>
+                  <p className="text-xs font-bold uppercase text-[#6B7280] mb-1">Details</p>
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-foreground">{shiftDialog.employee_name}</p>
-                    <p className="text-xs text-muted-foreground">{shiftDialog.role} • {shiftDialog.department}</p>
-                    <p className="text-xs text-muted-foreground">{shiftDialog.date} • {shiftDialog.start_time}–{shiftDialog.end_time}</p>
+                    <p className="text-sm font-bold text-white">{shiftDialog.employee_name}</p>
+                    <p className="text-xs text-[#6B7280]">{shiftDialog.role} • {shiftDialog.department}</p>
+                    <p className="text-xs text-[#6B7280]">{shiftDialog.date} • {shiftDialog.start_time}–{shiftDialog.end_time}</p>
                   </div>
                 </div>
-                <button className="w-full h-9 bg-primary text-primary-foreground text-xs font-bold rounded-lg active:scale-95 transition-transform">
+                <button className="w-full h-9 bg-[#FF6A00] text-black text-xs font-bold rounded-lg active:scale-95 transition-transform">
                   Message
                 </button>
               </div>
@@ -424,14 +480,20 @@ export default function ScheduleCenter() {
         </Dialog>
       )}
 
-      {/* Sticky Add Button */}
-      {isAdmin && activeTab !== "import" && (
-        <div className="fixed left-0 right-0 bottom-20 z-30 px-4 flex gap-2 lg:left-64" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      {/* STICKY PRIMARY ACTION BUTTON */}
+      {isAdmin && (
+        <div className="fixed left-0 right-0 bottom-20 z-30 px-4 flex gap-2" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
           <button
-            onClick={() => setShiftDialog("new")}
-            className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground text-sm font-bold active:scale-95 transition-transform"
+            onClick={() => {
+              if (activeTab === "today" || activeTab === "week") setShiftDialog("new");
+              else if (activeTab === "import") setImportDialog(true);
+              else if (activeTab === "requests") toast.info("Review requests below");
+              else if (activeTab === "team") toast.info("Add team member via Team Directory");
+            }}
+            className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl bg-[#FF6A00] text-black text-sm font-bold active:scale-95 transition-transform"
           >
-            <Plus className="h-5 w-5" /> Add Shift
+            <Plus className="h-5 w-5" /> 
+            {activeTab === "today" ? "Add Shift" : activeTab === "week" ? "Add Weekly Shift" : activeTab === "team" ? "Add Member" : activeTab === "requests" ? "Review Requests" : "Import Schedule"}
           </button>
         </div>
       )}
@@ -450,20 +512,20 @@ function ShiftCard({ shift, employees, alert, onSelect }) {
     <button
       onClick={onSelect}
       className={cn(
-        "w-full bg-card border border-border rounded-xl px-3.5 py-2.5 flex items-start gap-2.5 text-left hover:border-primary/50 transition-all active:scale-[0.99]",
-        alert && "border-red-500/40",
+        "w-full bg-[#141418] border rounded-xl px-3.5 py-2.5 flex items-start gap-2.5 text-left hover:border-[#FF6A00]/50 transition-all active:scale-[0.99]",
+        alert ? "border-red-500/40" : "border-[#1F1F24]",
         isActive && "border-emerald-500/40"
       )}
     >
       <div className={cn(
         "h-10 w-10 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold",
-        isActive ? "bg-emerald-500/15 text-emerald-400" : "bg-primary/20 text-primary"
+        isActive ? "bg-emerald-500/15 text-emerald-400" : "bg-[#FF6A00]/20 text-[#FF6A00]"
       )}>
         {emp?.full_name?.charAt(0)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-foreground truncate">{emp?.full_name || shift.employee_name}</p>
-        <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px] text-muted-foreground">
+        <p className="text-sm font-bold text-white truncate">{emp?.full_name || shift.employee_name}</p>
+        <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px] text-[#6B7280]">
           <span>{shift.role}</span>
           <span>·</span>
           <span>{shift.department}</span>
@@ -481,7 +543,7 @@ function ShiftCard({ shift, employees, alert, onSelect }) {
         )}>
           {isActive ? "Active" : alert ? "Late" : "Upcoming"}
         </span>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <ChevronRight className="h-4 w-4 text-[#6B7280]" />
       </div>
     </button>
   );
