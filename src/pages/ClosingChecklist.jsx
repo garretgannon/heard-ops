@@ -5,7 +5,7 @@ import { CheckCircle2, AlertTriangle, Plus, Moon, Flag, Trash2, User } from "luc
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import BottomSheet from "../components/BottomSheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const hideBase44Index = true;
@@ -83,7 +83,7 @@ export default function ClosingChecklist() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [closing, setClosing] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [manager, setManager] = useState("");
@@ -179,7 +179,7 @@ export default function ClosingChecklist() {
     const created = await base44.entities.ClosingChecklist.create({ ...form, date: todayStr });
     if (form.is_template) setTemplates(prev => [...prev, created]);
     else setItems(prev => [...prev, { ...created, status: "pending" }]);
-    setDialogOpen(false);
+    setSheetOpen(false);
     setForm(EMPTY_FORM);
     setSaving(false);
     toast.success("Task added");
@@ -204,7 +204,7 @@ export default function ClosingChecklist() {
           <p className="text-[11px] text-gray-600 mt-0.5">{format(new Date(), "EEEE, MMM d")}</p>
         </div>
         {isAdmin && (
-          <button onClick={() => setDialogOpen(true)}
+          <button onClick={() => setSheetOpen(true)}
             className="h-8 px-3 rounded-xl bg-[#F5A623] text-black text-[11px] font-bold flex items-center gap-1.5 active:scale-95 transition-transform">
             <Plus className="h-3 w-3" /> Add
           </button>
@@ -302,22 +302,19 @@ export default function ClosingChecklist() {
         </div>
       )}
 
-      {/* Add Task Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle className="text-[15px]">Add Closing Task</DialogTitle></DialogHeader>
+      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Add Closing Task">
           <div className="space-y-3">
             <div>
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Task Name *</label>
               <input value={form.task_name} onChange={e => setForm(p => ({ ...p, task_name: e.target.value }))}
                 placeholder="e.g. Wrap and label all proteins"
-                className="mt-1 w-full h-9 px-3 text-[13px] border border-[#1F2937] rounded-lg bg-[#111827] text-white focus:outline-none placeholder:text-gray-700" />
+                className="mt-1 w-full h-11 px-3 text-[14px] border border-[#1F2937] rounded-xl bg-[#111827] text-white focus:outline-none placeholder:text-gray-700" />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Area</label>
                 <Select value={form.area} onValueChange={v => setForm(p => ({ ...p, area: v }))}>
-                  <SelectTrigger className="h-8 mt-1 text-[12px]"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-10 mt-1 text-[13px]"><SelectValue /></SelectTrigger>
                   <SelectContent>{AREAS.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
@@ -325,32 +322,31 @@ export default function ClosingChecklist() {
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Assigned To</label>
                 <input value={form.assigned_to_name} onChange={e => setForm(p => ({ ...p, assigned_to_name: e.target.value }))}
                   placeholder="Name"
-                  className="mt-1 w-full h-8 px-2 text-[12px] border border-[#1F2937] rounded-lg bg-[#111827] text-white focus:outline-none placeholder:text-gray-700" />
+                  className="mt-1 w-full h-10 px-2 text-[13px] border border-[#1F2937] rounded-xl bg-[#111827] text-white focus:outline-none placeholder:text-gray-700" />
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setForm(p => ({ ...p, is_critical: !p.is_critical }))}
-                  className={cn("relative inline-flex h-5 w-9 items-center rounded-full transition-colors", form.is_critical ? "bg-red-500" : "bg-[#1F2937]")}>
-                  <span className={cn("inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform", form.is_critical ? "translate-x-[18px]" : "translate-x-1")} />
+                  className={cn("relative inline-flex h-7 w-12 items-center rounded-full transition-colors", form.is_critical ? "bg-red-500" : "bg-[#1F2937]")}>
+                  <span className={cn("inline-block h-5 w-5 rounded-full bg-white shadow transition-transform", form.is_critical ? "translate-x-[22px]" : "translate-x-1")} />
                 </button>
-                <label className="text-[12px] text-gray-400 font-semibold">Mark as critical</label>
+                <label className="text-[14px] text-white font-semibold">Mark as critical</label>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setForm(p => ({ ...p, is_template: !p.is_template }))}
-                  className={cn("relative inline-flex h-5 w-9 items-center rounded-full transition-colors", form.is_template ? "bg-[#F5A623]" : "bg-[#1F2937]")}>
-                  <span className={cn("inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform", form.is_template ? "translate-x-[18px]" : "translate-x-1")} />
+                  className={cn("relative inline-flex h-7 w-12 items-center rounded-full transition-colors", form.is_template ? "bg-[#F5A623]" : "bg-[#1F2937]")}>
+                  <span className={cn("inline-block h-5 w-5 rounded-full bg-white shadow transition-transform", form.is_template ? "translate-x-[22px]" : "translate-x-1")} />
                 </button>
-                <label className="text-[12px] text-gray-400 font-semibold">Save as reusable template</label>
+                <label className="text-[14px] text-white font-semibold">Save as template</label>
               </div>
             </div>
             <button onClick={handleAdd} disabled={saving || !form.task_name.trim()}
-              className="w-full h-10 bg-indigo-600 text-white font-bold rounded-xl text-[13px] disabled:opacity-50 active:scale-95 transition-transform">
+              className="w-full h-12 bg-indigo-600 text-white font-bold rounded-xl text-[14px] disabled:opacity-50 active:scale-95 transition-transform">
               {saving ? "Saving..." : "Add Task"}
             </button>
           </div>
-        </DialogContent>
-      </Dialog>
+      </BottomSheet>
     </div>
   );
 }
