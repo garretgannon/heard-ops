@@ -171,13 +171,20 @@ export default function NewLog() {
         </form>
 
         {/* Sticky Footer with Submit Button */}
-        <div className="flex-shrink-0 sticky bottom-0 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+20px)] border-t border-border bg-card">
+        <div className="flex-shrink-0 sticky bottom-0 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+20px)] border-t border-border bg-card space-y-2">
           <button
             onClick={handleSubmit}
             disabled={submitting || !title.trim()}
             className="w-full h-13 rounded-2xl bg-primary text-primary-foreground font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-glow-lg transition-all active:scale-95"
           >
-            {submitting ? "Saving..." : "Submit Entry"}
+            {submitting ? "Submitting..." : "Submit Entry"}
+          </button>
+          <button
+            onClick={handleClose}
+            type="button"
+            className="w-full h-10 rounded-lg border border-border text-foreground font-bold hover:bg-muted transition-all active:scale-95"
+          >
+            Cancel
           </button>
         </div>
       </div>
