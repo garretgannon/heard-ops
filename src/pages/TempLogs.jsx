@@ -146,8 +146,15 @@ export default function TempLogs() {
     if (!activeLocId) return;
     const timer = setTimeout(() => {
       const el = document.getElementById(`loc-card-${activeLocId}`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 60);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      // 56px BottomNav + 66px action bar + 16px padding
+      const bottomClearance = 138 + (window.screen?.height > 800 ? 34 : 0);
+      const viewportBottom = window.innerHeight - bottomClearance;
+      if (rect.bottom > viewportBottom) {
+        window.scrollBy({ top: rect.bottom - viewportBottom, behavior: 'smooth' });
+      }
+    }, 100);
     return () => clearTimeout(timer);
   }, [activeLocId]);
   const [issueNotes, setIssueNotes] = useState("");
