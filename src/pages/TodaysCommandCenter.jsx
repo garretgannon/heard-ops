@@ -7,6 +7,7 @@ import { Bell, AlertTriangle, Clock, CheckCircle2, ChevronRight, Zap, User, MapP
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CardInteractionWrapper } from "@/components/CardInteractionModal";
+import CaughtUpEmptyState from "@/components/CaughtUpEmptyState";
 import { haptics } from "@/utils/haptics";
 
 function ProgressCircle({ value, max = 100 }) {
