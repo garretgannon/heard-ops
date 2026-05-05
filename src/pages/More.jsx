@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 import {
   Users, Calendar, Tag, Truck, Package, Trash2, UtensilsCrossed, Sparkles, Wrench,
   Settings, BarChart2, ClipboardList, Bell
@@ -14,6 +15,9 @@ export default function More() {
     {
       id: "team",
       title: "Team & Scheduling",
+      iconColor: "text-blue-400",
+      bgColor: "bg-blue-500/15",
+      borderColor: "border-blue-500/25",
       items: [
         { label: "Team Directory", desc: "Manage roles, certifications, availability", path: "/restaurant-team", icon: Users },
         { label: "Schedule Center", desc: "Import and manage weekly shifts", path: "/schedule-center", icon: Calendar },
@@ -23,6 +27,9 @@ export default function More() {
     {
       id: "ops",
       title: "Operations",
+      iconColor: "text-amber-400",
+      bgColor: "bg-amber-500/15",
+      borderColor: "border-amber-500/25",
       items: [
         { label: "Vendors", desc: "Supplier contacts and ordering", path: "/vendors", icon: Truck },
         { label: "Inventory & Orders", desc: "Track stock levels and reorder", path: "/inventory", icon: Package },
@@ -35,6 +42,9 @@ export default function More() {
     ...(isAdmin ? [{
       id: "admin",
       title: "Admin Settings",
+      iconColor: "text-purple-400",
+      bgColor: "bg-purple-500/15",
+      borderColor: "border-purple-500/25",
       items: [
         { label: "Template Builder", desc: "Create recurring task lists", path: "/templates", icon: ClipboardList },
         { label: "Standards & Procedures", desc: "Attach notes to tasks", path: "/standards", icon: ClipboardList },
@@ -64,7 +74,7 @@ export default function More() {
           >
             {/* Section Header */}
             <div className="mb-3.5 px-1">
-              <h2 className="text-xs font-bold text-[#FF6A00] uppercase tracking-widest">
+              <h2 className={cn("text-xs font-bold uppercase tracking-widest", category.iconColor)}>
                 {category.title}
               </h2>
             </div>
@@ -83,8 +93,8 @@ export default function More() {
                     className="w-full flex items-center gap-3.5 px-4 py-3.5 bg-[#141418] border border-[#1F1F24] rounded-lg hover:bg-[#1A1A1F] hover:border-[#262630] transition-all active:scale-95"
                   >
                     {/* Icon Container */}
-                    <div className="h-12 w-12 rounded-lg bg-[#FF6A00]/15 border border-[#FF6A00]/25 flex items-center justify-center shrink-0">
-                      <Icon className="h-5.5 w-5.5 text-[#FF6A00]" />
+                    <div className={cn("h-12 w-12 rounded-lg flex items-center justify-center shrink-0", category.bgColor, category.borderColor, "border")}>
+                      <Icon className={cn("h-5.5 w-5.5", category.iconColor)} />
                     </div>
 
                     {/* Text Content */}
