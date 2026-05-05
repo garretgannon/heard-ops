@@ -137,6 +137,7 @@ export default function RestaurantTeam() {
 
   const activeCount = employees.filter(e => e.status === "active").length;
   const inactiveCount = employees.filter(e => e.status === "inactive").length;
+  const hasDummyData = employees.some(e => e.email?.includes("restaurant.local"));
 
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
@@ -148,7 +149,7 @@ export default function RestaurantTeam() {
           <p className="text-muted-foreground mt-1 text-sm">Employee directory, roles, and permissions.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleSeedDummyData} disabled={seeding} variant="outline" className="gap-2 text-xs">
+          <Button onClick={handleSeedDummyData} disabled={seeding || hasDummyData} variant="outline" className="gap-2 text-xs">
             {seeding ? "Adding..." : "Add Dummy Data"}
           </Button>
           <Button onClick={() => setShowInvite(true)} className="gap-2">
