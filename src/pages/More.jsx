@@ -35,8 +35,6 @@ export default function More() {
         { label: "Inventory & Orders", desc: "Track stock levels and reorder", path: "/inventory", icon: Package },
         { label: "Waste & 86 Log", desc: "Log waste and out-of-stock items", path: "/waste", icon: Trash2 },
         { label: "Manager Log", desc: "Shift notes, incidents, and pending tasks", path: "/manager-log", icon: ClipboardList },
-        { label: "Kitchen Prep", desc: "Production tracker for prep items", path: "/kitchen-prep", icon: ChefHat },
-        { label: "Side Work Production", desc: "FOH task tracker for active shift", path: "/side-work-production", icon: Users2 },
         { label: "Cleaning & Deep Clean", desc: "Cleaning checklists and logs", path: "/cleaning", icon: Sparkles },
       ]
     },
