@@ -25,7 +25,7 @@ export default function GlobalBottomNav() {
               to={path}
               onClick={() => haptics.light()}
               className={cn(
-                "flex flex-col items-center justify-center gap-1.5 flex-1 relative text-xs font-medium transition-all duration-200 active:scale-95",
+                "flex flex-col items-center justify-center gap-1.5 flex-1 relative text-xs font-medium transition-all duration-200 active:scale-95 animate-tab-switch",
                 isActive && "text-primary"
               )}
             >
@@ -37,7 +37,7 @@ export default function GlobalBottomNav() {
               {/* Icon */}
               <Icon
                 className={cn(
-                  "h-5 w-5 transition-colors duration-200 stroke-[1.5]",
+                  "h-5 w-5 transition-colors duration-80 stroke-[1.5]",
                   isActive
                     ? "text-primary"
                     : "text-muted-foreground"
@@ -47,7 +47,7 @@ export default function GlobalBottomNav() {
               {/* Label */}
               <span
                 className={cn(
-                  "text-[10px] font-semibold transition-colors duration-200 whitespace-nowrap",
+                  "text-[10px] font-semibold transition-colors duration-80 whitespace-nowrap",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >

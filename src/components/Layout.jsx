@@ -199,10 +199,10 @@ export default function Layout() {
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
             className="w-full max-w-[430px] lg:max-w-none lg:w-full px-4 pt-3 lg:px-8 lg:pb-8 lg:max-w-6xl mx-auto"
             style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
           >
