@@ -1,289 +1,225 @@
-import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useCurrentUser } from '../hooks/useCurrentUser';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { AlertCircle, Bell, Save, ChevronDown, Mail, Smartphone, MessageSquare } from 'lucide-react';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useMemo } from "react";
+import { base44 } from "@/api/base44Client";
+import { useNavigate } from "react-router-dom";
+import {
+  Bell, AlertTriangle, Thermometer, CheckSquare, Wrench,
+  ClipboardList, ShieldAlert, Clock, ChevronRight, CheckCircle2
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
 
-const ALERT_TYPES = {
-  'Prep & Quality': [
-    { key: 'missed_prep', label: 'Missed Prep', description: 'Prep item not completed on time' },
-    { key: 'failed_temp_log', label: 'Failed Temperature Log', description: 'Temperature reading outside safe range' },
-    { key: 'rejected_photo', label: 'Rejected Photo', description: 'Submitted photo failed quality check' },
-  ],
-  'Side Work & Tasks': [
-    { key: 'missed_side_work', label: 'Missed Side Work', description: 'Side work task not completed' },
-  ],
-  'Maintenance & Incidents': [
-    { key: 'urgent_maintenance', label: 'Urgent Maintenance Request', description: 'New urgent maintenance request submitted' },
-    { key: 'incident_submitted', label: 'Incident Submitted', description: 'New incident report filed' },
-  ],
-  'Cash & Operations': [
-    { key: 'cash_variance', label: 'Cash Variance', description: 'Drawer count variance detected' },
-    { key: 'shift_handoff', label: 'Shift Handoff Created', description: 'New shift handoff notes added' },
-  ],
+export const hideBase44Index = true;
+
+// Build a unified alert list from multiple entities
+function buildAlerts({ issues, tempLogs, maintenance, prepItems }) {
+  const list = [];
+
+  // Critical issues
+  issues.filter(i => i.status === "critical" || i.status === "open").forEach(i => {
+    list.push({
+      id: `issue-${i.id}`,
+      type: i.status === "critical" ? "critical" : "warning",
+      icon: ShieldAlert,
+      message: i.title,
+      sub: `Issue · ${i.category}`,
+      time: i.created_date,
+      route: "/issues",
+      actionLabel: "View",
+      read: i.status === "resolved",
+    });
+  });
+
+  // Temp log danger/warning readings
+  tempLogs.filter(t => t.status === "danger" || t.status === "warning").forEach(t => {
+    list.push({
+      id: `temp-${t.id}`,
+      type: t.status === "danger" ? "critical" : "warning",
+      icon: Thermometer,
+      message: `${t.location_name || "Unit"}: ${t.temperature}°F`,
+      sub: `Temp · ${t.status === "danger" ? "Out of range" : "Warning"}`,
+      time: t.logged_at || t.created_date,
+      route: "/temp-logs",
+      actionLabel: "Log",
+      read: false,
+    });
+  });
+
+  // Overdue prep items
+  prepItems.filter(p => p.status === "overdue").forEach(p => {
+    list.push({
+      id: `prep-${p.id}`,
+      type: "warning",
+      icon: ClipboardList,
+      message: `${p.name} — not completed`,
+      sub: "Prep · Overdue",
+      time: p.overdue_flagged_at || p.created_date,
+      route: "/prep-lists",
+      actionLabel: "Review",
+      read: false,
+    });
+  });
+
+  // Pending approval prep items
+  prepItems.filter(p => p.status === "pending_review").forEach(p => {
+    list.push({
+      id: `approval-${p.id}`,
+      type: "approval",
+      icon: CheckSquare,
+      message: `${p.name} — awaiting approval`,
+      sub: "Prep · Needs sign-off",
+      time: p.completed_at || p.created_date,
+      route: "/photo-review",
+      actionLabel: "Approve",
+      read: false,
+    });
+  });
+
+  // Urgent maintenance
+  maintenance.filter(m => m.status !== "resolved" && m.status !== "completed").forEach(m => {
+    list.push({
+      id: `maint-${m.id}`,
+      type: m.priority === "high" || m.priority === "urgent" ? "critical" : "info",
+      icon: Wrench,
+      message: m.title || m.description || "Maintenance request",
+      sub: `Maintenance · ${m.status || "Open"}`,
+      time: m.created_date,
+      route: "/maintenance",
+      actionLabel: "View",
+      read: false,
+    });
+  });
+
+  // Sort: critical first, then by time
+  const typeOrder = { critical: 0, approval: 1, warning: 2, info: 3 };
+  list.sort((a, b) => {
+    if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
+    return new Date(b.time || 0) - new Date(a.time || 0);
+  });
+
+  return list;
+}
+
+const TYPE_STYLE = {
+  critical: { dot: "bg-red-500 animate-pulse", row: "border-l-2 border-red-500/40", iconCls: "text-red-400", iconBg: "bg-red-500/10" },
+  approval: { dot: "bg-blue-400",              row: "border-l-2 border-blue-500/30",  iconCls: "text-blue-400",  iconBg: "bg-blue-500/10"  },
+  warning:  { dot: "bg-amber-500",             row: "border-l-2 border-amber-500/30", iconCls: "text-amber-400", iconBg: "bg-amber-500/10" },
+  info:     { dot: "bg-gray-500",              row: "",                               iconCls: "text-gray-500",  iconBg: "bg-[#1A2235]"    },
 };
 
-export default function NotificationSettings() {
-  const { isAdmin } = useCurrentUser();
-  const [alerts, setAlerts] = useState({});
-  const [quietHoursEnabled, setQuietHoursEnabled] = useState(false);
-  const [quietStart, setQuietStart] = useState('22:00');
-  const [quietEnd, setQuietEnd] = useState('06:00');
-  const [urgencyThreshold, setUrgencyThreshold] = useState('medium');
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const dbSettings = await base44.entities.NotificationSettings.list();
-        const loaded = {};
-        
-        Object.keys(ALERT_TYPES).forEach(group => {
-          ALERT_TYPES[group].forEach(alert => {
-            const dbAlert = dbSettings.find(s => s.key === alert.key);
-            loaded[alert.key] = {
-              email: true,
-              push: true,
-              inApp: true,
-              ...JSON.parse(dbAlert?.value || '{}'),
-            };
-          });
-        });
-
-        const quietSettings = dbSettings.find(s => s.key === 'quiet_hours');
-        if (quietSettings) {
-          const { enabled, start, end } = JSON.parse(quietSettings.value);
-          setQuietHoursEnabled(enabled);
-          setQuietStart(start);
-          setQuietEnd(end);
-        }
-
-        const urgency = dbSettings.find(s => s.key === 'urgency_threshold');
-        if (urgency) setUrgencyThreshold(urgency.value);
-
-        setAlerts(loaded);
-      } catch (e) {
-        console.error('Error loading settings:', e);
-      }
-      setLoading(false);
-    };
-    load();
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const toCreate = [];
-      
-      Object.entries(alerts).forEach(([key, value]) => {
-        toCreate.push({ key, value: JSON.stringify(value) });
-      });
-
-      toCreate.push({
-        key: 'quiet_hours',
-        value: JSON.stringify({ enabled: quietHoursEnabled, start: quietStart, end: quietEnd }),
-      });
-
-      toCreate.push({
-        key: 'urgency_threshold',
-        value: urgencyThreshold,
-      });
-
-      const existing = await base44.entities.NotificationSettings.list();
-      const keysToDelete = new Set(toCreate.map(t => t.key));
-      
-      for (const setting of existing) {
-        if (keysToDelete.has(setting.key)) {
-          await base44.entities.NotificationSettings.delete(setting.id);
-        }
-      }
-
-      await base44.entities.NotificationSettings.bulkCreate(toCreate);
-      toast.success('Settings saved');
-    } catch (e) {
-      toast.error('Error saving settings');
-    }
-    setSaving(false);
-  };
-
-  const toggleChannel = (alertKey, channel) => {
-    setAlerts(prev => ({
-      ...prev,
-      [alertKey]: {
-        ...prev[alertKey],
-        [channel]: !prev[alertKey]?.[channel],
-      },
-    }));
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
+function KPITile({ label, value, color, alert }) {
   return (
-    <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
-          <Bell className="h-7 w-7 text-primary" /> Notification Settings
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">Managers control what alerts matter.</p>
-      </div>
-
-      {/* Alerts by Module */}
-      <div className="space-y-4">
-        {Object.entries(ALERT_TYPES).map(([group, groupAlerts]) => (
-          <div key={group} className="bg-card border border-border rounded-lg p-4 space-y-3">
-            <h2 className="font-semibold text-sm">{group}</h2>
-            <div className="space-y-2">
-              {groupAlerts.map(alert => (
-                <div key={alert.key} className="flex items-start justify-between py-2 border-b border-border last:border-0">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{alert.label}</p>
-                    <p className="text-xs text-muted-foreground">{alert.description}</p>
-                  </div>
-                  <div className="flex items-center gap-2 ml-4">
-                    <button
-                      onClick={() => toggleChannel(alert.key, 'email')}
-                      title="Email"
-                      className={cn(
-                        'p-2 rounded-lg transition-colors',
-                        alerts[alert.key]?.email
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                      )}
-                    >
-                      <Mail className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => toggleChannel(alert.key, 'push')}
-                      title="Push"
-                      className={cn(
-                        'p-2 rounded-lg transition-colors',
-                        alerts[alert.key]?.push
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                      )}
-                    >
-                      <Smartphone className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => toggleChannel(alert.key, 'inApp')}
-                      title="In-App"
-                      className={cn(
-                        'p-2 rounded-lg transition-colors',
-                        alerts[alert.key]?.inApp
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                      )}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quiet Hours & Urgency */}
-      <div className="bg-card border border-border rounded-lg p-4 space-y-4">
-        <h2 className="font-semibold text-sm">Quick Settings</h2>
-
-        {/* Quiet Hours */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Quiet Hours</Label>
-            <Switch
-              checked={quietHoursEnabled}
-              onCheckedChange={setQuietHoursEnabled}
-            />
-          </div>
-          {quietHoursEnabled && (
-            <div className="grid grid-cols-2 gap-3 ml-4">
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Start</Label>
-                <Input
-                  type="time"
-                  value={quietStart}
-                  onChange={e => setQuietStart(e.target.value)}
-                  className="h-8 text-xs"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">End</Label>
-                <Input
-                  type="time"
-                  value={quietEnd}
-                  onChange={e => setQuietEnd(e.target.value)}
-                  className="h-8 text-xs"
-                />
-              </div>
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">Suspend non-critical alerts during these hours.</p>
-        </div>
-
-        {/* Urgency Threshold */}
-        <div className="border-t border-border pt-3 space-y-2">
-          <Label className="text-sm font-medium">Alert if Urgency is</Label>
-          <select
-            value={urgencyThreshold}
-            onChange={e => setUrgencyThreshold(e.target.value)}
-            className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="low">Low or higher</option>
-            <option value="medium">Medium or higher</option>
-            <option value="high">High or critical</option>
-            <option value="critical">Critical only</option>
-          </select>
-          <p className="text-xs text-muted-foreground">Ignore alerts below this urgency level.</p>
-        </div>
-      </div>
-
-      {/* Advanced */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <button
-          onClick={() => setAdvancedOpen(!advancedOpen)}
-          className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-secondary/30 transition-colors text-left"
-        >
-          <span className="font-medium text-sm">Advanced Settings</span>
-          <ChevronDown className={cn("h-4 w-4 transition-transform", advancedOpen && "rotate-180")} />
-        </button>
-        {advancedOpen && (
-          <div className="px-4 py-3 border-t border-border space-y-3 bg-secondary/20">
-            <p className="text-xs text-muted-foreground">Role-based defaults and custom rules coming soon.</p>
-            {isAdmin && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                <p className="text-xs text-blue-900">Admin-only: Role templates and escalation rules will be available here.</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Save */}
-      <div className="flex items-center gap-3">
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
-          <Save className="h-4 w-4" />
-          {saving ? 'Saving...' : 'Save Settings'}
-        </Button>
-        <p className="text-xs text-muted-foreground">Changes apply to your account immediately.</p>
-      </div>
-    </motion.div>
+    <div className={cn("flex-1 min-w-0 bg-[#111827] rounded-xl border p-2.5", alert ? "border-red-500/30" : "border-[#1F2937]")}>
+      <p className={cn("text-[20px] font-extrabold leading-none", color)}>{value}</p>
+      <p className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</p>
+    </div>
   );
 }
 
-export const hideBase44Index = true;
+export default function NotificationSettings() {
+  const navigate = useNavigate();
+  const [issues, setIssues] = useState([]);
+  const [tempLogs, setTempLogs] = useState([]);
+  const [maintenance, setMaintenance] = useState([]);
+  const [prepItems, setPrepItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      base44.entities.Issue.filter({ status: "open" }),
+      base44.entities.Issue.filter({ status: "critical" }),
+      base44.entities.TempLogEntry.list("-logged_at", 100),
+      base44.entities.MaintenanceRequest.list("-created_date", 50),
+      base44.entities.PrepItem.list("-updated_date", 100),
+    ]).then(([open, critical, temps, maint, prep]) => {
+      setIssues([...open, ...critical]);
+      setTempLogs(temps.filter(t => t.status === "danger" || t.status === "warning"));
+      setMaintenance(maint);
+      setPrepItems(prep);
+      setLoading(false);
+    });
+  }, []);
+
+  const alerts = useMemo(() => buildAlerts({ issues, tempLogs, maintenance, prepItems }), [issues, tempLogs, maintenance, prepItems]);
+
+  const unread = alerts.filter(a => !a.read).length;
+  const critical = alerts.filter(a => a.type === "critical").length;
+  const approvals = alerts.filter(a => a.type === "approval").length;
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-48">
+      <div className="w-5 h-5 border-2 border-[#F5A623] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
+  return (
+    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-24">
+
+      {/* Header */}
+      <div className="pt-1 flex items-center gap-2">
+        <Bell className="h-4 w-4 text-[#F5A623]" />
+        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Alerts</h1>
+        {unread > 0 && (
+          <span className="h-5 min-w-5 px-1.5 rounded-full bg-red-500 text-[10px] font-extrabold text-white flex items-center justify-center">
+            {unread}
+          </span>
+        )}
+      </div>
+
+      {/* KPI Strip */}
+      <div className="grid grid-cols-3 gap-1.5">
+        <KPITile label="Unread"    value={unread}    color={unread > 0 ? "text-white" : "text-gray-600"}       alert={unread > 0} />
+        <KPITile label="Critical"  value={critical}  color={critical > 0 ? "text-red-400" : "text-gray-600"}   alert={critical > 0} />
+        <KPITile label="Approvals" value={approvals} color={approvals > 0 ? "text-blue-400" : "text-gray-600"} />
+      </div>
+
+      {/* Alert Feed */}
+      {alerts.length === 0 ? (
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-8 text-center">
+          <CheckCircle2 className="h-8 w-8 text-emerald-400/30 mx-auto mb-2" />
+          <p className="text-[13px] font-bold text-gray-500">All clear</p>
+          <p className="text-[11px] text-gray-700 mt-0.5">No active alerts right now</p>
+        </div>
+      ) : (
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl overflow-hidden divide-y divide-[#1A2235]">
+          {alerts.map(alert => {
+            const s = TYPE_STYLE[alert.type];
+            const Icon = alert.icon;
+            const timeStr = alert.time
+              ? formatDistanceToNow(new Date(alert.time), { addSuffix: true })
+              : "";
+            return (
+              <div key={alert.id} className={cn("flex items-center gap-2.5 px-3 py-2.5", s.row)}>
+                {/* Icon */}
+                <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center shrink-0", s.iconBg)}>
+                  <Icon className={cn("h-3.5 w-3.5", s.iconCls)} />
+                </div>
+
+                {/* Message */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-white leading-tight truncate">{alert.message}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[10px] text-gray-600 truncate">{alert.sub}</span>
+                    {timeStr && <><span className="text-gray-700 text-[9px]">·</span><span className="text-[10px] text-gray-700 shrink-0">{timeStr}</span></>}
+                  </div>
+                </div>
+
+                {/* Action */}
+                <button
+                  onClick={() => navigate(alert.route)}
+                  className={cn(
+                    "h-6 px-2 rounded-lg text-[10px] font-bold border shrink-0 active:scale-95 transition-transform",
+                    alert.type === "critical" ? "bg-red-500/10 border-red-500/20 text-red-400" :
+                    alert.type === "approval" ? "bg-blue-500/10 border-blue-500/20 text-blue-400" :
+                    "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                  )}
+                >
+                  {alert.actionLabel}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
