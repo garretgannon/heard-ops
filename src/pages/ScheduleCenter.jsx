@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Plus, MessageSquare, User, Clock, AlertCircle, CheckCircle2, Upload, Calendar,
   Users, Inbox, ChevronRight, MapPin, Phone, Mail, MoreVertical, Zap, Bell,
-  TrendingUp, AlertTriangle, Clock3
+  TrendingUp, AlertTriangle, Clock3, ArrowLeft
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ const TABS = [
 const DEPARTMENTS = ["FOH", "BOH", "Bar", "Management"];
 
 export default function ScheduleCenter() {
+  const navigate = useNavigate();
   const { user, isAdmin } = useCurrentUser();
   const [activeTab, setActiveTab] = useState("today");
   const [shifts, setShifts] = useState([]);
@@ -151,9 +153,14 @@ export default function ScheduleCenter() {
       {/* STICKY HEADER */}
       <div className="sticky top-0 z-40 bg-[#0B0B0D]/95 backdrop-blur border-b border-[#1F1F24] px-4 py-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-white">Schedule Center</h1>
-            <p className="text-[10px] text-[#6B7280] mt-0.5">Today's team, shifts, and tools</p>
+          <div className="flex items-center gap-2.5">
+            <button onClick={() => navigate(-1)} className="h-9 w-9 rounded-lg bg-[#141418] border border-[#1F1F24] flex items-center justify-center hover:bg-[#1A1A1F] transition-colors active:scale-95">
+              <ArrowLeft className="h-4 w-4 text-[#A1A1AA]" />
+            </button>
+            <div>
+              <h1 className="text-lg font-bold text-white">Schedule Center</h1>
+              <p className="text-[10px] text-[#6B7280] mt-0.5">Today's team, shifts, and tools</p>
+            </div>
           </div>
           <button className="h-9 w-9 rounded-lg bg-[#141418] border border-[#1F1F24] flex items-center justify-center active:scale-95">
             <Bell className="h-4 w-4 text-[#A1A1AA]" />
