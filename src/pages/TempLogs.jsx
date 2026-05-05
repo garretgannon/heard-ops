@@ -531,57 +531,57 @@ export default function TempLogs() {
             {/* Dishwasher */}
             <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
               <p className="text-[12px] font-bold text-white">Dish Machine</p>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <input
                   type="number"
                   placeholder="Temp °F"
                   value={chemicalInputs.dishwasher.temp || ""}
                   onChange={e => setChemicalInputs(prev => ({ ...prev, dishwasher: { ...prev.dishwasher, temp: e.target.value } }))}
-                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <input
                   type="number"
                   placeholder="PPM"
                   value={chemicalInputs.dishwasher.ppm || ""}
                   onChange={e => setChemicalInputs(prev => ({ ...prev, dishwasher: { ...prev.dishwasher, ppm: e.target.value } }))}
-                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
                 />
-                <button
-                  onClick={() => handleLogChemical("dishwasher")}
-                  disabled={loggingChemical}
-                  className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-bold active:scale-95 disabled:opacity-50"
-                >
-                  {loggingChemical ? "..." : "Log"}
-                </button>
               </div>
+              <button
+                onClick={() => handleLogChemical("dishwasher")}
+                disabled={loggingChemical}
+                className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-[12px] font-bold active:scale-95 disabled:opacity-50"
+              >
+                {loggingChemical ? "Logging..." : "Log Reading"}
+              </button>
             </div>
 
             {/* Three Compartment Sink */}
             <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
               <p className="text-[12px] font-bold text-white">Three Compartment Sink</p>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <input
                   type="number"
                   placeholder="Temp °F"
                   value={chemicalInputs.threeSink.temp || ""}
                   onChange={e => setChemicalInputs(prev => ({ ...prev, threeSink: { ...prev.threeSink, temp: e.target.value } }))}
-                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <input
                   type="number"
                   placeholder="PPM"
                   value={chemicalInputs.threeSink.ppm || ""}
                   onChange={e => setChemicalInputs(prev => ({ ...prev, threeSink: { ...prev.threeSink, ppm: e.target.value } }))}
-                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
                 />
-                <button
-                  onClick={() => handleLogChemical("threeSink")}
-                  disabled={loggingChemical}
-                  className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-bold active:scale-95 disabled:opacity-50"
-                >
-                  {loggingChemical ? "..." : "Log"}
-                </button>
               </div>
+              <button
+                onClick={() => handleLogChemical("threeSink")}
+                disabled={loggingChemical}
+                className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-[12px] font-bold active:scale-95 disabled:opacity-50"
+              >
+                {loggingChemical ? "Logging..." : "Log Reading"}
+              </button>
             </div>
           </div>
 
