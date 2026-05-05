@@ -85,6 +85,7 @@ export default function CleaningTemplates() {
   const [search, setSearch] = useState('');
   const [filterDept, setFilterDept] = useState('');
   const [filterArea, setFilterArea] = useState('');
+  const [filterShift, setFilterShift] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -119,14 +120,16 @@ export default function CleaningTemplates() {
   const filtered = templates.filter(t => {
     const matchDept = !filterDept || t.department === filterDept;
     const matchArea = !filterArea || t.area === filterArea;
+    const matchShift = !filterShift || t.shift === filterShift;
     const matchSearch = !search || 
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.area.toLowerCase().includes(search.toLowerCase());
-    return matchDept && matchArea && matchSearch;
+    return matchDept && matchArea && matchShift && matchSearch;
   });
 
   const departments = [...new Set(templates.map(t => t.department))].sort();
   const areas = [...new Set(templates.map(t => t.area))].filter(Boolean).sort();
+  const shifts = [...new Set(templates.map(t => t.shift))].sort();
 
   const handleSave = async () => {
     await loadTemplates();
@@ -204,6 +207,14 @@ export default function CleaningTemplates() {
           >
             <option value="">All Areas</option>
             {areas.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+          <select
+            value={filterShift}
+            onChange={(e) => setFilterShift(e.target.value)}
+            className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+          >
+            <option value="">All Shifts</option>
+            {shifts.map(s => <option key={s} value={s}>{s === 'all' ? 'All Shifts' : s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
           </select>
         </div>
       </div>
