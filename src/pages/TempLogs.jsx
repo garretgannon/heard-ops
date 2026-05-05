@@ -135,6 +135,9 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
 
 export default function TempLogs() {
   const [activeTab, setActiveTab] = useState("temps");
+  const [coolingLogs, setCoolingLogs] = useState([]);
+  const [coolingInputs, setCoolingInputs] = useState({ item: "", tempStart: "", tempEnd: "", startTime: "", endTime: "" });
+  const [loggingCooling, setLoggingCooling] = useState(false);
   const [locations, setLocations] = useState([]);
   const [entries, setEntries] = useState([]);
   const [chemicalLogs, setChemicalLogs] = useState([]);
@@ -156,6 +159,14 @@ export default function TempLogs() {
       setChemicalLogs(logs);
     };
     loadChemicals();
+  }, []);
+
+  useEffect(() => {
+    const loadCooling = async () => {
+      const logs = await base44.entities.TemperatureLog.filter({ date: todayStr }).catch(() => []);
+      setCoolingLogs(logs);
+    };
+    loadCooling();
   }, []);
 
   useEffect(() => {
@@ -351,6 +362,16 @@ export default function TempLogs() {
         >
           Chemicals
         </button>
+        <button
+          onClick={() => setActiveTab("cooling")}
+          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all",
+            activeTab === "cooling"
+              ? "bg-primary text-primary-foreground"
+              : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
+          )}
+        >
+          Cooling Logs
+        </button>
       </div>
 
       {/* Temperature Tab */}
@@ -513,6 +534,115 @@ export default function TempLogs() {
               Log All Temps
             </button>
           </div>}
+        </>
+      )}
+
+      {/* Cooling Logs Tab */}
+      {activeTab === "cooling" && (
+        <>
+          <div className="grid grid-cols-2 gap-1.5">
+            <MetricTile icon={Activity} label="Logged" value={coolingLogs.length} />
+            <MetricTile icon={ShieldCheck} label="Compliant" value={coolingLogs.filter(l => l.compliant !== false).length} />
+          </div>
+
+          {/* Logging Section */}
+          <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
+            <p className="text-[12px] font-bold text-white">Log Cooling Process</p>
+            <input
+              type="text"
+              placeholder="Item name"
+              value={coolingInputs.item}
+              onChange={e => setCoolingInputs(prev => ({ ...prev, item: e.target.value }))}
+              className="w-full h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                placeholder="Start Temp °F"
+                value={coolingInputs.tempStart}
+                onChange={e => setCoolingInputs(prev => ({ ...prev, tempStart: e.target.value }))}
+                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <input
+                type="number"
+                placeholder="End Temp °F"
+                value={coolingInputs.tempEnd}
+                onChange={e => setCoolingInputs(prev => ({ ...prev, tempEnd: e.target.value }))}
+                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="time"
+                value={coolingInputs.startTime}
+                onChange={e => setCoolingInputs(prev => ({ ...prev, startTime: e.target.value }))}
+                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <input
+                type="time"
+                value={coolingInputs.endTime}
+                onChange={e => setCoolingInputs(prev => ({ ...prev, endTime: e.target.value }))}
+                className="h-9 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <button
+              onClick={async () => {
+                if (!coolingInputs.item || !coolingInputs.tempStart || !coolingInputs.tempEnd) {
+                  haptics.warning();
+                  toast.error("Fill in all fields");
+                  return;
+                }
+                setLoggingCooling(true);
+                await base44.entities.TemperatureLog.create({
+                  item_name: coolingInputs.item,
+                  start_temperature: parseFloat(coolingInputs.tempStart),
+                  end_temperature: parseFloat(coolingInputs.tempEnd),
+                  start_time: coolingInputs.startTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                  end_time: coolingInputs.endTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                  date: todayStr,
+                  logged_at: new Date().toISOString(),
+                  compliant: parseFloat(coolingInputs.tempEnd) <= 70,
+                });
+                setCoolingInputs({ item: "", tempStart: "", tempEnd: "", startTime: "", endTime: "" });
+                const logs = await base44.entities.TemperatureLog.filter({ date: todayStr }).catch(() => []);
+                setCoolingLogs(logs);
+                setLoggingCooling(false);
+                haptics.success();
+                toast.success("Cooling log recorded ✓");
+              }}
+              disabled={loggingCooling}
+              className="w-full h-9 rounded-lg bg-primary text-primary-foreground text-[12px] font-bold active:scale-95 disabled:opacity-50"
+            >
+              {loggingCooling ? "Logging..." : "Log Cooling"}
+            </button>
+          </div>
+
+          {/* Recent Logs */}
+          {coolingLogs.length > 0 && (
+            <div className="mt-4">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-600 mb-2">Recent Logs</p>
+              <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
+                {coolingLogs.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at)).map((log, idx) => {
+                  const logTime = new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                  const isCompliant = log.compliant !== false;
+                  return (
+                    <div key={idx} className={cn("flex items-center gap-3 px-3 py-2.5", idx < coolingLogs.length - 1 ? "border-b border-[#1A2235]" : "")}>
+                      <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", isCompliant ? "bg-emerald-400" : "bg-red-400")} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white truncate">{log.item_name}</p>
+                        <p className="text-[9px] text-gray-600 mt-0">{log.start_temperature}°F → {log.end_temperature}°F · {logTime}</p>
+                      </div>
+                      <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
+                        isCompliant ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+                      )}>
+                        {isCompliant ? "Safe" : "Alert"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
 
