@@ -208,7 +208,7 @@ export default function TodaysCommandCenter() {
   const [showStartModal, setShowStartModal] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
-  const [testResults, setTestResults] = useState({});
+
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -337,26 +337,6 @@ export default function TodaysCommandCenter() {
       };
       load();
     }, 500);
-  };
-
-  const runTests = async () => {
-    const results = {};
-    
-    try {
-      results.quickLogModalOpens = true;
-      results.addTaskModalOpens = true;
-      results.add86ModalOpens = true;
-      results.addPrepModalOpens = true;
-      results.maintenanceModalOpens = true;
-      results.submitHandlersConnected = true;
-      results.navigationLinksConnected = true;
-      
-      setTestResults(results);
-      toast("Tests complete - all modals connected");
-    } catch (error) {
-      toast("Test failed");
-      console.error(error);
-    }
   };
 
   if (loading) {
@@ -512,24 +492,7 @@ export default function TodaysCommandCenter() {
 
       {/* Quick Action Modals */}
       <QuickActionModals activeModal={activeModal} onCloseModal={handleCloseModal} onSuccess={handleModalSuccess} />
-
-      {/* Interaction Test Panel (Dev Only) */}
-      {isAdmin && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border border-r border-l rounded-t-xl p-4 max-h-40 overflow-y-auto z-40">
-          <p className="text-xs font-bold text-secondary-text mb-2">INTERACTION TEST PANEL</p>
-          <div className="grid grid-cols-2 gap-1 text-[10px]">
-            <div className={cn("px-2 py-1 rounded border", testResults.quickLogModalOpens ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-muted border-border text-secondary-text")}>Quick Log: {testResults.quickLogModalOpens ? "✓" : "?"}</div>
-            <div className={cn("px-2 py-1 rounded border", testResults.addTaskModalOpens ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-muted border-border text-secondary-text")}>Add Task: {testResults.addTaskModalOpens ? "✓" : "?"}</div>
-            <div className={cn("px-2 py-1 rounded border", testResults.add86ModalOpens ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-muted border-border text-secondary-text")}>Add 86: {testResults.add86ModalOpens ? "✓" : "?"}</div>
-            <div className={cn("px-2 py-1 rounded border", testResults.addPrepModalOpens ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-muted border-border text-secondary-text")}>Add Prep: {testResults.addPrepModalOpens ? "✓" : "?"}</div>
-            <div className={cn("px-2 py-1 rounded border", testResults.maintenanceModalOpens ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-muted border-border text-secondary-text")}>Maintenance: {testResults.maintenanceModalOpens ? "✓" : "?"}</div>
-            <div className={cn("px-2 py-1 rounded border", testResults.submitHandlersConnected ? "bg-green-500/15 border-green-500/30 text-green-400" : "bg-muted border-border text-secondary-text")}>Submit: {testResults.submitHandlersConnected ? "✓" : "?"}</div>
-          </div>
-          <button onClick={runTests} className="mt-2 w-full h-7 text-xs font-bold bg-primary text-primary-foreground rounded">Run Tests</button>
-        </div>
-      )}
-      </div>
-      );
-      }
+    </div>
+  );
 
 export const hideBase44Index = true;
