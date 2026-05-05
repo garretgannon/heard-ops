@@ -85,8 +85,8 @@ const AuthenticatedApp = () => {
 function App() {
   return (
     <AuthProvider>
-      <UnifiedStateProvider>
       <ShiftModeProvider>
+      <UnifiedStateProvider>
         <QueryClientProvider client={queryClientInstance}>
           <Router>
             <AuthenticatedApp />
@@ -95,8 +95,8 @@ function App() {
           </Router>
           <Toaster />
         </QueryClientProvider>
-      </ShiftModeProvider>
       </UnifiedStateProvider>
+      </ShiftModeProvider>
     </AuthProvider>
   )
 }

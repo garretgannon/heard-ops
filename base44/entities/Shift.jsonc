@@ -2,12 +2,23 @@
   "name": "Shift",
   "type": "object",
   "properties": {
-    "date": {
+    "manager_id": {
       "type": "string",
-      "format": "date",
-      "title": "Date"
+      "title": "Manager ID (Email)"
     },
-    "type": {
+    "manager_name": {
+      "type": "string",
+      "title": "Manager Name"
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "location_name": {
+      "type": "string",
+      "title": "Location Name"
+    },
+    "shift_type": {
       "type": "string",
       "title": "Shift Type",
       "enum": [
@@ -21,81 +32,97 @@
         "Mid",
         "Closing",
         "Full"
-      ]
-    },
-    "start_time": {
-      "type": "string",
-      "title": "Start Time (HH:MM)"
-    },
-    "end_time": {
-      "type": "string",
-      "title": "End Time (HH:MM)"
-    },
-    "location_id": {
-      "type": "string",
-      "title": "Location ID"
-    },
-    "manager_email": {
-      "type": "string",
-      "title": "Manager Email"
-    },
-    "manager_name": {
-      "type": "string",
-      "title": "Manager Name"
+      ],
+      "default": "full"
     },
     "status": {
       "type": "string",
       "title": "Status",
       "enum": [
         "not_started",
-        "in_progress",
+        "setup",
+        "running",
         "closing",
         "completed"
       ],
       "enumNames": [
         "Not Started",
-        "In Progress",
+        "Setup",
+        "Running",
         "Closing",
         "Completed"
       ],
       "default": "not_started"
     },
-    "tasks_completed": {
-      "type": "number",
-      "title": "Tasks Completed",
-      "default": 0
+    "started_at": {
+      "type": "string",
+      "title": "Started At (ISO)"
     },
-    "tasks_total": {
-      "type": "number",
-      "title": "Tasks Total",
-      "default": 0
+    "ended_at": {
+      "type": "string",
+      "title": "Ended At (ISO)"
     },
-    "open_issues": {
-      "type": "number",
-      "title": "Open Issues",
-      "default": 0
-    },
-    "critical_issues": {
-      "type": "number",
-      "title": "Critical Issues",
-      "default": 0
+    "setup_checklist": {
+      "type": "array",
+      "title": "Setup Checklist",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
+      }
     },
     "handoff_notes": {
       "type": "string",
       "title": "Handoff Notes"
     },
-    "start_timestamp": {
+    "manager_notes": {
       "type": "string",
-      "title": "Start Timestamp (ISO)"
+      "title": "Manager Notes"
     },
-    "end_timestamp": {
-      "type": "string",
-      "title": "End Timestamp (ISO)"
+    "score": {
+      "type": "number",
+      "title": "Shift Score (0-100)",
+      "default": 0
+    },
+    "tasks_total": {
+      "type": "number",
+      "title": "Required Tasks Total",
+      "default": 0
+    },
+    "tasks_completed": {
+      "type": "number",
+      "title": "Required Tasks Completed",
+      "default": 0
+    },
+    "logs_total": {
+      "type": "number",
+      "title": "Required Logs Total",
+      "default": 0
+    },
+    "logs_completed": {
+      "type": "number",
+      "title": "Required Logs Completed",
+      "default": 0
+    },
+    "critical_issues_open": {
+      "type": "number",
+      "title": "Open Critical Issues",
+      "default": 0
     }
   },
   "required": [
-    "date",
-    "type",
-    "location_id"
+    "manager_id",
+    "location_id",
+    "shift_type",
+    "status"
   ]
 }

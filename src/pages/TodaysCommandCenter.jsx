@@ -3,10 +3,15 @@ import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUnifiedState } from "@/lib/UnifiedStateContext";
+import { useShiftMode } from "@/lib/ShiftModeContext";
 import { AlertTriangle, Clock, CheckCircle2, Zap, FileText, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
 import CommandCenterHeader from "@/components/CommandCenterHeader";
+import ShiftProgress from "@/components/ShiftMode/ShiftProgress";
+import StartShiftModal from "@/components/ShiftMode/StartShiftModal";
+import SetupChecklist from "@/components/ShiftMode/SetupChecklist";
+import CloseShiftModal from "@/components/ShiftMode/CloseShiftModal";
 
 function ProgressCircle({ value, max = 100 }) {
   const circumference = 2 * Math.PI * 45;
@@ -192,8 +197,12 @@ function SectionLabel({ label, icon: Icon, count }) {
 export default function TodaysCommandCenter() {
   const navigate = useNavigate();
   const { lastCompletedAction, recordAction, setActiveTab } = useUnifiedState();
+  const { currentShift, markSetupComplete } = useShiftMode();
+  const { isAdmin } = useCurrentUser();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -204,7 +213,7 @@ export default function TodaysCommandCenter() {
           base44.entities.PrepItem.list("-updated_date", 100).catch(() => []),
           base44.entities.SideWorkAssignment.filter({ date: todayStr }).catch(() => []),
           base44.entities.Issue.filter({ status: "open" }).catch(() => []),
-          base44.entities.ShiftHandoff.list("-created_date", 1).catch(() => []),
+          base44.entities.ShiftHandoff?.list("-created_date", 1).catch(() => []),
         ]);
 
         const overdue = [
@@ -266,10 +275,9 @@ export default function TodaysCommandCenter() {
           completed,
           completionPct,
           needsReview: issues.filter(i => i.status === "open").length,
-          latestHandoff: handoffs[0],
+          latestHandoff: handoffs?.[0],
         });
 
-        // Real-time subscriptions
         unsubscribers.push(
           base44.entities.PrepItem.subscribe((event) => {
             if (["create", "update", "delete"].includes(event.type)) load();
@@ -295,7 +303,6 @@ export default function TodaysCommandCenter() {
     return () => unsubscribers.forEach(u => u?.());
   }, [todayStr, lastCompletedAction]);
 
-  // Auto-refresh after action completion
   useEffect(() => {
     if (lastCompletedAction && lastCompletedAction.type !== 'init') {
       setActiveTab('/');
@@ -322,8 +329,41 @@ export default function TodaysCommandCenter() {
         onViewDay={() => navigate("/calendar")}
       />
 
+      {/* Shift Mode Controls */}
+      {isAdmin && (
+        <div className="px-4 pt-4">
+          {!currentShift ? (
+            <button
+              onClick={() => setShowStartModal(true)}
+              className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2"
+            >
+              <Zap className="h-4 w-4" />
+              Start Shift
+            </button>
+          ) : currentShift.status === 'setup' ? (
+            <button
+              onClick={() => {}}
+              className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-bold"
+              disabled
+            >
+              Completing Setup...
+            </button>
+          ) : currentShift.status === 'running' ? (
+            <button
+              onClick={() => setShowCloseModal(true)}
+              className="w-full h-12 rounded-lg bg-red-500 text-white font-bold"
+            >
+              End Shift
+            </button>
+          ) : null}
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="px-4 py-4 space-y-4 pb-8">
+        {/* Shift Progress */}
+        {currentShift && currentShift.status === 'running' && <ShiftProgress shift={currentShift} />}
+
         {/* Progress Stats Card */}
         <div className="bg-card border border-border rounded-xl p-4">
           <div className="flex items-center gap-6">
@@ -407,6 +447,13 @@ export default function TodaysCommandCenter() {
           </div>
         )}
       </div>
+
+      {/* Shift Mode Modals */}
+      <StartShiftModal isOpen={showStartModal} onClose={() => setShowStartModal(false)} locationId="demo-location" locationName="Main" />
+      {currentShift && currentShift.status === 'setup' && (
+        <SetupChecklist shift={currentShift} onContinue={() => markSetupComplete(currentShift.id)} />
+      )}
+      <CloseShiftModal isOpen={showCloseModal} onClose={() => setShowCloseModal(false)} shift={currentShift} />
     </div>
   );
 }

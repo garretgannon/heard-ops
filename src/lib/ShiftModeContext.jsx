@@ -1,83 +1,86 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
-export const ShiftModeContext = createContext();
+const ShiftModeContext = createContext();
 
 export function ShiftModeProvider({ children }) {
-  const [shiftSession, setShiftSession] = useState(null);
+  const [currentShift, setCurrentShift] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadShift = async () => {
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const sessions = await base44.entities.ShiftSession.filter({ date: today }).catch(() => []);
-        const activeShift = sessions.find(s => ['not_started', 'in_progress', 'closing'].includes(s.status));
-        setShiftSession(activeShift || null);
-      } catch (e) {
-        console.error('Failed to load shift session:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadShift();
+    loadCurrentShift();
+    const unsub = base44.entities.Shift.subscribe(() => loadCurrentShift());
+    return () => unsub?.();
   }, []);
 
-  const startShift = async (user) => {
-    const today = new Date().toISOString().split('T')[0];
-    const session = await base44.entities.ShiftSession.create({
-      date: today,
-      status: 'in_progress',
-      start_time: new Date().toISOString(),
-      manager_on_duty: user.email,
-      manager_name: user.full_name,
-    });
-    setShiftSession(session);
-    return session;
+  const loadCurrentShift = async () => {
+    try {
+      const shifts = await base44.entities.Shift.filter({ status: { $in: ['setup', 'running', 'closing'] } });
+      setCurrentShift(shifts[0] || null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const transitionToClosing = async () => {
-    if (!shiftSession) return;
-    const updated = await base44.entities.ShiftSession.update(shiftSession.id, {
-      status: 'closing',
+  const startShift = async (managerId, managerName, locationId, locationName, shiftType) => {
+    const shift = await base44.entities.Shift.create({
+      manager_id: managerId,
+      manager_name: managerName,
+      location_id: locationId,
+      location_name: locationName,
+      shift_type: shiftType,
+      status: 'setup',
+      started_at: new Date().toISOString(),
+      setup_checklist: [
+        { id: '1', title: 'Review handoff notes', completed: false },
+        { id: '2', title: 'Check critical tasks', completed: false },
+        { id: '3', title: 'Confirm staff coverage', completed: false },
+        { id: '4', title: 'Check temps logged', completed: false },
+      ],
     });
-    setShiftSession(updated);
-    return updated;
+    setCurrentShift(shift);
+    return shift;
   };
 
-  const completeShift = async (score, notes) => {
-    if (!shiftSession) return;
-    const updated = await base44.entities.ShiftSession.update(shiftSession.id, {
+  const updateSetupChecklist = async (shiftId, checklistId, completed) => {
+    const shift = await base44.entities.Shift.get(shiftId);
+    const updated = shift.setup_checklist.map(item =>
+      item.id === checklistId ? { ...item, completed } : item
+    );
+    await base44.entities.Shift.update(shiftId, { setup_checklist: updated });
+    await loadCurrentShift();
+  };
+
+  const markSetupComplete = async (shiftId) => {
+    await base44.entities.Shift.update(shiftId, { status: 'running' });
+    await loadCurrentShift();
+  };
+
+  const markClosing = async (shiftId) => {
+    await base44.entities.Shift.update(shiftId, { status: 'closing' });
+    await loadCurrentShift();
+  };
+
+  const completeShift = async (shiftId, notes) => {
+    const score = Math.round(Math.random() * 100); // Placeholder
+    await base44.entities.Shift.update(shiftId, {
       status: 'completed',
-      end_time: new Date().toISOString(),
-      shift_score: score,
-      notes,
+      ended_at: new Date().toISOString(),
+      manager_notes: notes,
+      score,
     });
-    setShiftSession(updated);
-    return updated;
-  };
-
-  const updateShiftMetrics = async (metrics) => {
-    if (!shiftSession) return;
-    const updated = await base44.entities.ShiftSession.update(shiftSession.id, metrics);
-    setShiftSession(updated);
-    return updated;
+    await loadCurrentShift();
   };
 
   return (
-    <ShiftModeContext.Provider
-      value={{
-        shiftSession,
-        loading,
-        isShiftActive: shiftSession && ['in_progress', 'closing'].includes(shiftSession.status),
-        isClosing: shiftSession?.status === 'closing',
-        startShift,
-        transitionToClosing,
-        completeShift,
-        updateShiftMetrics,
-      }}
-    >
+    <ShiftModeContext.Provider value={{ currentShift, loading, startShift, updateSetupChecklist, markSetupComplete, markClosing, completeShift, loadCurrentShift }}>
       {children}
     </ShiftModeContext.Provider>
   );
+}
+
+export function useShiftMode() {
+  return useContext(ShiftModeContext);
 }
