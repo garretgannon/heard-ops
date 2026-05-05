@@ -165,24 +165,24 @@ export default function RestaurantTeam() {
           />
         </div>
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-40 text-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="all" className="text-foreground">All Status</SelectItem>
             {STATUSES.map(s => (
-              <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+              <SelectItem key={s.value} value={s.value} className="text-foreground">{s.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-40 text-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Departments</SelectItem>
+            <SelectItem value="all" className="text-foreground">All Departments</SelectItem>
             {DEPARTMENTS.map(d => (
-              <SelectItem key={d} value={d}>{d}</SelectItem>
+              <SelectItem key={d} value={d} className="text-foreground">{d}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -254,22 +254,22 @@ export default function RestaurantTeam() {
                 {/* Actions */}
                 <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-border/50">
                   <Select value={emp.status} onValueChange={v => handleChangeStatus(emp.id, v)}>
-                    <SelectTrigger className="h-7 text-xs w-32">
+                    <SelectTrigger className="h-7 text-xs w-32 text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {STATUSES.map(s => (
-                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                        <SelectItem key={s.value} value={s.value} className="text-foreground">{s.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={emp.role || "user"} onValueChange={v => handleChangeRole(emp.id, v)}>
-                    <SelectTrigger className="h-7 text-xs w-32">
+                    <SelectTrigger className="h-7 text-xs w-32 text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {ROLES.map(r => (
-                        <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                        <SelectItem key={r.value} value={r.value} className="text-foreground">{r.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -302,12 +302,12 @@ export default function RestaurantTeam() {
             <div className="space-y-1">
               <Label>Initial Role</Label>
               <Select value={invitingRole} onValueChange={setInvitingRole}>
-                <SelectTrigger>
+                <SelectTrigger className="text-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {ROLES.map(r => (
-                    <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                    <SelectItem key={r.value} value={r.value} className="text-foreground">{r.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -341,15 +341,15 @@ export default function RestaurantTeam() {
               <div className="space-y-1">
                 <Label>Department</Label>
                 <Select value={selectedEmployee.department || ""} onValueChange={v => setSelectedEmployee({ ...selectedEmployee, department: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DEPARTMENTS.map(d => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <SelectTrigger className="text-foreground">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DEPARTMENTS.map(d => (
+                        <SelectItem key={d} value={d} className="text-foreground">{d}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
               </div>
               <div className="space-y-1">
                 <Label>Phone</Label>
