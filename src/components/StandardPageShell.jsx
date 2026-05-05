@@ -16,7 +16,7 @@ export default function StandardPageShell({
 }) {
   return (
     <motion.div
-      className="min-h-screen bg-background pb-28"
+      className="min-h-screen bg-background pb-24"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}

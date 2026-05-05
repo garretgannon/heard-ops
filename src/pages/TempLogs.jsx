@@ -311,10 +311,9 @@ export default function TempLogs() {
     <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3" style={{ paddingBottom: 'calc(16rem + env(safe-area-inset-bottom, 0px))' }}>
 
       {/* Header */}
-      <div className="flex items-center justify-between pt-1 mb-2">
+      <div className="flex items-center justify-between pt-0.5 mb-1">
         <div>
-          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Food Safety</h1>
-          <p className="text-[11px] text-gray-600 mt-0.5">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</p>
+          <h1 className="text-base font-bold text-white">Food Safety</h1>
         </div>
         <div className="flex gap-1.5">
           {activeTab === "temps" && entries.length > 0 && (
@@ -331,10 +330,10 @@ export default function TempLogs() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <button
           onClick={() => setActiveTab("temps")}
-          className={cn("flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all",
+          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all",
             activeTab === "temps"
               ? "bg-primary text-primary-foreground"
               : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
@@ -344,7 +343,7 @@ export default function TempLogs() {
         </button>
         <button
           onClick={() => setActiveTab("chemicals")}
-          className={cn("flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all",
+          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all",
             activeTab === "chemicals"
               ? "bg-primary text-primary-foreground"
               : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
@@ -358,7 +357,7 @@ export default function TempLogs() {
       {activeTab === "temps" && (
         <>
           {/* Metrics — 4-col */}
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-4 gap-1">
             <MetricTile icon={Activity}      label="Logged" value={logsToday} />
             <MetricTile icon={Clock}         label="Missed" value={missedLogs} alert={missedLogs > 0} />
             <MetricTile icon={AlertTriangle} label="Alerts" value={highAlerts} alert={highAlerts > 0} />
@@ -367,22 +366,22 @@ export default function TempLogs() {
 
           {/* Critical Alerts */}
           {criticalLocations.length > 0 && (
-            <div className="rounded-xl border border-red-500/40 bg-red-500/6 overflow-hidden">
-              <div className="flex items-center gap-2 px-3 py-2.5 border-b border-red-500/15">
+            <div className="rounded-lg border border-red-500/40 bg-red-500/6 overflow-hidden">
+              <div className="flex items-center gap-2 px-3 py-2 border-b border-red-500/15">
                 <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-                <span className="text-[13px] font-extrabold text-red-400 flex-1 uppercase tracking-wide">Critical Alerts</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">{criticalLocations.length}</span>
+                <span className="text-xs font-bold text-red-400 flex-1 uppercase">CRITICAL</span>
+                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400">{criticalLocations.length}</span>
               </div>
               {criticalLocations.map(loc => {
                 const e = getLatestEntry(loc.id);
                 const temp = e?.temperature;
                 const above = temp > loc.target_max;
                 return (
-                  <div key={loc.id} className="flex items-center gap-3 px-3 py-2.5 border-b border-red-500/8 last:border-0">
+                  <div key={loc.id} className="flex items-center gap-2.5 px-3 py-2 border-b border-red-500/8 last:border-0">
                     <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold text-white truncate">{loc.name}</p>
-                      <p className="text-[11px] text-red-400 font-semibold">
+                      <p className="text-xs font-bold text-white truncate">{loc.name}</p>
+                      <p className="text-[10px] text-red-400 font-semibold">
                         {temp}°F — {above ? "↑ Too high" : "↓ Too low"} · Safe: {loc.target_min}–{loc.target_max}°F
                       </p>
                     </div>
@@ -400,16 +399,15 @@ export default function TempLogs() {
 
           {/* QR Scan Button */}
           <button
-            onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
-            className="w-full flex items-center gap-3 bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-4 py-3 active:scale-[0.98] transition-transform"
+          onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
+          className="w-full flex items-center gap-2.5 bg-[#0F1623] border border-[#1E2A3B] rounded-lg px-3 py-2.5 active:scale-[0.98] transition-transform"
           >
-            <div className="h-11 w-11 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
-              <QrCode className="h-5 w-5 text-[#F5A623]" />
-            </div>
-            <div className="text-left flex-1">
-              <p className="text-[14px] font-bold text-white">Scan Equipment QR</p>
-              <p className="text-[11px] text-gray-600">Tap to log temp instantly via QR code</p>
-            </div>
+          <div className="h-10 w-10 rounded-lg bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
+            <QrCode className="h-4 w-4 text-[#F5A623]" />
+          </div>
+          <div className="text-left flex-1">
+            <p className="text-xs font-bold text-white">Scan QR Code</p>
+          </div>
             <ChevronRight className="h-4 w-4 text-gray-700 shrink-0" />
           </button>
 
@@ -468,7 +466,7 @@ export default function TempLogs() {
           {/* Compliance Trend */}
           {trendData.length > 0 && (
             <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="h-3.5 w-3.5 text-primary" />
                 <span className="text-[12px] font-bold text-white flex-1">Compliance Trend</span>
                 <span className={cn("text-[12px] font-bold", compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400")}>{compPct}%</span>
@@ -597,8 +595,8 @@ export default function TempLogs() {
                     <div key={idx} className={cn("flex items-center gap-3 px-3 py-2.5", idx < chemicalLogs.length - 1 ? "border-b border-[#1A2235]" : "")}>
                       <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", isPassing ? "bg-emerald-400" : "bg-amber-400")} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-bold text-white truncate">{log.machine_name}</p>
-                        <p className="text-[11px] text-gray-600 mt-0.5">{log.temperature}°F {log.sanitizer_ppm ? `· ${log.sanitizer_ppm} PPM` : ""} · {logTime}</p>
+                        <p className="text-xs font-bold text-white truncate">{log.machine_name}</p>
+                              <p className="text-[9px] text-gray-600 mt-0">{log.temperature}°F {log.sanitizer_ppm ? `· ${log.sanitizer_ppm} PPM` : ""} · {logTime}</p>
                       </div>
                       <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
                         isPassing ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"

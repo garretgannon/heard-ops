@@ -6,13 +6,13 @@ export default function PageHeader({ title, subtitle, icon: Icon, notificationCo
   const { user } = useCurrentUser();
 
   return (
-    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-      <div className="flex items-center justify-between mb-3">
+    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-2.5">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {Icon && <Icon className="h-5 w-5 text-primary" />}
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-foreground">{title}</h1>
-            {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+            <h1 className="text-lg font-bold text-foreground">{title}</h1>
+            {subtitle && <p className="text-[10px] text-muted-foreground mt-0">{subtitle}</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">

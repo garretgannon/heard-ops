@@ -19,24 +19,22 @@ export default function ListCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "bg-card border border-border rounded-xl p-3 flex items-start gap-3 transition-all active:scale-[0.98]",
+        "bg-card border border-border rounded-lg p-2.5 flex items-start gap-2.5 transition-all active:scale-[0.98]",
         isSelected && "border-primary/50 bg-primary/5"
       )}
     >
       {Icon && (
-        <div className="h-10 w-10 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary flex-shrink-0">
-          <Icon className="h-5 w-5" />
+        <div className="h-9 w-9 rounded-md bg-primary/20 border border-primary/30 flex items-center justify-center text-primary flex-shrink-0">
+          <Icon className="h-4 w-4" />
         </div>
       )}
 
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold text-foreground">{title}</p>
         {details.length > 0 && (
-          <div className="flex items-center gap-1.5 mt-1">
-            {details.map((detail, idx) => (
-              <span key={idx} className="text-[10px] text-muted-foreground">
-                {detail}
-              </span>
+          <div className="flex items-center gap-1 mt-0.5 text-[9px] text-muted-foreground flex-wrap">
+            {details.filter(Boolean).slice(0, 2).map((detail, idx) => (
+              <span key={idx}>{detail}</span>
             ))}
           </div>
         )}
@@ -51,9 +49,9 @@ export default function ListCard({
       {onAction && ActionIcon ? (
         <button
           onClick={onAction}
-          className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0 active:scale-90"
+          className="h-8 w-8 rounded-md bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0 active:scale-90"
         >
-          <ActionIcon className="h-3.5 w-3.5 text-foreground" />
+          <ActionIcon className="h-3 w-3 text-foreground" />
         </button>
       ) : onTap ? (
         <button onClick={onTap} className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors">
