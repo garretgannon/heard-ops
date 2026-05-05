@@ -31,7 +31,7 @@ const STATUS_STYLE = {
 
 function MetricTile({ label, value, color, alert }) {
   return (
-    <div className={cn("flex flex-col gap-0 bg-[#111827] border rounded-xl p-2.5 min-w-0", alert ? "border-red-500/30" : "border-[#1F2937]")}>
+    <div className={cn("flex flex-col items-center text-center gap-0 bg-[#111827] border rounded-xl p-2.5 min-w-0", alert ? "border-red-500/30" : "border-[#1F2937]")}>      
       <span className={cn("text-[20px] font-extrabold leading-none", color)}>{value}</span>
       <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</span>
     </div>

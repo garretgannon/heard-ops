@@ -25,7 +25,7 @@ function getSeverity(item) {
 
 function KPITile({ label, value, sub, color, alert }) {
   return (
-    <div className={cn("flex-1 min-w-0 bg-[#111827] rounded-xl border p-2.5", alert ? "border-red-500/30" : "border-[#1F2937]")}>
+    <div className={cn("flex-1 min-w-0 bg-[#111827] rounded-xl border p-2.5 flex flex-col items-center text-center", alert ? "border-red-500/30" : "border-[#1F2937]")}>      
       <p className={cn("text-[20px] font-extrabold leading-none", color)}>{value}</p>
       <p className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</p>
       {sub && <p className={cn("text-[9px] mt-0.5", color)}>{sub}</p>}
