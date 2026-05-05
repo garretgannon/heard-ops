@@ -1,6 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
 import { Home, CheckSquare, FileText, BookOpen, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { haptics } from '@/utils/haptics';
 
 const NAV_ITEMS = [
   { label: 'Today', path: '/', icon: Home },
@@ -22,8 +23,9 @@ export default function GlobalBottomNav() {
             <Link
               key={path}
               to={path}
+              onClick={() => haptics.light()}
               className={cn(
-                "flex flex-col items-center justify-center gap-1.5 flex-1 relative text-xs font-medium transition-all duration-200",
+                "flex flex-col items-center justify-center gap-1.5 flex-1 relative text-xs font-medium transition-all duration-200 active:scale-95",
                 isActive && "text-primary"
               )}
             >

@@ -1,25 +1,86 @@
 /**
- * Haptic feedback utility for iPhone/iOS using the Vibration API.
- * Patterns are tuned to be subtle and intentional.
- * Falls back silently on unsupported devices.
+ * Haptics API wrapper with fallback support
+ * Provides consistent tactile feedback across the app
  */
 
-const vibrate = (pattern) => {
-  if (typeof navigator !== "undefined" && navigator.vibrate) {
-    navigator.vibrate(pattern);
-  }
+const haptics = {
+  /**
+   * Light tap - button presses, navigation
+   */
+  light: () => {
+    try {
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate(10);
+      }
+    } catch (e) {
+      // Silently fail on unsupported devices
+    }
+  },
+
+  /**
+   * Medium impact - completing tasks, confirming actions
+   */
+  medium: () => {
+    try {
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate([20, 30, 20]);
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  },
+
+  /**
+   * Strong impact - critical alerts, overdue items
+   */
+  strong: () => {
+    try {
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate([30, 40, 30, 40, 30]);
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  },
+
+  /**
+   * Success feedback
+   */
+  success: () => {
+    try {
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate([15, 10, 15]);
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  },
+
+  /**
+   * Warning/error feedback
+   */
+  warning: () => {
+    try {
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate([30, 20, 30]);
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  },
+
+  /**
+   * Swipe/gesture feedback
+   */
+  swipe: () => {
+    try {
+      if (window.navigator?.vibrate) {
+        window.navigator.vibrate(5);
+      }
+    } catch (e) {
+      // Silently fail
+    }
+  },
 };
 
-export const haptics = {
-  /** Light success — task complete, submission success */
-  success: () => vibrate(10),
-
-  /** Warning — missing fields, action blocked, validation error */
-  warning: () => vibrate([15, 40, 15]),
-
-  /** Medium — manager approve/reject actions */
-  medium: () => vibrate(25),
-
-  /** Very light — swipe threshold reached */
-  swipe: () => vibrate(6),
-};
+export { haptics };

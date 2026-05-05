@@ -67,6 +67,11 @@ module.exports = {
   				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
+  		duration: {
+			'micro': '100ms',
+			'standard': '180ms',
+			'transition': '250ms',
+		},
   		keyframes: {
   			'accordion-down': {
   				from: { height: '0' },
