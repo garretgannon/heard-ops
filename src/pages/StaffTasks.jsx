@@ -10,9 +10,9 @@ import {
   ClipboardList, Thermometer, AlertTriangle, Users, ChevronRight,
   CheckCircle2, Clock, Flame, FileText, AlertCircle, Upload, MessageSquare, ShieldAlert, Plus
 } from "lucide-react";
-import { toast } from "sonner";
 import { haptics } from "@/utils/haptics";
 import SwipeableTaskCard from "@/components/SwipeableTaskCard";
+import { useToast } from "@/hooks/useToast";
 
 /* ── Group Header ──────────────────────────────────────────────── */
 function GroupHeader({ station, count }) {
@@ -28,6 +28,7 @@ function GroupHeader({ station, count }) {
 export default function StaffTasks() {
   const { user, isAdmin } = useCurrentUser();
   const navigate = useNavigate();
+  const toast = useToast();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showBlockedDialog, setShowBlockedDialog] = useState(null);
@@ -119,7 +120,7 @@ export default function StaffTasks() {
     const updateData = { status: "completed", completed_at: new Date().toISOString(), completed_by: user?.email };
     if (task.type === "prep") await base44.entities.PrepItem.update(task.id, updateData);
     else await base44.entities.SideWorkAssignment.update(task.id, updateData);
-    toast.success("Task Completed");
+    toast("Task Completed");
     setCompletingTask(prev => ({ ...prev, [task.id]: false }));
     setRemovingTask(prev => ({ ...prev, [task.id]: false }));
     load();
@@ -184,9 +185,9 @@ export default function StaffTasks() {
                     onComplete={() => handleCompleteTask(task)}
                     completing={completingTask[task.id]}
                     isRemoving={removingTask[task.id]}
-                    onSnooze={() => toast.info("Snooze not yet implemented")}
-                    onReassign={() => toast.info("Reassign not yet implemented")}
-                    onView={() => toast.info("View not yet implemented")}
+                    onSnooze={() => toast("Snooze coming soon")}
+                    onReassign={() => toast("Reassign coming soon")}
+                    onView={() => toast("View coming soon")}
                   />
                 ))}
               </div>

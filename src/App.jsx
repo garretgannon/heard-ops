@@ -11,6 +11,7 @@ import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
 import GlobalBottomNav from './components/GlobalBottomNav';
+import ToastContainer from './components/ToastContainer';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Stations from './pages/Stations';
@@ -184,6 +185,7 @@ function App() {
           <Router>
             <AuthenticatedApp />
             <GlobalBottomNav />
+            <ToastContainer />
           </Router>
           <Toaster />
         </QueryClientProvider>
