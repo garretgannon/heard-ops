@@ -23,6 +23,7 @@ import Onboarding from './pages/Onboarding';
 import RestaurantTeam from './pages/RestaurantTeam';
 import TemplateList from './pages/TemplateList';
 import ScheduleCenter from './pages/ScheduleCenter';
+import NewLog from './pages/NewLog';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -74,6 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/restaurant-team" element={<RestaurantTeam />} />
         <Route path="/templates" element={<TemplateList />} />
         <Route path="/schedule-center" element={<ScheduleCenter />} />
+        <Route path="/new-log" element={<NewLog />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
