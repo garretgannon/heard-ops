@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 import SwipeableTaskCard from "@/components/SwipeableTaskCard";
+import CaughtUpEmptyState from "@/components/CaughtUpEmptyState";
+import SectionCompleteMessage from "@/components/SectionCompleteMessage";
 import { useToast } from "@/hooks/useToast";
 
 /* ── Group Header ──────────────────────────────────────────────── */
@@ -36,6 +38,8 @@ export default function StaffTasks() {
   const [completingTask, setCompletingTask] = useState({});
   const [removingTask, setRemovingTask] = useState({});
   const [filter, setFilter] = useState("all");
+  const [completedSection, setCompletedSection] = useState(null);
+  const [allTasksComplete, setAllTasksComplete] = useState(false);
   const todayStr = new Date().toISOString().split("T")[0];
 
   const load = async () => {
@@ -123,7 +127,12 @@ export default function StaffTasks() {
     toast("Task Completed");
     setCompletingTask(prev => ({ ...prev, [task.id]: false }));
     setRemovingTask(prev => ({ ...prev, [task.id]: false }));
-    load();
+    await load();
+  };
+
+  const handleSectionComplete = (station) => {
+    haptics.light();
+    setCompletedSection(station);
   };
 
   if (loading) {
@@ -136,8 +145,17 @@ export default function StaffTasks() {
 
   return (
     <div className="w-full pb-32">
+      {completedSection && (
+        <SectionCompleteMessage
+          station={completedSection}
+          onDismiss={() => setCompletedSection(null)}
+        />
+      )}
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className={cn(
+        "flex items-center justify-between mb-4 transition-all duration-500",
+        allTasksComplete && "animate-deep-link-glow"
+      )}>
         <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
         {data && (
           <div className="text-right text-xs">
@@ -173,31 +191,37 @@ export default function StaffTasks() {
       {/* Tasks Grouped by Station */}
       {data && Object.keys(data.tasksByStation).length > 0 ? (
         <div>
-          {Object.entries(data.tasksByStation).map(([station, tasks]) => (
-            <div key={station}>
-              <GroupHeader station={station} count={tasks.length} />
-              <div className="space-y-1">
-                {tasks.map(task => (
-                  <SwipeableTaskCard
-                    key={task.id}
-                    task={task}
-                    icon={task.type === "prep" ? ClipboardList : Flame}
-                    onComplete={() => handleCompleteTask(task)}
-                    completing={completingTask[task.id]}
-                    isRemoving={removingTask[task.id]}
-                    onSnooze={() => toast("Snooze coming soon")}
-                    onReassign={() => toast("Reassign coming soon")}
-                    onView={() => toast("View coming soon")}
-                  />
-                ))}
+          {Object.entries(data.tasksByStation).map(([station, tasks]) => {
+            const isStationComplete = tasks.length > 0 && tasks.every(t => removingTask[t.id]);
+            if (isStationComplete && !completedSection) {
+              handleSectionComplete(station);
+            }
+            return (
+              <div key={station}>
+                <GroupHeader station={station} count={tasks.length} />
+                <div className="space-y-1">
+                  {tasks.map(task => (
+                    <SwipeableTaskCard
+                      key={task.id}
+                      task={task}
+                      icon={task.type === "prep" ? ClipboardList : Flame}
+                      onComplete={() => handleCompleteTask(task)}
+                      completing={completingTask[task.id]}
+                      isRemoving={removingTask[task.id]}
+                      onSnooze={() => toast("Snooze coming soon")}
+                      onReassign={() => toast("Reassign coming soon")}
+                      onView={() => toast("View coming soon")}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
-        <div className="text-center py-8 text-secondary-text text-xs">
-          <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-primary" />
-          All tasks complete!
+        <div>
+          {!allTasksComplete && setAllTasksComplete(true)}
+          <CaughtUpEmptyState showAnimation />
         </div>
       )}
 
