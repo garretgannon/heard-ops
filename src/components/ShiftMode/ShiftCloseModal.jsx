@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import CloseShiftChecklist from './CloseShiftChecklist';
 import ShiftHandoffReview from './ShiftHandoffReview';
 import ShiftCompletionScreen from './ShiftCompletionScreen';
+import QuickFixModal from './QuickFixModal';
 
 export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
   const [stage, setStage] = useState('checklist'); // 'checklist', 'finish', 'handoff', or 'complete'
@@ -14,29 +15,31 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
   const [missingLogs, setMissingLogs] = useState(0);
   const [criticalIssues, setCriticalIssues] = useState([]);
   const [checklistLoading, setChecklistLoading] = useState(true);
+  const [quickFixType, setQuickFixType] = useState(null); // 'tasks', 'logs', 'issues', or null
+
+  const refreshChecks = async () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    try {
+      const [prepItems, tempLogs, issues] = await Promise.all([
+        base44.entities.PrepItem.list('-updated_date', 500).catch(() => []),
+        base44.entities.TempLogEntry.filter({ date: todayStr }).catch(() => []),
+        base44.entities.Issue.filter({ status: 'critical' }).catch(() => []),
+      ]);
+      
+      const incomplete = prepItems.filter(i => !['completed', 'approved'].includes(i.status)).length;
+      const missing = Math.max(0, 4 - tempLogs.length);
+      
+      setIncompleteTasks(incomplete);
+      setMissingLogs(missing);
+      setCriticalIssues(issues);
+    } catch (e) {
+      console.error('Failed to refresh checks:', e);
+    }
+  };
 
   useEffect(() => {
-    const todayStr = new Date().toISOString().split('T')[0];
-    (async () => {
-      try {
-        const [prepItems, tempLogs, issues] = await Promise.all([
-          base44.entities.PrepItem.list('-updated_date', 500).catch(() => []),
-          base44.entities.TempLogEntry.filter({ date: todayStr }).catch(() => []),
-          base44.entities.Issue.filter({ status: 'critical' }).catch(() => []),
-        ]);
-        
-        const incomplete = prepItems.filter(i => !['completed', 'approved'].includes(i.status)).length;
-        const missing = Math.max(0, 4 - tempLogs.length);
-        
-        setIncompleteTasks(incomplete);
-        setMissingLogs(missing);
-        setCriticalIssues(issues);
-      } catch (e) {
-        console.error('Failed to load close checks:', e);
-      } finally {
-        setChecklistLoading(false);
-      }
-    })();
+    refreshChecks();
+    setChecklistLoading(false);
   }, []);
 
   const handleReadyToClose = () => {
@@ -53,11 +56,36 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
     }
   };
 
+  const handleQuickFix = (type) => {
+    setQuickFixType(type);
+  };
+
+  const handleQuickFixResolved = async () => {
+    await refreshChecks();
+    setQuickFixType(null);
+  };
+
   if (checklistLoading) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50">
         <div className="relative bg-background border-t border-border rounded-t-2xl p-4 flex items-center justify-center h-64">
           <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  // Quick fix modal overlay
+  if (quickFixType) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50">
+        <div className="relative bg-background border-t border-border rounded-t-2xl p-4 max-h-[90vh] overflow-y-auto">
+          <div className="w-8 h-0.5 bg-border rounded-full mx-auto mb-4" />
+          <QuickFixModal
+            type={quickFixType}
+            onClose={() => setQuickFixType(null)}
+            onResolved={handleQuickFixResolved}
+          />
         </div>
       </div>
     );
@@ -76,6 +104,8 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
               criticalIssues={criticalIssues}
               onReadyToClose={handleReadyToClose}
               isLoading={isLoading}
+              onQuickFix={handleQuickFix}
+              quickFixMode={true}
             />
             <button
               onClick={() => onClose()}

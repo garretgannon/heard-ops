@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
  * - criticalIssues: array of open critical issues
  * - onReadyToClose: callback when all checks pass (returns true/false)
  * - isLoading: loading state
+ * - onQuickFix: callback when user taps a check to fix it in modal
+ * - quickFixMode: if true, show check items for inline fixing
  */
 export default function CloseShiftChecklist({
   incompleteTasks = 0,
@@ -20,6 +22,8 @@ export default function CloseShiftChecklist({
   criticalIssues = [],
   onReadyToClose,
   isLoading = false,
+  onQuickFix,
+  quickFixMode = false,
 }) {
   const navigate = useNavigate();
   const [completed, setCompleted] = useState(new Set());
@@ -34,6 +38,16 @@ export default function CloseShiftChecklist({
   }, [incompleteTasks, missingLogs, criticalIssues]);
 
   const isAllClear = completed.size === 3;
+
+  const handleCheckTap = (checkId) => {
+    if (completed.has(checkId)) return;
+    if (quickFixMode && onQuickFix) {
+      onQuickFix(checkId);
+    } else {
+      const check = checks.find(c => c.id === checkId);
+      if (check) navigate(check.navigateTo);
+    }
+  };
 
   const checks = [
     {
@@ -84,7 +98,7 @@ export default function CloseShiftChecklist({
           return (
             <button
               key={check.id}
-              onClick={() => navigate(check.navigateTo)}
+              onClick={() => handleCheckTap(check.id)}
               disabled={isComplete}
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all active:scale-95",
