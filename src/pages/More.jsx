@@ -59,7 +59,7 @@ export default function More() {
       title: "Team",
       description: "Manage staff & roles",
       icon: Users,
-      onClick: () => navigate(isAdmin ? "/restaurant-team" : "/profile"),
+      onClick: () => navigate("/restaurant-team"),
     },
     {
       title: "Schedule",
