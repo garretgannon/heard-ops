@@ -36,8 +36,10 @@ export default function TemplateBuilder() {
   const [newTask, setNewTask] = useState({ name: "", description: "", standard_notes: "", photo_required: false });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!!id);
+  const [stations, setStations] = useState([]);
 
   useEffect(() => {
+    base44.entities.Station.list().then(s => setStations(s)).catch(() => {});
     if (id && id !== "new") {
       base44.entities.Template.get(id).then(t => {
         setTemplate(t);
@@ -148,6 +150,22 @@ export default function TemplateBuilder() {
               </select>
             </div>
           </div>
+
+          {template.category === "prep" && (
+            <div>
+              <Label>Assigned Station</Label>
+              <select
+                value={template.assigned_station || ""}
+                onChange={e => setTemplate({ ...template, assigned_station: e.target.value })}
+                className="w-full h-9 px-3 text-xs border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Select station...</option>
+                {stations.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-2">
             <div>
