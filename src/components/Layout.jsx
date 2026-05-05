@@ -1,6 +1,7 @@
 import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
+import FloatingManagerLogButton from "./FloatingManagerLogButton";
 
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -210,7 +211,7 @@ export default function Layout() {
         </AnimatePresence>
       </main>
 
-
+      <FloatingManagerLogButton />
     </div>
   );
 }
