@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { ArrowLeft, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 import { useToast } from "@/hooks/useToast";
 
@@ -60,12 +60,16 @@ export default function NewLog() {
     }
   };
 
+  const handleClose = () => {
+    navigate("/logs");
+  };
+
   if (success) {
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
-            <Check className="h-8 w-8 text-primary" />
+          <div className="h-16 w-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto">
+            <Check className="h-8 w-8 text-green-400" />
           </div>
           <p className="text-foreground font-bold">Log saved</p>
         </div>
@@ -74,106 +78,108 @@ export default function NewLog() {
   }
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
-        <button
-          onClick={() => navigate("/logs")}
-          className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
-        <h1 className="text-lg font-bold">Quick Log Entry</h1>
-        <div className="h-9 w-9" />
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">
-        {/* Log Type */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-secondary-text uppercase">Log Type</label>
-          <div className="grid grid-cols-2 gap-2">
-            {logTypes.map(lt => (
-              <button
-                key={lt.id}
-                type="button"
-                onClick={() => {
-                  setType(lt.id);
-                  setUnit(lt.defaultUnit);
-                }}
-                className={`py-2.5 px-3 rounded-lg border font-bold text-sm transition-all ${
-                  type === lt.id
-                    ? "bg-primary/15 border-primary text-primary"
-                    : "bg-card border-border text-foreground hover:bg-muted"
-                }`}
-              >
-                {lt.label}
-              </button>
-            ))}
-          </div>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
+      <div className="w-full sm:max-w-lg max-h-[90dvh] bg-card rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden border border-border">
+        
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 className="text-lg font-bold text-foreground">Quick Log Entry</h2>
+          <button
+            onClick={handleClose}
+            className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors text-foreground font-bold text-xl"
+          >
+            ×
+          </button>
         </div>
 
-        {/* Title */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-secondary-text uppercase">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g., Walk-in cooler temperature"
-            className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        {/* Value (if applicable) */}
-        {(type === "temperature" || type === "waste") && (
+        {/* Scrollable Form Content */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-5 pb-6 space-y-4">
+          {/* Log Type */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Value</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="0"
-                step="0.1"
-                className="flex-1 px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <select
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                className="px-3 py-2.5 bg-card border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option>°F</option>
-                <option>°C</option>
-                <option>$</option>
-                <option>lbs</option>
-              </select>
+            <label className="text-xs font-bold text-secondary-text uppercase">Log Type</label>
+            <div className="grid grid-cols-2 gap-2">
+              {logTypes.map(lt => (
+                <button
+                  key={lt.id}
+                  type="button"
+                  onClick={() => {
+                    setType(lt.id);
+                    setUnit(lt.defaultUnit);
+                  }}
+                  className={`py-2.5 px-3 rounded-lg border font-bold text-sm transition-all ${
+                    type === lt.id
+                      ? "bg-primary/15 border-primary text-primary"
+                      : "bg-muted border-border text-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {lt.label}
+                </button>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Notes */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-secondary-text uppercase">Notes (optional)</label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add any additional details..."
-            rows={4}
-            className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-          />
+          {/* Title */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-secondary-text uppercase">Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Walk-in cooler temperature"
+              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          {/* Value (if applicable) */}
+          {(type === "temperature" || type === "waste") && (
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-secondary-text uppercase">Value</label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  placeholder="0"
+                  step="0.1"
+                  className="flex-1 px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <select
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  className="px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option>°F</option>
+                  <option>°C</option>
+                  <option>$</option>
+                  <option>lbs</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Notes */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-secondary-text uppercase">Notes (optional)</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any additional details..."
+              rows={4}
+              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+          </div>
+        </form>
+
+        {/* Sticky Footer with Submit Button */}
+        <div className="flex-shrink-0 sticky bottom-0 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+20px)] border-t border-border bg-card">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || !title.trim()}
+            className="w-full h-13 rounded-2xl bg-primary text-primary-foreground font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-glow-lg transition-all active:scale-95"
+          >
+            {submitting ? "Saving..." : "Submit Entry"}
+          </button>
         </div>
-      </form>
-
-      {/* Submit Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
-        <button
-          onClick={handleSubmit}
-          disabled={submitting || !title.trim()}
-          className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-glow-lg transition-all active:scale-95"
-        >
-          {submitting ? "Saving..." : "Save Log Entry"}
-        </button>
       </div>
     </div>
   );
