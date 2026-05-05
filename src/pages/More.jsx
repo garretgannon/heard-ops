@@ -38,6 +38,7 @@ const SECTIONS = [
   {
     label: "Inventory",
     items: [
+      { label: "Inventory",    icon: Package,       path: "/inventory",    color: "text-amber-400",  bg: "bg-amber-500/15" },
       { label: "Build Book",   icon: ClipboardList, path: "/build-book",   color: "text-orange-400", bg: "bg-orange-500/15" },
       { label: "Bar Book",     icon: Wine,          path: "/bar-book",     color: "text-purple-400", bg: "bg-purple-500/15" },
       { label: "Prep Library", icon: Package,       path: "/prep-library", color: "text-teal-400",   bg: "bg-teal-500/15" },
