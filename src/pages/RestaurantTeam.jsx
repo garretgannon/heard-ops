@@ -101,13 +101,18 @@ export default function RestaurantTeam() {
 
   const handleSeedDummyData = async () => {
     setSeeding(true);
-    const res = await base44.functions.invoke('seedDummyTeam', {});
-    if (res.data.success) {
-      toast.success(`Added ${res.data.invited.length} dummy team members`);
-      const all = await base44.entities.User.list();
-      setEmployees(all);
-    } else {
-      toast.error("Failed to seed data");
+    try {
+      const res = await base44.functions.invoke('seedDummyTeam', {});
+      if (res.data.success) {
+        toast.success(`Added ${res.data.invited.length} dummy team members`);
+        const all = await base44.entities.User.list();
+        setEmployees(all);
+      } else {
+        toast.error(res.data.error || "Failed to seed data");
+      }
+    } catch (err) {
+      toast.error(err.message || "Error seeding data");
+      console.error(err);
     }
     setSeeding(false);
   };
