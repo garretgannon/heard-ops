@@ -2,20 +2,14 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Search, AlertTriangle, Clock, Zap, Building2, ArrowUp, ArrowLeft } from "lucide-react";
-import PrepItemCard from "../components/KitchenPrep/PrepItemCard";
+import { Search, AlertTriangle, Clock, TrendingUp, ArrowLeft, Plus, ChevronRight } from "lucide-react";
+import ProductionPrepCard from "../components/KitchenPrep/ProductionPrepCard";
 import UpdateQuantityModal from "../components/KitchenPrep/UpdateQuantityModal";
+import PrepDetailModal from "../components/KitchenPrep/PrepDetailModal";
 import { cn } from "@/lib/utils";
-import { format, isPast, differenceInMinutes } from "date-fns";
+import { format, isPast, differenceInMinutes, isToday, isYesterday } from "date-fns";
 
 const STATIONS = ["All", "Grill", "Pantry", "Fry", "Prep", "Bar", "Expo", "Pastry"];
-const SORT_OPTIONS = [
-  { id: "due_time", label: "Due Time" },
-  { id: "station", label: "Station" },
-  { id: "completion", label: "Completion %" },
-  { id: "assigned", label: "Assigned" },
-  { id: "status", label: "Status" },
-];
 
 export default function KitchenPrep() {
   const navigate = useNavigate();
@@ -27,7 +21,7 @@ export default function KitchenPrep() {
   const [sort, setSort] = useState("due_time");
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [scrollToTop, setScrollToTop] = useState(false);
+  const [detailItem, setDetailItem] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -69,15 +63,28 @@ export default function KitchenPrep() {
 
   const getStatusColor = (status) => {
     const colors = {
-      complete: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-      on_track: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-      due_soon: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-      behind: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-      overdue: "bg-red-500/10 text-red-400 border-red-500/20",
-      needs_review: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-      missed: "bg-gray-500/10 text-gray-400 border-gray-500/20",
+      complete: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+      on_track: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+      due_soon: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+      behind: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+      overdue: "bg-red-500/15 text-red-400 border-red-500/30",
+      needs_review: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+      cant_complete: "bg-gray-500/15 text-gray-400 border-gray-500/30",
     };
     return colors[status] || colors.on_track;
+  };
+
+  const getStatusBgColor = (status) => {
+    const map = {
+      complete: "bg-emerald-500/20",
+      on_track: "bg-blue-500/20",
+      due_soon: "bg-yellow-500/20",
+      behind: "bg-orange-500/20",
+      overdue: "bg-red-500/20",
+      needs_review: "bg-purple-500/20",
+      cant_complete: "bg-gray-500/20",
+    };
+    return map[status] || map.on_track;
   };
 
   const getStatusLabel = (status) => {
@@ -88,7 +95,7 @@ export default function KitchenPrep() {
       behind: "Behind",
       overdue: "Overdue",
       needs_review: "Needs Review",
-      missed: "Missed",
+      cant_complete: "Can't Complete",
     };
     return labels[status] || "Unknown";
   };
@@ -137,12 +144,21 @@ export default function KitchenPrep() {
     };
   }, [prepItems]);
 
+  const carryoverItems = useMemo(() => {
+    return sorted.filter(item => {
+      if (!item.created_date) return false;
+      const createdDate = new Date(item.created_date);
+      return !isToday(createdDate) && !isYesterday(createdDate) && item.status !== "completed" && item.status !== "approved";
+    });
+  }, [sorted]);
+
   const needsAttention = useMemo(() => {
     return sorted.filter(item => {
       const st = getItemStatus(item);
       const completion = item.quantity ? (item.completed_qty || 0) / item.quantity : 0;
       return st === "overdue" || st === "behind" || st === "due_soon" || st === "needs_review" ||
-             (item.requires_photo && !item.photo_url) || (item.requires_approval && item.status === "completed");
+             (item.requires_photo && !item.photo_url) || (item.requires_approval && item.status === "completed") ||
+             item.status === "cant_complete";
     });
   }, [sorted]);
 
@@ -163,12 +179,26 @@ export default function KitchenPrep() {
     setPrepItems(prev => prev.map(i => i.id === itemId ? updated : i));
   };
 
-  const handleReject = async (itemId) => {
+  const handleApprove = async (itemId) => {
+    const updated = await base44.entities.PrepItem.update(itemId, { 
+      status: "approved",
+      approved_at: new Date().toISOString(),
+      approved_by: user?.email,
+    });
+    setPrepItems(prev => prev.map(i => i.id === itemId ? updated : i));
+  };
+
+  const handleCantComplete = async (itemId) => {
+    const updated = await base44.entities.PrepItem.update(itemId, { status: "cant_complete" });
+    setPrepItems(prev => prev.map(i => i.id === itemId ? updated : i));
+  };
+
+  const handleReject = async (itemId, notes = "") => {
     const updated = await base44.entities.PrepItem.update(itemId, { 
       status: "rejected",
-      rejection_notes: "Marked can't complete",
+      rejection_notes: notes,
     });
-    setPrepItems(prev => prev.filter(i => i.id !== itemId));
+    setPrepItems(prev => prev.map(i => i.id === itemId ? updated : i));
   };
 
   if (loading) return (
@@ -186,14 +216,14 @@ export default function KitchenPrep() {
         </button>
         <div>
           <h1 className="text-lg font-bold text-foreground">Kitchen Prep</h1>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Production tracker for active shift</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Production tracker</p>
         </div>
       </div>
 
       {/* SUMMARY CARDS */}
       <div className="sticky top-14 z-30 bg-background/95 backdrop-blur border-b border-border px-4 py-3 grid grid-cols-4 gap-1.5">
         <div className="bg-card border border-border rounded-lg p-2">
-          <p className="text-2xl font-bold text-primary">{stats.completion}%</p>
+          <p className="text-2xl font-bold text-emerald-400">{stats.completion}%</p>
           <p className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">Complete</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-2">
@@ -242,16 +272,7 @@ export default function KitchenPrep() {
           ))}
         </div>
 
-        {/* Sort Dropdown */}
-        <select
-          value={sort}
-          onChange={e => setSort(e.target.value)}
-          className="w-full h-8 px-2 text-xs border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          {SORT_OPTIONS.map(opt => (
-            <option key={opt.id} value={opt.id}>{opt.label}</option>
-          ))}
-        </select>
+
       </div>
 
       {/* NEEDS ATTENTION */}
@@ -293,16 +314,20 @@ export default function KitchenPrep() {
           <div className="text-center py-10 text-muted-foreground text-xs">No prep items for this filter</div>
         ) : (
           sorted.map(item => (
-            <PrepItemCard
+            <ProductionPrepCard
               key={item.id}
               item={item}
               status={getItemStatus(item)}
               statusColor={getStatusColor(getItemStatus(item))}
+              statusBgColor={getStatusBgColor(getItemStatus(item))}
               statusLabel={getStatusLabel(getItemStatus(item))}
               assignedEmployee={employees.find(e => e.email === item.completed_by)}
               onUpdateQty={() => setSelectedItem(item)}
               onPhotoUpload={(url) => handlePhotoUpload(item.id, url)}
-              onReject={() => handleReject(item.id)}
+              onCantComplete={() => handleCantComplete(item.id)}
+              onViewDetails={() => setDetailItem(item)}
+              onApprove={() => handleApprove(item.id)}
+              onReject={(notes) => handleReject(item.id, notes)}
             />
           ))
         )}
@@ -317,14 +342,13 @@ export default function KitchenPrep() {
         />
       )}
 
-      {/* SCROLL TO TOP BUTTON */}
-      {scrollToTop && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 right-4 h-10 w-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-transform z-20"
-        >
-          <ArrowUp className="h-5 w-5" />
-        </button>
+      {/* PREP DETAIL MODAL */}
+      {detailItem && (
+        <PrepDetailModal
+          item={detailItem}
+          employee={employees.find(e => e.email === detailItem.completed_by)}
+          onClose={() => setDetailItem(null)}
+        />
       )}
     </div>
   );
