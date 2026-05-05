@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { Check, Clock, User, Eye } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import PhotoCaptureModal from "./PhotoCaptureModal";
+import { base44 } from "@/api/base44Client";
 
 export default function SwipeableTaskCard({
   task,
@@ -19,6 +21,7 @@ export default function SwipeableTaskCard({
   const [dragDirection, setDragDirection] = useState(null);
   const [thresholdCrossed, setThresholdCrossed] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
 
   const threshold = 60;
   const maxDrag = 120;
@@ -52,7 +55,12 @@ export default function SwipeableTaskCard({
     const absX = Math.abs(dragX);
 
     if (dragDirection === "right" && absX > threshold) {
-      onComplete();
+      // If photo required, open camera instead of direct completion
+      if (task.requires_photo) {
+        setShowCamera(true);
+      } else {
+        onComplete();
+      }
     } else if (dragDirection === "left" && absX > threshold) {
       setShowActions(true);
     }
@@ -60,6 +68,17 @@ export default function SwipeableTaskCard({
     setDragX(0);
     setDragDirection(null);
     setThresholdCrossed(false);
+  };
+
+  const handlePhotoCapture = async (blob) => {
+    // Upload photo and complete task
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: blob });
+      // Call onComplete with photo URL
+      onComplete(file_url);
+    } catch (err) {
+      console.error("Photo upload failed", err);
+    }
   };
 
   const rightReveal = Math.max(dragX, 0);
@@ -141,7 +160,15 @@ export default function SwipeableTaskCard({
             </span>
           )}
           <motion.button
-            onClick={() => !completing && onComplete()}
+            onClick={() => {
+              if (!completing) {
+                if (task.requires_photo) {
+                  setShowCamera(true);
+                } else {
+                  onComplete();
+                }
+              }
+            }}
             disabled={completing}
             className={cn(
               "h-8 px-3 text-xs flex items-center justify-center gap-1 shrink-0 rounded-lg font-bold transition-all duration-200",
@@ -168,6 +195,13 @@ export default function SwipeableTaskCard({
           </motion.button>
         </div>
       </motion.div>
+
+      {/* Photo Capture Modal */}
+      <PhotoCaptureModal
+        open={showCamera}
+        onClose={() => setShowCamera(false)}
+        onCapture={handlePhotoCapture}
+      />
 
       {/* Actions Modal */}
       <Dialog open={showActions} onOpenChange={setShowActions}>
