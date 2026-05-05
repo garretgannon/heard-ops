@@ -37,9 +37,17 @@ export default function More() {
         { label: "Manager Log", desc: "Shift notes, incidents, and pending tasks", path: "/manager-log", icon: ClipboardList },
         { label: "Kitchen Prep", desc: "Production tracker for prep items", path: "/kitchen-prep", icon: ChefHat },
         { label: "Side Work Production", desc: "FOH task tracker for active shift", path: "/side-work-production", icon: Users2 },
-        { label: "Recipes & Build Cards", desc: "Dish specs and plating notes", path: "/recipes", icon: UtensilsCrossed },
         { label: "Cleaning & Deep Clean", desc: "Cleaning checklists and logs", path: "/cleaning", icon: Sparkles },
-
+      ]
+    },
+    {
+      id: "training",
+      title: "Team Training",
+      iconColor: "text-cyan-400",
+      bgColor: "bg-cyan-500/15",
+      borderColor: "border-cyan-500/25",
+      items: [
+        { label: "Recipes & Build Cards", desc: "Dish specs and plating notes", path: "/recipes", icon: UtensilsCrossed },
       ]
     },
     ...(isAdmin ? [{
