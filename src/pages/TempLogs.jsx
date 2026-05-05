@@ -138,6 +138,7 @@ export default function TempLogs() {
   const [coolingLogs, setCoolingLogs] = useState([]);
   const [coolingInputs, setCoolingInputs] = useState({ item: "", tempStart: "", tempEnd: "", startTime: "", endTime: "" });
   const [loggingCooling, setLoggingCooling] = useState(false);
+  const [locationFilter, setLocationFilter] = useState("All");
   const [locations, setLocations] = useState([]);
   const [entries, setEntries] = useState([]);
   const [chemicalLogs, setChemicalLogs] = useState([]);
@@ -421,6 +422,24 @@ export default function TempLogs() {
             </div>
           )}
 
+          {/* Location Type Filters */}
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            {["All", "Refrigerators", "Freezers", "Hot Holding"].map(type => (
+              <button
+                key={type}
+                onClick={() => setLocationFilter(type)}
+                className={cn(
+                  "flex-shrink-0 h-8 px-3 rounded-full text-xs font-bold whitespace-nowrap border transition-all",
+                  locationFilter === type
+                    ? "bg-primary/15 text-primary border-primary/30"
+                    : "bg-[#0F1623] border-[#1E2A3B] text-gray-500"
+                )}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
           {/* QR Scan Button */}
           <button
           onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
@@ -457,7 +476,13 @@ export default function TempLogs() {
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Equipment</p>
               <div className="flex flex-col gap-2">
-                {sortedLocations.map(loc => {
+                {sortedLocations.filter(loc => {
+                  if (locationFilter === "All") return true;
+                  if (locationFilter === "Refrigerators") return loc.type === "cooler";
+                  if (locationFilter === "Freezers") return loc.type === "freezer";
+                  if (locationFilter === "Hot Holding") return loc.type === "hot";
+                  return true;
+                }).map(loc => {
                   const entry = getLatestEntry(loc.id);
                   const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
                   const isActive = activeLocId === loc.id;
