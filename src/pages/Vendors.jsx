@@ -1,116 +1,123 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, X, Edit2, Trash2, Phone, Mail, Globe, MapPin, Search, ChevronDown, ChevronUp, Star, AlertCircle } from "lucide-react";
+import { Plus, Search, Phone, ShoppingCart, AlertCircle, UtensilsCrossed, Wine, Wrench, Shirt, Bug, Zap, Droplets, Package, Settings, Edit2, Truck, Star } from "lucide-react";
 import VendorNoteForm from "../components/forms/VendorNoteForm";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const CATEGORIES = [
-  { value: "food", label: "Food" },
-  { value: "beverage", label: "Beverage" },
-  { value: "repairs", label: "Repairs" },
-  { value: "equipment", label: "Equipment" },
-  { value: "linen", label: "Linen" },
-  { value: "pest", label: "Pest Control" },
-  { value: "grease_trap", label: "Grease Trap" },
-  { value: "plumbing", label: "Plumbing" },
-  { value: "electrical", label: "Electrical" },
-  { value: "pos", label: "POS" },
-  { value: "hood_cleaning", label: "Hood Cleaning" },
-  { value: "other", label: "Other" },
+  { value: "food",        label: "Food",          icon: UtensilsCrossed, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+  { value: "beverage",    label: "Beverage",      icon: Wine,            color: "text-blue-400",    bg: "bg-blue-500/10" },
+  { value: "repairs",     label: "Repairs",       icon: Wrench,          color: "text-amber-400",   bg: "bg-amber-500/10" },
+  { value: "equipment",   label: "Equipment",     icon: Settings,        color: "text-purple-400",  bg: "bg-purple-500/10" },
+  { value: "linen",       label: "Linen",         icon: Shirt,           color: "text-pink-400",    bg: "bg-pink-500/10" },
+  { value: "pest",        label: "Pest Control",  icon: Bug,             color: "text-red-400",     bg: "bg-red-500/10" },
+  { value: "grease_trap", label: "Grease Trap",   icon: Droplets,        color: "text-orange-400",  bg: "bg-orange-500/10" },
+  { value: "plumbing",    label: "Plumbing",      icon: Droplets,        color: "text-cyan-400",    bg: "bg-cyan-500/10" },
+  { value: "electrical",  label: "Electrical",    icon: Zap,             color: "text-yellow-400",  bg: "bg-yellow-500/10" },
+  { value: "pos",         label: "POS",           icon: Settings,        color: "text-indigo-400",  bg: "bg-indigo-500/10" },
+  { value: "hood_cleaning",label:"Hood Cleaning", icon: Wrench,          color: "text-orange-400",  bg: "bg-orange-500/10" },
+  { value: "other",       label: "Other",         icon: Package,         color: "text-gray-400",    bg: "bg-gray-500/10" },
 ];
+
+const FILTER_CHIPS = [
+  { value: "all",      label: "All" },
+  { value: "food",     label: "Food" },
+  { value: "beverage", label: "Beverage" },
+  { value: "repairs",  label: "Repairs" },
+  { value: "linen",    label: "Linen" },
+  { value: "pest",     label: "Pest Control" },
+];
+
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const todayDay = DAYS[new Date().getDay()];
+
+function getCatMeta(cat) {
+  return CATEGORIES.find(c => c.value === cat) || CATEGORIES[CATEGORIES.length - 1];
+}
+
+function hasDeliveryToday(vendor) {
+  if (!vendor.delivery_days) return false;
+  return vendor.delivery_days.includes(todayDay);
+}
+
+function VendorCard({ vendor, onEdit }) {
+  const meta = getCatMeta(vendor.category);
+  const Icon = meta.icon;
+  const deliveryToday = hasDeliveryToday(vendor);
+
+  return (
+    <div className={cn(
+      "flex items-center gap-3 px-3 py-2.5 bg-[#0F1623] border rounded-xl transition-all",
+      vendor.emergency ? "border-red-500/30" : deliveryToday ? "border-primary/25" : "border-[#1E2A3B]"
+    )}>
+      <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center shrink-0", meta.bg)}>
+        <Icon className={cn("h-4 w-4", meta.color)} />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          {vendor.emergency && <Star className="h-3 w-3 text-red-400 shrink-0" />}
+          <p className="text-[13px] font-bold text-white truncate">{vendor.name}</p>
+          {deliveryToday && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25 shrink-0">TODAY</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          {vendor.delivery_days && (
+            <span className="text-[10px] text-gray-600 truncate">{vendor.delivery_days}</span>
+          )}
+          {vendor.delivery_days && vendor.contact_person && <span className="text-gray-700 text-[10px]">·</span>}
+          {vendor.contact_person && (
+            <span className="text-[10px] text-gray-600 truncate">{vendor.contact_person}</span>
+          )}
+          {!vendor.delivery_days && !vendor.contact_person && vendor.notes && (
+            <span className="text-[10px] text-gray-600 truncate">{vendor.notes.slice(0, 40)}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 shrink-0">
+        {(vendor.phone || vendor.emergency_number) && (
+          <a
+            href={`tel:${vendor.emergency_number || vendor.phone}`}
+            className="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center active:scale-90 transition-transform"
+            onClick={e => e.stopPropagation()}
+          >
+            <Phone className="h-3.5 w-3.5 text-emerald-400" />
+          </a>
+        )}
+        <button
+          onClick={() => onEdit(vendor)}
+          className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center active:scale-90 transition-transform"
+        >
+          <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+        </button>
+        <button
+          onClick={() => onEdit(vendor)}
+          className="h-8 w-8 rounded-lg bg-[#1A2235] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform"
+        >
+          <Edit2 className="h-3.5 w-3.5 text-gray-500" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function Vendors() {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [showInactive, setShowInactive] = useState(false);
-  const [expandedVendor, setExpandedVendor] = useState(null);
-
-  const [form, setForm] = useState({
-    name: "",
-    contact_person: "",
-    phone: "",
-    email: "",
-    website: "",
-    address: "",
-    city: "",
-    state: "",
-    zip: "",
-    category: "",
-    notes: "",
-    emergency_number: "",
-    emergency: false,
-    account_number: "",
-    hours: "",
-    preferred_contact: "phone",
-    contract_renewal_date: "",
-    service_history: "",
-    active: true,
-  });
+  const [filterCat, setFilterCat] = useState("all");
 
   useEffect(() => {
-    const load = async () => {
-      const data = await base44.entities.Vendor.list("-created_date", 200);
+    base44.entities.Vendor.list("-created_date", 200).then(data => {
       setVendors(data);
       setLoading(false);
-    };
-    load();
+    });
   }, []);
-
-  const handleSave = async () => {
-    if (!form.name) {
-      toast.error("Vendor name is required");
-      return;
-    }
-    setSaving(true);
-    try {
-      if (editingId) {
-        const updated = await base44.entities.Vendor.update(editingId, form);
-        setVendors(prev => prev.map(v => v.id === editingId ? updated : v));
-        toast.success("Vendor updated");
-      } else {
-        const created = await base44.entities.Vendor.create(form);
-        setVendors(prev => [created, ...prev]);
-        toast.success("Vendor added");
-      }
-      setShowForm(false);
-      setForm({
-        name: "", contact_person: "", phone: "", email: "", website: "", address: "", city: "", state: "", zip: "",
-        category: "", notes: "", emergency_number: "", emergency: false, account_number: "", hours: "",
-        preferred_contact: "phone", contract_renewal_date: "", service_history: "", active: true,
-      });
-      setEditingId(null);
-    } catch (err) {
-      toast.error("Save failed");
-    }
-    setSaving(false);
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm("Remove this vendor?")) return;
-    try {
-      await base44.entities.Vendor.delete(id);
-      setVendors(prev => prev.filter(v => v.id !== id));
-      toast.success("Vendor removed");
-    } catch (err) {
-      toast.error("Delete failed");
-    }
-  };
-
-  const openEdit = (vendor) => { setEditingVendor(vendor); setShowForm(true); };
-  const openNew = () => { setEditingVendor(null); setShowForm(true); };
 
   const handleSaved = (result) => {
     if (editingVendor) {
@@ -122,131 +129,182 @@ export default function Vendors() {
     setEditingVendor(null);
   };
 
-  // Filter vendors
-  let filtered = vendors;
-  if (!showInactive) {
-    filtered = filtered.filter(v => v.active !== false);
-  }
-  if (selectedCategory) {
-    filtered = filtered.filter(v => v.category === selectedCategory);
-  }
+  const openEdit = (vendor) => { setEditingVendor(vendor); setShowForm(true); };
+  const openNew = () => { setEditingVendor(null); setShowForm(true); };
+
+  const active = vendors.filter(v => v.active !== false);
+  const deliveriesToday = active.filter(hasDeliveryToday);
+  const emergency = active.filter(v => v.emergency);
+
+  const priorityIds = new Set([
+    ...deliveriesToday.map(v => v.id),
+    ...active.filter(v => v.is_preferred).map(v => v.id),
+  ]);
+  const priority = active.filter(v => priorityIds.has(v.id)).slice(0, 5);
+
+  let filtered = active;
+  if (filterCat !== "all") filtered = filtered.filter(v => v.category === filterCat);
   if (search) {
     const q = search.toLowerCase();
     filtered = filtered.filter(v =>
-      v.name.toLowerCase().includes(q) ||
-      (v.contact_person && v.contact_person.toLowerCase().includes(q)) ||
-      (v.phone && v.phone.includes(q)) ||
-      (v.email && v.email.toLowerCase().includes(q))
+      v.name?.toLowerCase().includes(q) ||
+      v.contact_person?.toLowerCase().includes(q) ||
+      v.phone?.includes(q)
     );
   }
 
-  // Separate emergency vendors
-  const emergency = filtered.filter(v => v.emergency);
-  const regular = filtered.filter(v => !v.emergency);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-48">
+      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="mx-auto w-full max-w-[480px] flex flex-col gap-3 pb-28">
+
       {/* Header */}
-      <div className="flex items-end justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold">Vendors</h1>
-          <p className="text-sm text-muted-foreground mt-1">Fast lookup for managers</p>
-        </div>
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4 mr-2" /> Add Vendor
-        </Button>
+      <div className="pt-1">
+        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Vendors</h1>
+        <p className="text-[11px] text-gray-600 mt-0.5">Quick access to suppliers and services</p>
       </div>
 
-      {/* Search and Filters */}
-      <div className="space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, contact, phone, email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <div className="flex gap-2 flex-wrap items-center">
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={null}>All Categories</SelectItem>
-              {CATEGORIES.map(c => (
-                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-600" />
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search vendors..."
+          className="w-full h-9 pl-9 pr-3 text-[13px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+      </div>
+
+      {/* Filter chips */}
+      <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+        {FILTER_CHIPS.map(chip => (
           <button
-            onClick={() => setShowInactive(!showInactive)}
-            className="text-xs text-primary hover:underline font-medium"
+            key={chip.value}
+            onClick={() => setFilterCat(chip.value)}
+            className={cn(
+              "shrink-0 h-7 px-3 rounded-full text-[11px] font-bold border transition-all",
+              filterCat === chip.value
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-[#0F1623] text-gray-500 border-[#1E2A3B]"
+            )}
           >
-            {showInactive ? "Hide" : "Show"} Inactive
+            {chip.label}
           </button>
-        </div>
+        ))}
       </div>
 
-      {/* Emergency Vendors */}
-      {emergency.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="font-bold text-orange-600 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" /> Emergency Vendors
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {emergency.map(vendor => (
-              <VendorCard
-                key={vendor.id}
-                vendor={vendor}
-                onEdit={openEdit}
-                onDelete={handleDelete}
-                expanded={expandedVendor === vendor.id}
-                onToggleExpand={() => setExpandedVendor(expandedVendor === vendor.id ? null : vendor.id)}
-              />
-            ))}
+      {/* Metrics row */}
+      <div className="grid grid-cols-4 gap-1.5">
+        {[
+          { label: "Total",    value: active.length },
+          { label: "Today",    value: deliveriesToday.length, highlight: deliveriesToday.length > 0 },
+          { label: "Orders",   value: 0 },
+          { label: "Critical", value: emergency.length, alert: emergency.length > 0 },
+        ].map(m => (
+          <div key={m.label} className={cn(
+            "flex flex-col items-center text-center bg-[#111827] border rounded-xl p-2 min-w-0",
+            m.alert ? "border-red-500/30" : m.highlight ? "border-primary/20" : "border-[#1F2937]"
+          )}>
+            <span className={cn("text-[18px] font-extrabold leading-none", m.alert ? "text-red-400" : m.highlight ? "text-primary" : "text-white")}>{m.value}</span>
+            <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">{m.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Priority Vendors */}
+      {priority.length > 0 && !search && filterCat === "all" && (
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2 flex items-center gap-1.5">
+            <AlertCircle className="h-3 w-3 text-primary" /> Priority Vendors
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {priority.map(v => <VendorCard key={v.id} vendor={v} onEdit={openEdit} />)}
           </div>
         </div>
       )}
 
-      {/* Regular Vendors */}
-      {regular.length === 0 && emergency.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-12 text-center">
-          <p className="text-muted-foreground mb-4">No vendors found</p>
-          <Button onClick={openNew} variant="outline">
-            <Plus className="h-4 w-4 mr-2" /> Add Vendor
-          </Button>
-        </div>
-      ) : (
-        <>
-          {regular.length > 0 && (
-            <div className="space-y-3">
-              {emergency.length > 0 && <h2 className="font-bold text-sm text-muted-foreground">All Vendors</h2>}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {regular.map(vendor => (
-                  <VendorCard
-                    key={vendor.id}
-                    vendor={vendor}
-                    onEdit={openEdit}
-                    onDelete={handleDelete}
-                    expanded={expandedVendor === vendor.id}
-                    onToggleExpand={() => setExpandedVendor(expandedVendor === vendor.id ? null : vendor.id)}
-                  />
-                ))}
+      {/* All / Filtered Vendors */}
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">
+          {filterCat !== "all"
+            ? FILTER_CHIPS.find(c => c.value === filterCat)?.label
+            : "All Vendors"} ({filtered.length})
+        </p>
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-gray-600 gap-2">
+            <Package className="h-8 w-8 opacity-30" />
+            <p className="text-[13px]">No vendors found</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {filtered.map(v => <VendorCard key={v.id} vendor={v} onEdit={openEdit} />)}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom info cards */}
+      {deliveriesToday.length > 0 && (
+        <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-[#1A2235]">
+            <Truck className="h-3.5 w-3.5 text-primary" />
+            <span className="text-[12px] font-bold text-white flex-1">Deliveries Today</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">{deliveriesToday.length}</span>
+          </div>
+          {deliveriesToday.slice(0, 5).map((v, i) => {
+            const meta = getCatMeta(v.category);
+            const Icon = meta.icon;
+            return (
+              <div key={v.id} className={cn("flex items-center gap-2.5 px-3 py-2", i < deliveriesToday.slice(0,5).length - 1 && "border-b border-[#1A2235]/50")}>
+                <Icon className={cn("h-3.5 w-3.5 shrink-0", meta.color)} />
+                <p className="text-[12px] font-semibold text-white flex-1 truncate">{v.name}</p>
+                <span className="text-[10px] text-primary font-bold">{todayDay}</span>
               </div>
-            </div>
-          )}
-        </>
+            );
+          })}
+        </div>
       )}
+
+      {emergency.length > 0 && (
+        <div className="bg-[#0F1623] border border-red-500/20 rounded-xl overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-red-500/10">
+            <AlertCircle className="h-3.5 w-3.5 text-red-400" />
+            <span className="text-[12px] font-bold text-white flex-1">Emergency Contacts</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/25">{emergency.length}</span>
+          </div>
+          {emergency.map((v, i) => (
+            <div key={v.id} className={cn("flex items-center gap-2.5 px-3 py-2", i < emergency.length - 1 && "border-b border-[#1A2235]/30")}>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-bold text-white truncate">{v.name}</p>
+                {v.emergency_number && <p className="text-[10px] text-red-400">{v.emergency_number}</p>}
+              </div>
+              {(v.emergency_number || v.phone) && (
+                <a
+                  href={`tel:${v.emergency_number || v.phone}`}
+                  className="h-7 px-2.5 rounded-lg bg-red-500/10 border border-red-500/25 flex items-center gap-1.5 active:scale-95 transition-transform"
+                >
+                  <Phone className="h-3 w-3 text-red-400" />
+                  <span className="text-[10px] font-bold text-red-400">Call</span>
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* FAB */}
+      <button
+        onClick={openNew}
+        className="fixed right-4 flex items-center gap-2 h-11 px-4 rounded-full bg-primary text-primary-foreground text-[13px] font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform z-30"
+        style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}
+      >
+        <Plus className="h-4 w-4" />
+        Add Vendor
+      </button>
 
       <VendorNoteForm
         open={showForm}
@@ -259,105 +317,3 @@ export default function Vendors() {
 }
 
 export const hideBase44Index = true;
-
-function VendorCard({ vendor, onEdit, onDelete, expanded, onToggleExpand }) {
-  const cat = CATEGORIES.find(c => c.value === vendor.category);
-
-  return (
-    <div className={cn("bg-card border-2 rounded-xl overflow-hidden", vendor.emergency ? "border-orange-500/40" : "border-border")}>
-      <div className="p-4 space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              {vendor.emergency && <Star className="h-4 w-4 text-orange-600 flex-shrink-0" />}
-              <h3 className="font-bold text-base truncate">{vendor.name}</h3>
-            </div>
-            {vendor.contact_person && <p className="text-xs text-muted-foreground">{vendor.contact_person}</p>}
-            {cat && <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded inline-block mt-1">{cat.label}</span>}
-          </div>
-          <div className="flex gap-1 flex-shrink-0">
-            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onEdit(vendor)}>
-              <Edit2 className="h-4 w-4" />
-            </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => onDelete(vendor.id)}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Quick Contact */}
-        <div className="space-y-1 text-sm">
-          {vendor.phone && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-              <a href={`tel:${vendor.phone}`} className="hover:text-primary truncate">{vendor.phone}</a>
-            </div>
-          )}
-          {vendor.emergency_number && (
-            <div className="flex items-center gap-2 text-orange-600 font-semibold">
-              <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
-              <a href={`tel:${vendor.emergency_number}`}>{vendor.emergency_number} (24/7)</a>
-            </div>
-          )}
-          {vendor.email && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-              <a href={`mailto:${vendor.email}`} className="hover:text-primary truncate">{vendor.email}</a>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Info */}
-        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-          {vendor.account_number && <div>Account: <span className="font-semibold">{vendor.account_number}</span></div>}
-          {vendor.hours && <div>Hours: <span className="font-semibold">{vendor.hours}</span></div>}
-          {vendor.contract_renewal_date && <div>Renewal: <span className="font-semibold">{vendor.contract_renewal_date}</span></div>}
-          {vendor.preferred_contact && <div>Contact: <span className="font-semibold capitalize">{vendor.preferred_contact}</span></div>}
-        </div>
-
-        {/* Expandable Details */}
-        <button
-          onClick={onToggleExpand}
-          className="flex items-center gap-2 text-xs text-primary hover:underline font-semibold w-full justify-center py-2 border-t border-border mt-2"
-        >
-          {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          {expanded ? "Hide Details" : "Show Details"}
-        </button>
-
-        {expanded && (
-          <div className="pt-2 space-y-3 border-t border-border text-sm">
-            {(vendor.address || vendor.city) && (
-              <div className="flex items-start gap-2 text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-                <div>
-                  {vendor.address && <p>{vendor.address}</p>}
-                  {(vendor.city || vendor.state || vendor.zip) && (
-                    <p>{[vendor.city, vendor.state, vendor.zip].filter(Boolean).join(", ")}</p>
-                  )}
-                </div>
-              </div>
-            )}
-            {vendor.website && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Globe className="h-3.5 w-3.5 flex-shrink-0" />
-                <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary truncate">{vendor.website}</a>
-              </div>
-            )}
-            {vendor.service_history && (
-              <div className="p-3 bg-secondary/40 rounded text-xs">
-                <p className="font-semibold text-muted-foreground mb-1">Service History</p>
-                <p className="text-muted-foreground whitespace-pre-line">{vendor.service_history}</p>
-              </div>
-            )}
-            {vendor.notes && (
-              <div className="p-3 bg-secondary/40 rounded text-xs">
-                <p className="font-semibold text-muted-foreground mb-1">Notes</p>
-                <p className="text-muted-foreground">{vendor.notes}</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
