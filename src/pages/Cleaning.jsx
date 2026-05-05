@@ -42,8 +42,21 @@ function TaskRow({ task, onStart, onComplete, onPhotoRequired }) {
   const st = STATUS_STYLE[task.status] || STATUS_STYLE.pending;
   const isDone = ["completed", "approved"].includes(task.status);
   const isOverdue = task.status === "overdue";
-  const isActive = task.status === "in_progress";
   const needsPhoto = task.requires_photo && !task.photo_url;
+
+  const handleAction = () => {
+    if (needsPhoto && task.status === "in_progress") { onPhotoRequired(task); return; }
+    if (isDone) return;
+    if (task.status === "pending" || task.status === "overdue") { onStart(task); return; }
+    onComplete(task);
+  };
+
+  const actionLabel = needsPhoto && task.status === "in_progress" ? "📷" : task.status === "pending" || task.status === "overdue" ? "Start" : "Done";
+  const actionCls = isOverdue
+    ? "bg-red-500/10 border-red-500/20 text-red-400"
+    : task.status === "in_progress"
+    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+    : "bg-amber-500/10 border-amber-500/20 text-amber-400";
 
   return (
     <div className={cn(
@@ -54,39 +67,16 @@ function TaskRow({ task, onStart, onComplete, onPhotoRequired }) {
         <p className={cn("text-[12px] font-semibold leading-tight truncate", isDone ? "line-through text-gray-600" : "text-white")}>{task.task_name}</p>
         <div className="flex items-center gap-1.5 mt-0.5">
           {task.assigned_to_name && <span className="text-[10px] text-gray-600">{task.assigned_to_name.split(" ")[0]}</span>}
-          {task.due_time && <><span className="text-gray-700 text-[9px]">·</span><span className={cn("text-[10px]", isOverdue ? "text-red-400 font-bold" : "text-gray-600")}><Clock className="h-2.5 w-2.5 inline mr-0.5" />{task.due_time}</span></>}
-          {needsPhoto && <Camera className="h-2.5 w-2.5 text-amber-400 shrink-0" />}
+          {task.due_time && <><span className="text-gray-700 text-[9px]">·</span><span className={cn("text-[10px]", isOverdue ? "text-red-400 font-bold" : "text-gray-600")}>{task.due_time}</span></>}
         </div>
       </div>
-      <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 hidden sm:inline", st.cls)}>{st.label}</span>
-      {!isDone && (
-        <div className="flex gap-1 shrink-0">
-          {task.status === "pending" && (
-            <button onClick={() => onStart(task)}
-              className="h-6 px-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-400 active:scale-95 transition-transform">
-              Start
-            </button>
-          )}
-          {task.status === "in_progress" && (
-            needsPhoto
-              ? <button onClick={() => onPhotoRequired(task)}
-                  className="h-6 px-2 rounded-lg bg-[#F5A623]/10 border border-[#F5A623]/20 text-[10px] font-bold text-[#F5A623] flex items-center gap-1 active:scale-95 transition-transform">
-                  <Camera className="h-2.5 w-2.5" /> Photo
-                </button>
-              : <button onClick={() => onComplete(task)}
-                  className="h-6 px-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-400 active:scale-95 transition-transform">
-                  ✓ Done
-                </button>
-          )}
-          {isOverdue && task.status !== "in_progress" && (
-            <button onClick={() => onStart(task)}
-              className="h-6 px-2 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 active:scale-95 transition-transform">
-              Start
-            </button>
-          )}
-        </div>
-      )}
-      {isDone && <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />}
+      <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0", st.cls)}>{st.label}</span>
+      {isDone
+        ? <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+        : <button onClick={handleAction} className={cn("h-6 px-2 rounded-lg text-[10px] font-bold active:scale-95 transition-transform border shrink-0", actionCls)}>
+            {actionLabel}
+          </button>
+      }
     </div>
   );
 }
@@ -231,10 +221,7 @@ export default function Cleaning() {
       {/* Header */}
       <div className="flex items-center justify-between pt-1">
         <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-blue-400" />
-            <h1 className="text-[17px] font-extrabold text-white tracking-tight">Cleaning</h1>
-          </div>
+          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Cleaning Command Center</h1>
           <p className="text-[11px] text-gray-600 mt-0.5">{format(new Date(), "EEEE, MMM d")} · {tasks.length} tasks</p>
         </div>
         <button onClick={() => setDialogOpen(true)}
@@ -319,20 +306,7 @@ export default function Cleaning() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-1.5">Quick Actions</p>
-        <div className="flex gap-2">
-          <button onClick={() => { setForm({ ...EMPTY_FORM, shift_type: "daily" }); setDialogOpen(true); }}
-            className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl bg-[#111827] border border-[#1F2937] text-[11px] font-bold text-gray-400 active:scale-95 transition-transform">
-            <Plus className="h-3 w-3" /> Add Task
-          </button>
-          <button onClick={() => { setForm({ ...EMPTY_FORM, shift_type: "deep_clean" }); setDialogOpen(true); }}
-            className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl bg-[#111827] border border-[#1F2937] text-[11px] font-bold text-gray-400 active:scale-95 transition-transform">
-            <Sparkles className="h-3 w-3" /> Deep Clean
-          </button>
-        </div>
-      </div>
+
 
       {/* Trend chart */}
       <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5">
