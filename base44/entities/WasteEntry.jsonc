@@ -1,0 +1,78 @@
+{
+  "name": "WasteEntry",
+  "type": "object",
+  "properties": {
+    "item_name": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Kitchen",
+        "Bar",
+        "Bakery",
+        "Prep",
+        "Other"
+      ],
+      "enumNames": [
+        "Kitchen",
+        "Bar",
+        "Bakery",
+        "Prep",
+        "Other"
+      ]
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity Wasted"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit (e.g. lbs, portions, each)"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason",
+      "enum": [
+        "Spoiled",
+        "Over-prepped",
+        "Dropped",
+        "Expired",
+        "Wrong order",
+        "Other"
+      ],
+      "enumNames": [
+        "Spoiled",
+        "Over-prepped",
+        "Dropped",
+        "Expired",
+        "Wrong order",
+        "Other"
+      ]
+    },
+    "dollar_value": {
+      "type": "number",
+      "title": "Dollar Value Lost"
+    },
+    "reported_by": {
+      "type": "string",
+      "title": "Reported By"
+    },
+    "logged_at": {
+      "type": "string",
+      "title": "Logged At (ISO)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "item_name",
+    "category",
+    "quantity",
+    "reason"
+  ]
+}

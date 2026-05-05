@@ -57,6 +57,7 @@ import Cleaning from './pages/Cleaning';
 import OpeningChecklist from './pages/OpeningChecklist';
 import ClosingChecklist from './pages/ClosingChecklist';
 import Inventory from './pages/Inventory';
+import WasteLog from './pages/WasteLog';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -141,6 +142,7 @@ const AuthenticatedApp = () => {
         <Route path="/opening" element={<OpeningChecklist />} />
         <Route path="/closing" element={<ClosingChecklist />} />
         <Route path="/inventory" element={<Inventory />} />
+        <Route path="/waste" element={<WasteLog />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
         <Route path="*" element={<PageNotFound />} />
