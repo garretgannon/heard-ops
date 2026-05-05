@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, AlertCircle, ChevronRight, Filter } from "lucide-react";
+import { CheckCircle2, Circle, AlertCircle, ChevronRight, Filter, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,9 @@ export default function ChecklistView({
   primaryAction,
   primaryActionLabel = "Add Item",
   loading = false,
+  showBackButton = true,
 }) {
+  const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState(null);
 
   const filteredItems = useMemo(() => {
@@ -42,9 +45,16 @@ export default function ChecklistView({
   return (
     <div className="pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-        <h1 className="text-xl font-bold text-foreground">{title}</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-2">
+        {showBackButton && (
+          <button onClick={() => navigate(-1)} className="p-2 hover:bg-secondary rounded-lg transition-colors active:scale-95">
+            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+          </button>
+        )}
+        <div>
+          <h1 className="text-xl font-bold text-foreground">{title}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+        </div>
       </div>
 
       {/* Metrics */}
