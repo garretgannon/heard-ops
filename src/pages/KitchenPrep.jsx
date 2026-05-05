@@ -210,10 +210,7 @@ export default function KitchenPrep() {
   return (
     <div className="pb-32 bg-background min-h-screen">
       {/* STICKY HEADER */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-2">
-        <button onClick={() => navigate(-1)} className="p-2 hover:bg-secondary rounded-lg transition-colors active:scale-95">
-          <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-        </button>
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
         <div>
           <h1 className="text-lg font-bold text-foreground">Kitchen Prep</h1>
           <p className="text-[10px] text-muted-foreground mt-0.5">Production tracker</p>
