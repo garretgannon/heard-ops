@@ -35,8 +35,6 @@ import Vendors from './pages/Vendors';
 import IncidentReports from './pages/IncidentReports';
 
 import LineUp from './pages/LineUp';
-import BuildBook from './pages/BuildBook';
-import BarBook from './pages/BarBook';
 import StaffTasks from './pages/StaffTasks';
 import ManagerDashboard from './pages/ManagerDashboard';
 import MSDS from './pages/MSDS';
@@ -49,7 +47,6 @@ import ScheduleCenter from './pages/ScheduleCenter';
 import IssuesRepairs from './pages/IssuesRepairs';
 import More from './pages/More';
 import Standards from './pages/Standards';
-import IssuesUnified from './pages/IssuesUnified';
 import InventoryControl from './pages/InventoryControl';
 import Cleaning from './pages/Cleaning';
 import OpeningChecklist from './pages/OpeningChecklist';
