@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import {
   ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign,
-  Droplet, ChevronRight, ShieldAlert, CheckCircle2, Flame
+  Droplet, ChevronRight, ShieldAlert, CheckCircle2, Flame, Plus, FileText,
+  Users, Clock, LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { differenceInHours, formatDistanceToNow, isToday } from "date-fns";
@@ -391,6 +392,77 @@ export default function TodaysCommandCenter() {
       )}
 
 
+
+      {/* Quick Actions */}
+      <SectionLabel text="Quick Actions" />
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        <button onClick={() => navigate("/temp-logs")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
+          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
+            <Thermometer className="h-5 w-5 text-[#F5A623]" />
+          </div>
+          <span className="text-[11px] font-semibold text-white text-center">Log Temp</span>
+        </button>
+        <button onClick={() => navigate("/opening")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
+          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
+            <ClipboardList className="h-5 w-5 text-[#F5A623]" />
+          </div>
+          <span className="text-[11px] font-semibold text-white text-center">Checklist</span>
+        </button>
+        <button onClick={() => navigate("/manager-log")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
+          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
+            <FileText className="h-5 w-5 text-[#F5A623]" />
+          </div>
+          <span className="text-[11px] font-semibold text-white text-center">Add Note</span>
+        </button>
+        <button onClick={() => navigate("/issues")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
+          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
+            <AlertTriangle className="h-5 w-5 text-[#F5A623]" />
+          </div>
+          <span className="text-[11px] font-semibold text-white text-center">Report</span>
+        </button>
+      </div>
+
+      {/* Team Snapshot */}
+      <SectionLabel text="Team Status" />
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
+          <p className="text-lg font-extrabold text-white">{m.onShift || 0}</p>
+          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">On Shift</p>
+        </div>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
+          <p className="text-lg font-extrabold text-orange-400">0</p>
+          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Late</p>
+        </div>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
+          <p className="text-lg font-extrabold text-yellow-400">0</p>
+          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Scheduled</p>
+        </div>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
+          <p className="text-lg font-extrabold text-red-400">0</p>
+          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Absent</p>
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      {m.activity.length > 0 && (
+        <>
+          <SectionLabel text="Recent Activity" />
+          <div className="space-y-1.5">
+            {m.activity.map((act, i) => {
+              const ActivityIcon = act.icon;
+              return (
+                <div key={i} className="flex items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-lg px-2.5 py-2">
+                  <ActivityIcon className={cn("h-3.5 w-3.5 shrink-0", act.iconColor)} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-gray-300 truncate">{act.title}</p>
+                  </div>
+                  <p className="text-[9px] text-gray-600 shrink-0 whitespace-nowrap">{act.time}</p>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Last Handoff Note */}
       {m.latestHandoff && (
