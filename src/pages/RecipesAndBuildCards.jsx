@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Plus, Search, ChevronRight, Clock, Image as ImageIcon, AlertCircle, BookMarked, Flame } from "lucide-react";
+import { Plus, Search, ChevronRight, Clock, Image as ImageIcon, AlertCircle, BookMarked, Flame, ArrowLeft } from "lucide-react";
 import MetricTile from "../components/MetricTile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ const RECIPE_TYPES = {
 };
 
 export default function RecipesAndBuildCards() {
+  const navigate = useNavigate();
   const { user, isAdmin } = useCurrentUser();
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
@@ -120,9 +122,14 @@ export default function RecipesAndBuildCards() {
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3 mb-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Recipes &amp; Build Cards</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Kitchen &amp; bar recipes</p>
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate(-1)} className="p-2 hover:bg-secondary rounded-lg transition-colors active:scale-95">
+              <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+            </button>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Recipes &amp; Build Cards</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Kitchen &amp; bar recipes</p>
+            </div>
           </div>
           {isAdmin && (
             <button
