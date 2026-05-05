@@ -1,25 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Brush, UserCheck, Sun, Moon, ChevronLeft, ChevronRight } from "lucide-react";
+import { AlertTriangle, Wrench, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { id: "cleaning", label: "Cleaning", icon: Brush, color: "text-blue-400", bg: "bg-blue-500/10" },
-  { id: "sidework", label: "Side Work", icon: UserCheck, color: "text-teal-400", bg: "bg-teal-500/10" },
-  { id: "opening", label: "Opening", icon: Sun, color: "text-amber-400", bg: "bg-amber-500/10" },
-  { id: "closing", label: "Closing", icon: Moon, color: "text-indigo-400", bg: "bg-indigo-500/10" },
+  { id: "issues", label: "Issues", icon: AlertTriangle, color: "text-red-400", bg: "bg-red-500/10" },
+  { id: "repairs", label: "Repairs", icon: Wrench, color: "text-orange-400", bg: "bg-orange-500/10" },
 ];
 
 const PAGES = {
-  cleaning: { path: "/cleaning", label: "Cleaning Command Center" },
-  sidework: { path: "/side-work", label: "Side Work Management" },
-  opening: { path: "/opening", label: "Opening Checklist" },
-  closing: { path: "/closing", label: "Closing Checklist" },
+  issues: { path: "/issues", label: "Issue Tracker" },
+  repairs: { path: "/maintenance", label: "Maintenance Requests" },
 };
 
-export default function Standards() {
+export default function IssuesUnified() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("cleaning");
+  const [activeTab, setActiveTab] = useState("issues");
 
   const handleTabClick = (id) => {
     setActiveTab(id);
@@ -34,8 +30,8 @@ export default function Standards() {
           <ChevronLeft className="h-3.5 w-3.5 text-gray-500" />
         </button>
         <div className="flex-1">
-          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Standards</h1>
-          <p className="text-[11px] text-gray-600 mt-0.5">Operational checklists</p>
+          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Issues</h1>
+          <p className="text-[11px] text-gray-600 mt-0.5">Problems and repairs</p>
         </div>
       </div>
 

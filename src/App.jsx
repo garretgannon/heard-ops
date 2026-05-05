@@ -53,6 +53,8 @@ import ScheduleCenter from './pages/ScheduleCenter';
 import IssueTracker from './pages/IssueTracker';
 import More from './pages/More';
 import Standards from './pages/Standards';
+import IssuesUnified from './pages/IssuesUnified';
+import InventoryControl from './pages/InventoryControl';
 import Cleaning from './pages/Cleaning';
 import OpeningChecklist from './pages/OpeningChecklist';
 import ClosingChecklist from './pages/ClosingChecklist';
@@ -140,7 +142,9 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/schedule-center" element={<ScheduleCenter />} />}
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/more" element={<More />} />
-        <Route path="/standards" element={<Standards />} />
+        {isAdmin && <Route path="/standards" element={<Standards />} />}
+        {isAdmin && <Route path="/issues-unified" element={<IssuesUnified />} />}
+        {isAdmin && <Route path="/inventory-control" element={<InventoryControl />} />}
         <Route path="/cleaning" element={<Cleaning />} />
         <Route path="/opening" element={<OpeningChecklist />} />
         <Route path="/closing" element={<ClosingChecklist />} />
