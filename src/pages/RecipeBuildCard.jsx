@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ChevronLeft, Copy, Edit2, AlertCircle, Clock, Users, ChefHat } from "lucide-react";
+import { ChevronLeft, Copy, Edit2, AlertCircle, Clock, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -52,86 +52,61 @@ export default function RecipeBuildCard() {
 
   const cat = CAT_COLORS[recipe.category] || CAT_COLORS.other;
   const steps = recipe.build_steps || [];
-
-  // Parse ingredients from legacy text or structured format
-  const ingredientLines = (recipe.ingredients || "").split("\n").filter(l => l.trim());
+  const ingredientLines = (recipe.ingredients || "").split("\n").filter(l => l.trim()).slice(0, 8);
 
   return (
-    <div className="mx-auto w-full max-w-[480px] min-h-screen bg-[#080C14] flex flex-col pb-24">
+    <div className="mx-auto w-full max-w-[480px] min-h-screen bg-[#080C14] flex flex-col pb-20">
 
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#080C14]/96 backdrop-blur-sm border-b border-[#1A2235] px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-90">
-          <ChevronLeft className="h-4 w-4 text-gray-500" />
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-40 bg-[#080C14]/96 backdrop-blur-sm border-b border-[#1A2235] px-3 py-2 flex items-center gap-2">
+        <button onClick={() => navigate(-1)} className="h-7 w-7 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-90 shrink-0">
+          <ChevronLeft className="h-3.5 w-3.5 text-gray-500" />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-[15px] font-extrabold text-white truncate">{recipe.name}</h1>
-          <p className="text-[10px] text-gray-600">{CAT_LABELS[recipe.category]}</p>
+          <h1 className="text-[14px] font-extrabold text-white truncate">{recipe.name}</h1>
         </div>
+        <span className={cn("text-[8px] font-bold px-1.5 py-0.5 rounded-full border shrink-0", cat)}>{CAT_LABELS[recipe.category]}</span>
       </div>
 
-      {/* Top Section: Recipe Info */}
-      <div className="px-4 pt-4 pb-3 space-y-3">
-        {/* Photo */}
+      {/* Top Section: Photo + Meta */}
+      <div className="px-3 pt-2 pb-2 space-y-1.5">
         {recipe.photo_url && (
-          <img src={recipe.photo_url} alt={recipe.name} className="w-full h-40 object-cover rounded-xl border border-[#1E2A3B]" />
+          <img src={recipe.photo_url} alt={recipe.name} className="w-full h-28 object-cover rounded-lg border border-[#1E2A3B]" />
         )}
-
-        {/* Meta Row */}
-        <div className="flex items-center gap-2">
-          <span className={cn("text-[9px] font-bold px-2 py-1 rounded-full border", cat)}>{CAT_LABELS[recipe.category]}</span>
-          {recipe.yield && (
-            <>
-              <span className="text-gray-700">·</span>
-              <div className="flex items-center gap-1 text-[11px] text-gray-500">
-                <Users className="h-3 w-3" /> {recipe.yield}
-              </div>
-            </>
-          )}
-          {recipe.prep_time && (
-            <>
-              <span className="text-gray-700">·</span>
-              <div className="flex items-center gap-1 text-[11px] text-gray-500">
-                <Clock className="h-3 w-3" /> {recipe.prep_time}
-              </div>
-            </>
-          )}
+        <div className="flex items-center gap-2 text-[10px] text-gray-500">
+          {recipe.yield && <div className="flex items-center gap-0.5"><Users className="h-3 w-3" /> {recipe.yield}</div>}
+          {recipe.yield && recipe.prep_time && <span>·</span>}
+          {recipe.prep_time && <div className="flex items-center gap-0.5"><Clock className="h-3 w-3" /> {recipe.prep_time}</div>}
         </div>
-
-        {recipe.description && (
-          <p className="text-[12px] text-gray-400">{recipe.description}</p>
-        )}
+        {recipe.description && <p className="text-[11px] text-gray-400 line-clamp-1">{recipe.description}</p>}
       </div>
 
-      {/* Section 1: Ingredients */}
+      {/* Section 1: Ingredients (Compact) */}
       {ingredientLines.length > 0 && (
-        <div className="px-4 py-3 border-t border-[#1A2235]">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Ingredients</p>
-          <div className="space-y-1 text-[12px] text-white">
+        <div className="mx-3 mb-1.5 bg-[#0F1623] border border-[#1E2A3B] rounded-lg p-2 overflow-hidden">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-1">Ingredients</p>
+          <div className="space-y-0.5 text-[11px] text-white font-medium leading-tight">
             {ingredientLines.map((line, i) => (
-              <div key={i} className="flex items-baseline gap-2">
-                <span className="text-gray-600 text-[10px] shrink-0">•</span>
-                <span>{line.trim()}</span>
-              </div>
+              <div key={i} className="truncate">{line.trim()}</div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Section 2: Build Steps */}
+      {/* Section 2: Build Steps (Tightly Stacked) */}
       {steps.length > 0 && (
-        <div className="px-4 py-3 border-t border-[#1A2235]">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2.5">Build Steps</p>
-          <div className="space-y-2">
+        <div className="mx-3 mb-1.5 bg-[#0F1623] border border-[#1E2A3B] rounded-lg p-2 overflow-hidden">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-1">Build</p>
+          <div className="space-y-1">
             {steps.sort((a, b) => a.step_number - b.step_number).map((s) => (
-              <div key={s.id || s.step_number} className="flex gap-2">
-                <div className="h-7 w-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
-                  <span className="text-[11px] font-bold text-primary">{s.step_number}</span>
+              <div key={s.id || s.step_number} className="flex gap-1.5">
+                <div className="h-6 w-6 rounded-md bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+                  <span className="text-[10px] font-bold text-primary">{s.step_number}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-white leading-snug">{s.instruction}</p>
+                  <p className="text-[11px] font-semibold text-white leading-tight line-clamp-2">{s.instruction}</p>
                   {s.image_url && (
-                    <img src={s.image_url} alt={`Step ${s.step_number}`} className="w-full h-24 object-cover rounded-lg mt-1.5 border border-[#1A2235]" />
+                    <img src={s.image_url} alt={`Step ${s.step_number}`} className="w-full h-16 object-cover rounded-md mt-1 border border-[#1A2235]" />
                   )}
                 </div>
               </div>
@@ -142,57 +117,49 @@ export default function RecipeBuildCard() {
 
       {/* Section 3: Plating */}
       {(recipe.plating_image_url || recipe.plating_notes) && (
-        <div className="px-4 py-3 border-t border-[#1A2235]">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Plating / Final Look</p>
+        <div className="mx-3 mb-1.5 bg-[#0F1623] border border-[#1E2A3B] rounded-lg p-2 overflow-hidden">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-1">Plate</p>
           {recipe.plating_image_url && (
-            <img src={recipe.plating_image_url} alt="Plated dish" className="w-full h-36 object-cover rounded-xl border border-[#1E2A3B] mb-2" />
+            <img src={recipe.plating_image_url} alt="Plated dish" className="w-full h-24 object-cover rounded-lg border border-[#1A2235] mb-1" />
           )}
           {recipe.plating_notes && (
-            <p className="text-[12px] text-gray-300 leading-relaxed">{recipe.plating_notes}</p>
+            <p className="text-[11px] text-gray-300 line-clamp-2">{recipe.plating_notes}</p>
           )}
         </div>
       )}
 
-      {/* Section 4: Notes */}
-      {(recipe.allergens || recipe.modifications) && (
-        <div className="px-4 py-3 border-t border-[#1A2235]">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Important Notes</p>
-          <div className="space-y-2">
-            {recipe.allergens && (
-              <div className="flex gap-2 items-start">
-                <AlertCircle className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[10px] text-red-400 font-bold">ALLERGENS</p>
-                  <p className="text-[11px] text-gray-300">{recipe.allergens}</p>
-                </div>
-              </div>
-            )}
-            {recipe.modifications && (
-              <div className="flex gap-2 items-start">
-                <ChefHat className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[10px] text-amber-400 font-bold">MODIFICATIONS</p>
-                  <p className="text-[11px] text-gray-300">{recipe.modifications}</p>
-                </div>
-              </div>
-            )}
+      {/* Section 4: Quick Notes (Inline) */}
+      <div className="mx-3 mb-2 space-y-1">
+        {recipe.allergens && (
+          <div className="flex gap-1.5 items-start bg-red-500/8 border border-red-500/20 rounded-lg p-1.5">
+            <AlertCircle className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-[9px] text-red-400 font-bold uppercase leading-tight">Allergens</p>
+              <p className="text-[10px] text-gray-300 line-clamp-1">{recipe.allergens}</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        {recipe.modifications && (
+          <div className="flex gap-1.5 items-start bg-amber-500/8 border border-amber-500/20 rounded-lg p-1.5">
+            <span className="text-[9px] text-amber-400 font-bold uppercase leading-tight shrink-0 mt-0.5">Mods</span>
+            <p className="text-[10px] text-gray-300 line-clamp-1">{recipe.modifications}</p>
+          </div>
+        )}
+      </div>
 
       {/* Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1A2235] px-4 py-3 flex gap-2 lg:left-64">
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1A2235] px-3 py-2 flex gap-1.5 lg:left-64">
         <button
           onClick={() => navigate(`/recipes/${recipe.id}/edit`)}
-          className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-[#0F1623] border border-[#1E2A3B] text-[13px] font-bold text-gray-400 active:scale-95 transition-transform"
+          className="flex-1 h-9 flex items-center justify-center gap-1.5 rounded-lg bg-[#0F1623] border border-[#1E2A3B] text-[12px] font-bold text-gray-400 active:scale-95 transition-transform"
         >
-          <Edit2 className="h-4 w-4" /> Edit
+          <Edit2 className="h-3.5 w-3.5" /> Edit
         </button>
         <button
           onClick={handleDuplicate}
-          className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-primary/10 border border-primary/25 text-[13px] font-bold text-primary active:scale-95 transition-transform"
+          className="flex-1 h-9 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 border border-primary/25 text-[12px] font-bold text-primary active:scale-95 transition-transform"
         >
-          <Copy className="h-4 w-4" /> Duplicate
+          <Copy className="h-3.5 w-3.5" /> Dupe
         </button>
       </div>
     </div>
