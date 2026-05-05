@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Brush, UserCheck, Sun, Moon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Brush, UserCheck, Sun, Moon, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Cleaning from "./Cleaning";
+import SideWork from "./SideWork";
+import OpeningChecklist from "./OpeningChecklist";
+import ClosingChecklist from "./ClosingChecklist";
 
 const TABS = [
   { id: "cleaning", label: "Cleaning", icon: Brush, color: "text-blue-400", bg: "bg-blue-500/10" },
@@ -10,11 +14,11 @@ const TABS = [
   { id: "closing", label: "Closing", icon: Moon, color: "text-indigo-400", bg: "bg-indigo-500/10" },
 ];
 
-const PAGES = {
-  cleaning: { path: "/cleaning", label: "Cleaning Command Center" },
-  sidework: { path: "/side-work", label: "Side Work Management" },
-  opening: { path: "/opening", label: "Opening Checklist" },
-  closing: { path: "/closing", label: "Closing Checklist" },
+const COMPONENTS = {
+  cleaning: Cleaning,
+  sidework: SideWork,
+  opening: OpeningChecklist,
+  closing: ClosingChecklist,
 };
 
 export default function Standards() {
@@ -23,7 +27,6 @@ export default function Standards() {
 
   const handleTabClick = (id) => {
     setActiveTab(id);
-    navigate(PAGES[id].path);
   };
 
   return (
@@ -61,17 +64,11 @@ export default function Standards() {
         })}
       </div>
 
-      {/* Content hint */}
-      <div className="flex items-center gap-2 px-4 py-3 bg-[#111827] border border-[#1F2937] rounded-xl">
-        <p className="text-[12px] text-gray-400 flex-1">
-          Viewing <span className="font-bold text-white">{PAGES[activeTab].label}</span>
-        </p>
-        <ChevronRight className="h-4 w-4 text-gray-600" />
-      </div>
-
-      <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-600">
-        <p className="text-[13px]">Use tabs above to navigate</p>
-      </div>
+      {/* Content */}
+      {(() => {
+        const Component = COMPONENTS[activeTab];
+        return Component ? <Component /> : null;
+      })()}
     </div>
   );
 }
