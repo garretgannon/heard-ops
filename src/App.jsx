@@ -44,7 +44,7 @@ import ShiftHandoff from './pages/ShiftHandoff';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import SetupWizard from './pages/SetupWizard';
 import ScheduleCenter from './pages/ScheduleCenter';
-import IssuesRepairs from './pages/IssuesRepairs';
+
 import More from './pages/More';
 import Standards from './pages/Standards';
 import InventoryControl from './pages/InventoryControl';
@@ -126,7 +126,7 @@ const AuthenticatedApp = () => {
         <Route path="/side-work-production" element={<SideWorkProduction />} />
         <Route path="/cleaning" element={<Cleaning />} />
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
-        <Route path="/issues" element={<IssuesRepairs />} />
+
         <Route path="/maintenance" element={<MaintenanceRequests />} />
 
         {/* Admin */}

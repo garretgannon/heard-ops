@@ -39,7 +39,7 @@ export default function More() {
         { label: "Side Work Production", desc: "FOH task tracker for active shift", path: "/side-work-production", icon: Users2 },
         { label: "Recipes & Build Cards", desc: "Dish specs and plating notes", path: "/recipes", icon: UtensilsCrossed },
         { label: "Cleaning & Deep Clean", desc: "Cleaning checklists and logs", path: "/cleaning", icon: Sparkles },
-        { label: "Issues & Repairs", desc: "Equipment issues and maintenance", path: "/issues", icon: Wrench },
+
       ]
     },
     ...(isAdmin ? [{
