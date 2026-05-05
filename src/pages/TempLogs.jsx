@@ -42,7 +42,7 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
     : null;
 
   return (
-    <div className={cn("card-with-border rounded-lg p-3 space-y-2", c.border)}>
+    <div className={cn("card-with-border p-3 space-y-2", c.border)}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-bold text-foreground">{loc.name}</p>
@@ -59,8 +59,8 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
 
       {isActive && (
         <div className="flex items-center gap-1.5 pt-2 border-t border-border">
-          <button onClick={() => onStep(-1)} className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center active:scale-90">
-            <Minus className="h-4 w-4 text-secondary-text" />
+          <button onClick={() => onStep(-1)} className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center active:scale-90 transition-colors">
+            <Minus className="h-4 w-4 stroke-[1.5] text-secondary-text" />
           </button>
           <input
             type="number"
@@ -70,8 +70,8 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
             autoFocus
             className="flex-1 h-8 text-center text-sm font-bold rounded-lg border border-border bg-input text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
           />
-          <button onClick={() => onStep(1)} className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center active:scale-90">
-            <Plus className="h-4 w-4 text-secondary-text" />
+          <button onClick={() => onStep(1)} className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center active:scale-90 transition-colors">
+            <Plus className="h-4 w-4 stroke-[1.5] text-secondary-text" />
           </button>
           <button
             onClick={onLog}
@@ -213,8 +213,8 @@ export default function TempLogs() {
         <h1 className="text-lg font-bold text-foreground">Temperature Control</h1>
         <div className="flex gap-1.5">
           {activeTab === "temps" && entries.length > 0 && (
-            <button className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center hover:bg-secondary">
-              <Download className="h-4 w-4 text-secondary-text" />
+            <button className="h-8 w-8 rounded-lg bg-muted border border-border flex items-center justify-center hover:bg-secondary transition-colors">
+              <Download className="h-4 w-4 stroke-[1.5] text-secondary-text" />
             </button>
           )}
         </div>
@@ -243,9 +243,9 @@ export default function TempLogs() {
                 <div key={loc.id} className="flex items-center justify-between text-xs p-2 bg-muted rounded">
                   <div>
                     <p className="font-bold text-foreground">{loc.name}: {temp}°F</p>
-                    <p className="text-secondary-text">Safe: {loc.target_min}–{loc.target_max}°F</p>
+                    <p className="text-secondary-text text-[10px] mt-0.5">Safe: {loc.target_min}–{loc.target_max}°F</p>
                   </div>
-                  <button className="btn-secondary text-xs px-2 py-1">Flag</button>
+                  <button className="btn-secondary text-xs px-2 py-1 h-8">Flag</button>
                 </div>
               );
             })}
@@ -315,8 +315,8 @@ export default function TempLogs() {
               className="w-full px-3 py-2 text-xs border border-border rounded-lg bg-input text-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
             />
             <div className="flex gap-2">
-              <button onClick={() => setIssueSheet(null)} className="btn-secondary flex-1 h-9 text-xs">Cancel</button>
-              <button onClick={handleIssueSubmit} className="btn-primary flex-1 h-9 text-xs">Log + Flag</button>
+              <button onClick={() => setIssueSheet(null)} className="btn-secondary flex-1 h-10 text-xs">Cancel</button>
+              <button onClick={handleIssueSubmit} className="btn-primary flex-1 h-10 text-xs">Log + Flag</button>
             </div>
           </div>
         </div>

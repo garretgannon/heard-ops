@@ -50,10 +50,10 @@ function StatItem({ icon: Icon, label, value, color }) {
 
 function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, status, statusColor, onView, onFix }) {
   return (
-    <div className="card-with-border border-l-4 p-3 space-y-2.5">
+    <div className="card-with-border border-l-red-500 p-3 space-y-2.5">
       <div className="flex items-start gap-3">
         <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
-          <Icon className={cn("h-4 w-4", iconColor)} />
+          <Icon className={cn("h-4 w-4 stroke-[1.5]", iconColor)} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-foreground truncate">{title}</p>
@@ -88,7 +88,7 @@ function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
     <div className="card-with-border border-l-amber-500 p-3 space-y-2.5">
       <div className="flex items-start gap-3">
         <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-          <Clock className="h-4 w-4 text-amber-400" />
+          <Clock className="h-4 w-4 stroke-[1.5] text-amber-400" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-foreground truncate">{title}</p>
@@ -127,7 +127,7 @@ function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
 function CompletedCard({ title, completedBy, completedAt }) {
   return (
     <div className="card-with-border border-l-green-500 p-2.5 flex items-center gap-2">
-      <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
+      <CheckCircle2 className="h-4 w-4 stroke-[1.5] text-green-400 shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold text-foreground truncate">{title}</p>
         <p className="text-[9px] text-secondary-text mt-0.5">
@@ -144,7 +144,7 @@ function ShiftNotesCard({ note, manager, onView }) {
   return (
     <div className="card-with-border border-l-blue-500 p-3 space-y-2.5">
       <div className="flex items-start gap-2">
-        <FileText className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+        <FileText className="h-4 w-4 stroke-[1.5] text-blue-400 shrink-0 mt-0.5" />
         <div className="flex-1">
           <p className="text-sm italic text-foreground leading-relaxed">"{note}"</p>
           {manager && <p className="text-[10px] text-secondary-text mt-2">— {manager}</p>}
@@ -288,8 +288,8 @@ export default function TodaysCommandCenter() {
           <h1 className="text-2xl font-bold text-foreground">Today</h1>
           <p className="text-xs text-secondary-text mt-1">{format(data.date, "EEEE, MMMM d, yyyy")}</p>
         </div>
-        <button className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center hover:bg-secondary">
-          <Bell className="h-5 w-5 text-secondary-text" />
+        <button className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center hover:bg-secondary transition-colors">
+          <Bell className="h-5 w-5 stroke-[1.5] text-secondary-text" />
         </button>
       </div>
 

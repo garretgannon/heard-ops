@@ -20,9 +20,9 @@ function TaskCard({ task, icon: Icon, onComplete, completing }) {
   const statusColor = isOverdue ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30";
 
   return (
-    <div className="card-with-border border-l-slate-600 p-2.5 flex items-center gap-2.5">
+    <div className="card-with-border border-l-slate-600 p-3 flex items-center gap-3">
       <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
-        <Icon className="h-3.5 w-3.5 text-secondary-text" />
+        <Icon className="h-4 w-4 stroke-[1.5] text-secondary-text" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold text-foreground truncate">{task.name}</p>
@@ -41,7 +41,7 @@ function TaskCard({ task, icon: Icon, onComplete, completing }) {
       <button
         onClick={onComplete}
         disabled={completing}
-        className="btn-primary h-7 px-2.5 text-xs flex items-center gap-1 shrink-0"
+        className="btn-primary h-8 px-3 text-xs flex items-center gap-1 shrink-0"
       >
         {completing ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" /> : "✓"}
       </button>

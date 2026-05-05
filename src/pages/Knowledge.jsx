@@ -8,7 +8,7 @@ function FeaturedCard({ title, icon: Icon, image, count, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="card-with-border border-l-slate-600 rounded-lg overflow-hidden flex flex-col shrink-0 w-40 active:scale-95 transition-transform"
+      className="card-with-border border-l-slate-600 overflow-hidden flex flex-col shrink-0 w-40 active:scale-95 transition-all duration-200"
     >
       {image ? (
         <div className="h-24 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
@@ -16,7 +16,7 @@ function FeaturedCard({ title, icon: Icon, image, count, onClick }) {
         </div>
       ) : (
         <div className="h-24 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-          <Icon className="h-10 w-10 text-primary" />
+          <Icon className="h-10 w-10 stroke-[1.5] text-primary" />
         </div>
       )}
       <div className="p-2.5 flex-1 flex flex-col justify-end">
@@ -31,16 +31,16 @@ function BrowseItem({ icon: Icon, title, count, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="card-with-border border-l-slate-600 p-3 flex items-center gap-3 active:scale-95 transition-transform w-full"
+      className="card-with-border border-l-slate-600 p-3 flex items-center gap-3 active:scale-95 transition-all duration-200 w-full"
     >
       <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-        <Icon className="h-5 w-5 text-secondary-text" />
+        <Icon className="h-5 w-5 stroke-[1.5] text-secondary-text" />
       </div>
       <div className="flex-1 min-w-0 text-left">
         <p className="text-sm font-bold text-foreground">{title}</p>
         <p className="text-xs text-secondary-text mt-0.5">{count} items</p>
       </div>
-      <ChevronRight className="h-4 w-4 text-secondary-text shrink-0" />
+      <ChevronRight className="h-4 w-4 stroke-[1.5] text-secondary-text shrink-0" />
     </button>
   );
 }
@@ -101,7 +101,7 @@ export default function Knowledge() {
 
         {/* Search Bar */}
         <div className="relative flex items-center">
-          <Search className="absolute left-3 h-5 w-5 text-secondary-text pointer-events-none" />
+          <Search className="absolute left-3 h-5 w-5 stroke-[1.5] text-secondary-text pointer-events-none" />
           <input
             type="text"
             value={search}

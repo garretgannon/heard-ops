@@ -167,10 +167,11 @@
   }
 }
 
-/* Card with left color border (status indicator) */
+/* Component System */
 @layer components {
+  /* Cards - Unified Style */
   .card-with-border {
-    @apply relative rounded-lg border-l-4 border-r border-t border-b border-border bg-card shadow-lg;
+    @apply relative rounded-xl border-l-4 border-r border-t border-b border-border bg-card;
   }
 
   .card-success {
@@ -193,15 +194,34 @@
     @apply card-with-border border-l-slate-600;
   }
 
+  /* Buttons - Unified Hierarchy */
   .btn-primary {
-    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2 font-bold text-sm active:scale-95 transition-transform shadow-lg hover:shadow-[0_0_20px_rgba(76,255,136,0.3)];
+    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-200 shadow-lg hover:shadow-[0_0_20px_rgba(76,255,136,0.3)];
   }
 
   .btn-secondary {
-    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2 font-bold text-sm active:scale-95 transition-transform hover:bg-muted;
+    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-200 hover:bg-muted;
   }
 
   .btn-muted {
-    @apply rounded-lg bg-muted text-muted-foreground px-4 py-2 font-bold text-sm active:scale-95 transition-transform;
+    @apply rounded-lg bg-muted text-muted-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-200 hover:bg-muted-foreground/20;
+  }
+
+  /* Section Spacing */
+  .section-spacing {
+    @apply space-y-4;
+  }
+
+  /* Icon Consistency */
+  .icon-sm {
+    @apply h-4 w-4 stroke-[1.5];
+  }
+
+  .icon-md {
+    @apply h-5 w-5 stroke-[1.5];
+  }
+
+  .icon-lg {
+    @apply h-6 w-6 stroke-[1.5];
   }
 }

@@ -17,7 +17,7 @@ function LogCard({ icon: Icon, iconBg, title, meta, time, user: userName, status
   return (
     <div className="card-with-border border-l-slate-600 p-3 flex items-center gap-3">
       <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
-        <Icon className="h-4 w-4 text-foreground" />
+        <Icon className="h-4 w-4 stroke-[1.5] text-foreground" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-foreground truncate">{title}</p>
@@ -25,14 +25,14 @@ function LogCard({ icon: Icon, iconBg, title, meta, time, user: userName, status
         <div className="flex items-center gap-1.5 text-[9px] text-secondary-text mt-1">
           {time && (
             <>
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3 w-3 stroke-[1.5]" />
               <span>{time}</span>
             </>
           )}
           {time && userName && <span>·</span>}
           {userName && (
             <>
-              <User className="h-3 w-3" />
+              <User className="h-3 w-3 stroke-[1.5]" />
               <span className="truncate">{userName}</span>
             </>
           )}
@@ -269,7 +269,7 @@ export default function Logs() {
         }}
         className="btn-primary w-full h-11 mt-6 flex items-center justify-center gap-2"
       >
-        <Plus className="h-5 w-5" />
+        <Plus className="h-5 w-5 stroke-[1.5]" />
         New Log
       </button>
     </div>

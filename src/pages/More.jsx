@@ -11,16 +11,16 @@ function MenuItem({ icon: Icon, title, description, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="card-with-border border-l-slate-600 p-3 flex items-center gap-3 active:scale-95 transition-transform w-full text-left"
+      className="card-with-border border-l-slate-600 p-3 flex items-center gap-3 active:scale-95 transition-all duration-200 w-full text-left"
     >
       <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-        <Icon className="h-5 w-5 text-secondary-text" />
+        <Icon className="h-5 w-5 stroke-[1.5] text-secondary-text" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-foreground">{title}</p>
         <p className="text-xs text-secondary-text mt-0.5">{description}</p>
       </div>
-      <ChevronRight className="h-4 w-4 text-secondary-text shrink-0" />
+      <ChevronRight className="h-4 w-4 stroke-[1.5] text-secondary-text shrink-0" />
     </button>
   );
 }
