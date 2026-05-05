@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, Copy, Save, Camera, Clock, RefreshCw, ChevronRight, Layers, CheckSquare, ClipboardList, Flame, Lock } from "lucide-react";
+import { Plus, Trash2, Copy, Save, Camera, ChevronLeft, Layers, CheckSquare, ClipboardList, Flame, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
@@ -12,7 +12,6 @@ const CATEGORIES = [
 ];
 
 const catMeta = (val) => CATEGORIES.find(c => c.value === val) || CATEGORIES[0];
-
 const REPEATS = ["daily", "weekly", "custom"];
 
 const emptyTemplate = () => ({
@@ -52,8 +51,8 @@ function Toggle({ value, onChange }) {
 
 function Field({ label, children }) {
   return (
-    <div className="flex items-center gap-3 py-2 border-b border-[#1A2235]">
-      <span className="text-[11px] text-gray-500 font-semibold w-28 shrink-0">{label}</span>
+    <div className="flex items-center gap-3 py-2.5 border-b border-[#1A2235]">
+      <span className="text-[11px] text-gray-500 font-semibold w-24 shrink-0">{label}</span>
       <div className="flex-1 min-w-0">{children}</div>
     </div>
   );
@@ -73,21 +72,21 @@ function TextInput({ value, onChange, placeholder, className }) {
 function TaskRow({ task, onUpdate, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <div className="bg-[#0B1018] border border-[#1A2235] rounded-xl overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2.5">
+    <div className="bg-[#0B1018] border border-[#1A2235] rounded-lg overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2">
         <div className="h-1.5 w-1.5 rounded-full bg-gray-600 shrink-0" />
         <span
-          className="flex-1 text-[13px] text-white font-medium truncate cursor-pointer"
+          className="flex-1 text-[12px] text-white font-medium truncate cursor-pointer"
           onClick={() => setExpanded(e => !e)}
         >
           {task.name || <span className="text-gray-600 font-normal">Untitled task</span>}
         </span>
         {task.photo_required && <Camera className="h-3 w-3 text-amber-400 shrink-0" />}
         <button onClick={() => setExpanded(e => !e)} className="text-gray-600 hover:text-gray-400 px-1">
-          <ChevronRight className={cn("h-3.5 w-3.5 transition-transform", expanded && "rotate-90")} />
+          <ChevronLeft className={cn("h-3 w-3 transition-transform -rotate-90", expanded && "rotate-0")} />
         </button>
         <button onClick={onDelete} className="text-gray-700 hover:text-red-400 px-1">
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="h-3 w-3" />
         </button>
       </div>
       {expanded && (
@@ -132,7 +131,7 @@ function TaskRow({ task, onUpdate, onDelete }) {
 
 export default function TemplateBuilder() {
   const [templates, setTemplates] = useState([]);
-  const [selected, setSelected] = useState(null); // full template object being edited
+  const [selected, setSelected] = useState(null);
   const [saving, setSaving] = useState(false);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState(null);
@@ -201,7 +200,7 @@ export default function TemplateBuilder() {
     delete copy.id;
     const created = await base44.entities.Template.create(copy);
     setTemplates(prev => [created, ...prev]);
-    setSelected(created);
+    selectTemplate(created);
   }
 
   async function deleteTemplate(id) {
@@ -225,264 +224,251 @@ export default function TemplateBuilder() {
     setSelected(s => ({ ...s, tasks: s.tasks.filter(t => t.id !== taskId) }));
   }
 
-  // metrics
   const active = templates.filter(t => t.is_active).length;
-  const photoPct = templates.length
-    ? Math.round((templates.filter(t => t.photo_required).length / templates.length) * 100)
-    : 0;
-  const today = new Date().toDateString();
-  const recentlyUpdated = templates.filter(t => new Date(t.updated_date).toDateString() === today).length;
-
   const filtered = filterCat === "all" ? templates : templates.filter(t => t.category === filterCat);
 
   return (
-    <div className="min-h-screen bg-[#080C14] text-white">
-      {/* Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-[#1A2235]">
-        <h1 className="text-[18px] font-extrabold tracking-tight">Templates</h1>
-        <p className="text-[11px] text-gray-500 mt-0.5">Build and manage operational workflows</p>
-
-        {/* Metrics */}
-        <div className="grid grid-cols-4 gap-2 mt-3">
-          {[
-            { label: "Active", value: active },
-            { label: "Tasks Today", value: stats.total || 0 },
-            { label: "Completed", value: `${stats.rate || 0}%` },
-            { label: "Missed", value: stats.missed || 0 },
-          ].map(m => (
-            <div key={m.label} className="bg-[#0F1623] border border-[#1A2235] rounded-xl p-2 text-center">
-              <div className="text-[18px] font-extrabold text-white leading-none">{m.value}</div>
-              <div className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">{m.label}</div>
-            </div>
-          ))}
+    <div className="mx-auto w-full max-w-[480px] flex flex-col bg-[#080C14] text-white pb-24">
+      {/* HEADER */}
+      <div className="px-4 pt-4 pb-3 border-b border-[#1A2235] sticky top-0 z-10 bg-[#080C14]">
+        <div className="flex items-center gap-2">
+          {selected && (
+            <button onClick={() => setSelected(null)} className="h-8 w-8 rounded-lg bg-[#111827] border border-[#1F2937] flex items-center justify-center active:scale-95">
+              <ChevronLeft className="h-4 w-4 text-gray-500" />
+            </button>
+          )}
+          <div className="flex-1">
+            <h1 className="text-[16px] font-extrabold tracking-tight">{selected ? selected.name || "New Template" : "Templates"}</h1>
+            <p className="text-[9px] text-gray-600">{selected ? "Edit template" : "Build workflows"}</p>
+          </div>
         </div>
-      </div>
 
-      {/* Body */}
-      <div className="flex h-[calc(100vh-180px)]">
-
-        {/* LEFT — Template List */}
-        <div className="w-56 shrink-0 border-r border-[#1A2235] flex flex-col">
-          {/* Category filter */}
-          <div className="px-2 pt-2 pb-1 flex flex-wrap gap-1">
-            <button
-              onClick={() => setFilterCat("all")}
-              className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors",
-                filterCat === "all" ? "bg-primary text-primary-foreground border-primary" : "border-[#1E2A3B] text-gray-500")}
-            >All</button>
-            {CATEGORIES.map(c => (
-              <button
-                key={c.value}
-                onClick={() => setFilterCat(c.value)}
-                className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors",
-                  filterCat === c.value ? "bg-primary text-primary-foreground border-primary" : "border-[#1E2A3B] text-gray-500")}
-              >{c.label}</button>
+        {/* Metrics — list view only */}
+        {!selected && (
+          <div className="grid grid-cols-4 gap-1.5 mt-3">
+            {[
+              { label: "Active", value: active },
+              { label: "Total", value: templates.length },
+              { label: "Tasks", value: stats.total || 0 },
+              { label: "Rate", value: `${stats.rate || 0}%` },
+            ].map(m => (
+              <div key={m.label} className="bg-[#0F1623] border border-[#1A2235] rounded-lg p-1.5 text-center">
+                <div className="text-[14px] font-extrabold text-white leading-none">{m.value}</div>
+                <div className="text-[8px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">{m.label}</div>
+              </div>
             ))}
           </div>
+        )}
+      </div>
 
-          {/* New template button */}
-          <button
-            onClick={newTemplate}
-            className="mx-2 mb-1 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary text-[12px] font-bold hover:bg-primary/15 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" /> New Template
-          </button>
-
-          {/* List */}
-          <div className="flex-1 overflow-y-auto px-2 space-y-1 pb-4">
-            {filtered.length === 0 && (
-              <p className="text-[11px] text-gray-600 text-center mt-6">No templates yet</p>
-            )}
-            {filtered.map(t => {
-              const meta = catMeta(t.category);
-              const isActive = selected?.id === t.id;
-              return (
+      {/* CONTENT */}
+      <div className="flex-1 overflow-y-auto">
+        {!selected ? (
+          <div className="flex flex-col">
+            {/* Filter chips */}
+            <div className="px-4 pt-3 pb-2 flex gap-1 overflow-x-auto">
+              <button
+                onClick={() => setFilterCat("all")}
+                className={cn("shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all",
+                  filterCat === "all" ? "bg-primary text-primary-foreground border-primary" : "border-[#1E2A3B] text-gray-500")}
+              >All</button>
+              {CATEGORIES.map(c => (
                 <button
-                  key={t.id}
-                  onClick={() => selectTemplate(t)}
-                  className={cn(
-                    "w-full text-left px-3 py-2.5 rounded-xl border transition-all",
-                    isActive
-                      ? "bg-[#0F1E35] border-primary/30"
-                      : "bg-[#0B1018] border-[#1A2235] hover:border-[#2A3A50]"
-                  )}
-                >
-                  <div className="text-[12px] font-bold text-white truncate">{t.name}</div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={cn("text-[10px] font-semibold", meta.color)}>{meta.label}</span>
-                    {t.tasks?.length > 0 && (
-                      <span className="text-[10px] text-gray-600">· {t.tasks.length} tasks</span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* RIGHT — Builder */}
-        <div className="flex-1 overflow-y-auto">
-          {!selected ? (
-            <div className="flex flex-col items-center justify-center h-full text-center px-8">
-              <Layers className="h-10 w-10 text-gray-700 mb-3" />
-              <p className="text-[14px] font-bold text-gray-500">Select or create a template</p>
-              <p className="text-[11px] text-gray-700 mt-1">Build checklists and workflows in seconds</p>
-              <button onClick={newTemplate} className="mt-4 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold">
-                + New Template
-              </button>
+                  key={c.value}
+                  onClick={() => setFilterCat(c.value)}
+                  className={cn("shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all",
+                    filterCat === c.value ? "bg-primary text-primary-foreground border-primary" : "border-[#1E2A3B] text-gray-500")}
+                >{c.label}</button>
+              ))}
             </div>
-          ) : (
-            <div className="px-4 pt-3 pb-24 space-y-4">
 
-              {/* Section 1: Settings */}
-              <div className="bg-[#0F1623] border border-[#1A2235] rounded-xl overflow-hidden">
-                <div className="px-3 py-2 border-b border-[#1A2235]">
-                  <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Template Settings</span>
+            {/* Template list */}
+            <div className="px-4 pt-2 pb-4 space-y-1">
+              {filtered.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Layers className="h-8 w-8 text-gray-700 mb-2" />
+                  <p className="text-[12px] text-gray-600">No templates yet</p>
                 </div>
-                <div className="px-3">
-                  <Field label="Name">
-                    <TextInput
-                      value={selected.name}
-                      onChange={v => setSelected(s => ({ ...s, name: v }))}
-                      placeholder="Template name"
-                      className="text-[14px] font-bold"
-                    />
-                  </Field>
-                  <Field label="Category">
-                    <div className="flex flex-wrap gap-1.5">
-                      {CATEGORIES.map(c => (
-                        <button
-                          key={c.value}
-                          onClick={() => setSelected(s => ({ ...s, category: c.value }))}
-                          className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition-colors",
-                            selected.category === c.value ? `${c.bg} ${c.color}` : "border-[#1E2A3B] text-gray-600")}
-                        >{c.label}</button>
-                      ))}
-                    </div>
-                  </Field>
-                  <Field label="Assigned Role">
-                    <TextInput
-                      value={selected.assigned_role}
-                      onChange={v => setSelected(s => ({ ...s, assigned_role: v }))}
-                      placeholder="e.g. Line Cook, Server"
-                    />
-                  </Field>
-                  <Field label="Due Time">
-                    <input
-                      type="time"
-                      value={selected.due_time}
-                      onChange={e => setSelected(s => ({ ...s, due_time: e.target.value }))}
-                      className="bg-transparent text-[13px] text-white outline-none"
-                    />
-                  </Field>
-                  <Field label="Repeat">
-                    <div className="flex gap-1.5">
-                      {REPEATS.map(r => (
-                        <button
-                          key={r}
-                          onClick={() => setSelected(s => ({ ...s, repeat: r }))}
-                          className={cn("px-2.5 py-0.5 rounded-full text-[11px] font-bold border capitalize transition-colors",
-                            selected.repeat === r
-                              ? "bg-primary/15 border-primary/30 text-primary"
-                              : "border-[#1E2A3B] text-gray-600")}
-                        >{r}</button>
-                      ))}
-                    </div>
-                  </Field>
-                  <Field label="Photo Required">
-                    <Toggle value={selected.photo_required} onChange={v => setSelected(s => ({ ...s, photo_required: v }))} />
-                  </Field>
-                </div>
-              </div>
-
-              {/* Section 2: Task List */}
-              <div className="bg-[#0F1623] border border-[#1A2235] rounded-xl overflow-hidden">
-                <div className="px-3 py-2 border-b border-[#1A2235] flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Tasks</span>
-                  <span className="text-[11px] text-gray-600">{selected.tasks?.length || 0} items</span>
-                </div>
-                <div className="p-3 space-y-2">
-                  {(!selected.tasks || selected.tasks.length === 0) && (
-                    <p className="text-[11px] text-gray-700 text-center py-3">No tasks yet — add one below</p>
-                  )}
-                  {selected.tasks?.map(task => (
-                    <TaskRow
-                      key={task.id}
-                      task={task}
-                      onUpdate={updated => updateTask(task.id, updated)}
-                      onDelete={() => deleteTask(task.id)}
-                    />
-                  ))}
-
-                  {/* Add Task */}
-                  <div className="flex gap-2 pt-1">
-                    <input
-                      value={newTaskName}
-                      onChange={e => setNewTaskName(e.target.value)}
-                      onKeyDown={e => e.key === "Enter" && addTask()}
-                      placeholder="Add a task..."
-                      className="flex-1 bg-[#0B1018] border border-[#1E2A3B] rounded-xl px-3 py-2 text-[13px] text-white outline-none focus:border-primary/40 placeholder:text-gray-700"
-                    />
+              ) : (
+                filtered.map(t => {
+                  const meta = catMeta(t.category);
+                  return (
                     <button
-                      onClick={addTask}
-                      className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center active:scale-95 transition-transform shrink-0"
+                      key={t.id}
+                      onClick={() => selectTemplate(t)}
+                      className="w-full text-left px-3 py-2.5 rounded-lg border border-[#1A2235] bg-[#0B1018] hover:border-[#2A3A50] transition-all active:scale-95"
                     >
-                      <Plus className="h-4 w-4 text-primary-foreground" />
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-bold text-white truncate">{t.name}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className={cn("text-[10px] font-semibold", meta.color)}>{meta.label}</span>
+                            {t.tasks?.length > 0 && (
+                              <span className="text-[10px] text-gray-600">· {t.tasks.length} tasks</span>
+                            )}
+                          </div>
+                        </div>
+                        <ChevronLeft className="h-4 w-4 text-gray-600 -rotate-90 shrink-0 ml-2" />
+                      </div>
                     </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="px-4 pt-3 pb-4 space-y-4">
+            {/* Settings section */}
+            <div className="bg-[#0F1623] border border-[#1A2235] rounded-lg overflow-hidden">
+              <div className="px-3 py-2 border-b border-[#1A2235] bg-[#0B1018]">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Settings</span>
+              </div>
+              <div className="px-3">
+                <Field label="Name">
+                  <TextInput
+                    value={selected.name}
+                    onChange={v => setSelected(s => ({ ...s, name: v }))}
+                    placeholder="Template name"
+                    className="text-[14px] font-bold"
+                  />
+                </Field>
+                <Field label="Category">
+                  <div className="flex flex-wrap gap-1">
+                    {CATEGORIES.map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => setSelected(s => ({ ...s, category: c.value }))}
+                        className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors",
+                          selected.category === c.value ? `${c.bg} ${c.color}` : "border-[#1E2A3B] text-gray-600")}
+                      >{c.label}</button>
+                    ))}
                   </div>
+                </Field>
+                <Field label="Role">
+                  <TextInput
+                    value={selected.assigned_role}
+                    onChange={v => setSelected(s => ({ ...s, assigned_role: v }))}
+                    placeholder="e.g. Line Cook"
+                  />
+                </Field>
+                <Field label="Due Time">
+                  <input
+                    type="time"
+                    value={selected.due_time}
+                    onChange={e => setSelected(s => ({ ...s, due_time: e.target.value }))}
+                    className="bg-transparent text-[13px] text-white outline-none"
+                  />
+                </Field>
+                <Field label="Repeat">
+                  <div className="flex gap-1">
+                    {REPEATS.map(r => (
+                      <button
+                        key={r}
+                        onClick={() => setSelected(s => ({ ...s, repeat: r }))}
+                        className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize transition-colors",
+                          selected.repeat === r
+                            ? "bg-primary/15 border-primary/30 text-primary"
+                            : "border-[#1E2A3B] text-gray-600")}
+                      >{r}</button>
+                    ))}
+                  </div>
+                </Field>
+                <Field label="Photo">
+                  <Toggle value={selected.photo_required} onChange={v => setSelected(s => ({ ...s, photo_required: v }))} />
+                </Field>
+              </div>
+            </div>
+
+            {/* Tasks section */}
+            <div className="bg-[#0F1623] border border-[#1A2235] rounded-lg overflow-hidden">
+              <div className="px-3 py-2 border-b border-[#1A2235] bg-[#0B1018] flex items-center justify-between">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Tasks</span>
+                <span className="text-[10px] text-gray-600">{selected.tasks?.length || 0}</span>
+              </div>
+              <div className="p-3 space-y-2">
+                {(!selected.tasks || selected.tasks.length === 0) && (
+                  <p className="text-[11px] text-gray-700 text-center py-2">No tasks yet</p>
+                )}
+                {selected.tasks?.map(task => (
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    onUpdate={updated => updateTask(task.id, updated)}
+                    onDelete={() => deleteTask(task.id)}
+                  />
+                ))}
+                <div className="flex gap-2 pt-2">
+                  <input
+                    value={newTaskName}
+                    onChange={e => setNewTaskName(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && addTask()}
+                    placeholder="Add task..."
+                    className="flex-1 bg-[#0B1018] border border-[#1E2A3B] rounded-lg px-3 py-2 text-[12px] text-white outline-none placeholder:text-gray-700"
+                  />
+                  <button
+                    onClick={addTask}
+                    className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center active:scale-95 shrink-0"
+                  >
+                    <Plus className="h-4 w-4 text-primary-foreground" />
+                  </button>
                 </div>
               </div>
+            </div>
 
-              {/* Bottom Actions */}
-              {/* Push Now */}
-              <div className="flex items-center gap-2 p-3 bg-[#0B1018] border border-[#1A2235] rounded-xl">
-                <div className="flex-1">
-                  <p className="text-[12px] font-bold text-white">Push Today's Tasks</p>
-                  <p className="text-[10px] text-gray-600 mt-0.5">Generate tasks from this template right now</p>
-                  {pushResult && (
-                    <p className={`text-[10px] mt-1 font-semibold ${pushResult.created > 0 ? 'text-emerald-400' : 'text-gray-500'}`}>
-                      {pushResult.created > 0 ? `✓ ${pushResult.created} tasks created` : pushResult.skipped ? 'Already pushed today' : 'Done'}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={pushNow}
-                  disabled={pushing || !selected?.id}
-                  className="px-3 py-2 rounded-xl bg-primary/15 border border-primary/25 text-primary text-[12px] font-bold disabled:opacity-40 active:scale-95 transition-all"
-                >
-                  {pushing ? '...' : 'Push Now'}
-                </button>
-              </div>
-
+            {/* Actions */}
+            <div className="bg-[#0F1623] border border-[#1A2235] rounded-lg p-3 space-y-2">
+              <button
+                onClick={pushNow}
+                disabled={pushing || !selected?.id}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-primary/10 border border-primary/25 text-primary text-[12px] font-bold disabled:opacity-40 active:scale-95"
+              >
+                <span>{pushing ? "Pushing..." : "Push Now"}</span>
+                {pushResult && (
+                  <span className={pushResult.created > 0 ? "text-emerald-400" : "text-gray-500"}>
+                    {pushResult.created > 0 ? `✓ ${pushResult.created}` : "Done"}
+                  </span>
+                )}
+              </button>
               <div className="flex gap-2">
                 <button
                   onClick={duplicateTemplate}
                   disabled={!selected.id}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F1623] border border-[#1E2A3B] text-[13px] font-semibold text-gray-400 hover:text-white disabled:opacity-30 active:scale-95 transition-all"
+                  className="flex-1 px-3 py-2 rounded-lg border border-[#1E2A3B] text-[12px] font-bold text-gray-400 disabled:opacity-30 active:scale-95"
                 >
-                  <Copy className="h-4 w-4" /> Duplicate
+                  Duplicate
                 </button>
                 {selected.id && (
                   <button
                     onClick={() => deleteTemplate(selected.id)}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F1623] border border-red-500/20 text-[13px] font-semibold text-red-500 hover:bg-red-500/10 active:scale-95 transition-all"
+                    className="px-3 py-2 rounded-lg border border-red-500/20 text-[12px] font-bold text-red-500 active:scale-95"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    Delete
                   </button>
                 )}
-                <button
-                  onClick={saveTemplate}
-                  disabled={saving || !selected.name.trim()}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold disabled:opacity-50 active:scale-95 transition-all"
-                >
-                  <Save className="h-4 w-4" />
-                  {saving ? "Saving…" : "Save Template"}
-                </button>
               </div>
+              <button
+                onClick={saveTemplate}
+                disabled={saving || !selected.name.trim()}
+                className="w-full px-3 py-2.5 rounded-lg bg-primary text-primary-foreground text-[13px] font-bold disabled:opacity-50 active:scale-95"
+              >
+                {saving ? "Saving…" : "Save Template"}
+              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* FAB — New template (list view only) */}
+      {!selected && (
+        <button
+          onClick={newTemplate}
+          className="fixed bottom-6 right-4 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-bold shadow-lg active:scale-95"
+        >
+          <Plus className="h-4 w-4" /> New
+        </button>
+      )}
     </div>
   );
 }
+
+export const hideBase44Index = true;
