@@ -39,7 +39,7 @@ import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
 import Standards from './pages/Standards';
 import MSDS from './pages/MSDS';
 import TempLogs from './pages/TempLogs';
-import PrepTemplates from './pages/PrepTemplates';
+import PrepTemplatesManager from './pages/PrepTemplatesManager';
 import SideWorkTemplates from './pages/SideWorkTemplates';
 import CleaningTemplates from './pages/CleaningTemplates';
 import TempLogTemplates from './pages/TempLogTemplates';
@@ -120,9 +120,8 @@ const AuthenticatedApp = () => {
         <Route path="/vendors" element={<Vendors />} />
 
         {/* TEMPLATE ROUTES */}
-        <Route path="/prep-templates" element={<PrepTemplates />} />
-        <Route path="/prep-templates/new" element={<PrepTemplates />} />
-        <Route path="/prep-templates/:id/edit" element={<PrepTemplates />} />
+        <Route path="/prep-templates" element={<PrepTemplatesManager />} />
+        <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
         <Route path="/side-work-templates" element={<SideWorkTemplates />} />
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
         <Route path="/temp-log-templates" element={<TempLogTemplates />} />

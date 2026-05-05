@@ -207,7 +207,7 @@ export const allRoutes = {
       path: "/prep-templates",
       label: "Prep Templates",
       icon: LayoutTemplate,
-      component: "PrepTemplates",
+      component: "PrepTemplatesManager",
       roles: ["admin"],
       module: "templates",
       description: "Create reusable prep list templates",

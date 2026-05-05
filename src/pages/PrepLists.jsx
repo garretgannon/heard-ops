@@ -1,108 +1,69 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Plus, Edit2, Copy, Archive, Search, Settings } from 'lucide-react';
+import { Plus, Settings, Search } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
-function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
+function PrepListCard({ list, onTap }) {
   return (
-    <div className="bg-card border border-border rounded-lg p-3.5 space-y-2.5">
+    <button
+      onClick={() => {
+        haptics.light();
+        onTap(list.id);
+      }}
+      className="w-full text-left bg-card border border-border rounded-lg p-3.5 space-y-2.5 active:scale-95 transition-all"
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
-          <p className="font-bold text-sm text-foreground">{template.name}</p>
+          <p className="font-bold text-sm text-foreground">{list.date}</p>
           <p className="text-xs text-secondary-text mt-0.5">
-            {template.assignedStations?.join(', ') || 'All Stations'} · {template.assignedJobCodes?.join(', ') || 'All Roles'}
+            {list.station} • {list.itemCount || 0} items
           </p>
         </div>
-        <div className={`text-[10px] font-bold px-2 py-1 rounded-md ${template.isActive ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>
-          {template.isActive ? 'Active' : 'Archived'}
+        <div className={`text-[10px] font-bold px-2 py-1 rounded-md ${list.completedCount === list.itemCount ? 'bg-green-500/20 text-green-300' : 'bg-amber-500/20 text-amber-300'}`}>
+          {list.completedCount || 0}/{list.itemCount || 0}
         </div>
       </div>
-
-      <div className="text-xs text-muted-foreground space-y-0.5">
-        <p>{template.repeatType === 'daily' ? 'Daily' : template.repeatDays?.length ? `${template.repeatDays.join(', ')}` : 'One-time'}</p>
-        <p>{template.itemCount || 0} items</p>
-      </div>
-
-      <div className="flex gap-2 pt-2">
-        <button onClick={() => onEdit(template.id)} className="flex-1 btn-secondary text-xs h-8">
-          <Edit2 className="h-3 w-3 inline mr-1" />
-          Edit
-        </button>
-        <button onClick={() => onDuplicate(template.id)} className="flex-1 btn-secondary text-xs h-8">
-          <Copy className="h-3 w-3 inline mr-1" />
-          Duplicate
-        </button>
-        <button onClick={() => onArchive(template.id)} className="btn-secondary text-xs h-8 px-2">
-          <Archive className="h-3 w-3" />
-        </button>
-      </div>
-    </div>
+    </button>
   );
 }
 
 export default function PrepLists() {
   const navigate = useNavigate();
-  const [templates, setTemplates] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [search, setSearch] = useState('');
-  const [showArchived, setShowArchived] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('templates');
+  const todayStr = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
-    loadTemplates();
+    loadTasks();
   }, []);
 
-  const loadTemplates = async () => {
+  const loadTasks = async () => {
     setLoading(true);
     try {
-      const data = await base44.entities.Template.filter({ type: 'prep_list' });
-      setTemplates(data);
+      const data = await base44.entities.DailyPrepTask.filter({ date: todayStr });
+      setTasks(data);
     } catch (error) {
-      console.error('Failed to load templates:', error);
+      console.error('Failed to load tasks:', error);
     }
     setLoading(false);
   };
 
-  const filtered = templates.filter(t => {
-    if (showArchived && t.isActive) return false;
-    if (!showArchived && !t.isActive) return false;
-    return t.name.toLowerCase().includes(search.toLowerCase());
-  });
-
-  const handleEdit = (id) => {
-    navigate(`/prep-lists/${id}/edit`);
-  };
-
-  const handleDuplicate = async (id) => {
-    haptics.light();
-    const template = templates.find(t => t.id === id);
-    if (!template) return;
-
-    const { id: _, ...templateData } = template;
-    const newTemplate = await base44.entities.Template.create({
-      ...templateData,
-      name: `${template.name} (Copy)`,
-    });
-
-    const items = await base44.entities.TemplateItem.filter({ templateId: id });
-    for (const item of items) {
-      const { id: __, ...itemData } = item;
-      await base44.entities.TemplateItem.create({
-        ...itemData,
-        templateId: newTemplate.id,
-      });
+  const grouped = tasks.reduce((acc, task) => {
+    const key = `${task.date} - ${task.station}`;
+    if (!acc[key]) {
+      acc[key] = { date: task.date, station: task.station, items: [], completedCount: 0, itemCount: 0 };
     }
+    acc[key].items.push(task);
+    acc[key].itemCount++;
+    if (task.status === 'approved') acc[key].completedCount++;
+    return acc;
+  }, {});
 
-    loadTemplates();
-  };
-
-  const handleArchive = async (id) => {
-    haptics.light();
-    const template = templates.find(t => t.id === id);
-    await base44.entities.Template.update(id, { isActive: !template.isActive });
-    loadTemplates();
-  };
+  const filtered = Object.values(grouped).filter(g =>
+    g.station.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="pb-24">
@@ -117,86 +78,39 @@ export default function PrepLists() {
             Templates
           </button>
         </div>
-        <div className="flex gap-2 mb-3">
-          <button
-            onClick={() => setActiveTab('templates')}
-            className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-              activeTab === 'templates' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            Templates
-          </button>
-          <button
-            onClick={() => setActiveTab('lists')}
-            className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-              activeTab === 'lists' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            Active Lists
-          </button>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-text" />
+          <input
+            type="text"
+            placeholder="Search by station..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          />
         </div>
-        {activeTab === 'templates' && (
-          <>
-            <div className="flex gap-2 mb-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-text" />
-                <input
-                  type="text"
-                  placeholder="Search templates..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-secondary-text"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => setShowArchived(false)} className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${!showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                Active
-              </button>
-              <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                Archived
-              </button>
-            </div>
-          </>
-        )}
       </div>
 
       <div className="p-4 space-y-3">
-        {activeTab === 'templates' && (
-          <>
-            {loading ? (
-              <div className="text-center py-8 text-secondary-text">Loading...</div>
-            ) : filtered.length === 0 ? (
-              <div className="text-center py-8 text-secondary-text text-sm">
-                {templates.length === 0 ? 'No prep templates yet' : 'No templates match your search'}
-              </div>
-            ) : (
-              filtered.map(template => (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  onEdit={handleEdit}
-                  onDuplicate={handleDuplicate}
-                  onArchive={handleArchive}
-                />
-              ))
-            )}
-          </>
-        )}
-        {activeTab === 'lists' && (
-          <div className="text-center py-8 text-secondary-text text-sm">Active prep lists coming soon</div>
+        {loading ? (
+          <div className="text-center py-8 text-secondary-text">Loading...</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-8 text-secondary-text text-sm">
+            No prep lists for today
+          </div>
+        ) : (
+          filtered.map((group) => (
+            <div key={`${group.date}-${group.station}`}>
+              <p className="text-xs font-bold text-secondary-text mb-2 uppercase tracking-wider">
+                {group.station}
+              </p>
+              <PrepListCard list={group} onTap={() => {}} />
+            </div>
+          ))
         )}
       </div>
-
-      {activeTab === 'templates' && (
-        <button
-          onClick={() => navigate('/prep-lists/new')}
-          className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
-        >
-          <Plus className="h-5 w-5" />
-        </button>
-      )}
     </div>
   );
 }
+
 export const hideBase44Index = true;

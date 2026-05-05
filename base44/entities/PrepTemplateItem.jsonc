@@ -1,0 +1,61 @@
+{
+  "name": "PrepTemplateItem",
+  "type": "object",
+  "properties": {
+    "prepTemplateId": {
+      "type": "string",
+      "title": "Prep Template ID"
+    },
+    "itemName": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit (lbs, pan, quart, etc)"
+    },
+    "parAmount": {
+      "type": "number",
+      "title": "Par Amount"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instructions"
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "prepTemplateId",
+    "itemName"
+  ]
+}
