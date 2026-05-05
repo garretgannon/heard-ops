@@ -29,6 +29,7 @@ Deno.serve(async (req) => {
       const existing = users.find(u => u.email === member.email);
       if (!existing) {
         await base44.users.inviteUser(member.email, member.role);
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
       
       const user = existing || { email: member.email };
