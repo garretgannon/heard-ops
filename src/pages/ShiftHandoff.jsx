@@ -77,43 +77,49 @@ export default function ShiftHandoff() {
       <div className="px-4 py-4 space-y-5">
 
         {/* HEADER INFO CARD */}
-        <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-4 flex items-center justify-between gap-3">
-          {/* Date Section */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-11 w-11 rounded-lg bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center shrink-0">
-              <Calendar className="h-5 w-5 text-yellow-400" />
+        <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-4 space-y-3">
+          {/* ROW 1: Date & Shift */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Date Block */}
+            <div className="flex items-start gap-2.5 min-w-0">
+              <div className="h-11 w-11 rounded-lg bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center shrink-0">
+                <Calendar className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div className="text-left min-w-0">
+                <p className="text-xs text-[#6B7280] font-bold uppercase leading-tight">Date</p>
+                <p className="text-base font-bold text-white leading-tight mt-0.5">{today}</p>
+                <p className="text-xs text-[#A1A1AA] leading-tight mt-0.5">{dayName}</p>
+              </div>
             </div>
-            <div className="text-left">
-              <p className="text-xs text-[#6B7280] font-bold uppercase">Date</p>
-              <p className="text-base font-bold text-white">{today}</p>
-              <p className="text-xs text-[#A1A1AA]">{dayName}</p>
+
+            {/* Shift Block */}
+            <div className="flex items-start gap-2.5 min-w-0">
+              <div className={`h-11 w-11 rounded-lg flex items-center justify-center shrink-0 ${
+                shift.color === "purple" 
+                  ? "bg-purple-500/10 border border-purple-500/25" 
+                  : "bg-blue-500/10 border border-blue-500/25"
+              }`}>
+                <Clock className={shift.color === "purple" ? "h-5 w-5 text-purple-400" : "h-5 w-5 text-blue-400"} />
+              </div>
+              <div className="text-left min-w-0">
+                <p className="text-xs text-[#6B7280] font-bold uppercase leading-tight">Shift</p>
+                <p className="text-base font-bold text-white leading-tight mt-0.5">{shift.label}</p>
+                <p className="text-xs text-[#A1A1AA] leading-tight mt-0.5">{shift.time}</p>
+              </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="w-px h-12 bg-[#1F1F24]" />
-
-          {/* Shift Section */}
-          <div className="flex items-center gap-2.5">
-            <div className={`h-11 w-11 rounded-lg ${shift.color === "purple" ? "bg-purple-500/10 border border-purple-500/25" : "bg-blue-500/10 border border-blue-500/25"} flex items-center justify-center shrink-0`}>
-              <Clock className={shift.color === "purple" ? "h-5 w-5 text-purple-400" : "h-5 w-5 text-blue-400"} />
-            </div>
-            <div className="text-left">
-              <p className="text-xs text-[#6B7280] font-bold uppercase">Shift</p>
-              <p className="text-base font-bold text-white">{shift.label}</p>
-              <p className="text-xs text-[#A1A1AA]">{shift.time}</p>
-            </div>
-          </div>
-
-          {/* Manager Section */}
-          <div className="flex items-center gap-2.5">
+          {/* ROW 2: Manager (Full Width) */}
+          <div className="flex items-start gap-2.5 min-w-0 pt-1">
             <div className="h-11 w-11 rounded-lg bg-green-500/10 border border-green-500/25 flex items-center justify-center shrink-0">
               <Users className="h-5 w-5 text-green-400" />
             </div>
-            <div className="text-left">
-              <p className="text-xs text-[#6B7280] font-bold uppercase">Manager</p>
-              <p className="text-base font-bold text-white">{user?.full_name?.split(" ")[0] || "—"}</p>
+            <div className="text-left flex-1 min-w-0">
+              <p className="text-xs text-[#6B7280] font-bold uppercase leading-tight">Manager</p>
+              <p className="text-base font-bold text-white leading-tight mt-0.5">{user?.full_name?.split(" ")[0] || "—"}</p>
+              <p className="text-xs text-[#A1A1AA] leading-tight mt-0.5">On duty</p>
             </div>
+            <ChevronRight className="h-4 w-4 text-[#6B7280] shrink-0 mt-1" />
           </div>
         </div>
 
