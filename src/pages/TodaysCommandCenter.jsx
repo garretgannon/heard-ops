@@ -176,9 +176,9 @@ function ShiftNotesCard({ note, manager, onTap }) {
           {manager && <p className="text-[10px] text-secondary-text mt-2">— {manager}</p>}
         </div>
       </div>
-      <button className="btn-secondary text-xs w-full h-8 mt-1">
+      <div className="btn-secondary text-xs w-full h-8 mt-1 flex items-center justify-center rounded-lg border border-border cursor-pointer hover:bg-muted">
         View Handoff
-      </button>
+      </div>
     </button>
   );
 }
