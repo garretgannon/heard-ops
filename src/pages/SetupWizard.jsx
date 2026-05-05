@@ -173,9 +173,9 @@ export default function SetupWizard({ onComplete }) {
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome to <span className="text-primary">Heard Ops</span></h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to <span className="text-primary">heardOS</span></h1>
           <p className="mt-2 text-muted-foreground">
-            The daily operating system for restaurants.
+            Run restaurants better.
           </p>
         </div>
 

@@ -34,9 +34,9 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-sm font-bold text-primary-foreground">K</span>
+              <span className="text-sm font-bold text-primary-foreground">h</span>
             </div>
-            <span className="font-bold text-lg"><span className="text-primary">Heard Ops</span></span>
+            <span className="font-bold text-lg"><span className="text-primary">heardOS</span></span>
           </div>
           <Button variant="outline" size="sm" onClick={() => base44.auth.redirectToLogin()}>Sign In</Button>
         </div>
@@ -59,7 +59,7 @@ export default function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Prep, side work, temp logs, maintenance, vendors, cash, incidents, schedules, training, and manager handoff in one place.
+          Run restaurants better. Prep, side work, temp logs, maintenance, vendors, cash, incidents, schedules, training, and handoff in one place.
         </motion.p>
 
         <motion.div
@@ -69,7 +69,7 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Button size="lg" className="text-base" onClick={() => base44.auth.redirectToLogin()}>View Demo Restaurant</Button>
-          <Button size="lg" variant="outline" className="text-base" onClick={() => window.open('mailto:hello@heardops.com?subject=Demo Request', '_blank')}>Request a Demo</Button>
+          <Button size="lg" variant="outline" className="text-base" onClick={() => window.open('mailto:hello@heardos.app?subject=Demo Request', '_blank')}>Request a Demo</Button>
         </motion.div>
       </section>
 
@@ -270,7 +270,7 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" className="text-base" onClick={() => base44.auth.redirectToLogin()}>View Demo Restaurant</Button>
-            <Button size="lg" variant="outline" className="text-base border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => window.open('mailto:hello@heardops.com?subject=Demo Request', '_blank')}>Request a Demo</Button>
+            <Button size="lg" variant="outline" className="text-base border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => window.open('mailto:hello@heardos.app?subject=Demo Request', '_blank')}>Request a Demo</Button>
           </div>
         </div>
       </section>
@@ -278,7 +278,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2026 Heard. The daily operating system for restaurants.</p>
+          <p>© 2026 heardOS. Run restaurants better.</p>
         </div>
       </footer>
     </div>
