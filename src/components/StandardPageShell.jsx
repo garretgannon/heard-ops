@@ -1,44 +1,20 @@
-import { motion } from "framer-motion";
-import PageHeader from "./PageHeader";
-import FilterChips from "./FilterChips";
-import MetricsGrid from "./MetricsGrid";
+import { cn } from '@/lib/utils';
 
-export default function StandardPageShell({
-  title,
-  subtitle,
-  icon,
-  metrics = [],
-  filters = [],
-  activeFilter = "all",
-  onFilterChange,
-  notificationCount = 0,
-  children,
-}) {
+export default function StandardPageShell({ title, children, className, actions }) {
   return (
-    <motion.div
-      className="min-h-screen bg-background pb-24"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <PageHeader
-        title={title}
-        subtitle={subtitle}
-        icon={icon}
-        notificationCount={notificationCount}
-      />
+    <div className="w-full pb-28">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border p-4 flex items-center justify-between">
+        <h1 className="text-lg font-bold text-foreground">{title}</h1>
+        <div className="flex items-center gap-2">
+          {actions}
+        </div>
+      </div>
 
-      {metrics.length > 0 && <MetricsGrid metrics={metrics} />}
-
-      {filters.length > 0 && (
-        <FilterChips
-          filters={filters}
-          activeFilter={activeFilter}
-          onFilterChange={onFilterChange}
-        />
-      )}
-
-      {children}
-    </motion.div>
+      {/* Content */}
+      <div className={cn("px-4 pt-4 space-y-3", className)}>
+        {children}
+      </div>
+    </div>
   );
 }

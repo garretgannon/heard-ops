@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { Thermometer, Droplet, AlertTriangle, Trash2, FileText, Plus, Clock, User, ChevronRight } from "lucide-react";
+import { Thermometer, Droplet, AlertTriangle, FileText, Plus, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
+import StandardPageShell from "@/components/StandardPageShell";
 
 const TABS = [
   { id: "temps", label: "Temps", icon: Thermometer },
@@ -15,7 +16,7 @@ const TABS = [
 
 function LogCard({ icon: Icon, iconBg, title, meta, time, user: userName, status, statusLabel }) {
   return (
-    <div className="card-with-border border-l-slate-600 p-3 flex items-center gap-3">
+    <div className="bg-card border border-border rounded-lg p-3 flex items-center gap-3">
       <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
         <Icon className="h-4 w-4 stroke-[1.5] text-foreground" />
       </div>
@@ -198,14 +199,9 @@ export default function Logs() {
   }, [activeTab]);
 
   return (
-    <div className="w-full pb-32">
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-foreground">Logs</h1>
-      </div>
-
+    <StandardPageShell title="Logs">
       {/* Filter Tabs */}
-      <div className="flex gap-1.5 -mx-4 px-4 overflow-x-auto pb-3 scrollbar-hide mb-4">
+      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -258,21 +254,7 @@ export default function Logs() {
         </div>
       )}
 
-      {/* New Log Button */}
-      <button
-        onClick={() => {
-          if (activeTab === "temps") navigate("/temp-logs");
-          else if (activeTab === "waste") navigate("/waste");
-          else if (activeTab === "86d") navigate("/waste");
-          else if (activeTab === "issues") navigate("/issues");
-          else if (activeTab === "manager") navigate("/manager-log");
-        }}
-        className="btn-primary w-full h-11 mt-6 flex items-center justify-center gap-2"
-      >
-        <Plus className="h-5 w-5 stroke-[1.5]" />
-        New Log
-      </button>
-    </div>
+    </StandardPageShell>
   );
 }
 

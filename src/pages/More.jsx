@@ -2,16 +2,16 @@ import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { 
   LayoutTemplate, Users, Calendar, Clock, 
-  Settings, Layers, Zap, User, HelpCircle,
-  ChevronRight, AlertCircle
+  Layers, Zap, User, HelpCircle,
+  ChevronRight, Settings, Cog
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import StandardPageShell from "@/components/StandardPageShell";
 
 function MenuItem({ icon: Icon, title, description, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="card-with-border border-l-slate-600 p-3 flex items-center gap-3 active:scale-95 transition-all duration-200 w-full text-left"
+      className="bg-card border border-border rounded-lg p-3 flex items-center gap-3 active:scale-95 transition-all duration-200 w-full text-left"
     >
       <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
         <Icon className="h-5 w-5 stroke-[1.5] text-secondary-text" />
@@ -68,7 +68,7 @@ export default function More() {
     {
       title: "Restaurant Settings",
       description: "Business info & preferences",
-      icon: AlertCircle,
+      icon: Cog,
       onClick: () => navigate(isAdmin ? "/my-restaurant" : "/profile"),
     },
     {
@@ -98,13 +98,8 @@ export default function More() {
   ];
 
   return (
-    <div className="w-full pb-12">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">More</h1>
-      </div>
+    <StandardPageShell title="More">
 
-      {/* Manage Section */}
       <div>
         <SectionLabel label="Manage" />
         <div className="space-y-2">
@@ -120,7 +115,6 @@ export default function More() {
         </div>
       </div>
 
-      {/* Settings Section */}
       <div>
         <SectionLabel label="Settings" />
         <div className="space-y-2">
@@ -135,7 +129,7 @@ export default function More() {
           ))}
         </div>
       </div>
-    </div>
+    </StandardPageShell>
   );
 }
 

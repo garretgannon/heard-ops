@@ -1,13 +1,12 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { ShiftModeContext } from "@/lib/ShiftModeContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Bell, AlertTriangle, Clock, CheckCircle2, ChevronRight, Zap, User, MapPin, FileText, TrendingUp } from "lucide-react";
+import { AlertTriangle, Clock, CheckCircle2, Zap, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CardInteractionWrapper } from "@/components/CardInteractionModal";
-import CaughtUpEmptyState from "@/components/CaughtUpEmptyState";
+import StandardPageShell from "@/components/StandardPageShell";
 import { haptics } from "@/utils/haptics";
 
 function ProgressCircle({ value, max = 100 }) {
@@ -59,7 +58,7 @@ function StatItem({ icon: Icon, label, value, color }) {
 function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, status, statusColor, onView, onFix }) {
   return (
     <CardInteractionWrapper onOpen={() => { haptics.strong(); onView?.(); }}>
-    <div className="card-with-border border-l-red-500 p-3 space-y-2.5">
+    <div className="bg-card border-l-4 border-l-red-500 border border-border rounded-xl p-3 space-y-2.5">
       <div className="flex items-start gap-3">
         <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
           <Icon className={cn("h-4 w-4 stroke-[1.5]", iconColor)} />
@@ -68,7 +67,7 @@ function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, s
           <p className="text-sm font-bold text-foreground truncate">{title}</p>
           <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-secondary-text">
             {meta && <span>{meta}</span>}
-            {subtitle && <span>·</span>}
+            {meta && subtitle && <span>·</span>}
             {subtitle && <span className="truncate">{subtitle}</span>}
           </div>
         </div>
@@ -96,7 +95,7 @@ function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, s
 function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
   return (
     <CardInteractionWrapper onOpen={() => { haptics.light(); onView?.(); }}>
-    <div className="card-with-border border-l-amber-500 p-3 space-y-2.5">
+    <div className="bg-card border-l-4 border-l-amber-500 border border-border rounded-xl p-3 space-y-2.5">
       <div className="flex items-start gap-3">
         <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
           <Clock className="h-4 w-4 stroke-[1.5] text-amber-400" />
@@ -105,7 +104,7 @@ function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
           <p className="text-sm font-bold text-foreground truncate">{title}</p>
           <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-secondary-text">
             {meta && <span>{meta}</span>}
-            {subtitle && <span>·</span>}
+            {meta && subtitle && <span>·</span>}
             {subtitle && <span className="truncate">{subtitle}</span>}
           </div>
         </div>
@@ -145,7 +144,7 @@ function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
 function CompletedCard({ title, completedBy, completedAt }) {
   return (
     <CardInteractionWrapper>
-    <div className="card-with-border border-l-green-500 p-2.5 flex items-center gap-2">
+    <div className="bg-card border-l-4 border-l-green-500 border border-border rounded-lg p-2.5 flex items-center gap-2">
       <CheckCircle2 className="h-4 w-4 stroke-[1.5] text-green-400 shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold text-foreground truncate">{title}</p>
@@ -163,7 +162,7 @@ function CompletedCard({ title, completedBy, completedAt }) {
 function ShiftNotesCard({ note, manager, onView }) {
   return (
     <CardInteractionWrapper onOpen={() => { haptics.light(); onView?.(); }}>
-    <div className="card-with-border border-l-blue-500 p-3 space-y-2.5">
+    <div className="bg-card border-l-4 border-l-blue-500 border border-border rounded-xl p-3 space-y-2.5">
       <div className="flex items-start gap-2">
         <FileText className="h-4 w-4 stroke-[1.5] text-blue-400 shrink-0 mt-0.5" />
         <div className="flex-1">
@@ -266,7 +265,6 @@ export default function TodaysCommandCenter() {
           base44.entities.ShiftHandoff.list("-created_date", 1).catch(() => []),
         ]);
 
-        // Compile alerts
         const overdue = [
           ...prepItems.filter(i => i.status === "overdue").map(i => ({
             type: "prep",
@@ -356,39 +354,27 @@ export default function TodaysCommandCenter() {
   }
 
   return (
-    <div className="pb-32 w-full">
-      {/* Header with Pull-to-Refresh */}
-      <div
-        data-pull-header
-        className={cn(
-          "flex items-start justify-between mb-4 transition-transform origin-top",
-          refreshing && "animate-flash"
-        )}
-      >
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Today</h1>
-          <p className="text-xs text-secondary-text mt-1">
-            {showUpdatedText ? "Updated just now" : format(data.date, "EEEE, MMMM d, yyyy")}
-          </p>
-        </div>
-        <button className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center hover:bg-secondary transition-colors">
-          <Bell className="h-5 w-5 stroke-[1.5] text-secondary-text" />
-        </button>
+    <StandardPageShell title="Today">
+      {/* Pull-to-Refresh Header */}
+      <div data-pull-header className={cn("text-xs text-secondary-text transition-transform origin-top", refreshing && "animate-flash")}>
+        {showUpdatedText ? "Updated just now" : format(data.date, "EEEE, MMMM d")}
       </div>
 
       {/* Progress Stats Card */}
-      <div className="card-with-border border-l-4 border-l-primary p-4 mb-4 flex items-center gap-6">
-        <ProgressCircle value={data.completionPct} max={100} />
-        <div className="flex-1 grid grid-cols-3 gap-3">
-          <StatItem icon={AlertTriangle} label="Overdue" value={data.overdue.length} color="text-red-400" />
-          <StatItem icon={Clock} label="Due Soon" value={data.dueSoon.length} color="text-amber-400" />
-          <StatItem icon={FileText} label="Review" value={data.needsReview} color="text-blue-400" />
+      <div className="bg-card border border-border rounded-xl p-4">
+        <div className="flex items-center gap-6">
+          <ProgressCircle value={data.completionPct} max={100} />
+          <div className="flex-1 grid grid-cols-3 gap-3">
+            <StatItem icon={AlertTriangle} label="Overdue" value={data.overdue.length} color="text-red-400" />
+            <StatItem icon={Clock} label="Due Soon" value={data.dueSoon.length} color="text-amber-400" />
+            <StatItem icon={FileText} label="Review" value={data.needsReview} color="text-blue-400" />
+          </div>
         </div>
       </div>
 
       {/* Needs Attention */}
       {data.overdue.length > 0 && (
-        <div className="animate-in fade-in slide-in-from-top-2 duration-300" style={{ animationDelay: '0ms' }}>
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex items-center gap-2 mt-4 mb-2.5 first:mt-0">
             <AlertTriangle className="h-4 w-4 text-primary" />
             <h2 className="text-xs font-bold uppercase tracking-widest text-secondary-text">Needs Attention</h2>
@@ -466,7 +452,7 @@ export default function TodaysCommandCenter() {
           />
         </div>
       )}
-    </div>
+    </StandardPageShell>
   );
 }
 

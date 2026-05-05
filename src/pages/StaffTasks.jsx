@@ -2,18 +2,13 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import {
-  ClipboardList, Thermometer, AlertTriangle, Users, ChevronRight,
-  CheckCircle2, Clock, Flame, FileText, AlertCircle, Upload, MessageSquare, ShieldAlert, Plus
-} from "lucide-react";
+import { ClipboardList, Flame, Plus } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 import SwipeableTaskCard from "@/components/SwipeableTaskCard";
 import CaughtUpEmptyState from "@/components/CaughtUpEmptyState";
 import SectionCompleteMessage from "@/components/SectionCompleteMessage";
+import StandardPageShell from "@/components/StandardPageShell";
 import { useToast } from "@/hooks/useToast";
 
 /* ── Group Header ──────────────────────────────────────────────── */
@@ -144,29 +139,23 @@ export default function StaffTasks() {
   }
 
   return (
-    <div className="w-full pb-32">
+    <StandardPageShell title="Tasks">
       {completedSection && (
         <SectionCompleteMessage
           station={completedSection}
           onDismiss={() => setCompletedSection(null)}
         />
       )}
-      {/* Header */}
-      <div className={cn(
-        "flex items-center justify-between mb-4 transition-all duration-500",
-        allTasksComplete && "animate-deep-link-glow"
-      )}>
-        <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
-        {data && (
-          <div className="text-right text-xs">
-            <p className="text-lg font-bold text-foreground">{data.completedTasks}/{data.totalTasks}</p>
-            <p className="text-secondary-text">Done</p>
-          </div>
-        )}
-      </div>
+
+      {/* Progress */}
+      {data && (
+        <div className="text-center text-xs text-secondary-text mb-2">
+          {data.completedTasks}/{data.totalTasks} done
+        </div>
+      )}
 
       {/* Filter Chips */}
-      <div className="flex gap-1.5 -mx-4 px-4 overflow-x-auto pb-3 scrollbar-hide">
+      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide">
         {[
           { id: "all", label: "All" },
           { id: "prep", label: "Prep" },
@@ -224,15 +213,7 @@ export default function StaffTasks() {
           <CaughtUpEmptyState showAnimation />
         </div>
       )}
-
-      {/* Floating Action Button */}
-      <button
-        onClick={() => navigate("/prep-lists")}
-        className="fixed bottom-24 right-4 h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-90 transition-transform hover:shadow-glow-lg"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
-    </div>
+    </StandardPageShell>
   );
 }
 

@@ -8,36 +8,36 @@
   :root {
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
 
-    /* Dark Modern Design System */
+    /* HeardOS - Mobile-First Dark Design System */
     /* Backgrounds */
-    --background: 0 0% 5.5%;
-    /* #0B0F0E - Deep black */
-    --card: 120 8% 10%;
-    /* #121716 - Dark gray */
+    --background: 0 0% 3%;
+    /* #0A0A0A - Deep black */
+    --card: 0 0% 10%;
+    /* #1A1A1A - Dark gray */
     --tertiary-bg: 0 0% 15%;
     /* #262626 - Lighter dark */
 
     --card-foreground: 0 0% 100%;
     /* #FFFFFF */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5.5%;
+    --popover-foreground: 0 0% 3%;
 
     /* Text Colors */
     --foreground: 0 0% 100%;
     /* #FFFFFF Primary text */
-    --secondary-text: 0 0% 70%;
-    /* #B3B3B3 Secondary text */
-    --muted-foreground: 0 0% 50%;
-    /* #808080 Muted text */
+    --secondary-text: 0 0% 60%;
+    /* #999999 Secondary text */
+    --muted-foreground: 0 0% 45%;
+    /* #737373 Muted text */
 
-    /* Brand Primary - Neon Green */
+    /* Brand Primary - HeardOS Green */
     --primary: 140 100% 50%;
     /* #4CFF88 */
-    --primary-foreground: 0 0% 5.5%;
-    /* Dark background for contrast */
+    --primary-foreground: 0 0% 3%;
+    /* Deep black for contrast */
 
     /* Secondary */
-    --secondary: 120 8% 10%;
+    --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
 
     /* Muted */
@@ -46,17 +46,17 @@
 
     /* Accent */
     --accent: 140 100% 50%;
-    --accent-foreground: 0 0% 5.5%;
+    --accent-foreground: 0 0% 3%;
 
-    /* Status Colors */
+    /* Status Colors - Only for status, not decorative */
     --status-error: 0 100% 50%;
-    /* #FF4D4D Red - Urgent */
+    /* #FF4D4D Red - Overdue / Urgent */
     --status-warning: 32 100% 50%;
-    /* #FF9F1C Orange - Warning */
+    /* #FF9F1C Orange - Due Soon / Warning */
     --status-success: 140 100% 50%;
-    /* #4CFF88 Green - Success */
-    --status-info: 240 90% 55%;
-    /* #5B8FF7 Blue - Info */
+    /* #4CFF88 Green - Complete / Healthy */
+    --status-info: 240 100% 60%;
+    /* #6BA3FF Blue - Review / Info */
 
     --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 100%;
