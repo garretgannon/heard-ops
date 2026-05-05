@@ -161,20 +161,20 @@ export default function RestaurantTeam() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Total</p>
-          <p className="text-2xl font-bold">{employees.length}</p>
+           <p className="text-xs text-muted-foreground">Total</p>
+           <p className="text-2xl font-bold text-foreground">{employees.length}</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Active</p>
-          <p className="text-2xl font-bold text-green-500">{activeCount}</p>
+         <p className="text-xs text-muted-foreground">Active</p>
+         <p className="text-2xl font-bold text-green-400">{activeCount}</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Inactive</p>
-          <p className="text-2xl font-bold text-yellow-500">{inactiveCount}</p>
+         <p className="text-xs text-muted-foreground">Inactive</p>
+         <p className="text-2xl font-bold text-yellow-400">{inactiveCount}</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Departments</p>
-          <p className="text-2xl font-bold">{new Set(employees.filter(e => e.department).map(e => e.department)).size}</p>
+         <p className="text-xs text-muted-foreground">Departments</p>
+         <p className="text-2xl font-bold text-foreground">{new Set(employees.filter(e => e.department).map(e => e.department)).size}</p>
         </div>
       </div>
 
@@ -229,11 +229,11 @@ export default function RestaurantTeam() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-sm truncate">{emp.full_name || emp.email}</h3>
+                      <h3 className="font-semibold text-sm truncate text-foreground">{emp.full_name || emp.email}</h3>
                       <StatusIcon className={cn("h-4 w-4 flex-shrink-0", statusInfo.color)} />
                     </div>
                     <p className="text-xs text-muted-foreground mb-2">{emp.email}</p>
-                    <div className="flex items-center gap-4 flex-wrap text-xs">
+                    <div className="flex items-center gap-4 flex-wrap text-xs text-foreground">
                       {emp.department && (
                         <span className="px-2 py-1 bg-secondary rounded-full">{emp.department}</span>
                       )}
