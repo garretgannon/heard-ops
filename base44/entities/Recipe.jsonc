@@ -34,13 +34,46 @@
       "type": "string",
       "title": "Photo URL"
     },
+    "yield": {
+      "type": "string",
+      "title": "Yield (e.g. 1 plate, 4 servings)"
+    },
+    "prep_time": {
+      "type": "string",
+      "title": "Prep Time (e.g. 15 min)"
+    },
     "ingredients": {
       "type": "string",
-      "title": "Ingredients"
+      "title": "Ingredients (legacy)"
     },
-    "instructions": {
+    "build_steps": {
+      "type": "array",
+      "title": "Build Steps",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "step_number": {
+            "type": "number"
+          },
+          "instruction": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "plating_image_url": {
       "type": "string",
-      "title": "Instructions"
+      "title": "Final Plating Photo URL"
+    },
+    "plating_notes": {
+      "type": "string",
+      "title": "Plating Notes"
     },
     "allergens": {
       "type": "string",
@@ -50,9 +83,9 @@
       "type": "string",
       "title": "Possible Modifications"
     },
-    "plating_notes": {
+    "instructions": {
       "type": "string",
-      "title": "Plating Notes"
+      "title": "Full Instructions (legacy)"
     },
     "use_count": {
       "type": "number",

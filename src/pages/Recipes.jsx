@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Search, Plus, ChefHat, Image, Eye, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -170,7 +171,7 @@ function RecipeDetail({ recipe, onClose, onEdit }) {
 }
 
 // ─── Recipe Card ─────────────────────────────────────────────────────────────
-function RecipeCard({ recipe, onView }) {
+function RecipeCard({ recipe, onViewClick }) {
   const cat = CAT_COLORS[recipe.category] || CAT_COLORS.other;
   return (
     <div className="flex items-center gap-3 px-3 py-2.5 bg-[#0F1623] border border-[#1E2A3B] rounded-xl">
@@ -194,7 +195,7 @@ function RecipeCard({ recipe, onView }) {
 
       {/* Action */}
       <button
-        onClick={() => onView(recipe)}
+        onClick={() => onViewClick(recipe.id)}
         className="h-8 px-3 rounded-lg bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold shrink-0 active:scale-95 transition-transform flex items-center gap-1"
       >
         <Eye className="h-3 w-3" /> View
@@ -205,6 +206,7 @@ function RecipeCard({ recipe, onView }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Recipes() {
+  const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -334,7 +336,7 @@ export default function Recipes() {
         ) : (
           <div className="flex flex-col gap-1.5">
             {filtered.map(r => (
-              <RecipeCard key={r.id} recipe={r} onView={setViewingRecipe} />
+              <RecipeCard key={r.id} recipe={r} onViewClick={(id) => navigate(`/recipes/${id}`)} />
             ))}
           </div>
         )}
