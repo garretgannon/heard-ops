@@ -224,7 +224,8 @@ export default function Layout() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="w-full max-w-[430px] lg:max-w-none lg:w-full px-4 pt-3 pb-28 lg:px-8 lg:pb-8 lg:max-w-6xl mx-auto"
+            className="w-full max-w-[430px] lg:max-w-none lg:w-full px-4 pt-3 lg:px-8 lg:pb-8 lg:max-w-6xl mx-auto"
+            style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <Outlet />
           </motion.div>
