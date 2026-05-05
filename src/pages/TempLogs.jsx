@@ -256,7 +256,7 @@ export default function TempLogs() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3" style={{ paddingBottom: 'calc(9rem + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3" style={{ paddingBottom: 'calc(16rem + env(safe-area-inset-bottom, 0px))' }}>
 
       {/* Header */}
       <div className="flex items-center justify-between pt-1">
