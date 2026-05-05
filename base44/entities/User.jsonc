@@ -4,18 +4,20 @@
   "properties": {
     "role": {
       "type": "string",
-      "title": "App Role",
+      "title": "Role",
       "enum": [
         "admin",
-        "user",
-        "foh",
-        "busser"
+        "Manager",
+        "BOH",
+        "FOH",
+        "Bar"
       ],
       "enumNames": [
         "Admin",
-        "BOH Staff",
-        "FOH Staff",
-        "Busser"
+        "Manager",
+        "Back of House",
+        "Front of House",
+        "Bar"
       ],
       "default": "user"
     },
@@ -23,52 +25,49 @@
       "type": "string",
       "title": "Department",
       "enum": [
-        "FOH",
         "BOH",
-        "Bar"
+        "FOH",
+        "Bar",
+        "Management"
       ],
       "enumNames": [
-        "FOH",
-        "BOH",
-        "Bar"
+        "Back of House",
+        "Front of House",
+        "Bar",
+        "Management"
       ]
+    },
+    "station_ids": {
+      "type": "array",
+      "title": "Assigned Stations",
+      "items": {
+        "type": "string"
+      }
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Primary Location ID"
     },
     "phone": {
       "type": "string",
       "title": "Phone Number"
     },
-    "start_date": {
+    "hire_date": {
       "type": "string",
       "format": "date",
-      "title": "Start Date"
+      "title": "Hire Date"
     },
-    "status": {
-      "type": "string",
-      "title": "Status",
-      "enum": [
-        "active",
-        "inactive",
-        "archived"
-      ],
-      "enumNames": [
-        "Active",
-        "Inactive",
-        "Archived"
-      ],
-      "default": "active"
+    "is_active": {
+      "type": "boolean",
+      "title": "Active Employee",
+      "default": true
     },
-    "certifications": {
-      "type": "string",
-      "title": "Certifications (comma-separated)"
-    },
-    "emergency_contact": {
-      "type": "string",
-      "title": "Emergency Contact (Private)"
-    },
-    "emergency_contact_phone": {
-      "type": "string",
-      "title": "Emergency Phone (Private)"
+    "preferred_shifts": {
+      "type": "array",
+      "title": "Preferred Shifts",
+      "items": {
+        "type": "string"
+      }
     }
-  },
-  "required": []
+  }
 }

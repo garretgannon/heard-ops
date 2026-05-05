@@ -4,7 +4,7 @@
   "properties": {
     "title": {
       "type": "string",
-      "title": "Title"
+      "title": "Issue Title"
     },
     "description": {
       "type": "string",
@@ -15,18 +15,22 @@
       "title": "Category",
       "enum": [
         "safety",
-        "guest",
+        "guest_experience",
         "equipment",
         "cash",
         "team",
+        "compliance",
+        "quality",
         "other"
       ],
       "enumNames": [
         "Safety",
-        "Guest",
+        "Guest Experience",
         "Equipment",
         "Cash",
         "Team",
+        "Compliance",
+        "Quality",
         "Other"
       ]
     },
@@ -37,15 +41,46 @@
         "open",
         "in_progress",
         "critical",
-        "resolved"
+        "resolved",
+        "escalated"
       ],
       "enumNames": [
         "Open",
         "In Progress",
         "Critical",
-        "Resolved"
+        "Resolved",
+        "Escalated"
       ],
       "default": "open"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "enumNames": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "medium"
+    },
+    "shift_id": {
+      "type": "string",
+      "title": "Shift ID"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
     },
     "assigned_to_email": {
       "type": "string",
@@ -55,6 +90,36 @@
       "type": "string",
       "title": "Assigned To (Name)"
     },
+    "created_by_email": {
+      "type": "string",
+      "title": "Created By (Email)"
+    },
+    "created_from_task_id": {
+      "type": "string",
+      "title": "Created from Task ID"
+    },
+    "created_from_log_id": {
+      "type": "string",
+      "title": "Created from Log ID"
+    },
+    "source": {
+      "type": "string",
+      "title": "Source",
+      "enum": [
+        "manual",
+        "task_blocked",
+        "log_out_of_range",
+        "handoff",
+        "system"
+      ],
+      "enumNames": [
+        "Manual",
+        "Task Blocked",
+        "Log Out of Range",
+        "Handoff",
+        "System"
+      ]
+    },
     "resolved_at": {
       "type": "string",
       "title": "Resolved At (ISO)"
@@ -63,13 +128,15 @@
       "type": "string",
       "title": "Resolution Notes"
     },
-    "logged_by": {
-      "type": "string",
-      "title": "Logged By"
+    "blocks_shift_close": {
+      "type": "boolean",
+      "title": "Blocks Shift Close",
+      "default": false
     }
   },
   "required": [
     "title",
-    "category"
+    "category",
+    "status"
   ]
 }

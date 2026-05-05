@@ -1,0 +1,80 @@
+{
+  "name": "Knowledge",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title"
+    },
+    "type": {
+      "type": "string",
+      "title": "Type",
+      "enum": [
+        "guide",
+        "recipe",
+        "procedure",
+        "safety",
+        "standard",
+        "troubleshooting"
+      ],
+      "enumNames": [
+        "Guide",
+        "Recipe",
+        "Procedure",
+        "Safety",
+        "Standard",
+        "Troubleshooting"
+      ]
+    },
+    "content": {
+      "type": "string",
+      "title": "Content"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category"
+    },
+    "related_stations": {
+      "type": "array",
+      "title": "Related Stations",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related_roles": {
+      "type": "array",
+      "title": "Related Roles",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_task_ids": {
+      "type": "array",
+      "title": "Linked Task IDs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_issue_ids": {
+      "type": "array",
+      "title": "Linked Issue IDs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo/Image URL"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "type",
+    "content"
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "name": "Log",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "title": "Log Type",
+      "enum": [
+        "temperature",
+        "waste",
+        "chemical",
+        "bathroom",
+        "dish_machine",
+        "safety",
+        "incident",
+        "manager_note"
+      ],
+      "enumNames": [
+        "Temperature",
+        "Waste",
+        "Chemical",
+        "Bathroom Check",
+        "Dish Machine",
+        "Safety",
+        "Incident",
+        "Manager Note"
+      ]
+    },
+    "shift_id": {
+      "type": "string",
+      "title": "Shift ID"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "logged_by_email": {
+      "type": "string",
+      "title": "Logged By (Email)"
+    },
+    "logged_by_name": {
+      "type": "string",
+      "title": "Logged By (Name)"
+    },
+    "logged_at": {
+      "type": "string",
+      "title": "Logged At (ISO)"
+    },
+    "title": {
+      "type": "string",
+      "title": "Title"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "value": {
+      "type": "number",
+      "title": "Numeric Value (temp, count, etc)"
+    },
+    "value_unit": {
+      "type": "string",
+      "title": "Unit (\u00b0F, lbs, items, etc)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "safe",
+        "warning",
+        "danger",
+        "out_of_range",
+        "flagged"
+      ],
+      "enumNames": [
+        "Safe",
+        "Warning",
+        "Danger",
+        "Out of Range",
+        "Flagged"
+      ],
+      "default": "safe"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "created_issue_id": {
+      "type": "string",
+      "title": "Created Issue ID"
+    },
+    "linked_issue_ids": {
+      "type": "array",
+      "title": "Linked Issue IDs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "corrective_action": {
+      "type": "string",
+      "title": "Corrective Action"
+    },
+    "corrective_action_resolved": {
+      "type": "boolean",
+      "title": "Corrective Action Resolved",
+      "default": false
+    }
+  },
+  "required": [
+    "type",
+    "shift_id",
+    "location_id",
+    "logged_at"
+  ]
+}

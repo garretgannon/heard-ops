@@ -1,0 +1,114 @@
+{
+  "name": "Handoff",
+  "type": "object",
+  "properties": {
+    "shift_id": {
+      "type": "string",
+      "title": "Shift ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "from_manager_email": {
+      "type": "string",
+      "title": "From Manager (Email)"
+    },
+    "from_manager_name": {
+      "type": "string",
+      "title": "From Manager Name"
+    },
+    "to_manager_email": {
+      "type": "string",
+      "title": "To Manager (Email)"
+    },
+    "to_manager_name": {
+      "type": "string",
+      "title": "To Manager Name"
+    },
+    "incomplete_tasks": {
+      "type": "array",
+      "title": "Incomplete Tasks",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "due_time": {
+            "type": "string"
+          },
+          "assigned_to": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "open_issues": {
+      "type": "array",
+      "title": "Open Issues",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "assigned_to": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "key_notes": {
+      "type": "string",
+      "title": "Key Notes / Summary"
+    },
+    "priorities_for_next_shift": {
+      "type": "string",
+      "title": "Priorities for Next Shift"
+    },
+    "staffing_notes": {
+      "type": "string",
+      "title": "Staffing Notes"
+    },
+    "guest_notes": {
+      "type": "string",
+      "title": "Guest / Service Notes"
+    },
+    "created_at": {
+      "type": "string",
+      "title": "Created At (ISO)"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "title": "Acknowledged At (ISO)"
+    },
+    "acknowledged_by": {
+      "type": "string",
+      "title": "Acknowledged By (Email)"
+    }
+  },
+  "required": [
+    "shift_id",
+    "date",
+    "location_id",
+    "from_manager_email"
+  ]
+}

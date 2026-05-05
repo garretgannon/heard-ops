@@ -1,0 +1,142 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Task Title"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "shift_id": {
+      "type": "string",
+      "title": "Shift ID"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "title": "Assigned To (Email)"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "title": "Assigned To (Name)"
+    },
+    "template_id": {
+      "type": "string",
+      "title": "Template ID"
+    },
+    "recipe_id": {
+      "type": "string",
+      "title": "Recipe / Build Card ID"
+    },
+    "recipe_name": {
+      "type": "string",
+      "title": "Recipe Name"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "approved",
+        "blocked",
+        "overdue"
+      ],
+      "enumNames": [
+        "Pending",
+        "In Progress",
+        "Completed",
+        "Approved",
+        "Blocked",
+        "Overdue"
+      ],
+      "default": "pending"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "enumNames": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "medium"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "requires_photo": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "title": "Requires Approval",
+      "default": false
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Completion Photo URL"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "completed_at": {
+      "type": "string",
+      "title": "Completed At (ISO)"
+    },
+    "completed_by": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "approved_at": {
+      "type": "string",
+      "title": "Approved At (ISO)"
+    },
+    "approved_by": {
+      "type": "string",
+      "title": "Approved By (Email)"
+    },
+    "created_from_template": {
+      "type": "boolean",
+      "title": "Created from Template",
+      "default": false
+    },
+    "is_required_for_close": {
+      "type": "boolean",
+      "title": "Required to Close Shift",
+      "default": false
+    }
+  },
+  "required": [
+    "title",
+    "shift_id",
+    "station_id",
+    "location_id"
+  ]
+}
