@@ -73,22 +73,25 @@ function TaskRow({ task, onUpdate, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   return (
     <div className="bg-[#0B1018] border border-[#1A2235] rounded-lg overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2">
-        <div className="h-1.5 w-1.5 rounded-full bg-gray-600 shrink-0" />
-        <span
-          className="flex-1 text-[12px] text-white font-medium truncate cursor-pointer"
-          onClick={() => setExpanded(e => !e)}
-        >
-          {task.name || <span className="text-gray-600 font-normal">Untitled task</span>}
-        </span>
-        {task.photo_required && <Camera className="h-3 w-3 text-amber-400 shrink-0" />}
-        <button onClick={() => setExpanded(e => !e)} className="text-gray-600 hover:text-gray-400 px-1">
-          <ChevronLeft className={cn("h-3 w-3 transition-transform -rotate-90", expanded && "rotate-0")} />
-        </button>
-        <button onClick={onDelete} className="text-gray-700 hover:text-red-400 px-1">
-          <Trash2 className="h-3 w-3" />
-        </button>
+      {/* Compact view */}
+      <div className="px-3 py-2 cursor-pointer" onClick={() => setExpanded(e => !e)}>
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <span className="text-[12px] font-bold text-white truncate flex-1">
+            {task.name || <span className="text-gray-600 font-normal">Untitled</span>}
+          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {task.photo_required && <Camera className="h-3 w-3 text-amber-400" />}
+            <ChevronLeft className={cn("h-3 w-3 text-gray-600 transition-transform -rotate-90", expanded && "rotate-0")} />
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap text-[10px] text-gray-600">
+          {task.station && <span>{task.station}</span>}
+          {task.role && <span>· {task.role}</span>}
+          {task.due_time && <span className="ml-auto">{task.due_time}</span>}
+        </div>
       </div>
+
+      {/* Expanded edit view */}
       {expanded && (
         <div className="px-3 pb-3 space-y-2 border-t border-[#1A2235] pt-2">
           <input
@@ -123,6 +126,9 @@ function TaskRow({ task, onUpdate, onDelete }) {
               <Toggle value={task.photo_required} onChange={v => onUpdate({ ...task, photo_required: v })} />
             </div>
           </div>
+          <button onClick={onDelete} className="w-full py-2 text-[11px] font-bold text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+            Delete Task
+          </button>
         </div>
       )}
     </div>
