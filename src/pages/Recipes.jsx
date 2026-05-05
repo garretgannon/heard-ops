@@ -279,7 +279,7 @@ export default function Recipes() {
 
       {/* Header */}
       <div className="pt-1">
-        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Recipes</h1>
+        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Recipes &amp; Builds</h1>
         <p className="text-[11px] text-gray-600 mt-0.5">Build it right every time</p>
       </div>
 
