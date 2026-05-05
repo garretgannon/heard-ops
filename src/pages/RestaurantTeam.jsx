@@ -165,7 +165,7 @@ export default function RestaurantTeam() {
           />
         </div>
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-40 text-foreground">
+          <SelectTrigger className="w-40 text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -176,7 +176,7 @@ export default function RestaurantTeam() {
           </SelectContent>
         </Select>
         <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-          <SelectTrigger className="w-40 text-foreground">
+          <SelectTrigger className="w-40 text-white">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
