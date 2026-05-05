@@ -57,17 +57,17 @@ export default function PrepLists() {
   };
 
   const load = async () => {
-    const [s, pl, pi] = await Promise.all([
+    const [s, pl] = await Promise.all([
       base44.entities.Station.list(),
-      base44.entities.PrepList.list("-created_date", 100),
-      base44.entities.PrepItem.list("-created_date", 500),
+      base44.entities.PrepList.list("-created_date", 50),
     ]);
+    const pi = await base44.entities.PrepItem.list("-created_date", 200);
     setStations(s);
     const generated = await generateRecurring(pl, pi);
     if (generated) {
       const [pl2, pi2] = await Promise.all([
-        base44.entities.PrepList.list("-created_date", 100),
-        base44.entities.PrepItem.list("-created_date", 500),
+        base44.entities.PrepList.list("-created_date", 50),
+        base44.entities.PrepItem.list("-created_date", 200),
       ]);
       setPrepLists(pl2);
       setPrepItems(pi2);
