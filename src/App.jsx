@@ -18,7 +18,6 @@ import StaffHome from './pages/StaffHome';
 import Profile from './pages/Profile';
 import SideWork from './pages/SideWork';
 import BusserHome from './pages/BusserHome';
-import Calendar from './pages/Calendar';
 import Reports from './pages/Reports';
 import PhotoReview from './pages/PhotoReview';
 import JobCodes from './pages/JobCodes';
@@ -32,7 +31,6 @@ import Cash from './pages/Cash';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import Onboarding from './pages/Onboarding';
 import RestaurantTeam from './pages/RestaurantTeam';
-import EmployeeCalendar from './pages/EmployeeCalendar';
 import Vendors from './pages/Vendors';
 import IncidentReports from './pages/IncidentReports';
 
@@ -47,8 +45,6 @@ import WeeklyReport from './pages/WeeklyReport';
 import ShiftHandoff from './pages/ShiftHandoff';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import SetupWizard from './pages/SetupWizard';
-import ScheduleImport from './pages/ScheduleImport';
-import R365ScheduleImport from './pages/R365ScheduleImport';
 import ScheduleCenter from './pages/ScheduleCenter';
 import IssuesRepairs from './pages/IssuesRepairs';
 import More from './pages/More';
@@ -115,7 +111,6 @@ const AuthenticatedApp = () => {
         {/* Team & Scheduling */}
         {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
         {isAdmin && <Route path="/schedule-center" element={<ScheduleCenter />} />}
-        {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
         {isAdmin && <Route path="/job-codes" element={<JobCodes />} />}
 
         {/* Operations */}
@@ -147,7 +142,6 @@ const AuthenticatedApp = () => {
         <Route path="/home" element={isBusser ? <BusserHome /> : <StaffHome />} />
         <Route path="/today" element={<StaffTasks />} />
         {isFOH && <Route path="/side-work" element={<SideWork />} />}
-        {isAdmin && <Route path="/calendar" element={<Calendar />} />}
         {isAdmin && <Route path="/photo-review" element={<PhotoReview />} />}
         {isAdmin && <Route path="/prep-library" element={<PrepLibrary />} />}
         <Route path="/dish-machines" element={<DishMachines />} />
@@ -155,8 +149,6 @@ const AuthenticatedApp = () => {
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         {isAdmin && <Route path="/msds" element={<MSDS />} />}
         {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
-        {isAdmin && <Route path="/schedule-import" element={<ScheduleImport />} />}
-        {isAdmin && <Route path="/r365-import" element={<R365ScheduleImport />} />}
 
         <Route path="/opening" element={<OpeningChecklist />} />
         <Route path="/closing" element={<ClosingChecklist />} />
