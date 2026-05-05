@@ -373,7 +373,7 @@ export default function TempLogs() {
           )}
         >
           <Snowflake className="h-3.5 w-3.5" />
-          <span>Cooling Logs</span>
+          <span>Cooling</span>
         </button>
       </div>
 
