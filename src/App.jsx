@@ -61,6 +61,7 @@ import ClosingChecklist from './pages/ClosingChecklist';
 import Inventory from './pages/Inventory';
 import WasteLog from './pages/WasteLog';
 import TemplateBuilder from './pages/TemplateBuilder';
+import TemplateList from './pages/TemplateList';
 import Recipes from './pages/Recipes';
 import RecipeBuildCard from './pages/RecipeBuildCard';
 
@@ -150,7 +151,8 @@ const AuthenticatedApp = () => {
         <Route path="/closing" element={<ClosingChecklist />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/waste" element={<WasteLog />} />
-        {isAdmin && <Route path="/templates" element={<TemplateBuilder />} />}
+        {isAdmin && <Route path="/templates" element={<TemplateList />} />}
+        {isAdmin && <Route path="/templates/:id" element={<TemplateBuilder />} />}
         {isAdmin && <Route path="/recipes" element={<Recipes />} />}
         {isAdmin && <Route path="/recipes/:recipeId" element={<RecipeBuildCard />} />}
         <Route path="/cash" element={<Cash />} />
