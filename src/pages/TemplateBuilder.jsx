@@ -130,6 +130,7 @@ export default function TemplateBuilder() {
   useEffect(() => { 
     loadTemplates(); 
     loadStats();
+    base44.entities.Station.list("-updated_date", 100).then(setStations);
     if (id === "new") {
       setSelected(emptyTemplate());
       setScreen("edit");
