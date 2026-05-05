@@ -5,14 +5,12 @@ import { cn } from "@/lib/utils";
 
 const TABS = [
   { id: "inventory", label: "Stock", icon: Package, color: "text-amber-400", bg: "bg-amber-500/10" },
-  { id: "recipes", label: "Recipes", icon: UtensilsCrossed, color: "text-orange-400", bg: "bg-orange-500/10" },
   { id: "waste", label: "Waste", icon: Trash2, color: "text-red-400", bg: "bg-red-500/10" },
   { id: "orders", label: "Orders", icon: ShoppingCart, color: "text-green-400", bg: "bg-green-500/10" },
 ];
 
 const PAGES = {
   inventory: { path: "/inventory", label: "Inventory Management" },
-  recipes: { path: "/recipes", label: "Recipe Library" },
   waste: { path: "/waste", label: "Waste Log" },
   orders: { path: "/vendors", label: "Vendor Orders" },
 };
@@ -35,7 +33,7 @@ export default function InventoryControl() {
         </button>
         <div className="flex-1">
           <h1 className="text-[17px] font-extrabold text-white tracking-tight">Inventory Control</h1>
-          <p className="text-[11px] text-gray-600 mt-0.5">Stock, recipes, waste</p>
+          <p className="text-[11px] text-gray-600 mt-0.5">Stock and waste management</p>
         </div>
       </div>
 
