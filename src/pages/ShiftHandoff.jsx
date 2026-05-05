@@ -157,7 +157,7 @@ export default function ShiftHandoff() {
         {/* SECTION 2: NEEDS IMMEDIATE ATTENTION */}
         {(issues.length > 0 || eightySixItems.length > 0) && (
           <section>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-center mb-3">
               <h2 className="text-sm font-bold text-white uppercase tracking-widest">2. Needs Immediate Attention</h2>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">{issues.length + eightySixItems.length} items</span>
             </div>
