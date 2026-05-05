@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Search, Plus, ChevronRight, Layers } from "lucide-react";
+import { Search, Plus, ChevronRight, Layers, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
@@ -52,7 +52,12 @@ export default function TemplateList() {
 
       {/* HEADER */}
       <div className="px-4 pt-4 pb-3 border-b border-[#1A2235] sticky top-0 z-10 bg-[#080C14]">
-        <h1 className="text-[16px] font-extrabold tracking-tight mb-3">Templates</h1>
+        <div className="flex items-center gap-2 mb-3">
+          <button onClick={() => navigate(-1)} className="p-2 hover:bg-[#0F1623] rounded-lg transition-colors active:scale-95">
+            <ArrowLeft className="h-5 w-5 text-gray-500" />
+          </button>
+          <h1 className="text-[16px] font-extrabold tracking-tight">Templates</h1>
+        </div>
 
         {/* Search Bar */}
         <div className="relative mb-3">
