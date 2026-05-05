@@ -1,0 +1,153 @@
+{
+  "name": "DailyCleaningTask",
+  "type": "object",
+  "properties": {
+    "cleaningTemplateId": {
+      "type": "string",
+      "title": "Cleaning Template ID"
+    },
+    "cleaningTemplateItemId": {
+      "type": "string",
+      "title": "Cleaning Template Item ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ]
+    },
+    "department": {
+      "type": "string",
+      "title": "Department",
+      "enum": [
+        "FOH",
+        "BOH"
+      ]
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "taskName": {
+      "type": "string",
+      "title": "Task Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "shiftPhase": {
+      "type": "string",
+      "title": "Shift Phase"
+    },
+    "frequency": {
+      "type": "string",
+      "title": "Frequency"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ]
+    },
+    "suppliesNeeded": {
+      "type": "string",
+      "title": "Supplies Needed"
+    },
+    "safetyNotes": {
+      "type": "string",
+      "title": "Safety Notes"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "pending_review",
+        "approved",
+        "overdue"
+      ],
+      "enumNames": [
+        "Pending",
+        "In Progress",
+        "Completed",
+        "Pending Review",
+        "Approved",
+        "Overdue"
+      ],
+      "default": "pending"
+    },
+    "completedBy": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completedAt": {
+      "type": "string",
+      "title": "Completed At (ISO)"
+    },
+    "photoUrl": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "managerReviewedBy": {
+      "type": "string",
+      "title": "Manager Reviewed By (Email)"
+    },
+    "managerReviewedAt": {
+      "type": "string",
+      "title": "Manager Reviewed At (ISO)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "isOverdue": {
+      "type": "boolean",
+      "title": "Is Overdue",
+      "default": false
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    }
+  },
+  "required": [
+    "cleaningTemplateId",
+    "cleaningTemplateItemId",
+    "date",
+    "taskName"
+  ]
+}

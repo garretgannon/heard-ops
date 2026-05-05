@@ -1,0 +1,131 @@
+{
+  "name": "CleaningTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Template Name"
+    },
+    "department": {
+      "type": "string",
+      "title": "Department",
+      "enum": [
+        "FOH",
+        "BOH"
+      ],
+      "enumNames": [
+        "Front of House",
+        "Back of House"
+      ]
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ],
+      "enumNames": [
+        "Opening",
+        "Mid",
+        "Closing",
+        "All Shifts"
+      ],
+      "default": "all"
+    },
+    "repeatDays": {
+      "type": "array",
+      "title": "Days of Week (0=Sun, 6=Sat)",
+      "items": {
+        "type": "integer"
+      },
+      "default": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "repeatType": {
+      "type": "string",
+      "title": "Repeat Type",
+      "enum": [
+        "once",
+        "daily",
+        "weekly"
+      ],
+      "enumNames": [
+        "One Time",
+        "Daily",
+        "Weekly"
+      ],
+      "default": "weekly"
+    },
+    "frequency": {
+      "type": "string",
+      "title": "Cleaning Frequency",
+      "enum": [
+        "every-shift",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "custom"
+      ],
+      "enumNames": [
+        "Every Shift",
+        "Daily",
+        "Weekly",
+        "Monthly",
+        "Quarterly",
+        "Custom"
+      ]
+    },
+    "isActive": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo by Default",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review by Default",
+      "default": false
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Instructions"
+    },
+    "itemCount": {
+      "type": "number",
+      "title": "Number of Items",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "department",
+    "area",
+    "station",
+    "jobCode"
+  ]
+}

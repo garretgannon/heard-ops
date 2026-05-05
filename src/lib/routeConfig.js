@@ -239,7 +239,6 @@ export const allRoutes = {
       module: "templates",
       description: "Create reusable cleaning checklists",
     },
-
     wasteTemplates: {
       path: "/waste-templates",
       label: "Waste Templates",

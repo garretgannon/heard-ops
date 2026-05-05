@@ -106,6 +106,8 @@ const AuthenticatedApp = () => {
         <Route path="/prep-lists/new" element={<PrepLists />} />
         <Route path="/prep-lists/:id/edit" element={<PrepLists />} />
         <Route path="/cleaning" element={<Cleaning />} />
+        <Route path="/cleaning-templates" element={<CleaningTemplates />} />
+        <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
 
         {/* COMPLIANCE ROUTES */}
         <Route path="/temp-logs" element={<TempLogs />} />

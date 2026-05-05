@@ -1,0 +1,118 @@
+{
+  "name": "CleaningTemplateItem",
+  "type": "object",
+  "properties": {
+    "cleaningTemplateId": {
+      "type": "string",
+      "title": "Cleaning Template ID"
+    },
+    "taskName": {
+      "type": "string",
+      "title": "Task Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Task Description"
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "shiftPhase": {
+      "type": "string",
+      "title": "Shift Phase",
+      "enum": [
+        "start",
+        "mid",
+        "end",
+        "anytime"
+      ],
+      "enumNames": [
+        "Start of Shift",
+        "Mid Shift",
+        "End of Shift",
+        "Anytime"
+      ]
+    },
+    "frequency": {
+      "type": "string",
+      "title": "Frequency",
+      "enum": [
+        "every-shift",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "custom"
+      ],
+      "enumNames": [
+        "Every Shift",
+        "Daily",
+        "Weekly",
+        "Monthly",
+        "Quarterly",
+        "Custom"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "enumNames": [
+        "Low",
+        "Normal",
+        "High",
+        "Critical"
+      ],
+      "default": "normal"
+    },
+    "suppliesNeeded": {
+      "type": "string",
+      "title": "Cleaning Supplies Needed"
+    },
+    "safetyNotes": {
+      "type": "string",
+      "title": "Safety Notes"
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instructions"
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "cleaningTemplateId",
+    "taskName"
+  ]
+}
