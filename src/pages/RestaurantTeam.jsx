@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Search, Plus, MessageSquare, CheckSquare2, User, Bell, Filter, ChefHat, Users, AlertCircle } from "lucide-react";
+import { Search, Plus, MessageSquare, CheckSquare2, User, Bell, Filter, ChefHat, Users, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -14,6 +15,7 @@ const DEPARTMENTS = ["FOH", "BOH", "Bar"];
 const FILTERS = ["All", "FOH", "BOH", "Bar", "Managers", "Support"];
 
 export default function RestaurantTeam() {
+  const navigate = useNavigate();
   const { user: currentUser, isAdmin } = useCurrentUser();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -96,9 +98,14 @@ export default function RestaurantTeam() {
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background border-b border-border px-4 py-3">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">Team Directory</h1>
-            <p className="text-xs text-muted-foreground">View and manage your team</p>
+          <div className="flex items-center gap-2 flex-1">
+            <button onClick={() => navigate(-1)} className="h-9 w-9 rounded-lg bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <div>
+              <h1 className="text-xl font-bold">Team Directory</h1>
+              <p className="text-xs text-muted-foreground">View and manage your team</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button className="relative h-9 w-9 rounded-lg bg-card border border-border flex items-center justify-center">
