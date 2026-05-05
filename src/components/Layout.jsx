@@ -81,7 +81,7 @@ export default function Layout() {
   const [expandedDesktopSections, setExpandedDesktopSections] = useState({
     dailyOps: true,
     complianceLogs: true,
-    managerTools: false,
+    managerTools: true,
     teamTraining: false,
     admin: false,
   });
