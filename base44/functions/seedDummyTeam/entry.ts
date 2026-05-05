@@ -29,31 +29,19 @@ Deno.serve(async (req) => {
       try {
         const existing = users.find(u => u.email === member.email);
         if (!existing) {
-          await base44.users.inviteUser(member.email, member.role);
-          await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-        invited.push({ email: member.email, role: member.role });
-      } catch (err) {
-        console.error(`Failed to process ${member.email}:`, err.message);
-      }
-    }
-    
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    const updatedUsers = await base44.entities.User.list();
-    for (const member of DUMMY_TEAM) {
-      try {
-        const user = updatedUsers.find(u => u.email === member.email);
-        if (user?.id) {
-          await base44.entities.User.update(user.id, {
+          await base44.asServiceRole.entities.User.create({
+            email: member.email,
+            full_name: member.name,
+            role: member.role,
             department: member.department,
             phone: member.phone,
             certifications: member.certifications,
             status: member.status,
           });
-          await new Promise(resolve => setTimeout(resolve, 500));
         }
+        invited.push({ email: member.email, role: member.role });
       } catch (err) {
-        console.error(`Failed to update ${member.email}:`, err.message);
+        console.error(`Failed to process ${member.email}:`, err.message);
       }
     }
 
