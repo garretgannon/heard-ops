@@ -1,0 +1,86 @@
+{
+  "name": "SideWorkTemplateItem",
+  "type": "object",
+  "properties": {
+    "sideWorkTemplateId": {
+      "type": "string",
+      "title": "Side Work Template ID"
+    },
+    "taskName": {
+      "type": "string",
+      "title": "Task Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Task Description"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "shiftPhase": {
+      "type": "string",
+      "title": "Shift Phase",
+      "enum": [
+        "start",
+        "mid",
+        "end",
+        "anytime"
+      ],
+      "enumNames": [
+        "Start of Shift",
+        "Mid Shift",
+        "End of Shift",
+        "Anytime"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "enumNames": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "medium"
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instructions"
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "sideWorkTemplateId",
+    "taskName"
+  ]
+}

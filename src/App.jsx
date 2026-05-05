@@ -123,6 +123,7 @@ const AuthenticatedApp = () => {
         <Route path="/prep-templates" element={<PrepTemplatesManager />} />
         <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
         <Route path="/side-work-templates" element={<SideWorkTemplates />} />
+        <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
         <Route path="/temp-log-templates" element={<TempLogTemplates />} />
         <Route path="/waste-templates" element={<WasteTemplates />} />

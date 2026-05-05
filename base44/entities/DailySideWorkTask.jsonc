@@ -1,0 +1,143 @@
+{
+  "name": "DailySideWorkTask",
+  "type": "object",
+  "properties": {
+    "sideWorkTemplateId": {
+      "type": "string",
+      "title": "Side Work Template ID"
+    },
+    "sideWorkTemplateItemId": {
+      "type": "string",
+      "title": "Side Work Template Item ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ]
+    },
+    "department": {
+      "type": "string",
+      "title": "Department",
+      "enum": [
+        "FOH",
+        "BOH"
+      ]
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "taskName": {
+      "type": "string",
+      "title": "Task Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Task Description"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "shiftPhase": {
+      "type": "string",
+      "title": "Shift Phase",
+      "enum": [
+        "start",
+        "mid",
+        "end",
+        "anytime"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "pending_review",
+        "approved",
+        "overdue"
+      ],
+      "enumNames": [
+        "Pending",
+        "In Progress",
+        "Completed",
+        "Pending Review",
+        "Approved",
+        "Overdue"
+      ],
+      "default": "pending"
+    },
+    "completedBy": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completedAt": {
+      "type": "string",
+      "title": "Completed At (ISO)"
+    },
+    "photoUrl": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "managerReviewedBy": {
+      "type": "string",
+      "title": "Manager Reviewed By (Email)"
+    },
+    "managerReviewedAt": {
+      "type": "string",
+      "title": "Manager Reviewed At (ISO)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    },
+    "isOverdue": {
+      "type": "boolean",
+      "title": "Is Overdue",
+      "default": false
+    }
+  },
+  "required": [
+    "sideWorkTemplateId",
+    "sideWorkTemplateItemId",
+    "date",
+    "taskName"
+  ]
+}
