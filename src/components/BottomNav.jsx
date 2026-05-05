@@ -1,13 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Package, Thermometer, Handshake, MoreHorizontal } from "lucide-react";
+import { Home, ChefHat, UtensilsCrossed, AlertCircle, ClipboardList, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { label: "Today",   path: "/",              icon: Home },
-  { label: "Prep",    path: "/prep-lists",    icon: Package },
-  { label: "Temps",   path: "/temp-logs",     icon: Thermometer },
-  { label: "Handoff", path: "/shift-handoff", icon: Handshake },
-  { label: "More",    path: "/more",          icon: MoreHorizontal },
+  { label: "Today",       path: "/",              icon: Home },
+  { label: "Kitchen Prep", path: "/kitchen-prep",   icon: ChefHat },
+  { label: "Side Work",   path: "/side-work-production", icon: UtensilsCrossed },
+  { label: "Food Safety", path: "/temp-logs",      icon: AlertCircle },
+  { label: "Manager Log", path: "/manager-log",    icon: ClipboardList },
+  { label: "More",        path: "/more",           icon: MoreHorizontal },
 ];
 
 export default function BottomNav() {
