@@ -57,6 +57,7 @@ import TemplateBuilder from './pages/TemplateBuilder';
 import TemplateList from './pages/TemplateList';
 import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
 import KitchenPrep from './pages/KitchenPrep';
+import SideWorkProduction from './pages/SideWorkProduction';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -122,6 +123,7 @@ const AuthenticatedApp = () => {
         <Route path="/waste" element={<WasteLog />} />
         <Route path="/recipes" element={<RecipesAndBuildCards />} />
         <Route path="/kitchen-prep" element={<KitchenPrep />} />
+        <Route path="/side-work-production" element={<SideWorkProduction />} />
         <Route path="/cleaning" element={<Cleaning />} />
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
         <Route path="/issues" element={<IssuesRepairs />} />
