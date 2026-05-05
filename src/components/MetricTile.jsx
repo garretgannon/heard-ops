@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 export default function MetricTile({ label, value, color, alert, icon: Icon, sub }) {
   return (
     <div className={cn(
-      "flex flex-col items-center text-center gap-0 bg-[#111827] border rounded-xl p-2.5 min-w-0",
+      "flex flex-col items-center justify-center text-center gap-0 bg-[#111827] border rounded-xl p-2.5 min-w-0",
       alert ? "border-red-500/30" : "border-[#1F2937]"
     )}>
       {Icon && (
