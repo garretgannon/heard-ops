@@ -20,6 +20,7 @@ import Logs from './pages/Logs';
 import Knowledge from './pages/Knowledge';
 import More from './pages/More';
 import Onboarding from './pages/Onboarding';
+import RestaurantTeam from './pages/RestaurantTeam';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
         <Route path="/logs" element={<Logs />} />
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/more" element={<More />} />
+        <Route path="/restaurant-team" element={<RestaurantTeam />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
