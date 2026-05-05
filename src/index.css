@@ -171,15 +171,15 @@
 @layer components {
   /* ── Animation & Interaction Presets ── */
   .animate-press {
-    @apply active:scale-[0.97] transition-transform duration-100 ease-out;
+    @apply active:scale-[0.97] transition-transform duration-75 ease-out;
   }
 
   .animate-tap {
-    @apply active:scale-[0.97] transition-all duration-150 ease-out;
+    @apply active:scale-[0.97] transition-all duration-75 ease-out;
   }
 
   .animate-bounce-press {
-    @apply active:scale-[0.97] transition-all duration-150 cubic-bezier(0.34, 1.56, 0.64, 1);
+    @apply active:scale-[0.97] transition-all duration-75 cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   /* ── Cards - Unified Style ── */
@@ -209,15 +209,15 @@
 
   /* Buttons - Unified Hierarchy */
   .btn-primary {
-    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-200 shadow-lg hover:shadow-[0_0_20px_rgba(76,255,136,0.3)];
+    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 shadow-lg hover:shadow-[0_0_20px_rgba(76,255,136,0.3)];
   }
 
   .btn-secondary {
-    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-200 hover:bg-muted;
+    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:bg-muted;
   }
 
   .btn-muted {
-    @apply rounded-lg bg-muted text-muted-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-200 hover:bg-muted-foreground/20;
+    @apply rounded-lg bg-muted text-muted-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:bg-muted-foreground/20;
   }
 
   /* Section Spacing */
@@ -305,7 +305,7 @@
   }
 
   .animate-accent-line {
-    animation: accent-line-slide 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: accent-line-slide 150ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
   @keyframes progress-load {
@@ -318,7 +318,7 @@
   }
 
   .animate-progress-load {
-    animation: progress-load 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: progress-load 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   @keyframes stroke-load {
@@ -331,16 +331,16 @@
   }
 
   .animate-stroke-load {
-    animation: stroke-load 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: stroke-load 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   /* Smooth progress transitions */
   .progress-smooth {
-    transition: width 200ms ease-out;
+    transition: width 100ms ease-out;
   }
 
   .stroke-smooth {
-    transition: stroke-dashoffset 200ms ease-out;
+    transition: stroke-dashoffset 100ms ease-out;
   }
 
   @keyframes stretch-effect {
@@ -373,7 +373,7 @@
   }
 
   .animate-flash {
-    animation: flash-animation 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: flash-animation 200ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
   @keyframes tab-fade-slide {
@@ -422,7 +422,7 @@
   }
 
   .animate-deep-link-glow {
-    animation: deep-link-glow 1000ms ease-out forwards;
+    animation: deep-link-glow 500ms ease-out forwards;
   }
 
   @keyframes subtle-bounce {
