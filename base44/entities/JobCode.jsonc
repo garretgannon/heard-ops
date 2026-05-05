@@ -30,6 +30,14 @@
       "type": "boolean",
       "title": "Active",
       "default": true
+    },
+    "assignedStations": {
+      "type": "array",
+      "title": "Assigned Station IDs",
+      "items": {
+        "type": "string"
+      },
+      "default": []
     }
   },
   "required": [

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import StationForm from '@/components/StationForm';
 
 function StationCard({ station, onEdit, onDelete }) {
   const deptColors = {
@@ -40,9 +41,13 @@ export default function Stations() {
   const [stations, setStations] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingStation, setEditingStation] = useState(null);
 
   useEffect(() => {
     loadStations();
+    const unsub = base44.entities.Station.subscribe(() => loadStations());
+    return () => unsub?.();
   }, []);
 
   const loadStations = async () => {
@@ -62,8 +67,26 @@ export default function Stations() {
     haptics.light();
     if (confirm('Delete this station?')) {
       await base44.entities.Station.delete(id);
-      loadStations();
+      await loadStations();
     }
+  };
+
+  const handleEdit = (station) => {
+    haptics.light();
+    setEditingStation(station);
+    setShowForm(true);
+  };
+
+  const handleCreateClick = () => {
+    haptics.medium();
+    setEditingStation(null);
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    await loadStations();
+    setShowForm(false);
+    setEditingStation(null);
   };
 
   return (
@@ -94,16 +117,50 @@ export default function Stations() {
             <StationCard
               key={station.id}
               station={station}
-              onEdit={() => {}}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))
         )}
       </div>
 
-      <button className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all">
+      <button
+        onClick={handleCreateClick}
+        className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
+      >
         <Plus className="h-5 w-5" />
       </button>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
+          <div className="w-full bg-card rounded-t-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <h2 className="font-bold text-foreground">
+                {editingStation ? 'Edit Station' : 'Create Station'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingStation(null);
+                }}
+                className="text-secondary-text hover:text-foreground"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4">
+              <StationForm
+                station={editingStation}
+                onSave={handleSave}
+                onClose={() => {
+                  setShowForm(false);
+                  setEditingStation(null);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
