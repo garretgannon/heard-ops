@@ -12,7 +12,7 @@ const FILTERS = [
   { value: "team_note", label: "Team Notes" },
   { value: "maintenance", label: "Maintenance" },
   { value: "follow_up", label: "Follow-Ups" },
-];
+]
 
 const CAT_ICONS = {
   shift_note: MessageSquare,
@@ -317,17 +317,24 @@ export default function ManagerLog() {
 
       {/* Filters */}
       <div className="flex gap-1 overflow-x-auto pb-0.5">
-        {FILTERS.map(f => (
-          <button key={f.value} onClick={() => setFilter(f.value)}
-            className={cn(
-              "shrink-0 h-6 px-2.5 rounded-full text-[10px] font-bold border transition-all",
-              filter === f.value
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-[#0F1623] text-gray-500 border-[#1E2A3B]"
-            )}>
-            {f.label}
-          </button>
-        ))}
+        {FILTERS.map(f => {
+          const meta = f.value !== "all" && f.value !== "follow_up" ? CAT_STYLES[f.value] : null;
+          const Icon = f.value !== "all" && f.value !== "follow_up" ? CAT_ICONS[f.value] : null;
+          return (
+            <button key={f.value} onClick={() => setFilter(f.value)}
+              className={cn(
+                "shrink-0 h-6 px-2.5 rounded-full text-[10px] font-bold border transition-all flex items-center gap-1",
+                filter === f.value
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : meta
+                  ? `${meta.bg} ${meta.text} ${meta.border}`
+                  : "bg-[#0F1623] text-gray-500 border-[#1E2A3B]"
+              )}>
+              {Icon && <Icon className="h-3 w-3" />}
+              {f.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Open Follow-Ups — priority section */}
