@@ -112,7 +112,7 @@ export default function StaffTasks() {
 
   useEffect(() => {
     if (user?.email) load();
-    const unsub = base44.entities.PrepItem.subscribe(() => load()).catch(() => {});
+    const unsub = base44.entities.PrepItem.subscribe(() => load());
     return () => unsub?.();
   }, [user?.email, filter]);
 
