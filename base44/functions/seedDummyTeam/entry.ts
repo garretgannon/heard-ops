@@ -30,19 +30,30 @@ Deno.serve(async (req) => {
         const existing = users.find(u => u.email === member.email);
         if (!existing) {
           await base44.users.inviteUser(member.email, member.role);
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } else if (existing.id) {
-          const updateData = {
-            department: member.department,
-            phone: member.phone,
-            certifications: member.certifications,
-            status: member.status,
-          };
-          await base44.entities.User.update(existing.id, updateData);
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
         invited.push({ email: member.email, role: member.role });
       } catch (err) {
         console.error(`Failed to process ${member.email}:`, err.message);
+      }
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    const updatedUsers = await base44.entities.User.list();
+    for (const member of DUMMY_TEAM) {
+      try {
+        const user = updatedUsers.find(u => u.email === member.email);
+        if (user?.id) {
+          await base44.entities.User.update(user.id, {
+            department: member.department,
+            phone: member.phone,
+            certifications: member.certifications,
+            status: member.status,
+          });
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      } catch (err) {
+        console.error(`Failed to update ${member.email}:`, err.message);
       }
     }
 
