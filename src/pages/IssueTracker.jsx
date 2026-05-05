@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { AlertTriangle, Wrench, Users, ShieldAlert, UserCheck, DollarSign,
-  CheckCircle2, UserPlus, Plus, Clock } from "lucide-react";
+  CheckCircle2, UserPlus, Plus, Clock, LayoutList, Flame } from "lucide-react";
 import MetricTile from "../components/MetricTile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -31,11 +31,11 @@ const ST = {
 };
 
 const FILTERS = [
-  { id: "all",       label: "All" },
-  { id: "safety",    label: "Safety" },
-  { id: "equipment", label: "Equipment" },
-  { id: "guest",     label: "Guest" },
-  { id: "critical",  label: "Critical", statusFilter: true },
+  { id: "all",       label: "All",       icon: LayoutList },
+  { id: "safety",    label: "Safety",    icon: ShieldAlert },
+  { id: "equipment", label: "Equipment", icon: Wrench },
+  { id: "guest",     label: "Guest",     icon: Users },
+  { id: "critical",  label: "Critical",  icon: Flame, statusFilter: true },
 ];
 
 const emptyForm = () => ({ title: "", description: "", category: "guest", status: "open", assigned_to_name: "", assigned_to_email: "" });
@@ -139,19 +139,23 @@ export default function IssueTracker() {
 
       {/* Filters */}
       <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-        {FILTERS.map(f => (
-          <button key={f.id} onClick={() => setFilter(f.id)}
-            className={cn(
-              "flex-shrink-0 h-7 px-2.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95 whitespace-nowrap",
-              filter === f.id
-                ? f.id === "critical"
-                  ? "bg-red-500/15 text-red-400 border-red-500/30"
-                  : "bg-primary/15 text-primary border-primary/30"
-                : "bg-[#0F1623] text-gray-600 border-[#1A2235]"
-            )}>
-            {f.label}
-          </button>
-        ))}
+        {FILTERS.map(f => {
+          const FIcon = f.icon;
+          return (
+            <button key={f.id} onClick={() => setFilter(f.id)}
+              className={cn(
+                "flex-shrink-0 h-7 px-2.5 flex items-center gap-1.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95 whitespace-nowrap",
+                filter === f.id
+                  ? f.id === "critical"
+                    ? "bg-red-500/15 text-red-400 border-red-500/30"
+                    : "bg-primary/15 text-primary border-primary/30"
+                  : "bg-[#0F1623] text-gray-600 border-[#1A2235]"
+              )}>
+              <FIcon className="h-3 w-3" />
+              {f.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Issue list */}
