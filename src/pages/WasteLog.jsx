@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, AlertTriangle, Trash2, Check, TrendingDown, BarChart2, X, Flame, RefreshCw } from "lucide-react";
+import { Plus, AlertTriangle, Trash2, Check, TrendingDown, BarChart2, X, Flame, RefreshCw, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from "recharts";
@@ -99,9 +100,10 @@ function Metric({ label, value, color, alert }) {
 }
 
 export default function WasteLog() {
-  const [waste, setWaste] = useState([]);
-  const [eighty6, setEighty6] = useState([]);
-  const [filter, setFilter] = useState("All");
+   const navigate = useNavigate();
+   const [waste, setWaste] = useState([]);
+   const [eighty6, setEighty6] = useState([]);
+   const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [showWasteForm, setShowWasteForm] = useState(false);
@@ -172,15 +174,18 @@ export default function WasteLog() {
     <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-52 px-0">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between pt-1">
-        <div>
-          <h1 className="text-[16px] font-extrabold text-white leading-tight">Waste &amp; 86 Log</h1>
-          <p className="text-[10px] text-gray-600">Track loss · prevent shortages</p>
-        </div>
-        <button onClick={load} className="h-7 w-7 rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center active:scale-95">
-          <RefreshCw className="h-3 w-3 text-gray-500" />
-        </button>
-      </div>
+       <div className="flex items-center justify-between pt-1">
+         <button onClick={() => navigate(-1)} className="h-7 w-7 rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center active:scale-95 shrink-0">
+           <ChevronLeft className="h-3.5 w-3.5 text-gray-500" />
+         </button>
+         <div className="flex-1 ml-2">
+           <h1 className="text-[16px] font-extrabold text-white leading-tight">Waste &amp; 86 Log</h1>
+           <p className="text-[10px] text-gray-600">Track loss · prevent shortages</p>
+         </div>
+         <button onClick={load} className="h-7 w-7 rounded-lg bg-[#1F2937] border border-[#374151] flex items-center justify-center active:scale-95">
+           <RefreshCw className="h-3 w-3 text-gray-500" />
+         </button>
+       </div>
 
       {/* METRICS STRIP */}
       <div className="flex gap-1.5">

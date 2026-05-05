@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { AlertTriangle, ShoppingCart, DollarSign, Flame, CheckCircle2, Clock, Truck, TrendingDown } from "lucide-react";
+import { AlertTriangle, ShoppingCart, DollarSign, Flame, CheckCircle2, Clock, Truck, TrendingDown, ChevronLeft } from "lucide-react";
 import MetricTile from "../components/MetricTile";
 import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
@@ -34,9 +35,10 @@ const ORDER_STATUS_MAP = {
 };
 
 export default function Inventory() {
-  const [items, setItems] = useState([]);
-  const [vendors, setVendors] = useState([]);
-  const [loading, setLoading] = useState(true);
+   const navigate = useNavigate();
+   const [items, setItems] = useState([]);
+   const [vendors, setVendors] = useState([]);
+   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -89,10 +91,15 @@ export default function Inventory() {
     <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-24">
 
       {/* Header */}
-      <div className="pt-1">
-        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Inventory</h1>
-        <p className="text-[11px] text-gray-600 mt-0.5">{format(new Date(), "EEEE, MMM d")} · {items.length} items tracked</p>
-      </div>
+       <div className="flex items-center gap-2">
+         <button onClick={() => navigate(-1)} className="h-7 w-7 rounded-lg bg-[#111827] border border-[#1F2937] flex items-center justify-center active:scale-95 shrink-0">
+           <ChevronLeft className="h-3.5 w-3.5 text-gray-500" />
+         </button>
+         <div className="pt-1 flex-1">
+           <h1 className="text-[17px] font-extrabold text-white tracking-tight">Inventory</h1>
+           <p className="text-[11px] text-gray-600 mt-0.5">{format(new Date(), "EEEE, MMM d")} · {items.length} items tracked</p>
+         </div>
+       </div>
 
       {/* KPI Strip */}
       <div className="grid grid-cols-4 gap-1.5">
