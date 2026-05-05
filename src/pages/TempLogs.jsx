@@ -457,7 +457,7 @@ export default function TempLogs() {
       {issueSheet && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/75" onClick={() => setIssueSheet(null)} />
-          <div className="relative bg-[#0B1018] border-t border-red-500/25 rounded-t-2xl p-4 space-y-3 z-10">
+          <div className="relative bg-[#0B1018] border-t border-red-500/25 rounded-t-2xl p-4 space-y-3 z-10" style={{ paddingBottom: 'calc(1rem + 56px + env(safe-area-inset-bottom, 0px))' }}>
             <div className="w-8 h-0.5 bg-[#1E2A3B] rounded-full mx-auto" />
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-xl bg-red-500/12 border border-red-500/25 flex items-center justify-center shrink-0">
