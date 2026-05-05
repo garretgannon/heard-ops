@@ -15,7 +15,7 @@ import { CardInteractionWrapper } from "@/components/CardInteractionModal";
 import { haptics } from "@/utils/haptics";
 
 /* ── Task Card ──────────────────────────────────────────────── */
-function TaskCard({ task, icon: Icon, onComplete, completing }) {
+function TaskCard({ task, icon: Icon, onComplete, completing, isRemoving }) {
   const isOverdue = task.status === "overdue";
   const isDueSoon = task.status === "in_progress" && task.due_time;
   const statusLabel = isOverdue ? "OVERDUE" : isDueSoon ? "DUE SOON" : "";
@@ -23,7 +23,7 @@ function TaskCard({ task, icon: Icon, onComplete, completing }) {
 
   return (
     <CardInteractionWrapper onOpen={() => { haptics.light(); }}>
-    <div className="card-with-border border-l-slate-600 p-3 flex items-center gap-3">
+    <div className={cn("card-with-border border-l-slate-600 p-3 flex items-center gap-3 transition-all duration-250", isRemoving && "animate-slide-left-fade")}>
       <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
         <Icon className="h-4 w-4 stroke-[1.5] text-secondary-text" />
       </div>
@@ -44,9 +44,15 @@ function TaskCard({ task, icon: Icon, onComplete, completing }) {
       <button
         onClick={onComplete}
         disabled={completing}
-        className="btn-primary h-8 px-3 text-xs flex items-center gap-1 shrink-0"
+        className={cn("h-8 px-3 text-xs flex items-center justify-center gap-1 shrink-0 rounded-lg font-bold transition-all duration-200", completing ? "bg-green-500 text-white" : "btn-primary")}
       >
-        {completing ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" /> : "✓"}
+        {completing ? (
+          <svg className="w-4 h-4 animate-checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: 50 }}>
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        ) : (
+          "✓"
+        )}
       </button>
     </div>
     </CardInteractionWrapper>
@@ -72,6 +78,7 @@ export default function StaffTasks() {
   const [showBlockedDialog, setShowBlockedDialog] = useState(null);
   const [blockedComment, setBlockedComment] = useState("");
   const [completingTask, setCompletingTask] = useState({});
+  const [removingTask, setRemovingTask] = useState({});
   const [filter, setFilter] = useState("all");
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -150,11 +157,16 @@ export default function StaffTasks() {
 
   const handleCompleteTask = async (task) => {
     setCompletingTask(prev => ({ ...prev, [task.id]: true }));
+    await new Promise(r => setTimeout(r, 150));
+    setRemovingTask(prev => ({ ...prev, [task.id]: true }));
+    await new Promise(r => setTimeout(r, 250));
+    haptics.medium();
     const updateData = { status: "completed", completed_at: new Date().toISOString(), completed_by: user?.email };
     if (task.type === "prep") await base44.entities.PrepItem.update(task.id, updateData);
     else await base44.entities.SideWorkAssignment.update(task.id, updateData);
-    toast.success("Task complete ✓");
+    toast.success("Task Completed");
     setCompletingTask(prev => ({ ...prev, [task.id]: false }));
+    setRemovingTask(prev => ({ ...prev, [task.id]: false }));
     load();
   };
 
@@ -216,6 +228,7 @@ export default function StaffTasks() {
                     icon={task.type === "prep" ? ClipboardList : Flame}
                     onComplete={() => handleCompleteTask(task)}
                     completing={completingTask[task.id]}
+                    isRemoving={removingTask[task.id]}
                   />
                 ))}
               </div>
