@@ -3,8 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import {
   ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign,
-  Droplet, CalendarDays, ChevronRight, ShieldAlert, Users,
-  CheckCircle2, Clock, FileText, UserCheck, UserX, Plus, Flame
+  Droplet, ChevronRight, ShieldAlert, CheckCircle2, Flame
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { differenceInHours, formatDistanceToNow, isToday } from "date-fns";
@@ -78,16 +77,7 @@ function PriorityCard({ rank, icon: Icon, title, meta, assignee, status, actionL
   );
 }
 
-function QA({ icon: Icon, label, iconColor, bg, onClick }) {
-  return (
-    <button onClick={onClick} className="flex-1 flex flex-col items-center gap-1.5 bg-[#111827] border border-[#1F2937] rounded-xl py-3 px-1 active:scale-95 transition-transform min-w-0">
-      <div className={cn("h-9 w-9 rounded-xl flex items-center justify-center", bg)}>
-        <Icon className={cn("h-4 w-4", iconColor)} />
-      </div>
-      <span className="text-[10px] text-gray-500 font-semibold text-center leading-tight">{label}</span>
-    </button>
-  );
-}
+
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -101,6 +91,7 @@ export default function TodaysCommandCenter() {
   const [m, setM] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -350,23 +341,16 @@ export default function TodaysCommandCenter() {
     <div className="pb-2">
 
       {/* Greeting */}
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <h1 className="text-xl font-extrabold tracking-tight text-white">{getGreeting()}, {firstName}</h1>
-          <p className="text-[11px] text-gray-500 mt-0.5">Here's what needs your attention today</p>
-        </div>
-        <button onClick={() => navigate("/prep-lists")}
-          className="flex items-center gap-1.5 text-xs font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/25 px-3 py-2 rounded-xl active:scale-95 transition-transform">
-          <Plus className="h-3.5 w-3.5" /> Task
-        </button>
+      <div className="mb-3">
+        <h1 className="text-xl font-extrabold tracking-tight text-white">{getGreeting()}, {firstName}</h1>
+        <p className="text-[11px] text-gray-500 mt-0.5">Here's what needs your attention today</p>
       </div>
 
-      {/* 4 Metric Cards */}
+      {/* 3 Metric Cards — awareness only */}
       <div className="flex gap-2 mb-3">
-        <Stat icon={ClipboardList} label="Tasks Due"    value={m.stats.tasksDue}    alert={m.stats.tasksDue > 0}    onClick={() => navigate("/prep-lists")} />
-        <Stat icon={Thermometer}   label="Temp Checks"  value={m.stats.tempChecks}  alert={m.tempAlerts > 0}        onClick={() => navigate("/temp-logs")} />
-        <Stat icon={AlertTriangle} label="Open Issues"  value={m.stats.openIssues}  alert={m.stats.openIssues > 0}  onClick={() => navigate("/incidents")} />
-        <Stat icon={Users}         label="On Shift"     value={m.stats.onShift}                                     onClick={() => navigate("/schedule-center")} />
+        <Stat icon={ClipboardList} label="Tasks Due"   value={m.stats.tasksDue}   alert={m.stats.tasksDue > 0}   onClick={() => navigate("/prep-lists")} />
+        <Stat icon={Thermometer}   label="Temp Checks" value={m.stats.tempChecks} alert={m.tempAlerts > 0}       onClick={() => navigate("/temp-logs")} />
+        <Stat icon={AlertTriangle} label="Open Issues" value={m.stats.openIssues} alert={m.stats.openIssues > 0} onClick={() => navigate("/issues")} />
       </div>
 
       {/* Needs Attention */}
@@ -406,53 +390,7 @@ export default function TodaysCommandCenter() {
         </>
       )}
 
-      {/* Quick Actions */}
-      <SectionLabel text="Quick Actions" />
-      <div className="flex gap-2">
-        <QA icon={Thermometer}   label="Log Temp"      iconColor="text-[#F5A623]"  bg="bg-[#F5A623]/10"  onClick={() => navigate("/temp-logs")} />
-        <QA icon={ClipboardList} label="Start Checklist" iconColor="text-blue-400" bg="bg-blue-500/10"   onClick={() => navigate("/prep-lists")} />
-        <QA icon={AlertTriangle} label="Report Issue"  iconColor="text-red-400"    bg="bg-red-500/10"    onClick={() => navigate("/incidents")} />
-        <QA icon={FileText}      label="Add Note"      iconColor="text-purple-400" bg="bg-purple-500/10" onClick={() => navigate("/manager-log")} />
-      </div>
 
-      {/* Team Snapshot */}
-      <SectionLabel text="Team Snapshot" action="Schedule" onAction={() => navigate("/schedule-center")} />
-      <div className="flex gap-2">
-        {[
-          { icon: UserCheck, label: "On Shift", value: m.onShift, color: "text-green-400" },
-          { icon: Clock,     label: "Late",     value: 0,          color: "text-yellow-400" },
-          { icon: UserX,     label: "Absent",   value: 0,          color: "text-red-400" },
-        ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="flex-1 bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5 flex items-center gap-2">
-            <Icon className={cn("h-4 w-4 shrink-0", color)} />
-            <div>
-              <p className="text-lg font-extrabold leading-none text-white">{value}</p>
-              <p className="text-[10px] text-gray-500 font-semibold mt-0.5">{label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Recent Activity Feed */}
-      {m.activity.length > 0 && (
-        <>
-          <SectionLabel text="Recent Activity" />
-          <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-1 divide-y divide-[#1F2937]">
-            {m.activity.map((a, i) => {
-              const Icon = a.icon;
-              return (
-                <div key={i} className="flex items-center gap-3 py-2">
-                  <div className="h-7 w-7 rounded-lg bg-[#1C2432] flex items-center justify-center shrink-0">
-                    <Icon className={cn("h-3.5 w-3.5", a.iconColor)} />
-                  </div>
-                  <p className="flex-1 text-xs text-gray-400 leading-snug">{a.title}</p>
-                  <span className="text-[10px] text-gray-600 shrink-0">{a.time}</span>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
 
       {/* Last Handoff Note */}
       {m.latestHandoff && (

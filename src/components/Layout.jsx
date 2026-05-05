@@ -130,10 +130,12 @@ export default function Layout() {
           )}
         </div>
         <div className="flex items-center gap-1.5">
-          <button className="relative h-9 w-9 flex items-center justify-center rounded-xl ios-press" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <button className="relative h-9 w-9 flex items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
             <Bell style={{ color: '#9CA3AF', width: 18, height: 18 }} />
-            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full" style={{ background: '#F5A623' }} />
           </button>
+          <Link to="/profile" className="h-9 w-9 flex items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <UserCircle style={{ color: '#9CA3AF', width: 18, height: 18 }} />
+          </Link>
         </div>
       </header>
 
