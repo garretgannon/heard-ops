@@ -50,6 +50,7 @@ export default function RestaurantTeam() {
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -98,6 +99,19 @@ export default function RestaurantTeam() {
     toast.success("Updated");
   };
 
+  const handleSeedDummyData = async () => {
+    setSeeding(true);
+    const res = await base44.functions.invoke('seedDummyTeam', {});
+    if (res.data.success) {
+      toast.success(`Added ${res.data.invited.length} dummy team members`);
+      const all = await base44.entities.User.list();
+      setEmployees(all);
+    } else {
+      toast.error("Failed to seed data");
+    }
+    setSeeding(false);
+  };
+
   const handleChangeStatus = async (empId, newStatus) => {
     const updated = await base44.entities.User.update(empId, { status: newStatus });
     setEmployees(prev => prev.map(e => e.id === empId ? updated : e));
@@ -128,9 +142,14 @@ export default function RestaurantTeam() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">Employee directory, roles, and permissions.</p>
         </div>
-        <Button onClick={() => setShowInvite(true)} className="gap-2">
-          <Plus className="h-4 w-4" /> Invite
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={handleSeedDummyData} disabled={seeding} variant="outline" className="gap-2 text-xs">
+            {seeding ? "Adding..." : "Add Dummy Data"}
+          </Button>
+          <Button onClick={() => setShowInvite(true)} className="gap-2">
+            <Plus className="h-4 w-4" /> Invite
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
