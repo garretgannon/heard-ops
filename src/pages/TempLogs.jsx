@@ -134,13 +134,27 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
 }
 
 export default function TempLogs() {
+  const [activeTab, setActiveTab] = useState("temps");
   const [locations, setLocations] = useState([]);
   const [entries, setEntries] = useState([]);
+  const [chemicalLogs, setChemicalLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [temps, setTemps] = useState({});
   const [saving, setSaving] = useState({});
   const [activeLocId, setActiveLocId] = useState(null);
   const [issueSheet, setIssueSheet] = useState(null);
+  const [issueNotes, setIssueNotes] = useState("");
+  const [managerInitials, setManagerInitials] = useState("");
+  const [showAddLocation, setShowAddLocation] = useState(false);
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    const loadChemicals = async () => {
+      const logs = await base44.entities.ChemicalLog.filter({ date: todayStr }).catch(() => []);
+      setChemicalLogs(logs);
+    };
+    loadChemicals();
+  }, []);
 
   useEffect(() => {
     if (!activeLocId) return;
@@ -148,7 +162,6 @@ export default function TempLogs() {
       const el = document.getElementById(`loc-card-${activeLocId}`);
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      // 56px BottomNav + 66px action bar + 16px padding
       const bottomClearance = 138 + (window.screen?.height > 800 ? 34 : 0);
       const viewportBottom = window.innerHeight - bottomClearance;
       if (rect.bottom > viewportBottom) {
@@ -157,10 +170,6 @@ export default function TempLogs() {
     }, 100);
     return () => clearTimeout(timer);
   }, [activeLocId]);
-  const [issueNotes, setIssueNotes] = useState("");
-  const [managerInitials, setManagerInitials] = useState("");
-  const [showAddLocation, setShowAddLocation] = useState(false);
-  const todayStr = new Date().toISOString().split("T")[0];
 
   const load = async () => {
     const [locs, ents] = await Promise.all([
@@ -275,183 +284,249 @@ export default function TempLogs() {
     <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3" style={{ paddingBottom: 'calc(16rem + env(safe-area-inset-bottom, 0px))' }}>
 
       {/* Header */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex items-center justify-between pt-1 mb-2">
         <div>
           <h1 className="text-[17px] font-extrabold text-white tracking-tight">Food Safety</h1>
           <p className="text-[11px] text-gray-600 mt-0.5">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</p>
         </div>
         <div className="flex gap-1.5">
-          {entries.length > 0 && (
+          {activeTab === "temps" && entries.length > 0 && (
             <button onClick={handleExport} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95">
               <Download className="h-3.5 w-3.5 text-gray-500" />
             </button>
           )}
-          <button onClick={() => setShowAddLocation(v => !v)} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95">
-            <Plus className="h-3.5 w-3.5 text-gray-500" />
-          </button>
-        </div>
-      </div>
-
-      {/* Metrics — 4-col */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <MetricTile icon={Activity}      label="Logged" value={logsToday} />
-        <MetricTile icon={Clock}         label="Missed" value={missedLogs} alert={missedLogs > 0} />
-        <MetricTile icon={AlertTriangle} label="Alerts" value={highAlerts} alert={highAlerts > 0} />
-        <MetricTile icon={ShieldCheck}   label="Pass %"
-          value={`${compPct}%`}
-          color={compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400"} />
-      </div>
-
-      {/* Critical Alerts */}
-      {criticalLocations.length > 0 && (
-        <div className="rounded-xl border border-red-500/40 bg-red-500/6 overflow-hidden">
-          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-red-500/15">
-            <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-            <span className="text-[13px] font-extrabold text-red-400 flex-1 uppercase tracking-wide">Critical Alerts</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">{criticalLocations.length}</span>
-          </div>
-          {criticalLocations.map(loc => {
-            const e = getLatestEntry(loc.id);
-            const temp = e?.temperature;
-            const above = temp > loc.target_max;
-            return (
-              <div key={loc.id} className="flex items-center gap-3 px-3 py-2.5 border-b border-red-500/8 last:border-0">
-                <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-bold text-white truncate">{loc.name}</p>
-                  <p className="text-[11px] text-red-400 font-semibold">
-                    {temp}°F — {above ? "↑ Too high" : "↓ Too low"} · Safe: {loc.target_min}–{loc.target_max}°F
-                  </p>
-                </div>
-                <button
-                  onClick={() => { setIssueSheet({ location: loc, temp }); setIssueNotes(""); setManagerInitials(""); }}
-                  className="h-7 px-2.5 text-[11px] font-bold text-red-400 bg-red-500/12 border border-red-500/25 rounded-lg active:scale-95 whitespace-nowrap"
-                >
-                  Flag
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* QR Scan Button */}
-      <button
-        onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
-        className="w-full flex items-center gap-3 bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-4 py-3 active:scale-[0.98] transition-transform"
-      >
-        <div className="h-11 w-11 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
-          <QrCode className="h-5 w-5 text-[#F5A623]" />
-        </div>
-        <div className="text-left flex-1">
-          <p className="text-[14px] font-bold text-white">Scan Equipment QR</p>
-          <p className="text-[11px] text-gray-600">Tap to log temp instantly via QR code</p>
-        </div>
-        <ChevronRight className="h-4 w-4 text-gray-700 shrink-0" />
-      </button>
-
-      {/* Add Location panel */}
-      {showAddLocation && (
-        <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
-          <div className="px-3 py-2 border-b border-[#1E2A3B] flex items-center justify-between">
-            <span className="text-[12px] font-bold text-white">Add Equipment</span>
-            <button onClick={() => setShowAddLocation(false)}><X className="h-3.5 w-3.5 text-gray-500" /></button>
-          </div>
-          {LOCATIONS.filter(t => !locations.find(l => l.name === t.name)).map(t => (
-            <button key={t.name} onClick={() => handleAddLocation(t)}
-              className="w-full flex items-center justify-between px-3 py-2.5 border-b border-[#1E2A3B] last:border-0 hover:bg-[#141C29] active:scale-[0.99] transition-all text-left">
-              <span className="text-[13px] font-semibold text-white">{t.name}</span>
-              <span className="text-[10px] text-gray-600">{t.min}–{t.max}°F</span>
+          {activeTab === "temps" && (
+            <button onClick={() => setShowAddLocation(v => !v)} className="h-8 w-8 rounded-lg bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95">
+              <Plus className="h-3.5 w-3.5 text-gray-500" />
             </button>
-          ))}
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Equipment section */}
-      {locations.length > 0 && (
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Equipment</p>
-          <div className="flex flex-col gap-2">
-            {sortedLocations.map(loc => {
-              const entry = getLatestEntry(loc.id);
-              const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
-              const isActive = activeLocId === loc.id;
-              return (
-                <div id={`loc-card-${loc.id}`} key={loc.id}>
-                <EquipmentCard
-                  loc={loc}
-                  entry={entry}
-                  status={status}
-                  isActive={isActive}
-                  inputVal={temps[loc.id] ?? ""}
-                  isSaving={saving[loc.id]}
-                  onActivate={() => setActiveLocId(isActive ? null : loc.id)}
-                  onTempChange={val => setTemps(prev => ({ ...prev, [loc.id]: val }))}
-                  onStep={delta => {
-                    const current = parseFloat(temps[loc.id] ?? "") || 0;
-                    setTemps(prev => ({ ...prev, [loc.id]: String(current + delta) }));
-                    haptics.swipe();
-                  }}
-                  onLog={() => handleLogTemp(loc, undefined, undefined)}
-                  onFlag={() => { setIssueSheet({ location: loc, temp: entry?.temperature }); setIssueNotes(""); setManagerInitials(""); }}
-                />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Compliance Trend */}
-      {trendData.length > 0 && (
-        <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3">
-          <div className="flex items-center gap-2 mb-3">
-            <TrendingUp className="h-3.5 w-3.5 text-primary" />
-            <span className="text-[12px] font-bold text-white flex-1">Compliance Trend</span>
-            <span className={cn("text-[12px] font-bold", compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400")}>{compPct}%</span>
-          </div>
-          <ResponsiveContainer width="100%" height={80}>
-            <AreaChart data={trendData} margin={{ top: 2, right: 2, left: -30, bottom: 0 }}>
-              <defs>
-                <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#F5A623" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#F5A623" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1A2235" vertical={false} />
-              <XAxis dataKey="time" tick={{ fill: "#4B5563", fontSize: 9 }} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 100]} tick={{ fill: "#4B5563", fontSize: 9 }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{ background: "#0F1623", border: "1px solid #1E2A3B", borderRadius: 8, fontSize: 11, padding: "4px 8px" }}
-                labelStyle={{ color: "#6B7280" }} itemStyle={{ color: "#F5A623" }}
-                formatter={v => [`${v}%`, "Compliance"]}
-              />
-              <Area type="monotone" dataKey="compliance" stroke="#F5A623" strokeWidth={1.5} fill="url(#cg)" dot={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Bottom bar — Log All */}
-      {!activeLocId && <div className="fixed left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1E2A3B] px-4 py-2.5 flex gap-2 lg:left-64" style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
+      {/* Tabs */}
+      <div className="flex gap-2">
         <button
-          onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
-          className="h-11 w-11 rounded-xl bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 shrink-0"
+          onClick={() => setActiveTab("temps")}
+          className={cn("flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all",
+            activeTab === "temps"
+              ? "bg-primary text-primary-foreground"
+              : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
+          )}
         >
-          <QrCode className="h-5 w-5 text-gray-500" />
+          Temperature
         </button>
         <button
-          onClick={async () => {
-            const pending = locations.filter(l => temps[l.id] !== undefined && temps[l.id] !== "");
-            if (!pending.length) { haptics.warning(); toast.error("Enter temperatures first"); return; }
-            for (const loc of pending) await handleLogTemp(loc, undefined, undefined);
-          }}
-          className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-transform"
+          onClick={() => setActiveTab("chemicals")}
+          className={cn("flex-1 py-2 px-3 rounded-lg text-[12px] font-bold transition-all",
+            activeTab === "chemicals"
+              ? "bg-primary text-primary-foreground"
+              : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
+          )}
         >
-          <Thermometer className="h-4 w-4" />
-          Log All Temps
+          Chemicals
         </button>
-      </div>}
+      </div>
+
+      {/* Temperature Tab */}
+      {activeTab === "temps" && (
+        <>
+          {/* Metrics — 4-col */}
+          <div className="grid grid-cols-4 gap-1.5">
+            <MetricTile icon={Activity}      label="Logged" value={logsToday} />
+            <MetricTile icon={Clock}         label="Missed" value={missedLogs} alert={missedLogs > 0} />
+            <MetricTile icon={AlertTriangle} label="Alerts" value={highAlerts} alert={highAlerts > 0} />
+            <MetricTile icon={ShieldCheck}   label="Pass %" value={`${compPct}%`} color={compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400"} />
+          </div>
+
+          {/* Critical Alerts */}
+          {criticalLocations.length > 0 && (
+            <div className="rounded-xl border border-red-500/40 bg-red-500/6 overflow-hidden">
+              <div className="flex items-center gap-2 px-3 py-2.5 border-b border-red-500/15">
+                <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
+                <span className="text-[13px] font-extrabold text-red-400 flex-1 uppercase tracking-wide">Critical Alerts</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">{criticalLocations.length}</span>
+              </div>
+              {criticalLocations.map(loc => {
+                const e = getLatestEntry(loc.id);
+                const temp = e?.temperature;
+                const above = temp > loc.target_max;
+                return (
+                  <div key={loc.id} className="flex items-center gap-3 px-3 py-2.5 border-b border-red-500/8 last:border-0">
+                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-white truncate">{loc.name}</p>
+                      <p className="text-[11px] text-red-400 font-semibold">
+                        {temp}°F — {above ? "↑ Too high" : "↓ Too low"} · Safe: {loc.target_min}–{loc.target_max}°F
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => { setIssueSheet({ location: loc, temp }); setIssueNotes(""); setManagerInitials(""); }}
+                      className="h-7 px-2.5 text-[11px] font-bold text-red-400 bg-red-500/12 border border-red-500/25 rounded-lg active:scale-95 whitespace-nowrap"
+                    >
+                      Flag
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* QR Scan Button */}
+          <button
+            onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
+            className="w-full flex items-center gap-3 bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-4 py-3 active:scale-[0.98] transition-transform"
+          >
+            <div className="h-11 w-11 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/25 flex items-center justify-center shrink-0">
+              <QrCode className="h-5 w-5 text-[#F5A623]" />
+            </div>
+            <div className="text-left flex-1">
+              <p className="text-[14px] font-bold text-white">Scan Equipment QR</p>
+              <p className="text-[11px] text-gray-600">Tap to log temp instantly via QR code</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-gray-700 shrink-0" />
+          </button>
+
+          {/* Add Location panel */}
+          {showAddLocation && (
+            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
+              <div className="px-3 py-2 border-b border-[#1E2A3B] flex items-center justify-between">
+                <span className="text-[12px] font-bold text-white">Add Equipment</span>
+                <button onClick={() => setShowAddLocation(false)}><X className="h-3.5 w-3.5 text-gray-500" /></button>
+              </div>
+              {LOCATIONS.filter(t => !locations.find(l => l.name === t.name)).map(t => (
+                <button key={t.name} onClick={() => handleAddLocation(t)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 border-b border-[#1E2A3B] last:border-0 hover:bg-[#141C29] active:scale-[0.99] transition-all text-left">
+                  <span className="text-[13px] font-semibold text-white">{t.name}</span>
+                  <span className="text-[10px] text-gray-600">{t.min}–{t.max}°F</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Equipment section */}
+          {locations.length > 0 && (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">Equipment</p>
+              <div className="flex flex-col gap-2">
+                {sortedLocations.map(loc => {
+                  const entry = getLatestEntry(loc.id);
+                  const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
+                  const isActive = activeLocId === loc.id;
+                  return (
+                    <div id={`loc-card-${loc.id}`} key={loc.id}>
+                    <EquipmentCard
+                      loc={loc}
+                      entry={entry}
+                      status={status}
+                      isActive={isActive}
+                      inputVal={temps[loc.id] ?? ""}
+                      isSaving={saving[loc.id]}
+                      onActivate={() => setActiveLocId(isActive ? null : loc.id)}
+                      onTempChange={val => setTemps(prev => ({ ...prev, [loc.id]: val }))}
+                      onStep={delta => {
+                        const current = parseFloat(temps[loc.id] ?? "") || 0;
+                        setTemps(prev => ({ ...prev, [loc.id]: String(current + delta) }));
+                        haptics.swipe();
+                      }}
+                      onLog={() => handleLogTemp(loc, undefined, undefined)}
+                      onFlag={() => { setIssueSheet({ location: loc, temp: entry?.temperature }); setIssueNotes(""); setManagerInitials(""); }}
+                    />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Compliance Trend */}
+          {trendData.length > 0 && (
+            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                <span className="text-[12px] font-bold text-white flex-1">Compliance Trend</span>
+                <span className={cn("text-[12px] font-bold", compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400")}>{compPct}%</span>
+              </div>
+              <ResponsiveContainer width="100%" height={80}>
+                <AreaChart data={trendData} margin={{ top: 2, right: 2, left: -30, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#F5A623" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#F5A623" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1A2235" vertical={false} />
+                  <XAxis dataKey="time" tick={{ fill: "#4B5563", fontSize: 9 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fill: "#4B5563", fontSize: 9 }} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{ background: "#0F1623", border: "1px solid #1E2A3B", borderRadius: 8, fontSize: 11, padding: "4px 8px" }}
+                    labelStyle={{ color: "#6B7280" }} itemStyle={{ color: "#F5A623" }}
+                    formatter={v => [`${v}%`, "Compliance"]}
+                  />
+                  <Area type="monotone" dataKey="compliance" stroke="#F5A623" strokeWidth={1.5} fill="url(#cg)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Bottom bar — Log All */}
+          {!activeLocId && <div className="fixed left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1E2A3B] px-4 py-2.5 flex gap-2 lg:left-64" style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
+            <button
+              onClick={() => toast.info("QR scanning: Point camera at equipment QR code")}
+              className="h-11 w-11 rounded-xl bg-[#0F1623] border border-[#1E2A3B] flex items-center justify-center active:scale-95 shrink-0"
+            >
+              <QrCode className="h-5 w-5 text-gray-500" />
+            </button>
+            <button
+              onClick={async () => {
+                const pending = locations.filter(l => temps[l.id] !== undefined && temps[l.id] !== "");
+                if (!pending.length) { haptics.warning(); toast.error("Enter temperatures first"); return; }
+                for (const loc of pending) await handleLogTemp(loc, undefined, undefined);
+              }}
+              className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-transform"
+            >
+              <Thermometer className="h-4 w-4" />
+              Log All Temps
+            </button>
+          </div>}
+        </>
+      )}
+
+      {/* Chemical Logs Tab */}
+      {activeTab === "chemicals" && (
+        <>
+          <div className="grid grid-cols-2 gap-1.5">
+            <MetricTile icon={Activity} label="Logged" value={chemicalLogs.length} />
+            <MetricTile icon={ShieldCheck} label="Passes" value={chemicalLogs.filter(l => l.status === "pass").length} />
+          </div>
+          {chemicalLogs.length > 0 ? (
+            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
+              {chemicalLogs.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at)).map((log, idx) => {
+                const logTime = new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                const isPassing = log.status === "pass";
+                return (
+                  <div key={idx} className={cn("flex items-center gap-3 px-3 py-2.5", idx < chemicalLogs.length - 1 ? "border-b border-[#1A2235]" : "")}>
+                    <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", isPassing ? "bg-emerald-400" : "bg-amber-400")} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-white truncate">{log.machine_name || "Dish Machine"}</p>
+                      <p className="text-[11px] text-gray-600 mt-0.5">PPM: {log.sanitizer_ppm} · {logTime}</p>
+                    </div>
+                    <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
+                      isPassing ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
+                    )}>
+                      {isPassing ? "Pass" : "Warning"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8 bg-[#0F1623] border border-[#1E2A3B] rounded-xl">
+              <Activity className="h-8 w-8 text-gray-600 mx-auto mb-2" />
+              <p className="text-[12px] text-gray-600">No chemical logs today</p>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Issue / corrective action sheet */}
       {issueSheet && (
