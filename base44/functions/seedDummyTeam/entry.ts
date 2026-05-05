@@ -33,10 +33,6 @@ Deno.serve(async (req) => {
             email: member.email,
             full_name: member.name,
             role: member.role,
-            department: member.department,
-            phone: member.phone,
-            certifications: member.certifications,
-            status: member.status,
           });
         }
         invited.push({ email: member.email, role: member.role });
