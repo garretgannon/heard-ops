@@ -74,7 +74,7 @@ export default function More() {
           >
             {/* Section Header */}
             <div className="mb-3.5 px-1">
-              <h2 className={cn("text-xs font-bold uppercase tracking-widest", category.iconColor)}>
+              <h2 className={`text-xs font-bold uppercase tracking-widest ${category.iconColor}`}>
                 {category.title}
               </h2>
             </div>
@@ -93,8 +93,8 @@ export default function More() {
                     className="w-full flex items-center gap-3.5 px-4 py-3.5 bg-[#141418] border border-[#1F1F24] rounded-lg hover:bg-[#1A1A1F] hover:border-[#262630] transition-all active:scale-95"
                   >
                     {/* Icon Container */}
-                    <div className={cn("h-12 w-12 rounded-lg flex items-center justify-center shrink-0", category.bgColor, category.borderColor, "border")}>
-                      <Icon className={cn("h-5.5 w-5.5", category.iconColor)} />
+                    <div className={`h-12 w-12 rounded-lg flex items-center justify-center shrink-0 border ${category.bgColor} ${category.borderColor}`}>
+                      <Icon className={`h-5.5 w-5.5 ${category.iconColor}`} />
                     </div>
 
                     {/* Text Content */}
