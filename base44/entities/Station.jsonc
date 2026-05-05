@@ -22,19 +22,11 @@
         "Management"
       ]
     },
-    "location_id": {
-      "type": "string",
-      "title": "Location ID"
-    },
-    "location_name": {
-      "type": "string",
-      "title": "Location Name"
-    },
     "description": {
       "type": "string",
       "title": "Description"
     },
-    "is_active": {
+    "isActive": {
       "type": "boolean",
       "title": "Active",
       "default": true
@@ -42,7 +34,6 @@
   },
   "required": [
     "name",
-    "department",
-    "location_id"
+    "department"
   ]
 }

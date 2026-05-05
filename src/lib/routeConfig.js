@@ -181,6 +181,15 @@ export const allRoutes = {
      description: "Log waste, compost, and 86'd items",
      legacyPaths: ["/waste-log"],
    },
+   eightySixLog: {
+     path: "/86-log",
+     label: "86 Log",
+     icon: Droplet,
+     component: "EightySixLog",
+     roles: ["user", "admin"],
+     module: "compliance",
+     description: "Track unavailable menu items",
+   },
     bathroomChecks: {
       path: "/bathroom-checks",
       label: "Bathroom Checks",
@@ -189,6 +198,86 @@ export const allRoutes = {
       roles: ["user", "admin"],
       module: "compliance",
       description: "Facility cleanliness checks",
+    },
+  },
+
+  // TEMPLATES
+  templates: {
+    prepTemplates: {
+      path: "/prep-templates",
+      label: "Prep Templates",
+      icon: LayoutTemplate,
+      component: "PrepTemplates",
+      roles: ["admin"],
+      module: "templates",
+      description: "Create reusable prep list templates",
+    },
+    sideWorkTemplates: {
+      path: "/side-work-templates",
+      label: "Side Work Templates",
+      icon: LayoutTemplate,
+      component: "SideWorkTemplates",
+      roles: ["admin"],
+      module: "templates",
+      description: "Create reusable side work templates",
+    },
+    cleaningTemplates: {
+      path: "/cleaning-templates",
+      label: "Cleaning Templates",
+      icon: LayoutTemplate,
+      component: "CleaningTemplates",
+      roles: ["admin"],
+      module: "templates",
+      description: "Create reusable cleaning checklists",
+    },
+    tempLogTemplates: {
+      path: "/temp-log-templates",
+      label: "Temperature Log Templates",
+      icon: LayoutTemplate,
+      component: "TempLogTemplates",
+      roles: ["admin"],
+      module: "templates",
+      description: "Create reusable temperature log templates",
+    },
+    wasteTemplates: {
+      path: "/waste-templates",
+      label: "Waste Templates",
+      icon: LayoutTemplate,
+      component: "WasteTemplates",
+      roles: ["admin"],
+      module: "templates",
+      description: "Create reusable waste log templates",
+    },
+    eightsixTemplates: {
+      path: "/86-templates",
+      label: "86 Templates",
+      icon: LayoutTemplate,
+      component: "EightySixTemplates",
+      roles: ["admin"],
+      module: "templates",
+      description: "Create reusable 86 log templates",
+    },
+  },
+
+  // MANAGEMENT
+  management: {
+    stations: {
+      path: "/stations",
+      label: "Stations",
+      icon: Building2,
+      component: "Stations",
+      roles: ["admin"],
+      module: "management",
+      description: "Manage kitchen and service stations",
+    },
+    jobCodes: {
+      path: "/job-codes",
+      label: "Job Codes",
+      icon: Users,
+      component: "JobCodes",
+      roles: ["admin"],
+      module: "management",
+      description: "Manage job code roles and assignments",
     },
   },
 
@@ -234,7 +323,7 @@ export const allRoutes = {
     },
     templates: {
       path: "/templates",
-      label: "Templates",
+      label: "Legacy Templates",
       icon: LayoutTemplate,
       component: "TemplateList",
       roles: ["admin"],
@@ -372,44 +461,73 @@ export const legacyRedirects = {
  * Organized module groups for the More menu
  */
 export const morePageStructure = {
+  kitchen: {
+    title: "Kitchen",
+    description: "Back of house operations",
+    items: [
+      "prepLists",
+      "prepTemplates",
+      "recipes",
+    ],
+  },
+  foh: {
+    title: "Front of House",
+    description: "Service and side work",
+    items: [
+      "sideWork",
+      "sideWorkTemplates",
+    ],
+  },
+  cleaning: {
+    title: "Cleaning",
+    description: "Checklists and templates",
+    items: [
+      "cleaningChecklist",
+      "cleaningTemplates",
+    ],
+  },
+  foodSafety: {
+    title: "Food Safety",
+    description: "Temperature and compliance",
+    items: [
+      "tempLogs",
+      "tempLogTemplates",
+    ],
+  },
+  inventory: {
+    title: "Inventory",
+    description: "Waste and availability",
+    items: [
+      "wasteLog",
+      "wasteTemplates",
+      "eightySixLog",
+      "eightsixTemplates",
+      "vendors",
+    ],
+  },
   operations: {
     title: "Operations",
-    description: "Manage daily operations",
+    description: "Issues and scheduling",
     items: [
+      "issues",
+      "schedule",
+      "team",
+      "reports",
       "shiftHandoff",
-      "sideWork",
-      "prepLists",
-      "cleaningChecklist",
-      "tempLogs",
-      "wasteLog",
-      "bathroomChecks",
     ],
   },
   management: {
     title: "Management",
-    description: "Team and resource management",
+    description: "Admin tools and settings",
     items: [
-      "issues",
-      "inventory",
-      "vendors",
-      "schedule",
-      "team",
-      "reports",
-    ],
-  },
-  knowledge: {
-    title: "Knowledge Base",
-    description: "Reference materials and standards",
-    items: [
-      "recipes",
-      "standards",
-      "msds",
+      "stations",
+      "jobCodes",
       "templates",
     ],
   },
   settings: {
     title: "Settings",
-    description: "Personal and business settings",
+    description: "Personal and restaurant",
     items: [
       "profile",
       "restaurant",

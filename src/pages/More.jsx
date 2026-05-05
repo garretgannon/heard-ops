@@ -44,41 +44,51 @@ export default function More() {
     navigate(path);
   };
 
+  // Build route lookup map for faster access
+  const findRoute = (routeKey) => {
+    for (const moduleKey in allRoutes) {
+      for (const key in allRoutes[moduleKey]) {
+        if (key === routeKey) {
+          return allRoutes[moduleKey][key];
+        }
+      }
+    }
+    return null;
+  };
+
   return (
     <div className="pb-24">
       <MoreHeader onSettings={() => navigate("/my-restaurant")} />
 
       <div className="px-4 py-4 space-y-6">
         {/* Dynamically render sections from route config */}
-        {Object.entries(morePageStructure).map(([sectionKey, section]) => (
-          <div key={sectionKey}>
-            <SectionLabel label={section.title} />
-            <div className="space-y-2">
-              {section.items.map((routeKey) => {
-                // Find the route in allRoutes
-                for (const moduleKey in allRoutes) {
-                  for (const key in allRoutes[moduleKey]) {
-                    if (key === routeKey) {
-                      const route = allRoutes[moduleKey][key];
-                      // Check if user has access
-                      if (route.roles && !route.roles.includes(isAdmin ? "admin" : "user")) {
-                        return null;
-                      }
-                      return (
-                        <MenuItem
-                          key={routeKey}
-                          route={route}
-                          onClick={handleNavigate}
-                        />
-                      );
-                    }
-                  }
-                }
-                return null;
-              })}
+        {Object.entries(morePageStructure).map(([sectionKey, section]) => {
+          // Filter accessible items
+          const accessibleItems = section.items
+            .map(routeKey => findRoute(routeKey))
+            .filter(route => {
+              if (!route) return false;
+              if (route.roles && !route.roles.includes(isAdmin ? "admin" : "user")) return false;
+              return true;
+            });
+
+          if (accessibleItems.length === 0) return null;
+
+          return (
+            <div key={sectionKey}>
+              <SectionLabel label={section.title} />
+              <div className="space-y-2">
+                {accessibleItems.map((route) => (
+                  <MenuItem
+                    key={route.path}
+                    route={route}
+                    onClick={handleNavigate}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

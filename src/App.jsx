@@ -39,6 +39,14 @@ import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
 import Standards from './pages/Standards';
 import MSDS from './pages/MSDS';
 import TempLogs from './pages/TempLogs';
+import PrepTemplates from './pages/PrepTemplates';
+import SideWorkTemplates from './pages/SideWorkTemplates';
+import CleaningTemplates from './pages/CleaningTemplates';
+import TempLogTemplates from './pages/TempLogTemplates';
+import WasteTemplates from './pages/WasteTemplates';
+import EightySixTemplates from './pages/86Templates';
+import Stations from './pages/Stations';
+import JobCodes from './pages/JobCodes';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -108,6 +116,18 @@ const AuthenticatedApp = () => {
         <Route path="/msds" element={<MSDS />} />
         <Route path="/templates" element={<TemplateList />} />
         <Route path="/vendors" element={<Vendors />} />
+
+        {/* TEMPLATE ROUTES */}
+        <Route path="/prep-templates" element={<PrepTemplates />} />
+        <Route path="/side-work-templates" element={<SideWorkTemplates />} />
+        <Route path="/cleaning-templates" element={<CleaningTemplates />} />
+        <Route path="/temp-log-templates" element={<TempLogTemplates />} />
+        <Route path="/waste-templates" element={<WasteTemplates />} />
+        <Route path="/86-templates" element={<EightySixTemplates />} />
+
+        {/* MANAGEMENT ROUTES */}
+        <Route path="/stations" element={<Stations />} />
+        <Route path="/job-codes" element={<JobCodes />} />
 
         {/* OPERATIONS ROUTES */}
         <Route path="/issues" element={<IssueTracker />} />

@@ -1,0 +1,66 @@
+{
+  "name": "TemplateItem",
+  "type": "object",
+  "properties": {
+    "templateId": {
+      "type": "string",
+      "title": "Template ID"
+    },
+    "title": {
+      "type": "string",
+      "title": "Task Name"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description / Instructions"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit"
+    },
+    "requiresPhoto": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    },
+    "isCritical": {
+      "type": "boolean",
+      "title": "Critical Task",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Detailed Instructions"
+    }
+  },
+  "required": [
+    "templateId",
+    "title"
+  ]
+}

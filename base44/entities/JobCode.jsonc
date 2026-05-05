@@ -2,65 +2,38 @@
   "name": "JobCode",
   "type": "object",
   "properties": {
-    "title": {
+    "name": {
       "type": "string",
-      "title": "Job Title"
+      "title": "Job Code Name"
     },
     "department": {
       "type": "string",
       "title": "Department",
       "enum": [
-        "FOH",
         "BOH",
+        "FOH",
         "Bar",
         "Management"
       ],
       "enumNames": [
-        "FOH",
-        "BOH",
+        "Back of House",
+        "Front of House",
         "Bar",
         "Management"
       ]
     },
-    "main_duties": {
+    "description": {
       "type": "string",
-      "title": "Main Duties & Responsibilities"
+      "title": "Description"
     },
-    "opening_expectations": {
-      "type": "string",
-      "title": "Opening Shift Expectations"
-    },
-    "running_expectations": {
-      "type": "string",
-      "title": "Running Shift Expectations"
-    },
-    "closing_expectations": {
-      "type": "string",
-      "title": "Closing Shift Expectations"
-    },
-    "required_training": {
-      "type": "array",
-      "title": "Required Training Modules",
-      "items": {
-        "type": "string"
-      },
-      "description": "Links to onboarding modules (e.g., handbook, POS, safety)"
-    },
-    "uniform_standards": {
-      "type": "string",
-      "title": "Uniform & Appearance Standards"
-    },
-    "pay_code": {
-      "type": "string",
-      "title": "Pay Code / Reference (Optional)"
-    },
-    "notes": {
-      "type": "string",
-      "title": "Additional Notes"
+    "isActive": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
     }
   },
   "required": [
-    "title",
+    "name",
     "department"
   ]
 }
