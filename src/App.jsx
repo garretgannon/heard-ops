@@ -46,6 +46,7 @@ import ShiftHandoff from './pages/ShiftHandoff';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import SetupWizard from './pages/SetupWizard';
 import ScheduleCenter from './pages/ScheduleCenter';
+import Logs from './pages/Logs';
 
 import More from './pages/More';
 import Standards from './pages/Standards';
@@ -166,6 +167,7 @@ const AuthenticatedApp = () => {
         {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
 
         <Route path="/cash" element={<Cash />} />
+        <Route path="/logs" element={<Logs />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
