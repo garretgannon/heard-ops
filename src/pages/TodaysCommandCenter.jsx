@@ -198,6 +198,59 @@ export default function TodaysCommandCenter() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pullY, setPullY] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showUpdatedText, setShowUpdatedText] = useState(false);
+  const pullThreshold = 80;
+
+  const handleTouchStart = (e) => {
+    if (window.scrollY === 0) {
+      const touch = e.touches[0];
+      setPullY(touch.clientY);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (window.scrollY === 0 && pullY > 0) {
+      const touch = e.touches[0];
+      const diff = Math.max(0, touch.clientY - pullY);
+      const resistance = diff * 0.5;
+      setPullY(touch.clientY);
+      const headerEl = document.querySelector('[data-pull-header]');
+      if (headerEl) {
+        headerEl.style.transform = `scaleY(${1 + resistance / 100})`;
+      }
+    }
+  };
+
+  const handleTouchEnd = async (e) => {
+    const headerEl = document.querySelector('[data-pull-header]');
+    if (headerEl) {
+      headerEl.style.transform = 'scaleY(1)';
+    }
+    setPullY(0);
+
+    if (pullY > pullThreshold) {
+      setRefreshing(true);
+      haptics.light();
+      await new Promise(r => setTimeout(r, 400));
+      setShowUpdatedText(true);
+      await new Promise(r => setTimeout(r, 2000));
+      setRefreshing(false);
+      setShowUpdatedText(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [pullY]);
 
   useEffect(() => {
     const load = async () => {
@@ -303,11 +356,19 @@ export default function TodaysCommandCenter() {
 
   return (
     <div className="pb-32 w-full">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      {/* Header with Pull-to-Refresh */}
+      <div
+        data-pull-header
+        className={cn(
+          "flex items-start justify-between mb-4 transition-transform origin-top",
+          refreshing && "animate-flash"
+        )}
+      >
         <div>
           <h1 className="text-2xl font-bold text-foreground">Today</h1>
-          <p className="text-xs text-secondary-text mt-1">{format(data.date, "EEEE, MMMM d, yyyy")}</p>
+          <p className="text-xs text-secondary-text mt-1">
+            {showUpdatedText ? "Updated just now" : format(data.date, "EEEE, MMMM d, yyyy")}
+          </p>
         </div>
         <button className="h-9 w-9 rounded-lg bg-muted border border-border flex items-center justify-center hover:bg-secondary transition-colors">
           <Bell className="h-5 w-5 stroke-[1.5] text-secondary-text" />
