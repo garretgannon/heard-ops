@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import {
   ShieldAlert, Wrench, Users, Package, ShoppingCart,
   BarChart2, LayoutTemplate, Truck, Settings, ChevronRight,
-  AlertTriangle, ClipboardList, BookOpen, Wine, DollarSign,
+  ClipboardList, BookOpen, Wine, DollarSign,
   CalendarDays, Bell, Camera, FileText, UserCheck, Flame,
-  Sparkles, Sun, Moon, Wind, Brush
+  Sparkles, Sun, Moon, Wind, Brush, Notebook
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -15,7 +15,7 @@ const SECTIONS = [
     adminOnly: false,
     items: [
       { label: "Standards",           icon: Sparkles,    path: "/standards",         color: "text-blue-400",   bg: "bg-blue-500/15" },
-      { label: "Issues",              icon: AlertTriangle, path: "/issues-unified",     color: "text-red-400",    bg: "bg-red-500/15" },
+      { label: "Manager Log",         icon: Notebook,    path: "/manager-log",       color: "text-primary",    bg: "bg-primary/10" },
       { label: "Inventory Control",   icon: Package,     path: "/inventory-control", color: "text-amber-400",  bg: "bg-amber-500/15" },
     ],
   },
