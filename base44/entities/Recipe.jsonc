@@ -1,0 +1,72 @@
+{
+  "name": "Recipe",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Recipe Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "appetizer",
+        "entree",
+        "side",
+        "bar",
+        "dessert",
+        "other"
+      ],
+      "enumNames": [
+        "Appetizer",
+        "Entree",
+        "Side",
+        "Bar",
+        "Dessert",
+        "Other"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "title": "Short Description"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "ingredients": {
+      "type": "string",
+      "title": "Ingredients"
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instructions"
+    },
+    "allergens": {
+      "type": "string",
+      "title": "Allergens"
+    },
+    "modifications": {
+      "type": "string",
+      "title": "Possible Modifications"
+    },
+    "plating_notes": {
+      "type": "string",
+      "title": "Plating Notes"
+    },
+    "use_count": {
+      "type": "number",
+      "title": "Times Viewed / Used",
+      "default": 0
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}
