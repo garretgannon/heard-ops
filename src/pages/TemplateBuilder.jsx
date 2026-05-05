@@ -21,6 +21,7 @@ const TEMPLATE_CATEGORIES = [
 ];
 
 const DEPARTMENTS = ["FOH", "BOH", "Bar", "Kitchen", "All"];
+const ROLES = ["Manager", "Server", "Bartender", "Host", "Chef", "Cook", "Busser", "Dishwasher"];
 
 export default function TemplateBuilder() {
   const navigate = useNavigate();
@@ -151,11 +152,16 @@ export default function TemplateBuilder() {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label>Assigned Role</Label>
-              <Input
+              <select
                 value={template.assigned_role}
                 onChange={e => setTemplate({ ...template, assigned_role: e.target.value })}
-                placeholder="e.g., Manager"
-              />
+                className="w-full h-9 px-3 text-xs border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Select role...</option>
+                {ROLES.map(role => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
             </div>
             <div>
               <Label>Due Time</Label>
