@@ -232,12 +232,12 @@ export default function RestaurantTeam() {
                       <h3 className="font-semibold text-sm truncate text-foreground">{emp.full_name || emp.email}</h3>
                       <StatusIcon className={cn("h-4 w-4 flex-shrink-0", statusInfo.color)} />
                     </div>
-                    <p className="text-xs text-muted-foreground mb-2">{emp.email}</p>
+                    <p className="text-xs text-gray-300 mb-2">{emp.email}</p>
                     <div className="flex items-center gap-4 flex-wrap text-xs text-foreground">
                       {emp.department && (
-                        <span className="px-2 py-1 bg-secondary rounded-full">{emp.department}</span>
+                        <span className="px-2 py-1 bg-secondary rounded-full text-foreground">{emp.department}</span>
                       )}
-                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
+                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full font-semibold">
                         {ROLES.find(r => r.value === emp.role)?.label || "User"}
                       </span>
                       {emp.start_date && (
