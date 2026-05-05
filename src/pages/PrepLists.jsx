@@ -144,7 +144,7 @@ export default function PrepLists() {
 
       <div className="grid grid-cols-4 gap-1 px-4 py-2">
         {metrics.map(m => (
-          <div key={m.label} className="bg-card border border-border rounded-lg p-2">
+          <div key={m.label} className="bg-card border border-border rounded-lg p-2 text-center">
             <p className={cn("text-xl font-bold", m.color)}>{m.value}</p>
             <p className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">{m.label}</p>
           </div>
