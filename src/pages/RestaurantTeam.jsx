@@ -43,7 +43,6 @@ export default function RestaurantTeam() {
       return true;
     });
 
-    // Sort by status: active first, then inactive
     return filtered.sort((a, b) => {
       const statusOrder = { active: 0, inactive: 1, archived: 2 };
       return (statusOrder[a.status] || 2) - (statusOrder[b.status] || 2);
@@ -176,7 +175,7 @@ export default function RestaurantTeam() {
                     key={emp.id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-card border border-border rounded-lg p-3 flex items-center gap-3"
+                    className="bg-card border border-border rounded-lg p-2.5 flex items-start gap-2.5"
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
@@ -187,27 +186,27 @@ export default function RestaurantTeam() {
                     </div>
 
                     {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate">{emp.full_name || emp.email}</p>
-                      <p className="text-xs text-muted-foreground">{getRoleDisplay(emp.role)} {emp.department && `• ${emp.department}`}</p>
+                    <div className="flex-1">
+                      <p className="text-xs font-bold leading-tight">{emp.full_name || emp.email}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{getRoleDisplay(emp.role)}{emp.department && ` • ${emp.department}`}</p>
                     </div>
 
-                    {/* Status Badge */}
-                    <div className={cn("text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap", statusInfo.bg, statusInfo.text)}>
-                      {statusInfo.badge}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1">
-                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                        <MessageSquare className="h-3.5 w-3.5 text-foreground" />
-                      </button>
-                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                        <CheckSquare2 className="h-3.5 w-3.5 text-foreground" />
-                      </button>
-                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                        <User className="h-3.5 w-3.5 text-foreground" />
-                      </button>
+                    {/* Status & Actions */}
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <div className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap", statusInfo.bg, statusInfo.text)}>
+                        {statusInfo.badge}
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                          <MessageSquare className="h-3 w-3 text-foreground" />
+                        </button>
+                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                          <CheckSquare2 className="h-3 w-3 text-foreground" />
+                        </button>
+                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                          <User className="h-3 w-3 text-foreground" />
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 );
@@ -231,7 +230,7 @@ export default function RestaurantTeam() {
                     key={emp.id}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-card border border-border rounded-lg p-3 flex items-center gap-3 opacity-75"
+                    className="bg-card border border-border rounded-lg p-2.5 flex items-start gap-2.5 opacity-75"
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
@@ -242,27 +241,27 @@ export default function RestaurantTeam() {
                     </div>
 
                     {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate">{emp.full_name || emp.email}</p>
-                      <p className="text-xs text-muted-foreground">{getRoleDisplay(emp.role)} {emp.department && `• ${emp.department}`}</p>
+                    <div className="flex-1">
+                      <p className="text-xs font-bold leading-tight">{emp.full_name || emp.email}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{getRoleDisplay(emp.role)}{emp.department && ` • ${emp.department}`}</p>
                     </div>
 
-                    {/* Status Badge */}
-                    <div className={cn("text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap", statusInfo.bg, statusInfo.text)}>
-                      {statusInfo.badge}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1">
-                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                        <MessageSquare className="h-3.5 w-3.5 text-foreground" />
-                      </button>
-                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                        <CheckSquare2 className="h-3.5 w-3.5 text-foreground" />
-                      </button>
-                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
-                        <User className="h-3.5 w-3.5 text-foreground" />
-                      </button>
+                    {/* Status & Actions */}
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <div className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap", statusInfo.bg, statusInfo.text)}>
+                        {statusInfo.badge}
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                          <MessageSquare className="h-3 w-3 text-foreground" />
+                        </button>
+                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                          <CheckSquare2 className="h-3 w-3 text-foreground" />
+                        </button>
+                        <button className="h-7 w-7 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                          <User className="h-3 w-3 text-foreground" />
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 );
