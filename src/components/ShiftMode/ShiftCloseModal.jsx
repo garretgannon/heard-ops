@@ -4,9 +4,10 @@ import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import CloseShiftChecklist from './CloseShiftChecklist';
 import ShiftHandoffReview from './ShiftHandoffReview';
+import ShiftCompletionScreen from './ShiftCompletionScreen';
 
 export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
-  const [stage, setStage] = useState('checklist'); // 'checklist', 'finish', or 'handoff'
+  const [stage, setStage] = useState('checklist'); // 'checklist', 'finish', 'handoff', or 'complete'
   const [score, setScore] = useState(85);
   const [notes, setNotes] = useState('');
   const [incompleteTasks, setIncompleteTasks] = useState(0);
@@ -43,8 +44,12 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
   };
 
   const handleFinishShift = async (handoffNotes) => {
+    setStage('complete');
+  };
+
+  const handleCompletionDone = () => {
     if (onClose) {
-      onClose(score, handoffNotes);
+      onClose(score, notes);
     }
   };
 
@@ -87,6 +92,14 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
             onSubmit={handleFinishShift}
             isLoading={isLoading}
             onBack={() => setStage('finish')}
+          />
+        ) : stage === 'complete' ? (
+          <ShiftCompletionScreen
+            tasksCompletedPct={shiftSession.prep_completion_pct || 0}
+            logsCompletedPct={Math.round((Math.min(missingLogs === 0 ? 4 : Math.max(0, 4 - missingLogs), 4) / 4) * 100)}
+            issuesLeftOpen={criticalIssues.length}
+            shiftScore={score}
+            onDone={handleCompletionDone}
           />
         ) : (
           <>
