@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   Users, Calendar, Tag, Truck, Package, Trash2, UtensilsCrossed, Sparkles, Wrench,
-  Settings, BarChart2, ClipboardList, Bell
+  Settings, BarChart2, ClipboardList, Bell, ChefHat
 } from "lucide-react";
 
 export default function More() {
@@ -34,6 +34,7 @@ export default function More() {
         { label: "Vendors", desc: "Supplier contacts and ordering", path: "/vendors", icon: Truck },
         { label: "Inventory & Orders", desc: "Track stock levels and reorder", path: "/inventory", icon: Package },
         { label: "Waste & 86 Log", desc: "Log waste and out-of-stock items", path: "/waste", icon: Trash2 },
+        { label: "Kitchen Prep", desc: "Production tracker for prep items", path: "/kitchen-prep", icon: ChefHat },
         { label: "Recipes & Build Cards", desc: "Dish specs and plating notes", path: "/recipes", icon: UtensilsCrossed },
         { label: "Cleaning & Deep Clean", desc: "Cleaning checklists and logs", path: "/cleaning", icon: Sparkles },
         { label: "Issues & Repairs", desc: "Equipment issues and maintenance", path: "/issues", icon: Wrench },
