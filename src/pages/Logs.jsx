@@ -7,6 +7,7 @@ import { format, isToday, isYesterday, parseISO } from "date-fns";
 import { haptics } from "@/utils/haptics";
 import LogsHeader from "@/components/LogsHeader";
 import { useToast } from "@/hooks/useToast";
+import { useUnifiedState } from "@/lib/UnifiedStateContext";
 
 const FILTER_TABS = [
   { id: "temps", label: "Temps", icon: Thermometer },
@@ -79,7 +80,8 @@ function DateGroup({ date, children }) {
 export default function Logs() {
   const navigate = useNavigate();
   const toast = useToast();
-  const [activeTab, setActiveTab] = useState("temps");
+  const { recordAction, linkLogToTask } = useUnifiedState();
+  const [currentTab, setCurrentTab] = useState("temps");
   const [logs, setLogs] = useState({});
   const [loading, setLoading] = useState(true);
   const todayStr = new Date().toISOString().split("T")[0];
@@ -90,7 +92,7 @@ export default function Logs() {
         const allLogs = [];
 
         // Temperature Logs
-        if (activeTab === "temps" || activeTab === "all") {
+        if (currentTab === "temps" || currentTab === "all") {
           const tempLogs = await base44.entities.TemperatureLog.list("-logged_at", 50).catch(() => []);
           tempLogs.forEach(log => {
             const isOutOfRange = log.is_above_range || log.is_below_range;
@@ -113,6 +115,8 @@ export default function Logs() {
                 location_id: log.location_id,
                 source: "log_out_of_range",
                 created_from_log_id: log.id,
+              }).then(() => {
+                recordAction('issue_created', { from: 'log', logId: log.id });
               }).catch(e => console.error("Failed to create issue", e));
             }
 
@@ -134,7 +138,7 @@ export default function Logs() {
         }
 
         // Waste Logs
-        if (activeTab === "waste" || activeTab === "all") {
+        if (currentTab === "waste" || currentTab === "all") {
           const wasteLogs = await base44.entities.WasteEntry.list("-logged_at", 50).catch(() => []);
           wasteLogs.forEach(log => {
             allLogs.push({
@@ -154,7 +158,7 @@ export default function Logs() {
         }
 
         // 86'd Items
-        if (activeTab === "86d" || activeTab === "all") {
+        if (currentTab === "86d" || currentTab === "all") {
           const eightySixItems = await base44.entities.EightySixItem.list("-marked_at", 50).catch(() => []);
           eightySixItems.forEach(log => {
             allLogs.push({
@@ -175,7 +179,7 @@ export default function Logs() {
         }
 
         // Issues
-        if (activeTab === "issues" || activeTab === "all") {
+        if (currentTab === "issues" || currentTab === "all") {
           const issues = await base44.entities.Issue.list("-created_date", 50).catch(() => []);
           issues.forEach(log => {
             allLogs.push({
@@ -199,7 +203,7 @@ export default function Logs() {
         }
 
         // Manager Logs
-        if (activeTab === "manager" || activeTab === "all") {
+        if (currentTab === "manager" || currentTab === "all") {
           const managerLogs = await base44.entities.ManagerLog.list("-created_date", 50).catch(() => []);
           managerLogs.forEach(log => {
             allLogs.push({
@@ -237,7 +241,7 @@ export default function Logs() {
       }
     };
     load();
-  }, [activeTab]);
+  }, [currentTab]);
 
   return (
     <div className="pb-24">
@@ -251,11 +255,11 @@ export default function Logs() {
               key={tab.id}
               onClick={() => {
                 haptics.light();
-                setActiveTab(tab.id);
+                setCurrentTab(tab.id);
               }}
               className={cn(
                 "flex-shrink-0 h-9 px-3 rounded-full text-xs font-bold whitespace-nowrap border transition-all flex items-center gap-1.5",
-                activeTab === tab.id
+                currentTab === tab.id
                   ? "bg-primary/15 text-primary border-primary/30"
                   : "bg-card border-border text-secondary-text hover:bg-muted"
               )}

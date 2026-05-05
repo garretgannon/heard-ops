@@ -10,6 +10,7 @@ import CaughtUpEmptyState from "@/components/CaughtUpEmptyState";
 import SectionCompleteMessage from "@/components/SectionCompleteMessage";
 import StandardPageShell from "@/components/StandardPageShell";
 import { useToast } from "@/hooks/useToast";
+import { useUnifiedState } from "@/lib/UnifiedStateContext";
 
 /* ── Group Header ──────────────────────────────────────────────── */
 function GroupHeader({ station, count }) {
@@ -26,6 +27,7 @@ export default function StaffTasks() {
   const { user, isAdmin } = useCurrentUser();
   const navigate = useNavigate();
   const toast = useToast();
+  const { recordAction, setActiveTab } = useUnifiedState();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showBlockedDialog, setShowBlockedDialog] = useState(null);
@@ -108,7 +110,11 @@ export default function StaffTasks() {
     setLoading(false);
   };
 
-  useEffect(() => { if (user?.email) load(); }, [user?.email, filter]);
+  useEffect(() => {
+    if (user?.email) load();
+    const unsub = base44.entities.PrepItem.subscribe(() => load()).catch(() => {});
+    return () => unsub?.();
+  }, [user?.email, filter]);
 
   const handleCompleteTask = async (task) => {
     haptics.medium();
@@ -120,6 +126,8 @@ export default function StaffTasks() {
     if (task.type === "prep") await base44.entities.PrepItem.update(task.id, updateData);
     else await base44.entities.SideWorkAssignment.update(task.id, updateData);
     toast("Task Completed");
+    recordAction('task_completed', { taskId: task.id, type: task.type });
+    setActiveTab('/');
     setCompletingTask(prev => ({ ...prev, [task.id]: false }));
     setRemovingTask(prev => ({ ...prev, [task.id]: false }));
     await load();
@@ -191,17 +199,26 @@ export default function StaffTasks() {
                 <div className="space-y-1">
                   {tasks.map(task => (
                     <SwipeableTaskCard
-                      key={task.id}
-                      task={task}
-                      icon={task.type === "prep" ? ClipboardList : Flame}
-                      onComplete={() => handleCompleteTask(task)}
-                      completing={completingTask[task.id]}
-                      isRemoving={removingTask[task.id]}
-                      onSnooze={() => toast("Snooze coming soon")}
-                      onReassign={() => toast("Reassign coming soon")}
-                      onView={() => toast("View coming soon")}
-                    />
-                  ))}
+                       key={task.id}
+                       task={task}
+                       icon={task.type === "prep" ? ClipboardList : Flame}
+                       onComplete={() => handleCompleteTask(task)}
+                       completing={completingTask[task.id]}
+                       isRemoving={removingTask[task.id]}
+                       onSnooze={() => {
+                         setActiveTab('/today');
+                         toast("Snooze coming soon");
+                       }}
+                       onReassign={() => {
+                         setActiveTab('/today');
+                         toast("Reassign coming soon");
+                       }}
+                       onView={() => {
+                         setActiveTab('/today');
+                         toast("View coming soon");
+                       }}
+                     />
+                   ))}
                 </div>
               </div>
             );

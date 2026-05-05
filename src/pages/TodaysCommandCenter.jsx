@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useUnifiedState } from "@/lib/UnifiedStateContext";
 import { AlertTriangle, Clock, CheckCircle2, Zap, FileText, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
@@ -190,11 +191,13 @@ function SectionLabel({ label, icon: Icon, count }) {
 
 export default function TodaysCommandCenter() {
   const navigate = useNavigate();
+  const { lastCompletedAction, recordAction, setActiveTab } = useUnifiedState();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
+    const unsubscribers = [];
     const load = async () => {
       try {
         const [prepItems, sideWork, issues, handoffs] = await Promise.all([
@@ -265,6 +268,23 @@ export default function TodaysCommandCenter() {
           needsReview: issues.filter(i => i.status === "open").length,
           latestHandoff: handoffs[0],
         });
+
+        // Real-time subscriptions
+        unsubscribers.push(
+          base44.entities.PrepItem.subscribe((event) => {
+            if (["create", "update", "delete"].includes(event.type)) load();
+          })
+        );
+        unsubscribers.push(
+          base44.entities.SideWorkAssignment.subscribe((event) => {
+            if (["create", "update", "delete"].includes(event.type)) load();
+          })
+        );
+        unsubscribers.push(
+          base44.entities.Issue.subscribe((event) => {
+            if (["create", "update", "delete"].includes(event.type)) load();
+          })
+        );
       } catch (e) {
         console.error(e);
       } finally {
@@ -272,7 +292,15 @@ export default function TodaysCommandCenter() {
       }
     };
     load();
-  }, [todayStr]);
+    return () => unsubscribers.forEach(u => u?.());
+  }, [todayStr, lastCompletedAction]);
+
+  // Auto-refresh after action completion
+  useEffect(() => {
+    if (lastCompletedAction && lastCompletedAction.type !== 'init') {
+      setActiveTab('/');
+    }
+  }, [lastCompletedAction]);
 
   if (loading) {
     return (
@@ -343,7 +371,10 @@ export default function TodaysCommandCenter() {
                 meta={item.station}
                 subtitle={item.assignee}
                 progress={item.progress}
-                onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
+                onTap={() => {
+                  setActiveTab(item.type === "prep" ? "/today" : "/today");
+                  navigate(item.type === "prep" ? "/prep-lists" : "/side-work");
+                }}
               />
             ))}
           </div>

@@ -5,6 +5,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
 import { ShiftModeProvider } from '@/lib/ShiftModeContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { base44 } from '@/api/base44Client';
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
 function App() {
   return (
     <AuthProvider>
+      <UnifiedStateProvider>
       <ShiftModeProvider>
         <QueryClientProvider client={queryClientInstance}>
           <Router>
@@ -86,6 +88,7 @@ function App() {
           <Toaster />
         </QueryClientProvider>
       </ShiftModeProvider>
+      </UnifiedStateProvider>
     </AuthProvider>
   )
 }
