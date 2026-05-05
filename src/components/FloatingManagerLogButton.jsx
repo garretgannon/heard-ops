@@ -76,10 +76,11 @@ export default function FloatingManagerLogButton() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-4 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-90 transition-transform z-40 lg:bottom-8"
+        className="fixed bottom-28 left-1/2 -translate-x-1/2 h-11 px-6 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform z-40 font-bold text-sm"
         title="Quick add manager log"
       >
-        <Plus className="h-6 w-6" />
+        <Plus className="h-5 w-5" />
+        New Log Entry
       </button>
 
       {/* Modal */}
