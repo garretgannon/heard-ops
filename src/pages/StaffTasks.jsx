@@ -11,53 +11,8 @@ import {
   CheckCircle2, Clock, Flame, FileText, AlertCircle, Upload, MessageSquare, ShieldAlert, Plus
 } from "lucide-react";
 import { toast } from "sonner";
-import { CardInteractionWrapper } from "@/components/CardInteractionModal";
 import { haptics } from "@/utils/haptics";
-
-/* ── Task Card ──────────────────────────────────────────────── */
-function TaskCard({ task, icon: Icon, onComplete, completing, isRemoving }) {
-  const isOverdue = task.status === "overdue";
-  const isDueSoon = task.status === "in_progress" && task.due_time;
-  const statusLabel = isOverdue ? "OVERDUE" : isDueSoon ? "DUE SOON" : "";
-  const statusColor = isOverdue ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30";
-
-  return (
-    <CardInteractionWrapper onOpen={() => { haptics.light(); }}>
-    <div className={cn("card-with-border border-l-slate-600 p-3 flex items-center gap-3 transition-all duration-250", isRemoving && "animate-slide-left-fade")}>
-      <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
-        <Icon className="h-4 w-4 stroke-[1.5] text-secondary-text" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-foreground truncate">{task.name}</p>
-        <div className="flex items-center gap-1.5 text-[9px] text-secondary-text mt-0.5">
-          {task.due_time && <span>{task.due_time}</span>}
-          {task.due_time && task.assigned && <span>·</span>}
-          {task.assigned && <span className="truncate">{task.assigned}</span>}
-          {task.progress && <span>· {task.progress}</span>}
-        </div>
-      </div>
-      {statusLabel && (
-        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 whitespace-nowrap", statusColor)}>
-          {statusLabel}
-        </span>
-      )}
-      <button
-        onClick={onComplete}
-        disabled={completing}
-        className={cn("h-8 px-3 text-xs flex items-center justify-center gap-1 shrink-0 rounded-lg font-bold transition-all duration-200", completing ? "bg-green-500 text-white" : "btn-primary")}
-      >
-        {completing ? (
-          <svg className="w-4 h-4 animate-checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ strokeDasharray: 50 }}>
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        ) : (
-          "✓"
-        )}
-      </button>
-    </div>
-    </CardInteractionWrapper>
-  );
-}
+import SwipeableTaskCard from "@/components/SwipeableTaskCard";
 
 /* ── Group Header ──────────────────────────────────────────────── */
 function GroupHeader({ station, count }) {
@@ -222,13 +177,16 @@ export default function StaffTasks() {
               <GroupHeader station={station} count={tasks.length} />
               <div className="space-y-1">
                 {tasks.map(task => (
-                  <TaskCard
+                  <SwipeableTaskCard
                     key={task.id}
                     task={task}
                     icon={task.type === "prep" ? ClipboardList : Flame}
                     onComplete={() => handleCompleteTask(task)}
                     completing={completingTask[task.id]}
                     isRemoving={removingTask[task.id]}
+                    onSnooze={() => toast.info("Snooze not yet implemented")}
+                    onReassign={() => toast.info("Reassign not yet implemented")}
+                    onView={() => toast.info("View not yet implemented")}
                   />
                 ))}
               </div>
