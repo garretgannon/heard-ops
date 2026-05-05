@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { ShiftModeContext } from "@/lib/ShiftModeContext";
 import ShiftStartModal from "@/components/ShiftMode/ShiftStartModal";
 import ShiftCloseModal from "@/components/ShiftMode/ShiftCloseModal";
+import { useShiftModeNotifications } from "@/hooks/useShiftModeNotifications";
 import {
   ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign,
   Droplet, ChevronRight, ShieldAlert, CheckCircle2, Flame, Plus, FileText,
@@ -327,6 +328,9 @@ export default function TodaysCommandCenter() {
           },
           tempAlerts,
           onShift: staffShifts.length,
+          prepCompleted: prepDone,
+          prepTotal: todayPrep.length,
+          prepOverdue: prepOverdue,
         });
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
@@ -357,6 +361,17 @@ export default function TodaysCommandCenter() {
       setIsSubmitting(false);
     }
   };
+
+  // Trigger contextual feedback during Shift Mode
+  useShiftModeNotifications({
+    tasksCompleted: m?.prepCompleted || 0,
+    tasksTotal: m?.prepTotal || 0,
+    overdue: m?.prepOverdue || 0,
+    tempLogs: m?.stats.tempChecks || 0,
+    tempLogsNeeded: 4,
+    issues: m?.alerts.filter(a => a.severity === 1) || [],
+    isShiftActive,
+  });
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -405,9 +420,15 @@ export default function TodaysCommandCenter() {
         <Stat icon={AlertTriangle} label="Open Issues" value={m.stats.openIssues} alert={m.stats.openIssues > 0} onClick={() => navigate("/issues")} />
       </div>
 
-      {/* Needs Attention */}
-      <div className="flex items-center justify-between mb-1.5 mt-3 first:mt-0">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">Needs Attention</p>
+      {/* Needs Attention — Shift Mode Highlight */}
+      <div className={cn(
+        "flex items-center justify-between mb-1.5 mt-3 first:mt-0 px-1",
+        isShiftActive && m?.alerts.length > 0 ? "text-primary" : ""
+      )}>
+        <p className={cn(
+          "text-[10px] font-bold uppercase tracking-widest",
+          isShiftActive && m?.alerts.length > 0 ? "text-primary" : "text-gray-600"
+        )}>Needs Attention</p>
         {m.alerts.length > 0 && (
           <div className="flex items-center gap-1.5">
             {m.alertCounts.critical > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30">{m.alertCounts.critical} Critical</span>}
@@ -417,8 +438,16 @@ export default function TodaysCommandCenter() {
         )}
       </div>
       {m.alerts.length > 0 ? (
-        <div className="space-y-1">
-          {m.alerts.map((a, i) => <AlertCard key={i} {...a} onClick={() => navigate(a.path)} />)}
+        <div className={cn(
+          "space-y-1 p-2.5 rounded-lg border",
+          isShiftActive ? "bg-red-500/8 border-red-500/20" : ""
+        )}>
+          {m.alerts.slice(0, isShiftActive ? m.alerts.length : 3).map((a, i) => <AlertCard key={i} {...a} onClick={() => navigate(a.path)} />)}
+          {isShiftActive && m.alerts.length > 3 && (
+            <button onClick={() => navigate("/issues")} className="w-full text-center text-[10px] text-primary font-bold py-1.5 hover:underline">
+              View all {m.alerts.length} alerts
+            </button>
+          )}
         </div>
       ) : (
         <div className="bg-green-500/8 border border-green-500/20 rounded-lg px-2.5 py-2 flex items-center gap-2.5">
