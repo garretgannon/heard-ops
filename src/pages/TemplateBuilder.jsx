@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, Copy, Save, Camera, ChevronLeft, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import TaskFormModal from "@/components/TaskFormModal";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const CATEGORIES = [
   { value: "prep", label: "Prep", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
@@ -218,6 +219,17 @@ export default function TemplateBuilder() {
     setSelected(s => ({ ...s, tasks: s.tasks.filter(t => t.id !== taskId) }));
   }
 
+  function handleDragEnd(result) {
+    const { source, destination } = result;
+    if (!destination) return;
+    if (source.index === destination.index) return;
+    
+    const newTasks = Array.from(selected.tasks || []);
+    const [removed] = newTasks.splice(source.index, 1);
+    newTasks.splice(destination.index, 0, removed);
+    setSelected(s => ({ ...s, tasks: newTasks }));
+  }
+
   const active = templates.filter(t => t.is_active).length;
   const filtered = filterCat === "all" ? templates : templates.filter(t => t.category === filterCat);
 
@@ -379,18 +391,41 @@ export default function TemplateBuilder() {
                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Tasks</span>
                 <span className="text-[10px] text-gray-600">{selected.tasks?.length || 0}</span>
               </div>
-              <div className="p-3 space-y-2">
-                {(!selected.tasks || selected.tasks.length === 0) && (
-                  <p className="text-[11px] text-gray-700 text-center py-2">No tasks yet</p>
-                )}
-                {selected.tasks?.map(task => (
-                  <TaskRow
-                    key={task.id}
-                    task={task}
-                    onUpdate={updated => updateTask(task.id, updated)}
-                    onDelete={() => deleteTask(task.id)}
-                  />
-                ))}
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="tasks">
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="p-3 space-y-2"
+                    >
+                      {(!selected.tasks || selected.tasks.length === 0) && (
+                        <p className="text-[11px] text-gray-700 text-center py-2">No tasks yet</p>
+                      )}
+                      {selected.tasks?.map((task, index) => (
+                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={cn(snapshot.isDragging && "opacity-70 scale-[1.02]")}
+                            >
+                              <TaskRow
+                                task={task}
+                                onUpdate={updated => updateTask(task.id, updated)}
+                                onDelete={() => deleteTask(task.id)}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+              <div className="px-3 pb-3">
                 <button
                   onClick={() => setShowTaskForm(true)}
                   className="w-full h-9 rounded-lg bg-primary/10 border border-primary/25 text-primary text-[12px] font-bold active:scale-95 flex items-center justify-center gap-1.5"
