@@ -6,6 +6,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Bell, AlertTriangle, Clock, CheckCircle2, ChevronRight, Zap, User, MapPin, FileText, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { CardInteractionWrapper } from "@/components/CardInteractionModal";
+import { haptics } from "@/utils/haptics";
 
 function ProgressCircle({ value, max = 100 }) {
   const circumference = 2 * Math.PI * 45;
@@ -50,6 +52,7 @@ function StatItem({ icon: Icon, label, value, color }) {
 
 function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, status, statusColor, onView, onFix }) {
   return (
+    <CardInteractionWrapper onOpen={() => { haptics.medium(); onView?.(); }}>
     <div className="card-with-border border-l-red-500 p-3 space-y-2.5">
       <div className="flex items-start gap-3">
         <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
@@ -80,11 +83,13 @@ function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, s
         )}
       </div>
     </div>
+    </CardInteractionWrapper>
   );
 }
 
 function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
   return (
+    <CardInteractionWrapper onOpen={() => { haptics.light(); onView?.(); }}>
     <div className="card-with-border border-l-amber-500 p-3 space-y-2.5">
       <div className="flex items-start gap-3">
         <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
@@ -121,11 +126,13 @@ function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
         )}
       </div>
     </div>
+    </CardInteractionWrapper>
   );
 }
 
 function CompletedCard({ title, completedBy, completedAt }) {
   return (
+    <CardInteractionWrapper>
     <div className="card-with-border border-l-green-500 p-2.5 flex items-center gap-2">
       <CheckCircle2 className="h-4 w-4 stroke-[1.5] text-green-400 shrink-0" />
       <div className="flex-1 min-w-0">
@@ -137,11 +144,13 @@ function CompletedCard({ title, completedBy, completedAt }) {
         </p>
       </div>
     </div>
+    </CardInteractionWrapper>
   );
 }
 
 function ShiftNotesCard({ note, manager, onView }) {
   return (
+    <CardInteractionWrapper onOpen={() => { haptics.light(); onView?.(); }}>
     <div className="card-with-border border-l-blue-500 p-3 space-y-2.5">
       <div className="flex items-start gap-2">
         <FileText className="h-4 w-4 stroke-[1.5] text-blue-400 shrink-0 mt-0.5" />
@@ -156,6 +165,7 @@ function ShiftNotesCard({ note, manager, onView }) {
         </button>
       )}
     </div>
+    </CardInteractionWrapper>
   );
 }
 

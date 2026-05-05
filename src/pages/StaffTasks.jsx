@@ -11,6 +11,8 @@ import {
   CheckCircle2, Clock, Flame, FileText, AlertCircle, Upload, MessageSquare, ShieldAlert, Plus
 } from "lucide-react";
 import { toast } from "sonner";
+import { CardInteractionWrapper } from "@/components/CardInteractionModal";
+import { haptics } from "@/utils/haptics";
 
 /* ── Task Card ──────────────────────────────────────────────── */
 function TaskCard({ task, icon: Icon, onComplete, completing }) {
@@ -20,6 +22,7 @@ function TaskCard({ task, icon: Icon, onComplete, completing }) {
   const statusColor = isOverdue ? "bg-red-500/15 text-red-400 border-red-500/30" : "bg-amber-500/15 text-amber-400 border-amber-500/30";
 
   return (
+    <CardInteractionWrapper onOpen={() => { haptics.light(); }}>
     <div className="card-with-border border-l-slate-600 p-3 flex items-center gap-3">
       <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
         <Icon className="h-4 w-4 stroke-[1.5] text-secondary-text" />
@@ -46,6 +49,7 @@ function TaskCard({ task, icon: Icon, onComplete, completing }) {
         {completing ? <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" /> : "✓"}
       </button>
     </div>
+    </CardInteractionWrapper>
   );
 }
 
