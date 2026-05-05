@@ -8,11 +8,11 @@ import TaskFormModal from "@/components/TaskFormModal";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const CATEGORIES = [
-  { value: "prep", label: "Prep", color: "text-blue-400", bg: "bg-blue-500/10" },
-  { value: "cleaning", label: "Cleaning", color: "text-emerald-400", bg: "bg-emerald-500/10" },
-  { value: "side_work", label: "Side Work", color: "text-purple-400", bg: "bg-purple-500/10" },
-  { value: "opening", label: "Opening", color: "text-amber-400", bg: "bg-amber-500/10" },
-  { value: "closing", label: "Closing", color: "text-red-400", bg: "bg-red-500/10" },
+  { value: "prep", label: "Prep", color: "text-status-info", bg: "bg-status-info/10" },
+  { value: "cleaning", label: "Cleaning", color: "text-status-success", bg: "bg-status-success/10" },
+  { value: "side_work", label: "Side Work", color: "text-primary", bg: "bg-primary/10" },
+  { value: "opening", label: "Opening", color: "text-status-warning", bg: "bg-status-warning/10" },
+  { value: "closing", label: "Closing", color: "text-status-error", bg: "bg-status-error/10" },
 ];
 
 const catMeta = (val) => CATEGORIES.find(c => c.value === val) || CATEGORIES[0];

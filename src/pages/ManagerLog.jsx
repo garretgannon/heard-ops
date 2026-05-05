@@ -26,20 +26,20 @@ const CAT_ICONS = {
 };
 
 const CAT_STYLES = {
-  shift_note:  { label: "Shift Note",   text: "text-blue-400",   bg: "bg-blue-500/10",       border: "border-blue-500/20" },
-  incident:    { label: "Incident",     text: "text-red-400",    bg: "bg-red-500/10",        border: "border-red-500/20" },
-  guest_issue: { label: "Guest Issue",  text: "text-purple-400", bg: "bg-purple-500/10",     border: "border-purple-500/20" },
-  team_note:   { label: "Team Note",    text: "text-pink-400",   bg: "bg-pink-500/10",       border: "border-pink-500/20" },
-  maintenance: { label: "Maintenance",  text: "text-amber-400",  bg: "bg-amber-500/10",      border: "border-amber-500/20" },
-  waste:       { label: "86 / Waste",   text: "text-orange-400", bg: "bg-orange-500/10",     border: "border-orange-500/20" },
-  prep_issue:  { label: "Prep Issue",   text: "text-emerald-400",bg: "bg-emerald-500/10",    border: "border-emerald-500/20" },
+  shift_note:  { label: "Shift Note",   text: "text-status-info",   bg: "bg-status-info/10",       border: "border-status-info/20" },
+  incident:    { label: "Incident",     text: "text-status-error",    bg: "bg-status-error/10",        border: "border-status-error/20" },
+  guest_issue: { label: "Guest Issue",  text: "text-status-info", bg: "bg-status-info/10",     border: "border-status-info/20" },
+  team_note:   { label: "Team Note",    text: "text-status-info",   bg: "bg-status-info/10",       border: "border-status-info/20" },
+  maintenance: { label: "Maintenance",  text: "text-status-warning",  bg: "bg-status-warning/10",      border: "border-status-warning/20" },
+  waste:       { label: "86 / Waste",   text: "text-primary", bg: "bg-primary/10",     border: "border-primary/20" },
+  prep_issue:  { label: "Prep Issue",   text: "text-status-success",bg: "bg-status-success/10",    border: "border-status-success/20" },
 };
 
 const PRI_STYLES = {
-  low:      { label: "Low",      text: "text-gray-400",   bg: "bg-gray-500/10" },
-  medium:   { label: "Medium",   text: "text-amber-400",  bg: "bg-amber-500/10" },
-  high:     { label: "High",     text: "text-orange-400", bg: "bg-orange-500/10" },
-  critical: { label: "Critical", text: "text-red-400",    bg: "bg-red-500/10" },
+  low:      { label: "Low",      text: "text-muted-foreground",   bg: "bg-muted" },
+  medium:   { label: "Medium",   text: "text-status-warning",  bg: "bg-status-warning/10" },
+  high:     { label: "High",     text: "text-primary", bg: "bg-primary/10" },
+  critical: { label: "Critical", text: "text-status-error",    bg: "bg-status-error/10" },
 };
 
 function EntryForm({ open, onClose, onSaved }) {

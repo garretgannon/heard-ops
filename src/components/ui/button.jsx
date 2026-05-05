@@ -5,7 +5,7 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -14,10 +14,10 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-lg hover:bg-destructive/90 active:scale-95",
         outline:
-          "border-2 border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground active:scale-95",
+          "border-2 border-border bg-transparent shadow-sm hover:bg-muted text-foreground active:scale-95",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-lg hover:bg-secondary/80 active:scale-95",
-        ghost: "hover:bg-accent hover:text-accent-foreground active:scale-95",
+          "bg-secondary text-secondary-foreground shadow-lg hover:bg-muted active:scale-95",
+        ghost: "hover:bg-muted text-foreground active:scale-95",
         link: "text-primary underline-offset-4 hover:underline font-bold",
       },
       size: {
