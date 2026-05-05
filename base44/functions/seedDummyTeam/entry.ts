@@ -23,8 +23,25 @@ Deno.serve(async (req) => {
     }
 
     const invited = [];
+    const users = await base44.entities.User.list();
+    
     for (const member of DUMMY_TEAM) {
-      await base44.users.inviteUser(member.email, member.role);
+      const existing = users.find(u => u.email === member.email);
+      if (!existing) {
+        await base44.users.inviteUser(member.email, member.role);
+      }
+      
+      const user = existing || { email: member.email };
+      const updateData = {
+        department: member.department,
+        phone: member.phone,
+        certifications: member.certifications,
+        status: member.status,
+      };
+      
+      if (user.id) {
+        await base44.entities.User.update(user.id, updateData);
+      }
       invited.push({ email: member.email, role: member.role });
     }
 
