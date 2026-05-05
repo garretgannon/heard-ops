@@ -9,6 +9,7 @@ import { useCurrentUser } from './hooks/useCurrentUser';
 import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './components/Layout';
+import GlobalBottomNav from './components/GlobalBottomNav';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Stations from './pages/Stations';
@@ -102,14 +103,21 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         {/* Main 5-tab navigation */}
         <Route path="/" element={needsOnboarding && isAdmin ? <SetupWizard onComplete={() => { setNeedsOnboarding(false); }} /> : <TodaysCommandCenter />} />
+        <Route path="/prep" element={<KitchenPrep />} />
+        <Route path="/overview" element={<PrepLists />} />
+        <Route path="/temps" element={<TempLogs />} />
+        <Route path="/more" element={<More />} />
+        
+        {/* Secondary/legacy routes — still accessible but not in main nav */}
         <Route path="/prep-lists" element={<PrepLists />} />
         <Route path="/temp-logs" element={<TempLogs />} />
         <Route path="/shift-handoff" element={<ShiftHandoff />} />
-        <Route path="/more" element={<More />} />
         <Route path="/opening" element={<OpeningChecklist />} />
         <Route path="/closing" element={<ClosingChecklist />} />
         <Route path="/cleaning" element={<Cleaning />} />
         {isFOH && <Route path="/side-work" element={<SideWork />} />}
+        {isFOH && <Route path="/side-work-production" element={<SideWorkProduction />} />}
+        {isAdmin && <Route path="/side-work-manager" element={<SideWorkProduction />} />}
 
         {/* Team & Scheduling */}
         {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
@@ -169,6 +177,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <AuthenticatedApp />
+          <GlobalBottomNav />
         </Router>
         <Toaster />
       </QueryClientProvider>

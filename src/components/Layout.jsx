@@ -1,7 +1,7 @@
 import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
-import BottomNav from "./BottomNav";
+
 
 import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, ChefHat, ClipboardList, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, Users, ShowerHead, Settings, DollarSign, Wrench, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus, Notebook } from "lucide-react";
@@ -210,7 +210,7 @@ export default function Layout() {
         </AnimatePresence>
       </main>
 
-      <BottomNav />
+
     </div>
   );
 }
