@@ -65,6 +65,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/new-log" element={<NewLog />} />
       <Route element={<Layout />}>
         {/* 5-Tab Mobile-First Navigation */}
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
@@ -75,7 +76,6 @@ const AuthenticatedApp = () => {
         <Route path="/restaurant-team" element={<RestaurantTeam />} />
         <Route path="/templates" element={<TemplateList />} />
         <Route path="/schedule-center" element={<ScheduleCenter />} />
-        <Route path="/new-log" element={<NewLog />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
