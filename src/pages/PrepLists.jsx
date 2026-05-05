@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Plus, Edit2, Copy, Archive, Search } from 'lucide-react';
+import { Plus, Edit2, Copy, Archive, Search, Settings } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
@@ -107,7 +107,16 @@ export default function PrepLists() {
   return (
     <div className="pb-24">
       <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
-        <h1 className="text-lg font-bold text-foreground mb-3">Prep Lists</h1>
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-lg font-bold text-foreground">Prep Lists</h1>
+          <button
+            onClick={() => navigate('/prep-templates')}
+            className="btn-secondary text-xs h-8 px-2 flex items-center gap-1"
+          >
+            <Settings className="h-3 w-3" />
+            Templates
+          </button>
+        </div>
         <div className="flex gap-2 mb-3">
           <button
             onClick={() => setActiveTab('templates')}
