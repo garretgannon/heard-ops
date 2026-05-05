@@ -45,7 +45,7 @@ function Badge({ status }) {
 
 function MetricTile({ icon: Icon, label, value, alert, valueColor }) {
   return (
-    <div className={cn("flex flex-col gap-0.5 bg-[#0F1623] border rounded-xl p-2.5 min-w-0", alert ? "border-red-500/35" : "border-[#1E2A3B]")}>
+    <div className={cn("flex flex-col items-center text-center gap-0.5 bg-[#0F1623] border rounded-xl p-2.5 min-w-0", alert ? "border-red-500/35" : "border-[#1E2A3B]")}>      
       <Icon className={cn("h-3.5 w-3.5 mb-0.5", alert ? "text-red-400" : "text-gray-600")} />
       <span className={cn("text-[22px] font-extrabold leading-none", valueColor || (alert ? "text-red-400" : "text-white"))}>{value}</span>
       <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide leading-none mt-0.5">{label}</span>

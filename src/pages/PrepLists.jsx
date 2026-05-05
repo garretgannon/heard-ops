@@ -233,7 +233,7 @@ export default function PrepLists() {
           { Icon: Timer,         label: "Active",  value: inProgress,        col: inProgress > 0 ? "text-amber-400" : "text-white" },
           { Icon: XCircle,       label: "Overdue", value: summary.overdue,   col: summary.overdue > 0 ? "text-red-400" : "text-white" },
         ].map(({ Icon, label, value, col }) => (
-          <div key={label} className="flex flex-col gap-0 bg-[#111827] border border-[#1F2937] rounded-xl p-2 min-w-0">
+          <div key={label} className="flex flex-col items-center text-center gap-0 bg-[#111827] border border-[#1F2937] rounded-xl p-2 min-w-0">            
             <Icon className={cn("h-3 w-3 mb-0.5", col)} />
             <span className={cn("text-[20px] font-extrabold leading-none", col)}>{value}</span>
             <span className="text-[9px] text-gray-600 font-bold uppercase tracking-wide mt-0.5">{label}</span>
