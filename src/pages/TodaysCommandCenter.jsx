@@ -315,23 +315,31 @@ export default function TodaysCommandCenter() {
 
       {/* Needs Attention */}
       {data.overdue.length > 0 && (
-        <div>
-          <SectionLabel label="Needs Attention" icon={AlertTriangle} count={data.overdue.length} />
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300" style={{ animationDelay: '0ms' }}>
+          <div className="flex items-center gap-2 mt-4 mb-2.5 first:mt-0">
+            <AlertTriangle className="h-4 w-4 text-primary" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-secondary-text">Needs Attention</h2>
+            <span className="ml-auto text-xs font-bold px-2 py-1 rounded-full bg-muted text-foreground">
+              {data.overdue.length}
+            </span>
+            <div className="animate-accent-line h-3 bg-red-500 rounded-full" />
+          </div>
           <div className="space-y-2">
             {data.overdue.slice(0, 3).map(item => (
-              <AttentionCard
-                key={item.id}
-                icon={AlertTriangle}
-                iconColor="text-red-400"
-                iconBg="bg-red-500/15"
-                title={item.title}
-                meta={item.station}
-                subtitle={item.assignee}
-                status={item.status}
-                statusColor={item.statusColor}
-                onView={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
-                onFix={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
-              />
+              <div key={item.id} className="animate-pulse-subtle">
+                <AttentionCard
+                  icon={AlertTriangle}
+                  iconColor="text-red-400"
+                  iconBg="bg-red-500/15"
+                  title={item.title}
+                  meta={item.station}
+                  subtitle={item.assignee}
+                  status={item.status}
+                  statusColor={item.statusColor}
+                  onView={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
+                  onFix={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
+                />
+              </div>
             ))}
           </div>
         </div>
