@@ -3,8 +3,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
-  Users, Calendar, Tag, Truck, Package, Trash2, UtensilsCrossed, Sparkles, Wrench,
-  Settings, BarChart2, ClipboardList, Bell, ChefHat, Users2
+  Users, Calendar, Tag, Truck, Package, Trash2, UtensilsCrossed, Sparkles,
+  Settings, BarChart2, ClipboardList, Bell
 } from "lucide-react";
 
 export default function More() {
@@ -12,6 +12,16 @@ export default function More() {
   const { isAdmin } = useCurrentUser();
 
   const categories = [
+    {
+      id: "daily",
+      title: "Daily Setup",
+      iconColor: "text-orange-400",
+      bgColor: "bg-orange-500/15",
+      borderColor: "border-orange-500/25",
+      items: [
+        { label: "Prep Templates", desc: "Create and manage daily prep lists", path: "/prep-lists", icon: ClipboardList },
+      ]
+    },
     {
       id: "team",
       title: "Team & Scheduling",
@@ -27,22 +37,22 @@ export default function More() {
     {
       id: "ops",
       title: "Operations",
-      iconColor: "text-amber-400",
-      bgColor: "bg-amber-500/15",
-      borderColor: "border-amber-500/25",
+      iconColor: "text-teal-400",
+      bgColor: "bg-teal-500/15",
+      borderColor: "border-teal-500/25",
       items: [
         { label: "Vendors", desc: "Supplier contacts and ordering", path: "/vendors", icon: Truck },
-        { label: "Inventory & Orders", desc: "Track stock levels and reorder", path: "/inventory", icon: Package },
+        { label: "Inventory", desc: "Track stock levels and reorder", path: "/inventory", icon: Package },
         { label: "Waste & 86 Log", desc: "Log waste and out-of-stock items", path: "/waste", icon: Trash2 },
-        { label: "Cleaning & Deep Clean", desc: "Cleaning checklists and logs", path: "/cleaning", icon: Sparkles },
+        { label: "Cleaning", desc: "Cleaning checklists and logs", path: "/cleaning", icon: Sparkles },
       ]
     },
     {
       id: "training",
-      title: "Team Training",
-      iconColor: "text-cyan-400",
-      bgColor: "bg-cyan-500/15",
-      borderColor: "border-cyan-500/25",
+      title: "Culinary",
+      iconColor: "text-purple-400",
+      bgColor: "bg-purple-500/15",
+      borderColor: "border-purple-500/25",
       items: [
         { label: "Recipes & Build Cards", desc: "Dish specs and plating notes", path: "/recipes", icon: UtensilsCrossed },
       ]
@@ -50,9 +60,9 @@ export default function More() {
     ...(isAdmin ? [{
       id: "admin",
       title: "Admin Settings",
-      iconColor: "text-purple-400",
-      bgColor: "bg-purple-500/15",
-      borderColor: "border-purple-500/25",
+      iconColor: "text-rose-400",
+      bgColor: "bg-rose-500/15",
+      borderColor: "border-rose-500/25",
       items: [
         { label: "Template Builder", desc: "Create recurring task lists", path: "/templates", icon: ClipboardList },
         { label: "Standards & Procedures", desc: "Attach notes to tasks", path: "/standards", icon: ClipboardList },
@@ -64,11 +74,11 @@ export default function More() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0B0B0D] pb-32">
+    <div className="min-h-screen bg-background pb-32">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#0B0B0D]/95 backdrop-blur border-b border-[#1F1F24] px-4 py-3">
-        <h1 className="text-lg font-bold text-white">More</h1>
-        <p className="text-[10px] text-[#6B7280] mt-0.5">Tools, settings, and admin</p>
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
+        <h1 className="text-lg font-bold text-foreground">More</h1>
+        <p className="text-[10px] text-muted-foreground mt-0.5">Tools, settings, and admin</p>
       </div>
 
       {/* Content */}
@@ -98,7 +108,7 @@ export default function More() {
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: (catIdx * 0.08) + (itemIdx * 0.04), duration: 0.2 }}
-                    className="w-full flex items-center gap-3.5 px-4 py-3.5 bg-[#141418] border border-[#1F1F24] rounded-lg hover:bg-[#1A1A1F] hover:border-[#262630] transition-all active:scale-95"
+                    className="w-full flex items-center gap-3.5 px-4 py-3.5 bg-card border border-border rounded-lg hover:bg-card/80 hover:border-border/80 transition-all active:scale-95"
                   >
                     {/* Icon Container */}
                     <div className={`h-12 w-12 rounded-lg flex items-center justify-center shrink-0 border ${category.bgColor} ${category.borderColor}`}>
@@ -107,12 +117,12 @@ export default function More() {
 
                     {/* Text Content */}
                     <div className="flex-1 text-left min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{item.label}</p>
-                      <p className="text-xs text-[#A1A1AA] mt-0.5 line-clamp-1">{item.desc}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{item.label}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.desc}</p>
                     </div>
 
                     {/* Chevron */}
-                    <div className="text-[#6B7280] shrink-0">
+                    <div className="text-muted-foreground shrink-0">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
