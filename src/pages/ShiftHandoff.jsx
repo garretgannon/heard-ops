@@ -77,41 +77,41 @@ export default function ShiftHandoff() {
       <div className="px-4 py-4 space-y-5">
 
         {/* HEADER INFO CARD */}
-        <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-3 flex items-center justify-between gap-3">
+        <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-3 grid grid-cols-3 gap-3">
           {/* Date */}
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <div className="h-10 w-10 rounded-lg bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center shrink-0">
+          <div className="flex flex-col items-center text-center gap-2">
+            <div className="h-10 w-10 rounded-lg bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center">
               <Calendar className="h-4 w-4 text-yellow-400" />
             </div>
-            <div className="text-left min-w-0">
+            <div>
               <p className="text-[10px] text-[#6B7280] font-bold uppercase">{dayName}</p>
-              <p className="text-sm font-bold text-white">{today}</p>
+              <p className="text-xs font-bold text-white leading-tight mt-0.5">{today}</p>
             </div>
           </div>
 
           {/* Shift */}
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
+          <div className="flex flex-col items-center text-center gap-2">
+            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
               shift.color === "purple" 
                 ? "bg-purple-500/10 border border-purple-500/25" 
                 : "bg-blue-500/10 border border-blue-500/25"
             }`}>
               <Clock className={`h-4 w-4 ${shift.color === "purple" ? "text-purple-400" : "text-blue-400"}`} />
             </div>
-            <div className="text-left min-w-0">
+            <div>
               <p className="text-[10px] text-[#6B7280] font-bold uppercase">Shift</p>
-              <p className="text-sm font-bold text-white">{shift.label}</p>
+              <p className="text-xs font-bold text-white leading-tight mt-0.5">{shift.label}</p>
             </div>
           </div>
 
           {/* Manager */}
-          <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <div className="h-10 w-10 rounded-lg bg-green-500/10 border border-green-500/25 flex items-center justify-center shrink-0">
+          <div className="flex flex-col items-center text-center gap-2">
+            <div className="h-10 w-10 rounded-lg bg-green-500/10 border border-green-500/25 flex items-center justify-center">
               <Users className="h-4 w-4 text-green-400" />
             </div>
-            <div className="text-left flex-1 min-w-0">
+            <div>
               <p className="text-[10px] text-[#6B7280] font-bold uppercase">Manager</p>
-              <p className="text-sm font-bold text-white truncate">{user?.full_name?.split(" ")[0] || "—"}</p>
+              <p className="text-xs font-bold text-white leading-tight mt-0.5">{user?.full_name?.split(" ")[0] || "—"}</p>
             </div>
           </div>
         </div>
