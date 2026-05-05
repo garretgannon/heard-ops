@@ -41,7 +41,7 @@ export default function RestaurantTeam() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("active");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [invitingRole, setInvitingRole] = useState("user");
@@ -63,7 +63,7 @@ export default function RestaurantTeam() {
 
   const filteredEmployees = employees.filter(emp => {
     if (!isAdmin && emp.status === "archived") return false;
-    if (selectedStatus !== "all" && (emp.status || "active") !== selectedStatus) return false;
+    if (selectedStatus !== "all" && emp.status !== selectedStatus) return false;
     if (selectedDepartment !== "all" && emp.department !== selectedDepartment) return false;
     if (search && !emp.full_name?.toLowerCase().includes(search.toLowerCase()) &&
         !emp.email?.toLowerCase().includes(search.toLowerCase())) return false;
@@ -101,18 +101,13 @@ export default function RestaurantTeam() {
 
   const handleSeedDummyData = async () => {
     setSeeding(true);
-    try {
-      const res = await base44.functions.invoke('seedDummyTeam', {});
-      if (res.data.success) {
-        toast.success(`Added ${res.data.invited.length} dummy team members`);
-        const all = await base44.entities.User.list();
-        setEmployees(all);
-      } else {
-        toast.error(res.data.error || "Failed to seed data");
-      }
-    } catch (err) {
-      toast.error(err.message || "Error seeding data");
-      console.error(err);
+    const res = await base44.functions.invoke('seedDummyTeam', {});
+    if (res.data.success) {
+      toast.success(`Added ${res.data.invited.length} dummy team members`);
+      const all = await base44.entities.User.list();
+      setEmployees(all);
+    } else {
+      toast.error("Failed to seed data");
     }
     setSeeding(false);
   };
@@ -137,7 +132,6 @@ export default function RestaurantTeam() {
 
   const activeCount = employees.filter(e => e.status === "active").length;
   const inactiveCount = employees.filter(e => e.status === "inactive").length;
-  const hasDummyData = employees.some(e => e.email?.includes("restaurant.local"));
 
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
@@ -149,7 +143,7 @@ export default function RestaurantTeam() {
           <p className="text-muted-foreground mt-1 text-sm">Employee directory, roles, and permissions.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleSeedDummyData} disabled={seeding || hasDummyData} variant="outline" className="gap-2 text-xs">
+          <Button onClick={handleSeedDummyData} disabled={seeding} variant="outline" className="gap-2 text-xs">
             {seeding ? "Adding..." : "Add Dummy Data"}
           </Button>
           <Button onClick={() => setShowInvite(true)} className="gap-2">
@@ -161,20 +155,20 @@ export default function RestaurantTeam() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-card border border-border rounded-lg p-3">
-           <p className="text-xs text-muted-foreground">Total</p>
-           <p className="text-2xl font-bold text-foreground">{employees.length}</p>
+          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-2xl font-bold">{employees.length}</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-3">
-         <p className="text-xs text-muted-foreground">Active</p>
-         <p className="text-2xl font-bold text-green-400">{activeCount}</p>
+          <p className="text-xs text-muted-foreground">Active</p>
+          <p className="text-2xl font-bold text-green-500">{activeCount}</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-3">
-         <p className="text-xs text-muted-foreground">Inactive</p>
-         <p className="text-2xl font-bold text-yellow-400">{inactiveCount}</p>
+          <p className="text-xs text-muted-foreground">Inactive</p>
+          <p className="text-2xl font-bold text-yellow-500">{inactiveCount}</p>
         </div>
         <div className="bg-card border border-border rounded-lg p-3">
-         <p className="text-xs text-muted-foreground">Departments</p>
-         <p className="text-2xl font-bold text-foreground">{new Set(employees.filter(e => e.department).map(e => e.department)).size}</p>
+          <p className="text-xs text-muted-foreground">Departments</p>
+          <p className="text-2xl font-bold">{new Set(employees.filter(e => e.department).map(e => e.department)).size}</p>
         </div>
       </div>
 
@@ -229,15 +223,15 @@ export default function RestaurantTeam() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-sm truncate text-white">{emp.full_name || emp.email}</h3>
+                      <h3 className="font-semibold text-sm truncate">{emp.full_name || emp.email}</h3>
                       <StatusIcon className={cn("h-4 w-4 flex-shrink-0", statusInfo.color)} />
                     </div>
-                    <p className="text-xs text-gray-300 mb-2">{emp.email}</p>
-                    <div className="flex items-center gap-4 flex-wrap text-xs text-foreground">
+                    <p className="text-xs text-muted-foreground mb-2">{emp.email}</p>
+                    <div className="flex items-center gap-4 flex-wrap text-xs">
                       {emp.department && (
-                        <span className="px-2 py-1 bg-secondary rounded-full text-foreground">{emp.department}</span>
+                        <span className="px-2 py-1 bg-secondary rounded-full">{emp.department}</span>
                       )}
-                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full font-semibold">
+                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
                         {ROLES.find(r => r.value === emp.role)?.label || "User"}
                       </span>
                       {emp.start_date && (
