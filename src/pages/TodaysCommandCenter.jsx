@@ -26,26 +26,25 @@ function SectionLabel({ text, action, onAction }) {
 
 function Stat({ icon: Icon, label, value, alert, onClick }) {
   return (
-    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center text-center gap-0 bg-[#111827] border rounded-xl py-2.5 px-1.5 active:scale-95 transition-transform min-w-0", alert ? "border-red-500/30" : "border-[#1F2937]")}>
-      <Icon className={cn("h-3.5 w-3.5 mb-0.5", alert ? "text-red-400" : "text-gray-500")} />
-      <span className={cn("text-[20px] font-extrabold leading-none", alert ? "text-red-400" : "text-white")}>{value}</span>
-      <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</span>
+    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center text-center gap-0 bg-[#111827] border rounded-xl py-2 px-1 active:scale-95 transition-transform min-w-0", alert ? "border-red-500/30" : "border-[#1F2937]")}>
+      <Icon className={cn("h-3 w-3 mb-0.5", alert ? "text-red-400" : "text-gray-500")} />
+      <span className={cn("text-lg font-bold leading-none", alert ? "text-red-400" : "text-white")}>{value}</span>
+      <span className="text-[9px] text-gray-600 font-bold uppercase tracking-wide mt-0.5 leading-tight">{label}</span>
     </button>
   );
 }
 
 function AlertCard({ icon: Icon, iconColor, iconBg, title, meta, badge, badgeColor, onClick }) {
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-3 bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5 active:scale-[0.98] transition-transform text-left">
-      <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
-        <Icon className={cn("h-4 w-4", iconColor)} />
+    <button onClick={onClick} className="w-full flex items-center gap-2.5 bg-[#111827] border border-[#1F2937] rounded-lg px-2.5 py-2 active:scale-[0.98] transition-transform text-left">
+      <div className={cn("h-7 w-7 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
+        <Icon className={cn("h-3.5 w-3.5", iconColor)} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white leading-tight truncate">{title}</p>
-        {meta && <p className="text-[11px] text-gray-500 mt-0.5 truncate">{meta}</p>}
+        <p className="text-xs font-bold text-white leading-tight truncate">{title}</p>
+        {meta && <p className="text-[10px] text-gray-500 mt-0.5 truncate">{meta}</p>}
       </div>
       {badge && <Badge label={badge} color={badgeColor} />}
-      <ChevronRight className="h-3.5 w-3.5 text-gray-600 shrink-0" />
     </button>
   );
 }
@@ -58,19 +57,19 @@ function PriorityCard({ rank, icon: Icon, title, meta, assignee, status, actionL
     ok:           "bg-green-500/15 text-green-400 border-green-500/30",
   };
   return (
-    <div className="flex items-center gap-3 bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5">
-      <span className="text-sm font-extrabold text-[#F5A623]/40 w-4 shrink-0 text-center">{rank}</span>
-      <div className="h-8 w-8 rounded-lg bg-[#1C2432] flex items-center justify-center shrink-0">
-        <Icon className="h-4 w-4 text-[#F5A623]" />
+    <div className="flex items-center gap-2.5 bg-[#111827] border border-[#1F2937] rounded-lg px-2.5 py-2">
+      <span className="text-xs font-bold text-[#F5A623]/40 w-3 shrink-0 text-center">{rank}</span>
+      <div className="h-7 w-7 rounded-lg bg-[#1C2432] flex items-center justify-center shrink-0">
+        <Icon className="h-3.5 w-3.5 text-[#F5A623]" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white leading-tight truncate">{title}</p>
-        <p className="text-[11px] text-gray-500 mt-0.5 truncate">{assignee}{meta ? ` · ${meta}` : ""}</p>
+        <p className="text-xs font-bold text-white leading-tight truncate">{title}</p>
+        <p className="text-[10px] text-gray-500 mt-0.5 truncate">{assignee}{meta ? ` · ${meta}` : ""}</p>
       </div>
-      <div className="flex flex-col items-end gap-1 shrink-0">
+      <div className="flex flex-col items-end gap-0.5 shrink-0">
         <Badge label={status} color={statusColors[status] || "bg-gray-500/15 text-gray-400 border-gray-500/30"} />
         <button onClick={() => navigate(actionPath)}
-          className="text-[10px] font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/25 px-2 py-0.5 rounded-lg active:scale-95 transition-transform">
+          className="text-[9px] font-bold text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/25 px-1.5 py-0.5 rounded text-center active:scale-95 transition-transform min-h-[28px] min-w-[28px]">
           {actionLabel}
         </button>
       </div>
@@ -341,21 +340,20 @@ export default function TodaysCommandCenter() {
     <div className="pb-2">
 
       {/* Greeting */}
-      <div className="mb-3">
-        <h1 className="text-xl font-extrabold tracking-tight text-white">{getGreeting()}, {firstName}</h1>
-        <p className="text-[11px] text-gray-500 mt-0.5">Here's what needs your attention today</p>
+      <div className="mb-2">
+        <h1 className="text-lg font-bold text-white">{getGreeting()}, {firstName}</h1>
       </div>
 
       {/* 3 Metric Cards — awareness only */}
-      <div className="flex gap-2 mb-3">
+      <div className="flex gap-1.5 mb-2.5">
         <Stat icon={ClipboardList} label="Tasks Due"   value={m.stats.tasksDue}   alert={m.stats.tasksDue > 0}   onClick={() => navigate("/prep-lists")} />
         <Stat icon={Thermometer}   label="Temp Checks" value={m.stats.tempChecks} alert={m.tempAlerts > 0}       onClick={() => navigate("/temp-logs")} />
         <Stat icon={AlertTriangle} label="Open Issues" value={m.stats.openIssues} alert={m.stats.openIssues > 0} onClick={() => navigate("/issues")} />
       </div>
 
       {/* Needs Attention */}
-      <div className="flex items-center justify-between mb-1.5 mt-4 first:mt-0">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">⚡ Needs Attention</p>
+      <div className="flex items-center justify-between mb-1.5 mt-3 first:mt-0">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600">Needs Attention</p>
         {m.alerts.length > 0 && (
           <div className="flex items-center gap-1.5">
             {m.alertCounts.critical > 0 && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30">{m.alertCounts.critical} Critical</span>}
@@ -365,24 +363,21 @@ export default function TodaysCommandCenter() {
         )}
       </div>
       {m.alerts.length > 0 ? (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {m.alerts.map((a, i) => <AlertCard key={i} {...a} onClick={() => navigate(a.path)} />)}
         </div>
       ) : (
-        <div className="bg-green-500/8 border border-green-500/20 rounded-xl px-3 py-2.5 flex items-center gap-3">
-          <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-green-400">All Clear</p>
-            <p className="text-[11px] text-gray-500">No critical issues right now</p>
-          </div>
+        <div className="bg-green-500/8 border border-green-500/20 rounded-lg px-2.5 py-2 flex items-center gap-2.5">
+          <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
+          <p className="text-xs font-bold text-green-400">All Clear</p>
         </div>
       )}
 
       {/* Today's Priorities */}
       {m.priorities.length > 0 && (
         <>
-          <SectionLabel text="Today's Priorities" action="All Tasks" onAction={() => navigate("/prep-lists")} />
-          <div className="space-y-1.5">
+          <SectionLabel text="Priorities" action="All" onAction={() => navigate("/prep-lists")} />
+          <div className="space-y-1">
             {m.priorities.map((p, i) => (
               <PriorityCard key={i} rank={i + 1} navigate={navigate} {...p} />
             ))}
@@ -394,68 +389,60 @@ export default function TodaysCommandCenter() {
 
       {/* Quick Actions */}
       <SectionLabel text="Quick Actions" />
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        <button onClick={() => navigate("/temp-logs")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
-          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
-            <Thermometer className="h-5 w-5 text-[#F5A623]" />
-          </div>
-          <span className="text-[11px] font-semibold text-white text-center">Log Temp</span>
+      <div className="grid grid-cols-2 gap-1.5 mb-3">
+        <button onClick={() => navigate("/temp-logs")} className="flex flex-col items-center justify-center gap-1.5 bg-[#111827] border border-[#1F2937] rounded-lg p-2.5 active:scale-95 transition-transform min-h-[44px]">
+          <Thermometer className="h-4 w-4 text-[#F5A623]" />
+          <span className="text-[10px] font-bold text-white text-center">Temp</span>
         </button>
-        <button onClick={() => navigate("/opening")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
-          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
-            <ClipboardList className="h-5 w-5 text-[#F5A623]" />
-          </div>
-          <span className="text-[11px] font-semibold text-white text-center">Checklist</span>
+        <button onClick={() => navigate("/opening")} className="flex flex-col items-center justify-center gap-1.5 bg-[#111827] border border-[#1F2937] rounded-lg p-2.5 active:scale-95 transition-transform min-h-[44px]">
+          <ClipboardList className="h-4 w-4 text-[#F5A623]" />
+          <span className="text-[10px] font-bold text-white text-center">Check</span>
         </button>
-        <button onClick={() => navigate("/manager-log")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
-          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
-            <FileText className="h-5 w-5 text-[#F5A623]" />
-          </div>
-          <span className="text-[11px] font-semibold text-white text-center">Add Note</span>
+        <button onClick={() => navigate("/manager-log")} className="flex flex-col items-center justify-center gap-1.5 bg-[#111827] border border-[#1F2937] rounded-lg p-2.5 active:scale-95 transition-transform min-h-[44px]">
+          <FileText className="h-4 w-4 text-[#F5A623]" />
+          <span className="text-[10px] font-bold text-white text-center">Note</span>
         </button>
-        <button onClick={() => navigate("/issues")} className="flex flex-col items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-xl p-3 active:scale-95 transition-transform">
-          <div className="h-10 w-10 rounded-lg bg-[#1C2432] flex items-center justify-center">
-            <AlertTriangle className="h-5 w-5 text-[#F5A623]" />
-          </div>
-          <span className="text-[11px] font-semibold text-white text-center">Report</span>
+        <button onClick={() => navigate("/issues")} className="flex flex-col items-center justify-center gap-1.5 bg-[#111827] border border-[#1F2937] rounded-lg p-2.5 active:scale-95 transition-transform min-h-[44px]">
+          <AlertTriangle className="h-4 w-4 text-[#F5A623]" />
+          <span className="text-[10px] font-bold text-white text-center">Issue</span>
         </button>
       </div>
 
       {/* Team Snapshot */}
-      <SectionLabel text="Team Status" />
-      <div className="grid grid-cols-4 gap-2 mb-4">
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
-          <p className="text-lg font-extrabold text-white">{m.onShift || 0}</p>
-          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">On Shift</p>
+      <SectionLabel text="Team" />
+      <div className="grid grid-cols-4 gap-1.5 mb-3">
+        <div className="bg-[#111827] border border-[#1F2937] rounded-lg p-2 text-center">
+          <p className="text-base font-bold text-white">{m.onShift || 0}</p>
+          <p className="text-[8px] text-gray-600 font-bold uppercase mt-0.5">Shift</p>
         </div>
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
-          <p className="text-lg font-extrabold text-orange-400">0</p>
-          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Late</p>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-lg p-2 text-center">
+          <p className="text-base font-bold text-orange-400">0</p>
+          <p className="text-[8px] text-gray-600 font-bold uppercase mt-0.5">Late</p>
         </div>
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
-          <p className="text-lg font-extrabold text-yellow-400">0</p>
-          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Scheduled</p>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-lg p-2 text-center">
+          <p className="text-base font-bold text-yellow-400">0</p>
+          <p className="text-[8px] text-gray-600 font-bold uppercase mt-0.5">Sched</p>
         </div>
-        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-2.5 text-center">
-          <p className="text-lg font-extrabold text-red-400">0</p>
-          <p className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Absent</p>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-lg p-2 text-center">
+          <p className="text-base font-bold text-red-400">0</p>
+          <p className="text-[8px] text-gray-600 font-bold uppercase mt-0.5">Absent</p>
         </div>
       </div>
 
       {/* Recent Activity */}
       {m.activity.length > 0 && (
         <>
-          <SectionLabel text="Recent Activity" />
-          <div className="space-y-1.5">
+          <SectionLabel text="Activity" />
+          <div className="space-y-1">
             {m.activity.map((act, i) => {
               const ActivityIcon = act.icon;
               return (
-                <div key={i} className="flex items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-lg px-2.5 py-2">
-                  <ActivityIcon className={cn("h-3.5 w-3.5 shrink-0", act.iconColor)} />
+                <div key={i} className="flex items-center gap-2 bg-[#111827] border border-[#1F2937] rounded-lg px-2 py-1.5">
+                  <ActivityIcon className={cn("h-3 w-3 shrink-0", act.iconColor)} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-300 truncate">{act.title}</p>
+                    <p className="text-[10px] text-gray-400 truncate">{act.title}</p>
                   </div>
-                  <p className="text-[9px] text-gray-600 shrink-0 whitespace-nowrap">{act.time}</p>
+                  <p className="text-[8px] text-gray-600 shrink-0 whitespace-nowrap">{act.time}</p>
                 </div>
               );
             })}
@@ -466,17 +453,17 @@ export default function TodaysCommandCenter() {
       {/* Last Handoff Note */}
       {m.latestHandoff && (
         <>
-          <SectionLabel text="Last Shift Handoff" action="All" onAction={() => navigate("/shift-handoff")} />
-          <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 py-2.5 space-y-1.5">
+          <SectionLabel text="Handoff" action="All" onAction={() => navigate("/shift-handoff")} />
+          <div className="bg-[#111827] border border-[#1F2937] rounded-lg px-2.5 py-2 space-y-1">
             {[
               { key: "items_86d",             label: "86'd" },
               { key: "staff_issues",           label: "Staff" },
               { key: "maintenance_problems",   label: "Maint." },
               { key: "notes_for_next_manager", label: "Notes" },
             ].filter(f => m.latestHandoff[f.key]).map(f => (
-              <p key={f.key} className="text-xs text-gray-500 leading-snug">
-                <span className="font-semibold text-gray-300">{f.label}: </span>
-                {m.latestHandoff[f.key].substring(0, 80)}{m.latestHandoff[f.key].length > 80 ? "…" : ""}
+              <p key={f.key} className="text-[10px] text-gray-500 leading-snug">
+                <span className="font-bold text-gray-300">{f.label}: </span>
+                {m.latestHandoff[f.key].substring(0, 60)}{m.latestHandoff[f.key].length > 60 ? "…" : ""}
               </p>
             ))}
           </div>

@@ -342,39 +342,36 @@ export default function TempLogs() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1.5">
+      <div className="flex gap-3 px-4 py-2 border-b border-border overflow-x-auto">
         <button
           onClick={() => setActiveTab("temps")}
-          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5",
+          className={cn("whitespace-nowrap text-xs font-bold transition-all",
             activeTab === "temps"
-              ? "bg-primary text-primary-foreground"
-              : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
+              ? "text-primary"
+              : "text-gray-500"
           )}
         >
-          <Thermometer className="h-3.5 w-3.5" />
-          <span>Temperature</span>
+          Temps
         </button>
         <button
           onClick={() => setActiveTab("chemicals")}
-          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5",
+          className={cn("whitespace-nowrap text-xs font-bold transition-all",
             activeTab === "chemicals"
-              ? "bg-primary text-primary-foreground"
-              : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
+              ? "text-primary"
+              : "text-gray-500"
           )}
         >
-          <Droplet className="h-3.5 w-3.5" />
-          <span>Chemicals</span>
+          Chemicals
         </button>
         <button
           onClick={() => setActiveTab("cooling")}
-          className={cn("flex-1 py-1.5 px-2.5 rounded-md text-xs font-bold transition-all flex items-center justify-center gap-1.5",
+          className={cn("whitespace-nowrap text-xs font-bold transition-all",
             activeTab === "cooling"
-              ? "bg-primary text-primary-foreground"
-              : "bg-[#0F1623] border border-[#1E2A3B] text-gray-500"
+              ? "text-primary"
+              : "text-gray-500"
           )}
         >
-          <Snowflake className="h-3.5 w-3.5" />
-          <span>Cooling</span>
+          Cooling
         </button>
       </div>
 

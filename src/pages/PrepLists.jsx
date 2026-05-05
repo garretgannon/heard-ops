@@ -138,12 +138,11 @@ export default function PrepLists() {
 
   return (
     <div className="pb-32 bg-background min-h-screen">
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-2">
         <h1 className="text-lg font-bold text-foreground">Master Checklists</h1>
-        <p className="text-[10px] text-muted-foreground mt-0.5">All tasks and checklists compiled</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-1.5 px-4 py-3">
+      <div className="grid grid-cols-4 gap-1 px-4 py-2">
         {metrics.map(m => (
           <div key={m.label} className="bg-card border border-border rounded-lg p-2">
             <p className={cn("text-xl font-bold", m.color)}>{m.value}</p>
@@ -152,7 +151,7 @@ export default function PrepLists() {
         ))}
       </div>
 
-      <div className="flex gap-1.5 px-4 py-2 border-b border-border overflow-x-auto">
+      <div className="flex gap-1.5 px-4 py-1.5 border-b border-border overflow-x-auto">
         {[
           { id: "all", label: "All" },
           { id: "pending", label: "Pending" },
@@ -173,13 +172,13 @@ export default function PrepLists() {
         ))}
       </div>
 
-      <div className="px-4 py-4 space-y-6">
+      <div className="px-4 py-3 space-y-4">
         {Object.entries(grouped).map(([type, tasks]) => {
           if (tasks.length === 0) return null;
           return (
             <div key={type}>
               <h2 className="text-sm font-bold text-foreground mb-2.5">{typeLabels[type] || type}</h2>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {tasks.map(task => {
                   const statusIcon = task.status === "completed" ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <Clock className="h-4 w-4 text-amber-400" />;
                   return (

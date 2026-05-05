@@ -210,15 +210,12 @@ export default function KitchenPrep() {
   return (
     <div className="pb-32 bg-background min-h-screen">
       {/* STICKY HEADER */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-        <div>
-          <h1 className="text-lg font-bold text-foreground">Kitchen Prep</h1>
-          <p className="text-[10px] text-muted-foreground mt-0.5">Production tracker</p>
-        </div>
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-2">
+        <h1 className="text-lg font-bold text-foreground">Kitchen Prep</h1>
       </div>
 
       {/* SUMMARY CARDS */}
-      <div className="sticky top-14 z-30 bg-background/95 backdrop-blur border-b border-border px-4 py-3 grid grid-cols-4 gap-1.5">
+      <div className="sticky top-14 z-30 bg-background/95 backdrop-blur border-b border-border px-4 py-2 grid grid-cols-4 gap-1">
         <div className="bg-card border border-border rounded-lg p-2">
           <p className="text-2xl font-bold text-emerald-400">{stats.completion}%</p>
           <p className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">Complete</p>
@@ -238,7 +235,7 @@ export default function KitchenPrep() {
       </div>
 
       {/* CONTROLS */}
-      <div className="px-4 py-3 space-y-2">
+      <div className="px-4 py-2 space-y-1.5">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -274,8 +271,8 @@ export default function KitchenPrep() {
 
       {/* NEEDS ATTENTION */}
       {needsAttention.length > 0 && (
-        <div className="px-4 py-3 bg-red-500/5 border-b border-red-500/20">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="px-4 py-2 bg-red-500/5 border-b border-red-500/20">
+          <div className="flex items-center gap-2 mb-1.5">
             <AlertTriangle className="h-4 w-4 text-red-400" />
             <p className="text-xs font-bold text-red-400 uppercase">Needs Attention ({needsAttention.length})</p>
           </div>
@@ -306,7 +303,7 @@ export default function KitchenPrep() {
       )}
 
       {/* PREP ITEMS */}
-      <div className="px-4 py-3 space-y-2">
+      <div className="px-4 py-3 space-y-1.5">
         {sorted.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground text-xs">No prep items for this filter</div>
         ) : (
