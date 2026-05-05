@@ -77,16 +77,16 @@ export default function ShiftHandoff() {
       <div className="px-4 py-4 space-y-5">
 
         {/* HEADER INFO CARD */}
-        <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-3.5 flex items-center justify-between gap-3">
+        <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-4 flex items-center justify-between gap-3">
           {/* Date Section */}
           <div className="flex items-center gap-2.5">
-            <div className="h-10 w-10 rounded-lg bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center shrink-0">
+            <div className="h-11 w-11 rounded-lg bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center shrink-0">
               <Calendar className="h-5 w-5 text-yellow-400" />
             </div>
             <div className="text-left">
-              <p className="text-[11px] text-[#6B7280] font-bold uppercase">Date</p>
-              <p className="text-sm font-bold text-white">{today}</p>
-              <p className="text-[10px] text-[#A1A1AA]">{dayName}</p>
+              <p className="text-xs text-[#6B7280] font-bold uppercase">Date</p>
+              <p className="text-base font-bold text-white">{today}</p>
+              <p className="text-xs text-[#A1A1AA]">{dayName}</p>
             </div>
           </div>
 
@@ -95,40 +95,40 @@ export default function ShiftHandoff() {
 
           {/* Shift Section */}
           <div className="flex items-center gap-2.5">
-            <div className={`h-10 w-10 rounded-lg ${shift.color === "purple" ? "bg-purple-500/10 border border-purple-500/25" : "bg-blue-500/10 border border-blue-500/25"} flex items-center justify-center shrink-0`}>
+            <div className={`h-11 w-11 rounded-lg ${shift.color === "purple" ? "bg-purple-500/10 border border-purple-500/25" : "bg-blue-500/10 border border-blue-500/25"} flex items-center justify-center shrink-0`}>
               <Clock className={shift.color === "purple" ? "h-5 w-5 text-purple-400" : "h-5 w-5 text-blue-400"} />
             </div>
             <div className="text-left">
-              <p className="text-[11px] text-[#6B7280] font-bold uppercase">Shift</p>
-              <p className="text-sm font-bold text-white">{shift.label}</p>
-              <p className="text-[10px] text-[#A1A1AA]">{shift.time}</p>
+              <p className="text-xs text-[#6B7280] font-bold uppercase">Shift</p>
+              <p className="text-base font-bold text-white">{shift.label}</p>
+              <p className="text-xs text-[#A1A1AA]">{shift.time}</p>
             </div>
           </div>
 
           {/* Manager Section */}
           <div className="flex items-center gap-2.5">
-            <div className="h-10 w-10 rounded-lg bg-green-500/10 border border-green-500/25 flex items-center justify-center shrink-0">
+            <div className="h-11 w-11 rounded-lg bg-green-500/10 border border-green-500/25 flex items-center justify-center shrink-0">
               <Users className="h-5 w-5 text-green-400" />
             </div>
             <div className="text-left">
-              <p className="text-[11px] text-[#6B7280] font-bold uppercase">Manager</p>
-              <p className="text-sm font-bold text-white">{user?.full_name?.split(" ")[0] || "—"}</p>
+              <p className="text-xs text-[#6B7280] font-bold uppercase">Manager</p>
+              <p className="text-base font-bold text-white">{user?.full_name?.split(" ")[0] || "—"}</p>
             </div>
           </div>
         </div>
 
         {/* SECTION 1: SHIFT SNAPSHOT */}
         <section>
-          <h2 className="text-xs font-bold text-white uppercase tracking-widest mb-3">1. Shift Snapshot</h2>
+          <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-3">1. Shift Snapshot</h2>
           <div className="grid grid-cols-2 gap-2">
             {/* Open Issues */}
             <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
               <div className="flex items-center justify-between mb-2">
                 <AlertTriangle className="h-4 w-4 text-red-400" />
               </div>
-              <p className="text-2xl font-bold text-red-400">{issues.length}</p>
-              <p className="text-xs text-white font-semibold">Open Issues</p>
-              <p className="text-[10px] text-[#6B7280] mt-0.5">needs attention</p>
+              <p className="text-3xl font-bold text-red-400">{issues.length}</p>
+              <p className="text-sm text-white font-semibold mt-1">Open Issues</p>
+              <p className="text-xs text-[#6B7280] mt-0.5">needs attention</p>
             </div>
 
             {/* 86'd Items */}
@@ -136,9 +136,9 @@ export default function ShiftHandoff() {
               <div className="flex items-center justify-between mb-2">
                 <Flame className="h-4 w-4 text-red-400" />
               </div>
-              <p className="text-2xl font-bold text-red-400">{eightySixItems.length}</p>
-              <p className="text-xs text-white font-semibold">86'd Items</p>
-              <p className="text-[10px] text-[#6B7280] mt-0.5">today</p>
+              <p className="text-3xl font-bold text-red-400">{eightySixItems.length}</p>
+              <p className="text-sm text-white font-semibold mt-1">86'd Items</p>
+              <p className="text-xs text-[#6B7280] mt-0.5">today</p>
             </div>
 
             {/* Staffing Notes */}
@@ -146,9 +146,9 @@ export default function ShiftHandoff() {
               <div className="flex items-center justify-between mb-2">
                 <MessageSquare className="h-4 w-4 text-blue-400" />
               </div>
-              <p className="text-2xl font-bold text-blue-400">{staffingCount}</p>
-              <p className="text-xs text-white font-semibold">Staffing Notes</p>
-              <p className="text-[10px] text-[#6B7280] mt-0.5">needs help</p>
+              <p className="text-3xl font-bold text-blue-400">{staffingCount}</p>
+              <p className="text-sm text-white font-semibold mt-1">Staffing Notes</p>
+              <p className="text-xs text-[#6B7280] mt-0.5">needs help</p>
             </div>
 
             {/* Follow-Ups */}
@@ -156,9 +156,9 @@ export default function ShiftHandoff() {
               <div className="flex items-center justify-between mb-2">
                 <CheckCircle2 className="h-4 w-4 text-yellow-400" />
               </div>
-              <p className="text-2xl font-bold text-yellow-400">{followUpCount}</p>
-              <p className="text-xs text-white font-semibold">Follow-Ups</p>
-              <p className="text-[10px] text-[#6B7280] mt-0.5">pending</p>
+              <p className="text-3xl font-bold text-yellow-400">{followUpCount}</p>
+              <p className="text-sm text-white font-semibold mt-1">Follow-Ups</p>
+              <p className="text-xs text-[#6B7280] mt-0.5">pending</p>
             </div>
           </div>
         </section>
@@ -167,8 +167,8 @@ export default function ShiftHandoff() {
         {(issues.length > 0 || eightySixItems.length > 0) && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-bold text-white uppercase tracking-widest">2. Needs Immediate Attention</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">{issues.length + eightySixItems.length} items</span>
+              <h2 className="text-sm font-bold text-white uppercase tracking-widest">2. Needs Immediate Attention</h2>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">{issues.length + eightySixItems.length} items</span>
             </div>
             <div className="space-y-2">
               {issues.slice(0, 2).map(issue => (
@@ -176,11 +176,11 @@ export default function ShiftHandoff() {
                   <div className="flex items-start gap-2.5 flex-1 min-w-0">
                     <AlertTriangle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{issue.title}</p>
-                      <p className="text-[10px] text-[#A1A1AA] mt-0.5 line-clamp-1">{issue.category}</p>
+                      <p className="text-base font-bold text-white truncate">{issue.title}</p>
+                      <p className="text-xs text-[#A1A1AA] mt-0.5 line-clamp-1">{issue.category}</p>
                     </div>
                   </div>
-                  <button className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg border border-[#FF6A00]/50 text-[#FF6A00] hover:bg-[#FF6A00]/5 transition-colors shrink-0 active:scale-95">
+                  <button className="text-xs font-bold px-3 py-1.5 rounded-lg border border-[#FF6A00]/50 text-[#FF6A00] hover:bg-[#FF6A00]/5 transition-colors shrink-0 active:scale-95">
                     Action
                   </button>
                 </div>
@@ -190,11 +190,11 @@ export default function ShiftHandoff() {
                   <div className="flex items-start gap-2.5 flex-1 min-w-0">
                     <Flame className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{item.item_name} (86'd)</p>
-                      <p className="text-[10px] text-[#A1A1AA] mt-0.5">{item.category}</p>
+                      <p className="text-base font-bold text-white truncate">{item.item_name} (86'd)</p>
+                      <p className="text-xs text-[#A1A1AA] mt-0.5">{item.category}</p>
                     </div>
                   </div>
-                  <button className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg border border-[#FF6A00]/50 text-[#FF6A00] hover:bg-[#FF6A00]/5 transition-colors shrink-0 active:scale-95">
+                  <button className="text-xs font-bold px-3 py-1.5 rounded-lg border border-[#FF6A00]/50 text-[#FF6A00] hover:bg-[#FF6A00]/5 transition-colors shrink-0 active:scale-95">
                     Action
                   </button>
                 </div>
@@ -205,13 +205,13 @@ export default function ShiftHandoff() {
 
         {/* SECTION 3: DEPARTMENT NOTES */}
         <section>
-          <h2 className="text-xs font-bold text-white uppercase tracking-widest mb-2.5">3. Department Notes</h2>
+          <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-3">3. Department Notes</h2>
           <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1">
             {["FOH", "BOH", "Bar", "Facilities", "Guest"].map(dept => (
               <button
                 key={dept}
                 onClick={() => setActiveNoteTab(dept)}
-                className={`text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap transition-all shrink-0 ${
+                className={`text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap transition-all shrink-0 ${
                   activeNoteTab === dept
                     ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
                     : "bg-[#141418] text-[#A1A1AA] border border-[#1F1F24]"
@@ -225,15 +225,15 @@ export default function ShiftHandoff() {
             <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex items-start gap-2.5">
               <div className="h-2 w-2 rounded-full bg-green-400 mt-1.5 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white line-clamp-2">Patio waitlist was long early. Shifted 2 servers to support FOH flow.</p>
-                <p className="text-[10px] text-[#6B7280] mt-1.5">J. Rivera • 1h ago</p>
+                <p className="text-base text-white line-clamp-2">Patio waitlist was long early. Shifted 2 servers to support FOH flow.</p>
+                <p className="text-xs text-[#6B7280] mt-2">J. Rivera • 1h ago</p>
               </div>
             </div>
             <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex items-start gap-2.5">
               <div className="h-2 w-2 rounded-full bg-blue-400 mt-1.5 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white line-clamp-2">Table 12 birthday celebration. Reserved preferred window seat.</p>
-                <p className="text-[10px] text-[#6B7280] mt-1.5">J. Rivera • 2h ago</p>
+                <p className="text-base text-white line-clamp-2">Table 12 birthday celebration. Reserved preferred window seat.</p>
+                <p className="text-xs text-[#6B7280] mt-2">J. Rivera • 2h ago</p>
               </div>
             </div>
           </div>
@@ -242,8 +242,8 @@ export default function ShiftHandoff() {
         {/* SECTION 4: CARRYOVER TASKS */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-bold text-white uppercase tracking-widest">4. Carryover Tasks</h2>
-            <button className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg border border-[#FF6A00]/50 text-[#FF6A00] hover:bg-[#FF6A00]/5 transition-colors active:scale-95 flex items-center gap-1.5">
+            <h2 className="text-sm font-bold text-white uppercase tracking-widest">4. Carryover Tasks</h2>
+            <button className="text-xs font-bold px-3 py-1.5 rounded-lg border border-[#FF6A00]/50 text-[#FF6A00] hover:bg-[#FF6A00]/5 transition-colors active:scale-95 flex items-center gap-1.5">
               <Plus className="h-3.5 w-3.5" /> Add
             </button>
           </div>
@@ -252,13 +252,13 @@ export default function ShiftHandoff() {
               <div key={idx} className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex items-center gap-3">
                 <div className="h-5 w-5 rounded-full border border-[#1F1F24] shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">{task.task_name}</p>
+                  <p className="text-base font-semibold text-white truncate">{task.task_name}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1F1F24] text-[#A1A1AA] font-semibold shrink-0">{task.area}</span>
-                    {task.completed_at && <span className="text-[10px] text-[#6B7280]">{format(new Date(task.completed_at), "h:mm a")}</span>}
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#1F1F24] text-[#A1A1AA] font-semibold shrink-0">{task.area}</span>
+                    {task.completed_at && <span className="text-xs text-[#6B7280]">{format(new Date(task.completed_at), "h:mm a")}</span>}
                   </div>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${
                   task.status === "completed" ? "bg-green-500/10 text-green-400" : "bg-gray-500/10 text-gray-400"
                 }`}>
                   {task.status === "completed" ? "Done" : "Open"}
@@ -270,16 +270,16 @@ export default function ShiftHandoff() {
 
         {/* SECTION 5: LINKED ITEMS */}
         <section>
-          <h2 className="text-xs font-bold text-white uppercase tracking-widest mb-3">5. Linked Items</h2>
+          <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-3">5. Linked Items</h2>
           <div className="space-y-2">
             {issues.length > 0 && (
               <button className="w-full bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex items-center justify-between hover:bg-[#1A1A1F] transition-colors active:scale-95">
                 <div className="flex items-center gap-2.5">
                   <AlertTriangle className="h-4 w-4 text-red-400" />
-                  <span className="text-sm font-semibold text-white">Open Issues</span>
+                  <span className="text-base font-semibold text-white">Open Issues</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">{issues.length}</span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">{issues.length}</span>
                   <ChevronRight className="h-4 w-4 text-[#6B7280]" />
                 </div>
               </button>
@@ -288,10 +288,10 @@ export default function ShiftHandoff() {
               <button className="w-full bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex items-center justify-between hover:bg-[#1A1A1F] transition-colors active:scale-95">
                 <div className="flex items-center gap-2.5">
                   <Flame className="h-4 w-4 text-red-400" />
-                  <span className="text-sm font-semibold text-white">86 Log</span>
+                  <span className="text-base font-semibold text-white">86 Log</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">{eightySixItems.length}</span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-500/10 text-red-400">{eightySixItems.length}</span>
                   <ChevronRight className="h-4 w-4 text-[#6B7280]" />
                 </div>
               </button>
@@ -300,10 +300,10 @@ export default function ShiftHandoff() {
               <button className="w-full bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex items-center justify-between hover:bg-[#1A1A1F] transition-colors active:scale-95">
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="h-4 w-4 text-blue-400" />
-                  <span className="text-sm font-semibold text-white">Prep Items Needing Review</span>
+                  <span className="text-base font-semibold text-white">Prep Items Needing Review</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400">{prepItems.length}</span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400">{prepItems.length}</span>
                   <ChevronRight className="h-4 w-4 text-[#6B7280]" />
                 </div>
               </button>
@@ -314,14 +314,14 @@ export default function ShiftHandoff() {
       </div>
 
       {/* FIXED BOTTOM CTA */}
-      <div className="fixed bottom-20 left-0 right-0 z-30 bg-[#0B0B0D]/95 backdrop-blur border-t border-[#1F1F24] px-4 py-3">
-        <button
-          onClick={() => setShowCompleteDialog(true)}
-          className="w-full h-12 bg-[#FF6A00] text-black font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"
-        >
-          <Check className="h-5 w-5" /> Complete Handoff
-        </button>
-        <p className="text-[10px] text-[#6B7280] text-center mt-2">Saves notes, creates follow-ups, and notifies the next manager.</p>
+        <div className="fixed bottom-20 left-0 right-0 z-30 bg-[#0B0B0D]/95 backdrop-blur border-t border-[#1F1F24] px-4 py-3">
+          <button
+            onClick={() => setShowCompleteDialog(true)}
+            className="w-full h-12 bg-[#FF6A00] text-black font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          >
+            <Check className="h-5 w-5" /> Complete Handoff
+          </button>
+          <p className="text-xs text-[#6B7280] text-center mt-2">Saves notes, creates follow-ups, and notifies the next manager.</p>
       </div>
     </div>
   );
