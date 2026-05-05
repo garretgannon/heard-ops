@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Trash2, Copy, Save, Camera, Clock, RefreshCw, ChevronRight, Layers, CheckSquare, ClipboardList, Flame, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -134,10 +134,36 @@ export default function TemplateBuilder() {
   const [templates, setTemplates] = useState([]);
   const [selected, setSelected] = useState(null); // full template object being edited
   const [saving, setSaving] = useState(false);
+  const [pushing, setPushing] = useState(false);
+  const [pushResult, setPushResult] = useState(null);
   const [newTaskName, setNewTaskName] = useState("");
   const [filterCat, setFilterCat] = useState("all");
+  const [stats, setStats] = useState({});
 
-  useEffect(() => { loadTemplates(); }, []);
+  useEffect(() => { loadTemplates(); loadStats(); }, []);
+
+  async function loadStats() {
+    const today = new Date().toISOString().split('T')[0];
+    const [prepItems, opening, closing, sideWork] = await Promise.all([
+      base44.entities.PrepItem.filter({ source_template_id: { $exists: true } }),
+      base44.entities.OpeningChecklist.filter({ date: today }),
+      base44.entities.ClosingChecklist.filter({ date: today }),
+      base44.entities.SideWorkAssignment.filter({ date: today }),
+    ]);
+    const all = [...prepItems, ...opening, ...closing, ...sideWork];
+    const completed = all.filter(t => t.status === 'completed').length;
+    const missed = all.filter(t => t.status === 'missed' || t.status === 'overdue').length;
+    setStats({ total: all.length, completed, missed, rate: all.length ? Math.round((completed / all.length) * 100) : 0 });
+  }
+
+  async function pushNow() {
+    if (!selected?.id) return;
+    setPushing(true);
+    setPushResult(null);
+    const res = await base44.functions.invoke('generateTemplateTasks', { template_id: selected.id, date: new Date().toISOString().split('T')[0] });
+    setPushResult(res.data);
+    setPushing(false);
+  }
 
   async function loadTemplates() {
     const data = await base44.entities.Template.list("-updated_date", 100);
@@ -220,9 +246,9 @@ export default function TemplateBuilder() {
         <div className="grid grid-cols-4 gap-2 mt-3">
           {[
             { label: "Active", value: active },
-            { label: "Assigned Today", value: templates.length },
-            { label: "Photo Req", value: `${photoPct}%` },
-            { label: "Updated Today", value: recentlyUpdated },
+            { label: "Tasks Today", value: stats.total || 0 },
+            { label: "Completed", value: `${stats.rate || 0}%` },
+            { label: "Missed", value: stats.missed || 0 },
           ].map(m => (
             <div key={m.label} className="bg-[#0F1623] border border-[#1A2235] rounded-xl p-2 text-center">
               <div className="text-[18px] font-extrabold text-white leading-none">{m.value}</div>
@@ -408,6 +434,26 @@ export default function TemplateBuilder() {
               </div>
 
               {/* Bottom Actions */}
+              {/* Push Now */}
+              <div className="flex items-center gap-2 p-3 bg-[#0B1018] border border-[#1A2235] rounded-xl">
+                <div className="flex-1">
+                  <p className="text-[12px] font-bold text-white">Push Today's Tasks</p>
+                  <p className="text-[10px] text-gray-600 mt-0.5">Generate tasks from this template right now</p>
+                  {pushResult && (
+                    <p className={`text-[10px] mt-1 font-semibold ${pushResult.created > 0 ? 'text-emerald-400' : 'text-gray-500'}`}>
+                      {pushResult.created > 0 ? `✓ ${pushResult.created} tasks created` : pushResult.skipped ? 'Already pushed today' : 'Done'}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={pushNow}
+                  disabled={pushing || !selected?.id}
+                  className="px-3 py-2 rounded-xl bg-primary/15 border border-primary/25 text-primary text-[12px] font-bold disabled:opacity-40 active:scale-95 transition-all"
+                >
+                  {pushing ? '...' : 'Push Now'}
+                </button>
+              </div>
+
               <div className="flex gap-2">
                 <button
                   onClick={duplicateTemplate}

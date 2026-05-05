@@ -30,6 +30,10 @@
       "type": "string",
       "title": "Station ID"
     },
+    "source_template_id": {
+      "type": "string",
+      "title": "Source Template ID"
+    },
     "status": {
       "type": "string",
       "title": "Status",

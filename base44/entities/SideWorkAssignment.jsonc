@@ -58,6 +58,10 @@
       "type": "string",
       "title": "Assigned To (Name)"
     },
+    "source_template_id": {
+      "type": "string",
+      "title": "Source Template ID"
+    },
     "status": {
       "type": "string",
       "title": "Status",

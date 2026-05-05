@@ -53,6 +53,10 @@
       "title": "Template (reuse daily)",
       "default": false
     },
+    "source_template_id": {
+      "type": "string",
+      "title": "Source Template ID"
+    },
     "status": {
       "type": "string",
       "title": "Status",
