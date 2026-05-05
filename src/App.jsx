@@ -53,6 +53,7 @@ import ScheduleCenter from './pages/ScheduleCenter';
 import IssueTracker from './pages/IssueTracker';
 import More from './pages/More';
 import Standards from './pages/Standards';
+import Cleaning from './pages/Cleaning';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -133,6 +134,7 @@ const AuthenticatedApp = () => {
         <Route path="/bathroom-checks" element={<BathroomChecks />} />
         <Route path="/more" element={<More />} />
         <Route path="/standards" element={<Standards />} />
+        <Route path="/cleaning" element={<Cleaning />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
         <Route path="*" element={<PageNotFound />} />
