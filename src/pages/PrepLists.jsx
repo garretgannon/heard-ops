@@ -247,11 +247,10 @@ export default function PrepLists() {
     <div className="mx-auto w-full max-w-[420px] flex flex-col gap-2 pb-24">
 
       {/* Header */}
-      <div className="flex items-center justify-between py-1">
-        <div className="flex items-center gap-1.5">
-          <ClipboardList className="h-4 w-4 text-[#F5A623]" />
-          <span className="text-[15px] font-extrabold text-white tracking-tight">Prep Progress</span>
-          <span className="text-[10px] text-gray-600 font-semibold">{dateFilter === todayStr ? "Today" : dateFilter}</span>
+      <div className="flex items-start justify-between pt-1 pb-0.5">
+        <div>
+          <h1 className="text-[17px] font-extrabold text-white tracking-tight">Prep Progress</h1>
+          <p className="text-[11px] text-gray-600 mt-0.5">{dateFilter === todayStr ? "Today's station prep" : dateFilter}</p>
         </div>
         <div className="flex gap-1">
           <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)}
@@ -334,37 +333,25 @@ export default function PrepLists() {
         </div>
       )}
 
-      {/* Filter chips + search row */}
-      <div className="flex gap-1.5 items-center">
-        <div className="flex gap-1 overflow-x-auto pb-0.5 scrollbar-hide flex-1">
-          {[
-            { id: "all",           label: "All" },
-            { id: "overdue",       label: "⚠ Late" },
-            { id: "in_progress",   label: "Active" },
-            { id: "not_started",   label: "Pending" },
-            { id: "pending_review",label: "📷 Photo" },
-            { id: "completed",     label: "Done" },
-          ].map(f => (
-            <button key={f.id} onClick={() => { setItemFilter(f.id); setAllCaughtUp(false); }}
-              className={cn(
-                "flex-shrink-0 h-7 px-2.5 rounded-lg text-[10px] font-bold border transition-all active:scale-95 whitespace-nowrap",
-                itemFilter === f.id
-                  ? f.id === "overdue" ? "bg-red-500/15 text-red-400 border-red-500/30"
-                    : f.id === "completed" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                    : "bg-[#F5A623]/15 text-[#F5A623] border-[#F5A623]/30"
-                  : "bg-[#111827] text-gray-600 border-[#1F2937]"
-              )}>{f.label}</button>
-          ))}
-          <button onClick={() => setViewByPerson(v => !v)}
-            className={cn("flex-shrink-0 h-7 px-2.5 rounded-lg text-[10px] font-bold border transition-all active:scale-95",
-              viewByPerson ? "bg-[#F5A623]/15 text-[#F5A623] border-[#F5A623]/30" : "bg-[#111827] text-gray-600 border-[#1F2937]"
-            )}>👤 Person</button>
-        </div>
-        <div className="relative shrink-0">
-          <Search className="absolute left-2 top-2 h-3 w-3 text-gray-600" />
-          <input placeholder="Search" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-            className="h-7 w-24 pl-6 pr-2 text-[10px] bg-[#111827] border border-[#1F2937] rounded-lg text-white placeholder:text-gray-700 focus:outline-none" />
-        </div>
+      {/* Filter chips */}
+      <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
+        {[
+          { id: "all",            label: "All" },
+          { id: "overdue",        label: "⚠ Late" },
+          { id: "in_progress",    label: "Active" },
+          { id: "not_started",    label: "Pending" },
+          { id: "completed",      label: "Done" },
+        ].map(f => (
+          <button key={f.id} onClick={() => { setItemFilter(f.id); setAllCaughtUp(false); }}
+            className={cn(
+              "flex-shrink-0 h-7 px-2.5 rounded-lg text-[10px] font-bold border transition-all active:scale-95 whitespace-nowrap",
+              itemFilter === f.id
+                ? f.id === "overdue" ? "bg-red-500/15 text-red-400 border-red-500/30"
+                  : f.id === "completed" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                  : "bg-[#F5A623]/15 text-[#F5A623] border-[#F5A623]/30"
+                : "bg-[#111827] text-gray-600 border-[#1F2937]"
+            )}>{f.label}</button>
+        ))}
       </div>
 
       {/* All caught up */}
@@ -374,54 +361,15 @@ export default function PrepLists() {
         </div>
       )}
 
-      {/* Prep item cards */}
-      {viewByPerson ? (
-        (() => {
-          const unassigned = "Unassigned";
-          const grouped = {};
-          filteredItems.forEach(item => {
-            const key = item.assigned_to_individual || unassigned;
-            if (!grouped[key]) grouped[key] = [];
-            grouped[key].push(item);
-          });
-          const byPersonEntries = Object.entries(grouped).sort(([a], [b]) => a === unassigned ? 1 : b === unassigned ? -1 : a.localeCompare(b));
-          if (byPersonEntries.length === 0) return <p className="text-center py-6 text-[12px] text-gray-600">No items</p>;
-          return (
-            <div className="flex flex-col gap-3">
-              {byPersonEntries.map(([person, items]) => {
-                const done = items.filter(i => getStatus(i) === "completed").length;
-                const overdue = items.filter(i => getStatus(i) !== "completed" && i.priority === "high").length;
-                const pct = Math.round((done / items.length) * 100);
-                const displayName = person === unassigned ? "Unassigned" : person.includes("@") ? person.split("@")[0] : person;
-                return (
-                  <div key={person}>
-                    <div className="flex items-center justify-between mb-1.5 px-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-5 h-5 rounded-full bg-[#F5A623]/15 flex items-center justify-center text-[9px] font-bold text-[#F5A623]">{displayName[0]?.toUpperCase()}</div>
-                        <span className="text-[12px] font-bold text-white">{displayName}</span>
-                        {overdue > 0 && <span className="text-[9px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-1 py-0.5 rounded-full">{overdue} late</span>}
-                      </div>
-                      <span className={cn("text-[11px] font-bold", pct === 100 ? "text-emerald-400" : overdue > 0 ? "text-red-400" : "text-[#F5A623]")}>{pct}%</span>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      {items.map(item => <PrepItemRow key={item.id} item={item} station={getStation(item.station_id)} list={getListForItem(item)} status={getStatus(item)} isFlashing={flashDone.has(item.id)} filteredIds={filteredIds} onAction={handleItemAction} onOpen={setSelectedList} itemRef={el => { itemRefs.current[item.id] = el; }} />)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()
-      ) : (
-        <div className="flex flex-col gap-1.5">
-          {filteredItems.length === 0
-            ? <p className="text-center py-6 text-[12px] text-gray-600">No items</p>
-            : filteredItems.map(item => (
-                <PrepItemRow key={item.id} item={item} station={getStation(item.station_id)} list={getListForItem(item)} status={getStatus(item)} isFlashing={flashDone.has(item.id)} filteredIds={filteredIds} onAction={handleItemAction} onOpen={setSelectedList} itemRef={el => { itemRefs.current[item.id] = el; }} />
-              ))
-          }
-        </div>
-      )}
+      {/* Prep Items */}
+      <div className="flex flex-col gap-1.5">
+        {filteredItems.length === 0
+          ? <p className="text-center py-6 text-[12px] text-gray-600">No items</p>
+          : filteredItems.map(item => (
+              <PrepItemRow key={item.id} item={item} station={getStation(item.station_id)} list={getListForItem(item)} status={getStatus(item)} isFlashing={flashDone.has(item.id)} filteredIds={filteredIds} onAction={handleItemAction} onOpen={setSelectedList} itemRef={el => { itemRefs.current[item.id] = el; }} />
+            ))
+        }
+      </div>
 
       {/* Dialogs */}
       <BulkImportDialog open={bulkImportOpen} onOpenChange={setBulkImportOpen} type="prep_items" onImportComplete={load} />
