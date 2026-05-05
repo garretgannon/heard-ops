@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Plus, Edit2, Copy, Archive, MoreVertical, Search, Filter } from 'lucide-react';
@@ -78,19 +79,48 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
 }
 
 export default function SideWorkTemplates() {
+  const { id: templateIdFromUrl } = useParams();
   const { isAdmin } = useCurrentUser();
   const [templates, setTemplates] = useState([]);
   const [search, setSearch] = useState('');
   const [filterDept, setFilterDept] = useState('');
+  const [filterStation, setFilterStation] = useState('');
+  const [filterJobCode, setFilterJobCode] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [stations, setStations] = useState([]);
+  const [jobCodes, setJobCodes] = useState([]);
 
   useEffect(() => {
     loadTemplates();
+    loadStationsAndCodes();
     const unsub = base44.entities.SideWorkTemplate.subscribe(() => loadTemplates());
     return () => unsub?.();
   }, []);
+
+  useEffect(() => {
+    if (templateIdFromUrl) {
+      const template = templates.find(t => t.id === templateIdFromUrl);
+      if (template) {
+        setEditingTemplate(template);
+        setShowForm(true);
+      }
+    }
+  }, [templateIdFromUrl, templates]);
+
+  const loadStationsAndCodes = async () => {
+    try {
+      const [stationData, codeData] = await Promise.all([
+        base44.entities.Station.list('-updated_date', 100).catch(() => []),
+        base44.entities.JobCode.list('-updated_date', 100).catch(() => [])
+      ]);
+      setStations(stationData.filter(s => s.isActive));
+      setJobCodes(codeData.filter(j => j.isActive));
+    } catch (error) {
+      console.error('Failed to load metadata:', error);
+    }
+  };
 
   const loadTemplates = async () => {
     setLoading(true);
@@ -105,10 +135,12 @@ export default function SideWorkTemplates() {
 
   const filtered = templates.filter(t => {
     const matchDept = !filterDept || t.department === filterDept;
+    const matchStation = !filterStation || t.station === filterStation;
+    const matchJobCode = !filterJobCode || t.jobCode === filterJobCode;
     const matchSearch = !search || 
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.station.toLowerCase().includes(search.toLowerCase());
-    return matchDept && matchSearch;
+    return matchDept && matchStation && matchJobCode && matchSearch;
   });
 
   const departments = [...new Set(templates.map(t => t.department))].sort();
@@ -183,6 +215,22 @@ export default function SideWorkTemplates() {
           >
             <option value="">All Departments</option>
             {departments.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <select
+            value={filterStation}
+            onChange={(e) => setFilterStation(e.target.value)}
+            className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+          >
+            <option value="">All Stations</option>
+            {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+          </select>
+          <select
+            value={filterJobCode}
+            onChange={(e) => setFilterJobCode(e.target.value)}
+            className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+          >
+            <option value="">All Job Codes</option>
+            {jobCodes.map(j => <option key={j.id} value={j.name}>{j.name}</option>)}
           </select>
         </div>
       </div>
