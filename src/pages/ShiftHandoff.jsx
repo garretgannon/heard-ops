@@ -121,40 +121,32 @@ export default function ShiftHandoff() {
           <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-3">1. Shift Snapshot</h2>
           <div className="grid grid-cols-2 gap-2">
             {/* Open Issues */}
-            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <AlertTriangle className="h-4 w-4 text-red-400" />
-              </div>
+            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex flex-col items-center text-center">
+              <AlertTriangle className="h-4 w-4 text-red-400 mb-2" />
               <p className="text-3xl font-bold text-red-400">{issues.length}</p>
               <p className="text-sm text-white font-semibold mt-1">Open Issues</p>
               <p className="text-xs text-[#6B7280] mt-0.5">needs attention</p>
             </div>
 
             {/* 86'd Items */}
-            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <Flame className="h-4 w-4 text-red-400" />
-              </div>
+            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex flex-col items-center text-center">
+              <Flame className="h-4 w-4 text-red-400 mb-2" />
               <p className="text-3xl font-bold text-red-400">{eightySixItems.length}</p>
               <p className="text-sm text-white font-semibold mt-1">86'd Items</p>
               <p className="text-xs text-[#6B7280] mt-0.5">today</p>
             </div>
 
             {/* Staffing Notes */}
-            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <MessageSquare className="h-4 w-4 text-blue-400" />
-              </div>
+            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex flex-col items-center text-center">
+              <MessageSquare className="h-4 w-4 text-blue-400 mb-2" />
               <p className="text-3xl font-bold text-blue-400">{staffingCount}</p>
               <p className="text-sm text-white font-semibold mt-1">Staffing Notes</p>
               <p className="text-xs text-[#6B7280] mt-0.5">needs help</p>
             </div>
 
             {/* Follow-Ups */}
-            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <CheckCircle2 className="h-4 w-4 text-yellow-400" />
-              </div>
+            <div className="bg-[#141418] border border-[#1F1F24] rounded-lg p-3 flex flex-col items-center text-center">
+              <CheckCircle2 className="h-4 w-4 text-yellow-400 mb-2" />
               <p className="text-3xl font-bold text-yellow-400">{followUpCount}</p>
               <p className="text-sm text-white font-semibold mt-1">Follow-Ups</p>
               <p className="text-xs text-[#6B7280] mt-0.5">pending</p>
