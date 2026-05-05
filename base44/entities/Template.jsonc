@@ -1,0 +1,93 @@
+{
+  "name": "Template",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Template Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "prep",
+        "cleaning",
+        "side_work",
+        "opening",
+        "closing"
+      ],
+      "enumNames": [
+        "Prep",
+        "Cleaning",
+        "Side Work",
+        "Opening",
+        "Closing"
+      ]
+    },
+    "assigned_role": {
+      "type": "string",
+      "title": "Assigned Role"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "repeat": {
+      "type": "string",
+      "title": "Repeat",
+      "enum": [
+        "daily",
+        "weekly",
+        "custom"
+      ],
+      "enumNames": [
+        "Daily",
+        "Weekly",
+        "Custom"
+      ],
+      "default": "daily"
+    },
+    "photo_required": {
+      "type": "boolean",
+      "title": "Photo Required",
+      "default": false
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "tasks": {
+      "type": "array",
+      "title": "Tasks",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "due_time": {
+            "type": "string"
+          },
+          "photo_required": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}

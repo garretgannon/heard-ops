@@ -58,6 +58,7 @@ import OpeningChecklist from './pages/OpeningChecklist';
 import ClosingChecklist from './pages/ClosingChecklist';
 import Inventory from './pages/Inventory';
 import WasteLog from './pages/WasteLog';
+import TemplateBuilder from './pages/TemplateBuilder';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -143,6 +144,7 @@ const AuthenticatedApp = () => {
         <Route path="/closing" element={<ClosingChecklist />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/waste" element={<WasteLog />} />
+        {isAdmin && <Route path="/templates" element={<TemplateBuilder />} />}
         <Route path="/cash" element={<Cash />} />
         <Route path="/maintenance" element={<MaintenanceRequests />} />
         <Route path="*" element={<PageNotFound />} />
