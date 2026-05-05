@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { ShiftModeContext } from "@/lib/ShiftModeContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import ShiftStartModal from "@/components/ShiftMode/ShiftStartModal";
 import ShiftCloseModal from "@/components/ShiftMode/ShiftCloseModal";
 import { useShiftModeNotifications } from "@/hooks/useShiftModeNotifications";
@@ -93,6 +94,7 @@ function getGreeting() {
 export default function TodaysCommandCenter() {
   const navigate = useNavigate();
   const { shiftSession, isShiftActive, isClosing, startShift, transitionToClosing, completeShift } = useContext(ShiftModeContext);
+  const { isAdmin } = useCurrentUser();
   const [m, setM] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -362,15 +364,15 @@ export default function TodaysCommandCenter() {
     }
   };
 
-  // Trigger contextual feedback during Shift Mode
+  // Call hook unconditionally at the top level
   useShiftModeNotifications({
-    tasksCompleted: m?.prepCompleted || 0,
-    tasksTotal: m?.prepTotal || 0,
-    overdue: m?.prepOverdue || 0,
-    tempLogs: m?.stats.tempChecks || 0,
+    tasksCompleted: isAdmin ? (m?.prepCompleted || 0) : 0,
+    tasksTotal: isAdmin ? (m?.prepTotal || 0) : 0,
+    overdue: isAdmin ? (m?.prepOverdue || 0) : 0,
+    tempLogs: isAdmin ? (m?.stats.tempChecks || 0) : 0,
     tempLogsNeeded: 4,
-    issues: m?.alerts.filter(a => a.severity === 1) || [],
-    isShiftActive,
+    issues: isAdmin ? (m?.alerts.filter(a => a.severity === 1) || []) : [],
+    isShiftActive: isAdmin ? isShiftActive : false,
   });
 
   if (loading) return (
@@ -385,31 +387,35 @@ export default function TodaysCommandCenter() {
 
   return (
     <div className="pb-2">
-      {/* Shift Mode Modals */}
-      {showStartModal && (
+      {/* Shift Mode Modals (Managers only) */}
+      {isAdmin && showStartModal && (
         <ShiftStartModal manager={user} onStart={handleStartShift} isLoading={isSubmitting} />
       )}
-      {showCloseModal && shiftSession && (
+      {isAdmin && showCloseModal && shiftSession && (
         <ShiftCloseModal shiftSession={shiftSession} onClose={handleCloseShift} isLoading={isSubmitting} />
       )}
 
-      {/* Greeting + Shift Controls */}
+      {/* Greeting + Shift Controls (Managers only) */}
       <div className="mb-2 flex items-center justify-between">
         <h1 className="text-lg font-bold text-white">{getGreeting()}, {firstName}</h1>
-        {!isShiftActive ? (
-          <button
-            onClick={() => setShowStartModal(true)}
-            className="h-8 px-3 rounded-lg bg-primary/15 text-primary border border-primary/30 text-xs font-bold active:scale-95 transition-transform"
-          >
-            Start Shift
-          </button>
-        ) : (
-          <button
-            onClick={() => setShowCloseModal(true)}
-            className="h-8 px-3 rounded-lg bg-red-600/15 text-red-400 border border-red-600/30 text-xs font-bold active:scale-95 transition-transform"
-          >
-            Close Shift
-          </button>
+        {isAdmin && (
+          <>
+            {!isShiftActive ? (
+              <button
+                onClick={() => setShowStartModal(true)}
+                className="h-8 px-3 rounded-lg bg-primary/15 text-primary border border-primary/30 text-xs font-bold active:scale-95 transition-transform"
+              >
+                Start Shift
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowCloseModal(true)}
+                className="h-8 px-3 rounded-lg bg-red-600/15 text-red-400 border border-red-600/30 text-xs font-bold active:scale-95 transition-transform"
+              >
+                Close Shift
+              </button>
+            )}
+          </>
         )}
       </div>
 
@@ -553,8 +559,8 @@ export default function TodaysCommandCenter() {
         </>
       )}
 
-      {/* Shift Mode Footer CTA */}
-      {!isShiftActive && !loading && m && (
+      {/* Shift Mode Footer CTA (Managers only) */}
+      {isAdmin && !isShiftActive && !loading && m && (
         <div className="mt-4 bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
           <p className="text-xs text-muted-foreground mb-2">Ready to manage operations?</p>
           <button
