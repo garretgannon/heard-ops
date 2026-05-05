@@ -161,7 +161,7 @@ export default function RestaurantTeam() {
             placeholder="Search name or email..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="pl-9"
+            className="pl-9 text-foreground"
           />
         </div>
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -297,6 +297,7 @@ export default function RestaurantTeam() {
                 placeholder="staff@restaurant.com"
                 value={inviteEmail}
                 onChange={e => setInviteEmail(e.target.value)}
+                className="text-foreground"
               />
             </div>
             <div className="space-y-1">
@@ -357,6 +358,7 @@ export default function RestaurantTeam() {
                   placeholder="+1 (555) 000-0000"
                   value={selectedEmployee.phone || ""}
                   onChange={e => setSelectedEmployee({ ...selectedEmployee, phone: e.target.value })}
+                  className="text-foreground"
                 />
               </div>
               <div className="space-y-1">
@@ -365,6 +367,7 @@ export default function RestaurantTeam() {
                   type="date"
                   value={selectedEmployee.start_date || ""}
                   onChange={e => setSelectedEmployee({ ...selectedEmployee, start_date: e.target.value })}
+                  className="text-foreground"
                 />
               </div>
               <div className="space-y-1">
@@ -373,6 +376,7 @@ export default function RestaurantTeam() {
                   placeholder="ServSafe, TIPS, Mixology"
                   value={selectedEmployee.certifications || ""}
                   onChange={e => setSelectedEmployee({ ...selectedEmployee, certifications: e.target.value })}
+                  className="text-foreground"
                 />
               </div>
               {isAdmin && (
@@ -383,6 +387,7 @@ export default function RestaurantTeam() {
                       placeholder="Name"
                       value={selectedEmployee.emergency_contact || ""}
                       onChange={e => setSelectedEmployee({ ...selectedEmployee, emergency_contact: e.target.value })}
+                      className="text-foreground"
                     />
                   </div>
                   <div className="space-y-1">
@@ -391,6 +396,7 @@ export default function RestaurantTeam() {
                       placeholder="+1 (555) 000-0000"
                       value={selectedEmployee.emergency_contact_phone || ""}
                       onChange={e => setSelectedEmployee({ ...selectedEmployee, emergency_contact_phone: e.target.value })}
+                      className="text-foreground"
                     />
                   </div>
                 </>
