@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, Copy, Save, Camera, ChevronLeft, Layers, CheckSquare, ClipboardList, Flame, Lock } from "lucide-react";
+import { Plus, Trash2, Copy, Save, Camera, ChevronLeft, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
+import TaskFormModal from "@/components/TaskFormModal";
 
 const CATEGORIES = [
   { value: "prep", label: "Prep", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
@@ -23,15 +24,6 @@ const emptyTemplate = () => ({
   photo_required: false,
   is_active: true,
   tasks: [],
-});
-
-const emptyTask = () => ({
-  id: crypto.randomUUID(),
-  name: "",
-  station: "",
-  role: "",
-  due_time: "",
-  photo_required: false,
 });
 
 function Toggle({ value, onChange }) {
@@ -141,9 +133,9 @@ export default function TemplateBuilder() {
   const [saving, setSaving] = useState(false);
   const [pushing, setPushing] = useState(false);
   const [pushResult, setPushResult] = useState(null);
-  const [newTaskName, setNewTaskName] = useState("");
   const [filterCat, setFilterCat] = useState("all");
   const [stats, setStats] = useState({});
+  const [showTaskForm, setShowTaskForm] = useState(false);
 
   useEffect(() => { loadTemplates(); loadStats(); }, []);
 
@@ -177,12 +169,10 @@ export default function TemplateBuilder() {
 
   function selectTemplate(t) {
     setSelected(JSON.parse(JSON.stringify(t)));
-    setNewTaskName("");
   }
 
   function newTemplate() {
     setSelected(emptyTemplate());
-    setNewTaskName("");
   }
 
   async function saveTemplate() {
@@ -215,11 +205,9 @@ export default function TemplateBuilder() {
     if (selected?.id === id) setSelected(null);
   }
 
-  function addTask() {
-    if (!newTaskName.trim()) return;
-    const task = { ...emptyTask(), name: newTaskName.trim() };
-    setSelected(s => ({ ...s, tasks: [...(s.tasks || []), task] }));
-    setNewTaskName("");
+  function addTask(taskData) {
+    setSelected(s => ({ ...s, tasks: [...(s.tasks || []), taskData] }));
+    setShowTaskForm(false);
   }
 
   function updateTask(taskId, updated) {
@@ -403,21 +391,12 @@ export default function TemplateBuilder() {
                     onDelete={() => deleteTask(task.id)}
                   />
                 ))}
-                <div className="flex gap-2 pt-2">
-                  <input
-                    value={newTaskName}
-                    onChange={e => setNewTaskName(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && addTask()}
-                    placeholder="Add task..."
-                    className="flex-1 bg-[#0B1018] border border-[#1E2A3B] rounded-lg px-3 py-2 text-[12px] text-white outline-none placeholder:text-gray-700"
-                  />
-                  <button
-                    onClick={addTask}
-                    className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center active:scale-95 shrink-0"
-                  >
-                    <Plus className="h-4 w-4 text-primary-foreground" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowTaskForm(true)}
+                  className="w-full h-9 rounded-lg bg-primary/10 border border-primary/25 text-primary text-[12px] font-bold active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Task
+                </button>
               </div>
             </div>
 
@@ -468,11 +447,14 @@ export default function TemplateBuilder() {
       {!selected && (
         <button
           onClick={newTemplate}
-          className="fixed bottom-6 right-4 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-bold shadow-lg active:scale-95"
+          className="fixed bottom-6 right-4 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-bold shadow-lg active:scale-95 z-20"
         >
           <Plus className="h-4 w-4" /> New
         </button>
       )}
+
+      {/* Task Form Modal */}
+      <TaskFormModal open={showTaskForm} onClose={() => setShowTaskForm(false)} onSave={addTask} />
     </div>
   );
 }
