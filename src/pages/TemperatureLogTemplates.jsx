@@ -88,8 +88,9 @@ export default function TemperatureLogTemplates() {
   const [showForm, setShowForm] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
+  const [jobCodes, setJobCodes] = useState([]);
+  const [filterJobCode, setFilterJobCode] = useState('');
 
   useEffect(() => {
     loadTemplates();
@@ -121,10 +122,12 @@ export default function TemperatureLogTemplates() {
 
   const loadAreasAndStations = async () => {
     try {
-      const [stationData] = await Promise.all([
-        base44.entities.Station.list('-updated_date', 100).catch(() => [])
+      const [stationData, codeData] = await Promise.all([
+        base44.entities.Station.list('-updated_date', 100).catch(() => []),
+        base44.entities.JobCode.list('-updated_date', 100).catch(() => [])
       ]);
       setStations(stationData.filter(s => s.isActive));
+      setJobCodes(codeData.filter(j => j.isActive));
     } catch (error) {
       console.error('Failed to load metadata:', error);
     }
@@ -133,10 +136,11 @@ export default function TemperatureLogTemplates() {
   const filtered = templates.filter(t => {
     const matchArea = !filterArea || t.area === filterArea;
     const matchStation = !filterStation || t.station === filterStation;
+    const matchJobCode = !filterJobCode || t.jobCode === filterJobCode;
     const matchSearch = !search || 
       t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.area.toLowerCase().includes(search.toLowerCase());
-    return matchArea && matchStation && matchSearch;
+    return matchArea && matchStation && matchJobCode && matchSearch;
   });
 
   const uniqueAreas = [...new Set(templates.map(t => t.area))].filter(Boolean).sort();
@@ -217,6 +221,14 @@ export default function TemperatureLogTemplates() {
           >
             <option value="">All Stations</option>
             {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+          </select>
+          <select
+            value={filterJobCode}
+            onChange={(e) => setFilterJobCode(e.target.value)}
+            className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+          >
+            <option value="">All Job Codes</option>
+            {jobCodes.map(j => <option key={j.id} value={j.name}>{j.name}</option>)}
           </select>
         </div>
       </div>

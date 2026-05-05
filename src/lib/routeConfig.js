@@ -239,15 +239,7 @@ export const allRoutes = {
       module: "templates",
       description: "Create reusable cleaning checklists",
     },
-    tempLogTemplates: {
-      path: "/temp-log-templates",
-      label: "Temperature Log Templates",
-      icon: LayoutTemplate,
-      component: "TempLogTemplates",
-      roles: ["admin"],
-      module: "templates",
-      description: "Create reusable temperature log templates",
-    },
+
     wasteTemplates: {
       path: "/waste-templates",
       label: "Waste Templates",
