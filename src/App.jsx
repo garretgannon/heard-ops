@@ -152,6 +152,7 @@ const AuthenticatedApp = () => {
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/waste" element={<WasteLog />} />
         {isAdmin && <Route path="/templates" element={<TemplateList />} />}
+        {isAdmin && <Route path="/templates/new" element={<TemplateBuilder />} />}
         {isAdmin && <Route path="/templates/:id" element={<TemplateBuilder />} />}
         {isAdmin && <Route path="/recipes" element={<Recipes />} />}
         {isAdmin && <Route path="/recipes/:recipeId" element={<RecipeBuildCard />} />}

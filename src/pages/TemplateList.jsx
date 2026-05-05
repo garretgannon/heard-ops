@@ -130,7 +130,7 @@ export default function TemplateList() {
 
       {/* FLOATING ACTION BUTTON */}
       <button
-        onClick={() => navigate("/templates")}
+        onClick={() => navigate("/templates/new")}
         className="fixed right-4 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-primary-foreground text-[13px] font-bold shadow-lg active:scale-95 transition-transform z-40"
         style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
       >
