@@ -4,7 +4,7 @@ import HelpButton from "./HelpButton";
 import BottomNav from "./BottomNav";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, Users, ShowerHead, Settings, DollarSign, Wrench, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, Users, ShowerHead, Settings, DollarSign, Wrench, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus, Notebook } from "lucide-react";
 
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -33,6 +33,7 @@ const navSections = {
   managerTools: {
     label: "Manager Tools",
     items: [
+      { path: "/manager-log", label: "Manager Log", icon: Notebook },
       { path: "/photo-review", label: "Photo Review", icon: Camera },
       { path: "/incidents", label: "Incident Reports", icon: AlertTriangle },
       { path: "/reports", label: "Reports", icon: BarChart2 },

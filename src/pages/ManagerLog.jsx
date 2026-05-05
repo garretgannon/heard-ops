@@ -1,369 +1,384 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Plus, ChevronLeft, ChevronRight, X, Save, Trash2, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Plus, AlertTriangle, Clock, CheckCircle2, MessageSquare, Zap, Users, Wrench, AlertCircle, X, Check, Eye } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const COLOR_MAP = {
-  blue: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  green: "bg-green-500/20 text-green-400 border-green-500/30",
-  red: "bg-red-500/20 text-red-400 border-red-500/30",
-  yellow: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  purple: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  orange: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-  pink: "bg-pink-500/20 text-pink-400 border-pink-500/30",
-  teal: "bg-teal-500/20 text-teal-400 border-teal-500/30",
-  indigo: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
-  slate: "bg-slate-500/20 text-slate-400 border-slate-500/30",
-};
-
-const getDefaultCategories = () => [
-  { name: "General", color: "blue" },
-  { name: "Incident", color: "red" },
-  { name: "Maintenance", color: "orange" },
-  { name: "Staff", color: "purple" },
-  { name: "Food Safety", color: "yellow" },
-  { name: "Financial", color: "green" },
+const FILTERS = [
+  { value: "all", label: "All" },
+  { value: "shift_note", label: "Shift Notes" },
+  { value: "incident", label: "Incidents" },
+  { value: "guest_issue", label: "Guest Issues" },
+  { value: "team_note", label: "Team Notes" },
+  { value: "maintenance", label: "Maintenance" },
+  { value: "follow_up", label: "Follow-Ups" },
 ];
 
-const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const CAT_ICONS = {
+  shift_note: MessageSquare,
+  incident: AlertTriangle,
+  guest_issue: Users,
+  team_note: Users,
+  maintenance: Wrench,
+  waste: AlertCircle,
+  prep_issue: Clock,
+};
+
+const CAT_STYLES = {
+  shift_note:  { label: "Shift Note",   text: "text-blue-400",   bg: "bg-blue-500/10",       border: "border-blue-500/20" },
+  incident:    { label: "Incident",     text: "text-red-400",    bg: "bg-red-500/10",        border: "border-red-500/20" },
+  guest_issue: { label: "Guest Issue",  text: "text-purple-400", bg: "bg-purple-500/10",     border: "border-purple-500/20" },
+  team_note:   { label: "Team Note",    text: "text-pink-400",   bg: "bg-pink-500/10",       border: "border-pink-500/20" },
+  maintenance: { label: "Maintenance",  text: "text-amber-400",  bg: "bg-amber-500/10",      border: "border-amber-500/20" },
+  waste:       { label: "86 / Waste",   text: "text-orange-400", bg: "bg-orange-500/10",     border: "border-orange-500/20" },
+  prep_issue:  { label: "Prep Issue",   text: "text-emerald-400",bg: "bg-emerald-500/10",    border: "border-emerald-500/20" },
+};
+
+const PRI_STYLES = {
+  low:      { label: "Low",      text: "text-gray-400",   bg: "bg-gray-500/10" },
+  medium:   { label: "Medium",   text: "text-amber-400",  bg: "bg-amber-500/10" },
+  high:     { label: "High",     text: "text-orange-400", bg: "bg-orange-500/10" },
+  critical: { label: "Critical", text: "text-red-400",    bg: "bg-red-500/10" },
+};
+
+function EntryForm({ open, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    title: "",
+    category: "shift_note",
+    shift: "evening",
+    notes: "",
+    priority: "medium",
+    assigned_to: "",
+    assigned_to_name: "",
+    due_date: new Date().toISOString().split("T")[0],
+    due_time: "",
+    send_to_handoff: false,
+    create_issue: false,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!form.title.trim()) { toast.error("Title required"); return; }
+    setSaving(true);
+    const me = await base44.auth.me().catch(() => null);
+    const entry = await base44.entities.ManagerLog.create({
+      ...form,
+      logged_by: me?.email,
+      logged_by_name: me?.full_name,
+      status: form.assigned_to ? "follow_up" : "open",
+      has_follow_up: !!form.assigned_to,
+    });
+
+    if (form.send_to_handoff) {
+      await base44.entities.ShiftHandoff.create({
+        date: form.due_date,
+        shift: form.shift,
+        department: "All",
+        notes_for_next_manager: form.title,
+        urgency: form.priority,
+        logged_by: me?.full_name,
+      }).catch(() => {});
+    }
+
+    if (form.create_issue) {
+      await base44.entities.Issue.create({
+        title: form.title,
+        description: form.notes,
+        category: form.category === "maintenance" ? "equipment" : "other",
+        status: "open",
+        logged_by: me?.email,
+      }).catch(() => {});
+    }
+
+    setSaving(false);
+    setForm({
+      title: "",
+      category: "shift_note",
+      shift: "evening",
+      notes: "",
+      priority: "medium",
+      assigned_to: "",
+      assigned_to_name: "",
+      due_date: new Date().toISOString().split("T")[0],
+      due_time: "",
+      send_to_handoff: false,
+      create_issue: false,
+    });
+    onSaved(entry);
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col justify-end">
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <div className="relative bg-[#0B1018] border-t border-[#1E2A3B] rounded-t-2xl z-10 flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1A2235] shrink-0">
+          <p className="text-[15px] font-bold text-white">New Log Entry</p>
+          <button onClick={onClose}><X className="h-4 w-4 text-gray-500" /></button>
+        </div>
+        <div className="overflow-y-auto px-4 py-3 space-y-3 pb-6">
+          <div>
+            <label className="block text-[11px] text-gray-500 font-semibold mb-1">Title *</label>
+            <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              placeholder="e.g. Guest complaint about wait time"
+              className="w-full h-9 px-3 text-[13px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-gray-700" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[11px] text-gray-500 font-semibold mb-1">Category</label>
+              <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                className="w-full h-9 px-3 text-[12px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary">
+                {Object.entries(CAT_STYLES).map(([v, m]) => <option key={v} value={v}>{m.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] text-gray-500 font-semibold mb-1">Shift</label>
+              <select value={form.shift} onChange={e => setForm(f => ({ ...f, shift: e.target.value }))}
+                className="w-full h-9 px-3 text-[12px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary">
+                {["morning", "afternoon", "evening", "night"].map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] text-gray-500 font-semibold mb-1">Notes</label>
+            <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+              placeholder="Details about this log entry..."
+              rows={2}
+              className="w-full px-3 py-2 text-[13px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary resize-none placeholder:text-gray-700" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[11px] text-gray-500 font-semibold mb-1">Priority</label>
+              <select value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}
+                className="w-full h-9 px-3 text-[12px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary">
+                {Object.entries(PRI_STYLES).map(([v, m]) => <option key={v} value={v}>{m.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] text-gray-500 font-semibold mb-1">Assign To</label>
+              <input value={form.assigned_to_name} onChange={e => setForm(f => ({ ...f, assigned_to_name: e.target.value }))}
+                placeholder="Name or email"
+                className="w-full h-9 px-3 text-[13px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-gray-700" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-[11px] text-gray-500 font-semibold mb-1">Due Date</label>
+              <input type="date" value={form.due_date} onChange={e => setForm(f => ({ ...f, due_date: e.target.value }))}
+                className="w-full h-9 px-3 text-[12px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label className="block text-[11px] text-gray-500 font-semibold mb-1">Due Time</label>
+              <input type="time" value={form.due_time} onChange={e => setForm(f => ({ ...f, due_time: e.target.value }))}
+                className="w-full h-9 px-3 text-[12px] bg-[#0F1623] border border-[#1E2A3B] rounded-xl text-white focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 py-2">
+            <input type="checkbox" checked={form.send_to_handoff} onChange={e => setForm(f => ({ ...f, send_to_handoff: e.target.checked }))}
+              className="w-4 h-4 rounded border-[#1E2A3B]" id="handoff" />
+            <label htmlFor="handoff" className="text-[12px] text-gray-400 cursor-pointer">Send to Shift Handoff</label>
+          </div>
+
+          <div className="flex items-center gap-2 py-2">
+            <input type="checkbox" checked={form.create_issue} onChange={e => setForm(f => ({ ...f, create_issue: e.target.checked }))}
+              className="w-4 h-4 rounded border-[#1E2A3B]" id="issue" />
+            <label htmlFor="issue" className="text-[12px] text-gray-400 cursor-pointer">Create Issue Ticket</label>
+          </div>
+        </div>
+
+        <div className="px-4 pb-6 pt-2 border-t border-[#1A2235] shrink-0">
+          <button onClick={handleSave} disabled={saving || !form.title.trim()}
+            className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-[14px] font-bold disabled:opacity-50 active:scale-[0.98] transition-transform">
+            {saving ? "Saving…" : "Log Entry"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EntryCard({ entry, onResolve, onAddFollowUp }) {
+  const catMeta = CAT_STYLES[entry.category] || CAT_STYLES.shift_note;
+  const priMeta = PRI_STYLES[entry.priority] || PRI_STYLES.medium;
+  const Icon = CAT_ICONS[entry.category] || MessageSquare;
+
+  return (
+    <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-3 py-2.5 flex items-start gap-2.5">
+      <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5", catMeta.bg)}>
+        <Icon className={cn("h-3.5 w-3.5", catMeta.text)} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <p className="text-[13px] font-bold text-white truncate">{entry.title}</p>
+          <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border", catMeta.bg, catMeta.border, catMeta.text)} style={{borderColor: "inherit"}}>
+            {catMeta.label}
+          </span>
+        </div>
+        {entry.notes && <p className="text-[11px] text-gray-500 truncate mb-1">{entry.notes}</p>}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {entry.logged_by_name && <span className="text-[10px] text-gray-600">{entry.logged_by_name}</span>}
+          {entry.created_date && (
+            <>
+              <span className="text-gray-700 text-[9px]">·</span>
+              <span className="text-[10px] text-gray-600">{new Date(entry.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+            </>
+          )}
+          <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border", priMeta.bg, priMeta.text)}>
+            {priMeta.label}
+          </span>
+        </div>
+      </div>
+      <div className="flex items-center gap-1.5 shrink-0">
+        {entry.status === "open" && (
+          <button onClick={() => onResolve(entry.id)}
+            className="h-7 px-2.5 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg active:scale-95 transition-transform">
+            Resolve
+          </button>
+        )}
+        {entry.status === "follow_up" && (
+          <button onClick={() => onAddFollowUp(entry)}
+            className="h-7 px-2.5 text-[11px] font-bold text-primary bg-primary/10 border border-primary/20 rounded-lg active:scale-95 transition-transform">
+            Follow-Up
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function ManagerLog() {
-  const [logs, setLogs] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: "", body: "", category: "", author_name: "" });
-  const [categoryForm, setCategoryForm] = useState({ name: "", color: "blue" });
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [filter, setFilter] = useState("all");
 
-  useEffect(() => {
-    const load = async () => {
-      const [l, me, cats] = await Promise.all([
-        base44.entities.ManagerLog.list("-date", 300),
-        base44.auth.me(),
-        base44.entities.LogCategory.list(),
-      ]);
-      setLogs(l);
-      setUser(me);
-      setIsAdmin(me?.role === "admin");
-      const finalCats = cats.length > 0 ? cats : getDefaultCategories().map((c, i) => ({ ...c, id: `default-${i}` }));
-      setCategories(finalCats);
-      if (finalCats.length > 0) setForm(f => ({ ...f, category: finalCats[0].name }));
-      const today = new Date().toISOString().split("T")[0];
-      setSelectedDate(today);
-      setLoading(false);
-    };
-    load();
-  }, []);
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const calCells = Array.from({ length: firstDay + daysInMonth }, (_, i) =>
-    i < firstDay ? null : i - firstDay + 1
-  );
-
-  const logsOnDate = (dateStr) => logs.filter(l => l.date === dateStr);
-
-  const toDateStr = (day) => {
-    const m = String(month + 1).padStart(2, "0");
-    const d = String(day).padStart(2, "0");
-    return `${year}-${m}-${d}`;
+  const load = async () => {
+    const data = await base44.entities.ManagerLog.list("-created_date", 100);
+    setEntries(data);
+    setLoading(false);
   };
 
-  const selectedLogs = selectedDate ? logsOnDate(selectedDate) : [];
-  const today = new Date().toISOString().split("T")[0];
+  useEffect(() => { load(); }, []);
 
-  const openNew = () => {
-    setEditing(null);
-    setForm({ title: "", body: "", category: categories[0]?.name || "", author_name: user?.full_name || "" });
-    setShowForm(true);
-  };
-
-  const openEdit = (log) => {
-    setEditing(log);
-    setForm({ title: log.title, body: log.body || "", category: log.category || categories[0]?.name || "", author_name: log.author_name || "" });
-    setShowForm(true);
-  };
-
-  const save = async () => {
-    if (!form.title.trim()) return;
-    setSaving(true);
-    if (editing) {
-      const updated = await base44.entities.ManagerLog.update(editing.id, form);
-      setLogs(prev => prev.map(l => l.id === editing.id ? { ...l, ...form } : l));
-    } else {
-      const rec = await base44.entities.ManagerLog.create({ ...form, date: selectedDate || today });
-      setLogs(prev => [rec, ...prev]);
-    }
+  const handleSaved = (entry) => {
+    setEntries(prev => [entry, ...prev]);
     setShowForm(false);
-    setSaving(false);
-    toast.success(editing ? "Entry updated" : "Entry added");
+    toast.success("Entry logged");
   };
 
-  const deleteLog = async (id) => {
-    await base44.entities.ManagerLog.delete(id);
-    setLogs(prev => prev.filter(l => l.id !== id));
-    toast.success("Entry deleted");
+  const handleResolve = async (id) => {
+    await base44.entities.ManagerLog.update(id, { status: "resolved", resolved_at: new Date().toISOString() });
+    load();
+    toast.success("Marked resolved");
   };
 
-  const addCategory = async () => {
-    if (!categoryForm.name.trim()) return;
-    const cat = await base44.entities.LogCategory.create(categoryForm);
-    setCategories(prev => [...prev, cat]);
-    setCategoryForm({ name: "", color: "blue" });
-    setShowCategoryForm(false);
-    toast.success("Category added");
-  };
+  const openFollowups = entries.filter(e => e.status === "follow_up");
+  const todayStr = new Date().toISOString().split("T")[0];
+  const todayEntries = entries.filter(e => e.created_date?.startsWith(todayStr));
+  const openCount = entries.filter(e => e.status === "open" || e.status === "follow_up").length;
+  const incidentCount = entries.filter(e => e.category === "incident").length;
 
-  const deleteCategory = async (id) => {
-    await base44.entities.LogCategory.delete(id);
-    setCategories(prev => prev.filter(c => c.id !== id));
-    toast.success("Category deleted");
-  };
-
-  const getCatStyle = (catName) => {
-    const cat = categories.find(c => c.name === catName);
-    return cat ? COLOR_MAP[cat.color] || COLOR_MAP.blue : COLOR_MAP.blue;
-  };
+  let filtered = filter === "all" ? entries : filter === "follow_up" ? openFollowups : entries.filter(e => e.category === filter);
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="flex items-center justify-center h-48">
+      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   return (
-    <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-      <div className="flex items-end justify-between">
+    <div className="mx-auto w-full max-w-[480px] flex flex-col gap-3 pb-28">
+
+      {/* Header */}
+      <div className="pt-1">
+        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Manager Log</h1>
+        <p className="text-[11px] text-gray-600 mt-0.5">Shift notes, incidents, and follow-ups</p>
+      </div>
+
+      {/* Metrics */}
+      <div className="grid grid-cols-4 gap-1.5">
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
+          <span className="text-[16px] font-extrabold text-white leading-none">{todayEntries.length}</span>
+          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Notes Today</span>
+        </div>
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
+          <span className="text-[16px] font-extrabold text-primary leading-none">{openFollowups.length}</span>
+          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Follow-Ups</span>
+        </div>
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
+          <span className={cn("text-[16px] font-extrabold leading-none", incidentCount > 0 ? "text-red-400" : "text-white")}>{incidentCount}</span>
+          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Incidents</span>
+        </div>
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
+          <span className={cn("text-[16px] font-extrabold leading-none", openCount > 0 ? "text-amber-400" : "text-white")}>{openCount}</span>
+          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Unresolved</span>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+        {FILTERS.map(f => (
+          <button key={f.value} onClick={() => setFilter(f.value)}
+            className={cn(
+              "shrink-0 h-7 px-3 rounded-full text-[11px] font-bold border transition-all",
+              filter === f.value
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-[#0F1623] text-gray-500 border-[#1E2A3B]"
+            )}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Open Follow-Ups */}
+      {openFollowups.length > 0 && filter === "all" && (
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
-            <BookOpen className="h-7 w-7 text-primary" /> Manager Log
-          </h1>
-          <p className="text-muted-foreground mt-1">Daily shift notes, incidents, and observations.</p>
-        </div>
-        <div className="flex gap-2">
-          {isAdmin && (
-            <Button variant="outline" onClick={() => setShowCategoryForm(true)} className="gap-2">
-              <Settings className="h-4 w-4" /> Categories
-            </Button>
-          )}
-          {selectedDate && (
-            <Button onClick={openNew}>
-              <Plus className="h-4 w-4 mr-1" /> Add Entry
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendar */}
-        <div className="bg-card rounded-2xl border border-border p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="p-1 hover:text-primary transition-colors">
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <span className="font-semibold text-sm">{MONTH_NAMES[month]} {year}</span>
-            <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))} className="p-1 hover:text-primary transition-colors">
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="grid grid-cols-7 gap-0.5">
-            {DAY_NAMES.map(d => (
-              <div key={d} className="text-center text-[10px] text-muted-foreground font-medium py-1">{d}</div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 flex items-center gap-1.5">
+            <AlertTriangle className="h-3 w-3" /> Needs Follow-Up
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {openFollowups.slice(0, 5).map(e => (
+              <EntryCard key={e.id} entry={e} onResolve={handleResolve} onAddFollowUp={() => {}} />
             ))}
-            {calCells.map((day, i) => {
-              if (!day) return <div key={`empty-${i}`} />;
-              const ds = toDateStr(day);
-              const hasLogs = logsOnDate(ds).length > 0;
-              const isToday = ds === today;
-              const isSelected = ds === selectedDate;
-              return (
-                <button
-                  key={ds}
-                  onClick={() => setSelectedDate(ds)}
-                  className={[
-                    "relative flex items-center justify-center rounded-lg aspect-square text-xs font-medium transition-all",
-                    isSelected ? "bg-primary text-primary-foreground" :
-                    isToday ? "border border-primary text-primary" :
-                    "hover:bg-secondary text-foreground"
-                  ].join(" ")}
-                >
-                  {day}
-                  {hasLogs && !isSelected && (
-                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                  )}
-                </button>
-              );
-            })}
           </div>
         </div>
+      )}
 
-        {/* Entries for selected date */}
-        <div className="lg:col-span-2 space-y-4">
-          {selectedDate && (
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-base">
-                {selectedDate === today ? "Today" : selectedDate}
-              </h2>
-              <span className="text-xs text-muted-foreground">{selectedLogs.length} {selectedLogs.length === 1 ? "entry" : "entries"}</span>
-            </div>
-          )}
-
-          {selectedLogs.length === 0 && (
-            <div className="bg-card rounded-2xl border border-border p-10 text-center">
-              <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground text-sm">No entries for this day.</p>
-              <Button size="sm" className="mt-4" onClick={openNew}><Plus className="h-3.5 w-3.5 mr-1" />Add Entry</Button>
-            </div>
-          )}
-
-          <AnimatePresence>
-            {selectedLogs.map(log => {
-              const catStyle = getCatStyle(log.category);
-              return (
-                <motion.div
-                  key={log.id}
-                  className="bg-card rounded-2xl border border-border p-5 space-y-2"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.97 }}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${catStyle}`}>{log.category}</span>
-                      <h3 className="font-semibold text-sm">{log.title}</h3>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(log)}>
-                        <BookOpen className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteLog(log.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                  {log.body && <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">{log.body}</p>}
-                  {log.author_name && <p className="text-xs text-muted-foreground">— {log.author_name} · {log.created_date ? new Date(log.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}</p>}
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
+      {/* Log Entries */}
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">
+          {filter !== "all" ? FILTERS.find(f => f.value === filter)?.label : "All Entries"} ({filtered.length})
+        </p>
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-gray-600 gap-2">
+            <MessageSquare className="h-8 w-8 opacity-30" />
+            <p className="text-[13px]">No entries yet</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            {filtered.map(e => (
+              <EntryCard key={e.id} entry={e} onResolve={handleResolve} onAddFollowUp={() => {}} />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Form modal */}
-      <AnimatePresence>
-        {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <motion.div
-              className="bg-card rounded-2xl border border-border w-full max-w-lg p-6 space-y-4 shadow-2xl"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold">{editing ? "Edit Entry" : "New Log Entry"}</h2>
-                <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
-              </div>
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Title</Label>
-                  <Input placeholder="e.g. Line cook called out" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Category</Label>
-                  <Select value={form.category} onValueChange={v => setForm(p => ({ ...p, category: v }))}>
-                   <SelectTrigger><SelectValue /></SelectTrigger>
-                   <SelectContent>
-                     {categories.map(c => <SelectItem key={c.id || c.name} value={c.name}>{c.name}</SelectItem>)}
-                   </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Notes</Label>
-                  <Textarea placeholder="Details, follow-up actions, observations…" rows={4} value={form.body} onChange={e => setForm(p => ({ ...p, body: e.target.value }))} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Your Name</Label>
-                  <Input placeholder="Manager name" value={form.author_name} onChange={e => setForm(p => ({ ...p, author_name: e.target.value }))} />
-                </div>
-              </div>
-              <div className="flex gap-2 justify-end pt-1">
-                <Button variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
-                <Button onClick={save} disabled={saving || !form.title.trim()}>
-                  <Save className="h-3.5 w-3.5 mr-1" />{saving ? "Saving…" : "Save Entry"}
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Quick Actions */}
+      <div className="fixed bottom-16 left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1F2937] px-4 py-2.5 lg:bottom-0 lg:left-64">
+        <button onClick={() => setShowForm(true)}
+          className="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-transform">
+          <Plus className="h-4 w-4" /> Log Entry
+        </button>
+      </div>
 
-      {/* Category management modal */}
-      <AnimatePresence>
-        {showCategoryForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <motion.div
-              className="bg-card rounded-2xl border border-border w-full max-w-sm p-6 space-y-4 shadow-2xl"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold">Manage Categories</h2>
-                <button onClick={() => setShowCategoryForm(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
-              </div>
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">New Category Name</Label>
-                  <Input placeholder="e.g. Staffing" value={categoryForm.name} onChange={e => setCategoryForm(p => ({ ...p, name: e.target.value }))} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Color</Label>
-                  <Select value={categoryForm.color} onValueChange={v => setCategoryForm(p => ({ ...p, color: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {Object.keys(COLOR_MAP).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button onClick={addCategory} className="w-full"><Plus className="h-3.5 w-3.5 mr-1" />Add Category</Button>
-              </div>
-              <div className="max-h-64 overflow-y-auto space-y-2">
-                {categories.map(cat => (
-                  <div key={cat.id || cat.name} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/50">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${COLOR_MAP[cat.color]?.split(" ")[0]}`} />
-                      <span className="text-sm font-medium">{cat.name}</span>
-                    </div>
-                    {!cat.id?.startsWith("default") && (
-                      <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => deleteCategory(cat.id)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      <EntryForm open={showForm} onClose={() => setShowForm(false)} onSaved={handleSaved} />
+    </div>
   );
 }
 

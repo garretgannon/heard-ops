@@ -2,46 +2,136 @@
   "name": "ManagerLog",
   "type": "object",
   "properties": {
-    "date": {
-      "type": "string",
-      "format": "date",
-      "title": "Date"
-    },
     "title": {
       "type": "string",
-      "title": "Title"
-    },
-    "body": {
-      "type": "string",
-      "title": "Notes"
+      "title": "Entry Title"
     },
     "category": {
       "type": "string",
       "title": "Category",
       "enum": [
-        "general",
+        "shift_note",
         "incident",
+        "guest_issue",
+        "team_note",
         "maintenance",
-        "staff",
-        "food_safety",
-        "financial"
+        "waste",
+        "prep_issue"
       ],
       "enumNames": [
-        "General",
+        "Shift Note",
         "Incident",
+        "Guest Issue",
+        "Team Note",
         "Maintenance",
-        "Staff",
-        "Food Safety",
-        "Financial"
+        "86 / Waste",
+        "Prep Issue"
       ]
     },
-    "author_name": {
+    "shift": {
       "type": "string",
-      "title": "Author"
+      "title": "Shift",
+      "enum": [
+        "morning",
+        "afternoon",
+        "evening",
+        "night"
+      ],
+      "enumNames": [
+        "Morning",
+        "Afternoon",
+        "Evening",
+        "Night"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "enumNames": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "medium"
+    },
+    "assigned_to": {
+      "type": "string",
+      "title": "Assigned To (Email)"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "title": "Assigned To (Name)"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Due Date"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "send_to_handoff": {
+      "type": "boolean",
+      "title": "Send to Handoff",
+      "default": false
+    },
+    "create_issue": {
+      "type": "boolean",
+      "title": "Create Issue",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "open",
+        "resolved",
+        "follow_up"
+      ],
+      "enumNames": [
+        "Open",
+        "Resolved",
+        "Follow-Up"
+      ],
+      "default": "open"
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By (Email)"
+    },
+    "logged_by_name": {
+      "type": "string",
+      "title": "Logged By (Name)"
+    },
+    "resolved_at": {
+      "type": "string",
+      "title": "Resolved At (ISO)"
+    },
+    "has_follow_up": {
+      "type": "boolean",
+      "title": "Has Follow-Up",
+      "default": false
     }
   },
   "required": [
-    "date",
-    "title"
+    "title",
+    "category",
+    "shift"
   ]
 }
