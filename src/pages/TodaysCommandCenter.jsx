@@ -14,6 +14,7 @@ function ProgressCircle({ value, max = 100 }) {
   const offset = circumference - (value / max) * circumference;
   const percentage = (value / max) * 100;
   const color = percentage >= 80 ? "#4CFF88" : percentage >= 60 ? "#FF9F1C" : "#FF4D4D";
+  const isFirstLoad = value > 0;
 
   return (
     <div className="relative w-28 h-28 flex items-center justify-center">
@@ -29,7 +30,11 @@ function ProgressCircle({ value, max = 100 }) {
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.3s ease" }}
+          className={isFirstLoad ? "animate-stroke-load stroke-smooth" : "stroke-smooth"}
+          style={{
+            "--stroke-dasharray": circumference,
+            "--final-offset": offset,
+          }}
         />
       </svg>
       <div className="text-center z-10">
@@ -111,7 +116,13 @@ function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
             <span className="text-foreground">{progress}%</span>
           </div>
           <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${progress}%` }} />
+            <div
+              className="h-full bg-amber-500 rounded-full progress-smooth animate-progress-load"
+              style={{
+                width: `${progress}%`,
+                "--progress-width": `${progress}%`,
+              }}
+            />
           </div>
         </div>
       )}
