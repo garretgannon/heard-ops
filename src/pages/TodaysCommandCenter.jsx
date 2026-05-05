@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
+import { ShiftModeContext } from "@/lib/ShiftModeContext";
+import ShiftStartModal from "@/components/ShiftMode/ShiftStartModal";
+import ShiftCloseModal from "@/components/ShiftMode/ShiftCloseModal";
 import {
   ClipboardList, AlertTriangle, Thermometer, Wrench, DollarSign,
   Droplet, ChevronRight, ShieldAlert, CheckCircle2, Flame, Plus, FileText,
@@ -88,9 +91,13 @@ function getGreeting() {
 
 export default function TodaysCommandCenter() {
   const navigate = useNavigate();
+  const { shiftSession, isShiftActive, isClosing, startShift, transitionToClosing, completeShift } = useContext(ShiftModeContext);
   const [m, setM] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [showCloseModal, setShowCloseModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -326,6 +333,31 @@ export default function TodaysCommandCenter() {
     })();
   }, []);
 
+  const handleStartShift = async () => {
+    if (!user) return;
+    setIsSubmitting(true);
+    try {
+      await startShift(user);
+      setShowStartModal(false);
+    } catch (e) {
+      console.error('Failed to start shift:', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCloseShift = async (score, notes) => {
+    setIsSubmitting(true);
+    try {
+      await completeShift(score, notes);
+      setShowCloseModal(false);
+    } catch (e) {
+      console.error('Failed to close shift:', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center h-64">
       <div className="w-7 h-7 border-[3px] border-[#F5A623] border-t-transparent rounded-full animate-spin" />
@@ -338,10 +370,32 @@ export default function TodaysCommandCenter() {
 
   return (
     <div className="pb-2">
+      {/* Shift Mode Modals */}
+      {showStartModal && (
+        <ShiftStartModal manager={user} onStart={handleStartShift} isLoading={isSubmitting} />
+      )}
+      {showCloseModal && shiftSession && (
+        <ShiftCloseModal shiftSession={shiftSession} onClose={handleCloseShift} isLoading={isSubmitting} />
+      )}
 
-      {/* Greeting */}
-      <div className="mb-2">
+      {/* Greeting + Shift Controls */}
+      <div className="mb-2 flex items-center justify-between">
         <h1 className="text-lg font-bold text-white">{getGreeting()}, {firstName}</h1>
+        {!isShiftActive ? (
+          <button
+            onClick={() => setShowStartModal(true)}
+            className="h-8 px-3 rounded-lg bg-primary/15 text-primary border border-primary/30 text-xs font-bold active:scale-95 transition-transform"
+          >
+            Start Shift
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowCloseModal(true)}
+            className="h-8 px-3 rounded-lg bg-red-600/15 text-red-400 border border-red-600/30 text-xs font-bold active:scale-95 transition-transform"
+          >
+            Close Shift
+          </button>
+        )}
       </div>
 
       {/* 3 Metric Cards — awareness only */}
@@ -468,6 +522,19 @@ export default function TodaysCommandCenter() {
             ))}
           </div>
         </>
+      )}
+
+      {/* Shift Mode Footer CTA */}
+      {!isShiftActive && !loading && m && (
+        <div className="mt-4 bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
+          <p className="text-xs text-muted-foreground mb-2">Ready to manage operations?</p>
+          <button
+            onClick={() => setShowStartModal(true)}
+            className="w-full h-10 rounded-lg bg-primary text-primary-foreground font-bold text-xs active:scale-95 transition-transform"
+          >
+            Begin Shift Mode
+          </button>
+        </div>
       )}
     </div>
   );

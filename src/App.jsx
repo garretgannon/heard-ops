@@ -5,6 +5,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { ShiftModeProvider } from '@/lib/ShiftModeContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -174,13 +175,15 @@ const AuthenticatedApp = () => {
 function App() {
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-          <GlobalBottomNav />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
+      <ShiftModeProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <AuthenticatedApp />
+            <GlobalBottomNav />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </ShiftModeProvider>
     </AuthProvider>
   )
 }

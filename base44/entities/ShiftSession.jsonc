@@ -1,0 +1,73 @@
+{
+  "name": "ShiftSession",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "closing",
+        "completed"
+      ],
+      "enumNames": [
+        "Not Started",
+        "In Progress",
+        "Closing",
+        "Completed"
+      ],
+      "default": "not_started"
+    },
+    "start_time": {
+      "type": "string",
+      "title": "Start Time (ISO)"
+    },
+    "end_time": {
+      "type": "string",
+      "title": "End Time (ISO)"
+    },
+    "manager_on_duty": {
+      "type": "string",
+      "title": "Manager On Duty (Email)"
+    },
+    "manager_name": {
+      "type": "string",
+      "title": "Manager Name"
+    },
+    "shift_score": {
+      "type": "number",
+      "title": "Shift Score (0-100)",
+      "default": 0
+    },
+    "prep_completion_pct": {
+      "type": "number",
+      "title": "Prep Completion %",
+      "default": 0
+    },
+    "temp_check_count": {
+      "type": "number",
+      "title": "Temperature Checks",
+      "default": 0
+    },
+    "incidents_count": {
+      "type": "number",
+      "title": "Incidents Reported",
+      "default": 0
+    },
+    "notes": {
+      "type": "string",
+      "title": "Shift Notes"
+    }
+  },
+  "required": [
+    "date",
+    "status",
+    "manager_on_duty"
+  ]
+}
