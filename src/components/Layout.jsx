@@ -4,7 +4,7 @@ import HelpButton from "./HelpButton";
 import BottomNav from "./BottomNav";
 import FloatingQuickActions from "./FloatingQuickActions";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, UtensilsCrossed, Menu, X, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, NotebookPen, Users, ShowerHead, Settings, DollarSign, Wrench, CalendarSearch, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus } from "lucide-react";
+import { LayoutDashboard, ChefHat, ClipboardList, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, Users, ShowerHead, Settings, DollarSign, Wrench, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus } from "lucide-react";
 
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -77,8 +77,6 @@ const fohNavItems = [
 
 export default function Layout() {
   const location = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [expandedMobileSections, setExpandedMobileSections] = useState({});
   const [expandedDesktopSections, setExpandedDesktopSections] = useState({
     dailyOps: true,
     complianceLogs: true,
@@ -99,88 +97,48 @@ export default function Layout() {
     });
   }, []);
 
-  const toggleMobileSection = (key) => {
-    setExpandedMobileSections(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
   const toggleDesktopSection = (key) => {
     setExpandedDesktopSections(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Hide layout chrome on station prep view
   const isStationView = location.pathname.startsWith("/station/");
-
   if (isStationView) {
     return <Outlet />;
   }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 px-4 h-14 flex items-center justify-between" style={{background: '#0B0F14', borderBottom: '1px solid #1F2933'}}>
-        <div className="flex flex-col justify-center">
-          <span className="font-extrabold text-lg tracking-tight leading-none" style={{color: '#FFFFFF'}}>
-            Heard<span style={{color: '#F5A623'}}>OS</span>
+
+      {/* Mobile header — iOS frosted glass */}
+      <header
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-end px-4 pb-2"
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
+          height: "calc(52px + env(safe-area-inset-top, 0px))",
+          background: "rgba(11, 15, 20, 0.88)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: "0.5px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div className="flex-1">
+          <span className="font-extrabold text-[17px] tracking-tight" style={{ color: '#FFFFFF' }}>
+            Heard<span style={{ color: '#F5A623' }}>OS</span>
           </span>
-          <span className="text-[9px] font-semibold tracking-widest uppercase leading-none mt-0.5" style={{color: '#6B7280'}}>
-            {restaurantName || 'Restaurant Operations System'}
-          </span>
+          {restaurantName && (
+            <span className="ml-2 text-[11px] font-semibold text-gray-600 tracking-wide">{restaurantName}</span>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <button className="relative p-2 rounded-xl" style={{background: '#141920'}}>
-            <Bell className="h-5 w-5" style={{color: '#9CA3AF'}} />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full" style={{background: '#F5A623'}} />
-          </button>
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-xl" style={{background: '#141920'}}>
-            {mobileOpen ? <X className="h-5 w-5" style={{color: '#9CA3AF'}} /> : <Menu className="h-5 w-5" style={{color: '#9CA3AF'}} />}
+        <div className="flex items-center gap-1.5">
+          <button className="relative h-9 w-9 flex items-center justify-center rounded-xl ios-press" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <Bell style={{ color: '#9CA3AF', width: 18, height: 18 }} />
+            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full" style={{ background: '#F5A623' }} />
           </button>
         </div>
       </header>
 
-      {/* Mobile nav overlay */}
-      {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-black/40" onClick={() => setMobileOpen(false)}>
-          <nav className="absolute top-14 left-0 right-0 bg-card border-b border-border p-4 space-y-1 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            {isAdmin ? (
-              <>
-                {Object.entries(navSections).map(([key, section]) => (
-                  <div key={key}>
-                    <button
-                      onClick={() => toggleMobileSection(key)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold text-primary hover:bg-secondary/40 transition-all duration-200"
-                    >
-                      <span>{section.label}</span>
-                      <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", expandedMobileSections[key] && "rotate-180")} />
-                    </button>
-                    {expandedMobileSections[key] && section.items.map(item => (
-                      <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 pl-8 pr-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                          location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
-                        )}>
-                        <item.icon className="h-4 w-4" />{item.label}
-                      </Link>
-                    ))}
-                  </div>
-                ))}
-              </>
-            ) : (
-              fohNavItems.map(item => (
-                <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                    location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"
-                  )}>
-                  <item.icon className="h-4 w-4" />{item.label}
-                </Link>
-              ))
-            )}
-          </nav>
-        </div>
-      )}
-
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border/30 flex-col z-30" style={{background: 'hsl(var(--sidebar-background))'}}>
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border/30 flex-col z-30" style={{ background: 'hsl(var(--sidebar-background))' }}>
         <div className="px-5 py-5 flex items-center gap-3 border-b border-border/30">
           <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20">
             {logoUrl ? (
@@ -191,8 +149,10 @@ export default function Layout() {
           </div>
           <div>
             <h1 className="font-extrabold text-base tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
-            {restaurantName && <p className="text-[11px] text-primary/80 font-semibold tracking-wide uppercase">{restaurantName}</p>}
-            {!restaurantName && <p className="text-[11px] text-muted-foreground tracking-wide uppercase">Restaurant Ops</p>}
+            {restaurantName
+              ? <p className="text-[11px] text-primary/80 font-semibold tracking-wide uppercase">{restaurantName}</p>
+              : <p className="text-[11px] text-muted-foreground tracking-wide uppercase">Restaurant Ops</p>
+            }
           </div>
         </div>
 
@@ -253,20 +213,24 @@ export default function Layout() {
       </aside>
 
       {/* Main content */}
-      <main className="lg:pl-64 pt-14 lg:pt-0 min-h-screen flex flex-col items-center">
+      <main
+        className="lg:pl-64 min-h-screen flex flex-col items-center"
+        style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="w-full max-w-[430px] lg:max-w-none lg:w-full px-4 pt-4 pb-24 lg:px-8 lg:pb-8 lg:max-w-6xl mx-auto"
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="w-full max-w-[430px] lg:max-w-none lg:w-full px-4 pt-3 pb-28 lg:px-8 lg:pb-8 lg:max-w-6xl mx-auto"
           >
             <Outlet />
           </motion.div>
         </AnimatePresence>
       </main>
+
       <HelpButton />
       <FloatingQuickActions />
       <BottomNav />
