@@ -57,7 +57,7 @@ function StatItem({ icon: Icon, label, value, color }) {
 
 function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, status, statusColor, onView, onFix }) {
   return (
-    <CardInteractionWrapper onOpen={() => { haptics.medium(); onView?.(); }}>
+    <CardInteractionWrapper onOpen={() => { haptics.strong(); onView?.(); }}>
     <div className="card-with-border border-l-red-500 p-3 space-y-2.5">
       <div className="flex items-start gap-3">
         <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", iconBg)}>
@@ -77,11 +77,11 @@ function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, s
           {status}
         </span>
         <div className="flex-1" />
-        <button onClick={onView} className="btn-secondary text-xs h-7 px-2">
+        <button onClick={() => { haptics.light(); onView?.(); }} className="btn-secondary text-xs h-7 px-2">
           View
         </button>
         {onFix && (
-          <button onClick={onFix} className="btn-primary text-xs h-7 px-2 flex items-center gap-1">
+          <button onClick={() => { haptics.medium(); onFix?.(); }} className="btn-primary text-xs h-7 px-2 flex items-center gap-1">
             <Zap className="h-3 w-3" />
             Fix
           </button>
@@ -127,11 +127,11 @@ function DueSoonCard({ title, meta, subtitle, progress, onView, onAction }) {
         </div>
       )}
       <div className="flex gap-2">
-        <button onClick={onView} className="btn-secondary text-xs h-7 px-2 flex-1">
+        <button onClick={() => { haptics.light(); onView?.(); }} className="btn-secondary text-xs h-7 px-2 flex-1">
           View
         </button>
         {onAction && (
-          <button onClick={onAction} className="btn-secondary text-xs h-7 px-2 flex-1">
+          <button onClick={() => { haptics.medium(); onAction?.(); }} className="btn-secondary text-xs h-7 px-2 flex-1">
             Act
           </button>
         )}
@@ -232,7 +232,7 @@ export default function TodaysCommandCenter() {
 
     if (pullY > pullThreshold) {
       setRefreshing(true);
-      haptics.light();
+      haptics.medium();
       await new Promise(r => setTimeout(r, 400));
       setShowUpdatedText(true);
       await new Promise(r => setTimeout(r, 2000));

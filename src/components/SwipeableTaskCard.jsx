@@ -51,6 +51,11 @@ export default function SwipeableTaskCard({
     }
   };
 
+  const handleCompleteSuccess = () => {
+    haptics.medium();
+    onComplete();
+  };
+
   const handleDragEnd = (e, info) => {
     const absX = Math.abs(dragX);
 
@@ -162,10 +167,11 @@ export default function SwipeableTaskCard({
           <motion.button
             onClick={() => {
               if (!completing) {
+                haptics.light();
                 if (task.requires_photo) {
                   setShowCamera(true);
                 } else {
-                  onComplete();
+                  handleCompleteSuccess();
                 }
               }
             }}

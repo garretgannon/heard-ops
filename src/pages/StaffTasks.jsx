@@ -112,11 +112,11 @@ export default function StaffTasks() {
   useEffect(() => { if (user?.email) load(); }, [user?.email, filter]);
 
   const handleCompleteTask = async (task) => {
+    haptics.medium();
     setCompletingTask(prev => ({ ...prev, [task.id]: true }));
     await new Promise(r => setTimeout(r, 150));
     setRemovingTask(prev => ({ ...prev, [task.id]: true }));
     await new Promise(r => setTimeout(r, 250));
-    haptics.medium();
     const updateData = { status: "completed", completed_at: new Date().toISOString(), completed_by: user?.email };
     if (task.type === "prep") await base44.entities.PrepItem.update(task.id, updateData);
     else await base44.entities.SideWorkAssignment.update(task.id, updateData);
@@ -157,7 +157,7 @@ export default function StaffTasks() {
         ].map(f => (
           <button
             key={f.id}
-            onClick={() => setFilter(f.id)}
+            onClick={() => { haptics.light(); setFilter(f.id); }}
             className={cn(
               "flex-shrink-0 h-8 px-3 rounded-full text-xs font-bold whitespace-nowrap border transition-all",
               filter === f.id
