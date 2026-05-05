@@ -41,7 +41,7 @@ export default function RestaurantTeam() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("active");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [invitingRole, setInvitingRole] = useState("user");
@@ -63,7 +63,7 @@ export default function RestaurantTeam() {
 
   const filteredEmployees = employees.filter(emp => {
     if (!isAdmin && emp.status === "archived") return false;
-    if (selectedStatus !== "all" && emp.status !== selectedStatus) return false;
+    if (selectedStatus !== "all" && (emp.status || "active") !== selectedStatus) return false;
     if (selectedDepartment !== "all" && emp.department !== selectedDepartment) return false;
     if (search && !emp.full_name?.toLowerCase().includes(search.toLowerCase()) &&
         !emp.email?.toLowerCase().includes(search.toLowerCase())) return false;
