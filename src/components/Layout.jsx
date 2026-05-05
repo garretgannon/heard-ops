@@ -2,57 +2,59 @@ import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import HelpButton from "./HelpButton";
 import FloatingManagerLogButton from "./FloatingManagerLogButton";
-
-
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, ChefHat, ClipboardList, BookOpen, UserCircle, CheckSquare, CalendarDays, BarChart2, Camera, Tag, ChevronDown, Thermometer, Droplet, Building2, Users, ShowerHead, Settings, DollarSign, Wrench, Truck, AlertTriangle, Flame, Book, Wine, FileText, TrendingUp, Bell, BookMarked, CalendarPlus, Notebook } from "lucide-react";
-
+import { ChevronDown, Bell, UserCircle, ChefHat } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
+import { allRoutes } from "@/lib/routeConfig";
 
-const navSections = {
-  dailyOps: {
-    label: "Daily Operations",
-    items: [
-      { path: "/dashboard", label: "Today's Command Center", icon: LayoutDashboard },
-      { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
-      { path: "/shift-handoff", label: "Shift Handoff", icon: TrendingUp },
-    ]
-  },
-  complianceLogs: {
-    label: "Compliance & Logs",
-    items: [
-      { path: "/temp-logs", label: "Temperature Logs", icon: Thermometer },
-      { path: "/manager-log", label: "Manager Log", icon: Notebook },
-      { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
-    ]
-  },
-  managerTools: {
-    label: "Manager Tools",
-    items: [
-      { path: "/photo-review", label: "Photo Review", icon: Camera },
-      { path: "/incidents", label: "Incident Reports", icon: AlertTriangle },
-    ]
-  },
-  admin: {
-    label: "Admin",
-    items: [
-      { path: "/templates", label: "Template Builder", icon: Book },
-      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-    ]
-  },
+// Desktop navigation built from route config
+const getDesktopNavSections = () => {
+  return {
+    dailyOps: {
+      label: "Daily Operations",
+      items: [
+        allRoutes.dailyOps.today,
+        allRoutes.dailyOps.shiftHandoff,
+      ].filter(r => r),
+    },
+    tasks: {
+      label: "Tasks",
+      items: [
+        allRoutes.tasks.sideWork,
+        allRoutes.tasks.prepLists,
+        allRoutes.tasks.cleaningChecklist,
+      ].filter(r => r),
+    },
+    compliance: {
+      label: "Compliance & Logs",
+      items: [
+        allRoutes.compliance.tempLogs,
+        allRoutes.compliance.wasteLog,
+        allRoutes.compliance.bathroomChecks,
+      ].filter(r => r),
+    },
+    operations: {
+      label: "Operations",
+      items: [
+        allRoutes.operations.issues,
+        allRoutes.operations.inventory,
+        allRoutes.operations.schedule,
+        allRoutes.operations.team,
+      ].filter(r => r),
+    },
+    knowledge: {
+      label: "Knowledge Base",
+      items: [
+        allRoutes.knowledge.recipes,
+        allRoutes.knowledge.standards,
+        allRoutes.knowledge.templates,
+        allRoutes.knowledge.vendors,
+      ].filter(r => r),
+    },
+  };
 };
-
-const fohNavItems = [
-  { path: "/home", label: "Staff Home", icon: UserCircle },
-  { path: "/bar-book", label: "Bar Book", icon: Wine },
-  { path: "/side-work", label: "Side Work", icon: CheckSquare },
-  { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
-  { path: "/cash", label: "Cash", icon: DollarSign },
-  { path: "/maintenance", label: "Maintenance", icon: Wrench },
-  { path: "/profile", label: "My Profile", icon: UserCircle },
-];
 
 export default function Layout() {
   const location = useLocation();
@@ -84,6 +86,8 @@ export default function Layout() {
   if (isStationView) {
     return <Outlet />;
   }
+
+  const navSections = getDesktopNavSections();
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,39 +150,28 @@ export default function Layout() {
                   <span>{section.label}</span>
                   <ChevronDown className={cn("h-3 w-3 transition-transform", expandedDesktopSections[key] && "rotate-180")} />
                 </button>
-                {expandedDesktopSections[key] && section.items.map(item => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      "flex items-center gap-2.5 pl-4 pr-3 py-2 rounded-xl text-sm font-medium transition-all duration-150",
-                      location.pathname === item.path
-                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                    )}
-                  >
-                    <item.icon className="h-3.5 w-3.5 shrink-0" />
-                    {item.label}
-                  </Link>
-                ))}
+                {expandedDesktopSections[key] && section.items.map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={cn(
+                        "flex items-center gap-2.5 pl-4 pr-3 py-2 rounded-xl text-sm font-medium transition-all duration-150",
+                        location.pathname === item.path
+                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
               </div>
             ))
           ) : (
-            fohNavItems.map(item => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
-                  location.pathname === item.path
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                )}
-              >
-                <item.icon className="h-3.5 w-3.5 shrink-0" />
-                {item.label}
-              </Link>
-            ))
+            [] // FOH staff uses only bottom nav
           )}
         </nav>
 

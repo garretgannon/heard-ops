@@ -1,15 +1,7 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, CheckSquare, FileText, BookOpen, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
-
-const NAV_ITEMS = [
-  { label: 'Today', path: '/', icon: Home },
-  { label: 'Tasks', path: '/today', icon: CheckSquare },
-  { label: 'Logs', path: '/logs', icon: FileText },
-  { label: 'Knowledge', path: '/knowledge', icon: BookOpen },
-  { label: 'More', path: '/more', icon: MoreHorizontal },
-];
+import { bottomNavRoutes } from '@/lib/routeConfig';
 
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
@@ -17,7 +9,7 @@ export default function GlobalBottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-inset-bottom">
       <div className="flex h-20 items-stretch justify-around px-2">
-        {NAV_ITEMS.map(({ label, path, icon: Icon }) => {
+        {bottomNavRoutes.map(({ label, path, icon: Icon }) => {
           const isActive = pathname === path;
           return (
             <Link
