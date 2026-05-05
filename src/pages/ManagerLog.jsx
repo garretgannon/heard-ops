@@ -203,51 +203,45 @@ function EntryForm({ open, onClose, onSaved }) {
   );
 }
 
-function EntryCard({ entry, onResolve, onAddFollowUp }) {
+function EntryCard({ entry, onResolve }) {
   const catMeta = CAT_STYLES[entry.category] || CAT_STYLES.shift_note;
   const priMeta = PRI_STYLES[entry.priority] || PRI_STYLES.medium;
   const Icon = CAT_ICONS[entry.category] || MessageSquare;
+  const time = entry.created_date ? new Date(entry.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
 
   return (
-    <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl px-3 py-2.5 flex items-start gap-2.5">
-      <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5", catMeta.bg)}>
-        <Icon className={cn("h-3.5 w-3.5", catMeta.text)} />
+    <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-lg px-3 py-1.5 flex items-center gap-2 min-h-[44px]">
+      <div className={cn("h-6 w-6 rounded flex items-center justify-center shrink-0", catMeta.bg)}>
+        <Icon className={cn("h-3 w-3", catMeta.text)} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <p className="text-[13px] font-bold text-white truncate">{entry.title}</p>
-          <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border", catMeta.bg, catMeta.border, catMeta.text)} style={{borderColor: "inherit"}}>
+        <div className="flex items-center gap-1.5">
+          <p className="text-[12px] font-bold text-white truncate">{entry.title}</p>
+          {entry.notes && <p className="text-[11px] text-gray-500 truncate">· {entry.notes}</p>}
+        </div>
+        <div className="flex items-center gap-1 mt-0.5">
+          <span className={cn("text-[8px] font-bold px-1 py-0.5 rounded border", catMeta.bg, catMeta.border, catMeta.text)}>
             {catMeta.label}
           </span>
-        </div>
-        {entry.notes && <p className="text-[11px] text-gray-500 truncate mb-1">{entry.notes}</p>}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {entry.logged_by_name && <span className="text-[10px] text-gray-600">{entry.logged_by_name}</span>}
-          {entry.created_date && (
-            <>
-              <span className="text-gray-700 text-[9px]">·</span>
-              <span className="text-[10px] text-gray-600">{new Date(entry.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-            </>
-          )}
-          <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border", priMeta.bg, priMeta.text)}>
+          {entry.logged_by_name && <span className="text-[9px] text-gray-600">{entry.logged_by_name}</span>}
+          {time && <span className="text-[9px] text-gray-700">·</span>}
+          {time && <span className="text-[9px] text-gray-600">{time}</span>}
+          <span className={cn("ml-auto text-[8px] font-bold px-1 py-0.5 rounded border", priMeta.bg, priMeta.text)}>
             {priMeta.label}
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-1.5 shrink-0">
-        {entry.status === "open" && (
-          <button onClick={() => onResolve(entry.id)}
-            className="h-7 px-2.5 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg active:scale-95 transition-transform">
-            Resolve
-          </button>
-        )}
-        {entry.status === "follow_up" && (
-          <button onClick={() => onAddFollowUp(entry)}
-            className="h-7 px-2.5 text-[11px] font-bold text-primary bg-primary/10 border border-primary/20 rounded-lg active:scale-95 transition-transform">
-            Follow-Up
-          </button>
-        )}
-      </div>
+      {entry.status === "open" && (
+        <button onClick={() => onResolve(entry.id)}
+          className="h-6 px-2 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded active:scale-95 transition-transform shrink-0">
+          ✓
+        </button>
+      )}
+      {entry.status === "follow_up" && (
+        <span className="h-6 px-2 text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 rounded flex items-center shrink-0">
+          ⚡
+        </span>
+      )}
     </div>
   );
 }
@@ -293,40 +287,40 @@ export default function ManagerLog() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[480px] flex flex-col gap-3 pb-28">
+    <div className="mx-auto w-full max-w-[480px] flex flex-col gap-2 pb-28">
 
       {/* Header */}
-      <div className="pt-1">
-        <h1 className="text-[17px] font-extrabold text-white tracking-tight">Manager Log</h1>
-        <p className="text-[11px] text-gray-600 mt-0.5">Shift notes, incidents, and follow-ups</p>
+      <div className="pt-0.5">
+        <h1 className="text-[16px] font-extrabold text-white tracking-tight">Manager Log</h1>
+        <p className="text-[10px] text-gray-600 mt-0.5">Shift journal — fast, professional</p>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-4 gap-1.5">
-        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
-          <span className="text-[16px] font-extrabold text-white leading-none">{todayEntries.length}</span>
-          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Notes Today</span>
+      {/* Metrics — compact */}
+      <div className="grid grid-cols-4 gap-1">
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-lg p-1.5">
+          <span className="text-[14px] font-extrabold text-white leading-none">{todayEntries.length}</span>
+          <span className="text-[8px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Notes</span>
         </div>
-        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
-          <span className="text-[16px] font-extrabold text-primary leading-none">{openFollowups.length}</span>
-          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Follow-Ups</span>
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-lg p-1.5">
+          <span className="text-[14px] font-extrabold text-primary leading-none">{openFollowups.length}</span>
+          <span className="text-[8px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Follow-Up</span>
         </div>
-        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
-          <span className={cn("text-[16px] font-extrabold leading-none", incidentCount > 0 ? "text-red-400" : "text-white")}>{incidentCount}</span>
-          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Incidents</span>
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-lg p-1.5">
+          <span className={cn("text-[14px] font-extrabold leading-none", incidentCount > 0 ? "text-red-400" : "text-white")}>{incidentCount}</span>
+          <span className="text-[8px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Issues</span>
         </div>
-        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-xl p-2">
-          <span className={cn("text-[16px] font-extrabold leading-none", openCount > 0 ? "text-amber-400" : "text-white")}>{openCount}</span>
-          <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Unresolved</span>
+        <div className="flex flex-col items-center text-center bg-[#111827] border border-[#1F2937] rounded-lg p-1.5">
+          <span className={cn("text-[14px] font-extrabold leading-none", openCount > 0 ? "text-amber-400" : "text-white")}>{openCount}</span>
+          <span className="text-[8px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5">Open</span>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+      <div className="flex gap-1 overflow-x-auto pb-0.5">
         {FILTERS.map(f => (
           <button key={f.value} onClick={() => setFilter(f.value)}
             className={cn(
-              "shrink-0 h-7 px-3 rounded-full text-[11px] font-bold border transition-all",
+              "shrink-0 h-6 px-2.5 rounded-full text-[10px] font-bold border transition-all",
               filter === f.value
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-[#0F1623] text-gray-500 border-[#1E2A3B]"
@@ -336,15 +330,15 @@ export default function ManagerLog() {
         ))}
       </div>
 
-      {/* Open Follow-Ups */}
+      {/* Open Follow-Ups — priority section */}
       {openFollowups.length > 0 && filter === "all" && (
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2 flex items-center gap-1.5">
-            <AlertTriangle className="h-3 w-3" /> Needs Follow-Up
+          <p className="text-[9px] font-bold uppercase tracking-widest text-primary mb-1.5 flex items-center gap-1">
+            <AlertTriangle className="h-2.5 w-2.5" /> Needs Follow-Up ({openFollowups.length})
           </p>
-          <div className="flex flex-col gap-1.5">
-            {openFollowups.slice(0, 5).map(e => (
-              <EntryCard key={e.id} entry={e} onResolve={handleResolve} onAddFollowUp={() => {}} />
+          <div className="flex flex-col gap-1">
+            {openFollowups.slice(0, 8).map(e => (
+              <EntryCard key={e.id} entry={e} onResolve={handleResolve} />
             ))}
           </div>
         </div>
@@ -352,18 +346,18 @@ export default function ManagerLog() {
 
       {/* Log Entries */}
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-2">
+        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-1.5">
           {filter !== "all" ? FILTERS.find(f => f.value === filter)?.label : "All Entries"} ({filtered.length})
         </p>
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-gray-600 gap-2">
-            <MessageSquare className="h-8 w-8 opacity-30" />
-            <p className="text-[13px]">No entries yet</p>
+          <div className="flex flex-col items-center justify-center py-8 text-gray-600 gap-2">
+            <MessageSquare className="h-6 w-6 opacity-20" />
+            <p className="text-[12px]">No entries</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             {filtered.map(e => (
-              <EntryCard key={e.id} entry={e} onResolve={handleResolve} onAddFollowUp={() => {}} />
+              <EntryCard key={e.id} entry={e} onResolve={handleResolve} />
             ))}
           </div>
         )}
