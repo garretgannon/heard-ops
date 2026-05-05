@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import { Camera, CheckCircle2, Clock, AlertCircle, Plus, ClipboardList } from "lucide-react";
+import { Camera, CheckCircle2, Clock, AlertCircle, Plus, ClipboardList, CheckSquare, AlertTriangle, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -28,11 +28,12 @@ const STATUS_STYLE = {
   overdue:     { label: "Overdue",     cls: "bg-red-500/12 text-red-400 border-red-500/20" },
 };
 
-function MetricTile({ label, value, color, alert }) {
+function MetricTile({ label, value, color, alert, icon: Icon }) {
   return (
-    <div className={cn("flex flex-col gap-0 bg-[#111827] border rounded-xl p-2.5 min-w-0", alert ? "border-red-500/30" : "border-[#1F2937]")}>
+    <div className={cn("flex flex-col items-center gap-1 bg-[#111827] border rounded-xl p-2.5 min-w-0 text-center", alert ? "border-red-500/30" : "border-[#1F2937]")}>
+      {Icon && <Icon className={cn("h-4 w-4", color)} />}
       <span className={cn("text-[20px] font-extrabold leading-none", color)}>{value}</span>
-      <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</span>
+      <span className="text-[9px] text-gray-600 font-semibold uppercase tracking-wide leading-tight">{label}</span>
     </div>
   );
 }
@@ -190,10 +191,10 @@ export default function SideWork() {
 
       {/* Metrics */}
       <div className="grid grid-cols-4 gap-1.5">
-        <MetricTile label="Total"    value={assigned}  color="text-white" />
-        <MetricTile label="Done"     value={completed} color={completed > 0 ? "text-emerald-400" : "text-white"} />
-        <MetricTile label="Pending"  value={pending}   color={pending > 0 ? "text-amber-400" : "text-white"} />
-        <MetricTile label="Overdue"  value={overdue}   color={overdue > 0 ? "text-red-400" : "text-white"} alert={overdue > 0} />
+        <MetricTile label="Total"    value={assigned}  color="text-white" icon={Activity} />
+        <MetricTile label="Done"     value={completed} color={completed > 0 ? "text-emerald-400" : "text-white"} icon={CheckSquare} />
+        <MetricTile label="Pending"  value={pending}   color={pending > 0 ? "text-amber-400" : "text-white"} icon={Clock} />
+        <MetricTile label="Overdue"  value={overdue}   color={overdue > 0 ? "text-red-400" : "text-white"} alert={overdue > 0} icon={AlertTriangle} />
       </div>
 
       {/* Department filters */}
