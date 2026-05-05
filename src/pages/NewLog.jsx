@@ -26,8 +26,7 @@ export default function NewLog() {
     { id: "manager_note", label: "Manager Note", defaultUnit: "" },
   ];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!title.trim()) {
       toast("Please enter a title");
       return;
@@ -93,7 +92,7 @@ export default function NewLog() {
         </div>
 
         {/* Scrollable Form Content */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-5 pb-6 space-y-4">
+        <div className="flex-1 overflow-y-auto px-5 py-5 pb-6 space-y-4">
           {/* Log Type */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-secondary-text uppercase">Log Type</label>
@@ -168,7 +167,7 @@ export default function NewLog() {
               className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
           </div>
-        </form>
+        </div>
 
         {/* Sticky Footer with Submit Button */}
         <div className="flex-shrink-0 sticky bottom-0 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+20px)] border-t border-border bg-card space-y-2">
