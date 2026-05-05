@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, AlertTriangle, Clock, CheckCircle2, MessageSquare, Zap, Users, Wrench, AlertCircle, X, Check, Eye } from "lucide-react";
+import { Plus, AlertTriangle, Clock, CheckCircle2, MessageSquare, Zap, Users, Wrench, AlertCircle, X, Check, Eye, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -247,6 +248,7 @@ function EntryCard({ entry, onResolve }) {
 }
 
 export default function ManagerLog() {
+  const navigate = useNavigate();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -290,9 +292,14 @@ export default function ManagerLog() {
     <div className="mx-auto w-full max-w-[480px] flex flex-col gap-2 pb-28">
 
       {/* Header */}
-      <div className="pt-0.5">
-        <h1 className="text-[16px] font-extrabold text-white tracking-tight">Manager Log</h1>
-        <p className="text-[10px] text-gray-600 mt-0.5">Shift journal — fast, professional</p>
+      <div className="flex items-center gap-2 pt-0.5">
+        <button onClick={() => navigate(-1)} className="h-8 w-8 rounded-lg bg-[#111827] border border-[#1F2937] flex items-center justify-center shrink-0 active:scale-95">
+          <ChevronLeft className="h-4 w-4 text-gray-500" />
+        </button>
+        <div className="flex-1">
+          <h1 className="text-[16px] font-extrabold text-white tracking-tight">Manager Log</h1>
+          <p className="text-[10px] text-gray-600 mt-0.5">Shift journal — fast, professional</p>
+        </div>
       </div>
 
       {/* Metrics — compact */}
