@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, Camera, ChevronLeft, Layers, Trash2 } from "lucide-react";
+import { Plus, Camera, ChevronLeft, Layers, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import TaskFormModal from "@/components/TaskFormModal";
@@ -122,6 +122,10 @@ export default function TemplateBuilder() {
   const [pushResult, setPushResult] = useState(null);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [stats, setStats] = useState({});
+  const [stations, setStations] = useState([]);
+  const [showStationForm, setShowStationForm] = useState(false);
+  const [newStationName, setNewStationName] = useState("");
+  const [savingStation, setSavingStation] = useState(false);
 
   useEffect(() => { 
     loadTemplates(); 
@@ -199,6 +203,16 @@ export default function TemplateBuilder() {
     const created = await base44.entities.Template.create(copy);
     setTemplates(prev => [created, ...prev]);
     selectTemplate(created);
+  }
+
+  async function addStation() {
+    if (!newStationName.trim()) return;
+    setSavingStation(true);
+    const station = await base44.entities.Station.create({ name: newStationName.trim() });
+    setStations(prev => [station, ...prev]);
+    setNewStationName("");
+    setShowStationForm(false);
+    setSavingStation(false);
   }
 
   function addTask(taskData) {
@@ -466,9 +480,22 @@ export default function TemplateBuilder() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-gray-500 font-semibold">Role</label>
-                  <TextInput value={selected.assigned_role} onChange={v => setSelected(s => ({ ...s, assigned_role: v }))} placeholder="e.g. Line Cook" className="text-[13px]" />
+                   <label className="text-[10px] text-gray-500 font-semibold">Role</label>
+                   <TextInput value={selected.assigned_role} onChange={v => setSelected(s => ({ ...s, assigned_role: v }))} placeholder="e.g. Line Cook" className="text-[13px]" />
                 </div>
+
+                {selected.category === "prep" && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] text-gray-500 font-semibold">Station</label>
+                      <button onClick={() => setShowStationForm(true)} className="text-[9px] font-bold text-primary hover:text-primary/80">+ Add</button>
+                    </div>
+                    <select value={selected.station_id || ""} onChange={e => setSelected(s => ({ ...s, station_id: e.target.value || undefined }))} className="w-full bg-[#0B1018] border border-[#1E2A3B] text-[13px] text-white rounded-lg px-2 py-1 outline-none">
+                      <option value="">None</option>
+                      {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -518,6 +545,48 @@ export default function TemplateBuilder() {
 
       {/* Task Form Modal */}
       <TaskFormModal open={showTaskForm} onClose={() => setShowTaskForm(false)} onSave={addTask} />
+
+      {/* Station Form Modal */}
+      {showStationForm && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setShowStationForm(false)} />
+          <div className="relative bg-[#0B1018] border-t border-[#1E2A3B] rounded-t-2xl z-10 flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#1A2235]">
+              <p className="text-[15px] font-bold text-white">Add Station</p>
+              <button onClick={() => setShowStationForm(false)} className="text-gray-500 hover:text-gray-400">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="px-4 py-4 space-y-3">
+              <div>
+                <label className="block text-[11px] text-gray-500 font-semibold mb-1.5">Station Name *</label>
+                <input
+                  value={newStationName}
+                  onChange={e => setNewStationName(e.target.value)}
+                  placeholder="e.g. Line 1"
+                  className="w-full h-10 px-3 text-[13px] bg-[#0F1623] border border-[#1E2A3B] rounded-lg text-white outline-none focus:ring-1 focus:ring-primary placeholder:text-gray-700"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="px-4 py-4 border-t border-[#1A2235] flex gap-2">
+              <button
+                onClick={() => setShowStationForm(false)}
+                className="flex-1 h-10 rounded-lg border border-[#1E2A3B] text-[13px] font-bold text-gray-400 active:scale-95 transition-transform"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addStation}
+                disabled={savingStation || !newStationName.trim()}
+                className="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-[13px] font-bold disabled:opacity-50 active:scale-95 transition-transform"
+              >
+                {savingStation ? "Adding..." : "Add Station"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
