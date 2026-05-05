@@ -22,6 +22,7 @@ import More from './pages/More';
 import Onboarding from './pages/Onboarding';
 import RestaurantTeam from './pages/RestaurantTeam';
 import TemplateList from './pages/TemplateList';
+import ScheduleCenter from './pages/ScheduleCenter';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -72,6 +73,7 @@ const AuthenticatedApp = () => {
         <Route path="/more" element={<More />} />
         <Route path="/restaurant-team" element={<RestaurantTeam />} />
         <Route path="/templates" element={<TemplateList />} />
+        <Route path="/schedule-center" element={<ScheduleCenter />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
