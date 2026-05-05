@@ -24,6 +24,8 @@ export default function RecipeBuildCard() {
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [buildMode, setBuildMode] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   useEffect(() => {
     base44.entities.Recipe.get(recipeId).then(r => {
@@ -53,7 +55,63 @@ export default function RecipeBuildCard() {
   const cat = CAT_COLORS[recipe.category] || CAT_COLORS.other;
   const steps = recipe.build_steps || [];
   const ingredientLines = (recipe.ingredients || "").split("\n").filter(l => l.trim()).slice(0, 8);
+  const sortedSteps = steps.sort((a, b) => a.step_number - b.step_number);
+  const currentStep = sortedSteps[currentStepIndex];
+  const totalSteps = sortedSteps.length;
 
+  // ─── BUILD MODE ───────────────────────────────────────────────────────────
+  if (buildMode && totalSteps > 0) {
+    return (
+      <div className="mx-auto w-full max-w-[480px] min-h-screen bg-[#080C14] flex flex-col justify-between pb-20">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-40 bg-[#080C14]/96 backdrop-blur-sm border-b border-[#1A2235] px-3 py-2 flex items-center justify-between">
+          <button onClick={() => setBuildMode(false)} className="text-[12px] font-bold text-gray-500 active:text-gray-300">Exit</button>
+          <div className="flex-1 text-center">
+            <p className="text-[11px] text-gray-600 font-semibold">STEP {currentStepIndex + 1} OF {totalSteps}</p>
+          </div>
+          <div className="w-10" />
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mx-3 mt-2 h-1 bg-[#0F1623] rounded-full overflow-hidden border border-[#1E2A3B]">
+          <div className="h-full bg-primary transition-all" style={{ width: `${((currentStepIndex + 1) / totalSteps) * 100}%` }} />
+        </div>
+
+        {/* Current Step - Centered */}
+        <div className="flex-1 flex flex-col justify-center items-center px-4 py-8 space-y-4">
+          {currentStep.image_url && (
+            <img src={currentStep.image_url} alt={`Step ${currentStep.step_number}`} className="w-full h-56 object-cover rounded-xl border border-[#1E2A3B]" />
+          )}
+          <div className="w-full text-center space-y-3">
+            <div className="h-12 w-12 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center mx-auto">
+              <span className="text-[20px] font-extrabold text-primary">{currentStep.step_number}</span>
+            </div>
+            <p className="text-[16px] font-bold text-white leading-relaxed">{currentStep.instruction}</p>
+          </div>
+        </div>
+
+        {/* Bottom Navigation */}
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-[#080C14]/96 backdrop-blur-md border-t border-[#1A2235] px-3 py-2 flex gap-1.5 lg:left-64">
+          <button
+            onClick={() => setCurrentStepIndex(Math.max(0, currentStepIndex - 1))}
+            disabled={currentStepIndex === 0}
+            className="flex-1 h-10 rounded-lg bg-[#0F1623] border border-[#1E2A3B] text-[13px] font-bold text-gray-500 disabled:opacity-30 active:scale-95 transition-transform"
+          >
+            ← Back
+          </button>
+          <button
+            onClick={() => setCurrentStepIndex(Math.min(totalSteps - 1, currentStepIndex + 1))}
+            disabled={currentStepIndex === totalSteps - 1}
+            className="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-[13px] font-bold disabled:opacity-50 active:scale-95 transition-transform"
+          >
+            {currentStepIndex === totalSteps - 1 ? "Done" : "Next →"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── REFERENCE MODE ──────────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-[480px] min-h-screen bg-[#080C14] flex flex-col pb-20">
 
@@ -65,6 +123,12 @@ export default function RecipeBuildCard() {
         <div className="flex-1 min-w-0">
           <h1 className="text-[14px] font-extrabold text-white truncate">{recipe.name}</h1>
         </div>
+        <button
+          onClick={() => { setBuildMode(true); setCurrentStepIndex(0); }}
+          className="text-[10px] font-bold px-2 py-1 rounded-lg bg-primary/15 border border-primary/25 text-primary shrink-0 active:scale-90 transition-transform"
+        >
+          Build
+        </button>
         <span className={cn("text-[8px] font-bold px-1.5 py-0.5 rounded-full border shrink-0", cat)}>{CAT_LABELS[recipe.category]}</span>
       </div>
 
@@ -98,7 +162,7 @@ export default function RecipeBuildCard() {
         <div className="mx-3 mb-1.5 bg-[#0F1623] border border-[#1E2A3B] rounded-lg p-2 overflow-hidden">
           <p className="text-[9px] font-bold uppercase tracking-widest text-gray-600 mb-1">Build</p>
           <div className="space-y-1">
-            {steps.sort((a, b) => a.step_number - b.step_number).map((s) => (
+            {sortedSteps.map((s) => (
               <div key={s.id || s.step_number} className="flex gap-1.5">
                 <div className="h-6 w-6 rounded-md bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
                   <span className="text-[10px] font-bold text-primary">{s.step_number}</span>
