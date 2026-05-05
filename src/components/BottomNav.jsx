@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Package, Thermometer, ArrowRightLeft, MoreHorizontal } from "lucide-react";
+import { Home, Package, Thermometer, Handshake, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { label: "Today",   path: "/",              icon: Home },
   { label: "Prep",    path: "/prep-lists",    icon: Package },
   { label: "Temps",   path: "/temp-logs",     icon: Thermometer },
-  { label: "Handoff", path: "/shift-handoff", icon: ArrowRightLeft },
+  { label: "Handoff", path: "/shift-handoff", icon: Handshake },
   { label: "More",    path: "/more",          icon: MoreHorizontal },
 ];
 

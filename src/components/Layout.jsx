@@ -122,12 +122,10 @@ export default function Layout() {
         }}
       >
         <div className="flex-1">
-          <span className="font-extrabold text-[17px] tracking-tight" style={{ color: '#FFFFFF' }}>
+          <div className="font-extrabold text-[18px] tracking-tight leading-none" style={{ color: '#FFFFFF' }}>
             Heard<span style={{ color: '#F5A623' }}>OS</span>
-          </span>
-          {restaurantName && (
-            <span className="ml-2 text-[11px] font-semibold text-gray-600 tracking-wide">{restaurantName}</span>
-          )}
+          </div>
+          <div className="text-[9px] font-bold tracking-widest mt-0.5" style={{ color: '#6B7280', letterSpacing: '0.12em' }}>RESTAURANT OPERATIONS SYSTEM</div>
         </div>
         <div className="flex items-center gap-1.5">
           <button className="relative h-9 w-9 flex items-center justify-center rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
