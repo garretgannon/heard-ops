@@ -146,6 +146,8 @@ export default function TempLogs() {
   const [issueNotes, setIssueNotes] = useState("");
   const [managerInitials, setManagerInitials] = useState("");
   const [showAddLocation, setShowAddLocation] = useState(false);
+  const [chemicalInputs, setChemicalInputs] = useState({ dishwasher: {}, threeSink: {} });
+  const [loggingChemical, setLoggingChemical] = useState(false);
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -261,6 +263,31 @@ export default function TempLogs() {
     setLocations(prev => [...prev, created]);
     setShowAddLocation(false);
     toast.success("Location added");
+  };
+
+  const handleLogChemical = async (unit) => {
+    const inputs = chemicalInputs[unit];
+    if (!inputs.temp && !inputs.ppm) {
+      haptics.warning();
+      toast.error("Enter temperature or PPM");
+      return;
+    }
+    setLoggingChemical(true);
+    const unitName = unit === "dishwasher" ? "Dish Machine" : "Three Compartment Sink";
+    await base44.entities.ChemicalLog.create({
+      machine_name: unitName,
+      date: todayStr,
+      logged_at: new Date().toISOString(),
+      temperature: inputs.temp ? parseFloat(inputs.temp) : null,
+      sanitizer_ppm: inputs.ppm ? parseFloat(inputs.ppm) : null,
+      status: inputs.ppm && parseFloat(inputs.ppm) >= 50 && parseFloat(inputs.ppm) <= 400 ? "pass" : "warning",
+    });
+    setChemicalInputs({ dishwasher: {}, threeSink: {} });
+    const logs = await base44.entities.ChemicalLog.filter({ date: todayStr }).catch(() => []);
+    setChemicalLogs(logs);
+    setLoggingChemical(false);
+    haptics.success();
+    toast.success("Reading logged ✓");
   };
 
   const handleExport = () => {
@@ -498,31 +525,90 @@ export default function TempLogs() {
             <MetricTile icon={Activity} label="Logged" value={chemicalLogs.length} />
             <MetricTile icon={ShieldCheck} label="Passes" value={chemicalLogs.filter(l => l.status === "pass").length} />
           </div>
-          {chemicalLogs.length > 0 ? (
-            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
-              {chemicalLogs.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at)).map((log, idx) => {
-                const logTime = new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                const isPassing = log.status === "pass";
-                return (
-                  <div key={idx} className={cn("flex items-center gap-3 px-3 py-2.5", idx < chemicalLogs.length - 1 ? "border-b border-[#1A2235]" : "")}>
-                    <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", isPassing ? "bg-emerald-400" : "bg-amber-400")} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold text-white truncate">{log.machine_name || "Dish Machine"}</p>
-                      <p className="text-[11px] text-gray-600 mt-0.5">PPM: {log.sanitizer_ppm} · {logTime}</p>
-                    </div>
-                    <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
-                      isPassing ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
-                    )}>
-                      {isPassing ? "Pass" : "Warning"}
-                    </span>
-                  </div>
-                );
-              })}
+
+          {/* Logging Section */}
+          <div className="space-y-3">
+            {/* Dishwasher */}
+            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
+              <p className="text-[12px] font-bold text-white">Dish Machine</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Temp °F"
+                  value={chemicalInputs.dishwasher.temp || ""}
+                  onChange={e => setChemicalInputs(prev => ({ ...prev, dishwasher: { ...prev.dishwasher, temp: e.target.value } }))}
+                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <input
+                  type="number"
+                  placeholder="PPM"
+                  value={chemicalInputs.dishwasher.ppm || ""}
+                  onChange={e => setChemicalInputs(prev => ({ ...prev, dishwasher: { ...prev.dishwasher, ppm: e.target.value } }))}
+                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <button
+                  onClick={() => handleLogChemical("dishwasher")}
+                  disabled={loggingChemical}
+                  className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-bold active:scale-95 disabled:opacity-50"
+                >
+                  {loggingChemical ? "..." : "Log"}
+                </button>
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-8 bg-[#0F1623] border border-[#1E2A3B] rounded-xl">
-              <Activity className="h-8 w-8 text-gray-600 mx-auto mb-2" />
-              <p className="text-[12px] text-gray-600">No chemical logs today</p>
+
+            {/* Three Compartment Sink */}
+            <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl p-3 space-y-2">
+              <p className="text-[12px] font-bold text-white">Three Compartment Sink</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Temp °F"
+                  value={chemicalInputs.threeSink.temp || ""}
+                  onChange={e => setChemicalInputs(prev => ({ ...prev, threeSink: { ...prev.threeSink, temp: e.target.value } }))}
+                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <input
+                  type="number"
+                  placeholder="PPM"
+                  value={chemicalInputs.threeSink.ppm || ""}
+                  onChange={e => setChemicalInputs(prev => ({ ...prev, threeSink: { ...prev.threeSink, ppm: e.target.value } }))}
+                  className="flex-1 h-8 px-2 text-[12px] border border-[#232D3F] rounded-lg bg-[#0B0F18] text-white focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <button
+                  onClick={() => handleLogChemical("threeSink")}
+                  disabled={loggingChemical}
+                  className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-bold active:scale-95 disabled:opacity-50"
+                >
+                  {loggingChemical ? "..." : "Log"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Logs */}
+          {chemicalLogs.length > 0 && (
+            <div className="mt-4">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-600 mb-2">Recent Logs</p>
+              <div className="bg-[#0F1623] border border-[#1E2A3B] rounded-xl overflow-hidden">
+                {chemicalLogs.sort((a, b) => new Date(b.logged_at) - new Date(a.logged_at)).map((log, idx) => {
+                  const logTime = new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                  const isPassing = log.status === "pass";
+                  return (
+                    <div key={idx} className={cn("flex items-center gap-3 px-3 py-2.5", idx < chemicalLogs.length - 1 ? "border-b border-[#1A2235]" : "")}>
+                      <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", isPassing ? "bg-emerald-400" : "bg-amber-400")} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-bold text-white truncate">{log.machine_name}</p>
+                        <p className="text-[11px] text-gray-600 mt-0.5">{log.temperature}°F {log.sanitizer_ppm ? `· ${log.sanitizer_ppm} PPM` : ""} · {logTime}</p>
+                      </div>
+                      <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
+                        isPassing ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
+                      )}>
+                        {isPassing ? "Pass" : "Warning"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </>
