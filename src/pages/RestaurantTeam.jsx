@@ -287,11 +287,11 @@ export default function RestaurantTeam() {
       <Dialog open={showInvite} onOpenChange={setShowInvite}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Invite Team Member</DialogTitle>
+            <DialogTitle className="text-foreground">Invite Team Member</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="space-y-1">
-              <Label>Email Address</Label>
+              <Label className="text-foreground">Email Address</Label>
               <Input
                 type="email"
                 placeholder="staff@restaurant.com"
@@ -301,7 +301,7 @@ export default function RestaurantTeam() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Initial Role</Label>
+              <Label className="text-foreground">Initial Role</Label>
               <Select value={invitingRole} onValueChange={setInvitingRole}>
                 <SelectTrigger className="text-foreground">
                   <SelectValue />
@@ -327,20 +327,20 @@ export default function RestaurantTeam() {
       <Dialog open={!!selectedEmployee} onOpenChange={() => setSelectedEmployee(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Employee</DialogTitle>
+            <DialogTitle className="text-foreground">Edit Employee</DialogTitle>
           </DialogHeader>
           {selectedEmployee && (
             <div className="space-y-4 mt-4">
               <div className="space-y-1">
-                <Label>Name</Label>
+                <Label className="text-foreground">Name</Label>
                 <p className="text-sm text-foreground">{selectedEmployee.full_name || selectedEmployee.email}</p>
               </div>
               <div className="space-y-1">
-                <Label>Email</Label>
+                <Label className="text-foreground">Email</Label>
                 <p className="text-sm text-foreground">{selectedEmployee.email}</p>
               </div>
               <div className="space-y-1">
-                <Label>Department</Label>
+                <Label className="text-foreground">Department</Label>
                 <Select value={selectedEmployee.department || ""} onValueChange={v => setSelectedEmployee({ ...selectedEmployee, department: v })}>
                     <SelectTrigger className="text-foreground">
                       <SelectValue placeholder="Select" />
@@ -353,7 +353,7 @@ export default function RestaurantTeam() {
                   </Select>
               </div>
               <div className="space-y-1">
-                <Label>Phone</Label>
+                <Label className="text-foreground">Phone</Label>
                 <Input
                   placeholder="+1 (555) 000-0000"
                   value={selectedEmployee.phone || ""}
@@ -362,7 +362,7 @@ export default function RestaurantTeam() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Start Date</Label>
+                <Label className="text-foreground">Start Date</Label>
                 <Input
                   type="date"
                   value={selectedEmployee.start_date || ""}
@@ -371,7 +371,7 @@ export default function RestaurantTeam() {
                 />
               </div>
               <div className="space-y-1">
-                <Label>Certifications (comma-separated)</Label>
+                <Label className="text-foreground">Certifications (comma-separated)</Label>
                 <Input
                   placeholder="ServSafe, TIPS, Mixology"
                   value={selectedEmployee.certifications || ""}
@@ -382,7 +382,7 @@ export default function RestaurantTeam() {
               {isAdmin && (
                 <>
                   <div className="space-y-1">
-                    <Label>Emergency Contact (Private)</Label>
+                    <Label className="text-foreground">Emergency Contact (Private)</Label>
                     <Input
                       placeholder="Name"
                       value={selectedEmployee.emergency_contact || ""}
@@ -391,7 +391,7 @@ export default function RestaurantTeam() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label>Emergency Phone (Private)</Label>
+                    <Label className="text-foreground">Emergency Phone (Private)</Label>
                     <Input
                       placeholder="+1 (555) 000-0000"
                       value={selectedEmployee.emergency_contact_phone || ""}
