@@ -5,15 +5,16 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Plus, MessageSquare, User, Clock, AlertCircle, CheckCircle2, Upload, Calendar,
   Users, Inbox, ChevronRight, MapPin, Phone, Mail, MoreVertical, Zap, Bell,
-  TrendingUp, AlertTriangle, Clock3, ArrowLeft
+  TrendingUp, AlertTriangle, Clock3, ArrowLeft, ChevronLeft, ChevronRight as ChevronRightIcon
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow, isToday, startOfToday, endOfToday, startOfWeek, endOfWeek } from "date-fns";
+import { formatDistanceToNow, isToday, startOfToday, endOfToday, startOfWeek, endOfWeek, format, parse, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay } from "date-fns";
 
 const TABS = [
   { id: "today", label: "Today", icon: Clock },
@@ -24,6 +25,73 @@ const TABS = [
 ];
 
 const DEPARTMENTS = ["FOH", "BOH", "Bar", "Management"];
+
+function DatePickerPopover({ date, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [month, setMonth] = useState(date ? parse(date, 'yyyy-MM-dd', new Date()) : new Date());
+
+  const days = eachDayOfInterval({
+    start: startOfMonth(month),
+    end: endOfMonth(month),
+  });
+
+  const handleDateSelect = (day) => {
+    onChange(format(day, 'yyyy-MM-dd'));
+    setOpen(false);
+  };
+
+  const firstDayOfMonth = startOfMonth(month);
+  const emptyDays = firstDayOfMonth.getDay();
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className="col-span-2 h-10 px-3 text-sm rounded-lg bg-[#0B0B0D] border border-[#1F1F24] text-white hover:border-[#FF6A00]/50 transition-colors text-left flex items-center justify-between">
+          <span>{date ? format(parse(date, 'yyyy-MM-dd', new Date()), 'MMM dd, yyyy') : 'Select date'}</span>
+          <Calendar className="h-4 w-4 text-[#6B7280]" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-4 bg-[#141418] border border-[#1F1F24] rounded-xl">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <button onClick={() => setMonth(subMonths(month, 1))} className="p-1.5 hover:bg-[#1A1A1F] rounded-lg transition-colors active:scale-95">
+              <ChevronLeft className="h-4 w-4 text-[#A1A1AA]" />
+            </button>
+            <h3 className="text-sm font-bold text-white">{format(month, 'MMMM yyyy')}</h3>
+            <button onClick={() => setMonth(addMonths(month, 1))} className="p-1.5 hover:bg-[#1A1A1F] rounded-lg transition-colors active:scale-95">
+              <ChevronRightIcon className="h-4 w-4 text-[#A1A1AA]" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+              <div key={d} className="text-xs font-bold text-[#6B7280] py-2">{d}</div>
+            ))}
+            {Array.from({ length: emptyDays }).map((_, i) => (
+              <div key={`empty-${i}`} />
+            ))}
+            {days.map(day => (
+              <button
+                key={day.toISOString()}
+                onClick={() => handleDateSelect(day)}
+                className={cn(
+                  "h-8 text-xs font-semibold rounded-lg transition-colors active:scale-95",
+                  isSameDay(day, date ? parse(date, 'yyyy-MM-dd', new Date()) : new Date())
+                    ? 'bg-[#FF6A00] text-black'
+                    : isSameMonth(day, month)
+                    ? 'text-white hover:bg-[#1A1A1F]'
+                    : 'text-[#6B7280] hover:bg-[#1A1A1F]'
+                )}
+              >
+                {format(day, 'd')}
+              </button>
+            ))}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function ScheduleCenter() {
   const navigate = useNavigate();
@@ -425,10 +493,7 @@ export default function ScheduleCenter() {
                   </select>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-white">Date</Label>
-                    <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} className="bg-[#0B0B0D] border-[#1F1F24] text-white" />
-                  </div>
+                  <DatePickerPopover date={form.date} onChange={date => setForm({ ...form, date })} />
                   <div>
                     <Label className="text-white">Role</Label>
                     <Input value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="e.g., Server" className="bg-[#0B0B0D] border-[#1F1F24] text-white" />
