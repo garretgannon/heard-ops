@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { Search, AlertTriangle, Clock, Zap, Building2, ArrowUp } from "lucide-react";
+import { Search, AlertTriangle, Clock, Zap, Building2, ArrowUp, ArrowLeft } from "lucide-react";
 import PrepItemCard from "../components/KitchenPrep/PrepItemCard";
 import UpdateQuantityModal from "../components/KitchenPrep/UpdateQuantityModal";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function KitchenPrep() {
+  const navigate = useNavigate();
   const { user } = useCurrentUser();
   const [prepItems, setPrepItems] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -178,9 +180,14 @@ export default function KitchenPrep() {
   return (
     <div className="pb-32 bg-background min-h-screen">
       {/* STICKY HEADER */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
-        <h1 className="text-lg font-bold text-foreground">Kitchen Prep</h1>
-        <p className="text-[10px] text-muted-foreground mt-0.5">Production tracker for active shift</p>
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-2">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-secondary rounded-lg transition-colors active:scale-95">
+          <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+        </button>
+        <div>
+          <h1 className="text-lg font-bold text-foreground">Kitchen Prep</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Production tracker for active shift</p>
+        </div>
       </div>
 
       {/* SUMMARY CARDS */}
