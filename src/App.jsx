@@ -56,6 +56,7 @@ import WasteLog from './pages/WasteLog';
 import TemplateBuilder from './pages/TemplateBuilder';
 import TemplateList from './pages/TemplateList';
 import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
+import KitchenPrep from './pages/KitchenPrep';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -120,6 +121,7 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/inventory-control" element={<InventoryControl />} />}
         <Route path="/waste" element={<WasteLog />} />
         <Route path="/recipes" element={<RecipesAndBuildCards />} />
+        <Route path="/kitchen-prep" element={<KitchenPrep />} />
         <Route path="/cleaning" element={<Cleaning />} />
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
         <Route path="/issues" element={<IssuesRepairs />} />
