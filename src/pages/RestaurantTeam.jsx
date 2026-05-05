@@ -229,7 +229,7 @@ export default function RestaurantTeam() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-sm truncate text-foreground">{emp.full_name || emp.email}</h3>
+                      <h3 className="font-semibold text-sm truncate text-white">{emp.full_name || emp.email}</h3>
                       <StatusIcon className={cn("h-4 w-4 flex-shrink-0", statusInfo.color)} />
                     </div>
                     <p className="text-xs text-gray-300 mb-2">{emp.email}</p>
