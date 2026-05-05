@@ -47,6 +47,7 @@ import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import SetupWizard from './pages/SetupWizard';
 import ScheduleCenter from './pages/ScheduleCenter';
 import Logs from './pages/Logs';
+import Knowledge from './pages/Knowledge';
 
 import More from './pages/More';
 import Standards from './pages/Standards';
@@ -168,6 +169,7 @@ const AuthenticatedApp = () => {
 
         <Route path="/cash" element={<Cash />} />
         <Route path="/logs" element={<Logs />} />
+        <Route path="/knowledge" element={<Knowledge />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
