@@ -175,7 +175,7 @@ export default function TempLogs() {
     if (status === "critical" && !overrideInitials) { setIssueSheet({ location: loc, temp }); return; }
     setSaving(prev => ({ ...prev, [loc.id]: true }));
     const statusMap = { ok: "safe", warning: "warning", critical: "danger", none: "safe" };
-    await base44.entities.TempLogEntry.create({
+    const entry = await base44.entities.TempLogEntry.create({
       location_id: loc.id, location_name: loc.name, temperature: temp,
       status: statusMap[status] || "safe",
       is_above_range: temp > loc.target_max, is_below_range: temp < loc.target_min,
@@ -184,6 +184,20 @@ export default function TempLogs() {
       manager_initials: status === "critical" ? overrideInitials : null,
       corrective_action: status === "critical" ? overrideNotes : null,
     });
+    
+    // Sync to issues if out of range
+    if (status === "critical") {
+      await base44.functions.invoke('syncLogs', {
+        logType: 'temp',
+        logId: entry.id,
+        isOutOfRange: true,
+        location: loc.name,
+        temperature: temp,
+        notes: overrideNotes,
+        corrective_action: overrideNotes,
+      }).catch(e => console.error('Sync failed:', e));
+    }
+    
     await load();
     setSaving(prev => ({ ...prev, [loc.id]: false }));
     setTemps(prev => { const n = { ...prev }; delete n[loc.id]; return n; });
