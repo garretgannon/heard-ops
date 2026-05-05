@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import {
-  Plus, X, Search, Edit2, ChevronRight, BookOpen, Award, Briefcase
+  Plus, X, Search, Edit2, ChevronRight, BookOpen, Award, Briefcase, ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils";
 const DEPARTMENTS = ["FOH", "BOH", "Bar", "Management"];
 
 export default function JobCodes() {
+  const navigate = useNavigate();
   const { isAdmin } = useCurrentUser();
   const [jobCodes, setJobCodes] = useState([]);
   const [search, setSearch] = useState("");
@@ -131,11 +133,16 @@ export default function JobCodes() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Briefcase className="h-6 w-6 text-primary" /> Job Codes
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">Role descriptions</p>
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate(-1)} className="p-2 hover:bg-secondary rounded-lg transition-colors active:scale-95">
+            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Briefcase className="h-6 w-6 text-primary" /> Job Codes
+            </h1>
+            <p className="text-xs text-muted-foreground mt-1">Role descriptions</p>
+          </div>
         </div>
 
         {/* Search */}
