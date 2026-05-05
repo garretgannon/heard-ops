@@ -98,25 +98,24 @@ export default function TodaysCommandCenter() {
   useEffect(() => {
     (async () => {
       try {
-        const [me, prepLists, prepItems, sideWork, tempLogs, maintenance,
+        const me = await base44.auth.me().catch(() => null);
+        const [prepLists, prepItems, sideWork, tempLogs, maintenance,
           incidents, shiftHandoffs, cashDrawers, dishLogs, dishMachines,
-          calendarEvents, staffShifts, issues, inventoryItems,
+          staffShifts, issues, inventoryItems,
         ] = await Promise.all([
-          base44.auth.me().catch(() => null),
-          base44.entities.PrepList.filter({ date: todayStr }),
-          base44.entities.PrepItem.list("-updated_date", 300),
-          base44.entities.SideWorkAssignment.filter({ date: todayStr }),
-          base44.entities.TempLogEntry.filter({ date: todayStr }),
-          base44.entities.MaintenanceRequest.filter({ status: "open" }),
-          base44.entities.IncidentReport.filter({ status: "open" }),
-          base44.entities.ShiftHandoff.list("-created_date", 5),
-          base44.entities.DrawerCount.filter({ date: todayStr }),
-          base44.entities.DishMachineLog.filter({ date: todayStr }),
-          base44.entities.DishMachineEquipment.list(),
-          base44.entities.CalendarEvent.list("-date", 100),
+          base44.entities.PrepList.filter({ date: todayStr }).catch(() => []),
+          base44.entities.PrepItem.list("-updated_date", 150).catch(() => []),
+          base44.entities.SideWorkAssignment.filter({ date: todayStr }).catch(() => []),
+          base44.entities.TempLogEntry.filter({ date: todayStr }).catch(() => []),
+          base44.entities.MaintenanceRequest.filter({ status: "open" }).catch(() => []),
+          base44.entities.IncidentReport.filter({ status: "open" }).catch(() => []),
+          base44.entities.ShiftHandoff.list("-created_date", 3).catch(() => []),
+          base44.entities.DrawerCount.filter({ date: todayStr }).catch(() => []),
+          base44.entities.DishMachineLog.filter({ date: todayStr }).catch(() => []),
+          base44.entities.DishMachineEquipment.list().catch(() => []),
           base44.entities.StaffShift.filter({ date: todayStr, status: "published" }).catch(() => []),
           base44.entities.Issue.filter({ status: "open" }).catch(() => []),
-          base44.entities.InventoryItem.list('-updated_date', 200).catch(() => []),
+          base44.entities.InventoryItem.list('-updated_date', 150).catch(() => []),
         ]);
 
         setUser(me);
