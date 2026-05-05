@@ -224,6 +224,9 @@ export default function IssuesRepairs() {
                   {item.assigned_to_name && (
                     <>
                       <span>·</span>
+                      <div className="h-4 w-4 rounded-full bg-primary/30 flex items-center justify-center text-[8px] font-bold text-primary shrink-0">
+                        {item.assigned_to_name.charAt(0)}
+                      </div>
                       <span>{item.assigned_to_name.split(" ")[0]}</span>
                     </>
                   )}
