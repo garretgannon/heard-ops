@@ -62,8 +62,7 @@ import Inventory from './pages/Inventory';
 import WasteLog from './pages/WasteLog';
 import TemplateBuilder from './pages/TemplateBuilder';
 import TemplateList from './pages/TemplateList';
-import Recipes from './pages/Recipes';
-import RecipeBuildCard from './pages/RecipeBuildCard';
+import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -124,10 +123,7 @@ const AuthenticatedApp = () => {
         <Route path="/inventory" element={<Inventory />} />
         {isAdmin && <Route path="/inventory-control" element={<InventoryControl />} />}
         <Route path="/waste" element={<WasteLog />} />
-        {isAdmin && <Route path="/recipes" element={<Recipes />} />}
-        {isAdmin && <Route path="/recipes/:recipeId" element={<RecipeBuildCard />} />}
-        {isFOH && <Route path="/bar-book" element={<BarBook />} />}
-        {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
+        <Route path="/recipes" element={<RecipesAndBuildCards />} />
         <Route path="/cleaning" element={<Cleaning />} />
         {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
         <Route path="/issues" element={<IssuesRepairs />} />

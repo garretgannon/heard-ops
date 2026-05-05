@@ -30,9 +30,7 @@ export default function More() {
         { label: "Vendors", path: "/vendors", icon: Truck },
         { label: "Inventory & Orders", path: "/inventory", icon: Package },
         { label: "Waste & 86 Log", path: "/waste", icon: Trash2 },
-        { label: "Recipes", path: "/recipes", icon: ChefHat },
-        { label: "Build Books", path: "/build-book", icon: BookOpen },
-        { label: "Bar Book", path: "/bar-book", icon: Wine },
+        { label: "Recipes & Build Cards", path: "/recipes", icon: ChefHat },
         { label: "Cleaning & Deep Clean", path: "/cleaning", icon: ClipboardList },
         { label: "Issues & Repairs", path: "/issues", icon: AlertTriangle },
       ]
