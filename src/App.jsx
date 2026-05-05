@@ -107,6 +107,10 @@ const AuthenticatedApp = () => {
         <Route path="/temp-logs" element={<TempLogs />} />
         <Route path="/shift-handoff" element={<ShiftHandoff />} />
         <Route path="/more" element={<More />} />
+        <Route path="/opening" element={<OpeningChecklist />} />
+        <Route path="/closing" element={<ClosingChecklist />} />
+        <Route path="/cleaning" element={<Cleaning />} />
+        {isFOH && <Route path="/side-work" element={<SideWork />} />}
 
         {/* Team & Scheduling */}
         {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
@@ -127,6 +131,7 @@ const AuthenticatedApp = () => {
         {/* Admin */}
         {isAdmin && <Route path="/templates" element={<TemplateList />} />}
         {isAdmin && <Route path="/templates/:id" element={<TemplateBuilder />} />}
+        {isAdmin && <Route path="/templates/new" element={<TemplateBuilder />} />}
         {isAdmin && <Route path="/standards" element={<Standards />} />}
         {isAdmin && <Route path="/reports" element={<Reports />} />}
         {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
@@ -150,8 +155,6 @@ const AuthenticatedApp = () => {
         {isAdmin && <Route path="/msds" element={<MSDS />} />}
         {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
 
-        <Route path="/opening" element={<OpeningChecklist />} />
-        <Route path="/closing" element={<ClosingChecklist />} />
         <Route path="/cash" element={<Cash />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
