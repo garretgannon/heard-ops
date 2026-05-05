@@ -3,9 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import CloseShiftChecklist from './CloseShiftChecklist';
+import ShiftHandoffReview from './ShiftHandoffReview';
 
 export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
-  const [stage, setStage] = useState('checklist'); // 'checklist' or 'finish'
+  const [stage, setStage] = useState('checklist'); // 'checklist', 'finish', or 'handoff'
   const [score, setScore] = useState(85);
   const [notes, setNotes] = useState('');
   const [incompleteTasks, setIncompleteTasks] = useState(0);
@@ -41,6 +42,12 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
     setStage('finish');
   };
 
+  const handleFinishShift = async (handoffNotes) => {
+    if (onClose) {
+      onClose(score, handoffNotes);
+    }
+  };
+
   if (checklistLoading) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50">
@@ -72,6 +79,15 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
               Cancel
             </button>
           </>
+        ) : stage === 'handoff' ? (
+          <ShiftHandoffReview
+            tasksCompletedPct={shiftSession.prep_completion_pct || 0}
+            logsCompletedPct={Math.round((Math.min(missingLogs === 0 ? 4 : Math.max(0, 4 - missingLogs), 4) / 4) * 100)}
+            issuesResolved={criticalIssues.length}
+            onSubmit={handleFinishShift}
+            isLoading={isLoading}
+            onBack={() => setStage('finish')}
+          />
         ) : (
           <>
             <div className="flex items-start gap-3">
@@ -144,11 +160,11 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
                 Back
               </button>
               <button
-                onClick={() => onClose(score, notes)}
+                onClick={() => setStage('handoff')}
                 disabled={isLoading}
-                className="flex-1 h-11 rounded-lg bg-red-600 text-white font-bold text-sm transition-all active:scale-95 disabled:opacity-50"
+                className="flex-1 h-11 rounded-lg bg-primary text-primary-foreground font-bold text-sm transition-all active:scale-95 disabled:opacity-50"
               >
-                {isLoading ? "Closing..." : "Close Shift"}
+                {isLoading ? "Loading..." : "Continue"}
               </button>
             </div>
           </>
