@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { AlertTriangle, ShoppingCart, DollarSign, Flame, CheckCircle2, Clock, Truck, TrendingDown } from "lucide-react";
+import MetricTile from "../components/MetricTile";
 import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -23,15 +24,7 @@ function getSeverity(item) {
   return item.status === "critical" ? "critical" : item.status === "low" ? "low" : null;
 }
 
-function KPITile({ label, value, sub, color, alert }) {
-  return (
-    <div className={cn("flex-1 min-w-0 bg-[#111827] rounded-xl border p-2.5 flex flex-col items-center text-center", alert ? "border-red-500/30" : "border-[#1F2937]")}>      
-      <p className={cn("text-[20px] font-extrabold leading-none", color)}>{value}</p>
-      <p className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</p>
-      {sub && <p className={cn("text-[9px] mt-0.5", color)}>{sub}</p>}
-    </div>
-  );
-}
+
 
 const ORDER_STATUS_MAP = {
   pending:   { label: "Pending",   color: "text-amber-400",  bg: "bg-amber-500/10",  border: "border-amber-500/20",  Icon: Clock },
@@ -103,26 +96,26 @@ export default function Inventory() {
 
       {/* KPI Strip */}
       <div className="grid grid-cols-4 gap-1.5">
-        <KPITile
+        <MetricTile
           label="Low Stock"
           value={outCount + critCount + lowCount}
           sub={outCount > 0 ? `${outCount} out` : critCount > 0 ? `${critCount} critical` : undefined}
           color={outCount > 0 ? "text-red-400" : critCount > 0 ? "text-amber-400" : "text-emerald-400"}
           alert={outCount > 0 || critCount > 0}
         />
-        <KPITile
+        <MetricTile
           label="Orders"
           value={pendingOrders || "—"}
           sub={pendingOrders > 0 ? "pending" : "none"}
           color={pendingOrders > 0 ? "text-blue-400" : "text-gray-600"}
         />
-        <KPITile
+        <MetricTile
           label="Spend"
           value={spendEstimate}
           sub="need reorder"
           color="text-[#F5A623]"
         />
-        <KPITile
+        <MetricTile
           label="Waste Risk"
           value={wasteRisk || "—"}
           sub={wasteRisk > 0 ? "over par" : "clear"}

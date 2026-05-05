@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { haptics } from "@/utils/haptics";
 import { base44 } from "@/api/base44Client";
 import { Plus, FileUp, AlertCircle, CheckCircle2, Camera, Play, ClipboardList, Timer, XCircle } from "lucide-react";
+import MetricTile from "../components/MetricTile";
 import BulkImportDialog from "../components/BulkImportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -227,18 +228,10 @@ export default function PrepLists() {
 
       {/* Metrics row */}
       <div className="grid grid-cols-4 gap-1.5">
-        {[
-          { Icon: ClipboardList, label: "Total",   value: summary.total,     col: "text-white" },
-          { Icon: CheckCircle2,  label: "Done",    value: summary.completed, col: summary.completed === summary.total && summary.total > 0 ? "text-emerald-400" : "text-white" },
-          { Icon: Timer,         label: "Active",  value: inProgress,        col: inProgress > 0 ? "text-amber-400" : "text-white" },
-          { Icon: XCircle,       label: "Overdue", value: summary.overdue,   col: summary.overdue > 0 ? "text-red-400" : "text-white" },
-        ].map(({ Icon, label, value, col }) => (
-          <div key={label} className="flex flex-col items-center text-center gap-0 bg-[#111827] border border-[#1F2937] rounded-xl p-2 min-w-0">            
-            <Icon className={cn("h-3 w-3 mb-0.5", col)} />
-            <span className={cn("text-[20px] font-extrabold leading-none", col)}>{value}</span>
-            <span className="text-[9px] text-gray-600 font-bold uppercase tracking-wide mt-0.5">{label}</span>
-          </div>
-        ))}
+        <MetricTile icon={ClipboardList} label="Total"   value={summary.total} />
+        <MetricTile icon={CheckCircle2}  label="Done"    value={summary.completed} color={summary.completed === summary.total && summary.total > 0 ? "text-emerald-400" : "text-white"} />
+        <MetricTile icon={Timer}         label="Active"  value={inProgress} color={inProgress > 0 ? "text-amber-400" : "text-white"} />
+        <MetricTile icon={XCircle}       label="Overdue" value={summary.overdue} color={summary.overdue > 0 ? "text-red-400" : "text-white"} alert={summary.overdue > 0} />
       </div>
 
       {/* Overall progress bar */}

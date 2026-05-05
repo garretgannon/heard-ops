@@ -5,6 +5,7 @@ import {
   Sparkles, AlertCircle, Clock, CheckCircle2, Play, Camera,
   Plus, TrendingUp, ChevronRight, X
 } from "lucide-react";
+import MetricTile from "../components/MetricTile";
 import { cn } from "@/lib/utils";
 import { format, differenceInHours, isToday, subDays } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -29,14 +30,7 @@ const STATUS_STYLE = {
   overdue:     { label: "Overdue",     cls: "bg-red-500/12 text-red-400 border-red-500/20" },
 };
 
-function MetricTile({ label, value, color, alert }) {
-  return (
-    <div className={cn("flex flex-col items-center text-center gap-0 bg-[#111827] border rounded-xl p-2.5 min-w-0", alert ? "border-red-500/30" : "border-[#1F2937]")}>      
-      <span className={cn("text-[20px] font-extrabold leading-none", color)}>{value}</span>
-      <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</span>
-    </div>
-  );
-}
+
 
 function TaskRow({ task, onStart, onComplete, onPhotoRequired }) {
   const st = STATUS_STYLE[task.status] || STATUS_STYLE.pending;

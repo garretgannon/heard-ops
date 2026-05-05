@@ -5,6 +5,7 @@ import {
   Bell, AlertTriangle, Thermometer, CheckSquare, Wrench,
   ClipboardList, ShieldAlert, Clock, ChevronRight, CheckCircle2
 } from "lucide-react";
+import MetricTile from "../components/MetricTile";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
@@ -106,14 +107,7 @@ const TYPE_STYLE = {
   info:     { dot: "bg-gray-500",              row: "",                               iconCls: "text-gray-500",  iconBg: "bg-[#1A2235]"    },
 };
 
-function KPITile({ label, value, color, alert }) {
-  return (
-    <div className={cn("flex-1 min-w-0 bg-[#111827] rounded-xl border p-2.5 flex flex-col items-center text-center", alert ? "border-red-500/30" : "border-[#1F2937]")}>      
-      <p className={cn("text-[20px] font-extrabold leading-none", color)}>{value}</p>
-      <p className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</p>
-    </div>
-  );
-}
+
 
 export default function NotificationSettings() {
   const navigate = useNavigate();
@@ -167,9 +161,9 @@ export default function NotificationSettings() {
 
       {/* KPI Strip */}
       <div className="grid grid-cols-3 gap-1.5">
-        <KPITile label="Unread"    value={unread}    color={unread > 0 ? "text-white" : "text-gray-600"}       alert={unread > 0} />
-        <KPITile label="Critical"  value={critical}  color={critical > 0 ? "text-red-400" : "text-gray-600"}   alert={critical > 0} />
-        <KPITile label="Approvals" value={approvals} color={approvals > 0 ? "text-blue-400" : "text-gray-600"} />
+        <MetricTile label="Unread"    value={unread}    color={unread > 0 ? "text-white" : "text-gray-600"}       alert={unread > 0} />
+        <MetricTile label="Critical"  value={critical}  color={critical > 0 ? "text-red-400" : "text-gray-600"}   alert={critical > 0} />
+        <MetricTile label="Approvals" value={approvals} color={approvals > 0 ? "text-blue-400" : "text-gray-600"} />
       </div>
 
       {/* Alert Feed */}

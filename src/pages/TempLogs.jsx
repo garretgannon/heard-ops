@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Thermometer, AlertTriangle, Download, Minus, Check, X, QrCode, Clock, ShieldCheck, TrendingUp, Activity, ChevronRight } from "lucide-react";
+import MetricTile from "../components/MetricTile";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { haptics } from "@/utils/haptics";
@@ -27,13 +28,12 @@ const getTempStatus = (temp, min, max) => {
 };
 
 const S = {
-  ok:       { label: "Safe",     bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400", dot: "bg-emerald-400",               icon: "text-emerald-400" },
-  warning:  { label: "Warning",  bg: "bg-amber-500/10",   border: "border-amber-500/20",   text: "text-amber-400",   dot: "bg-amber-400",                  icon: "text-amber-400" },
-  critical: { label: "Critical", bg: "bg-red-500/10",     border: "border-red-500/30",     text: "text-red-400",     dot: "bg-red-400 animate-pulse",       icon: "text-red-400" },
-  none:     { label: "No Log",   bg: "bg-[#181F2C]",      border: "border-[#232D3F]",      text: "text-gray-500",    dot: "bg-gray-600",                   icon: "text-gray-600" },
+  ok:       { label: "Safe",     bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400", dot: "bg-emerald-400",         icon: "text-emerald-400" },
+  warning:  { label: "Warning",  bg: "bg-amber-500/10",   border: "border-amber-500/20",   text: "text-amber-400",   dot: "bg-amber-400",            icon: "text-amber-400" },
+  critical: { label: "Critical", bg: "bg-red-500/10",     border: "border-red-500/30",     text: "text-red-400",     dot: "bg-red-400 animate-pulse", icon: "text-red-400" },
+  none:     { label: "No Log",   bg: "bg-[#181F2C]",      border: "border-[#232D3F]",      text: "text-gray-500",    dot: "bg-gray-600",             icon: "text-gray-600" },
 };
 
-/* ── Atoms ─────────────────────────────────────────────── */
 function Badge({ status }) {
   const c = S[status] || S.none;
   return (
@@ -43,17 +43,6 @@ function Badge({ status }) {
   );
 }
 
-function MetricTile({ icon: Icon, label, value, alert, valueColor }) {
-  return (
-    <div className={cn("flex flex-col items-center text-center gap-0.5 bg-[#0F1623] border rounded-xl p-2.5 min-w-0", alert ? "border-red-500/35" : "border-[#1E2A3B]")}>      
-      <Icon className={cn("h-3.5 w-3.5 mb-0.5", alert ? "text-red-400" : "text-gray-600")} />
-      <span className={cn("text-[22px] font-extrabold leading-none", valueColor || (alert ? "text-red-400" : "text-white"))}>{value}</span>
-      <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide leading-none mt-0.5">{label}</span>
-    </div>
-  );
-}
-
-/* ── Equipment Card — compact, log expands inline ──────── */
 function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onActivate, onTempChange, onStep, onLog, onFlag }) {
   const c = S[status] || S.none;
   const displayTemp = entry?.temperature;
@@ -68,12 +57,10 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
       "bg-[#0F1623] border rounded-xl overflow-hidden transition-all",
       status === "critical" ? "border-red-500/40 shadow-sm shadow-red-500/10" : c.border
     )}>
-      {/* Main row — always visible */}
       <div className="flex items-center gap-2.5 px-3 py-2.5">
         <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", c.bg)}>
           <Thermometer className={cn("h-3.5 w-3.5", c.icon)} />
         </div>
-
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-bold text-white leading-tight truncate">{loc.name}</p>
           <div className="flex items-center gap-1.5 mt-0.5">
@@ -86,7 +73,6 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
             )}
           </div>
         </div>
-
         <div className="flex items-center gap-2 shrink-0">
           {displayTemp !== undefined && (
             <span className={cn("text-[16px] font-extrabold leading-none", c.text)}>{displayTemp}°</span>
@@ -96,9 +82,7 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
             onClick={onActivate}
             className={cn(
               "h-7 px-2.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95",
-              isActive
-                ? "bg-[#1E2A3B] text-gray-400 border-[#2A3A50]"
-                : "bg-primary/10 text-primary border-primary/25"
+              isActive ? "bg-[#1E2A3B] text-gray-400 border-[#2A3A50]" : "bg-primary/10 text-primary border-primary/25"
             )}
           >
             {isActive ? "Cancel" : "Log"}
@@ -106,7 +90,6 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
         </div>
       </div>
 
-      {/* Log controls — only visible when active */}
       {isActive && (
         <div className="flex items-center gap-1.5 px-3 pb-3 border-t border-[#1A2235] pt-2.5">
           <button onClick={() => onStep(-1)} className="h-8 w-8 rounded-lg bg-[#171F2D] border border-[#232D3F] flex items-center justify-center active:scale-90 transition-transform">
@@ -132,9 +115,7 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
             disabled={!inputVal || isSaving}
             className={cn(
               "h-8 px-4 rounded-lg text-[12px] font-bold flex items-center gap-1.5 active:scale-95 transition-all border",
-              inputVal
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-[#171F2D] border-[#232D3F] text-gray-700 cursor-not-allowed"
+              inputVal ? "bg-primary text-primary-foreground border-primary" : "bg-[#171F2D] border-[#232D3F] text-gray-700 cursor-not-allowed"
             )}
           >
             {isSaving
@@ -152,7 +133,6 @@ function EquipmentCard({ loc, entry, status, isActive, inputVal, isSaving, onAct
   );
 }
 
-/* ── Page ───────────────────────────────────────────────── */
 export default function TempLogs() {
   const [locations, setLocations] = useState([]);
   const [entries, setEntries] = useState([]);
@@ -193,7 +173,6 @@ export default function TempLogs() {
     return e && getTempStatus(e.temperature, l.target_min, l.target_max) === "critical";
   });
 
-  // Sort: critical first, then warning, then no log, then ok (safe last)
   const sortedLocations = [...locations].sort((a, b) => {
     const order = { critical: 0, warning: 1, none: 2, ok: 3 };
     const ea = getLatestEntry(a.id);
@@ -203,7 +182,6 @@ export default function TempLogs() {
     return order[sa] - order[sb];
   });
 
-  // Trend chart data
   const hourlyBuckets = {};
   entries.forEach(e => {
     const h = new Date(e.logged_at).getHours();
@@ -300,15 +278,15 @@ export default function TempLogs() {
 
       {/* Metrics — 4-col */}
       <div className="grid grid-cols-4 gap-1.5">
-        <MetricTile icon={Activity}      label="Logged"  value={logsToday} />
-        <MetricTile icon={Clock}         label="Missed"  value={missedLogs} alert={missedLogs > 0} />
-        <MetricTile icon={AlertTriangle} label="Alerts"  value={highAlerts} alert={highAlerts > 0} />
+        <MetricTile icon={Activity}      label="Logged" value={logsToday} />
+        <MetricTile icon={Clock}         label="Missed" value={missedLogs} alert={missedLogs > 0} />
+        <MetricTile icon={AlertTriangle} label="Alerts" value={highAlerts} alert={highAlerts > 0} />
         <MetricTile icon={ShieldCheck}   label="Pass %"
           value={`${compPct}%`}
-          valueColor={compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400"} />
+          color={compPct >= 90 ? "text-emerald-400" : compPct >= 70 ? "text-amber-400" : "text-red-400"} />
       </div>
 
-      {/* ── CRITICAL ALERTS (FIRST) ── */}
+      {/* Critical Alerts */}
       {criticalLocations.length > 0 && (
         <div className="rounded-xl border border-red-500/40 bg-red-500/6 overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2.5 border-b border-red-500/15">

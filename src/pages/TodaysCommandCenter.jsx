@@ -25,10 +25,10 @@ function SectionLabel({ text, action, onAction }) {
 
 function Stat({ icon: Icon, label, value, alert, onClick }) {
   return (
-    <button onClick={onClick} className="flex-1 flex flex-col items-center gap-1 bg-[#111827] border border-[#1F2937] rounded-xl py-3 px-1.5 active:scale-95 transition-transform min-w-0">
-      <Icon className={cn("h-4 w-4", alert ? "text-red-400" : "text-[#F5A623]")} />
-      <span className={cn("text-xl font-extrabold leading-none", alert ? "text-red-400" : "text-white")}>{value}</span>
-      <span className="text-[10px] text-gray-500 font-semibold text-center leading-tight">{label}</span>
+    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center text-center gap-0 bg-[#111827] border rounded-xl py-2.5 px-1.5 active:scale-95 transition-transform min-w-0", alert ? "border-red-500/30" : "border-[#1F2937]")}>
+      <Icon className={cn("h-3.5 w-3.5 mb-0.5", alert ? "text-red-400" : "text-gray-500")} />
+      <span className={cn("text-[20px] font-extrabold leading-none", alert ? "text-red-400" : "text-white")}>{value}</span>
+      <span className="text-[10px] text-gray-600 font-semibold uppercase tracking-wide mt-0.5 leading-tight">{label}</span>
     </button>
   );
 }

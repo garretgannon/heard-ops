@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { AlertTriangle, Wrench, Users, ShieldAlert, UserCheck, DollarSign,
   CheckCircle2, UserPlus, Plus, Clock } from "lucide-react";
+import MetricTile from "../components/MetricTile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -130,17 +131,10 @@ export default function IssueTracker() {
 
       {/* KPI strip */}
       <div className="grid grid-cols-4 gap-1.5">
-        {[
-          { label: "Open",     value: openCount,    color: openCount > 0 ? "text-amber-400" : "text-white" },
-          { label: "Critical", value: criticalCount, color: criticalCount > 0 ? "text-red-400" : "text-white" },
-          { label: "Done Today", value: resolvedToday, color: "text-emerald-400" },
-          { label: "Avg Time",  value: avgHours != null ? `${avgHours}h` : "—", color: "text-gray-400" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-[#0F1623] border border-[#1A2235] rounded-xl p-2 text-center">
-            <p className={cn("text-[18px] font-extrabold leading-none", color)}>{value}</p>
-            <p className="text-[9px] text-gray-600 font-bold uppercase tracking-wide mt-1 leading-tight">{label}</p>
-          </div>
-        ))}
+        <MetricTile label="Open"       value={openCount}     color={openCount > 0 ? "text-amber-400" : "text-white"} alert={openCount > 0} />
+        <MetricTile label="Critical"   value={criticalCount} color={criticalCount > 0 ? "text-red-400" : "text-white"} alert={criticalCount > 0} />
+        <MetricTile label="Done Today" value={resolvedToday} color="text-emerald-400" />
+        <MetricTile label="Avg Time"   value={avgHours != null ? `${avgHours}h` : "—"} color="text-gray-400" />
       </div>
 
       {/* Filters */}
