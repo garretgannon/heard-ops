@@ -21,6 +21,7 @@ import Knowledge from './pages/Knowledge';
 import More from './pages/More';
 import Onboarding from './pages/Onboarding';
 import RestaurantTeam from './pages/RestaurantTeam';
+import TemplateList from './pages/TemplateList';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/more" element={<More />} />
         <Route path="/restaurant-team" element={<RestaurantTeam />} />
+        <Route path="/templates" element={<TemplateList />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
