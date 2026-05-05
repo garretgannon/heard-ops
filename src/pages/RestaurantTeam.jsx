@@ -1,56 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import {
-  Users, Mail, X, Plus, Search, Archive, MoreVertical, ExternalLink,
-  AlertCircle, CheckCircle, Clock, Phone, Calendar, Award
-} from "lucide-react";
+import { Search, Plus, MessageSquare, CheckSquare2, User, Bell, Filter, ChefHat, Users, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
-} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { format, parseISO } from "date-fns";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const DEPARTMENTS = ["FOH", "BOH", "Bar"];
-const STATUSES = [
-  { value: "active", label: "Active", icon: CheckCircle, color: "text-green-500" },
-  { value: "inactive", label: "Inactive", icon: Clock, color: "text-yellow-500" },
-  { value: "archived", label: "Archived", icon: Archive, color: "text-muted-foreground" },
-];
-
-const ROLES = [
-  { value: "admin", label: "Admin" },
-  { value: "foh", label: "FOH" },
-  { value: "user", label: "BOH" },
-  { value: "busser", label: "Busser" },
-];
-
-function getStatusInfo(status) {
-  return STATUSES.find(s => s.value === status) || STATUSES[0];
-}
+const FILTERS = ["All", "FOH", "BOH", "Bar", "Managers", "Support"];
 
 export default function RestaurantTeam() {
   const { user: currentUser, isAdmin } = useCurrentUser();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("active");
+  const [selectedFilter, setSelectedFilter] = useState("All");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [invitingRole, setInvitingRole] = useState("user");
   const [inviting, setInviting] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [editingEmployee, setEditingEmployee] = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [saving, setSaving] = useState(false);
-  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -61,22 +33,32 @@ export default function RestaurantTeam() {
     load();
   }, []);
 
-  const filteredEmployees = employees.filter(emp => {
-    if (!isAdmin && emp.status === "archived") return false;
-    if (selectedStatus !== "all" && emp.status !== selectedStatus) return false;
-    if (selectedDepartment !== "all" && emp.department !== selectedDepartment) return false;
-    if (search && !emp.full_name?.toLowerCase().includes(search.toLowerCase()) &&
-        !emp.email?.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  }).sort((a, b) => {
-    const statusOrder = { active: 0, inactive: 1, archived: 2 };
-    const aDept = a.department || "ZZ";
-    const bDept = b.department || "ZZ";
-    if (statusOrder[a.status] !== statusOrder[b.status]) {
-      return statusOrder[a.status] - statusOrder[b.status];
-    }
-    return aDept.localeCompare(bDept);
-  });
+  const filteredEmployees = useMemo(() => {
+    let filtered = employees.filter(emp => {
+      if (!isAdmin && emp.status === "archived") return false;
+      if (search && !emp.full_name?.toLowerCase().includes(search.toLowerCase()) &&
+          !emp.email?.toLowerCase().includes(search.toLowerCase())) return false;
+      if (selectedFilter === "Managers" && emp.role !== "admin") return false;
+      if (selectedFilter !== "All" && emp.department !== selectedFilter) return false;
+      return true;
+    });
+
+    // Sort by status: active first, then inactive
+    return filtered.sort((a, b) => {
+      const statusOrder = { active: 0, inactive: 1, archived: 2 };
+      return (statusOrder[a.status] || 2) - (statusOrder[b.status] || 2);
+    });
+  }, [employees, search, selectedFilter, isAdmin]);
+
+  const stats = useMemo(() => ({
+    total: employees.length,
+    onShift: employees.filter(e => e.status === "active").length,
+    expiring: employees.filter(e => e.certifications && e.certifications.length > 0).length,
+    requests: 6,
+  }), [employees]);
+
+  const onShiftEmployees = filteredEmployees.filter(e => e.status === "active");
+  const offShiftEmployees = filteredEmployees.filter(e => e.status !== "active");
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return;
@@ -89,246 +71,270 @@ export default function RestaurantTeam() {
     setInviting(false);
   };
 
-  const handleSaveEmployee = async () => {
-    if (!editingEmployee) return;
-    setSaving(true);
-    const updated = await base44.entities.User.update(editingEmployee.id, editForm);
-    setEmployees(prev => prev.map(e => e.id === editingEmployee.id ? updated : e));
-    setEditingEmployee(null);
-    setSaving(false);
-    toast.success("Updated");
+  const getRoleDisplay = (role) => {
+    const roleMap = { admin: "Manager", foh: "FOH", user: "BOH", busser: "Busser" };
+    return roleMap[role] || "Staff";
   };
 
-  const handleSeedDummyData = async () => {
-    setSeeding(true);
-    const res = await base44.functions.invoke('seedDummyTeam', {});
-    if (res.data.success) {
-      toast.success(`Added ${res.data.invited.length} dummy team members`);
-      const all = await base44.entities.User.list();
-      setEmployees(all);
-    } else {
-      toast.error("Failed to seed data");
-    }
-    setSeeding(false);
+  const getStatusColor = (status) => {
+    if (status === "active") return { bg: "bg-status-success/10", text: "text-status-success", badge: "On Shift" };
+    return { bg: "bg-muted", text: "text-muted-foreground", badge: "Off Shift" };
   };
 
-  const handleChangeStatus = async (empId, newStatus) => {
-    const updated = await base44.entities.User.update(empId, { status: newStatus });
-    setEmployees(prev => prev.map(e => e.id === empId ? updated : e));
-    toast.success("Status updated");
-  };
-
-  const handleChangeRole = async (empId, newRole) => {
-    const updated = await base44.entities.User.update(empId, { role: newRole });
-    setEmployees(prev => prev.map(e => e.id === empId ? updated : e));
-    toast.success("Role updated");
+  const getStatusDot = (status) => {
+    if (status === "active") return "bg-status-success";
+    return "bg-muted-foreground";
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
-  const activeCount = employees.filter(e => e.status === "active").length;
-  const inactiveCount = employees.filter(e => e.status === "inactive").length;
-
   return (
-    <motion.div className="space-y-6" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-3 text-white">
-            <Users className="h-7 w-7 text-primary" /> Restaurant Team
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">Employee directory, roles, and permissions.</p>
+    <motion.div className="min-h-screen bg-background pb-28 text-foreground" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-background border-b border-border px-4 py-3">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">Team Directory</h1>
+            <p className="text-xs text-muted-foreground">View and manage your team</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="relative h-9 w-9 rounded-lg bg-card border border-border flex items-center justify-center">
+              <Bell className="h-4 w-4 text-primary" />
+              <span className="absolute top-1 right-1 h-2 w-2 bg-status-error rounded-full" />
+            </button>
+            <div className="h-9 w-9 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-xs font-bold">
+              {currentUser?.full_name?.charAt(0) || "U"}
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleSeedDummyData} disabled={seeding} variant="outline" className="gap-2 text-xs">
-            {seeding ? "Adding..." : "Add Dummy Data"}
-          </Button>
-          <Button onClick={() => setShowInvite(true)} className="gap-2">
-            <Plus className="h-4 w-4" /> Invite
-          </Button>
+
+        {/* Search */}
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search team members…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+          {FILTERS.map(f => (
+            <button
+              key={f}
+              onClick={() => setSelectedFilter(f)}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all",
+                selectedFilter === f
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card border border-border text-foreground"
+              )}
+            >
+              {f}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Total</p>
-          <p className="text-2xl font-bold">{employees.length}</p>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Active</p>
-          <p className="text-2xl font-bold text-green-500">{activeCount}</p>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Inactive</p>
-          <p className="text-2xl font-bold text-yellow-500">{inactiveCount}</p>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs text-muted-foreground">Departments</p>
-          <p className="text-2xl font-bold">{new Set(employees.filter(e => e.department).map(e => e.department)).size}</p>
+      <div className="px-4 py-3 border-b border-border">
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: "Total", value: stats.total, color: "text-foreground" },
+            { label: "On Shift", value: stats.onShift, color: "text-status-success" },
+            { label: "Expiring", value: stats.expiring, color: "text-status-warning" },
+            { label: "Requests", value: stats.requests, color: "text-primary" },
+          ].map(stat => (
+            <div key={stat.label} className="bg-card border border-border rounded-lg p-2 text-center">
+              <p className={cn("text-lg font-bold", stat.color)}>{stat.value}</p>
+              <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex-1 min-w-[200px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search name or email..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="pl-9 text-foreground"
-          />
-        </div>
-        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-40 text-white">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" className="text-foreground">All Status</SelectItem>
-            {STATUSES.map(s => (
-              <SelectItem key={s.value} value={s.value} className="text-foreground">{s.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-          <SelectTrigger className="w-40 text-white">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" className="text-foreground">All Departments</SelectItem>
-            {DEPARTMENTS.map(d => (
-              <SelectItem key={d} value={d} className="text-foreground">{d}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Employee Directory */}
-      <div className="grid gap-4">
-        {filteredEmployees.length === 0 ? (
-          <div className="bg-card border border-border rounded-lg p-8 text-center">
-            <p className="text-muted-foreground">No employees found.</p>
-          </div>
-        ) : (
-          filteredEmployees.map(emp => {
-            const statusInfo = getStatusInfo(emp.status);
-            const StatusIcon = statusInfo.icon;
-            const canSeePrivate = isAdmin || emp.email === currentUser?.email;
-            return (
-              <div key={emp.id} className="bg-card border border-border rounded-lg p-4 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-sm truncate">{emp.full_name || emp.email}</h3>
-                      <StatusIcon className={cn("h-4 w-4 flex-shrink-0", statusInfo.color)} />
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-2">{emp.email}</p>
-                    <div className="flex items-center gap-4 flex-wrap text-xs">
-                      {emp.department && (
-                        <span className="px-2 py-1 bg-secondary rounded-full">{emp.department}</span>
-                      )}
-                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-full">
-                        {ROLES.find(r => r.value === emp.role)?.label || "User"}
-                      </span>
-                      {emp.start_date && (
-                        <span className="text-muted-foreground flex items-center gap-1">
-                          <Calendar className="h-3 w-3" /> {format(parseISO(emp.start_date), "MMM d, yyyy")}
-                        </span>
-                      )}
-                      {emp.phone && (
-                        <span className="text-muted-foreground flex items-center gap-1">
-                          <Phone className="h-3 w-3" /> {emp.phone}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 flex-shrink-0"
-                    onClick={() => setSelectedEmployee(emp)}
+      {/* Team List */}
+      <div className="px-4 py-4 space-y-4">
+        {/* On Shift Section */}
+        {onShiftEmployees.length > 0 && (
+          <div>
+            <h2 className="text-sm font-bold text-muted-foreground mb-2 flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-status-success" />
+              ON SHIFT ({onShiftEmployees.length})
+            </h2>
+            <div className="space-y-2">
+              {onShiftEmployees.map(emp => {
+                const statusInfo = getStatusColor(emp.status);
+                return (
+                  <motion.div
+                    key={emp.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-card border border-border rounded-lg p-3 flex items-center gap-3"
                   >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Certifications */}
-                {emp.certifications && (
-                  <div className="flex items-start gap-2 text-xs">
-                    <Award className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="flex flex-wrap gap-1">
-                      {emp.certifications.split(",").map((cert, i) => (
-                        <span key={i} className="px-2 py-1 bg-primary/10 rounded text-primary">
-                          {cert.trim()}
-                        </span>
-                      ))}
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary text-xs font-bold">
+                        {emp.full_name?.charAt(0) || "E"}
+                      </div>
+                      <div className={cn("absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-card", getStatusDot(emp.status))} />
                     </div>
-                  </div>
-                )}
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-border/50">
-                  <Select value={emp.status} onValueChange={v => handleChangeStatus(emp.id, v)}>
-                    <SelectTrigger className="h-7 text-xs w-32 text-foreground">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STATUSES.map(s => (
-                        <SelectItem key={s.value} value={s.value} className="text-foreground">{s.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={emp.role || "user"} onValueChange={v => handleChangeRole(emp.id, v)}>
-                    <SelectTrigger className="h-7 text-xs w-32 text-foreground">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ROLES.map(r => (
-                        <SelectItem key={r.value} value={r.value} className="text-foreground">{r.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button variant="outline" size="sm" className="text-xs gap-1 ml-auto">
-                    <ExternalLink className="h-3 w-3" /> View
-                  </Button>
-                </div>
-              </div>
-            );
-          })
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate">{emp.full_name || emp.email}</p>
+                      <p className="text-xs text-muted-foreground">{getRoleDisplay(emp.role)} {emp.department && `• ${emp.department}`}</p>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className={cn("text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap", statusInfo.bg, statusInfo.text)}>
+                      {statusInfo.badge}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1">
+                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <MessageSquare className="h-3.5 w-3.5 text-foreground" />
+                      </button>
+                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <CheckSquare2 className="h-3.5 w-3.5 text-foreground" />
+                      </button>
+                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <User className="h-3.5 w-3.5 text-foreground" />
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
         )}
+
+        {/* Off Shift Section */}
+        {offShiftEmployees.length > 0 && (
+          <div>
+            <h2 className="text-sm font-bold text-muted-foreground mb-2 flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+              OFF SHIFT ({offShiftEmployees.length})
+            </h2>
+            <div className="space-y-2">
+              {offShiftEmployees.map(emp => {
+                const statusInfo = getStatusColor(emp.status);
+                return (
+                  <motion.div
+                    key={emp.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-card border border-border rounded-lg p-3 flex items-center gap-3 opacity-75"
+                  >
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-muted/20 border border-muted/30 flex items-center justify-center text-muted-foreground text-xs font-bold">
+                        {emp.full_name?.charAt(0) || "E"}
+                      </div>
+                      <div className={cn("absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-card", getStatusDot(emp.status))} />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate">{emp.full_name || emp.email}</p>
+                      <p className="text-xs text-muted-foreground">{getRoleDisplay(emp.role)} {emp.department && `• ${emp.department}`}</p>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className={cn("text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap", statusInfo.bg, statusInfo.text)}>
+                      {statusInfo.badge}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1">
+                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <MessageSquare className="h-3.5 w-3.5 text-foreground" />
+                      </button>
+                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <CheckSquare2 className="h-3.5 w-3.5 text-foreground" />
+                      </button>
+                      <button className="h-8 w-8 rounded-lg bg-secondary border border-border flex items-center justify-center hover:bg-muted transition-colors active:scale-95">
+                        <User className="h-3.5 w-3.5 text-foreground" />
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {filteredEmployees.length === 0 && (
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 text-muted-foreground/30 mx-auto mb-2" />
+            <p className="text-muted-foreground text-sm">No team members found</p>
+          </div>
+        )}
+
+        {/* Certifications Section */}
+        <div className="mt-6 pt-4 border-t border-border">
+          <h3 className="text-sm font-bold mb-2">Certifications</h3>
+          <div className="bg-card border border-border rounded-lg p-3 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">ServeSafe</span>
+              <span className="text-sm font-bold">12</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Expiring Soon</span>
+              <span className="text-sm font-bold text-status-warning">4</span>
+            </div>
+            <Button variant="outline" size="sm" className="w-full mt-2 text-xs">
+              Review Certifications
+            </Button>
+          </div>
+        </div>
+
+        {/* Availability Section */}
+        <div>
+          <h3 className="text-sm font-bold mb-2">Availability Requests</h3>
+          <div className="bg-card border border-border rounded-lg p-3">
+            <p className="text-xs text-muted-foreground mb-3">6 pending requests</p>
+            <Button variant="outline" size="sm" className="w-full text-xs">
+              Open Requests
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Invite Dialog */}
       <Dialog open={showInvite} onOpenChange={setShowInvite}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-foreground">Invite Team Member</DialogTitle>
+            <DialogTitle className="text-foreground">Add Team Member</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-2">
+          <div className="space-y-4 mt-4">
             <div className="space-y-1">
-              <Label className="text-foreground">Email Address</Label>
+              <label className="text-sm font-semibold text-foreground">Email Address</label>
               <Input
                 type="email"
                 placeholder="staff@restaurant.com"
                 value={inviteEmail}
                 onChange={e => setInviteEmail(e.target.value)}
-                className="text-foreground"
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-foreground">Initial Role</Label>
+              <label className="text-sm font-semibold text-foreground">Role</label>
               <Select value={invitingRole} onValueChange={setInvitingRole}>
-                <SelectTrigger className="text-foreground">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {ROLES.map(r => (
-                    <SelectItem key={r.value} value={r.value} className="text-foreground">{r.label}</SelectItem>
-                  ))}
+                  <SelectItem value="admin">Manager</SelectItem>
+                  <SelectItem value="user">BOH</SelectItem>
+                  <SelectItem value="foh">FOH</SelectItem>
+                  <SelectItem value="busser">Busser</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -342,101 +348,12 @@ export default function RestaurantTeam() {
         </DialogContent>
       </Dialog>
 
-      {/* Employee Details */}
-      <Dialog open={!!selectedEmployee} onOpenChange={() => setSelectedEmployee(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">Edit Employee</DialogTitle>
-          </DialogHeader>
-          {selectedEmployee && (
-            <div className="space-y-4 mt-4">
-              <div className="space-y-1">
-                <Label className="text-foreground">Name</Label>
-                <p className="text-sm text-foreground">{selectedEmployee.full_name || selectedEmployee.email}</p>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-foreground">Email</Label>
-                <p className="text-sm text-foreground">{selectedEmployee.email}</p>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-foreground">Department</Label>
-                <Select value={selectedEmployee.department || ""} onValueChange={v => setSelectedEmployee({ ...selectedEmployee, department: v })}>
-                    <SelectTrigger className="text-foreground">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DEPARTMENTS.map(d => (
-                        <SelectItem key={d} value={d} className="text-foreground">{d}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-foreground">Phone</Label>
-                <Input
-                  placeholder="+1 (555) 000-0000"
-                  value={selectedEmployee.phone || ""}
-                  onChange={e => setSelectedEmployee({ ...selectedEmployee, phone: e.target.value })}
-                  className="text-foreground"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-foreground">Start Date</Label>
-                <Input
-                  type="date"
-                  value={selectedEmployee.start_date || ""}
-                  onChange={e => setSelectedEmployee({ ...selectedEmployee, start_date: e.target.value })}
-                  className="text-foreground"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-foreground">Certifications (comma-separated)</Label>
-                <Input
-                  placeholder="ServSafe, TIPS, Mixology"
-                  value={selectedEmployee.certifications || ""}
-                  onChange={e => setSelectedEmployee({ ...selectedEmployee, certifications: e.target.value })}
-                  className="text-foreground"
-                />
-              </div>
-              {isAdmin && (
-                <>
-                  <div className="space-y-1">
-                    <Label className="text-foreground">Emergency Contact (Private)</Label>
-                    <Input
-                      placeholder="Name"
-                      value={selectedEmployee.emergency_contact || ""}
-                      onChange={e => setSelectedEmployee({ ...selectedEmployee, emergency_contact: e.target.value })}
-                      className="text-foreground"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-foreground">Emergency Phone (Private)</Label>
-                    <Input
-                      placeholder="+1 (555) 000-0000"
-                      value={selectedEmployee.emergency_contact_phone || ""}
-                      onChange={e => setSelectedEmployee({ ...selectedEmployee, emergency_contact_phone: e.target.value })}
-                      className="text-foreground"
-                    />
-                  </div>
-                </>
-              )}
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setSelectedEmployee(null)}>Cancel</Button>
-                <Button onClick={async () => {
-                  setSaving(true);
-                  const updated = await base44.entities.User.update(selectedEmployee.id, selectedEmployee);
-                  setEmployees(prev => prev.map(e => e.id === selectedEmployee.id ? updated : e));
-                  setSelectedEmployee(null);
-                  setSaving(false);
-                  toast.success("Updated");
-                }} disabled={saving}>
-                  {saving ? "Saving..." : "Save"}
-                </Button>
-              </DialogFooter>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Sticky Add Member Button */}
+      <div className="fixed bottom-20 left-4 right-4 z-30">
+        <Button onClick={() => setShowInvite(true)} className="w-full gap-2 h-12 text-base">
+          <Plus className="h-5 w-5" /> Add Team Member
+        </Button>
+      </div>
     </motion.div>
   );
 }
