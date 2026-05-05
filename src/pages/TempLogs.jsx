@@ -141,6 +141,15 @@ export default function TempLogs() {
   const [saving, setSaving] = useState({});
   const [activeLocId, setActiveLocId] = useState(null);
   const [issueSheet, setIssueSheet] = useState(null);
+
+  useEffect(() => {
+    if (!activeLocId) return;
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`loc-card-${activeLocId}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [activeLocId]);
   const [issueNotes, setIssueNotes] = useState("");
   const [managerInitials, setManagerInitials] = useState("");
   const [showAddLocation, setShowAddLocation] = useState(false);
@@ -361,8 +370,8 @@ export default function TempLogs() {
               const status = entry ? getTempStatus(entry.temperature, loc.target_min, loc.target_max) : "none";
               const isActive = activeLocId === loc.id;
               return (
+                <div id={`loc-card-${loc.id}`} key={loc.id}>
                 <EquipmentCard
-                  key={loc.id}
                   loc={loc}
                   entry={entry}
                   status={status}
@@ -379,6 +388,7 @@ export default function TempLogs() {
                   onLog={() => handleLogTemp(loc, undefined, undefined)}
                   onFlag={() => { setIssueSheet({ location: loc, temp: entry?.temperature }); setIssueNotes(""); setManagerInitials(""); }}
                 />
+                </div>
               );
             })}
           </div>
