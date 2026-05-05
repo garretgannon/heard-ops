@@ -14,10 +14,8 @@ const navSections = {
   dailyOps: {
     label: "Daily Operations",
     items: [
-      { path: "/", label: "Today's Command Center", icon: LayoutDashboard },
+      { path: "/dashboard", label: "Today's Command Center", icon: LayoutDashboard },
       { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
-      { path: "/side-work", label: "Side Work", icon: CheckSquare },
-      { path: "/pre-shift", label: "Service Line-Up", icon: Flame },
       { path: "/shift-handoff", label: "Shift Handoff", icon: TrendingUp },
     ]
   },
@@ -25,42 +23,21 @@ const navSections = {
     label: "Compliance & Logs",
     items: [
       { path: "/temp-logs", label: "Temperature Logs", icon: Thermometer },
-      { path: "/dish-machines", label: "Dish Machines", icon: Droplet },
+      { path: "/manager-log", label: "Manager Log", icon: Notebook },
       { path: "/bathroom-checks", label: "Bathroom Checks", icon: ShowerHead },
-      { path: "/msds", label: "MSDS", icon: FileText },
     ]
   },
   managerTools: {
     label: "Manager Tools",
     items: [
-      { path: "/manager-log", label: "Manager Log", icon: Notebook },
       { path: "/photo-review", label: "Photo Review", icon: Camera },
       { path: "/incidents", label: "Incident Reports", icon: AlertTriangle },
-      { path: "/reports", label: "Reports", icon: BarChart2 },
-      { path: "/weekly-report", label: "Weekly Report", icon: TrendingUp },
-      { path: "/notifications", label: "Notification Settings", icon: Bell },
-    ]
-  },
-  teamTraining: {
-    label: "Team & Training",
-    items: [
-      { path: "/home", label: "Staff Home", icon: UserCircle },
-      { path: "/today", label: "Staff Tasks", icon: CheckSquare },
-      { path: "/onboarding", label: "Onboarding", icon: BookMarked },
-      { path: "/restaurant-team", label: "Restaurant Team", icon: Users },
-      { path: "/job-codes", label: "Job Codes", icon: Tag },
-      { path: "/build-book", label: "Build Book", icon: Book },
-      { path: "/bar-book", label: "Bar Book", icon: Wine },
     ]
   },
   admin: {
     label: "Admin",
     items: [
-      { path: "/cash", label: "Cash", icon: DollarSign },
-      { path: "/calendar", label: "Calendar", icon: CalendarDays },
-      { path: "/schedule-center", label: "Schedule Center", icon: CalendarPlus },
-      { path: "/vendors", label: "Vendors", icon: Truck },
-      { path: "/maintenance", label: "Maintenance Requests", icon: Wrench },
+      { path: "/templates", label: "Template Builder", icon: Book },
       { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
     ]
   },

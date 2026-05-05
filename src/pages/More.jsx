@@ -1,97 +1,108 @@
 import { useNavigate } from "react-router-dom";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { motion } from "framer-motion";
 import {
-  ShieldAlert, Wrench, Users, Package, ShoppingCart,
-  BarChart2, LayoutTemplate, Truck, Settings, ChevronRight,
-  ClipboardList, BookOpen, Wine, DollarSign,
-  CalendarDays, Bell, Camera, FileText, UserCheck, Flame,
-  Sparkles, Sun, Moon, Wind, Brush, Notebook
+  Users, Calendar, Tag, Truck, Package, Trash2, ChefHat, Wine, ClipboardList,
+  AlertTriangle, Wrench, Settings, BarChart2, FileText, Bell, BookOpen,
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-
-const SECTIONS = [
-  {
-    label: "Operations",
-    adminOnly: false,
-    items: [
-      { label: "Standards",           icon: Sparkles,    path: "/standards",         color: "text-blue-400",   bg: "bg-blue-500/15" },
-      { label: "Manager Log",         icon: Notebook,    path: "/manager-log",       color: "text-primary",    bg: "bg-primary/10" },
-      { label: "Inventory Control",   icon: Package,     path: "/inventory-control", color: "text-amber-400",  bg: "bg-amber-500/15" },
-    ],
-  },
-  {
-    label: "Core Systems",
-    items: [
-      { label: "Recipes", icon: BookOpen, path: "/recipes", color: "text-orange-400", bg: "bg-orange-500/15" },
-    ],
-  },
-  {
-    label: "People",
-    adminOnly: true,
-    items: [
-      { label: "Team",                icon: Users,       path: "/restaurant-team", color: "text-purple-400", bg: "bg-purple-500/15" },
-      { label: "Service Line-Up",     icon: Flame,       path: "/pre-shift",       color: "text-amber-400",  bg: "bg-amber-500/15" },
-      { label: "Onboarding",          icon: BookOpen,    path: "/onboarding",      color: "text-green-400",  bg: "bg-green-500/15" },
-    ],
-  },
-  {
-    label: "Business",
-    adminOnly: true,
-    items: [
-      { label: "Vendors",   icon: Truck,    path: "/vendors",   color: "text-yellow-400", bg: "bg-yellow-500/15" },
-    ],
-  },
-  {
-    label: "Setup",
-    adminOnly: true,
-    items: [
-      { label: "Templates",    icon: LayoutTemplate, path: "/templates",       color: "text-indigo-400", bg: "bg-indigo-500/15" },
-      { label: "Settings",     icon: Settings,      path: "/my-restaurant",  color: "text-gray-400",   bg: "bg-gray-500/15" },
-    ],
-  },
-];
 
 export default function More() {
   const navigate = useNavigate();
   const { isAdmin } = useCurrentUser();
 
-  const visibleSections = SECTIONS.filter(s => !s.adminOnly || isAdmin);
+  const categories = [
+    {
+      title: "Team & Scheduling",
+      icon: Users,
+      items: [
+        { label: "Team Directory", path: "/restaurant-team", icon: Users },
+        { label: "Schedule Center", path: "/schedule-center", icon: Calendar },
+        { label: "Employee Calendar", path: "/employee-calendar", icon: Calendar },
+        { label: "Job Codes", path: "/job-codes", icon: Tag },
+      ]
+    },
+    {
+      title: "Operations",
+      icon: Package,
+      items: [
+        { label: "Vendors", path: "/vendors", icon: Truck },
+        { label: "Inventory & Orders", path: "/inventory", icon: Package },
+        { label: "Waste & 86 Log", path: "/waste", icon: Trash2 },
+        { label: "Recipes", path: "/recipes", icon: ChefHat },
+        { label: "Build Books", path: "/build-book", icon: BookOpen },
+        { label: "Bar Book", path: "/bar-book", icon: Wine },
+        { label: "Cleaning & Deep Clean", path: "/cleaning", icon: ClipboardList },
+        { label: "Issues & Repairs", path: "/issues", icon: AlertTriangle },
+        { label: "Maintenance Requests", path: "/maintenance", icon: Wrench },
+      ]
+    },
+    {
+      title: "Admin",
+      icon: Settings,
+      items: [
+        { label: "Template Builder", path: "/templates", icon: Settings },
+        { label: "Standards", path: "/standards", icon: FileText },
+        { label: "Reports & Insights", path: "/reports", icon: BarChart2 },
+        { label: "Settings", path: "/my-restaurant", icon: Settings },
+        { label: "Notification Settings", path: "/notifications", icon: Bell },
+      ]
+    },
+  ];
 
   return (
-    <div className="pb-4">
-      <div className="mb-4">
-        <h1 className="text-xl font-extrabold text-white tracking-tight">More</h1>
-        <p className="text-[11px] text-gray-500 mt-0.5">All tools and settings</p>
+    <motion.div
+      className="min-h-screen bg-background pb-28"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
+        <h1 className="text-xl font-bold text-foreground">More Tools</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">Manage your restaurant operations</p>
       </div>
 
-      <div className="space-y-4">
-        {visibleSections.map(section => (
-          <div key={section.label}>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-600 mb-1.5">{section.label}</p>
-            <div className="bg-[#111827] border border-[#1F2937] rounded-xl overflow-hidden">
+      {/* Categories */}
+      <div className="px-4 py-4 space-y-6">
+        {categories.map((category, catIdx) => {
+          // Hide admin section for non-admins
+          if (category.title === "Admin" && !isAdmin) return null;
 
+          const Icon = category.icon;
+          return (
+            <div key={catIdx}>
+              <div className="flex items-center gap-2 mb-3">
+                <Icon className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-bold text-foreground uppercase tracking-widest">
+                  {category.title}
+                </h2>
+              </div>
 
-
-              {/* Regular items */}
-              {section.items.map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <button key={item.path} onClick={() => navigate(item.path)}
-                    className={cn("w-full flex items-center gap-3 px-3 py-2.5 active:bg-[#1C2432] transition-colors text-left",
-                      idx < section.items.length - 1 && "border-b border-[#1F2937]")}>
-                    <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shrink-0", item.bg)}>
-                      <Icon className={cn("h-4 w-4", item.color)} />
-                    </div>
-                    <span className="flex-1 text-sm font-semibold text-white">{item.label}</span>
-                    <ChevronRight className="h-3.5 w-3.5 text-gray-600 shrink-0" />
-                  </button>
-                );
-              })}
+              <div className="grid grid-cols-2 gap-2">
+                {category.items.map((item, itemIdx) => {
+                  const ItemIcon = item.icon;
+                  return (
+                    <motion.button
+                      key={itemIdx}
+                      onClick={() => navigate(item.path)}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: itemIdx * 0.02 }}
+                      className="group bg-card border border-border rounded-xl p-3 text-left hover:bg-muted transition-colors active:scale-95"
+                    >
+                      <ItemIcon className="h-5 w-5 text-primary mb-2 group-hover:scale-110 transition-transform" />
+                      <p className="text-xs font-bold text-foreground leading-tight">{item.label}</p>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

@@ -106,57 +106,65 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
-      <Route path="/" element={needsOnboarding && isAdmin ? <SetupWizard onComplete={() => { setNeedsOnboarding(false); }} /> : <TodaysCommandCenter />} />
+        {/* Main 5-tab navigation */}
+        <Route path="/" element={needsOnboarding && isAdmin ? <SetupWizard onComplete={() => { setNeedsOnboarding(false); }} /> : <TodaysCommandCenter />} />
+        <Route path="/prep-lists" element={<PrepLists />} />
+        <Route path="/temp-logs" element={<TempLogs />} />
+        <Route path="/shift-handoff" element={<ShiftHandoff />} />
+        <Route path="/more" element={<More />} />
+
+        {/* Team & Scheduling */}
+        {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
+        {isAdmin && <Route path="/schedule-center" element={<ScheduleCenter />} />}
+        {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
+        {isAdmin && <Route path="/job-codes" element={<JobCodes />} />}
+
+        {/* Operations */}
+        {isAdmin && <Route path="/vendors" element={<Vendors />} />}
+        <Route path="/inventory" element={<Inventory />} />
+        {isAdmin && <Route path="/inventory-control" element={<InventoryControl />} />}
+        <Route path="/waste" element={<WasteLog />} />
+        {isAdmin && <Route path="/recipes" element={<Recipes />} />}
+        {isAdmin && <Route path="/recipes/:recipeId" element={<RecipeBuildCard />} />}
+        {isFOH && <Route path="/bar-book" element={<BarBook />} />}
+        {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
+        <Route path="/cleaning" element={<Cleaning />} />
+        {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
+        {isAdmin && <Route path="/issues" element={<IssueTracker />} />}
+        <Route path="/maintenance" element={<MaintenanceRequests />} />
+
+        {/* Admin */}
+        {isAdmin && <Route path="/templates" element={<TemplateList />} />}
+        {isAdmin && <Route path="/templates/:id" element={<TemplateBuilder />} />}
+        {isAdmin && <Route path="/standards" element={<Standards />} />}
+        {isAdmin && <Route path="/reports" element={<Reports />} />}
+        {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
+        {isAdmin && <Route path="/my-restaurant" element={<MyRestaurant />} />}
+        {isAdmin && <Route path="/notifications" element={<NotificationSettings />} />}
+
+        {/* Secondary routes */}
         {isAdmin && <Route path="/dashboard" element={<Dashboard />} />}
         {isAdmin && <Route path="/manager" element={<ManagerDashboard />} />}
-        <Route path="/today" element={<StaffTasks />} />
         {isAdmin && <Route path="/stations" element={<Stations />} />}
-        {isAdmin && <Route path="/prep-lists" element={<PrepLists />} />}
         <Route path="/station/:stationId" element={<StationPrepView />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/home" element={isBusser ? <BusserHome /> : <StaffHome />} />
+        <Route path="/today" element={<StaffTasks />} />
         {isFOH && <Route path="/side-work" element={<SideWork />} />}
         {isAdmin && <Route path="/calendar" element={<Calendar />} />}
-        {isAdmin && <Route path="/reports" element={<Reports />} />}
         {isAdmin && <Route path="/photo-review" element={<PhotoReview />} />}
-        {isAdmin && <Route path="/job-codes" element={<JobCodes />} />}
         {isAdmin && <Route path="/prep-library" element={<PrepLibrary />} />}
-        {isAdmin && <Route path="/temp-logs" element={<TempLogs />} />}
         <Route path="/dish-machines" element={<DishMachines />} />
-        {isAdmin && <Route path="/my-restaurant" element={<MyRestaurant />} />}
-        {isAdmin && <Route path="/restaurant-team" element={<RestaurantTeam />} />}
-        {isAdmin && <Route path="/employee-calendar" element={<EmployeeCalendar />} />}
-        {isAdmin && <Route path="/vendors" element={<Vendors />} />}
-        {isAdmin && <Route path="/incidents" element={<IncidentReports />} />}
-        {isAdmin && <Route path="/issues" element={<IssueTracker />} />}
-        {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
-
-        {isAdmin && <Route path="/build-book" element={<BuildBook />} />}
-        {isFOH && <Route path="/bar-book" element={<BarBook />} />}
         {isAdmin && <Route path="/manager-log" element={<ManagerLog />} />}
+        <Route path="/bathroom-checks" element={<BathroomChecks />} />
         {isAdmin && <Route path="/msds" element={<MSDS />} />}
-        {isAdmin && <Route path="/notifications" element={<NotificationSettings />} />}
-        {isAdmin && <Route path="/weekly-report" element={<WeeklyReport />} />}
+        {isFOH && <Route path="/pre-shift" element={<LineUp />} />}
         {isAdmin && <Route path="/schedule-import" element={<ScheduleImport />} />}
         {isAdmin && <Route path="/r365-import" element={<R365ScheduleImport />} />}
-        {isAdmin && <Route path="/shift-handoff" element={<ShiftHandoff />} />}
-        {isAdmin && <Route path="/schedule-center" element={<ScheduleCenter />} />}
-        <Route path="/bathroom-checks" element={<BathroomChecks />} />
-        <Route path="/more" element={<More />} />
-        {isAdmin && <Route path="/standards" element={<Standards />} />}
         {isAdmin && <Route path="/issues-unified" element={<IssuesUnified />} />}
-        {isAdmin && <Route path="/inventory-control" element={<InventoryControl />} />}
-        <Route path="/cleaning" element={<Cleaning />} />
         <Route path="/opening" element={<OpeningChecklist />} />
         <Route path="/closing" element={<ClosingChecklist />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/waste" element={<WasteLog />} />
-        {isAdmin && <Route path="/templates" element={<TemplateList />} />}
-        {isAdmin && <Route path="/templates/:id" element={<TemplateBuilder />} />}
-        {isAdmin && <Route path="/recipes" element={<Recipes />} />}
-        {isAdmin && <Route path="/recipes/:recipeId" element={<RecipeBuildCard />} />}
         <Route path="/cash" element={<Cash />} />
-        <Route path="/maintenance" element={<MaintenanceRequests />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
