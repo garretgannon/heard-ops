@@ -34,7 +34,6 @@ export default function More() {
         { label: "Vendors", desc: "Supplier contacts and ordering", path: "/vendors", icon: Truck },
         { label: "Inventory & Orders", desc: "Track stock levels and reorder", path: "/inventory", icon: Package },
         { label: "Waste & 86 Log", desc: "Log waste and out-of-stock items", path: "/waste", icon: Trash2 },
-        { label: "Manager Log", desc: "Shift notes, incidents, and pending tasks", path: "/manager-log", icon: ClipboardList },
         { label: "Cleaning & Deep Clean", desc: "Cleaning checklists and logs", path: "/cleaning", icon: Sparkles },
       ]
     },
