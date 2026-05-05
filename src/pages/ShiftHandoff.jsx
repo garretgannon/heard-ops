@@ -91,18 +91,22 @@ export default function ShiftHandoff() {
   const [user, setUser] = useState(null);
 
   const load = async () => {
-    const todayStr = format(new Date(), "yyyy-MM-dd");
-    const [data, me, prep, iss] = await Promise.all([
-      base44.entities.ShiftHandoff.list("-created_date", 50),
-      base44.auth.me().catch(() => null),
-      base44.entities.PrepItem.filter({ status: "overdue" }).catch(() => []),
-      base44.entities.Issue.filter({ status: "open" }).catch(() => []),
-    ]);
-    setHandoffs(data);
-    setUser(me);
-    setPrepItems(prep);
-    setIssues(iss);
-    setLoading(false);
+    try {
+      const me = await base44.auth.me().catch(() => null);
+      setUser(me);
+      const data = await base44.entities.ShiftHandoff.list("-created_date", 50);
+      setHandoffs(data);
+      setTimeout(async () => {
+        const prep = await base44.entities.PrepItem.filter({ status: "overdue" }).catch(() => []);
+        setPrepItems(prep);
+      }, 200);
+      setTimeout(async () => {
+        const iss = await base44.entities.Issue.filter({ status: "open" }).catch(() => []);
+        setIssues(iss);
+      }, 400);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
