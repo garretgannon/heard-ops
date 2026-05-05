@@ -169,7 +169,7 @@ export default function WasteLog() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-40 px-0">
+    <div className="mx-auto w-full max-w-[420px] flex flex-col gap-3 pb-52 px-0">
 
       {/* HEADER */}
       <div className="flex items-center justify-between pt-1">
@@ -305,7 +305,7 @@ export default function WasteLog() {
       </div>
 
       {/* FAB */}
-      <div className="fixed bottom-20 right-4 z-40 flex flex-col gap-1.5 items-end lg:bottom-6">
+      <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom,0px)+8px)] right-4 z-40 flex flex-col gap-1.5 items-end lg:bottom-6">
         <button onClick={() => setShowE6Form(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1F2937] border border-[#374151] text-white text-[11px] font-bold shadow-xl active:scale-95 transition-transform">
           <Plus className="h-3 w-3 text-orange-400" /> Mark 86
