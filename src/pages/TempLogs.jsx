@@ -242,9 +242,10 @@ export default function TempLogs() {
     const status = getTempStatus(temp, loc.target_min, loc.target_max);
     if (status === "critical" && !overrideInitials) { setIssueSheet({ location: loc, temp }); return; }
     setSaving(prev => ({ ...prev, [loc.id]: true }));
+    const statusMap = { ok: "safe", warning: "warning", critical: "danger", none: "safe" };
     await base44.entities.TempLogEntry.create({
       location_id: loc.id, location_name: loc.name, temperature: temp,
-      status: status !== "critical",
+      status: statusMap[status] || "safe",
       is_above_range: temp > loc.target_max, is_below_range: temp < loc.target_min,
       date: todayStr, logged_at: new Date().toISOString(),
       notes: overrideNotes || "",
