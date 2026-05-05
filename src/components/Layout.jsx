@@ -233,7 +233,6 @@ export default function Layout() {
         </AnimatePresence>
       </main>
 
-      <HelpButton />
       <BottomNav />
     </div>
   );
