@@ -44,14 +44,15 @@ export default function NewLog() {
         logged_by_name: user?.full_name,
         logged_at: new Date().toISOString(),
         status: "safe",
+        shift_id: "current-shift",
+        location_id: "default-location",
       });
 
       setSuccess(true);
       haptics.medium();
       setTimeout(() => {
-        navigate("/logs");
-        toast("Log entry saved");
-      }, 500);
+        navigate(-1);
+      }, 600);
     } catch (error) {
       console.error(error);
       toast("Failed to save log entry");
