@@ -12,7 +12,7 @@ const SHIFT_TYPES = [
   { id: 'full',     label: 'Full Day', desc: 'All shift tasks',   icon: Clock,   color: 'text-primary',    bg: 'bg-primary/15' },
 ];
 
-export default function StartShiftModal({ isOpen, onClose, locationId, locationName }) {
+export default function StartShiftModal({ isOpen, onClose, onStartClick, locationId, locationName }) {
   const { startShift } = useShiftMode();
   const { user } = useCurrentUser();
   const [shiftType, setShiftType] = useState('full');
@@ -22,7 +22,7 @@ export default function StartShiftModal({ isOpen, onClose, locationId, locationN
     setStarting(true);
     haptics.medium();
     await startShift(user?.email, user?.full_name, locationId, locationName, shiftType);
-    onClose();
+    onStartClick?.();
   };
 
   if (!isOpen) return null;

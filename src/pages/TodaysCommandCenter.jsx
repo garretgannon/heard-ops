@@ -15,6 +15,7 @@ import CompactQuickActions from "@/components/CompactQuickActions";
 import StartShiftModal from "@/components/ShiftMode/StartShiftModal";
 import SetupChecklist from "@/components/ShiftMode/SetupChecklist";
 import CloseShiftModal from "@/components/ShiftMode/CloseShiftModal";
+import ShiftLaunchModal from "@/components/ShiftLaunch/ShiftLaunchModal";
 import { QuickActionModals } from "@/components/QuickActionModals";
 
 const cache = { data: null, ts: 0 };
@@ -166,8 +167,10 @@ export default function TodaysCommandCenter() {
   const [loading, setLoading] = useState(!cache.data);
   const isMounted = useRef(true);
   const [showStartModal, setShowStartModal] = useState(false);
+  const [showLaunchModal, setShowLaunchModal] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
+  const [shiftLaunched, setShiftLaunched] = useState(false);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -314,14 +317,41 @@ export default function TodaysCommandCenter() {
     return <div className="text-center py-10 text-secondary-text text-sm">Failed to load</div>;
   }
 
+  if (showLaunchModal) {
+    return (
+      <div className="pb-32">
+        <CommandCenterHeader
+          onNotifications={() => navigate("/logs")}
+          onViewDay={() => navigate("/calendar")}
+        />
+        <ShiftLaunchModal 
+          isOpen={showLaunchModal} 
+          onClose={() => setShowLaunchModal(false)} 
+          onComplete={async () => {
+            haptics.medium?.();
+            setShiftLaunched(true);
+            setShowLaunchModal(false);
+          }}
+        />
+      </div>
+    );
+  }
+
+  const isDashboardLocked = currentShift?.status === 'running' && !shiftLaunched;
+
   return (
-    <div className="pb-32">
+    <div className={cn("pb-32", isDashboardLocked && "opacity-50 pointer-events-none")}>
       <CommandCenterHeader
         onNotifications={() => navigate("/logs")}
         onViewDay={() => navigate("/calendar")}
       />
 
       <div className="px-4 py-3 space-y-2 border-b border-border">
+        {isDashboardLocked && (
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 text-center mb-2">
+            <p className="text-xs font-bold text-amber-400">Complete Shift Launch to enable operations</p>
+          </div>
+        )}
         {isAdmin && (
           <div className="space-y-2">
             {!currentShift ? (
@@ -364,7 +394,7 @@ export default function TodaysCommandCenter() {
                 </button>
               </div>
             ) : null}
-            {currentShift?.status === 'running' && <CompactQuickActions onActionClick={setActiveModal} />}
+            {currentShift?.status === 'running' && shiftLaunched && <CompactQuickActions onActionClick={setActiveModal} />}
           </div>
         )}
       </div>
@@ -490,7 +520,16 @@ export default function TodaysCommandCenter() {
         )}
       </div>
 
-      <StartShiftModal isOpen={showStartModal} onClose={() => setShowStartModal(false)} locationId="demo-location" locationName="Main" />
+      <ShiftLaunchModal 
+        isOpen={showLaunchModal} 
+        onClose={() => setShowLaunchModal(false)} 
+        onComplete={async () => {
+          haptics.medium?.();
+          setShiftLaunched(true);
+          setShowLaunchModal(false);
+        }}
+      />
+      <StartShiftModal isOpen={showStartModal} onClose={() => setShowStartModal(false)} locationId="demo-location" locationName="Main" onStartClick={() => { setShowStartModal(false); setShowLaunchModal(true); }} />
       {currentShift && currentShift.status === 'setup' && (
         <SetupChecklist shift={currentShift} onContinue={() => markSetupComplete(currentShift.id)} />
       )}
