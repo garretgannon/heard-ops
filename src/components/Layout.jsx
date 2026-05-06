@@ -54,24 +54,24 @@ export default function Layout() {
         style={{
           paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
           height: "calc(52px + env(safe-area-inset-top, 0px))",
-          background: "rgba(248, 250, 252, 0.92)",
+          background: "rgba(11, 15, 20, 0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid #E2E8F0",
+          borderBottom: "1px solid #2A3441",
         }}
       >
         <div className="flex-1">
-          <div className="font-extrabold text-[18px] tracking-tight leading-none" style={{ color: '#0F172A' }}>
-            Heard<span style={{ color: '#0F766E' }}>OS</span>
+          <div className="font-extrabold text-[18px] tracking-tight leading-none" style={{ color: '#F8FAFC' }}>
+            Heard<span style={{ color: '#E66A1F' }}>OS</span>
           </div>
-          <div className="text-[9px] font-bold tracking-widest mt-0.5" style={{ color: '#64748B', letterSpacing: '0.12em' }}>RESTAURANT OPERATIONS SYSTEM</div>
+          <div className="text-[9px] font-bold tracking-widest mt-0.5" style={{ color: '#94A3B8', letterSpacing: '0.12em' }}>RESTAURANT OPERATIONS SYSTEM</div>
         </div>
         <div className="flex items-center gap-1.5">
-          <Link to="/logs" className="relative h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors" style={{ background: 'rgba(15,118,110,0.06)' }}>
-            <Bell style={{ color: '#64748B', width: 18, height: 18 }} />
+          <Link to="/logs" className="relative h-9 w-9 flex items-center justify-center rounded-xl transition-colors" style={{ background: 'rgba(230,106,31,0.08)' }}>
+            <Bell style={{ color: '#94A3B8', width: 18, height: 18 }} />
           </Link>
-          <Link to="/profile" className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors" style={{ background: 'rgba(15,118,110,0.06)' }}>
-            <UserCircle style={{ color: '#64748B', width: 18, height: 18 }} />
+          <Link to="/profile" className="h-9 w-9 flex items-center justify-center rounded-xl transition-colors" style={{ background: 'rgba(230,106,31,0.08)' }}>
+            <UserCircle style={{ color: '#94A3B8', width: 18, height: 18 }} />
           </Link>
         </div>
       </header>

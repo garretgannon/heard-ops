@@ -8,105 +8,108 @@
   :root {
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
 
-    /* HeardOS — Professional Teal Design System */
+    /* HeardOS — Dark Mode Ember Orange Command Center */
+
     /* Backgrounds */
-    --background: 210 40% 98%;       /* #F8FAFC */
-    --card: 0 0% 100%;               /* #FFFFFF */
-    --tertiary-bg: 214 32% 95%;      /* subtle card variant */
+    --background: 214 26% 6%;        /* #0B0F14 */
+    --card: 216 24% 10%;             /* #121821 */
+    --surface-raised: 215 22% 14%;   /* #1A2230 */
+    --tertiary-bg: 215 22% 14%;
 
-    --card-foreground: 222 47% 11%;  /* #0F172A */
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --card-foreground: 210 40% 98%;  /* #F8FAFC */
+    --popover: 216 24% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Text Colors */
-    --foreground: 222 47% 11%;       /* #0F172A Primary text */
-    --secondary-text: 215 16% 47%;   /* #64748B Secondary text */
-    --muted-foreground: 215 16% 47%; /* #64748B Muted text */
+    /* Text */
+    --foreground: 210 40% 98%;       /* #F8FAFC */
+    --secondary-text: 214 19% 83%;   /* #CBD5E1 */
+    --muted-foreground: 215 16% 65%; /* #94A3B8 */
 
-    /* Brand Primary — Teal */
-    --primary: 175 77% 26%;          /* #0F766E */
-    --primary-dark: 174 68% 21%;     /* #115E59 */
-    --primary-light: 165 85% 90%;    /* #CCFBF1 */
-    --primary-foreground: 0 0% 100%; /* White text on primary */
+    /* Brand Primary — Ember Orange */
+    --primary: 24 78% 51%;           /* #E66A1F */
+    --primary-dark: 20 80% 39%;      /* #B84E12 */
+    --primary-soft: 20 67% 11%;      /* #2A160C */
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary */
-    --secondary: 214 32% 95%;
-    --secondary-foreground: 222 47% 11%;
+    /* Secondary / Surface */
+    --secondary: 215 22% 14%;
+    --secondary-foreground: 210 40% 98%;
 
     /* Muted */
-    --muted: 214 32% 95%;
+    --muted: 215 22% 14%;
 
     /* Accent */
-    --accent: 175 77% 26%;
+    --accent: 24 78% 51%;
     --accent-foreground: 0 0% 100%;
 
-    /* Status Colors — intentional, not decorative */
-    --status-success: 142 71% 36%;   /* #16A34A — Complete / On Track / Safe */
-    --status-warning: 38 92% 50%;    /* #F59E0B — Due Soon / Warning */
-    --status-behind: 24 95% 53%;     /* #F97316 — Behind / Needs Attention */
-    --status-critical: 0 72% 51%;    /* #DC2626 — Overdue / Critical */
-    --status-review: 239 84% 67%;    /* #6366F1 — Needs Manager Review */
-    --status-info: 199 89% 39%;      /* #0284C7 — Info */
+    /* Status Colors — meaning-driven */
+    --status-success: 142 71% 45%;   /* #22C55E — Complete / Safe / On Track */
+    --status-warning: 48 96% 56%;    /* #FACC15 — Due Soon / Warning */
+    --status-behind: 27 96% 61%;     /* #FB923C — Behind / Needs Attention */
+    --status-critical: 0 84% 60%;    /* #EF4444 — Overdue / Critical */
+    --status-review: 258 90% 74%;    /* #A78BFA — Manager Review */
+    --status-info: 199 89% 60%;      /* #38BDF8 — Info */
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders */
-    --border: 214 32% 91%;           /* #E2E8F0 */
-    --input: 214 32% 91%;
-    --ring: 175 77% 26%;             /* Teal focus ring */
+    --border: 214 21% 20%;           /* #2A3441 */
+    --input: 214 21% 20%;
+    --ring: 24 78% 51%;              /* Ember Orange focus ring */
 
-    --chart-1: 175 77% 26%;
-    --chart-2: 142 71% 36%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 239 84% 67%;
-    --chart-5: 199 89% 39%;
+    --chart-1: 24 78% 51%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 48 96% 56%;
+    --chart-4: 258 90% 74%;
+    --chart-5: 199 89% 60%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 222 47% 11%;      /* Dark sidebar on light app */
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 175 77% 26%;
+    /* Sidebar — slightly lighter dark */
+    --sidebar-background: 216 24% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 24 78% 51%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 35% 18%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 222 35% 20%;
-    --sidebar-ring: 175 77% 26%;
+    --sidebar-accent: 215 22% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214 21% 20%;
+    --sidebar-ring: 24 78% 51%;
   }
 
   .dark {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 175 77% 26%;
+    --background: 214 26% 6%;
+    --foreground: 210 40% 98%;
+    --card: 216 24% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 216 24% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 24 78% 51%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 214 32% 95%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 214 32% 95%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 175 77% 26%;
+    --secondary: 215 22% 14%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 22% 14%;
+    --muted-foreground: 215 16% 65%;
+    --accent: 24 78% 51%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 175 77% 26%;
-    --chart-1: 175 77% 26%;
-    --chart-2: 142 71% 36%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 239 84% 67%;
-    --chart-5: 199 89% 39%;
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 175 77% 26%;
+    --border: 214 21% 20%;
+    --input: 214 21% 20%;
+    --ring: 24 78% 51%;
+    --chart-1: 24 78% 51%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 48 96% 56%;
+    --chart-4: 258 90% 74%;
+    --chart-5: 199 89% 60%;
+    --sidebar-background: 216 24% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 24 78% 51%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 35% 18%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 222 35% 20%;
-    --sidebar-ring: 175 77% 26%;
+    --sidebar-accent: 215 22% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214 21% 20%;
+    --sidebar-ring: 24 78% 51%;
   }
 }
 
@@ -120,7 +123,7 @@
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: hsl(var(--background));
+    background: hsl(var(--background));
   }
   h1 {
     @apply font-bold;
@@ -170,7 +173,7 @@
 
   /* ── Cards - Unified Style ── */
   .card-with-border {
-    @apply relative rounded-xl border-l-4 border-r border-t border-b border-border bg-card;
+    @apply relative rounded-xl border-l-4 border border-border bg-card;
   }
 
   .card-success {
@@ -195,11 +198,11 @@
 
   /* Buttons - Unified Hierarchy */
   .btn-primary {
-    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 shadow-sm hover:opacity-90;
+    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:brightness-110;
   }
 
   .btn-secondary {
-    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:bg-muted;
+    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:bg-secondary;
   }
 
   .btn-muted {
@@ -346,11 +349,11 @@
   @keyframes flash-animation {
     0% {
       opacity: 1;
-      background-color: rgba(15, 118, 110, 0.1);
+      background-color: rgba(230, 106, 31, 0.1);
     }
     50% {
       opacity: 0.9;
-      background-color: rgba(15, 118, 110, 0.2);
+      background-color: rgba(230, 106, 31, 0.18);
     }
     100% {
       opacity: 1;
@@ -394,16 +397,16 @@
 
   @keyframes deep-link-glow {
     0% {
-      background-color: rgba(15, 118, 110, 0.15);
-      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.3);
+      background-color: rgba(230, 106, 31, 0.12);
+      box-shadow: 0 0 0 0 rgba(230, 106, 31, 0.25);
     }
     50% {
-      background-color: rgba(15, 118, 110, 0.2);
-      box-shadow: 0 0 16px 4px rgba(15, 118, 110, 0.12);
+      background-color: rgba(230, 106, 31, 0.18);
+      box-shadow: 0 0 16px 4px rgba(230, 106, 31, 0.1);
     }
     100% {
       background-color: transparent;
-      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0);
+      box-shadow: 0 0 0 0 rgba(230, 106, 31, 0);
     }
   }
 
