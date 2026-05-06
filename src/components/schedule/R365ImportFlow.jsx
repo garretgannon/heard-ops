@@ -55,22 +55,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
     }
   };
 
-  useEffect(() => {
-    // Detect unmapped roles after shifts are loaded
-    const unmapped = new Set();
-    shifts.forEach(shift => {
-      if (shift.raw_role) {
-        const mapped = mapRole(shift.raw_role, roleMappings);
-        if (!mapped) unmapped.add(shift.raw_role);
-      }
-    });
-    setUnmappedRoles(unmapped);
-    if (unmapped.size > 0 && step === 1) {
-      setStep(2);
-    } else if (unmapped.size === 0 && step === 2) {
-      setStep(3);
-    }
-  }, [shifts]);
+  // Skip role mapping step and go directly to preview
 
   const saveRoleMapping = async () => {
     if (!mappingRole || !mappingTo.trim()) return;
@@ -143,7 +128,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
     setImporting(false);
   };
 
-  const readyCount = shifts.filter(s => s.status === 'ready' || s.status === 'warning').length;
+  const readyCount = shifts.filter(s => s.status !== 'skipped').length;
   const errorCount = shifts.filter(s => s.status === 'error').length;
 
   return (
@@ -159,7 +144,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
       </div>
 
       <div className="flex px-4 py-2 gap-1 bg-muted/30 border-b border-border shrink-0">
-        {[1, 2, 3, 4].map(i => (
+        {[1, 2, 3].map(i => (
           <div key={i} className={`flex-1 h-1 rounded-full ${i <= step ? 'bg-primary' : 'bg-border'}`} />
         ))}
       </div>
@@ -175,58 +160,71 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2">
               <p className="text-[11px] text-blue-300">💡 R365 PDFs require manual review before importing.</p>
             </div>
-          </div>
-        )}
+            </div>
+            )}
 
-        {step === 2 && (
+            {step === 2 && (
           <div className="space-y-3">
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-              <p className="text-xs font-bold text-amber-400">Role Mapping Required</p>
-              <p className="text-[11px] text-amber-300">{unmappedRoles.size} unmapped role(s) found</p>
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <div className="bg-green-500/10 rounded-lg p-2 text-center">
+                <p className="text-lg font-extrabold text-green-400">{shifts.filter(s => s.status !== 'skipped').length}</p>
+                <p className="text-[9px] font-bold text-muted-foreground">To Review</p>
+              </div>
+              <div className="bg-red-500/10 rounded-lg p-2 text-center">
+                <p className="text-lg font-extrabold text-red-400">{shifts.filter(s => s.status === 'skipped').length}</p>
+                <p className="text-[9px] font-bold text-muted-foreground">Skipped</p>
+              </div>
+              <div className="bg-muted rounded-lg p-2 text-center">
+                <p className="text-lg font-extrabold text-foreground">{shifts.length}</p>
+                <p className="text-[9px] font-bold text-muted-foreground">Total</p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              {Array.from(unmappedRoles).map(role => (
-                <div key={role} className="bg-card border border-border rounded-lg p-2">
-                  {mappingRole === role ? (
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">
+              <p className="text-[11px] text-amber-300">💡 Review and edit the extracted shifts below, then approve to proceed.</p>
+            </div>
+
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {shifts.map((shift, idx) => (
+                <div key={idx} className="bg-card border border-border rounded-lg p-3 space-y-2">
+                  {editingIdx === idx ? (
                     <div className="space-y-2">
-                      <p className="text-xs font-bold text-foreground">Found: "{role}"</p>
-                      <select
-                        autoFocus
-                        value={mappingTo}
-                        onChange={e => setMappingTo(e.target.value)}
-                        className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
-                      >
-                        <option value="">— Select Role —</option>
-                        <option value="Server">Server</option>
-                        <option value="Bartender">Bartender</option>
-                        <option value="Host">Host</option>
-                        <option value="Busser">Busser</option>
-                        <option value="Cook">Cook</option>
-                        <option value="Prep Cook">Prep Cook</option>
-                        <option value="Dishwasher">Dishwasher</option>
-                        <option value="Expo">Expo</option>
-                        <option value="Manager">Manager</option>
-                      </select>
-                      <div className="flex gap-2">
-                        <button onClick={saveRoleMapping} className="flex-1 btn-primary text-xs py-1.5">Save</button>
-                        <button onClick={() => setMappingRole(null)} className="flex-1 btn-secondary text-xs py-1.5">Skip</button>
+                      <input type="text" value={shift.raw_employee_name} onChange={e => { const ns = [...shifts]; ns[idx].raw_employee_name = e.target.value; setShifts(ns); }} placeholder="Employee" className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="date" value={shift.shift_date || ''} onChange={e => { const ns = [...shifts]; ns[idx].shift_date = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="text" value={shift.raw_role || ''} onChange={e => { const ns = [...shifts]; ns[idx].raw_role = e.target.value; setShifts(ns); }} placeholder="Role" className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
                       </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="time" value={shift.parsed_start_time || ''} onChange={e => { const ns = [...shifts]; ns[idx].parsed_start_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="time" value={shift.parsed_end_time === 'CLOSE' ? '' : (shift.parsed_end_time || '')} onChange={e => { const ns = [...shifts]; ns[idx].parsed_end_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      </div>
+                      <button onClick={() => setEditingIdx(null)} className="w-full py-1 bg-primary text-primary-foreground rounded text-xs font-bold">Done</button>
                     </div>
                   ) : (
-                    <button onClick={() => setMappingRole(role)} className="w-full text-left text-xs font-bold text-foreground hover:bg-muted p-1.5 rounded">
-                      {role}
-                    </button>
+                    <div className="space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-foreground truncate">{shift.raw_employee_name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{shift.shift_date || '(no date)'} · {shift.parsed_start_time}-{shift.parsed_end_time === 'CLOSE' ? 'Close' : shift.parsed_end_time} · {shift.raw_role || '(no role)'}</p>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <button onClick={() => setEditingIdx(idx)} className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded font-bold">Edit</button>
+                          <button onClick={() => { const ns = [...shifts]; ns[idx].status = ns[idx].status === 'skipped' ? 'ready' : 'skipped'; setShifts(ns); }} className={`px-2 py-1 text-xs rounded font-bold ${shift.status === 'skipped' ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`}>
+                            {shift.status === 'skipped' ? 'Skip' : 'Keep'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               ))}
             </div>
 
-            <button onClick={() => setStep(4)} className="w-full btn-primary text-sm py-2.5">Continue to Preview</button>
-          </div>
-        )}
+            <button onClick={() => setStep(3)} className="w-full btn-primary text-sm py-2.5">Confirm Shifts</button>
+            </div>
+            )}
 
-        {step === 3 && (
+            {step === 3 && (
           <div className="space-y-3">
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex gap-2">
               <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
@@ -296,10 +294,10 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
             <button onClick={doImport} disabled={readyCount === 0} className={`w-full text-sm py-2.5 rounded-lg font-bold transition-all ${readyCount === 0 ? 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed' : 'btn-primary'}`}>
               Import {readyCount} Shift{readyCount !== 1 ? 's' : ''}
             </button>
-          </div>
-        )}
+            </div>
+            )}
 
-        {step === 4 && result && (
+            {step === 4 && result && (
           <div className="space-y-3">
             <div className="text-center py-6">
               <CheckCircle2 className="h-10 w-10 text-green-400 mx-auto mb-2" />
@@ -316,6 +314,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
         <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
         {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose PDF</button>}
+        {step === 3 && <button onClick={doImport} disabled={shifts.filter(s => s.status !== 'skipped').length === 0} className="w-full btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed">Import {shifts.filter(s => s.status !== 'skipped').length} Shift{shifts.filter(s => s.status !== 'skipped').length !== 1 ? 's' : ''}</button>}
         {step === 4 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Schedule</button>}
       </div>
     </div>
