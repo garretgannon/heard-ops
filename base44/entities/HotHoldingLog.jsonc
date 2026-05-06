@@ -1,0 +1,92 @@
+{
+  "name": "HotHoldingLog",
+  "type": "object",
+  "properties": {
+    "foodItem": {
+      "type": "string",
+      "title": "Food Item"
+    },
+    "holdingLocation": {
+      "type": "string",
+      "title": "Holding Location"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "pan": {
+      "type": "string",
+      "title": "Pan / Batch"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "time": {
+      "type": "string",
+      "title": "Time (HH:MM)"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ]
+    },
+    "targetMin": {
+      "type": "number",
+      "title": "Target Minimum (\u00b0F)",
+      "default": 135
+    },
+    "recordedTemperature": {
+      "type": "number",
+      "title": "Recorded Temperature (\u00b0F)"
+    },
+    "isOutOfRange": {
+      "type": "boolean",
+      "title": "Out of Range",
+      "default": false
+    },
+    "correctiveAction": {
+      "type": "string",
+      "title": "Corrective Action"
+    },
+    "photoUrl": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "completedBy": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completedAt": {
+      "type": "string",
+      "title": "Completed At (ISO)"
+    },
+    "managerReviewedBy": {
+      "type": "string",
+      "title": "Manager Reviewed By"
+    },
+    "managerReviewedAt": {
+      "type": "string",
+      "title": "Manager Reviewed At (ISO)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "foodItem",
+    "date",
+    "recordedTemperature"
+  ]
+}

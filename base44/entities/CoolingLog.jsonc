@@ -1,0 +1,113 @@
+{
+  "name": "CoolingLog",
+  "type": "object",
+  "properties": {
+    "foodItem": {
+      "type": "string",
+      "title": "Food Item"
+    },
+    "batchId": {
+      "type": "string",
+      "title": "Batch / Prep Date"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ]
+    },
+    "startTime": {
+      "type": "string",
+      "title": "Start Time (HH:MM)"
+    },
+    "startTemperature": {
+      "type": "number",
+      "title": "Start Temperature (\u00b0F)"
+    },
+    "twoHourCheckTime": {
+      "type": "string",
+      "title": "2-Hour Check Time"
+    },
+    "twoHourTemperature": {
+      "type": "number",
+      "title": "2-Hour Temperature (\u00b0F)"
+    },
+    "sixHourCheckTime": {
+      "type": "string",
+      "title": "6-Hour Check Time"
+    },
+    "sixHourTemperature": {
+      "type": "number",
+      "title": "6-Hour Temperature (\u00b0F)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "in_progress",
+        "needs_2hr_check",
+        "needs_6hr_check",
+        "passed",
+        "failed",
+        "corrective_action_required",
+        "manager_review_required"
+      ],
+      "enumNames": [
+        "In Progress",
+        "Needs 2-Hour Check",
+        "Needs 6-Hour Check",
+        "Passed",
+        "Failed",
+        "Corrective Action Required",
+        "Manager Review Required"
+      ],
+      "default": "in_progress"
+    },
+    "correctiveAction": {
+      "type": "string",
+      "title": "Corrective Action Taken"
+    },
+    "completedBy": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completedAt": {
+      "type": "string",
+      "title": "Completed At (ISO)"
+    },
+    "managerReviewedBy": {
+      "type": "string",
+      "title": "Manager Reviewed By (Email)"
+    },
+    "managerReviewedAt": {
+      "type": "string",
+      "title": "Manager Reviewed At (ISO)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "foodItem",
+    "date",
+    "startTemperature"
+  ]
+}

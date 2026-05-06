@@ -1,0 +1,99 @@
+{
+  "name": "RefrigeratorFreezerLog",
+  "type": "object",
+  "properties": {
+    "equipmentId": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "equipmentName": {
+      "type": "string",
+      "title": "Equipment Name"
+    },
+    "equipmentType": {
+      "type": "string",
+      "title": "Equipment Type"
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "jobCode": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "time": {
+      "type": "string",
+      "title": "Time (HH:MM)"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ]
+    },
+    "targetMin": {
+      "type": "number",
+      "title": "Target Minimum (\u00b0F)"
+    },
+    "targetMax": {
+      "type": "number",
+      "title": "Target Maximum (\u00b0F)"
+    },
+    "recordedTemperature": {
+      "type": "number",
+      "title": "Recorded Temperature (\u00b0F)"
+    },
+    "isOutOfRange": {
+      "type": "boolean",
+      "title": "Out of Range",
+      "default": false
+    },
+    "correctiveAction": {
+      "type": "string",
+      "title": "Corrective Action"
+    },
+    "photoUrl": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "completedBy": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completedAt": {
+      "type": "string",
+      "title": "Completed At (ISO)"
+    },
+    "managerReviewedBy": {
+      "type": "string",
+      "title": "Manager Reviewed By"
+    },
+    "managerReviewedAt": {
+      "type": "string",
+      "title": "Manager Reviewed At (ISO)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "equipmentName",
+    "date",
+    "recordedTemperature"
+  ]
+}
