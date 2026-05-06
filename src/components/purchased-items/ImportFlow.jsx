@@ -62,6 +62,9 @@ function parseCSV(text) {
 function validateRow(mapped) {
   const issues = [];
   if (!mapped.itemName) issues.push('Missing item name');
+  if (!mapped.vendorName) issues.push('Missing vendor');
+  if (!mapped.caseCost && !mapped.unitCost) issues.push('Missing cost');
+  if (!mapped.purchaseUnit) issues.push('Missing purchase unit');
   if (mapped.caseCost && isNaN(parseFloat(mapped.caseCost))) issues.push('Invalid cost format');
   return issues;
 }
@@ -328,7 +331,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
             </div>
 
             <div className="space-y-2">
-              {previewRows.map((row, idx) => (
+              {previewRows.slice(0, 50).map((row, idx) => (
                 <div key={idx} className={`bg-card border rounded-lg px-3 py-2 ${row.issues.length > 0 ? 'border-amber-500/30' : 'border-border'}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
