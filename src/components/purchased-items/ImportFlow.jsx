@@ -222,7 +222,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-10">
+      <div className="flex-1 overflow-y-auto px-4 py-4 pb-32">
 
         {/* STEP 1: Upload */}
         {step === 1 && (
