@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Upload, Download, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Upload, Download, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 const REQUIRED_FIELDS = ['itemName', 'category', 'vendorName', 'unit', 'caseCost'];
@@ -23,18 +23,69 @@ const FIELD_MAPPING = {
   'active': 'active',
 };
 
+function splitCSVLine(line, delimiter = ',') {
+  const vals = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (ch === delimiter && !inQuotes) {
+      vals.push(cur.trim());
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  vals.push(cur.trim());
+  return vals;
+}
+
+function detectDelimiter(lines) {
+  if (!lines || lines.length === 0) return ',';
+  let firstDataLine = lines[0] || '';
+  for (const line of lines) {
+    if (line.trim().length > 0) {
+      firstDataLine = line;
+      break;
+    }
+  }
+  const delimiters = [',', '\t', ';', '|'];
+  let bestDelim = ',';
+  let maxCols = 0;
+  for (const delim of delimiters) {
+    const cols = splitCSVLine(firstDataLine, delim).filter(c => c.length > 0).length;
+    if (cols > maxCols) {
+      maxCols = cols;
+      bestDelim = delim;
+    }
+  }
+  return maxCols < 1 ? ',' : bestDelim;
+}
+
 function parseCSV(text) {
-  const lines = text.split('\n').filter(l => l.trim().length > 0);
-  if (lines.length < 1) return { headers: [], rows: [] };
+  const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const nonEmptyLines = lines.filter(l => l.trim().length > 0);
+  if (nonEmptyLines.length < 1) return { headers: [], rows: [] };
   
-  const headerLine = lines[0];
-  const headers = headerLine.split(',').map(h => h.trim());
+  const delimiter = detectDelimiter(nonEmptyLines);
+  const headerLine = nonEmptyLines[0];
+  const rawHeaders = splitCSVLine(headerLine, delimiter).map(h => h.replace(/^\"|\"$/g, ''));
+  const headers = rawHeaders.filter(h => h.length > 0);
   
-  const rows = lines.slice(1).map((line, idx) => {
-    const values = line.split(',').map(v => v.trim());
+  if (headers.length < 1) return { headers: [], rows: [] };
+  
+  const rows = nonEmptyLines.slice(1).map((line, idx) => {
+    const vals = splitCSVLine(line, delimiter).map(v => v.replace(/^\"|\"$/g, ''));
     const row = {};
     headers.forEach((h, i) => {
-      row[h] = values[i] || '';
+      row[h] = (vals[i] || '').trim();
     });
     row._rowIndex = idx + 2;
     return row;
@@ -103,7 +154,7 @@ function downloadTemplate() {
 }
 
 export default function PurchasedGoodsImporter({ onClose, onComplete }) {
-  const [step, setStep] = useState(1); // 1: upload, 2: mapping, 3: preview, 4: importing, 5: complete
+  const [step, setStep] = useState(1);
   const [headers, setHeaders] = useState([]);
   const [rawRows, setRawRows] = useState([]);
   const [mapping, setMapping] = useState({});
@@ -181,7 +232,6 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
         const { mapped } = row;
         const payload = {};
         
-        // Map and clean data
         if (mapped.itemName) payload.itemName = mapped.itemName.trim();
         if (mapped.category) payload.category = mapped.category.trim();
         if (mapped.subcategory) payload.subcategory = mapped.subcategory.trim();
@@ -198,7 +248,6 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
           payload.active = ['yes', 'true', '1', 'active'].includes(activeStr);
         }
 
-        // Check for duplicates
         const isDuplicate = existingItems.some(item =>
           (payload.itemName && item.itemName?.toLowerCase() === payload.itemName.toLowerCase() && 
            item.vendorName?.toLowerCase() === payload.vendorName?.toLowerCase()) ||
@@ -254,16 +303,14 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
         ))}
       </div>
 
+      {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        {/* Step 1: Upload */}
         {step === 1 && (
           <div className="space-y-4">
             <div className="text-center py-8 bg-card border-2 border-dashed border-border rounded-xl">
               <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm font-bold text-foreground mb-1">Upload CSV File</p>
               <p className="text-xs text-muted-foreground mb-3">UTF-8 encoded CSV with required columns</p>
-              <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => handleFile(e.target.files[0])} />
-              <button onClick={() => fileRef.current?.click()} className="btn-primary text-sm px-4 py-2">Choose File</button>
             </div>
 
             <div className="bg-card border border-border rounded-lg p-3 space-y-2">
@@ -272,14 +319,9 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
               <p className="text-xs font-bold text-foreground mt-2">Optional columns:</p>
               <p className="text-xs text-muted-foreground">Subcategory, Vendor Item Code, Pack Size, Unit Cost, Par Level, Storage Area, Active</p>
             </div>
-
-            <button onClick={downloadTemplate} className="w-full btn-secondary text-sm py-2.5 flex items-center justify-center gap-2">
-              <Download className="h-4 w-4" /> Download CSV Template
-            </button>
           </div>
         )}
 
-        {/* Step 2: Column Mapping */}
         {step === 2 && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">Map your CSV columns to app fields</p>
@@ -303,11 +345,9 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
                 </div>
               ))}
             </div>
-            <button onClick={buildPreview} className="w-full btn-primary text-sm py-2.5">Preview Import →</button>
           </div>
         )}
 
-        {/* Step 3: Preview */}
         {step === 3 && (
           <div className="space-y-3">
             <div className="grid grid-cols-3 gap-2">
@@ -345,19 +385,9 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
                 </div>
               ))}
             </div>
-
-            <div className="flex gap-2">
-              {errorRows.length > 0 && (
-                <button onClick={() => setStep(2)} className="flex-1 btn-secondary text-sm">← Fix Mapping</button>
-              )}
-              <button onClick={doImport} disabled={importing || okRows.length === 0} className="flex-1 btn-primary text-sm">
-                {importing ? 'Importing...' : 'Confirm & Import →'}
-              </button>
-            </div>
           </div>
         )}
 
-        {/* Step 5: Complete */}
         {step === 5 && result && (
           <div className="space-y-4">
             <div className="text-center py-8">
@@ -377,8 +407,36 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
                 ))}
               </div>
             )}
-            <button onClick={onComplete} className="w-full btn-primary text-sm py-3">View Purchased Goods</button>
           </div>
+        )}
+      </div>
+
+      {/* Sticky Footer */}
+      <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3 flex gap-2">
+        {step === 1 && (
+          <>
+            <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => handleFile(e.target.files[0])} />
+            <button onClick={() => fileRef.current?.click()} className="flex-1 btn-primary text-sm">Choose File</button>
+            <button onClick={downloadTemplate} className="btn-secondary text-sm px-3 flex items-center gap-1">
+              <Download className="h-4 w-4" />
+            </button>
+          </>
+        )}
+        {step === 2 && (
+          <button onClick={buildPreview} className="flex-1 btn-primary text-sm">Preview Import →</button>
+        )}
+        {step === 3 && (
+          <>
+            {errorRows.length > 0 && (
+              <button onClick={() => setStep(2)} className="flex-1 btn-secondary text-sm">← Fix Mapping</button>
+            )}
+            <button onClick={doImport} disabled={importing || okRows.length === 0} className="flex-1 btn-primary text-sm">
+              {importing ? 'Importing...' : 'Confirm & Import →'}
+            </button>
+          </>
+        )}
+        {step === 5 && (
+          <button onClick={onComplete} className="flex-1 btn-primary text-sm">View Purchased Goods</button>
         )}
       </div>
     </div>
