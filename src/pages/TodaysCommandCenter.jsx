@@ -213,7 +213,6 @@ export default function TodaysCommandCenter() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    const unsubscribers = [];
     const load = async () => {
       try {
         const [prepItems, sideWork, issues, handoffs, coolingLogs, refrigLogs, hotLogs] = await Promise.all([
@@ -292,31 +291,29 @@ export default function TodaysCommandCenter() {
             hot: { total: hotLogs.length, outOfRange: hotLogs.filter(l => l.isOutOfRange).length },
           },
         });
-
-        unsubscribers.push(
-          base44.entities.PrepItem.subscribe((event) => {
-            if (["create", "update", "delete"].includes(event.type)) load();
-          })
-        );
-        unsubscribers.push(
-          base44.entities.SideWorkAssignment.subscribe((event) => {
-            if (["create", "update", "delete"].includes(event.type)) load();
-          })
-        );
-        unsubscribers.push(
-          base44.entities.Issue.subscribe((event) => {
-            if (["create", "update", "delete"].includes(event.type)) load();
-          })
-        );
       } catch (e) {
         console.error(e);
       } finally {
         setLoading(false);
       }
     };
+
     load();
+
+    const unsubscribers = [
+      base44.entities.PrepItem.subscribe((event) => {
+        if (["create", "update", "delete"].includes(event.type)) load();
+      }),
+      base44.entities.SideWorkAssignment.subscribe((event) => {
+        if (["create", "update", "delete"].includes(event.type)) load();
+      }),
+      base44.entities.Issue.subscribe((event) => {
+        if (["create", "update", "delete"].includes(event.type)) load();
+      }),
+    ];
+
     return () => unsubscribers.forEach(u => u?.());
-  }, [todayStr, lastCompletedAction]);
+  }, [todayStr]);
 
   useEffect(() => {
     if (lastCompletedAction && lastCompletedAction.type !== 'init') {
