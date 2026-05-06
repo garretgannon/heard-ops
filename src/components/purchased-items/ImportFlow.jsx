@@ -196,7 +196,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
 
     // Bulk create all new items
     if (toCreate.length > 0) {
-      const CHUNK = 50;
+      const CHUNK = 200;
       for (let i = 0; i < toCreate.length; i += CHUNK) {
         await base44.entities.PurchasedItem.bulkCreate(toCreate.slice(i, i + CHUNK)).catch(() => {});
       }
@@ -331,7 +331,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
             </div>
 
             <div className="space-y-2">
-              {previewRows.slice(0, 50).map((row, idx) => (
+              {previewRows.map((row, idx) => (
                 <div key={idx} className={`bg-card border rounded-lg px-3 py-2 ${row.issues.length > 0 ? 'border-amber-500/30' : 'border-border'}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
