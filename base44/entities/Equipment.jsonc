@@ -1,0 +1,125 @@
+{
+  "name": "Equipment",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Equipment Name"
+    },
+    "equipmentType": {
+      "type": "string",
+      "title": "Equipment Type",
+      "enum": [
+        "dish-machine",
+        "3-compartment-sink",
+        "hand-sink",
+        "walk-in-cooler",
+        "walk-in-freezer",
+        "reach-in-cooler",
+        "reach-in-freezer",
+        "prep-table-cooler",
+        "lowboy-cooler",
+        "beer-cooler",
+        "wine-cooler",
+        "ice-machine",
+        "fryer",
+        "flat-top",
+        "grill",
+        "oven",
+        "steam-table",
+        "hot-holding-cabinet",
+        "soda-gun",
+        "glass-washer",
+        "hood-system",
+        "grease-trap",
+        "hvac",
+        "water-heater",
+        "other"
+      ],
+      "enumNames": [
+        "Dish Machine",
+        "3-Compartment Sink",
+        "Hand Sink",
+        "Walk-in Cooler",
+        "Walk-in Freezer",
+        "Reach-in Cooler",
+        "Reach-in Freezer",
+        "Prep Table Cooler",
+        "Lowboy Cooler",
+        "Beer Cooler",
+        "Wine Cooler",
+        "Ice Machine",
+        "Fryer",
+        "Flat Top",
+        "Grill",
+        "Oven",
+        "Steam Table",
+        "Hot Holding Cabinet",
+        "Soda Gun",
+        "Glass Washer",
+        "Hood System",
+        "Grease Trap",
+        "HVAC",
+        "Water Heater",
+        "Other"
+      ]
+    },
+    "department": {
+      "type": "string",
+      "title": "Department"
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "vendorId": {
+      "type": "string",
+      "title": "Vendor / Repair Contact ID"
+    },
+    "modelNumber": {
+      "type": "string",
+      "title": "Model Number"
+    },
+    "serialNumber": {
+      "type": "string",
+      "title": "Serial Number"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "requiresTemperatureLog": {
+      "type": "boolean",
+      "title": "Requires Temperature Log",
+      "default": false
+    },
+    "requiresCleaningChecklist": {
+      "type": "boolean",
+      "title": "Requires Cleaning Checklist",
+      "default": false
+    },
+    "requiresMaintenanceChecklist": {
+      "type": "boolean",
+      "title": "Requires Maintenance Checklist",
+      "default": false
+    },
+    "hasQRCode": {
+      "type": "boolean",
+      "title": "Has QR Code",
+      "default": false
+    },
+    "isActive": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "equipmentType"
+  ]
+}

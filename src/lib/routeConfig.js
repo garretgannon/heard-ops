@@ -10,6 +10,7 @@ import {
   Flame,
   BookOpen,
   MoreHorizontal,
+  Store,
   TrendingUp,
   AlertTriangle,
   Warehouse,
@@ -72,12 +73,12 @@ export const bottomNavRoutes = [
     module: "knowledge",
   },
   {
-    id: "more",
-    label: "More",
-    path: "/more",
-    icon: MoreHorizontal,
-    description: "All other modules",
-    module: "more",
+    id: "restaurant",
+    label: "Restaurant",
+    path: "/my-restaurant",
+    icon: Store,
+    description: "Setup & configuration center",
+    module: "management",
   },
 ];
 

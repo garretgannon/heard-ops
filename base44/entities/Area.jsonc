@@ -1,0 +1,31 @@
+{
+  "name": "Area",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Area Name"
+    },
+    "department": {
+      "type": "string",
+      "title": "Department"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "isActive": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "QRCode",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "QR Code Name"
+    },
+    "linkedItemType": {
+      "type": "string",
+      "title": "Linked Item Type",
+      "enum": [
+        "equipment",
+        "station",
+        "area",
+        "temp-log",
+        "cleaning-checklist",
+        "prep-list",
+        "side-work",
+        "recipe",
+        "vendor",
+        "maintenance-request"
+      ],
+      "enumNames": [
+        "Equipment",
+        "Station",
+        "Area",
+        "Temp Log",
+        "Cleaning Checklist",
+        "Prep List",
+        "Side Work",
+        "Recipe",
+        "Vendor",
+        "Maintenance Request"
+      ]
+    },
+    "linkedItemId": {
+      "type": "string",
+      "title": "Linked Item ID"
+    },
+    "linkedItemName": {
+      "type": "string",
+      "title": "Linked Item Name"
+    },
+    "location": {
+      "type": "string",
+      "title": "Physical Location"
+    },
+    "qrUrl": {
+      "type": "string",
+      "title": "QR URL"
+    },
+    "isActive": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "linkedItemType"
+  ]
+}

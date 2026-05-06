@@ -1,0 +1,68 @@
+{
+  "name": "FoodSafetySettings",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "title": "Key (singleton: 'global')"
+    },
+    "coldHoldingMax": {
+      "type": "number",
+      "title": "Cold Holding Max Temp (\u00b0F)",
+      "default": 41
+    },
+    "hotHoldingMin": {
+      "type": "number",
+      "title": "Hot Holding Min Temp (\u00b0F)",
+      "default": 135
+    },
+    "walkInCoolerMin": {
+      "type": "number",
+      "title": "Walk-in Cooler Min (\u00b0F)",
+      "default": 34
+    },
+    "walkInCoolerMax": {
+      "type": "number",
+      "title": "Walk-in Cooler Max (\u00b0F)",
+      "default": 41
+    },
+    "walkInFreezerMin": {
+      "type": "number",
+      "title": "Walk-in Freezer Min (\u00b0F)",
+      "default": -10
+    },
+    "walkInFreezerMax": {
+      "type": "number",
+      "title": "Walk-in Freezer Max (\u00b0F)",
+      "default": 0
+    },
+    "dishMachineFinalRinseTarget": {
+      "type": "number",
+      "title": "Dish Machine Final Rinse Target (\u00b0F)",
+      "default": 180
+    },
+    "sanitizerMinPPM": {
+      "type": "number",
+      "title": "Sanitizer Min PPM",
+      "default": 100
+    },
+    "sanitizerMaxPPM": {
+      "type": "number",
+      "title": "Sanitizer Max PPM",
+      "default": 200
+    },
+    "requiresCorrectiveAction": {
+      "type": "boolean",
+      "title": "Requires Corrective Action",
+      "default": true
+    },
+    "requiresManagerReview": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    }
+  },
+  "required": [
+    "key"
+  ]
+}
