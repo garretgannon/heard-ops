@@ -22,23 +22,24 @@ const cache = { data: null, ts: 0 };
 const CACHE_TTL = 30_000; // 30s before background refresh
 
 function ProgressCircle({ value, max = 100 }) {
-  const circumference = 2 * Math.PI * 45;
+  const circumference = 2 * Math.PI * 32;
   const offset = circumference - (value / max) * circumference;
   const percentage = (value / max) * 100;
   const color = percentage >= 80 ? "#4CFF88" : percentage >= 60 ? "#FF9F1C" : "#FF4D4D";
 
   return (
-    <div className="relative w-28 h-28 flex items-center justify-center">
+    <div className="relative w-20 h-20 flex items-center justify-center">
       <svg className="absolute w-full h-full" style={{ transform: "rotate(-90deg)" }}>
-        <circle cx="56" cy="56" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
+        <circle cx="40" cy="40" r="32" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
         <circle
-          cx="56"
-          cy="56"
-          r="45"
+          cx="40"
+          cy="40"
+          r="32"
           fill="none"
           stroke={color}
           strokeWidth="4"
           strokeDasharray={circumference}
+          style={{ strokeDasharray: circumference, strokeDashoffset: offset }}
           strokeDashoffset={offset}
           strokeLinecap="round"
           className="stroke-smooth"
@@ -49,7 +50,7 @@ function ProgressCircle({ value, max = 100 }) {
         />
       </svg>
       <div className="text-center z-10">
-        <p className="text-2xl font-bold text-foreground">{value}%</p>
+        <p className="text-lg font-bold text-foreground">{value}%</p>
         <p className="text-[10px] text-secondary-text font-semibold">Complete</p>
       </div>
     </div>
@@ -411,7 +412,7 @@ export default function TodaysCommandCenter() {
         {/* Shift Progress Card */}
         <div className="bg-card border border-border rounded-xl p-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Shift Progress</p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <ProgressCircle value={data.completionPct} max={100} />
             <div className="flex-1 grid grid-cols-3 gap-3">
               <StatItem icon={AlertTriangle} label="Overdue" value={data.overdue.length} color="text-red-400" />
