@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate } from "react-router-dom";
@@ -217,7 +217,24 @@ export default function StaffTasks() {
   const [filter, setFilter] = useState("all");
   const [completingTask, setCompletingTask] = useState({});
   const [selectedPrepTask, setSelectedPrepTask] = useState(null);
+  const [pullRefresh, setPullRefresh] = useState(0);
+  const scrollRef = useRef(null);
   const todayStr = new Date().toISOString().split("T")[0];
+
+  const handleScroll = (e) => {
+    const scrollTop = e.target.scrollTop;
+    if (scrollTop <= 0) {
+      setPullRefresh(Math.min(100, Math.abs(scrollTop) * 0.5));
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullRefresh > 50) {
+      haptics.medium();
+      load();
+    }
+    setPullRefresh(0);
+  };
 
   const load = async () => {
     const [prepItems, sideWork] = await Promise.all([
@@ -279,7 +296,21 @@ export default function StaffTasks() {
   const hasAnyTasks = data && Object.values(data.groups).some(g => g.length > 0);
 
   return (
-    <div className="pb-28">
+    <div
+      ref={scrollRef}
+      onScroll={handleScroll}
+      onTouchEnd={handleTouchEnd}
+      className="pb-28 lg:overflow-auto"
+      style={{ maxHeight: 'calc(100vh - 52px)', overscrollBehavior: 'contain' }}
+    >
+      {pullRefresh > 0 && (
+        <div className="sticky top-0 z-30 flex items-center justify-center h-12 bg-primary/10">
+          <div
+            className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent transition-transform"
+            style={{ transform: `rotate(${pullRefresh * 3.6}deg)` }}
+          />
+        </div>
+      )}
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
         <h1 className="text-lg font-bold text-foreground">My Tasks</h1>

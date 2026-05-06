@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
@@ -16,6 +16,7 @@ import Layout from './components/Layout';
 import GlobalBottomNav from './components/GlobalBottomNav';
 import ToastContainer from './components/ToastContainer';
 import AdminSimulationBar from './components/AdminSimulationBar';
+import { TabHistoryProvider } from '@/lib/TabHistoryContext';
 import Landing from './pages/Landing';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import StaffTasks from './pages/StaffTasks';
@@ -204,12 +205,14 @@ function App() {
       <UnifiedStateProvider>
         <RoleSimulationProvider>
           <QueryClientProvider client={queryClientInstance}>
-            <Router>
-              <AdminSimulationBar />
-              <AuthenticatedApp />
-              <GlobalBottomNav />
-              <ToastContainer />
-            </Router>
+            <TabHistoryProvider>
+              <Router>
+                <AdminSimulationBar />
+                <AuthenticatedApp />
+                <GlobalBottomNav />
+                <ToastContainer />
+              </Router>
+            </TabHistoryProvider>
             <Toaster />
           </QueryClientProvider>
         </RoleSimulationProvider>
