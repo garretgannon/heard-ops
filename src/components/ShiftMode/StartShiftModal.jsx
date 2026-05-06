@@ -49,7 +49,7 @@ export default function StartShiftModal({ isOpen, onClose, locationId, locationN
               key={id}
               onClick={() => { haptics.light(); setShiftType(id); }}
               className={cn(
-                "flex flex-col items-start gap-2 p-3 rounded-xl border transition-all active:scale-95 text-left",
+                "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all active:scale-95 text-center",
                 shiftType === id
                   ? "border-primary bg-primary/10"
                   : "border-border bg-muted hover:bg-muted/80"
@@ -58,7 +58,7 @@ export default function StartShiftModal({ isOpen, onClose, locationId, locationN
               <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", bg)}>
                 <Icon className={cn("h-4 w-4", color)} />
               </div>
-              <div>
+              <div className="text-center">
                 <p className={cn("text-sm font-bold", shiftType === id ? "text-primary" : "text-foreground")}>{label}</p>
                 <p className="text-[10px] text-muted-foreground">{desc}</p>
               </div>
