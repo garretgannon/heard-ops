@@ -74,7 +74,7 @@ function SummaryCard({ items, isAdmin }) {
 }
 
 function ItemCard({ item, onClick, isAdmin }) {
-  const hasCost = item.unitCost || item.caseCost;
+  const hasCost = item.unitCost || item.caseCost || item.caseCost === 0;
   const hasConversion = item.recipeUnit && item.conversionFactor;
   const costDisplay = item.costPerRecipeUnit
     ? `$${Number(item.costPerRecipeUnit).toFixed(4)} / ${item.recipeUnit}`
