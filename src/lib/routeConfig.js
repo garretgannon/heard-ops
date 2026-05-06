@@ -281,6 +281,15 @@ export const allRoutes = {
       module: "management",
       description: "Manage job code roles and assignments",
     },
+    scheduleImport: {
+      path: "/schedule-import",
+      label: "Schedule Import",
+      icon: Calendar,
+      component: "ScheduleImport",
+      roles: ["admin"],
+      module: "management",
+      description: "Bulk import weekly staff schedules from R365, CSV, or Excel",
+    },
   },
 
   // KNOWLEDGE & REFERENCE
@@ -527,6 +536,7 @@ export const morePageStructure = {
     items: [
       "issues",
       "schedule",
+      "scheduleImport",
       "team",
       "reports",
       "shiftHandoff",

@@ -51,6 +51,7 @@ import WasteTemplates from './pages/WasteTemplates';
 import EightySixTemplates from './pages/86Templates';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
+import ScheduleImport from './pages/ScheduleImport';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -142,6 +143,7 @@ const AuthenticatedApp = () => {
         {/* MANAGEMENT ROUTES */}
         <Route path="/stations" element={<Stations />} />
         <Route path="/job-codes" element={<JobCodes />} />
+        <Route path="/schedule-import" element={<ScheduleImport />} />
 
         {/* OPERATIONS ROUTES */}
         <Route path="/issues" element={<IssueTracker />} />

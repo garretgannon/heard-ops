@@ -1,99 +1,104 @@
-import { useState } from "react";
-import { Upload, Eye, Users, CheckSquare } from "lucide-react";
-import UploadStep from "../components/schedule/UploadStep";
-import PreviewStep from "../components/schedule/PreviewStep";
-import MatchStep from "../components/schedule/MatchStep";
-import PublishStep from "../components/schedule/PublishStep";
-import { Link } from "react-router-dom";
-
-const STEPS = [
-  { id: "upload", label: "Upload", icon: Upload },
-  { id: "preview", label: "Preview", icon: Eye },
-  { id: "match", label: "Match", icon: Users },
-  { id: "publish", label: "Publish", icon: CheckSquare },
-];
+import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { haptics } from '@/utils/haptics';
+import { Upload, Calendar, History } from 'lucide-react';
+import ScheduleImportFlow from '@/components/schedule/ScheduleImportFlow';
 
 export default function ScheduleImport() {
-  const [step, setStep] = useState(0);
-  const [rawRows, setRawRows] = useState([]);
-  const [previewRows, setPreviewRows] = useState([]);
-  const [enrichedRows, setEnrichedRows] = useState([]);
-  const [fileName, setFileName] = useState("");
+  const { user, isAdmin } = useCurrentUser();
+  const [showImport, setShowImport] = useState(false);
+  const [batches, setBatches] = useState([]);
 
-  const handleParsed = (rows, name) => {
-    setRawRows(rows);
-    setFileName(name);
-    setStep(1);
+  useEffect(() => {
+    base44.entities.ScheduleImportBatch.list('-uploadedAt', 20).then(setBatches).catch(() => {});
+  }, []);
+
+  const handleImportComplete = () => {
+    setShowImport(false);
+    base44.entities.ScheduleImportBatch.list('-uploadedAt', 20).then(setBatches).catch(() => {});
   };
 
-  const handlePreview = (rows) => {
-    setPreviewRows(rows);
-    setStep(2);
-  };
+  if (!isAdmin) {
+    return (
+      <div className="pb-28 px-4 py-4">
+        <div className="text-center py-12">
+          <p className="text-sm text-muted-foreground">Only managers can import schedules.</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleMatch = (rows) => {
-    setEnrichedRows(rows);
-    setStep(3);
-  };
-
-  const handleDone = () => {
-    // stay on step 3 (done state shown inside PublishStep)
-  };
-
-  const reset = () => { setStep(0); setRawRows([]); setPreviewRows([]); setEnrichedRows([]); setFileName(""); };
+  if (showImport) {
+    return <ScheduleImportFlow onClose={() => setShowImport(false)} onComplete={handleImportComplete} user={user} />;
+  }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Schedule Import</h1>
-        <p className="text-muted-foreground mt-1">Upload your weekly staff schedule to auto-populate shifts, calendar events, and task assignments.</p>
+    <div className="pb-28">
+      <div className="bg-card border-b border-border sticky top-0 z-10 px-4 py-3">
+        <h1 className="text-lg font-extrabold text-foreground flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-primary" /> Schedule Import
+        </h1>
+        <p className="text-[11px] text-muted-foreground mt-1">Bulk upload weekly staff schedules from CSV, Excel, or R365.</p>
       </div>
 
-      {/* Stepper */}
-      <div className="flex items-center gap-0 mb-8 overflow-x-auto">
-        {STEPS.map((s, i) => {
-          const Icon = s.icon;
-          const isActive = step === i;
-          const isDone = step > i;
-          return (
-            <div key={s.id} className="flex items-center min-w-0">
-              <div className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${isActive ? "bg-primary text-primary-foreground" : isDone ? "text-green-500" : "text-muted-foreground"}`}>
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:block">{s.label}</span>
-              </div>
-              {i < STEPS.length - 1 && <div className={`h-px w-6 ${isDone ? "bg-green-500" : "bg-border"} shrink-0`} />}
+      <div className="px-4 py-4 space-y-3">
+        <button
+          onClick={() => { haptics.medium?.(); setShowImport(true); }}
+          className="w-full bg-primary text-primary-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+        >
+          <Upload className="h-5 w-5" /> Import Schedule
+        </button>
+
+        {batches.length > 0 && (
+          <>
+            <div className="flex items-center gap-2 mt-6 mb-2">
+              <History className="h-4 w-4 text-muted-foreground" />
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Recent Imports</p>
             </div>
-          );
-        })}
-        {step === 3 && (
-          <button onClick={reset} className="ml-auto text-xs text-muted-foreground hover:text-primary underline shrink-0">Import another</button>
+
+            <div className="space-y-2">
+              {batches.map(batch => (
+                <div key={batch.id} className="bg-card border border-border rounded-lg p-3">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="text-xs font-bold text-foreground">{batch.fileName}</p>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                      batch.status === 'complete' ? 'bg-green-500/20 text-green-400' :
+                      batch.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                      'bg-amber-500/20 text-amber-400'
+                    }`}>
+                      {batch.status}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mb-2">
+                    {batch.weekStartDate} to {batch.weekEndDate}
+                  </p>
+                  <div className="grid grid-cols-4 gap-1 text-center text-[9px]">
+                    <div>
+                      <p className="font-bold text-foreground">{batch.shiftsCreated || 0}</p>
+                      <p className="text-muted-foreground">Shifts</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-primary">{batch.employeesCreated || 0}</p>
+                      <p className="text-muted-foreground">Employees</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-amber-400">{batch.rowsSkipped || 0}</p>
+                      <p className="text-muted-foreground">Skipped</p>
+                    </div>
+                    <div>
+                      <p className="font-bold text-muted-foreground">{batch.totalRows || 0}</p>
+                      <p className="text-muted-foreground">Total</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
-
-      {/* Step content */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        {step === 0 && <UploadStep onParsed={handleParsed} />}
-        {step === 1 && <PreviewStep rows={rawRows} onNext={handlePreview} onBack={() => setStep(0)} />}
-        {step === 2 && <MatchStep rows={previewRows} onNext={handleMatch} onBack={() => setStep(1)} />}
-        {step === 3 && <PublishStep rows={enrichedRows} fileName={fileName} onBack={() => setStep(2)} onDone={handleDone} />}
-      </div>
-
-      {/* Help */}
-      {step === 0 && (
-        <div className="mt-6 grid sm:grid-cols-3 gap-4 text-sm">
-          {[
-            { title: "Staff Home", desc: "Each employee sees their upcoming shifts." },
-            { title: "Command Center", desc: "Today's scheduled staff shown on the dashboard." },
-            { title: "Operations Calendar", desc: "All shifts added as calendar events." },
-          ].map(tip => (
-            <div key={tip.title} className="p-4 bg-muted/20 rounded-xl border border-border">
-              <p className="font-semibold">{tip.title}</p>
-              <p className="text-muted-foreground mt-1">{tip.desc}</p>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
+
+export const hideBase44Index = true;

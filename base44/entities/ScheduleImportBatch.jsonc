@@ -1,0 +1,108 @@
+{
+  "name": "ScheduleImportBatch",
+  "type": "object",
+  "properties": {
+    "fileName": {
+      "type": "string",
+      "title": "File Name"
+    },
+    "source": {
+      "type": "string",
+      "title": "Source",
+      "enum": [
+        "r365",
+        "7shifts",
+        "hotschedules",
+        "homebase",
+        "toast",
+        "csv",
+        "excel"
+      ],
+      "enumNames": [
+        "R365",
+        "7Shifts",
+        "HotSchedules",
+        "Homebase",
+        "Toast",
+        "CSV",
+        "Excel"
+      ],
+      "default": "csv"
+    },
+    "weekStartDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Week Start Date"
+    },
+    "weekEndDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Week End Date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "uploading",
+        "mapping",
+        "validating",
+        "preview",
+        "confirmed",
+        "importing",
+        "complete",
+        "failed"
+      ],
+      "enumNames": [
+        "Uploading",
+        "Mapping",
+        "Validating",
+        "Preview",
+        "Confirmed",
+        "Importing",
+        "Complete",
+        "Failed"
+      ],
+      "default": "uploading"
+    },
+    "totalRows": {
+      "type": "number",
+      "title": "Total Rows",
+      "default": 0
+    },
+    "shiftsCreated": {
+      "type": "number",
+      "title": "Shifts Created",
+      "default": 0
+    },
+    "employeesCreated": {
+      "type": "number",
+      "title": "Employees Created",
+      "default": 0
+    },
+    "rowsSkipped": {
+      "type": "number",
+      "title": "Rows Skipped",
+      "default": 0
+    },
+    "rowsWithErrors": {
+      "type": "number",
+      "title": "Rows With Errors",
+      "default": 0
+    },
+    "uploadedBy": {
+      "type": "string",
+      "title": "Uploaded By"
+    },
+    "uploadedAt": {
+      "type": "string",
+      "title": "Uploaded At"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "fileName"
+  ]
+}
