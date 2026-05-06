@@ -1,0 +1,288 @@
+import { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Upload, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { haptics } from '@/utils/haptics';
+import * as XLSX from 'xlsx';
+
+export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }) {
+  const [step, setStep] = useState(1); // 1: upload, 2: preview, 3: importing, 4: complete
+  const [file, setFile] = useState(null);
+  const [importData, setImportData] = useState([]);
+  const [errors, setErrors] = useState([]);
+  const [importingCount, setImportingCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [successCount, setSuccessCount] = useState(0);
+  const [failCount, setFailCount] = useState(0);
+
+  const handleFileSelect = (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    haptics.light();
+    setFile(selectedFile);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const workbook = XLSX.read(event.target.result, { type: 'array' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(worksheet);
+
+        const parsed = [];
+        const newErrors = [];
+
+        rows.forEach((row, idx) => {
+          if (!row['Template Name'] || !row['Station'] || !row['Job Code']) {
+            newErrors.push(`Row ${idx + 2}: Missing required fields (Template Name, Station, Job Code)`);
+            return;
+          }
+
+          const items = [];
+          let itemCount = 1;
+          while (row[`Item ${itemCount}`]) {
+            items.push({
+              itemName: row[`Item ${itemCount}`],
+              quantity: row[`Item ${itemCount} Qty`] || 1,
+              unit: row[`Item ${itemCount} Unit`] || '',
+              dueTime: row[`Item ${itemCount} Due Time`] || '',
+            });
+            itemCount++;
+          }
+
+          parsed.push({
+            name: row['Template Name'],
+            station: row['Station'],
+            jobCode: row['Job Code'],
+            shift: row['Shift'] || 'all',
+            notes: row['Notes'] || '',
+            items,
+            rowNum: idx + 2,
+          });
+        });
+
+        if (parsed.length === 0) {
+          setErrors(['No valid templates found in Excel file']);
+          return;
+        }
+
+        setImportData(parsed);
+        setErrors(newErrors);
+        setStep(2);
+      } catch (error) {
+        haptics.medium();
+        setErrors([`Failed to parse Excel: ${error.message}`]);
+      }
+    };
+    reader.readAsArrayBuffer(selectedFile);
+  };
+
+  const handleImport = async () => {
+    haptics.medium();
+    setStep(3);
+    setTotalCount(importData.length);
+    setImportingCount(0);
+    setSuccessCount(0);
+    setFailCount(0);
+
+    let success = 0;
+    let fail = 0;
+
+    for (let i = 0; i < importData.length; i++) {
+      const template = importData[i];
+      setImportingCount(i + 1);
+
+      try {
+        const newTemplate = await base44.entities.PrepTemplate.create({
+          name: template.name,
+          station: template.station,
+          jobCode: template.jobCode,
+          shift: template.shift,
+          notes: template.notes,
+          itemCount: template.items.length,
+          isActive: true,
+          repeatType: 'weekly',
+          repeatDays: [1, 2, 3, 4, 5],
+        });
+
+        // Create items
+        for (const item of template.items) {
+          await base44.entities.PrepTemplateItem.create({
+            prepTemplateId: newTemplate.id,
+            itemName: item.itemName,
+            quantity: item.quantity,
+            unit: item.unit,
+            dueTime: item.dueTime,
+            sortOrder: template.items.indexOf(item),
+          });
+        }
+
+        success++;
+      } catch (error) {
+        console.error(`Failed to import template "${template.name}":`, error);
+        fail++;
+      }
+    }
+
+    setSuccessCount(success);
+    setFailCount(fail);
+    setStep(4);
+    haptics.medium();
+  };
+
+  const handleReset = () => {
+    setStep(1);
+    setFile(null);
+    setImportData([]);
+    setErrors([]);
+    setSuccessCount(0);
+    setFailCount(0);
+  };
+
+  const handleClose = () => {
+    if (step === 4) {
+      onImportComplete?.();
+    }
+    onClose?.();
+    handleReset();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg bg-card rounded-2xl border border-border overflow-hidden max-h-[85vh] overflow-y-auto flex flex-col">
+        {/* Header */}
+        <div className="bg-card border-b border-border p-4 flex items-center justify-between sticky top-0">
+          <h2 className="font-bold text-foreground">Import Prep Templates</h2>
+          <button onClick={handleClose} className="text-secondary-text hover:text-foreground">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-4 space-y-4">
+          {/* Step 1: Upload */}
+          {step === 1 && (
+            <div className="space-y-4">
+              <div className="bg-muted/30 border-2 border-dashed border-border rounded-lg p-6 text-center space-y-2">
+                <Upload className="h-8 w-8 text-secondary-text mx-auto" />
+                <p className="text-sm font-bold text-foreground">Upload Excel File</p>
+                <p className="text-xs text-secondary-text">Supports .xlsx and .xls files</p>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="file-input"
+                />
+                <button
+                  onClick={() => document.getElementById('file-input').click()}
+                  className="w-full bg-primary text-primary-foreground font-bold text-sm py-2 rounded-lg active:scale-95"
+                >
+                  Choose File
+                </button>
+              </div>
+
+              {file && (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                  <p className="text-xs font-bold text-green-300">✓ File selected: {file.name}</p>
+                </div>
+              )}
+
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 space-y-2">
+                <p className="text-xs font-bold text-blue-300">Excel Format Required:</p>
+                <p className="text-[10px] text-blue-200 space-y-1">
+                  <div>• Column A: Template Name</div>
+                  <div>• Column B: Station</div>
+                  <div>• Column C: Job Code</div>
+                  <div>• Column D: Shift (optional: all, opening, mid, closing)</div>
+                  <div>• Column E: Notes (optional)</div>
+                  <div>• Columns F+: Item 1, Item 1 Qty, Item 1 Unit, Item 1 Due Time, Item 2, ...</div>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Preview */}
+          {step === 2 && (
+            <div className="space-y-4">
+              {errors.length > 0 && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 space-y-1">
+                  {errors.map((err, i) => (
+                    <p key={i} className="text-[10px] text-red-300">⚠ {err}</p>
+                  ))}
+                </div>
+              )}
+
+              <div>
+                <p className="text-xs font-bold text-secondary-text mb-2">
+                  Found {importData.length} template{importData.length !== 1 ? 's' : ''}
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {importData.map((template, i) => (
+                    <div key={i} className="bg-muted/40 border border-border/50 rounded-lg p-2.5 text-xs">
+                      <p className="font-bold text-foreground">{template.name}</p>
+                      <p className="text-secondary-text">{template.station} • {template.jobCode}</p>
+                      <p className="text-muted-foreground">{template.items.length} items</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Importing */}
+          {step === 3 && (
+            <div className="space-y-4 text-center">
+              <div className="h-12 w-12 rounded-full border-4 border-muted border-t-primary animate-spin mx-auto" />
+              <p className="font-bold text-foreground">Importing Templates...</p>
+              <p className="text-sm text-secondary-text">{importingCount} / {totalCount}</p>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${(importingCount / totalCount) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Complete */}
+          {step === 4 && (
+            <div className="space-y-4 text-center">
+              <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto" />
+              <p className="font-bold text-foreground">Import Complete</p>
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 space-y-1">
+                <p className="text-sm text-green-300">✓ {successCount} templates imported</p>
+                {failCount > 0 && <p className="text-sm text-red-300">✗ {failCount} templates failed</p>}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="bg-card border-t border-border p-4 flex gap-2">
+          {step === 1 && (
+            <button onClick={handleClose} className="flex-1 btn-secondary">
+              Cancel
+            </button>
+          )}
+          {step === 2 && (
+            <>
+              <button onClick={handleReset} className="flex-1 btn-secondary">
+                Back
+              </button>
+              <button onClick={handleImport} className="flex-1 btn-primary" disabled={importData.length === 0}>
+                Import {importData.length} Template{importData.length !== 1 ? 's' : ''}
+              </button>
+            </>
+          )}
+          {step === 4 && (
+            <button onClick={handleClose} className="w-full btn-primary">
+              Done
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

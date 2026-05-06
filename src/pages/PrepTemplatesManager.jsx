@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X } from 'lucide-react';
+import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import PrepListImportFlow from '@/components/PrepListImportFlow';
 
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   return (
@@ -293,6 +294,7 @@ export default function PrepTemplatesManager() {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     loadTemplates();
@@ -381,6 +383,13 @@ export default function PrepTemplatesManager() {
               <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-1.5 rounded-lg ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 Archived
               </button>
+              <button
+                onClick={() => { haptics.light(); setShowImport(true); }}
+                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
+              >
+                <Upload className="h-3 w-3" />
+                Import
+              </button>
             </div>
           </>
         )}
@@ -430,6 +439,12 @@ export default function PrepTemplatesManager() {
           </div>
         </div>
       )}
+
+      <PrepListImportFlow
+        isOpen={showImport}
+        onClose={() => setShowImport(false)}
+        onImportComplete={() => { loadTemplates(); setShowImport(false); }}
+      />
     </div>
   );
 }
