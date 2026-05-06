@@ -35,6 +35,7 @@ import {
   ChefHat,
   LayoutTemplate,
   Package,
+  MoreVertical,
 } from "lucide-react";
 
 /**
@@ -74,11 +75,11 @@ export const bottomNavRoutes = [
     module: "knowledge",
   },
   {
-    id: "restaurant",
-    label: "Restaurant",
-    path: "/my-restaurant",
-    icon: Store,
-    description: "Setup & configuration center",
+    id: "more",
+    label: "More",
+    path: "/more",
+    icon: MoreHorizontal,
+    description: "All features and settings",
     module: "management",
   },
 ];
@@ -430,12 +431,21 @@ export const allRoutes = {
     },
     restaurant: {
       path: "/my-restaurant",
-      label: "My Restaurant",
+      label: "Restaurant Setup",
       icon: Building2,
       component: "MyRestaurant",
       roles: ["admin"],
       module: "settings",
-      description: "Restaurant info and preferences",
+      description: "Departments, areas, equipment, and settings",
+    },
+    more: {
+      path: "/more",
+      label: "More",
+      icon: MoreHorizontal,
+      component: "More",
+      roles: ["user", "admin"],
+      module: "settings",
+      description: "All features and settings",
     },
     notifications: {
       path: "/notifications",
@@ -558,6 +568,7 @@ export const morePageStructure = {
       "profile",
       "restaurant",
       "notifications",
+      "more",
     ],
   },
 };
