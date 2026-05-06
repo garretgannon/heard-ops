@@ -13,10 +13,10 @@ export default function CommandCenterHeader({ onNotifications, onViewDay }) {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm hidden">
               H
             </div>
-            <span className="text-xs font-bold text-secondary-text">HeardOS</span>
+            <span className="text-xs font-bold text-secondary-text hidden">HeardOS</span>
           </div>
 
           {/* Right Actions */}
@@ -27,8 +27,8 @@ export default function CommandCenterHeader({ onNotifications, onViewDay }) {
                 haptics.light();
                 onNotifications?.();
               }}
-              className="relative p-1.5 rounded-lg hover:bg-muted transition-all active:scale-95"
-            >
+              className="relative p-1.5 rounded-lg hover:bg-muted transition-all active:scale-95">
+              
               <Bell className="h-5 w-5 stroke-[1.5] text-secondary-text" />
               <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
             </button>
@@ -39,8 +39,8 @@ export default function CommandCenterHeader({ onNotifications, onViewDay }) {
                 haptics.light();
                 onViewDay?.();
               }}
-              className="text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-secondary-text hover:bg-muted/80 transition-all active:scale-95"
-            >
+              className="text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-secondary-text hover:bg-muted/80 transition-all active:scale-95">
+              
               View Day
             </button>
           </div>
@@ -55,6 +55,6 @@ export default function CommandCenterHeader({ onNotifications, onViewDay }) {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
