@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import PurchasedItemDetail from '@/components/purchased-items/PurchasedItemDetail';
 import PurchasedItemForm from '@/components/purchased-items/PurchasedItemForm';
-import PurchasedGoodsImporter from '@/components/purchased-items/PurchasedGoodsImporter';
+import VendorImportFlow from '@/components/purchased-items/VendorImportFlow';
 
 const CATEGORY_LABELS = {
   protein: 'Protein', produce: 'Produce', dairy: 'Dairy',
@@ -179,7 +179,7 @@ export default function PurchasedItems() {
   };
 
   if (showImport) {
-    return <PurchasedGoodsImporter onClose={() => setShowImport(false)} onComplete={() => { setShowImport(false); load(); }} />;
+    return <VendorImportFlow onClose={() => setShowImport(false)} onComplete={() => { setShowImport(false); load(); }} />;
   }
 
   if (selected) {
