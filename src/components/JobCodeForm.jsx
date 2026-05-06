@@ -75,7 +75,7 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
         <label className="text-sm font-semibold text-foreground">Active</label>
       </div>
 
-      <div className="flex gap-2 pt-4">
+      <div className="sticky bottom-0 bg-card pt-4 pb-2 flex gap-2 border-t border-border mt-4">
         <button onClick={handleSave} disabled={saving} className="flex-1 btn-primary text-sm disabled:opacity-50">
           {saving ? 'Saving...' : jobCode ? 'Update' : 'Create'}
         </button>
