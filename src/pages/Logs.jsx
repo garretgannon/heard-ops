@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { Thermometer, Droplet, AlertTriangle, FileText, Plus, Clock, User } from "lucide-react";
@@ -80,160 +80,146 @@ function DateGroup({ date, children }) {
 export default function Logs() {
   const navigate = useNavigate();
   const toast = useToast();
-  const { recordAction, linkLogToTask } = useUnifiedState();
+  const { recordAction } = useUnifiedState();
   const [currentTab, setCurrentTab] = useState("temps");
-  const [logs, setLogs] = useState({});
+  const [allLogs, setAllLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
-        const allLogs = [];
+        const collected = [];
+
+        const [tempLogs, wasteLogs, eightySixItems, issues, managerLogs] = await Promise.all([
+          base44.entities.TemperatureLog.list("-logged_at", 50).catch(() => []),
+          base44.entities.WasteEntry.list("-created_date", 50).catch(() => []),
+          base44.entities.EightySixItem.list("-marked_at", 50).catch(() => []),
+          base44.entities.Issue.list("-created_date", 50).catch(() => []),
+          base44.entities.ManagerLog.list("-created_date", 50).catch(() => []),
+        ]);
 
         // Temperature Logs
-        if (currentTab === "temps" || currentTab === "all") {
-          const tempLogs = await base44.entities.TemperatureLog.list("-logged_at", 50).catch(() => []);
-          tempLogs.forEach(log => {
-            const isOutOfRange = log.is_above_range || log.is_below_range;
-            const status = isOutOfRange ? "danger" : log.value > (log.max_temp - 5) || log.value < (log.min_temp + 5) ? "warning" : "ok";
-            const statusLabel = isOutOfRange ? "OUT OF RANGE" : status === "warning" ? "WARNING" : "IN RANGE";
-            const statusColor = isOutOfRange
-              ? "bg-red-500/15 text-red-400 border-red-500/30"
-              : status === "warning"
-              ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-              : "bg-green-500/15 text-green-400 border-green-500/30";
+        tempLogs.forEach(log => {
+          const isOutOfRange = log.is_above_range || log.is_below_range;
+          const status = isOutOfRange ? "danger" : log.value > (log.max_temp - 5) || log.value < (log.min_temp + 5) ? "warning" : "ok";
+          const statusLabel = isOutOfRange ? "OUT OF RANGE" : status === "warning" ? "WARNING" : "IN RANGE";
+          const statusColor = isOutOfRange
+            ? "bg-red-500/15 text-red-400 border-red-500/30"
+            : status === "warning"
+            ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+            : "bg-green-500/15 text-green-400 border-green-500/30";
 
-            // Auto-create issue for out-of-range temps
-            if (isOutOfRange && !log.created_issue_id) {
-              base44.entities.Issue.create({
-                title: `Temperature Out of Range: ${log.location_name}`,
-                description: `${log.temperature}°F (Range: ${log.min_temp}-${log.max_temp}°F)`,
-                category: "safety",
-                status: "open",
-                priority: "critical",
-                location_id: log.location_id,
-                source: "log_out_of_range",
-                created_from_log_id: log.id,
-              }).then(() => {
-                recordAction('issue_created', { from: 'log', logId: log.id });
-              }).catch(e => console.error("Failed to create issue", e));
-            }
+          if (isOutOfRange && !log.created_issue_id) {
+            base44.entities.Issue.create({
+              title: `Temperature Out of Range: ${log.location_name}`,
+              description: `${log.temperature}°F (Range: ${log.min_temp}-${log.max_temp}°F)`,
+              category: "safety",
+              status: "open",
+              priority: "critical",
+              source: "log_out_of_range",
+              created_from_log_id: log.id,
+            }).then(() => {
+              recordAction('issue_created', { from: 'log', logId: log.id });
+            }).catch(() => {});
+          }
 
-            allLogs.push({
-              id: log.id,
-              type: "temps",
-              date: log.logged_at ? log.logged_at.split("T")[0] : todayStr,
-              time: log.logged_at ? new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
-              title: log.location_name || "Temperature Log",
-              value: log.temperature,
-              unit: "°F",
-              user: log.logged_by,
-              status: statusLabel,
-              statusColor,
-              icon: Thermometer,
-              iconBg: "bg-blue-500/15",
-            });
+          collected.push({
+            id: log.id,
+            type: "temps",
+            date: log.logged_at ? log.logged_at.split("T")[0] : todayStr,
+            time: log.logged_at ? new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+            title: log.location_name || "Temperature Log",
+            value: log.temperature,
+            unit: "°F",
+            user: log.logged_by,
+            status: statusLabel,
+            statusColor,
+            icon: Thermometer,
+            iconBg: "bg-blue-500/15",
           });
-        }
-
-        // Waste Logs
-        if (currentTab === "waste" || currentTab === "all") {
-          const wasteLogs = await base44.entities.WasteEntry.list("-logged_at", 50).catch(() => []);
-          wasteLogs.forEach(log => {
-            allLogs.push({
-              id: log.id,
-              type: "waste",
-              date: log.logged_at ? log.logged_at.split("T")[0] : todayStr,
-              time: log.logged_at ? new Date(log.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
-              title: log.item_name || "Waste Entry",
-              value: `$${log.dollar_value || 0}`,
-              user: log.reported_by,
-              status: log.dollar_value > 50 ? "HIGH VALUE" : "LOGGED",
-              statusColor: log.dollar_value > 50 ? "bg-amber-500/15 text-amber-400 border-amber-500/30" : "bg-slate-500/15 text-slate-400 border-slate-500/30",
-              icon: Droplet,
-              iconBg: "bg-amber-500/15",
-            });
-          });
-        }
-
-        // 86'd Items
-        if (currentTab === "86d" || currentTab === "all") {
-          const eightySixItems = await base44.entities.EightySixItem.list("-marked_at", 50).catch(() => []);
-          eightySixItems.forEach(log => {
-            allLogs.push({
-              id: log.id,
-              type: "86d",
-              date: log.marked_at ? log.marked_at.split("T")[0] : todayStr,
-              time: log.marked_at ? new Date(log.marked_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
-              title: log.item_name || "86'd Item",
-              value: log.quantity,
-              unit: log.unit,
-              user: log.marked_by,
-              status: log.is_active ? "ACTIVE" : "RESOLVED",
-              statusColor: log.is_active ? "bg-amber-500/15 text-amber-400 border-amber-500/30" : "bg-green-500/15 text-green-400 border-green-500/30",
-              icon: AlertTriangle,
-              iconBg: "bg-red-500/15",
-            });
-          });
-        }
-
-        // Issues
-        if (currentTab === "issues" || currentTab === "all") {
-          const issues = await base44.entities.Issue.list("-created_date", 50).catch(() => []);
-          issues.forEach(log => {
-            allLogs.push({
-              id: log.id,
-              type: "issues",
-              date: log.created_date ? log.created_date.split("T")[0] : todayStr,
-              time: log.created_date ? new Date(log.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
-              title: log.title || "Issue",
-              value: log.priority?.toUpperCase(),
-              user: log.created_by_email,
-              status: log.status?.toUpperCase() || "OPEN",
-              statusColor: log.status === "critical" || log.priority === "critical"
-                ? "bg-red-500/15 text-red-400 border-red-500/30"
-                : log.status === "in_progress"
-                ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-                : "bg-green-500/15 text-green-400 border-green-500/30",
-              icon: AlertTriangle,
-              iconBg: "bg-yellow-500/15",
-            });
-          });
-        }
-
-        // Manager Logs
-        if (currentTab === "manager" || currentTab === "all") {
-          const managerLogs = await base44.entities.ManagerLog.list("-created_date", 50).catch(() => []);
-          managerLogs.forEach(log => {
-            allLogs.push({
-              id: log.id,
-              type: "manager",
-              date: log.created_date ? log.created_date.split("T")[0] : todayStr,
-              time: log.created_date ? new Date(log.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
-              title: log.title || "Manager Note",
-              value: log.priority?.toUpperCase(),
-              user: log.logged_by_name,
-              status: log.status?.toUpperCase() || "OPEN",
-              statusColor: log.priority === "critical"
-                ? "bg-red-500/15 text-red-400 border-red-500/30"
-                : log.priority === "high"
-                ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-                : "bg-slate-500/15 text-slate-400 border-slate-500/30",
-              icon: FileText,
-              iconBg: "bg-purple-500/15",
-            });
-          });
-        }
-
-        // Group by date
-        const grouped = {};
-        allLogs.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(log => {
-          if (!grouped[log.date]) grouped[log.date] = [];
-          grouped[log.date].push(log);
         });
 
-        setLogs(grouped);
+        // Waste Logs
+        wasteLogs.forEach(log => {
+          const cost = log.dollar_value || log.estimatedCost || 0;
+          collected.push({
+            id: log.id,
+            type: "waste",
+            date: log.wasteDate || log.created_date?.split("T")[0] || todayStr,
+            time: log.wasteTime || (log.created_date ? new Date(log.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""),
+            title: log.itemName || log.item_name || "Waste Entry",
+            value: `$${Number(cost).toFixed(2)}`,
+            user: log.wastedBy || log.reported_by,
+            status: cost > 50 ? "HIGH VALUE" : "LOGGED",
+            statusColor: cost > 50 ? "bg-amber-500/15 text-amber-400 border-amber-500/30" : "bg-slate-500/15 text-slate-400 border-slate-500/30",
+            icon: Droplet,
+            iconBg: "bg-amber-500/15",
+          });
+        });
+
+        // 86'd Items
+        eightySixItems.forEach(log => {
+          collected.push({
+            id: log.id,
+            type: "86d",
+            date: log.marked_at ? log.marked_at.split("T")[0] : todayStr,
+            time: log.marked_at ? new Date(log.marked_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+            title: log.item_name || "86'd Item",
+            value: log.quantity,
+            unit: log.unit,
+            user: log.marked_by,
+            status: log.is_active ? "ACTIVE" : "RESOLVED",
+            statusColor: log.is_active ? "bg-amber-500/15 text-amber-400 border-amber-500/30" : "bg-green-500/15 text-green-400 border-green-500/30",
+            icon: AlertTriangle,
+            iconBg: "bg-red-500/15",
+          });
+        });
+
+        // Issues
+        issues.forEach(log => {
+          collected.push({
+            id: log.id,
+            type: "issues",
+            date: log.created_date ? log.created_date.split("T")[0] : todayStr,
+            time: log.created_date ? new Date(log.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+            title: log.title || "Issue",
+            value: log.priority?.toUpperCase(),
+            user: log.created_by_email,
+            status: log.status?.toUpperCase() || "OPEN",
+            statusColor: log.status === "critical" || log.priority === "critical"
+              ? "bg-red-500/15 text-red-400 border-red-500/30"
+              : log.status === "in_progress"
+              ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+              : "bg-green-500/15 text-green-400 border-green-500/30",
+            icon: AlertTriangle,
+            iconBg: "bg-yellow-500/15",
+          });
+        });
+
+        // Manager Logs
+        managerLogs.forEach(log => {
+          collected.push({
+            id: log.id,
+            type: "manager",
+            date: log.created_date ? log.created_date.split("T")[0] : todayStr,
+            time: log.created_date ? new Date(log.created_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+            title: log.title || "Manager Note",
+            value: log.priority?.toUpperCase(),
+            user: log.logged_by_name,
+            status: log.status?.toUpperCase() || "OPEN",
+            statusColor: log.priority === "critical"
+              ? "bg-red-500/15 text-red-400 border-red-500/30"
+              : log.priority === "high"
+              ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+              : "bg-slate-500/15 text-slate-400 border-slate-500/30",
+            icon: FileText,
+            iconBg: "bg-purple-500/15",
+          });
+        });
+
+        setAllLogs(collected.sort((a, b) => new Date(b.date) - new Date(a.date)));
       } catch (e) {
         console.error(e);
       } finally {
@@ -241,7 +227,22 @@ export default function Logs() {
       }
     };
     load();
-  }, [currentTab]);
+  }, []);
+
+  // Client-side filter by tab — no reload needed
+  const filtered = useMemo(() =>
+    allLogs.filter(log => log.type === currentTab),
+    [allLogs, currentTab]
+  );
+
+  const grouped = useMemo(() => {
+    const g = {};
+    filtered.forEach(log => {
+      if (!g[log.date]) g[log.date] = [];
+      g[log.date].push(log);
+    });
+    return g;
+  }, [filtered]);
 
   return (
     <div className="pb-24">
@@ -275,9 +276,9 @@ export default function Logs() {
           <div className="flex items-center justify-center h-48">
             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : Object.keys(logs).length > 0 ? (
+        ) : Object.keys(grouped).length > 0 ? (
           <div>
-            {Object.entries(logs).map(([date, dateLogs]) => (
+            {Object.entries(grouped).map(([date, dateLogs]) => (
               <DateGroup key={date} date={date}>
                 {dateLogs.map(log => (
                   <LogCard
