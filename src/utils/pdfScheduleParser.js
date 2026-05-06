@@ -21,8 +21,6 @@ export function parsePDFScheduleData(text) {
   const data = [];
 
   for (const line of lines) {
-    const tokens = line.split(/\s+/);
-    if (tokens.length < 4) continue;
 
     const entry = {
       employee_name: null,
@@ -43,10 +41,26 @@ export function parsePDFScheduleData(text) {
       entry.end_time = timeMatches[1].trim();
     }
 
-    // Employee name is usually at the start
-    const nameToken = tokens[0];
-    if (nameToken && nameToken.length > 2 && /^[A-Za-z]/.test(nameToken)) {
-      entry.employee_name = nameToken;
+    // Extract employee name: text before the first date or time pattern
+    let nameSection = line;
+    if (dateMatch) {
+      nameSection = line.substring(0, dateMatch.index).trim();
+    } else if (timeMatches && timeMatches.length > 0) {
+      const timeIndex = line.indexOf(timeMatches[0]);
+      nameSection = line.substring(0, timeIndex).trim();
+    }
+
+    // Clean up and extract name (look for capitalized words)
+    if (nameSection) {
+      const roleKeywords = ['FOH', 'BOH', 'Host', 'Server', 'Chef', 'Manager', 'Busser', 'Bartender'];
+      let cleanName = nameSection;
+      for (const keyword of roleKeywords) {
+        cleanName = cleanName.replace(new RegExp(keyword, 'gi'), '').trim();
+      }
+      const nameMatch = cleanName.match(/([A-Z][a-z]*(?:\s+[A-Z][a-z]*)*)/);
+      if (nameMatch) {
+        entry.employee_name = nameMatch[0].trim();
+      }
     }
 
     // Role might be present
