@@ -26,7 +26,7 @@ function JobCodeCard({ jobCode, onEdit, onDelete }) {
         </div>
       </div>
       <div className="flex gap-2">
-        <button onClick={() => onEdit(jobCode.id)} className="p-2 hover:bg-muted rounded-lg transition-all">
+        <button onClick={() => onEdit(jobCode)} className="p-2 hover:bg-muted rounded-lg transition-all">
           <Edit2 className="h-4 w-4 text-secondary-text" />
         </button>
         <button onClick={() => onDelete(jobCode.id)} className="p-2 hover:bg-muted rounded-lg transition-all">
