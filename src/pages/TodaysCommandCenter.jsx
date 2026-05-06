@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
 import { useToast } from "@/hooks/useToast";
 import CommandCenterHeader from "@/components/CommandCenterHeader";
+import DailyEventsCard from "@/components/reservations/DailyEventsCard";
 import ShiftProgress from "@/components/ShiftMode/ShiftProgress";
 import StartShiftModal from "@/components/ShiftMode/StartShiftModal";
 import SetupChecklist from "@/components/ShiftMode/SetupChecklist";
@@ -477,6 +478,9 @@ export default function TodaysCommandCenter() {
             ))}
           </div>
         )}
+
+        {/* Daily Events */}
+        <DailyEventsCard />
 
         {/* Food Safety */}
         {data.tempSafety && (

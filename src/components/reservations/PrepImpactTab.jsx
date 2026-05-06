@@ -81,6 +81,9 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }
     setGenerating(beo.id);
     const items = prepItems.filter(p => p.beoId === beo.id && !p.generatedPrepTaskId);
     for (const item of items) {
+      // Check for duplicate: skip if a prep task with same name and beo link already exists
+      const existing = await base44.entities.PrepItem.filter({ name: `[${beo.eventName}] ${item.prepItem}` }).catch(() => []);
+      if (existing.length > 0) continue;
       const task = await base44.entities.PrepItem.create({
         name: `[${beo.eventName}] ${item.prepItem}`,
         quantity: item.quantity,
@@ -88,7 +91,7 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }
         station_name: item.assignedStation,
         due_time: item.dueTime,
         status: 'pending',
-        notes: `BEO: ${beo.eventName}`,
+        notes: `Auto-generated from BEO: ${beo.eventName} on ${beo.eventDate}`,
       }).catch(() => null);
       if (task) {
         await base44.entities.BEOPrepItem.update(item.id, { generatedPrepTaskId: task.id });

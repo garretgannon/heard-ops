@@ -36,11 +36,12 @@ export default function BEODetail({ beo, isAdmin, user, onClose, onEdit, onSave 
 
   // Role detection
   const role = user?.role || 'user';
-  const isChef = isAdmin || role === 'chef';
-  const isFOH = role === 'foh' || role === 'server' || role === 'host';
-  const isBar = role === 'bartender' || role === 'bar';
-  const isPrep = role === 'prep' || role === 'prep-cook';
-  const isLine = role === 'line-cook' || role === 'cook';
+  const isChef = isAdmin || ['chef', 'executive-chef', 'sous-chef', 'head-chef'].includes(role);
+  const isFOH = ['foh', 'server', 'host', 'hostess', 'food-runner'].includes(role);
+  const isBar = ['bartender', 'bar', 'barback'].includes(role);
+  const isPrep = ['prep', 'prep-cook', 'prep cook'].includes(role);
+  const isLine = ['line-cook', 'cook', 'line cook'].includes(role);
+  // Managers and admins see everything; basic 'user' role sees only guest-facing info
   const canSeeKitchen = isAdmin || isChef || isLine || isPrep;
   const canSeeFOH = isAdmin || isFOH || isChef;
   const canSeeBar = isAdmin || isBar || isChef;
