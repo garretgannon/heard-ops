@@ -148,6 +148,7 @@ function AreaModal({ onClose }) {
 }
 
 function EquipmentModal({ onClose }) {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: '', equipmentType: '', department: '', area: '', station: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, isActive: true });
@@ -163,6 +164,8 @@ function EquipmentModal({ onClose }) {
   };
   const del = async (id) => { await base44.entities.Equipment.delete(id); setItems(p => p.filter(i => i.id !== id)); };
   const typeLabel = (v) => EQUIPMENT_TYPES.find(t => t.value === v)?.label || v;
+  const COLD_TYPES = ['walk-in-cooler','walk-in-freezer','reach-in-cooler','reach-in-freezer','prep-table-cooler','lowboy-cooler','beer-cooler','wine-cooler','bar-cooler'];
+  const isColdStorage = (type) => COLD_TYPES.includes(type);
 
   return (
     <CenteredModal title="Equipment and Assets" onClose={onClose}>
@@ -186,14 +189,20 @@ function EquipmentModal({ onClose }) {
               <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
             </div>
             <div className="flex gap-1.5 mt-1.5 flex-wrap">
-              {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">Temp Log</span>}
+               {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">Temp Log</span>}
               {item.requiresCleaningChecklist && <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold">Cleaning</span>}
               {item.requiresMaintenanceChecklist && <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">Maintenance</span>}
             </div>
-          </div>
-        ))}
-      </div>
-      {adding ? (
+            {isColdStorage(item.equipmentType) && (
+              <div className="flex gap-1.5 mt-2">
+                <button onClick={() => { onClose(); navigate('/temp-logs'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 active:scale-95 transition-all">View Temp History</button>
+                <button onClick={() => { onClose(); navigate('/temp-log-templates'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 active:scale-95 transition-all">Create Temp Template</button>
+              </div>
+            )}
+            </div>
+            ))}
+            </div>
+            {adding ? (
         <div className="space-y-3">
           <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
             className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
@@ -241,13 +250,23 @@ function EquipmentModal({ onClose }) {
 }
 
 function FoodSafetyModal({ onClose }) {
-  const [form, setForm] = useState({ coldHoldingMax: 41, hotHoldingMin: 135, walkInCoolerMin: 34, walkInCoolerMax: 41, walkInFreezerMin: -10, walkInFreezerMax: 0, dishMachineFinalRinseTarget: 180, sanitizerMinPPM: 100, sanitizerMaxPPM: 200, requiresCorrectiveAction: true, requiresManagerReview: false });
+  const [form, setForm] = useState({
+    // Cooling
+    coolingTwoHourTarget: 70, coolingSixHourTarget: 41,
+    coolingRequiresCorrectiveAction: true, coolingRequiresManagerReview: false,
+    // Refrigerators / Freezers
+    coolerMin: 34, coolerMax: 41, freezerMin: -10, freezerMax: 0,
+    fridgeRequiresCorrectiveAction: true, fridgeRequiresManagerReview: false,
+    // Hot Holding
+    hotHoldingMin: 135, hotReheatTarget: 165,
+    hotRequiresCorrectiveAction: true, hotRequiresManagerReview: false,
+  });
   const [saved, setSaved] = useState(false);
   const [existingId, setExistingId] = useState(null);
 
   useEffect(() => {
     base44.entities.FoodSafetySettings.filter({ key: 'global' }).then(results => {
-      if (results.length > 0) { setForm(results[0]); setExistingId(results[0].id); setSaved(true); }
+      if (results.length > 0) { setForm(p => ({ ...p, ...results[0] })); setExistingId(results[0].id); setSaved(true); }
     });
   }, []);
 
@@ -263,37 +282,68 @@ function FoodSafetyModal({ onClose }) {
 
   const Field = ({ label, field, unit }) => (
     <div>
-      <label className="text-xs font-bold text-secondary-text block mb-1">{label}{unit ? ` (${unit})` : ''}</label>
+      <label className="text-xs font-bold text-muted-foreground block mb-1">{label}{unit ? ` (°${unit})` : ''}</label>
       <input type="number" value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: parseFloat(e.target.value) }))}
         className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
     </div>
   );
 
+  const Toggle = ({ field, label }) => (
+    <label className="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer">
+      <input type="checkbox" checked={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.checked }))} className="rounded" />
+      {label}
+    </label>
+  );
+
   return (
     <CenteredModal title="Food Safety Settings" onClose={onClose}>
-      <div className="space-y-3">
-        <p className="text-xs text-muted-foreground">These values are used as defaults for temperature log templates and compliance checks.</p>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Cold Holding Max" field="coldHoldingMax" unit="F" />
-          <Field label="Hot Holding Min" field="hotHoldingMin" unit="F" />
-          <Field label="Walk-in Cooler Min" field="walkInCoolerMin" unit="F" />
-          <Field label="Walk-in Cooler Max" field="walkInCoolerMax" unit="F" />
-          <Field label="Walk-in Freezer Min" field="walkInFreezerMin" unit="F" />
-          <Field label="Walk-in Freezer Max" field="walkInFreezerMax" unit="F" />
-          <Field label="Dish Machine Rinse" field="dishMachineFinalRinseTarget" unit="F" />
-          <Field label="Sanitizer Min PPM" field="sanitizerMinPPM" />
-          <Field label="Sanitizer Max PPM" field="sanitizerMaxPPM" />
+      <div className="space-y-4">
+        <p className="text-xs text-muted-foreground">Configure defaults for all 3 temperature log categories.</p>
+
+        {/* Cooling Logs */}
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">❄ Cooling Logs</p>
+          <p className="text-[10px] text-muted-foreground">Food must cool 135°F → 70°F (2 hrs) → 41°F (6 hrs total)</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="2-Hour Max" field="coolingTwoHourTarget" unit="F" />
+            <Field label="6-Hour Max" field="coolingSixHourTarget" unit="F" />
+          </div>
+          <div className="flex gap-4">
+            <Toggle field="coolingRequiresCorrectiveAction" label="Corrective Action Required" />
+            <Toggle field="coolingRequiresManagerReview" label="Manager Review" />
+          </div>
         </div>
-        <div className="space-y-2">
-          {[['requiresCorrectiveAction', 'Requires Corrective Action'], ['requiresManagerReview', 'Requires Manager Review']].map(([key, label]) => (
-            <label key={key} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
-              <input type="checkbox" checked={form[key]} onChange={e => setForm(p => ({ ...p, [key]: e.target.checked }))} className="rounded" />
-              {label}
-            </label>
-          ))}
+
+        {/* Refrigerators / Freezers */}
+        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest">🧊 Refrigerators / Freezers</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Cooler Min" field="coolerMin" unit="F" />
+            <Field label="Cooler Max" field="coolerMax" unit="F" />
+            <Field label="Freezer Min" field="freezerMin" unit="F" />
+            <Field label="Freezer Max" field="freezerMax" unit="F" />
+          </div>
+          <div className="flex gap-4">
+            <Toggle field="fridgeRequiresCorrectiveAction" label="Corrective Action Required" />
+            <Toggle field="fridgeRequiresManagerReview" label="Manager Review" />
+          </div>
         </div>
+
+        {/* Hot Holding */}
+        <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-orange-400 uppercase tracking-widest">🔥 Hot Holding</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Holding Minimum" field="hotHoldingMin" unit="F" />
+            <Field label="Reheat Target" field="hotReheatTarget" unit="F" />
+          </div>
+          <div className="flex gap-4">
+            <Toggle field="hotRequiresCorrectiveAction" label="Corrective Action Required" />
+            <Toggle field="hotRequiresManagerReview" label="Manager Review" />
+          </div>
+        </div>
+
         <button onClick={save} className="w-full btn-primary text-sm flex items-center justify-center gap-2">
-          <Save className="h-4 w-4" /> {saved ? 'Update Settings' : 'Save Settings'}
+          <Save className="h-4 w-4" /> {saved ? 'Update Settings' : 'Save Food Safety Settings'}
         </button>
       </div>
     </CenteredModal>

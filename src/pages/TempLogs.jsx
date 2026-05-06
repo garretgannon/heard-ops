@@ -404,9 +404,14 @@ export default function TempLogs() {
       base44.entities.RefrigeratorFreezerLog.filter({ date: today() }).catch(() => []),
       base44.entities.HotHoldingLog.filter({ date: today() }).catch(() => []),
     ]);
-    setCoolingLogs(cooling);
-    setRefrigLogs(refrig);
-    setHotLogs(hot);
+    // Employees: filter to logs they completed or at their station
+    const filterForUser = (logs) => {
+      if (isAdmin) return logs;
+      return logs.filter(l => !l.completedBy || l.completedBy === user?.email || !l.station || !user?.email);
+    };
+    setCoolingLogs(filterForUser(cooling));
+    setRefrigLogs(filterForUser(refrig));
+    setHotLogs(filterForUser(hot));
     setLoading(false);
   };
 

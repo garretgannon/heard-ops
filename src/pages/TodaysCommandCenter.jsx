@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUnifiedState } from "@/lib/UnifiedStateContext";
 import { useShiftMode } from "@/lib/ShiftModeContext";
-import { AlertTriangle, Clock, CheckCircle2, Zap, FileText, AlertCircle } from "lucide-react";
+import { AlertTriangle, Clock, CheckCircle2, Zap, FileText, AlertCircle, Thermometer, Wind, Snowflake, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
 import { useToast } from "@/hooks/useToast";
@@ -215,11 +215,14 @@ export default function TodaysCommandCenter() {
     const unsubscribers = [];
     const load = async () => {
       try {
-        const [prepItems, sideWork, issues, handoffs] = await Promise.all([
+        const [prepItems, sideWork, issues, handoffs, coolingLogs, refrigLogs, hotLogs] = await Promise.all([
           base44.entities.PrepItem.list("-updated_date", 100).catch(() => []),
           base44.entities.SideWorkAssignment.filter({ date: todayStr }).catch(() => []),
           base44.entities.Issue.filter({ status: "open" }).catch(() => []),
           base44.entities.ShiftHandoff?.list("-created_date", 1).catch(() => []),
+          base44.entities.CoolingLog.filter({ date: todayStr }).catch(() => []),
+          base44.entities.RefrigeratorFreezerLog.filter({ date: todayStr }).catch(() => []),
+          base44.entities.HotHoldingLog.filter({ date: todayStr }).catch(() => []),
         ]);
 
         const overdue = [
@@ -282,6 +285,11 @@ export default function TodaysCommandCenter() {
           completionPct,
           needsReview: issues.filter(i => i.status === "open").length,
           latestHandoff: handoffs?.[0],
+          tempSafety: {
+            cooling: { total: coolingLogs.length, failed: coolingLogs.filter(l => ['failed','corrective_action_required'].includes(l.status)).length },
+            refrig: { total: refrigLogs.length, outOfRange: refrigLogs.filter(l => l.isOutOfRange).length },
+            hot: { total: hotLogs.length, outOfRange: hotLogs.filter(l => l.isOutOfRange).length },
+          },
         });
 
         unsubscribers.push(
@@ -467,6 +475,31 @@ export default function TodaysCommandCenter() {
                 completedAt={item.completedAt}
               />
             ))}
+          </div>
+        )}
+
+        {/* Food Safety */}
+        {data.tempSafety && (
+          <div className="space-y-2">
+            <SectionLabel label="Food Safety" icon={Thermometer} />
+            <button onClick={() => navigate('/temp-logs')} className="w-full bg-card border border-border rounded-xl p-3 active:scale-95 transition-all text-left">
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { Icon: Wind, color: 'text-blue-400', bg: 'bg-blue-500/10', label: 'Cooling', count: data.tempSafety.cooling.total, issues: data.tempSafety.cooling.failed, issueLabel: 'failed' },
+                  { Icon: Snowflake, color: 'text-cyan-400', bg: 'bg-cyan-500/10', label: 'Fridge/Freezer', count: data.tempSafety.refrig.total, issues: data.tempSafety.refrig.outOfRange, issueLabel: 'OOR' },
+                  { Icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10', label: 'Hot Holding', count: data.tempSafety.hot.total, issues: data.tempSafety.hot.outOfRange, issueLabel: 'OOR' },
+                ].map(({ Icon, color, bg, label, count, issues, issueLabel }) => (
+                  <div key={label} className="text-center">
+                    <div className={`h-7 w-7 rounded-lg ${bg} flex items-center justify-center mx-auto mb-1`}>
+                      <Icon className={`h-3.5 w-3.5 ${color}`} />
+                    </div>
+                    <p className="text-[10px] font-bold text-muted-foreground leading-tight">{label}</p>
+                    <p className="text-sm font-extrabold text-foreground">{count} logged</p>
+                    {issues > 0 && <p className="text-[9px] font-bold text-red-400">{issues} {issueLabel}</p>}
+                  </div>
+                ))}
+              </div>
+            </button>
           </div>
         )}
 
