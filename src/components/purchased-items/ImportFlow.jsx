@@ -59,10 +59,11 @@ function parseCSV(text) {
   if (nonEmptyLines.length < 1) return { headers: [], rows: [] };
   const delimiter = detectDelimiter(nonEmptyLines);
   const headerLine = nonEmptyLines[0];
-  const headers = splitCSVLine(headerLine, delimiter).map(h => h.trim()).filter(h => h.length > 0);
+  const rawHeaders = splitCSVLine(headerLine, delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+  const headers = rawHeaders.filter(h => h.length > 0);
   if (headers.length < 1) return { headers: [], rows: [] };
   const rows = nonEmptyLines.slice(1).map((line, idx) => {
-    const vals = splitCSVLine(line, delimiter);
+    const vals = splitCSVLine(line, delimiter).map(v => v.trim().replace(/^"|"$/g, ''));
     const row = {};
     headers.forEach((h, i) => { row[h] = (vals[i] || '').trim(); });
     row._rowIndex = idx + 2;
