@@ -1,71 +1,33 @@
 import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
-import HelpButton from "./HelpButton";
-import FloatingManagerLogButton from "./FloatingManagerLogButton";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Bell, UserCircle, ChefHat } from "lucide-react";
+import {
+  Bell, UserCircle, ChefHat,
+  LayoutDashboard, ClipboardList, Thermometer, CheckSquare,
+  Warehouse, Truck, LayoutTemplate, Building2, Settings,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
-import { allRoutes } from "@/lib/routeConfig";
 
-// Desktop navigation built from route config
-const getDesktopNavSections = () => {
-  return {
-    dailyOps: {
-      label: "Daily Operations",
-      items: [
-        allRoutes.dailyOps.today,
-        allRoutes.dailyOps.shiftHandoff,
-      ].filter(r => r),
-    },
-    tasks: {
-      label: "Tasks",
-      items: [
-        allRoutes.tasks.sideWork,
-        allRoutes.tasks.prepLists,
-        allRoutes.tasks.cleaningChecklist,
-      ].filter(r => r),
-    },
-    compliance: {
-      label: "Compliance & Logs",
-      items: [
-        allRoutes.compliance.tempLogs,
-        allRoutes.compliance.wasteLog,
-        allRoutes.compliance.bathroomChecks,
-      ].filter(r => r),
-    },
-    operations: {
-      label: "Operations",
-      items: [
-        allRoutes.operations.issues,
-        allRoutes.operations.inventory,
-        allRoutes.operations.schedule,
-        allRoutes.operations.team,
-      ].filter(r => r),
-    },
-    knowledge: {
-      label: "Knowledge Base",
-      items: [
-        allRoutes.knowledge.recipes,
-        allRoutes.knowledge.standards,
-        allRoutes.knowledge.templates,
-        allRoutes.knowledge.vendors,
-      ].filter(r => r),
-    },
-  };
-};
+// Desktop sidebar nav — flat primary items per spec
+const DESKTOP_NAV_ITEMS = [
+  { path: "/", label: "Today", icon: LayoutDashboard },
+  { path: "/prep-lists", label: "Prep", icon: ClipboardList },
+  { path: "/tasks", label: "Overview", icon: CheckSquare },
+  { path: "/temp-logs", label: "Temps", icon: Thermometer },
+  { path: "/side-work", label: "Side Work", icon: CheckSquare },
+  { path: "/recipes", label: "Recipes", icon: ChefHat },
+  { path: "/inventory", label: "Inventory", icon: Warehouse },
+  { path: "/vendors", label: "Vendors", icon: Truck },
+  { path: "/prep-templates", label: "Templates", icon: LayoutTemplate },
+  { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+  { path: "/profile", label: "Settings", icon: Settings },
+];
 
 export default function Layout() {
   const location = useLocation();
-  const [expandedDesktopSections, setExpandedDesktopSections] = useState({
-    dailyOps: true,
-    complianceLogs: true,
-    managerTools: true,
-    teamTraining: false,
-    admin: false,
-  });
-  const { isAdmin, isFOH } = useCurrentUser();
+  const { isAdmin } = useCurrentUser();
   const [logoUrl, setLogoUrl] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
 
@@ -78,21 +40,15 @@ export default function Layout() {
     });
   }, []);
 
-  const toggleDesktopSection = (key) => {
-    setExpandedDesktopSections(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
   const isStationView = location.pathname.startsWith("/station/");
   if (isStationView) {
     return <Outlet />;
   }
 
-  const navSections = getDesktopNavSections();
-
   return (
     <div className="min-h-screen bg-background">
 
-      {/* Mobile header — iOS frosted glass */}
+      {/* Mobile header — frosted glass */}
       <header
         className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-end px-4 pb-2"
         style={{
@@ -120,91 +76,78 @@ export default function Layout() {
         </div>
       </header>
 
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 border-r border-border/30 flex-col z-30" style={{ background: 'hsl(var(--sidebar-background))' }}>
+      {/* Desktop sidebar — hidden on mobile */}
+      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 border-r border-border/30 flex-col z-30" style={{ background: 'hsl(var(--sidebar-background))' }}>
+        {/* Logo / Brand */}
         <div className="px-5 py-5 flex items-center gap-3 border-b border-border/30">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20">
+          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20 shrink-0">
             {logoUrl ? (
               <img src={logoUrl} alt="logo" className="h-9 w-9 object-cover" />
             ) : (
               <ChefHat className="h-4 w-4 text-primary-foreground" />
             )}
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="font-extrabold text-base tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
             {restaurantName
-              ? <p className="text-[11px] text-primary/80 font-semibold tracking-wide uppercase">{restaurantName}</p>
+              ? <p className="text-[11px] text-primary/80 font-semibold tracking-wide uppercase truncate">{restaurantName}</p>
               : <p className="text-[11px] text-muted-foreground tracking-wide uppercase">Restaurant Ops</p>
             }
           </div>
         </div>
 
+        {/* Nav Links */}
         <nav className="flex-1 px-2.5 overflow-y-auto py-3 space-y-0.5">
-          {isAdmin ? (
-            Object.entries(navSections).map(([key, section]) => (
-              <div key={key}>
-                <button
-                  onClick={() => toggleDesktopSection(key)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[11px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest transition-all duration-200"
-                >
-                  <span>{section.label}</span>
-                  <ChevronDown className={cn("h-3 w-3 transition-transform", expandedDesktopSections[key] && "rotate-180")} />
-                </button>
-                {expandedDesktopSections[key] && section.items.map(item => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={cn(
-                        "flex items-center gap-2.5 pl-4 pr-3 py-2 rounded-xl text-sm font-medium transition-all duration-150",
-                        location.pathname === item.path
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      )}
-                    >
-                      <Icon className="h-3.5 w-3.5 shrink-0" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            ))
-          ) : (
-            [] // FOH staff uses only bottom nav
-          )}
+          {DESKTOP_NAV_ITEMS.map(item => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
+        {/* Footer blurb */}
         <div className="px-3 pb-4">
           <div className="rounded-xl bg-primary/8 border border-primary/15 p-3">
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              The daily operating system for restaurants — prep, side work, logs, and manager follow-up.
+              The daily operating system for restaurants.
             </p>
           </div>
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main content area */}
       <main
-        className="lg:pl-64 min-h-screen flex flex-col items-center"
+        className="lg:pl-60 min-h-screen flex flex-col"
         style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
       >
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
-            className="w-full max-w-[430px] lg:max-w-none lg:w-full px-4 pt-3 lg:px-8 lg:pb-8 lg:max-w-6xl mx-auto"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-8 lg:pt-6 lg:pb-8"
             style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <Outlet />
           </motion.div>
         </AnimatePresence>
       </main>
-
-
     </div>
   );
 }

@@ -7,7 +7,7 @@ export default function GlobalBottomNav() {
   const { pathname } = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-inset-bottom">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-inset-bottom">
       <div className="flex h-20 items-stretch justify-around px-2">
         {bottomNavRoutes.map(({ label, path, icon: Icon }) => {
           const isActive = pathname === path;
