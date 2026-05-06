@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
 import { X, Upload, AlertTriangle, CheckCircle2, ChevronRight, RefreshCw, Edit2 } from 'lucide-react';
@@ -113,7 +113,15 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
   const [result, setResult] = useState(null);
   const [editingIdx, setEditingIdx] = useState(null);
   const [pdfParsed, setPdfParsed] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState('');
   const fileRef = useRef();
+
+  useEffect(() => {
+    base44.entities.PdfImportTemplate.list('-created_date', 10).then(setTemplates).catch(() => {});
+  }, []);
 
   const handleFile = async (file) => {
     if (!file) return;
@@ -187,6 +195,31 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
     const detectedWeek = detectWeek(rows.filter(r => r.status === 'ok').map(r => r.mapped.date));
     if (detectedWeek) setWeekStart(detectedWeek);
     setStep(3);
+  };
+
+  const saveAsTemplate = async () => {
+    if (!templateName.trim()) return;
+    await base44.entities.PdfImportTemplate.create({
+      name: templateName,
+      columnMapping: JSON.stringify(columnMapping),
+      createdBy: user?.email || 'unknown',
+      createdAt: new Date().toISOString(),
+      isDefault: false,
+    }).then(() => {
+      setTemplateName('');
+      setSavingTemplate(false);
+      base44.entities.PdfImportTemplate.list('-created_date', 10).then(setTemplates);
+      haptics.success?.();
+    }).catch(() => {});
+  };
+
+  const applyTemplate = (template) => {
+    try {
+      const mapping = JSON.parse(template.columnMapping);
+      setColumnMapping(mapping);
+      setSelectedTemplate(template.id);
+      haptics.light?.();
+    } catch {}
   };
 
   const doImport = async () => {
@@ -295,6 +328,28 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
         {step === 2 && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">Map your file's columns to app fields.</p>
+            
+            {templates.length > 0 && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-2">
+                <p className="text-xs font-bold text-primary mb-2">Load Saved Template</p>
+                <div className="space-y-1.5">
+                  {templates.map(t => (
+                    <button
+                      key={t.id}
+                      onClick={() => applyTemplate(t)}
+                      className={`w-full text-xs px-2 py-1.5 rounded-lg text-left transition-all ${
+                        selectedTemplate === t.id
+                          ? 'bg-primary text-primary-foreground font-bold'
+                          : 'bg-background border border-border text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-2">
               {Object.entries(columnMapping).map(([colIdx, field]) => {
                 const headers = rawRows[headerRowIdx] || [];
@@ -315,7 +370,28 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
                 );
               })}
             </div>
-            <button onClick={buildPreview} className="w-full btn-primary text-sm py-2.5">Preview Schedule</button>
+            <div className="flex gap-2">
+              <button onClick={buildPreview} className="flex-1 btn-primary text-sm py-2.5">Preview Schedule</button>
+              {!savingTemplate && (
+                <button onClick={() => setSavingTemplate(true)} className="flex-1 btn-secondary text-sm py-2.5">Save Template</button>
+              )}
+            </div>
+            
+            {savingTemplate && (
+              <div className="bg-card border border-border rounded-lg p-2 space-y-2">
+                <input
+                  autoFocus
+                  value={templateName}
+                  onChange={e => setTemplateName(e.target.value)}
+                  placeholder="Template name (e.g., Sysco, Toast)"
+                  className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+                />
+                <div className="flex gap-2">
+                  <button onClick={saveAsTemplate} className="flex-1 btn-primary text-xs py-1.5">Save</button>
+                  <button onClick={() => { setSavingTemplate(false); setTemplateName(''); }} className="flex-1 btn-secondary text-xs py-1.5">Cancel</button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
