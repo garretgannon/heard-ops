@@ -16,6 +16,7 @@ import StartShiftModal from "@/components/ShiftMode/StartShiftModal";
 import SetupChecklist from "@/components/ShiftMode/SetupChecklist";
 import CloseShiftModal from "@/components/ShiftMode/CloseShiftModal";
 import ShiftLaunchModal from "@/components/ShiftLaunch/ShiftLaunchModal";
+import RoleBasedLauncher from "@/components/ShiftLaunch/RoleBasedLauncher";
 import { QuickActionModals } from "@/components/QuickActionModals";
 
 const cache = { data: null, ts: 0 };
@@ -324,7 +325,7 @@ export default function TodaysCommandCenter() {
           onNotifications={() => navigate("/logs")}
           onViewDay={() => navigate("/calendar")}
         />
-        <ShiftLaunchModal 
+        <RoleBasedLauncher 
           isOpen={showLaunchModal} 
           onClose={() => setShowLaunchModal(false)} 
           onComplete={async () => {
