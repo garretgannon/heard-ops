@@ -207,7 +207,7 @@ export default function TodaysCommandCenter() {
   const navigate = useNavigate();
   const toast = useToast();
   const { lastCompletedAction, recordAction, setActiveTab } = useUnifiedState();
-  const { currentShift, markSetupComplete } = useShiftMode();
+  const { currentShift, markSetupComplete, reopenShift } = useShiftMode();
   const { isAdmin } = useCurrentUser();
   const [data, setData] = useState(cache.data);
   const [loading, setLoading] = useState(!cache.data);
@@ -398,6 +398,21 @@ export default function TodaysCommandCenter() {
               >
                 End Shift
               </button>
+            ) : currentShift.status === 'closed' || currentShift.status === 'completed' ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => { haptics.medium(); await reopenShift(currentShift.id); window.location.reload(); }}
+                  className="flex-1 h-11 rounded-xl border border-border bg-muted text-foreground font-bold active:scale-95 transition-all"
+                >
+                  Reopen Shift
+                </button>
+                <button
+                  onClick={() => navigate('/more')}
+                  className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-bold active:scale-95 transition-all"
+                >
+                  Edit
+                </button>
+              </div>
             ) : null}
           </div>
         )}
