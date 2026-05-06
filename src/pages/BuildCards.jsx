@@ -4,7 +4,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
 import {
   Utensils, Search, Plus, ChevronRight, Camera, AlertTriangle,
-  Link2, Edit2, X, Package, Clock, AlertCircle
+  Link2, Edit2, X, Package, Clock, AlertCircle, Copy, Archive
 } from 'lucide-react';
 
 const CATEGORIES = ['all','appetizer','entree','sandwich','salad','dessert','cocktail','na-drink','archived'];
@@ -21,7 +21,7 @@ const STATUS_STYLE = {
   archived: 'bg-muted text-muted-foreground',
 };
 const AVAIL_STYLE = {
-  available: null,
+  available: '',
   low: 'border-amber-500/30 bg-amber-500/5',
   'eighty-six': 'border-red-500/40 bg-red-500/5',
 };
@@ -30,7 +30,7 @@ function BuildCardCard({ card, onClick }) {
   const isEightySix = card.availabilityStatus === 'eighty-six';
   const isLow = card.availabilityStatus === 'low';
   return (
-    <button onClick={onClick} className={`w-full text-left bg-card border rounded-xl overflow-hidden active:scale-[0.99] transition-all ${AVAIL_STYLE[card.availabilityStatus] || 'border-border'}`}>
+    <button onClick={onClick} className={`w-full text-left bg-card border rounded-xl overflow-hidden active:scale-[0.99] transition-all ${AVAIL_STYLE[card.availabilityStatus] !== undefined ? AVAIL_STYLE[card.availabilityStatus] : 'border-border'}`}>
       <div className="px-4 py-3">
         <div className="flex items-start justify-between gap-2 mb-1">
           <div className="flex-1 min-w-0">
@@ -92,7 +92,7 @@ function SpecChip({ label, value }) {
   );
 }
 
-function BuildCardDetail({ card, onClose, onEdit, isAdmin }) {
+function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmin }) {
   const [components, setComponents] = useState([]);
   const [steps, setSteps] = useState([]);
   const [modifiers, setModifiers] = useState([]);
@@ -282,7 +282,13 @@ function BuildCardDetail({ card, onClose, onEdit, isAdmin }) {
       {isAdmin && (
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex gap-2">
           <button onClick={() => onEdit(card)} className="flex-1 btn-primary text-xs flex items-center justify-center gap-1 h-10">
-            <Edit2 className="h-3.5 w-3.5" /> Edit Build Card
+            <Edit2 className="h-3.5 w-3.5" /> Edit
+          </button>
+          <button onClick={() => onDuplicate(card)} className="btn-secondary text-xs flex items-center justify-center gap-1 h-10 px-3">
+            <Copy className="h-3.5 w-3.5" /> Copy
+          </button>
+          <button onClick={() => onArchive(card)} className="btn-secondary text-xs flex items-center justify-center gap-1 h-10 px-3">
+            <Archive className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
       )}
@@ -339,6 +345,7 @@ function BuildCardForm({ card, onSave, onClose }) {
       else if (mod.id && mod._dirty) { const { _dirty, ...d } = mod; await base44.entities.BuildCardModifier.update(mod.id, d); }
     }
     haptics.success();
+    setSaving(false);
     onSave?.();
   };
 
@@ -497,9 +504,34 @@ export default function BuildCards() {
     return true;
   });
 
-  const handleSave = async () => { await load(); setShowForm(false); setEditing(null); };
+  const handleSave = async () => { await load(); setShowForm(false); setEditing(null); setSelected(null); };
 
-  if (selected) return <BuildCardDetail card={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={c => { setSelected(null); setEditing(c); setShowForm(true); }} />;
+  const handleDuplicate = async (card) => {
+    const { id, created_date, updated_date, ...data } = card;
+    const created = await base44.entities.BuildCard.create({ ...data, name: `${card.name} (Copy)`, status: 'draft' });
+    const [comps, stps, mods] = await Promise.all([
+      base44.entities.BuildCardComponent.filter({ buildCardId: id }, 'sortOrder', 50).catch(() => []),
+      base44.entities.BuildCardStep.filter({ buildCardId: id }, 'sortOrder', 50).catch(() => []),
+      base44.entities.BuildCardModifier.filter({ buildCardId: id }, 'sortOrder', 50).catch(() => []),
+    ]);
+    await Promise.all([
+      ...comps.map(({ id: _id, created_date: _c, updated_date: _u, ...d }) => base44.entities.BuildCardComponent.create({ ...d, buildCardId: created.id })),
+      ...stps.map(({ id: _id, created_date: _c, updated_date: _u, ...d }) => base44.entities.BuildCardStep.create({ ...d, buildCardId: created.id })),
+      ...mods.map(({ id: _id, created_date: _c, updated_date: _u, ...d }) => base44.entities.BuildCardModifier.create({ ...d, buildCardId: created.id })),
+    ]);
+    haptics.success();
+    await load();
+    setSelected(null);
+  };
+
+  const handleArchive = async (card) => {
+    await base44.entities.BuildCard.update(card.id, { status: card.status === 'archived' ? 'draft' : 'archived' });
+    haptics.success();
+    await load();
+    setSelected(null);
+  };
+
+  if (selected) return <BuildCardDetail card={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={c => { setSelected(null); setEditing(c); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />;
   if (showForm) return <BuildCardForm card={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />;
 
   return (

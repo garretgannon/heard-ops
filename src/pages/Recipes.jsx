@@ -82,10 +82,11 @@ function SpecChip({ label, value }) {
   );
 }
 
-function RecipeDetail({ recipe, onClose, onEdit, isAdmin }) {
+function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin }) {
   const [ingredients, setIngredients] = useState([]);
   const [steps, setSteps] = useState([]);
   const [linkedBuildCards, setLinkedBuildCards] = useState([]);
+  const [linkedPrepTemplates, setLinkedPrepTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -100,6 +101,15 @@ function RecipeDetail({ recipe, onClose, onEdit, isAdmin }) {
     if (recipe.linkedBuildCards?.length) {
       Promise.all(recipe.linkedBuildCards.map(id => base44.entities.BuildCard.get(id).catch(() => null)))
         .then(cards => setLinkedBuildCards(cards.filter(Boolean)));
+    }
+    if (recipe.linkedPrepTemplates?.length) {
+      Promise.all(recipe.linkedPrepTemplates.map(id => base44.entities.TemperatureLogTemplate.get(id).catch(() => null)))
+        .then(ts => setLinkedPrepTemplates(ts.filter(Boolean)));
+    } else {
+      // also search by name match
+      base44.entities.PrepTemplate?.list('-updated_date', 100).catch(() => []).then(templates => {
+        setLinkedPrepTemplates(templates.filter(t => t.name));
+      });
     }
   }, [recipe.id]);
 
@@ -204,6 +214,20 @@ function RecipeDetail({ recipe, onClose, onEdit, isAdmin }) {
           </SectionBlock>
         )}
 
+        {/* Linked Prep Templates */}
+        {linkedPrepTemplates.length > 0 && (
+          <SectionBlock title="Used In Prep Templates">
+            <div className="space-y-1.5">
+              {linkedPrepTemplates.slice(0,5).map(t => (
+                <div key={t.id} className="flex items-center gap-2 bg-muted/30 border border-border rounded-lg px-3 py-2">
+                  <Link2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-xs font-bold text-foreground">{t.name}</span>
+                </div>
+              ))}
+            </div>
+          </SectionBlock>
+        )}
+
         {/* Linked Build Cards */}
         {linkedBuildCards.length > 0 && (
           <SectionBlock title="Used In Build Cards">
@@ -232,6 +256,12 @@ function RecipeDetail({ recipe, onClose, onEdit, isAdmin }) {
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex gap-2">
           <button onClick={() => onEdit(recipe)} className="flex-1 btn-primary text-xs flex items-center justify-center gap-1 h-10">
             <Edit2 className="h-3.5 w-3.5" /> Edit
+          </button>
+          <button onClick={() => onDuplicate(recipe)} className="btn-secondary text-xs flex items-center justify-center gap-1 h-10 px-3">
+            <Copy className="h-3.5 w-3.5" /> Copy
+          </button>
+          <button onClick={() => onArchive(recipe)} className="btn-secondary text-xs flex items-center justify-center gap-1 h-10 px-3">
+            <Archive className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
       )}
@@ -289,6 +319,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
       else if (step.id && step._dirty) { const { _dirty, ...data } = step; await base44.entities.RecipeStep.update(step.id, { ...data, stepNumber: i + 1 }); }
     }
     haptics.success();
+    setSaving(false);
     onSave?.();
   };
 
@@ -421,9 +452,32 @@ export default function Recipes() {
     return true;
   });
 
-  const handleSave = async () => { await load(); setShowForm(false); setEditing(null); };
+  const handleSave = async () => { await load(); setShowForm(false); setEditing(null); setSelected(null); };
 
-  if (selected) return <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} />;
+  const handleDuplicate = async (recipe) => {
+    const { id, created_date, updated_date, ...data } = recipe;
+    const created = await base44.entities.Recipe.create({ ...data, name: `${recipe.name} (Copy)`, status: 'draft' });
+    const [ings, stps] = await Promise.all([
+      base44.entities.RecipeIngredient.filter({ recipeId: id }, 'sortOrder', 50).catch(() => []),
+      base44.entities.RecipeStep.filter({ recipeId: id }, 'sortOrder', 50).catch(() => []),
+    ]);
+    await Promise.all([
+      ...ings.map(({ id: _id, created_date: _c, updated_date: _u, ...d }) => base44.entities.RecipeIngredient.create({ ...d, recipeId: created.id })),
+      ...stps.map(({ id: _id, created_date: _c, updated_date: _u, ...d }) => base44.entities.RecipeStep.create({ ...d, recipeId: created.id })),
+    ]);
+    haptics.success();
+    await load();
+    setSelected(null);
+  };
+
+  const handleArchive = async (recipe) => {
+    await base44.entities.Recipe.update(recipe.id, { status: recipe.status === 'archived' ? 'draft' : 'archived' });
+    haptics.success();
+    await load();
+    setSelected(null);
+  };
+
+  if (selected) return <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />;
   if (showForm) return <RecipeForm recipe={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />;
 
   return (
