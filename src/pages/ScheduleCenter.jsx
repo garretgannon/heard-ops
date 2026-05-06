@@ -414,19 +414,19 @@ export default function ScheduleCenter() {
       )}
 
       {/* Import Tab */}
-      {activeTab === "import" && isAdmin && (
-        <div className="px-4 py-4 space-y-4 mb-4">
-          <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-4 space-y-3">
-            <h3 className="text-sm font-bold text-white">Import Schedule</h3>
-            <p className="text-xs text-[#6B7280]">Upload a CSV, PDF, or R365 export file to import shifts for your team.</p>
-            <button
-              onClick={() => setImportDialog(true)}
-              className="w-full h-10 flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#1F1F24] hover:border-[#FF6A00] transition-colors"
-            >
-              <Upload className="h-4 w-4 text-[#6B7280]" />
-              <span className="text-xs font-bold text-[#6B7280]">Choose File</span>
-            </button>
-          </div>
+       {activeTab === "import" && isAdmin && (
+         <div className="px-4 py-4 space-y-4 mb-4">
+           <div className="bg-[#141418] border border-[#1F1F24] rounded-xl p-4 space-y-3">
+             <h3 className="text-sm font-bold text-white">Bulk Import Schedule</h3>
+             <p className="text-xs text-[#6B7280]">Upload an R365, CSV, or Excel file to import all shifts for the week in one go.</p>
+             <button
+               onClick={() => navigate("/schedule-import")}
+               className="w-full h-10 flex items-center justify-center gap-2 rounded-lg bg-[#FF6A00] text-black font-bold border border-[#FF6A00] hover:bg-[#FF7A1A] transition-colors active:scale-95"
+             >
+               <Upload className="h-4 w-4" />
+               <span className="text-xs">Go to Schedule Import</span>
+             </button>
+           </div>
 
           {/* Manual Add */}
           <div>
