@@ -100,12 +100,25 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
       });
 
       setBatchId(batch.id);
-      setRawRows(rows.slice(0, 50));
+      const validated = validateRows(rows.slice(0, 50));
+      setRawRows(validated);
       setStep('raw_preview');
     } catch (err) {
       setError(err.message || 'File could not be read');
     }
     setLoading(false);
+  };
+
+  const validateRows = (rows) => {
+    return rows.map((row, idx) => {
+      const issues = [];
+      if (!row || row.length === 0) issues.push('Empty row');
+      if (!row[0] || !String(row[0]).trim()) issues.push('Missing employee name');
+      if (!row[1] || !String(row[1]).trim()) issues.push('Missing date');
+      if (!row[2] || !String(row[2]).trim()) issues.push('Missing start time');
+      if (!row[3] || !String(row[3]).trim()) issues.push('Missing end time');
+      return { row, issues };
+    });
   };
 
   const detectFormat = () => {
@@ -171,15 +184,23 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
         {step === 'raw_preview' && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">First 50 rows from {fileName}</p>
-            <div className="bg-card border border-border rounded-lg overflow-x-auto">
+            {rawRows.some(r => r.issues.length > 0) && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">
+                <p className="text-[10px] text-amber-300">⚠ {rawRows.filter(r => r.issues.length > 0).length} row(s) have validation issues</p>
+              </div>
+            )}
+            <div className="bg-card border border-border rounded-lg overflow-x-auto max-h-64 overflow-y-auto">
               <table className="w-full text-[10px]">
                 <tbody>
-                  {rawRows.slice(0, 20).map((row, idx) => (
-                    <tr key={idx} className="border-b border-border">
+                  {rawRows.slice(0, 20).map((item, idx) => (
+                    <tr key={idx} className={`border-b border-border ${item.issues.length > 0 ? 'bg-red-500/5' : ''}`}>
                       <td className="px-2 py-1 bg-muted/30 text-muted-foreground font-bold w-12">{idx + 1}</td>
-                      {row.slice(0, 8).map((cell, cidx) => (
+                      {item.row.slice(0, 8).map((cell, cidx) => (
                         <td key={cidx} className="px-2 py-1 text-foreground truncate max-w-xs">{cell}</td>
                       ))}
+                      {item.issues.length > 0 && (
+                        <td className="px-2 py-1 text-red-400 text-[9px] font-bold">{item.issues[0]}</td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
