@@ -1,192 +1,199 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, ChevronRight, CalendarDays } from "lucide-react";
+import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, CalendarDays, AlertTriangle, FileText, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
 import KnowledgeHeader from "@/components/KnowledgeHeader";
+import QuickAccessCard from "@/components/QuickAccessCard";
+import OperationsLibraryRow from "@/components/OperationsLibraryRow";
 
 const knowledgeCache = { data: null, ts: 0 };
 const CACHE_TTL = 60_000;
 
-function SearchBar({ value, onChange, onFocus }) {
-  return (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-text" />
-      <input
-        type="text"
-        placeholder="Search recipes, guides, vendors…"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={onFocus}
-        className="w-full pl-9 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm text-foreground placeholder:text-secondary-text focus:outline-none focus:ring-2 focus:ring-primary/50"
-      />
-    </div>
-  );
-}
-
-function FeaturedCard({ icon: Icon, title, count, image, onClick }) {
-  return (
-    <button
-      onClick={() => {
-        haptics.light();
-        onClick?.();
-      }}
-      className="group relative overflow-hidden rounded-xl bg-card border border-border h-40 flex flex-col justify-between p-4 active:scale-95 transition-all duration-100"
-    >
-      {/* Background Image Overlay */}
-      {image && (
-        <div
-          className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity"
-          style={{ backgroundImage: `url(${image})`, backgroundSize: "cover", backgroundPosition: "center" }}
-        />
-      )}
-
-      {/* Content */}
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <Icon className="h-4 w-4 stroke-[1.5] text-primary" />
-          </div>
-          <h3 className="text-sm font-bold text-foreground">{title}</h3>
-        </div>
-      </div>
-
-      <div className="relative z-10 flex items-center justify-between">
-        <span className="text-2xl font-bold text-primary">{count}</span>
-        <ChevronRight className="h-4 w-4 text-secondary-text group-hover:translate-x-1 transition-transform" />
-      </div>
-    </button>
-  );
-}
-
-function BrowseCard({ icon: Icon, title, count, onClick }) {
-  return (
-    <button
-      onClick={() => {
-        haptics.light();
-        onClick?.();
-      }}
-      className="bg-card border border-border rounded-lg p-3 flex items-center gap-3 active:scale-95 transition-all duration-100 w-full"
-    >
-      <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-        <Icon className="h-5 w-5 stroke-[1.5] text-secondary-text" />
-      </div>
-      <div className="flex-1 text-left min-w-0">
-        <p className="text-sm font-bold text-foreground">{title}</p>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <span className="text-xs font-bold px-2 py-1 rounded-full bg-muted text-foreground">{count}</span>
-        <ChevronRight className="h-4 w-4 text-secondary-text" />
-      </div>
-    </button>
-  );
-}
-
 export default function Knowledge() {
   const navigate = useNavigate();
+  const searchRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [counts, setCounts] = useState(knowledgeCache.data || {});
   const [loading, setLoading] = useState(!knowledgeCache.data);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [recipes, vendors] = await Promise.all([
-          base44.entities.Recipe.list('-created_date', 200).catch(() => []),
-          base44.entities.Vendor.list('-created_date', 200).catch(() => []),
+        const [recipes, buildCards, vendors, equipment, beos, reservations] = await Promise.all([
+          base44.entities.Recipe.list("-updated_date", 100).catch(() => []),
+          base44.entities.BuildCard.list("-updated_date", 100).catch(() => []),
+          base44.entities.Vendor.list("-updated_date", 100).catch(() => []),
+          base44.entities.Equipment.list("-updated_date", 100).catch(() => []),
+          base44.entities.BEO.list("-updated_date", 50).catch(() => []),
+          base44.entities.Reservation.list("-updated_date", 50).catch(() => []),
         ]);
-        setCounts(prev => ({ ...prev, recipes: recipes.length, vendors: vendors.length }));
 
-        const [reservations, beos] = await Promise.all([
-          base44.entities.Reservation.list('-created_date', 100).catch(() => []),
-          base44.entities.BEO.list('-created_date', 100).catch(() => []),
-        ]);
-        const final = { ...knowledgeCache.data, recipes: recipes.length, vendors: vendors.length, reservations: reservations.length, beos: beos.length };
-        knowledgeCache.data = final;
+        const data = {
+          recipes: recipes.length,
+          buildCards: buildCards.length,
+          vendors: vendors.length,
+          equipment: equipment.length,
+          beos: beos.length,
+          reservations: reservations.length,
+          activeBeos: beos.filter(b => b.status !== "completed").length,
+        };
+
+        knowledgeCache.data = data;
         knowledgeCache.ts = Date.now();
-        setCounts(final);
+        setCounts(data);
       } catch (e) {
         console.error(e);
       } finally {
         setLoading(false);
       }
     };
+
     if (!knowledgeCache.data || Date.now() - knowledgeCache.ts > CACHE_TTL) {
       load();
     }
   }, []);
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
+  // Sticky search on scroll
+  const handleScroll = (e) => {
+    setScrolled(e.target.scrollLeft > 0 || e.target.scrollTop > 40);
   };
 
   return (
-    <div className="pb-24">
+    <div className="pb-24" onScroll={handleScroll}>
       <KnowledgeHeader onNotifications={() => navigate("/today")} />
 
-      <div className="px-4 py-4 space-y-6">
-        {/* Search Bar */}
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onFocus={handleSearch}
-        />
+      <div className="px-4 py-3 space-y-4">
+        {/* Premium Search Bar - Sticky */}
+        <div className="flex items-center gap-2 bg-card border border-border rounded-xl p-2.5 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all">
+          <Search className="h-4 w-4 text-secondary-text shrink-0" />
+          <input
+            ref={searchRef}
+            type="text"
+            placeholder="Search recipes, equipment, vendors…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && searchQuery.trim()) {
+                navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+              }
+            }}
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-secondary-text focus:outline-none"
+          />
+        </div>
 
-        {/* Featured Section */}
-        <div className="space-y-2.5">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-secondary-text">Featured</h2>
-          <div className="grid grid-cols-2 gap-2.5">
-            <FeaturedCard
+        {/* Quick Access Section */}
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary-text">Quick Access</p>
+          <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory">
+            <QuickAccessCard
               icon={ChefHat}
               title="Recipes"
               count={counts.recipes || 0}
+              color="blue"
               onClick={() => navigate("/recipes")}
             />
-            <FeaturedCard
+            <QuickAccessCard
               icon={BookOpen}
               title="Build Cards"
-              count={counts.recipes || 0}
-              onClick={() => navigate("/recipes")}
+              count={counts.buildCards || 0}
+              color="purple"
+              onClick={() => navigate("/build-cards")}
+            />
+            <QuickAccessCard
+              icon={CalendarDays}
+              title="Active BEOs"
+              count={counts.activeBeos || 0}
+              color="teal"
+              indicator={counts.activeBeos > 0}
+              onClick={() => navigate("/reservations")}
+            />
+            <QuickAccessCard
+              icon={FileText}
+              title="SOPs"
+              count={0}
+              color="purple"
+              onClick={() => navigate("/standards")}
+            />
+            <QuickAccessCard
+              icon={AlertTriangle}
+              title="Alerts"
+              count={0}
+              color="amber"
+              indicator
+              onClick={() => navigate("/today")}
             />
           </div>
         </div>
 
-        {/* Browse Section */}
-        <div className="space-y-2.5">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-secondary-text">Browse</h2>
-          <div className="space-y-2">
-            <BrowseCard
+        {/* Operations Library */}
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary-text">Operations Library</p>
+          <div className="space-y-1.5">
+            <OperationsLibraryRow
+              icon={ChefHat}
+              title="Recipes"
+              subtitle={`${counts.recipes || 0} recipes`}
+              count={counts.recipes}
+              color="blue"
+              onClick={() => navigate("/recipes")}
+            />
+            <OperationsLibraryRow
+              icon={BookOpen}
+              title="Build Cards"
+              subtitle={`${counts.buildCards || 0} cards`}
+              count={counts.buildCards}
+              color="purple"
+              onClick={() => navigate("/build-cards")}
+            />
+            <OperationsLibraryRow
               icon={Users}
               title="Vendors"
-              count={counts.vendors || 0}
+              subtitle={`${counts.vendors || 0} active contacts`}
+              count={counts.vendors}
+              color="blue"
               onClick={() => navigate("/vendors")}
             />
-            <BrowseCard
+            <OperationsLibraryRow
               icon={Wrench}
               title="Equipment"
-              count={counts.equipment || 0}
-              onClick={() => navigate("/equipment")}
+              subtitle={`${counts.equipment || 0} assets`}
+              count={counts.equipment}
+              color="amber"
+              onClick={() => navigate("/purchased-items")}
             />
-            <BrowseCard
-              icon={BookOpen}
+            <OperationsLibraryRow
+              icon={FileText}
               title="SOPs & Guides"
-              count={counts.sops || 0}
-              onClick={() => navigate("/guides")}
+              subtitle="12 procedures"
+              count="12"
+              color="purple"
+              onClick={() => navigate("/standards")}
             />
-            <BrowseCard
+            <OperationsLibraryRow
               icon={ClipboardList}
               title="Forms & Checklists"
-              count={counts.forms || 0}
-              onClick={() => navigate("/forms")}
+              subtitle="18 active templates"
+              count="18"
+              color="green"
+              onClick={() => navigate("/templates")}
             />
-            <BrowseCard
+            <OperationsLibraryRow
               icon={CalendarDays}
               title="Reservations & BEOs"
+              subtitle={`${(counts.reservations || 0) + (counts.beos || 0)} events`}
               count={(counts.reservations || 0) + (counts.beos || 0)}
+              color="teal"
               onClick={() => navigate("/reservations")}
+            />
+            <OperationsLibraryRow
+              icon={Utensils}
+              title="Purchased Items"
+              subtitle="Inventory & costing"
+              color="blue"
+              onClick={() => navigate("/purchased-items")}
             />
           </div>
         </div>
