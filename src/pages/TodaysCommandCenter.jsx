@@ -1,4 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
+// Module-level cache — survives re-mounts and navigation
+const cache = { data: null, ts: 0 };
+const CACHE_TTL = 30_000; // 30s before background refresh
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -204,8 +208,9 @@ export default function TodaysCommandCenter() {
   const { lastCompletedAction, recordAction, setActiveTab } = useUnifiedState();
   const { currentShift, markSetupComplete } = useShiftMode();
   const { isAdmin } = useCurrentUser();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(cache.data);
+  const [loading, setLoading] = useState(!cache.data);
+  const isMounted = useRef(true);
   const [showStartModal, setShowStartModal] = useState(false);
   const [showCloseModal, setShowCloseModal] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
@@ -213,6 +218,15 @@ export default function TodaysCommandCenter() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
+    isMounted.current = true;
+    const set = (updater) => { if (isMounted.current) setData(updater); };
+
+    // If fresh cache exists, skip loading state entirely
+    const cacheAge = Date.now() - cache.ts;
+    if (cache.data && cacheAge < CACHE_TTL) {
+      setLoading(false);
+    }
+
     // Fast primary load — core task data only
     const loadPrimary = async () => {
       try {
@@ -241,18 +255,21 @@ export default function TodaysCommandCenter() {
         const completedTasks = prepItems.filter(i => ["completed", "approved"].includes(i.status)).length + sideWork.filter(t => ["completed", "approved"].includes(t.status)).length;
         const completionPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-        setData(prev => ({
-          ...(prev || {}),
+        const next = {
+          ...(cache.data || {}),
           overdue,
           dueSoon,
           completed,
           completionPct,
           needsReview: issues.filter(i => i.status === "open").length,
-        }));
+        };
+        cache.data = next;
+        cache.ts = Date.now();
+        set(() => next);
       } catch (e) {
         console.error(e);
       } finally {
-        setLoading(false);
+        if (isMounted.current) setLoading(false);
       }
     };
 
@@ -265,15 +282,20 @@ export default function TodaysCommandCenter() {
           base44.entities.RefrigeratorFreezerLog.filter({ date: todayStr }).catch(() => []),
           base44.entities.HotHoldingLog.filter({ date: todayStr }).catch(() => []),
         ]);
-        setData(prev => prev ? ({
-          ...prev,
-          latestHandoff: handoffs?.[0],
-          tempSafety: {
-            cooling: { total: coolingLogs.length, failed: coolingLogs.filter(l => ['failed','corrective_action_required'].includes(l.status)).length },
-            refrig: { total: refrigLogs.length, outOfRange: refrigLogs.filter(l => l.isOutOfRange).length },
-            hot: { total: hotLogs.length, outOfRange: hotLogs.filter(l => l.isOutOfRange).length },
-          },
-        }) : prev);
+        set(prev => {
+          if (!prev) return prev;
+          const next = {
+            ...prev,
+            latestHandoff: handoffs?.[0],
+            tempSafety: {
+              cooling: { total: coolingLogs.length, failed: coolingLogs.filter(l => ['failed','corrective_action_required'].includes(l.status)).length },
+              refrig: { total: refrigLogs.length, outOfRange: refrigLogs.filter(l => l.isOutOfRange).length },
+              hot: { total: hotLogs.length, outOfRange: hotLogs.filter(l => l.isOutOfRange).length },
+            },
+          };
+          cache.data = next;
+          return next;
+        });
       } catch (e) {
         console.error(e);
       }
@@ -293,7 +315,10 @@ export default function TodaysCommandCenter() {
       }),
     ];
 
-    return () => unsubscribers.forEach(u => u?.());
+    return () => {
+      isMounted.current = false;
+      unsubscribers.forEach(u => u?.());
+    };
   }, [todayStr]);
 
   useEffect(() => {
