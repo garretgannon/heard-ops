@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import {
   Building2, MapPin, Users, Wrench, QrCode, LayoutTemplate,
-  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Package
+  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Package, Calendar, Upload
 } from 'lucide-react';
 import SetupProgressCard from '@/components/myrestaurant/SetupProgressCard';
 import SectionCard from '@/components/myrestaurant/SectionCard';
@@ -621,6 +621,14 @@ export default function MyRestaurant() {
         <div className="space-y-2">
           <SectionCard icon={Users} title="Team Directory" description="View and manage your team members" onClick={() => navigate('/team')} />
           <SectionCard icon={Shield} title="Job Code Assignments" description="Assign job codes to stations" onClick={() => navigate('/job-codes')} />
+        </div>
+      </div>
+
+      <div className="mb-5">
+        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Operations</p>
+        <div className="space-y-2">
+          <SectionCard icon={Calendar} title="Schedule Center" description="View and manage employee shifts" onClick={() => navigate('/schedule')} />
+          <SectionCard icon={Upload} title="Schedule Import" description="Bulk import shifts from CSV, Excel, or PDF" onClick={() => navigate('/schedule-import')} />
         </div>
       </div>
 
