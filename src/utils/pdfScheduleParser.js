@@ -50,15 +50,22 @@ export function parsePDFScheduleData(text) {
       nameSection = line.substring(0, timeIndex).trim();
     }
 
-    // Clean up and extract name (look for capitalized words)
+    // Clean up and extract name
     if (nameSection) {
       const roleKeywords = ['FOH', 'BOH', 'Host', 'Server', 'Chef', 'Manager', 'Busser', 'Bartender'];
       let cleanName = nameSection;
+      
+      // Remove role keywords
       for (const keyword of roleKeywords) {
         cleanName = cleanName.replace(new RegExp(keyword, 'gi'), '').trim();
       }
-      const nameMatch = cleanName.match(/([A-Z][a-z]*(?:\s+[A-Z][a-z]*)*)/);
-      if (nameMatch) {
+      
+      // Remove leading/trailing numbers, punctuation, and extra whitespace
+      cleanName = cleanName.replace(/^[\d\s\-.,;:()\[\]{}]+/, '').replace(/[\d\s\-.,;:()\[\]{}]+$/, '').trim();
+      
+      // Extract capitalized name pattern (First Last, or longer names)
+      const nameMatch = cleanName.match(/^([A-Z][a-z]*(?:\s+[A-Z][a-z]*)*)/);
+      if (nameMatch && nameMatch[0].length > 2) {
         entry.employee_name = nameMatch[0].trim();
       }
     }
