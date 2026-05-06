@@ -61,7 +61,7 @@ function StatItem({ icon: Icon, label, value, color }) {
     <div className="flex flex-col items-center gap-1">
       <Icon className={cn("h-5 w-5", color)} />
       <p className={cn("text-2xl font-bold", color)}>{value}</p>
-      <p className="text-[9px] text-secondary-text font-semibold uppercase">{label}</p>
+      <p className="text-[9px] text-secondary-text font-semibold uppercase text-center leading-tight whitespace-nowrap">{label}</p>
     </div>
   );
 }
