@@ -4,602 +4,468 @@ import { useToast } from "@/hooks/useToast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { X } from "lucide-react";
 
-function QuickLogModal({ isOpen, onClose, onSuccess }) {
-  const toast = useToast();
-  const { user } = useCurrentUser();
-  const [submitting, setSubmitting] = useState(false);
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("shift_note");
-  const [notes, setNotes] = useState("");
-
-  const handleSubmit = async () => {
-    if (!title.trim()) {
-      toast("Title is required");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      await base44.entities.ManagerLog.create({
-        title: title.trim(),
-        category,
-        shift: "morning",
-        notes: notes.trim(),
-        logged_by: user?.email,
-        logged_by_name: user?.full_name,
-        status: "open",
-      });
-      toast("Log entry saved");
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      toast("Failed to save log");
-      console.error(error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
+/* ── Shared shell ─────────────────────────────────────── */
+function ModalShell({ title, onClose, children, footer }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
-      <div className="w-full sm:max-w-lg bg-card rounded-t-3xl sm:rounded-3xl border border-border flex flex-col max-h-[90dvh]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70">
+      <div className="w-full sm:max-w-lg bg-card rounded-t-3xl sm:rounded-3xl border border-border flex flex-col max-h-[92dvh]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
-          <h2 className="text-lg font-bold">Quick Log Entry</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-            <X className="h-5 w-5" />
+          <h2 className="text-base font-bold">{title}</h2>
+          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center active:scale-95">
+            <X className="h-4 w-4" />
           </button>
         </div>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter title..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="shift_note">Shift Note</option>
-              <option value="incident">Incident</option>
-              <option value="guest_issue">Guest Issue</option>
-              <option value="team_note">Team Note</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Notes</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add details..."
-              rows={4}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 px-5 py-3 border-t border-border flex-shrink-0">
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !title.trim()}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40"
-          >
-            {submitting ? "Saving..." : "Save Entry"}
-          </button>
-          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold">
-            Cancel
-          </button>
-        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">{children}</div>
+        <div className="flex flex-col gap-2 px-5 py-4 border-t border-border flex-shrink-0">{footer}</div>
       </div>
     </div>
   );
 }
 
+function Field({ label, children }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const inputCls = "w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary";
+
+/* ── 1. Manager Log ───────────────────────────────────── */
+function ManagerLogModal({ isOpen, onClose, onSuccess }) {
+  const toast = useToast();
+  const { user } = useCurrentUser();
+  const [submitting, setSubmitting] = useState(false);
+  const [title, setTitle] = useState("");
+  const [shift, setShift] = useState("AM");
+  const [category, setCategory] = useState("General");
+  const [notes, setNotes] = useState("");
+
+  const reset = () => { setTitle(""); setShift("AM"); setCategory("General"); setNotes(""); };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    await base44.entities.ManagerLog.create({
+      title: title.trim(),
+      shift,
+      category,
+      notes: notes.trim(),
+      logged_by: user?.email,
+      logged_by_name: user?.full_name,
+      status: "open",
+      priority: "medium",
+    });
+    toast("Manager log saved");
+    onSuccess?.();
+    reset();
+    onClose();
+    setSubmitting(false);
+  };
+
+  if (!isOpen) return null;
+  return (
+    <ModalShell
+      title="Manager Log"
+      onClose={onClose}
+      footer={
+        <>
+          <button onClick={handleSubmit} disabled={submitting || !title.trim()} className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40 active:scale-95 transition-all">
+            {submitting ? "Saving..." : "Save Log"}
+          </button>
+          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold text-sm active:scale-95">Cancel</button>
+        </>
+      }
+    >
+      <Field label="Title *">
+        <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="What happened?" className={inputCls} autoFocus />
+      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Shift">
+          <select value={shift} onChange={e => setShift(e.target.value)} className={inputCls}>
+            <option>AM</option>
+            <option>PM</option>
+            <option>Mid</option>
+            <option>Closing</option>
+          </select>
+        </Field>
+        <Field label="Category">
+          <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
+            <option>General</option>
+            <option>Staffing</option>
+            <option>Guest Issue</option>
+            <option>Maintenance</option>
+            <option>Food Quality</option>
+            <option>86 Item</option>
+            <option>Incident</option>
+          </select>
+        </Field>
+      </div>
+      <Field label="Notes">
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add details..." rows={4} className={inputCls + " resize-none"} />
+      </Field>
+    </ModalShell>
+  );
+}
+
+/* ── 2. Add Task ──────────────────────────────────────── */
 function AddTaskModal({ isOpen, onClose, onSuccess }) {
   const toast = useToast();
   const { user } = useCurrentUser();
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState("");
+  const [taskType, setTaskType] = useState("Side Work");
   const [station, setStation] = useState("");
-  const [dueTime, setDueTime] = useState("");
   const [priority, setPriority] = useState("medium");
+  const [dueTime, setDueTime] = useState("");
   const [notes, setNotes] = useState("");
 
+  const reset = () => { setTitle(""); setTaskType("Side Work"); setStation(""); setPriority("medium"); setDueTime(""); setNotes(""); };
+
   const handleSubmit = async () => {
-    if (!title.trim() || !station.trim()) {
-      toast("Title and station are required");
-      return;
-    }
     setSubmitting(true);
-    try {
-      await base44.entities.Task.create({
-        title: title.trim(),
-        station_id: station,
-        station_name: station,
-        location_id: "default",
-        shift_id: "current",
+    const todayStr = new Date().toISOString().split("T")[0];
+    if (taskType === "Side Work") {
+      await base44.entities.SideWorkAssignment.create({
+        task_name: title.trim(),
+        role: station || "General",
+        date: todayStr,
+        due_time: dueTime,
+        priority,
+        completion_notes: notes.trim(),
+        status: "pending",
         assigned_to_email: user?.email,
         assigned_to_name: user?.full_name,
+      });
+    } else if (taskType === "Prep") {
+      await base44.entities.PrepItem.create({
+        name: title.trim(),
+        station_name: station || "Prep",
+        status: "pending",
+        priority,
+        notes: notes.trim(),
+        prep_list_id: "current",
+        quantity: "1",
+      });
+    } else {
+      await base44.entities.Task.create({
+        title: title.trim(),
+        station_name: station,
         due_time: dueTime,
         priority,
         notes: notes.trim(),
         status: "pending",
+        task_type: taskType,
+        assigned_to_email: user?.email,
+        assigned_to_name: user?.full_name,
       });
-      toast("Task created");
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      toast("Failed to create task");
-      console.error(error);
-    } finally {
-      setSubmitting(false);
     }
+    toast("Task added");
+    onSuccess?.();
+    reset();
+    onClose();
+    setSubmitting(false);
   };
 
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
-      <div className="w-full sm:max-w-lg bg-card rounded-t-3xl sm:rounded-3xl border border-border flex flex-col max-h-[90dvh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
-          <h2 className="text-lg font-bold">Add Task</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-            <X className="h-5 w-5" />
+    <ModalShell
+      title="Add Task"
+      onClose={onClose}
+      footer={
+        <>
+          <button onClick={handleSubmit} disabled={submitting || !title.trim()} className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40 active:scale-95 transition-all">
+            {submitting ? "Adding..." : "Add Task"}
           </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Title *</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Task title..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Station *</label>
-            <input
-              type="text"
-              value={station}
-              onChange={(e) => setStation(e.target.value)}
-              placeholder="e.g., Line 1, Prep..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Due Time</label>
-            <input
-              type="time"
-              value={dueTime}
-              onChange={(e) => setDueTime(e.target.value)}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Priority</label>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Notes</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Additional details..."
-              rows={3}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 px-5 py-3 border-t border-border flex-shrink-0">
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !title.trim() || !station.trim()}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40"
-          >
-            {submitting ? "Creating..." : "Create Task"}
-          </button>
-          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold">
-            Cancel
-          </button>
-        </div>
+          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold text-sm active:scale-95">Cancel</button>
+        </>
+      }
+    >
+      <Field label="Task Name *">
+        <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="What needs to be done?" className={inputCls} autoFocus />
+      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Type">
+          <select value={taskType} onChange={e => setTaskType(e.target.value)} className={inputCls}>
+            <option>Side Work</option>
+            <option>Prep</option>
+            <option>Cleaning</option>
+            <option>Maintenance</option>
+            <option>Admin</option>
+            <option>Food Safety</option>
+          </select>
+        </Field>
+        <Field label="Priority">
+          <select value={priority} onChange={e => setPriority(e.target.value)} className={inputCls}>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </Field>
       </div>
-    </div>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Station / Role">
+          <input type="text" value={station} onChange={e => setStation(e.target.value)} placeholder="e.g., Line, FOH..." className={inputCls} />
+        </Field>
+        <Field label="Due Time">
+          <input type="time" value={dueTime} onChange={e => setDueTime(e.target.value)} className={inputCls} />
+        </Field>
+      </div>
+      <Field label="Notes">
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional details..." rows={3} className={inputCls + " resize-none"} />
+      </Field>
+    </ModalShell>
   );
 }
 
-function Add86Modal({ isOpen, onClose, onSuccess }) {
-  const toast = useToast();
-  const { user } = useCurrentUser();
-  const [submitting, setSubmitting] = useState(false);
-  const [itemName, setItemName] = useState("");
-  const [reason, setReason] = useState("86d");
-  const [quantity, setQuantity] = useState("");
-  const [notes, setNotes] = useState("");
-
-  const handleSubmit = async () => {
-    if (!itemName.trim()) {
-      toast("Item name is required");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      await base44.entities.EightySixItem.create({
-        item_name: itemName.trim(),
-        reason,
-        quantity: quantity ? parseInt(quantity) : 1,
-        notes: notes.trim(),
-        marked_by: user?.email,
-        marked_at: new Date().toISOString(),
-        is_active: true,
-      });
-      toast("Item logged");
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      toast("Failed to log item");
-      console.error(error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
-      <div className="w-full sm:max-w-lg bg-card rounded-t-3xl sm:rounded-3xl border border-border flex flex-col max-h-[90dvh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
-          <h2 className="text-lg font-bold">86 / Waste Item</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Item Name *</label>
-            <input
-              type="text"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-              placeholder="e.g., Ribeye steak..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Reason</label>
-            <select
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="86d">86'd</option>
-              <option value="waste">Wasted</option>
-              <option value="low_stock">Low Stock</option>
-              <option value="unavailable">Unavailable</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Quantity</label>
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="1"
-              min="1"
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Notes</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Details..."
-              rows={3}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 px-5 py-3 border-t border-border flex-shrink-0">
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !itemName.trim()}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40"
-          >
-            {submitting ? "Logging..." : "Log Item"}
-          </button>
-          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold">
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AddPrepModal({ isOpen, onClose, onSuccess }) {
+/* ── 3. Update Prep ───────────────────────────────────── */
+function UpdatePrepModal({ isOpen, onClose, onSuccess }) {
   const toast = useToast();
   const { user } = useCurrentUser();
   const [submitting, setSubmitting] = useState(false);
   const [itemName, setItemName] = useState("");
   const [station, setStation] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [unit, setUnit] = useState("");
   const [dueTime, setDueTime] = useState("");
   const [notes, setNotes] = useState("");
 
+  const reset = () => { setItemName(""); setStation(""); setQuantity(""); setUnit(""); setDueTime(""); setNotes(""); };
+
   const handleSubmit = async () => {
-    if (!itemName.trim() || !station.trim()) {
-      toast("Item name and station are required");
-      return;
-    }
     setSubmitting(true);
-    try {
-      await base44.entities.PrepItem.create({
-        name: itemName.trim(),
-        station_id: station,
-        station_name: station,
-        prep_list_id: "current",
-        quantity: quantity || "1",
-        status: "pending",
-        priority: "medium",
-        completed_by: user?.email,
-        notes: notes.trim(),
-      });
-      toast("Prep item added");
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      toast("Failed to add prep item");
-      console.error(error);
-    } finally {
-      setSubmitting(false);
-    }
+    await base44.entities.PrepItem.create({
+      name: itemName.trim(),
+      station_name: station || "Prep",
+      quantity: quantity || "1",
+      unit: unit || "",
+      due_time: dueTime,
+      notes: notes.trim(),
+      status: "pending",
+      priority: "medium",
+      prep_list_id: "current",
+    });
+    toast("Prep updated");
+    onSuccess?.();
+    reset();
+    onClose();
+    setSubmitting(false);
   };
 
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
-      <div className="w-full sm:max-w-lg bg-card rounded-t-3xl sm:rounded-3xl border border-border flex flex-col max-h-[90dvh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
-          <h2 className="text-lg font-bold">Add Prep Item</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-            <X className="h-5 w-5" />
+    <ModalShell
+      title="Update Prep"
+      onClose={onClose}
+      footer={
+        <>
+          <button onClick={handleSubmit} disabled={submitting || !itemName.trim()} className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40 active:scale-95 transition-all">
+            {submitting ? "Saving..." : "Save Prep Item"}
           </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Item Name *</label>
-            <input
-              type="text"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-              placeholder="e.g., Diced onions..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Station *</label>
-            <input
-              type="text"
-              value={station}
-              onChange={(e) => setStation(e.target.value)}
-              placeholder="e.g., Prep Station 1..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Quantity</label>
-            <input
-              type="text"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="e.g., 5 lbs, 10 servings..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Due Time</label>
-            <input
-              type="time"
-              value={dueTime}
-              onChange={(e) => setDueTime(e.target.value)}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Notes</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Details..."
-              rows={3}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 px-5 py-3 border-t border-border flex-shrink-0">
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !itemName.trim() || !station.trim()}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40"
-          >
-            {submitting ? "Adding..." : "Add Item"}
-          </button>
-          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold">
-            Cancel
-          </button>
-        </div>
+          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold text-sm active:scale-95">Cancel</button>
+        </>
+      }
+    >
+      <Field label="Item Name *">
+        <input type="text" value={itemName} onChange={e => setItemName(e.target.value)} placeholder="e.g., Diced onions..." className={inputCls} autoFocus />
+      </Field>
+      <Field label="Station">
+        <input type="text" value={station} onChange={e => setStation(e.target.value)} placeholder="e.g., Cold Prep, Sauté..." className={inputCls} />
+      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Quantity">
+          <input type="text" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="Amount" className={inputCls} />
+        </Field>
+        <Field label="Unit">
+          <input type="text" value={unit} onChange={e => setUnit(e.target.value)} placeholder="lbs, ea, qt..." className={inputCls} />
+        </Field>
       </div>
-    </div>
+      <Field label="Due Time">
+        <input type="time" value={dueTime} onChange={e => setDueTime(e.target.value)} className={inputCls} />
+      </Field>
+      <Field label="Notes">
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Special instructions..." rows={3} className={inputCls + " resize-none"} />
+      </Field>
+    </ModalShell>
   );
 }
 
-function AddMaintenanceModal({ isOpen, onClose, onSuccess }) {
+/* ── 4. Log Waste ─────────────────────────────────────── */
+function LogWasteModal({ isOpen, onClose, onSuccess }) {
+  const toast = useToast();
+  const { user } = useCurrentUser();
+  const [submitting, setSubmitting] = useState(false);
+  const [itemName, setItemName] = useState("");
+  const [reason, setReason] = useState("Expired");
+  const [quantity, setQuantity] = useState("");
+  const [unit, setUnit] = useState("");
+  const [estimatedCost, setEstimatedCost] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const reset = () => { setItemName(""); setReason("Expired"); setQuantity(""); setUnit(""); setEstimatedCost(""); setNotes(""); };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const todayStr = new Date().toISOString().split("T")[0];
+    const nowTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    await base44.entities.WasteEntry.create({
+      itemName: itemName.trim(),
+      reason,
+      quantity: quantity ? parseFloat(quantity) : null,
+      unit: unit || "",
+      estimatedCost: estimatedCost ? parseFloat(estimatedCost) : null,
+      notes: notes.trim(),
+      wastedBy: user?.full_name || user?.email,
+      wasteDate: todayStr,
+      wasteTime: nowTime,
+    });
+    toast("Waste logged");
+    onSuccess?.();
+    reset();
+    onClose();
+    setSubmitting(false);
+  };
+
+  if (!isOpen) return null;
+  return (
+    <ModalShell
+      title="Log Waste"
+      onClose={onClose}
+      footer={
+        <>
+          <button onClick={handleSubmit} disabled={submitting || !itemName.trim()} className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40 active:scale-95 transition-all">
+            {submitting ? "Logging..." : "Log Waste"}
+          </button>
+          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold text-sm active:scale-95">Cancel</button>
+        </>
+      }
+    >
+      <Field label="Item *">
+        <input type="text" value={itemName} onChange={e => setItemName(e.target.value)} placeholder="e.g., Ribeye steak..." className={inputCls} autoFocus />
+      </Field>
+      <Field label="Reason">
+        <select value={reason} onChange={e => setReason(e.target.value)} className={inputCls}>
+          <option>Expired</option>
+          <option>Overproduction</option>
+          <option>Dropped</option>
+          <option>Contaminated</option>
+          <option>Trimming/Prep</option>
+          <option>Temperature Abuse</option>
+          <option>Other</option>
+        </select>
+      </Field>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-2">
+          <Field label="Quantity">
+            <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="0" min="0" step="0.1" className={inputCls} />
+          </Field>
+        </div>
+        <Field label="Unit">
+          <input type="text" value={unit} onChange={e => setUnit(e.target.value)} placeholder="lbs" className={inputCls} />
+        </Field>
+      </div>
+      <Field label="Est. Cost ($)">
+        <input type="number" value={estimatedCost} onChange={e => setEstimatedCost(e.target.value)} placeholder="0.00" min="0" step="0.01" className={inputCls} />
+      </Field>
+      <Field label="Notes">
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Details..." rows={3} className={inputCls + " resize-none"} />
+      </Field>
+    </ModalShell>
+  );
+}
+
+/* ── 5. Report Issue ──────────────────────────────────── */
+function ReportIssueModal({ isOpen, onClose, onSuccess }) {
   const toast = useToast();
   const { user } = useCurrentUser();
   const [submitting, setSubmitting] = useState(false);
   const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("Equipment");
+  const [location, setLocation] = useState("");
   const [priority, setPriority] = useState("medium");
-  const [vendor, setVendor] = useState("");
-  const [notes, setNotes] = useState("");
+  const [description, setDescription] = useState("");
+
+  const reset = () => { setTitle(""); setCategory("Equipment"); setLocation(""); setPriority("medium"); setDescription(""); };
 
   const handleSubmit = async () => {
-    if (!title.trim()) {
-      toast("Title is required");
-      return;
-    }
     setSubmitting(true);
-    try {
-      await base44.entities.MaintenanceRequest.create({
-        title: title.trim(),
-        priority,
-        vendor_needed: !!vendor,
-        preferred_vendor: vendor || null,
-        description: notes.trim(),
-        status: "open",
-        created_by: user?.email,
-      });
-      toast("Maintenance issue created");
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      toast("Failed to create issue");
-      console.error(error);
-    } finally {
-      setSubmitting(false);
-    }
+    await base44.entities.Issue.create({
+      title: title.trim(),
+      category: category.toLowerCase().replace(/\//g, "_").replace(/ /g, "_"),
+      location: location.trim(),
+      priority,
+      description: description.trim(),
+      status: "open",
+      reported_by: user?.email,
+      created_by_email: user?.email,
+    });
+    toast("Issue reported");
+    onSuccess?.();
+    reset();
+    onClose();
+    setSubmitting(false);
   };
 
   if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60">
-      <div className="w-full sm:max-w-lg bg-card rounded-t-3xl sm:rounded-3xl border border-border flex flex-col max-h-[90dvh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border flex-shrink-0">
-          <h2 className="text-lg font-bold">Maintenance Issue</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-            <X className="h-5 w-5" />
+    <ModalShell
+      title="Report Issue"
+      onClose={onClose}
+      footer={
+        <>
+          <button onClick={handleSubmit} disabled={submitting || !title.trim()} className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40 active:scale-95 transition-all">
+            {submitting ? "Reporting..." : "Report Issue"}
           </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Title *</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Issue title..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Priority</label>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Vendor Needed</label>
-            <input
-              type="text"
-              value={vendor}
-              onChange={(e) => setVendor(e.target.value)}
-              placeholder="Vendor name (optional)..."
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-secondary-text uppercase">Description</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Describe the issue..."
-              rows={3}
-              className="w-full px-3 py-2.5 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 px-5 py-3 border-t border-border flex-shrink-0">
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !title.trim()}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40"
-          >
-            {submitting ? "Creating..." : "Create Issue"}
-          </button>
-          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold">
-            Cancel
-          </button>
-        </div>
+          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold text-sm active:scale-95">Cancel</button>
+        </>
+      }
+    >
+      <Field label="Issue Title *">
+        <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Brief description of the issue..." className={inputCls} autoFocus />
+      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Category">
+          <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
+            <option>Equipment</option>
+            <option>Maintenance</option>
+            <option>Food Safety</option>
+            <option>Guest</option>
+            <option>Staffing</option>
+            <option>Inventory</option>
+            <option>Tech/POS</option>
+            <option>Other</option>
+          </select>
+        </Field>
+        <Field label="Priority">
+          <select value={priority} onChange={e => setPriority(e.target.value)} className={inputCls}>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </Field>
       </div>
-    </div>
+      <Field label="Location / Station">
+        <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g., Walk-in, Bar, Line 2..." className={inputCls} />
+      </Field>
+      <Field label="Description">
+        <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="What happened? What needs to be fixed?" rows={4} className={inputCls + " resize-none"} />
+      </Field>
+    </ModalShell>
   );
 }
 
-export function QuickActionModals({
-  activeModal,
-  onCloseModal,
-  onSuccess,
-}) {
+/* ── Dispatcher ───────────────────────────────────────── */
+export function QuickActionModals({ activeModal, onCloseModal, onSuccess }) {
   return (
     <>
-      <QuickLogModal isOpen={activeModal === "quickLog"} onClose={onCloseModal} onSuccess={onSuccess} />
-      <AddTaskModal isOpen={activeModal === "addTask"} onClose={onCloseModal} onSuccess={onSuccess} />
-      <Add86Modal isOpen={activeModal === "add86"} onClose={onCloseModal} onSuccess={onSuccess} />
-      <AddPrepModal isOpen={activeModal === "addPrep"} onClose={onCloseModal} onSuccess={onSuccess} />
-      <AddMaintenanceModal isOpen={activeModal === "addMaintenance"} onClose={onCloseModal} onSuccess={onSuccess} />
+      <ManagerLogModal    isOpen={activeModal === "quick-log"}  onClose={onCloseModal} onSuccess={onSuccess} />
+      <AddTaskModal       isOpen={activeModal === "add-task"}   onClose={onCloseModal} onSuccess={onSuccess} />
+      <UpdatePrepModal    isOpen={activeModal === "add-prep"}   onClose={onCloseModal} onSuccess={onSuccess} />
+      <LogWasteModal      isOpen={activeModal === "add-waste"}  onClose={onCloseModal} onSuccess={onSuccess} />
+      <ReportIssueModal   isOpen={activeModal === "add-issue"}  onClose={onCloseModal} onSuccess={onSuccess} />
     </>
   );
 }
