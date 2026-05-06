@@ -2,107 +2,106 @@
   "name": "ScheduleImportBatch",
   "type": "object",
   "properties": {
-    "fileName": {
+    "file_name": {
       "type": "string",
       "title": "File Name"
     },
-    "source": {
+    "source_type": {
       "type": "string",
-      "title": "Source",
+      "title": "Source Type",
       "enum": [
         "r365",
-        "7shifts",
-        "hotschedules",
-        "homebase",
-        "toast",
         "csv",
-        "excel"
-      ],
-      "enumNames": [
-        "R365",
-        "7Shifts",
-        "HotSchedules",
-        "Homebase",
-        "Toast",
-        "CSV",
-        "Excel"
+        "xlsx",
+        "xls",
+        "pdf"
       ],
       "default": "csv"
     },
-    "weekStartDate": {
+    "week_start_date": {
       "type": "string",
       "format": "date",
       "title": "Week Start Date"
     },
-    "weekEndDate": {
+    "week_end_date": {
       "type": "string",
       "format": "date",
       "title": "Week End Date"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "title": "Uploaded By"
+    },
+    "uploaded_at": {
+      "type": "string",
+      "title": "Uploaded At"
     },
     "status": {
       "type": "string",
       "title": "Status",
       "enum": [
-        "uploading",
-        "mapping",
-        "validating",
-        "preview",
+        "raw_preview",
+        "format_detected",
+        "column_mapped",
+        "shifts_parsed",
+        "employee_matched",
         "confirmed",
         "importing",
         "complete",
         "failed"
       ],
-      "enumNames": [
-        "Uploading",
-        "Mapping",
-        "Validating",
-        "Preview",
-        "Confirmed",
-        "Importing",
-        "Complete",
-        "Failed"
-      ],
-      "default": "uploading"
+      "default": "raw_preview"
     },
-    "totalRows": {
+    "error_message": {
+      "type": "string",
+      "title": "Error Message"
+    },
+    "raw_row_count": {
       "type": "number",
-      "title": "Total Rows",
+      "title": "Raw Row Count",
       "default": 0
     },
-    "shiftsCreated": {
+    "detected_format": {
+      "type": "string",
+      "title": "Detected Format",
+      "enum": [
+        "weekly_grid",
+        "row_based",
+        "unknown"
+      ]
+    },
+    "column_mapping": {
+      "type": "string",
+      "title": "Column Mapping (JSON)"
+    },
+    "shifts_detected": {
+      "type": "number",
+      "title": "Shifts Detected",
+      "default": 0
+    },
+    "shifts_created": {
       "type": "number",
       "title": "Shifts Created",
       "default": 0
     },
-    "employeesCreated": {
-      "type": "number",
-      "title": "Employees Created",
-      "default": 0
-    },
-    "rowsSkipped": {
+    "rows_skipped": {
       "type": "number",
       "title": "Rows Skipped",
       "default": 0
     },
-    "rowsWithErrors": {
+    "rows_needing_review": {
+      "type": "number",
+      "title": "Rows Needing Review",
+      "default": 0
+    },
+    "rows_with_errors": {
       "type": "number",
       "title": "Rows With Errors",
       "default": 0
-    },
-    "uploadedBy": {
-      "type": "string",
-      "title": "Uploaded By"
-    },
-    "uploadedAt": {
-      "type": "string",
-      "title": "Uploaded At"
-    },
-    "notes": {
-      "type": "string",
-      "title": "Notes"
     }
   },
   "required": [
-    "fileName"
+    "file_name",
+    "source_type"
   ]
 }

@@ -5,7 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
 import { Upload, Calendar, History, ChevronRight } from 'lucide-react';
 import ScheduleImportFlow from '@/components/schedule/ScheduleImportFlow';
-import R365ImportFlow from '@/components/schedule/R365ImportFlow';
+import R365StagedImporter from '@/components/schedule/R365StagedImporter';
 
 export default function ScheduleImport() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function ScheduleImport() {
   }
 
   if (importType === 'r365') {
-    return <R365ImportFlow onClose={() => setImportType(null)} onComplete={handleImportComplete} user={user} />;
+    return <R365StagedImporter onClose={() => setImportType(null)} onComplete={handleImportComplete} user={user} />;
   }
 
   if (importType === 'csv') {
