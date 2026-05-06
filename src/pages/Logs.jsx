@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+const logsCache = { data: null, ts: 0 };
+const CACHE_TTL = 60_000;
 import { Thermometer, Droplet, AlertTriangle, FileText, Plus, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
@@ -79,12 +82,11 @@ function DateGroup({ date, children }) {
 
 export default function Logs() {
   const navigate = useNavigate();
-  const location = useLocation();
   const toast = useToast();
   const { recordAction } = useUnifiedState();
   const [currentTab, setCurrentTab] = useState("temps");
-  const [allLogs, setAllLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [allLogs, setAllLogs] = useState(logsCache.data || []);
+  const [loading, setLoading] = useState(!logsCache.data);
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -221,15 +223,20 @@ export default function Logs() {
           });
         });
 
-        setAllLogs(collected.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        const sorted = collected.sort((a, b) => new Date(b.date) - new Date(a.date));
+        logsCache.data = sorted;
+        logsCache.ts = Date.now();
+        setAllLogs(sorted);
       } catch (e) {
         console.error(e);
       } finally {
         setLoading(false);
       }
     };
-    load();
-  }, [location.key]);
+    if (!logsCache.data || Date.now() - logsCache.ts > CACHE_TTL) {
+      load();
+    }
+  }, []);
 
   // Client-side filter by tab — no reload needed
   const filtered = useMemo(() =>

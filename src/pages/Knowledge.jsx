@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+const knowledgeCache = { data: null, ts: 0 };
+const CACHE_TTL = 60_000;
 import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
@@ -82,10 +85,9 @@ function BrowseCard({ icon: Icon, title, count, onClick }) {
 
 export default function Knowledge() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [counts, setCounts] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [counts, setCounts] = useState(knowledgeCache.data || {});
+  const [loading, setLoading] = useState(!knowledgeCache.data);
 
   useEffect(() => {
     const load = async () => {
@@ -100,15 +102,20 @@ export default function Knowledge() {
           base44.entities.Reservation.list('-created_date', 100).catch(() => []),
           base44.entities.BEO.list('-created_date', 100).catch(() => []),
         ]);
-        setCounts(prev => ({ ...prev, reservations: reservations.length, beos: beos.length }));
+        const final = { ...knowledgeCache.data, recipes: recipes.length, vendors: vendors.length, reservations: reservations.length, beos: beos.length };
+        knowledgeCache.data = final;
+        knowledgeCache.ts = Date.now();
+        setCounts(final);
       } catch (e) {
         console.error(e);
       } finally {
         setLoading(false);
       }
     };
-    load();
-  }, [location.key]);
+    if (!knowledgeCache.data || Date.now() - knowledgeCache.ts > CACHE_TTL) {
+      load();
+    }
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
