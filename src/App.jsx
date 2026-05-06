@@ -55,6 +55,7 @@ import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
 import ScheduleImport from './pages/ScheduleImport';
 import AdminRoleSimulator from './pages/AdminRoleSimulator';
+import AdminCommandCenter from './pages/AdminCommandCenter';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -148,6 +149,7 @@ const AuthenticatedApp = () => {
         <Route path="/job-codes" element={<JobCodes />} />
         <Route path="/schedule-import" element={<ScheduleImport />} />
         <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
+        <Route path="/admin/command-center" element={<AdminCommandCenter />} />
 
         {/* OPERATIONS ROUTES */}
         <Route path="/issues" element={<IssueTracker />} />
