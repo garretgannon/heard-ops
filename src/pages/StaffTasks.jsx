@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate } from "react-router-dom";
@@ -112,8 +112,16 @@ export default function StaffTasks() {
 
   useEffect(() => {
     if (user?.email) load();
-    const unsub = base44.entities.PrepItem.subscribe(() => load());
-    return () => unsub?.();
+
+    let debounceTimer;
+    const unsub = base44.entities.PrepItem.subscribe(() => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => load(), 1500);
+    });
+    return () => {
+      unsub?.();
+      clearTimeout(debounceTimer);
+    };
   }, [user?.email, filter]);
 
   const handleCompleteTask = async (task) => {
@@ -130,7 +138,7 @@ export default function StaffTasks() {
     setActiveTab('/');
     setCompletingTask(prev => ({ ...prev, [task.id]: false }));
     setRemovingTask(prev => ({ ...prev, [task.id]: false }));
-    await load();
+    // subscribe will trigger a debounced reload
   };
 
   const handleSectionComplete = (station) => {
