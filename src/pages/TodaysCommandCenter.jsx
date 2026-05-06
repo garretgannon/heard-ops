@@ -213,84 +213,42 @@ export default function TodaysCommandCenter() {
   const todayStr = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    const load = async () => {
+    // Fast primary load — core task data only
+    const loadPrimary = async () => {
       try {
-        const [prepItems, sideWork, issues, handoffs, coolingLogs, refrigLogs, hotLogs] = await Promise.all([
+        const [prepItems, sideWork, issues] = await Promise.all([
           base44.entities.PrepItem.list("-updated_date", 100).catch(() => []),
           base44.entities.SideWorkAssignment.filter({ date: todayStr }).catch(() => []),
           base44.entities.Issue.filter({ status: "open" }).catch(() => []),
-          base44.entities.ShiftHandoff?.list("-created_date", 1).catch(() => []),
-          base44.entities.CoolingLog.filter({ date: todayStr }).catch(() => []),
-          base44.entities.RefrigeratorFreezerLog.filter({ date: todayStr }).catch(() => []),
-          base44.entities.HotHoldingLog.filter({ date: todayStr }).catch(() => []),
         ]);
 
         const overdue = [
-          ...prepItems.filter(i => i.status === "overdue").map(i => ({
-            type: "prep",
-            id: i.id,
-            title: i.name,
-            station: i.station_name,
-            assignee: i.completed_by,
-          })),
-          ...sideWork.filter(t => t.status === "overdue").map(t => ({
-            type: "sidework",
-            id: t.id,
-            title: t.task_name,
-            station: t.role,
-            assignee: t.assigned_to_name,
-          })),
+          ...prepItems.filter(i => i.status === "overdue").map(i => ({ type: "prep", id: i.id, title: i.name, station: i.station_name, assignee: i.completed_by })),
+          ...sideWork.filter(t => t.status === "overdue").map(t => ({ type: "sidework", id: t.id, title: t.task_name, station: t.role, assignee: t.assigned_to_name })),
         ];
 
         const dueSoon = [
-          ...prepItems.filter(i => i.status === "in_progress" && i.due_time).map(i => ({
-            type: "prep",
-            id: i.id,
-            title: i.name,
-            station: i.station_name,
-            assignee: i.completed_by,
-            progress: i.quantity ? Math.round(((i.completed_qty || 0) / i.quantity) * 100) : 0,
-          })),
-          ...sideWork.filter(t => ["pending", "in_progress"].includes(t.status)).map(t => ({
-            type: "sidework",
-            id: t.id,
-            title: t.task_name,
-            station: t.role,
-            assignee: t.assigned_to_name,
-            progress: 50,
-          })),
+          ...prepItems.filter(i => i.status === "in_progress" && i.due_time).map(i => ({ type: "prep", id: i.id, title: i.name, station: i.station_name, assignee: i.completed_by, progress: i.quantity ? Math.round(((i.completed_qty || 0) / i.quantity) * 100) : 0 })),
+          ...sideWork.filter(t => ["pending", "in_progress"].includes(t.status)).map(t => ({ type: "sidework", id: t.id, title: t.task_name, station: t.role, assignee: t.assigned_to_name, progress: 50 })),
         ];
 
         const completed = [
-          ...prepItems.filter(i => i.status === "approved").slice(-3).map(i => ({
-            title: i.name,
-            completedBy: i.approved_by,
-            completedAt: i.approved_at ? new Date(i.approved_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null,
-          })),
-          ...sideWork.filter(t => t.status === "approved").slice(-3).map(t => ({
-            title: t.task_name,
-            completedBy: t.approved_by,
-            completedAt: t.approved_at ? new Date(t.approved_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null,
-          })),
+          ...prepItems.filter(i => i.status === "approved").slice(-3).map(i => ({ title: i.name, completedBy: i.approved_by, completedAt: i.approved_at ? new Date(i.approved_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null })),
+          ...sideWork.filter(t => t.status === "approved").slice(-3).map(t => ({ title: t.task_name, completedBy: t.approved_by, completedAt: t.approved_at ? new Date(t.approved_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null })),
         ].slice(0, 3);
 
         const totalTasks = prepItems.length + sideWork.length;
         const completedTasks = prepItems.filter(i => ["completed", "approved"].includes(i.status)).length + sideWork.filter(t => ["completed", "approved"].includes(t.status)).length;
         const completionPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-        setData({
+        setData(prev => ({
+          ...(prev || {}),
           overdue,
           dueSoon,
           completed,
           completionPct,
           needsReview: issues.filter(i => i.status === "open").length,
-          latestHandoff: handoffs?.[0],
-          tempSafety: {
-            cooling: { total: coolingLogs.length, failed: coolingLogs.filter(l => ['failed','corrective_action_required'].includes(l.status)).length },
-            refrig: { total: refrigLogs.length, outOfRange: refrigLogs.filter(l => l.isOutOfRange).length },
-            hot: { total: hotLogs.length, outOfRange: hotLogs.filter(l => l.isOutOfRange).length },
-          },
-        });
+        }));
       } catch (e) {
         console.error(e);
       } finally {
@@ -298,17 +256,40 @@ export default function TodaysCommandCenter() {
       }
     };
 
-    load();
+    // Deferred secondary load — supplementary data
+    const loadSecondary = async () => {
+      try {
+        const [handoffs, coolingLogs, refrigLogs, hotLogs] = await Promise.all([
+          base44.entities.ShiftHandoff.list("-created_date", 1).catch(() => []),
+          base44.entities.CoolingLog.filter({ date: todayStr }).catch(() => []),
+          base44.entities.RefrigeratorFreezerLog.filter({ date: todayStr }).catch(() => []),
+          base44.entities.HotHoldingLog.filter({ date: todayStr }).catch(() => []),
+        ]);
+        setData(prev => prev ? ({
+          ...prev,
+          latestHandoff: handoffs?.[0],
+          tempSafety: {
+            cooling: { total: coolingLogs.length, failed: coolingLogs.filter(l => ['failed','corrective_action_required'].includes(l.status)).length },
+            refrig: { total: refrigLogs.length, outOfRange: refrigLogs.filter(l => l.isOutOfRange).length },
+            hot: { total: hotLogs.length, outOfRange: hotLogs.filter(l => l.isOutOfRange).length },
+          },
+        }) : prev);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    loadPrimary().then(() => loadSecondary());
 
     const unsubscribers = [
       base44.entities.PrepItem.subscribe((event) => {
-        if (["create", "update", "delete"].includes(event.type)) load();
+        if (["create", "update", "delete"].includes(event.type)) loadPrimary();
       }),
       base44.entities.SideWorkAssignment.subscribe((event) => {
-        if (["create", "update", "delete"].includes(event.type)) load();
+        if (["create", "update", "delete"].includes(event.type)) loadPrimary();
       }),
       base44.entities.Issue.subscribe((event) => {
-        if (["create", "update", "delete"].includes(event.type)) load();
+        if (["create", "update", "delete"].includes(event.type)) loadPrimary();
       }),
     ];
 
