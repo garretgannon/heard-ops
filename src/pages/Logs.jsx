@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle, FileText, Plus, Filter } from "lucide-react";
@@ -172,6 +172,8 @@ export default function Logs() {
   const [allLogs, setAllLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(Date.now());
+  const [pullRefresh, setPullRefresh] = useState(0);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     const load = async () => {
@@ -289,8 +291,61 @@ export default function Logs() {
     navigate(log.routePath, { state: { activeLogId: log.id } });
   };
 
+  const handleScroll = (e) => {
+    const scrollTop = e.target.scrollTop;
+    if (scrollTop <= 0) {
+      setPullRefresh(Math.min(100, Math.abs(scrollTop) * 0.5));
+    }
+  };
+  const handleTouchEnd = () => {
+    if (pullRefresh > 50) {
+      haptics.medium?.();
+      const load = async () => {
+        const collected = [];
+        const now = new Date();
+        const [tempLogs, wasteLogs, eightySixItems, cleaningTasks, prepTasks, sideWorkTasks, issues, managerLogs] = await Promise.all([
+          base44.entities.TemperatureLog.list("-logged_at", 50).catch(() => []),
+          base44.entities.WasteEntry.list("-created_date", 50).catch(() => []),
+          base44.entities.EightySixItem.list("-marked_at", 50).catch(() => []),
+          base44.entities.DailyCleaningTask.list("-created_date", 50).catch(() => []),
+          base44.entities.DailyPrepTask.list("-created_date", 50).catch(() => []),
+          base44.entities.DailySideWorkTask.list("-created_date", 50).catch(() => []),
+          base44.entities.Issue.list("-created_date", 50).catch(() => []),
+          base44.entities.ManagerLog.list("-created_date", 50).catch(() => []),
+        ]);
+        tempLogs.forEach(log => { const card = mapLogToCard(log, "temperature"); if (card) collected.push(card); });
+        wasteLogs.forEach(log => { const card = mapLogToCard(log, "waste"); if (card) collected.push(card); });
+        eightySixItems.forEach(log => { const card = mapLogToCard(log, "eighty_six"); if (card) collected.push(card); });
+        cleaningTasks.forEach(log => { const card = mapLogToCard(log, "cleaning"); if (card) collected.push(card); });
+        prepTasks.forEach(log => { const card = mapLogToCard(log, "prep"); if (card) collected.push(card); });
+        sideWorkTasks.forEach(log => { const card = mapLogToCard(log, "side_work"); if (card) collected.push(card); });
+        issues.forEach(log => { const card = mapLogToCard(log, "issue"); if (card) collected.push(card); });
+        managerLogs.forEach(log => { const card = mapLogToCard(log, "manager"); if (card) collected.push(card); });
+        const sorted = collected.sort((a, b) => { const priorityOrder = { critical: 0, high: 1, normal: 2 }; const aPriority = priorityOrder[a.priority] || 2; const bPriority = priorityOrder[b.priority] || 2; if (aPriority !== bPriority) return aPriority - bPriority; return new Date(b.lastUpdated) - new Date(a.lastUpdated); });
+        setAllLogs(sorted);
+        setLastUpdated(Date.now());
+      };
+      load();
+    }
+    setPullRefresh(0);
+  };
+
   return (
-    <div className="pb-24">
+    <div
+      ref={scrollRef}
+      onScroll={handleScroll}
+      onTouchEnd={handleTouchEnd}
+      className="pb-24 lg:overflow-auto"
+      style={{ maxHeight: 'calc(100vh - 52px)', overscrollBehavior: 'contain' }}
+    >
+      {pullRefresh > 0 && (
+        <div className="sticky top-0 z-30 flex items-center justify-center h-12 bg-primary/10">
+          <div
+            className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent transition-transform"
+            style={{ transform: `rotate(${pullRefresh * 3.6}deg)` }}
+          />
+        </div>
+      )}
       <LogsHeader onNotifications={() => navigate("/today")} />
       <ActiveLogsSummary stats={stats} />
 

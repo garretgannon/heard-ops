@@ -114,8 +114,8 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  html {
+    overscroll-behavior: none;
   }
   body {
     @apply bg-background text-foreground;
@@ -124,6 +124,13 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: hsl(var(--background));
+    overscroll-behavior: none;
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  button, nav, [role="navigation"] {
+    @apply select-none;
   }
   h1 {
     @apply font-bold;
@@ -135,7 +142,7 @@
     @apply font-semibold;
   }
   button {
-    @apply font-bold;
+    @apply font-bold select-none;
   }
   label {
     @apply font-semibold text-sm;
