@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
-import { Upload, Calendar, History } from 'lucide-react';
+import { Upload, Calendar, History, ChevronRight } from 'lucide-react';
 import ScheduleImportFlow from '@/components/schedule/ScheduleImportFlow';
 
 export default function ScheduleImport() {
+  const navigate = useNavigate();
   const { user, isAdmin } = useCurrentUser();
   const [showImport, setShowImport] = useState(false);
   const [batches, setBatches] = useState([]);
@@ -43,12 +45,20 @@ export default function ScheduleImport() {
       </div>
 
       <div className="px-4 py-4 space-y-3">
-        <button
-          onClick={() => { haptics.medium?.(); setShowImport(true); }}
-          className="w-full bg-primary text-primary-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
-        >
-          <Upload className="h-5 w-5" /> Import Schedule
-        </button>
+       <div className="flex gap-2">
+         <button
+           onClick={() => { haptics.medium?.(); setShowImport(true); }}
+           className="flex-1 bg-primary text-primary-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+         >
+           <Upload className="h-5 w-5" /> Import
+         </button>
+         <button
+           onClick={() => { haptics.light?.(); navigate('/schedule'); }}
+           className="flex-1 bg-card border border-border text-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+         >
+           <Calendar className="h-5 w-5" /> View
+         </button>
+       </div>
 
         {batches.length > 0 && (
           <>
