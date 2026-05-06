@@ -9,10 +9,10 @@ export default function LogsHeader({ onNotifications }) {
         <div className="flex items-center justify-between mb-3">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm hidden">
-              H
-            </div>
-            <span className="text-xs font-bold text-secondary-text hidden">HeardOS</span>
+            
+
+            
+            
           </div>
 
           {/* Notification Bell */}
