@@ -284,7 +284,7 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
   const okRows = previewRows.filter(r => r.issues.length === 0);
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <div className="fixed inset-0 bg-background z-[100] flex flex-col">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
         <button onClick={() => { haptics.light?.(); onClose?.(); }} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hover:bg-border">
