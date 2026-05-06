@@ -86,9 +86,17 @@ export default function ImportFlow({ onClose, onComplete, user }) {
 
   const handleFile = (file) => {
     if (!file) return;
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      alert('Please convert your Excel file to CSV format and upload again. Right-click the file > Export As > CSV.');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       const { headers, rows } = parseCSV(e.target.result);
+      if (headers.length < 2) {
+        alert(`Only detected ${headers.length} column(s). Make sure your file is comma-separated, tab-separated, or semicolon-separated CSV.`);
+        return;
+      }
       setHeaders(headers);
       setRawRows(rows);
       // Auto-map obvious columns
@@ -110,6 +118,10 @@ export default function ImportFlow({ onClose, onComplete, user }) {
 
   const handlePaste = () => {
     const { headers, rows } = parseCSV(pasteText);
+    if (headers.length < 2) {
+      alert(`Only detected ${headers.length} column(s). Make sure your data is properly delimited (comma, tab, or semicolon).`);
+      return;
+    }
     setHeaders(headers);
     setRawRows(rows);
     const autoMap = {};
