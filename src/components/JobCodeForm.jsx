@@ -23,6 +23,17 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
       return;
     }
     setSaving(true);
+    // Duplicate check
+    const existing = await base44.entities.JobCode.list();
+    const isDuplicate = existing.some(j =>
+      j.name.trim().toLowerCase() === formData.name.trim().toLowerCase() &&
+      j.id !== jobCode?.id
+    );
+    if (isDuplicate) {
+      alert(`A job code named "${formData.name.trim()}" already exists.`);
+      setSaving(false);
+      return;
+    }
     if (jobCode?.id) {
       await base44.entities.JobCode.update(jobCode.id, formData);
     } else {
