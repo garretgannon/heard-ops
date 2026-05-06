@@ -124,9 +124,9 @@ export default function JobCodes() {
       </button>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-          <div className="w-full bg-card rounded-t-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden">
+            <div className="bg-card border-b border-border p-4 flex items-center justify-between">
               <h2 className="font-bold text-foreground">{editingJobCode ? 'Edit Job Code' : 'Create Job Code'}</h2>
               <button onClick={() => { setShowForm(false); setEditingJobCode(null); }} className="text-secondary-text hover:text-foreground">✕</button>
             </div>
