@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { X, Upload, AlertTriangle, CheckCircle2, Calendar, Edit2 } from 'lucide-react';
+import { X, Upload, AlertTriangle, CheckCircle2, Calendar, Edit2, AlertCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import {
   detectLayout,
@@ -9,6 +9,8 @@ import {
   parseWeeklyGrid,
   parseRowBased,
   mapRole,
+  extractPDFText,
+  parsePDFScheduleText,
 } from '@/utils/r365Parser';
 
 function parseFile(file, callback) {
@@ -73,8 +75,28 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
     }).catch(() => {});
   }, []);
 
-  const handleFile = (file) => {
+  const handleFile = async (file) => {
     if (!file) return;
+
+    // Handle PDF separately
+    if (file.name.endsWith('.pdf')) {
+      try {
+        const text = await extractPDFText(file);
+        const { shifts, confidence } = parsePDFScheduleText(text);
+        if (shifts.length === 0) {
+          alert('Could not extract any shifts from PDF');
+          return;
+        }
+        setShifts(shifts);
+        setLayout('pdf');
+        setStep(confidence === 'low' ? 5 : 4); // Show warnings for low confidence
+      } catch (err) {
+        alert('PDF parsing failed: ' + err.message);
+      }
+      return;
+    }
+
+    // Handle CSV/Excel
     parseFile(file, (rows, error) => {
       if (error) { alert('Error reading file: ' + error); return; }
       setRawRows(rows);
@@ -231,7 +253,10 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
             <div className="text-center py-8 bg-card border-2 border-dashed border-border rounded-xl">
               <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm font-bold mb-1">Upload R365 Schedule Export</p>
-              <p className="text-xs text-muted-foreground mb-3">CSV, XLS, or XLSX</p>
+              <p className="text-xs text-muted-foreground mb-3">CSV, XLS, XLSX, or PDF</p>
+            </div>
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2">
+              <p className="text-[11px] text-blue-300">💡 PDF files will require manual review before importing.</p>
             </div>
           </div>
         )}
@@ -283,7 +308,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
                 <div key={role} className="bg-card border border-border rounded-lg p-2">
                   {mappingRole === role ? (
                     <div className="space-y-2">
-                      <p className="text-xs font-bold text-foreground">Map "{role}" to:</p>
+                      <p className="text-xs font-bold text-foreground">Found: "{role}"</p>
                       <select
                         autoFocus
                         value={mappingTo}
@@ -321,6 +346,15 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
 
         {step === 4 && (
           <div className="space-y-3">
+            {layout === 'pdf' && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex gap-2">
+                <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-bold text-amber-400">PDF requires manual review</p>
+                  <p className="text-[11px] text-amber-300">Verify all details before importing</p>
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-green-500/10 rounded-lg p-2 text-center">
                 <p className="text-lg font-bold text-green-400">{readyCount}</p>
@@ -338,24 +372,43 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
 
             <div className="space-y-1.5 max-h-64 overflow-y-auto">
               {shifts.slice(0, 50).map((shift, idx) => (
-                <div key={idx} className={`bg-card border rounded px-2 py-1.5 text-xs transition-all ${shift.status === 'error' ? 'border-red-500/30' : 'border-border'}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-foreground truncate">{shift.raw_employee_name}</p>
-                      <p className="text-muted-foreground truncate">{shift.shift_date} · {shift.parsed_start_time}-{shift.parsed_end_time}</p>
+                <div key={idx} className={`bg-card border rounded px-2 py-1.5 text-xs transition-all ${shift.status === 'error' ? 'border-red-500/30' : shift.status === 'warning' ? 'border-amber-500/30' : 'border-border'}`}>
+                  {editingIdx === idx ? (
+                    <div className="space-y-2">
+                      <input type="text" value={shift.raw_employee_name} onChange={e => { const ns = [...shifts]; ns[idx].raw_employee_name = e.target.value; setShifts(ns); }} placeholder="Employee" className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="date" value={shift.shift_date || ''} onChange={e => { const ns = [...shifts]; ns[idx].shift_date = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="text" value={shift.raw_role || ''} onChange={e => { const ns = [...shifts]; ns[idx].raw_role = e.target.value; setShifts(ns); }} placeholder="Role" className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="time" value={shift.parsed_start_time || ''} onChange={e => { const ns = [...shifts]; ns[idx].parsed_start_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="time" value={shift.parsed_end_time === 'CLOSE' ? '' : (shift.parsed_end_time || '')} onChange={e => { const ns = [...shifts]; ns[idx].parsed_end_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      </div>
+                      <button onClick={() => setEditingIdx(null)} className="w-full py-1 bg-primary text-primary-foreground rounded text-xs font-bold">Done</button>
                     </div>
-                    <div className="flex gap-1">
-                      <button onClick={() => setEditingIdx(idx)} className="p-1 hover:bg-muted rounded">
-                        <Edit2 className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                      {shift.status === 'error' ? (
-                        <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
-                      ) : (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0" />
-                      )}
-                    </div>
-                  </div>
-                  {shift.error_message && <p className="text-[10px] text-red-400 mt-1">{shift.error_message}</p>}
+                  ) : (
+                    <>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-foreground truncate">{shift.raw_employee_name}</p>
+                          <p className="text-muted-foreground truncate">{shift.shift_date} · {shift.parsed_start_time}-{shift.parsed_end_time === 'CLOSE' ? 'Close' : shift.parsed_end_time}</p>
+                        </div>
+                        <div className="flex gap-1">
+                          <button onClick={() => setEditingIdx(idx)} className="p-1 hover:bg-muted rounded">
+                            <Edit2 className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                          {shift.status === 'error' ? (
+                            <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                          ) : shift.status === 'warning' ? (
+                            <AlertCircle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                          ) : (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0" />
+                          )}
+                        </div>
+                      </div>
+                      {shift.error_message && <p className="text-[10px] text-red-400 mt-1">{shift.error_message}</p>}
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -381,7 +434,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
       </div>
 
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
-        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
+        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx,.pdf" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
         {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose File</button>}
         {step === 5 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Schedule</button>}
       </div>

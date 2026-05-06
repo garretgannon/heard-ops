@@ -2,6 +2,9 @@
  * R365 Schedule Parser
  * Handles messy Restaurant365 schedule exports with multiple layouts
  */
+import * as pdfjsLib from 'pdfjs-dist';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export const ROLE_MAPPINGS = {
   'srv': 'Server', 'server': 'Server', 'foh server': 'Server',
@@ -29,6 +32,70 @@ const HEADER_KEYWORDS = {
 };
 
 // Detect if row-based or weekly-grid layout
+export async function extractPDFText(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+  let text = '';
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(item => item.str).join(' ') + '\n';
+  }
+
+  return text;
+}
+
+export function parsePDFScheduleText(text) {
+  const lines = text.split('\n').filter(l => l.trim().length > 2);
+  const shifts = [];
+  const employeeNames = new Set();
+  const daysOfWeek = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+  // Extract potential employee names (capitalized words)
+  lines.forEach(line => {
+    const names = line.match(/\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b/g);
+    if (names) names.forEach(n => employeeNames.add(n));
+  });
+
+  // Detect weeks and extract shifts
+  let currentEmployee = null;
+  let weekStart = null;
+
+  lines.forEach((line, idx) => {
+    const lower = line.toLowerCase();
+
+    // Detect week dates
+    const dateMatch = line.match(/(\d{1,2}[/-]\d{1,2})/g);
+    if (dateMatch && weekStart === null) {
+      weekStart = dateMatch[0];
+    }
+
+    // Detect employee names
+    const nameMatch = line.match(/^\s*([A-Z][a-z]+\s+[A-Z][a-z]+)/);
+    if (nameMatch && employeeNames.has(nameMatch[1])) {
+      currentEmployee = nameMatch[1];
+    }
+
+    // Detect shifts: time patterns followed by optional role
+    const shiftMatches = line.matchAll(/(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)\s*-\s*(?:(close|cl)|(\d{1,2}(?::\d{2})?\s*(?:am|pm)?))/gi);
+    for (const match of shiftMatches) {
+      if (currentEmployee) {
+        shifts.push({
+          raw_employee_name: currentEmployee,
+          raw_shift_text: match[0],
+          parsed_start_time: parseTime(match[1]),
+          parsed_end_time: match[2] ? 'CLOSE' : parseTime(match[3]),
+          status: 'warning',
+          confidence: 'low',
+        });
+      }
+    }
+  });
+
+  return { shifts, confidence: shifts.length > 0 ? 'medium' : 'low' };
+}
+
 export function detectLayout(rows) {
   const firstNonEmptyRow = rows.find(r => r.some(cell => String(cell).trim().length > 0));
   if (!firstNonEmptyRow) return null;
