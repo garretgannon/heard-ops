@@ -11,13 +11,13 @@ import { useToast } from "@/hooks/useToast";
 import CommandCenterHeader from "@/components/CommandCenterHeader";
 import DailyEventsCard from "@/components/reservations/DailyEventsCard";
 import ActiveShiftCard from "@/components/ActiveShiftCard";
-import CompactQuickActions from "@/components/CompactQuickActions";
+import RoleAwareQuickActions from "@/components/RoleAwareQuickActions";
+import RoleAwareQuickActionModals from "@/components/RoleAwareQuickActionModals";
 import StartShiftModal from "@/components/ShiftMode/StartShiftModal";
 import SetupChecklist from "@/components/ShiftMode/SetupChecklist";
 import CloseShiftModal from "@/components/ShiftMode/CloseShiftModal";
 import ShiftLaunchModal from "@/components/ShiftLaunch/ShiftLaunchModal";
 import RoleBasedLauncher from "@/components/ShiftLaunch/RoleBasedLauncher";
-import { QuickActionModals } from "@/components/QuickActionModals";
 
 const cache = { data: null, ts: 0 };
 const CACHE_TTL = 30_000;
@@ -405,7 +405,7 @@ export default function TodaysCommandCenter() {
             ) : null}
             {currentShift?.status === 'running' && shiftLaunched && (
               <div className="px-0">
-                <CompactQuickActions onActionClick={setActiveModal} />
+                <RoleAwareQuickActions onActionClick={setActiveModal} />
               </div>
             )}
           </div>
@@ -525,7 +525,7 @@ export default function TodaysCommandCenter() {
       )}
       <CloseShiftModal isOpen={showCloseModal} onClose={() => setShowCloseModal(false)} shift={currentShift} />
 
-      <QuickActionModals activeModal={activeModal} onCloseModal={handleCloseModal} onSuccess={handleModalSuccess} />
+      <RoleAwareQuickActionModals activeModal={activeModal} onCloseModal={handleCloseModal} onSuccess={handleModalSuccess} />
     </div>
   );
 }
