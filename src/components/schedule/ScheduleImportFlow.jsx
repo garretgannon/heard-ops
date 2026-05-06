@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { X, Upload, AlertTriangle, CheckCircle2, ChevronRight, RefreshCw } from 'lucide-react';
+import { X, Upload, AlertTriangle, CheckCircle2, ChevronRight, RefreshCw, Edit2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { extractPDFText, parsePDFScheduleData, normalizeExtractedData } from '@/utils/pdfScheduleParser';
 
 const COLUMN_KEYWORDS = {
   employee_name: ['employee name', 'employee', 'name', 'staff member', 'team member', 'associate', 'person'],
@@ -102,6 +103,7 @@ function detectWeek(dates) {
 
 export default function ScheduleImportFlow({ onClose, onComplete, user }) {
   const [step, setStep] = useState(1);
+  const [fileType, setFileType] = useState(null);
   const [rawRows, setRawRows] = useState([]);
   const [headerRowIdx, setHeaderRowIdx] = useState(0);
   const [columnMapping, setColumnMapping] = useState({});
@@ -109,29 +111,53 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
   const [weekStart, setWeekStart] = useState('');
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState(null);
+  const [editingIdx, setEditingIdx] = useState(null);
+  const [pdfParsed, setPdfParsed] = useState(false);
   const fileRef = useRef();
 
-  const handleFile = (file) => {
+  const handleFile = async (file) => {
     if (!file) return;
-    parseFile(file, (rows, error) => {
-      if (error) { alert('Error reading file: ' + error); return; }
-      setRawRows(rows);
-      const headerIdx = detectHeaderRow(rows);
-      setHeaderRowIdx(headerIdx);
-      const headers = rows[headerIdx] || [];
-      const mapping = {};
-      headers.forEach((h, idx) => {
-        const lower = (h || '').toLowerCase();
-        for (const [field, keywords] of Object.entries(COLUMN_KEYWORDS)) {
-          if (keywords.some(kw => lower.includes(kw))) {
-            mapping[idx] = field;
-            break;
+    if (file.name.endsWith('.pdf')) {
+      setFileType('pdf');
+      try {
+        const text = await extractPDFText(file);
+        const extracted = parsePDFScheduleData(text);
+        const normalized = normalizeExtractedData(extracted);
+        const preview = normalized.map((d, i) => ({
+          row: [d.employee_name, d.date, d.start_time, d.end_time, d.role],
+          mapped: d,
+          issues: !d.employee_name || !d.date || !d.start_time || !d.end_time ? ['Missing required field'] : [],
+          status: !d.employee_name || !d.date || !d.start_time || !d.end_time ? 'error' : 'ok',
+        }));
+        setPreviewRows(preview);
+        setPdfParsed(true);
+        setStep(3);
+      } catch (err) {
+        alert('PDF parsing failed: ' + err.message);
+      }
+    } else {
+      setFileType('csv');
+      setPdfParsed(false);
+      parseFile(file, (rows, error) => {
+        if (error) { alert('Error reading file: ' + error); return; }
+        setRawRows(rows);
+        const headerIdx = detectHeaderRow(rows);
+        setHeaderRowIdx(headerIdx);
+        const headers = rows[headerIdx] || [];
+        const mapping = {};
+        headers.forEach((h, idx) => {
+          const lower = (h || '').toLowerCase();
+          for (const [field, keywords] of Object.entries(COLUMN_KEYWORDS)) {
+            if (keywords.some(kw => lower.includes(kw))) {
+              mapping[idx] = field;
+              break;
+            }
           }
-        }
+        });
+        setColumnMapping(mapping);
+        setStep(2);
       });
-      setColumnMapping(mapping);
-      setStep(2);
-    });
+    }
   };
 
   const buildPreview = () => {
@@ -261,7 +287,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
             <div className="text-center py-8 bg-card border-2 border-dashed border-border rounded-xl">
               <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm font-bold mb-1">Upload Schedule File</p>
-              <p className="text-xs text-muted-foreground mb-3">CSV, XLS, or XLSX</p>
+              <p className="text-xs text-muted-foreground mb-3">CSV, Excel, or PDF</p>
             </div>
           </div>
         )}
@@ -320,20 +346,45 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
               />
             </div>
 
+            {pdfParsed && previewRows.filter(r => r.status === 'error').length > 0 && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-3">
+                <p className="text-xs font-bold text-amber-400 mb-1">PDF parsing needs review</p>
+                <p className="text-[11px] text-amber-300">Please verify and edit the fields below before importing.</p>
+              </div>
+            )}
+
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {previewRows.slice(0, 30).map((row, idx) => (
-                <div key={idx} className={`bg-card border rounded px-3 py-2 text-xs ${row.issues.length > 0 ? 'border-red-500/30' : 'border-border'}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-foreground truncate">{row.mapped.employee_name}</p>
-                      <p className="text-muted-foreground truncate">{row.mapped.date} · {row.mapped.start_time}-{row.mapped.end_time} · {row.mapped.role}</p>
+                <div key={idx} className={`bg-card border rounded px-3 py-2 text-xs transition-all ${row.issues.length > 0 ? 'border-red-500/30' : 'border-border'} ${editingIdx === idx ? 'ring-2 ring-primary' : ''}`}>
+                  {editingIdx === idx && pdfParsed ? (
+                    <div className="space-y-2">
+                      <input type="text" value={row.mapped.employee_name} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.employee_name = e.target.value; setPreviewRows(nr); }} placeholder="Employee" className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="date" value={row.mapped.date} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.date = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="text" value={row.mapped.role} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.role = e.target.value; setPreviewRows(nr); }} placeholder="Role" className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="time" value={row.mapped.start_time} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.start_time = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="time" value={row.mapped.end_time} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.end_time = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      </div>
+                      <button onClick={() => setEditingIdx(null)} className="w-full py-1 bg-primary text-primary-foreground rounded text-xs font-bold">Done</button>
                     </div>
-                    {row.issues.length > 0 ? (
-                      <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
-                    ) : (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0" />
-                    )}
-                  </div>
+                  ) : (
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-foreground truncate">{row.mapped.employee_name}</p>
+                        <p className="text-muted-foreground truncate">{row.mapped.date} · {row.mapped.start_time}-{row.mapped.end_time} · {row.mapped.role}</p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        {pdfParsed && <button onClick={() => setEditingIdx(idx)} className="p-1 hover:bg-muted rounded"><Edit2 className="h-3 w-3 text-muted-foreground" /></button>}
+                        {row.issues.length > 0 ? (
+                          <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                        ) : (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-400 shrink-0" />
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {row.issues.length > 0 && <p className="text-[10px] text-red-400 mt-1">{row.issues.join(' · ')}</p>}
                 </div>
               ))}
@@ -359,7 +410,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
       </div>
 
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
-        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
+        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx,.pdf" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
         {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose File</button>}
         {step === 4 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Schedule</button>}
       </div>
