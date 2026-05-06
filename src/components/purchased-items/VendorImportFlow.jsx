@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Upload, ChevronRight, AlertTriangle, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Upload, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import * as XLSX from 'xlsx';
 
@@ -20,7 +20,6 @@ function parseFile(file, callback) {
     try {
       const data = e.target.result;
       let rows = [];
-      
       if (file.name.endsWith('.csv')) {
         const text = new TextDecoder('utf-8').decode(new Uint8Array(data));
         rows = parseCSV(text);
@@ -34,12 +33,7 @@ function parseFile(file, callback) {
       callback(null, err.message);
     }
   };
-  
-  if (file.name.endsWith('.csv')) {
-    reader.readAsArrayBuffer(file);
-  } else {
-    reader.readAsArrayBuffer(file);
-  }
+  reader.readAsArrayBuffer(file);
 }
 
 function parseCSV(text) {
@@ -65,9 +59,7 @@ function detectHeaderRow(rows) {
     const row = rows[i] || [];
     const rowStr = row.join(' ').toLowerCase();
     const matches = keywords.filter(kw => rowStr.includes(kw)).length;
-    if (matches >= 2) {
-      return i;
-    }
+    if (matches >= 2) return i;
   }
   return 0;
 }
@@ -75,9 +67,7 @@ function detectHeaderRow(rows) {
 function suggestCategory(description) {
   const desc = (description || '').toLowerCase();
   for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (keywords.some(kw => desc.includes(kw))) {
-      return category;
-    }
+    if (keywords.some(kw => desc.includes(kw))) return category;
   }
   return null;
 }
@@ -92,9 +82,7 @@ function parsePrice(priceStr) {
 function parseAverage(avgStr) {
   if (!avgStr) return { qty: null, unit: null };
   const match = String(avgStr).trim().match(/^([\d.]+)\s*([A-Z]+)$/i);
-  if (match) {
-    return { qty: parseFloat(match[1]) || null, unit: match[2].toUpperCase() };
-  }
+  if (match) return { qty: parseFloat(match[1]) || null, unit: match[2].toUpperCase() };
   return { qty: null, unit: null };
 }
 
@@ -106,6 +94,7 @@ export default function VendorImportFlow({ onClose, onComplete }) {
   const [vendorName, setVendorName] = useState('');
   const [previewRows, setPreviewRows] = useState([]);
   const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [result, setResult] = useState(null);
   const fileRef = useRef();
 
@@ -119,20 +108,18 @@ export default function VendorImportFlow({ onClose, onComplete }) {
       setRawRows(rows);
       const headerIdx = detectHeaderRow(rows);
       setHeaderRowIdx(headerIdx);
-      
       const headers = rows[headerIdx] || [];
       const mapping = {};
       const fieldMap = {
-        'product': 'vendorItemCode',
-        'description': 'itemName',
-        'pack': 'packSize',
-        'brand': 'brand',
-        'price': 'caseCost',
-        'unit': 'purchaseUnit',
-        'avg': 'averageOrderQty',
-        'lwp': 'lastWeekPurchase',
+        product: 'vendorItemCode',
+        description: 'itemName',
+        pack: 'packSize',
+        brand: 'brand',
+        price: 'caseCost',
+        unit: 'purchaseUnit',
+        avg: 'averageOrderQty',
+        lwp: 'lastWeekPurchase',
       };
-      
       headers.forEach((header, idx) => {
         const lower = (header || '').toLowerCase();
         for (const [keyword, field] of Object.entries(fieldMap)) {
@@ -142,7 +129,6 @@ export default function VendorImportFlow({ onClose, onComplete }) {
           }
         }
       });
-      
       setColumnMapping(mapping);
       setStep(2);
     });
@@ -165,38 +151,34 @@ export default function VendorImportFlow({ onClose, onComplete }) {
             mapped[field] = String(val).trim();
           }
         });
-        
         mapped.vendorName = vendorName;
         mapped.category = suggestCategory(mapped.itemName);
         mapped.rawPackSize = mapped.packSize;
-        
         const issues = [];
         if (!mapped.itemName) issues.push('Missing description');
         if (!mapped.caseCost) issues.push('Missing price');
         if (!mapped.purchaseUnit) issues.push('Missing unit');
-        
         return { row, mapped, issues, status: issues.length > 0 ? 'error' : 'ok' };
       });
-    
     setPreviewRows(rows);
     setStep(4);
   };
 
   const doImport = async () => {
     setImporting(true);
-    let created = 0, updated = 0, skipped = 0;
+    const okCount = previewRows.filter(r => r.issues.length === 0).length;
+    setImportProgress({ current: 0, total: okCount });
+    let created = 0, updated = 0, skipped = 0, processed = 0;
     const errors = [];
 
     try {
       const existing = await base44.entities.PurchasedItem.list('-updated_date', 5000).catch(() => []);
-
       for (const row of previewRows) {
         if (row.issues.length > 0) {
           errors.push({ itemName: row.mapped.itemName, issues: row.issues });
           skipped++;
           continue;
         }
-
         const payload = {};
         Object.entries(row.mapped).forEach(([k, v]) => {
           if (v !== null && v !== '' && !k.startsWith('_')) {
@@ -216,12 +198,10 @@ export default function VendorImportFlow({ onClose, onComplete }) {
             if (appField) payload[appField] = v;
           }
         });
-
         const match = existing.find(item =>
           item.vendorNumber === payload.vendorItemNumber && 
           item.vendorName?.toLowerCase() === vendorName.toLowerCase()
         );
-
         if (match) {
           await base44.entities.PurchasedItem.update(match.id, payload).catch(() => {});
           updated++;
@@ -234,8 +214,9 @@ export default function VendorImportFlow({ onClose, onComplete }) {
             skipped++;
           }
         }
+        processed++;
+        setImportProgress({ current: processed, total: okCount });
       }
-
       haptics.success?.() || haptics.medium?.();
       setResult({ created, updated, skipped, errors, total: previewRows.length });
       setStep(6);
@@ -249,6 +230,8 @@ export default function VendorImportFlow({ onClose, onComplete }) {
 
   const errorRows = previewRows.filter(r => r.issues.length > 0);
   const okRows = previewRows.filter(r => r.issues.length === 0);
+
+  const progressWidth = importProgress.total > 0 ? `${(importProgress.current / importProgress.total) * 100}%` : '0%';
 
   return (
     <div className="fixed inset-0 bg-background z-[100] flex flex-col">
@@ -314,8 +297,8 @@ export default function VendorImportFlow({ onClose, onComplete }) {
                 <div key={idx} className={`bg-card border rounded px-2 py-1.5 text-xs ${row.issues.length > 0 ? 'border-red-500/30' : 'border-border'}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-foreground truncate">{row.mapped.itemName || '—'}</p>
-                      <p className="text-muted-foreground truncate">{row.mapped.vendorItemCode} · ${row.mapped.caseCost} · {row.mapped.purchaseUnit}</p>
+                      <p className="font-bold text-foreground truncate">{row.mapped.itemName || 'unnamed'}</p>
+                      <p className="text-muted-foreground truncate">{row.mapped.vendorItemCode} - ${row.mapped.caseCost} - {row.mapped.purchaseUnit}</p>
                     </div>
                     {row.issues.length > 0 ? (
                       <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
@@ -324,7 +307,7 @@ export default function VendorImportFlow({ onClose, onComplete }) {
                     )}
                   </div>
                   {row.issues.length > 0 && (
-                    <p className="text-[9px] text-red-400 mt-1">{row.issues.join(' · ')}</p>
+                    <p className="text-[9px] text-red-400 mt-1">{row.issues.join(' - ')}</p>
                   )}
                 </div>
               ))}
@@ -347,13 +330,22 @@ export default function VendorImportFlow({ onClose, onComplete }) {
         )}
       </div>
 
-      <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3 flex gap-2">
+      <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
         <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx" className="hidden" onChange={e => { handleFile(e.target.files[0]); setStep(2); }} />
-        {step === 1 && <button onClick={() => fileRef.current?.click()} className="flex-1 btn-primary text-sm">Choose File</button>}
-        {step === 2 && <button onClick={() => setStep(3)} disabled={!vendorName} className="flex-1 btn-primary text-sm disabled:opacity-50">Continue →</button>}
-        {step === 3 && <button onClick={buildPreview} className="flex-1 btn-primary text-sm">Preview Import →</button>}
-        {step === 4 && <button onClick={doImport} disabled={importing || okRows.length === 0} className="flex-1 btn-primary text-sm">{importing ? 'Importing...' : 'Confirm & Import'}</button>}
-        {step === 6 && <button onClick={onComplete} className="flex-1 btn-primary text-sm">View Purchased Goods</button>}
+        {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose File</button>}
+        {step === 2 && <button onClick={() => setStep(3)} disabled={!vendorName} className="w-full btn-primary text-sm disabled:opacity-50">Continue to Step 3</button>}
+        {step === 3 && <button onClick={buildPreview} className="w-full btn-primary text-sm">Preview Import</button>}
+        {step === 4 && !importing && <button onClick={doImport} disabled={okRows.length === 0} className="w-full btn-primary text-sm disabled:opacity-50">Start Import</button>}
+        {step === 4 && importing && (
+          <div className="space-y-1">
+            <div className="w-full h-10 rounded-lg bg-background border border-primary flex items-center justify-center relative overflow-hidden">
+              <div className="h-full bg-primary transition-all duration-300" style={{ width: progressWidth }} />
+              <span className="absolute text-xs font-bold text-foreground">{importProgress.current}/{importProgress.total}</span>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">Importing items...</p>
+          </div>
+        )}
+        {step === 6 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Purchased Goods</button>}
       </div>
     </div>
   );
