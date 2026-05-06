@@ -11,9 +11,12 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
   const [screen, setScreen] = useState('blockers'); // blockers, handoff, complete
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [localShift, setLocalShift] = useState(null);
 
   useEffect(() => {
     if (isOpen && shift) {
+      setLocalShift(shift);
+      setScreen('blockers');
       checkBlockers();
     }
   }, [isOpen, shift?.id]);
@@ -70,7 +73,7 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
   const handleSubmitHandoff = async () => {
     setSubmitting(true);
     haptics.medium();
-    await completeShift(shift.id, notes);
+    await completeShift(localShift.id, notes);
     setScreen('complete');
   };
 
@@ -96,7 +99,7 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
               Start New Shift
             </button>
             <button
-              onClick={async () => { haptics.medium(); await reopenShift(shift.id); onClose(); }}
+              onClick={async () => { haptics.medium(); await reopenShift(localShift.id); onClose(); }}
               className="w-full h-11 rounded-xl border border-border bg-muted text-foreground font-bold active:scale-95 transition-all"
             >
               Re-open This Shift
@@ -133,9 +136,9 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
           <div className="bg-card border border-border rounded-lg p-3 space-y-2">
             <h3 className="text-sm font-bold">Shift Summary</h3>
             <div className="text-xs text-secondary-text space-y-1">
-              <p>Tasks: {shift.tasks_completed}/{shift.tasks_total} complete</p>
-              <p>Logs: {shift.logs_completed}/{shift.logs_total} complete</p>
-              <p>Issues: {shift.critical_issues_open} open</p>
+              <p>Tasks: {localShift?.tasks_completed}/{localShift?.tasks_total} complete</p>
+              <p>Logs: {localShift?.logs_completed}/{localShift?.logs_total} complete</p>
+              <p>Issues: {localShift?.critical_issues_open} open</p>
             </div>
           </div>
         </div>
@@ -197,7 +200,7 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
       <div className="bg-card border-t border-border p-4">
         <button
           onClick={handleContinueToHandoff}
-          disabled={blockers.length > 0}
+          disabled={loading || blockers.length > 0}
           className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-bold disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Continue to Handoff
