@@ -62,9 +62,6 @@ function parseCSV(text) {
 function validateRow(mapped) {
   const issues = [];
   if (!mapped.itemName) issues.push('Missing item name');
-  if (!mapped.vendorName) issues.push('Missing vendor');
-  if (!mapped.caseCost && !mapped.unitCost) issues.push('Missing cost');
-  if (!mapped.purchaseUnit) issues.push('Missing purchase unit');
   if (mapped.caseCost && isNaN(parseFloat(mapped.caseCost))) issues.push('Invalid cost format');
   return issues;
 }
