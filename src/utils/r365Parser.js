@@ -46,48 +46,60 @@ export function parsePDFScheduleText(text) {
     return { shifts: [], confidence: 'low' };
   }
 
-  // Keywords to skip when identifying employee names
   const skipKeywords = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
     'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'OT', 'Fixed', 'Sales', 'Labor',
-    'Week', 'Schedule', 'Scheduler'];
+    'Week', 'Schedule', 'Scheduler', 'Flores', 'Monica'];
 
-  // Find employee names and their associated shifts
-  for (let i = 0; i < lines.length - 1; i++) {
+  // Scan for employee names and collect shifts until next employee
+  for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Check if this line is an employee name
-    if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(line) && !skipKeywords.some(k => line.includes(k))) {
-      const employeeName = line;
+    // Is this an employee name? (Proper case, 2-4 words, not a keyword)
+    const isName = /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(line) && 
+                   !skipKeywords.some(k => line.includes(k)) &&
+                   line.length < 50;
 
-      // Look ahead for shifts (time ranges) and roles
+    if (isName) {
+      const employeeName = line;
+      const shiftLines = [];
+
+      // Collect all shift-like lines for this employee
       let j = i + 1;
-      while (j < lines.length && lines[j]) {
+      while (j < lines.length) {
         const nextLine = lines[j];
 
-        // Check if next line is a time range pattern (HH:MMp - HH:MMp)
-        const timeMatch = nextLine.match(/^(\d{1,2}):(\d{2})([ap])\s*-\s*(\d{1,2}):(\d{2})([ap])$/);
+        // Stop if we hit another employee name
+        if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(nextLine) && 
+            !skipKeywords.some(k => nextLine.includes(k)) &&
+            nextLine.length < 50) {
+          break;
+        }
 
-        if (timeMatch) {
-          const [, startH, startM, startP, endH, endM, endP] = timeMatch;
+        // Check if this line contains a time pattern
+        if (/\d{1,2}:\d{2}\s*[ap]\s*-/.test(nextLine)) {
+          shiftLines.push(nextLine);
+        }
+
+        j++;
+      }
+
+      // Parse the collected shift lines
+      shiftLines.forEach(shiftLine => {
+        // Extract time range: "3:00p - 9:00p" or "3:00p - 9:00p Bartender"
+        const timeRegex = /(\d{1,2}):(\d{2})\s*([ap])\s*-\s*(\d{1,2}):(\d{2})\s*([ap])(?:\s+(.+))?/i;
+        const match = shiftLine.match(timeRegex);
+
+        if (match) {
+          const [fullMatch, startH, startM, startP, endH, endM, endP, roleText] = match;
           const startTime = formatTime(parseInt(startH), startM, startP);
           const endTime = formatTime(parseInt(endH), endM, endP);
-
-          // Look for role on next line
-          let role = '';
-          if (j + 1 < lines.length) {
-            const roleLine = lines[j + 1];
-            // Check if it looks like a role (capitalized words, not a time, not a name)
-            if (!/^\d{1,2}:\d{2}/.test(roleLine) && !/^[A-Z][a-z]+\s+[A-Z][a-z]+$/.test(roleLine)) {
-              role = roleLine;
-              j++; // Skip the role line
-            }
-          }
+          const role = roleText ? roleText.trim() : '';
 
           if (startTime && endTime) {
             shifts.push({
               raw_employee_name: employeeName,
               shift_date: null,
-              raw_shift_text: `${nextLine}${role ? ' ' + role : ''}`,
+              raw_shift_text: fullMatch.trim(),
               parsed_start_time: startTime,
               parsed_end_time: endTime,
               raw_role: role,
@@ -95,15 +107,8 @@ export function parsePDFScheduleText(text) {
               error_message: 'Requires date selection',
             });
           }
-
-          j++;
-        } else if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(nextLine)) {
-          // Hit the next employee name, stop looking for shifts
-          break;
-        } else {
-          j++;
         }
-      }
+      });
     }
   }
 
