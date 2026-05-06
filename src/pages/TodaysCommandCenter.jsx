@@ -1,8 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-
-// Module-level cache — survives re-mounts and navigation
-const cache = { data: null, ts: 0 };
-const CACHE_TTL = 30_000; // 30s before background refresh
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -20,6 +16,10 @@ import SetupChecklist from "@/components/ShiftMode/SetupChecklist";
 import CloseShiftModal from "@/components/ShiftMode/CloseShiftModal";
 import QuickActionButtons from "@/components/QuickActionButtons";
 import { QuickActionModals } from "@/components/QuickActionModals";
+
+// Module-level cache — survives re-mounts and navigation
+const cache = { data: null, ts: 0 };
+const CACHE_TTL = 30_000; // 30s before background refresh
 
 function ProgressCircle({ value, max = 100 }) {
   const circumference = 2 * Math.PI * 45;
