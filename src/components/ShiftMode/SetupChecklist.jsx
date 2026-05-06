@@ -1,10 +1,19 @@
+import { useEffect } from 'react';
 import { useShiftMode } from '@/lib/ShiftModeContext';
 import { Check, ChevronRight } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 export default function SetupChecklist({ shift, onContinue }) {
   const { updateSetupChecklist } = useShiftMode();
-  const allComplete = shift.setup_checklist.every(item => item.completed);
+  const allComplete = shift?.setup_checklist?.every(item => item.completed);
+
+  useEffect(() => {
+    if (allComplete) {
+      haptics.success?.() || haptics.medium();
+      const timer = setTimeout(() => onContinue(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [allComplete]);
 
   const handleCheck = async (itemId) => {
     const item = shift.setup_checklist.find(i => i.id === itemId);
