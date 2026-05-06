@@ -160,52 +160,65 @@ export default function ImportFlow({ onClose, onComplete, user }) {
       totalRows: previewRows.length,
     }).then(b => b.id).catch(() => null);
 
-    const allItems = await base44.entities.PurchasedItem.list('-updated_date', 1000).catch(() => []);
+    const allItems = await base44.entities.PurchasedItem.list('-updated_date', 2000).catch(() => []);
+
+    const toCreate = [];
+    const toUpdate = []; // { id, payload }
 
     for (const row of previewRows) {
       if (row.action === 'skip') { skipped++; continue; }
       if (row.issues.length > 0 && row.action !== 'create') { skipped++; continue; }
 
       const d = row.mapped;
-      // Only set non-blank fields
       const payload = {};
       Object.entries(d).forEach(([k, v]) => { if (v !== '' && v !== undefined && !k.startsWith('_')) payload[k] = v; });
       if (!payload.itemName) { skipped++; continue; }
 
-      // Calculate numeric fields
       ['caseQuantity','caseCost','unitCost','conversionFactor','itemSize','edibleYieldPercent'].forEach(k => {
         if (payload[k]) payload[k] = parseFloat(payload[k]) || 0;
       });
       if (payload.active !== undefined) payload.active = ['true','yes','1','active'].includes(String(payload.active).toLowerCase());
       payload.normalizedName = payload.itemName.toLowerCase().trim();
 
-      // Match existing
       const existing = allItems.find(i =>
         (payload.vendorItemNumber && i.vendorItemNumber === payload.vendorItemNumber && i.vendorName?.toLowerCase() === payload.vendorName?.toLowerCase()) ||
         (i.normalizedName === payload.normalizedName && i.vendorName?.toLowerCase() === payload.vendorName?.toLowerCase())
       );
 
       if (existing && row.action !== 'create') {
-        // Track price change
-        if (payload.caseCost && existing.caseCost !== payload.caseCost) {
-          await base44.entities.PurchasedItemPriceHistory.create({
-            purchasedItemId: existing.id, vendorName: payload.vendorName || existing.vendorName,
-            oldCaseCost: existing.caseCost, newCaseCost: payload.caseCost,
-            changePercent: existing.caseCost ? ((payload.caseCost - existing.caseCost) / existing.caseCost * 100).toFixed(1) : 0,
-            source: 'import', changedAt: new Date().toISOString(),
-          }).catch(() => {});
-          payload.lastPriceUpdate = new Date().toISOString();
-        }
-        // Only update non-blank fields
-        await base44.entities.PurchasedItem.update(existing.id, payload).catch(() => {});
-        updated++;
+        toUpdate.push({ id: existing.id, oldCaseCost: existing.caseCost, payload });
       } else {
         payload.importBatchId = batchId;
         payload.lastPriceUpdate = new Date().toISOString();
-        await base44.entities.PurchasedItem.create(payload).catch(() => {});
-        created++;
+        toCreate.push(payload);
       }
     }
+
+    // Bulk create all new items
+    if (toCreate.length > 0) {
+      const CHUNK = 50;
+      for (let i = 0; i < toCreate.length; i += CHUNK) {
+        await base44.entities.PurchasedItem.bulkCreate(toCreate.slice(i, i + CHUNK)).catch(() => {});
+      }
+      created = toCreate.length;
+    }
+
+    // Sequential updates (need price history tracking)
+    for (const { id, oldCaseCost, payload } of toUpdate) {
+      if (payload.caseCost && oldCaseCost !== payload.caseCost) {
+        await base44.entities.PurchasedItemPriceHistory.create({
+          purchasedItemId: id, vendorName: payload.vendorName,
+          oldCaseCost, newCaseCost: payload.caseCost,
+          changePercent: oldCaseCost ? ((payload.caseCost - oldCaseCost) / oldCaseCost * 100).toFixed(1) : 0,
+          source: 'import', changedAt: new Date().toISOString(),
+        }).catch(() => {});
+        payload.lastPriceUpdate = new Date().toISOString();
+      }
+      await base44.entities.PurchasedItem.update(id, payload).catch(() => {});
+      updated++;
+    }
+
+    skipped += previewRows.filter(r => r.action === 'skip').length;
 
     if (batchId) {
       await base44.entities.PurchasedItemImportBatch.update(batchId, {
