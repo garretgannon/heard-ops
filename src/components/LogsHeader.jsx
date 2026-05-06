@@ -5,11 +5,9 @@ export default function LogsHeader({ onNotifications }) {
   return (
     <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="px-4 pt-1.5 pb-2">
-        {/* Title */}
-        <h1 className="text-lg font-bold text-foreground mb-1">Logs</h1>
-
-        {/* Top Row: Logo + Bell */}
-        <div className="flex items-center justify-between -mt-1">
+        {/* Top Row: Title + Bell */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-bold text-foreground">Logs</h1>
           {/* Logo */}
           <div className="flex items-center gap-2">
             
