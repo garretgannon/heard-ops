@@ -415,7 +415,7 @@ export default function TempLogs() {
     setLoading(false);
   };
 
-  useEffect(() => { loadLogs(); }, []);
+  useEffect(() => { if (user !== undefined) loadLogs(); }, [isAdmin, user?.email]);
 
   const coolingStats = {
     due: 0, completed: coolingLogs.length,
