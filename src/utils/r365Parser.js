@@ -1,8 +1,9 @@
 /**
- * R365 Schedule Parser
- * Handles grid-based Restaurant365 schedule exports (PDF format)
+ * R365 Schedule Parser with OCR
+ * Uses Tesseract.js for PDF text recognition
  */
 import * as pdfjsLib from 'pdfjs-dist';
+import Tesseract from 'tesseract.js';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -24,23 +25,51 @@ export const ROLE_MAPPINGS = {
   'foh manager': 'Manager',
 };
 
+/**
+ * Extract text from PDF using OCR (Tesseract.js)
+ * Converts each PDF page to an image, then performs OCR
+ */
 export async function extractPDFText(file) {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-  let text = '';
+  let allText = '';
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map(item => item.str).join(' ') + '\n';
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    try {
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 2 });
+      
+      // Create a canvas and render the page as an image
+      const canvas = typeof document !== 'undefined' 
+        ? document.createElement('canvas')
+        : await import('canvas').then(m => new m.Canvas(viewport.width, viewport.height));
+      
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: context, viewport }).promise;
+      
+      // Convert canvas to image data URL
+      const imageData = canvas.toDataURL('image/png');
+
+      // Run OCR on the image
+      const { data: { text } } = await Tesseract.recognize(imageData, 'eng');
+      allText += text + '\n';
+    } catch (err) {
+      console.warn(`Error processing page ${pageNum}:`, err);
+    }
   }
 
-  return text;
+  return allText;
 }
 
+/**
+ * Parse extracted text to find employee names and shifts
+ */
 export function parsePDFScheduleText(text) {
   const shifts = [];
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
 
   if (lines.length === 0) {
     return { shifts: [], confidence: 'low' };
@@ -48,46 +77,36 @@ export function parsePDFScheduleText(text) {
 
   const skipKeywords = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
     'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'OT', 'Fixed', 'Sales', 'Labor',
-    'Week', 'Schedule', 'Scheduler', 'Flores', 'Monica'];
+    'Week', 'Schedule', 'Scheduler', 'Total', 'Hours'];
 
-  // Scan for employee names and collect shifts until next employee
+  // Scan for employee names and collect shifts
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Is this an employee name? (Proper case, 2-4 words, not a keyword)
+    // Is this likely an employee name? (Proper case, 2-4 words, not a keyword)
     const isName = /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(line) && 
-                   !skipKeywords.some(k => line.includes(k)) &&
+                   !skipKeywords.some(k => line.toUpperCase().includes(k.toUpperCase())) &&
                    line.length < 50;
 
     if (isName) {
       const employeeName = line;
-      const shiftLines = [];
-
-      // Collect all shift-like lines for this employee
+      
+      // Collect shift lines for this employee (until next employee or end)
       let j = i + 1;
       while (j < lines.length) {
         const nextLine = lines[j];
 
         // Stop if we hit another employee name
         if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(nextLine) && 
-            !skipKeywords.some(k => nextLine.includes(k)) &&
+            !skipKeywords.some(k => nextLine.toUpperCase().includes(k.toUpperCase())) &&
             nextLine.length < 50) {
           break;
         }
 
-        // Check if this line contains a time pattern
-        if (/\d{1,2}:\d{2}\s*[ap]\s*-/.test(nextLine)) {
-          shiftLines.push(nextLine);
-        }
-
-        j++;
-      }
-
-      // Parse the collected shift lines
-      shiftLines.forEach(shiftLine => {
-        // Extract time range: "3:00p - 9:00p" or "3:00p - 9:00p Bartender"
+        // Look for time patterns in this line
+        // Match: "3:00p - 9:00p" or "3:00p - 9:00p Bartender" or similar
         const timeRegex = /(\d{1,2}):(\d{2})\s*([ap])\s*-\s*(\d{1,2}):(\d{2})\s*([ap])(?:\s+(.+))?/i;
-        const match = shiftLine.match(timeRegex);
+        const match = nextLine.match(timeRegex);
 
         if (match) {
           const [fullMatch, startH, startM, startP, endH, endM, endP, roleText] = match;
@@ -108,7 +127,9 @@ export function parsePDFScheduleText(text) {
             });
           }
         }
-      });
+
+        j++;
+      }
     }
   }
 
