@@ -95,12 +95,22 @@ export default function ImportFlow({ onClose, onComplete, user }) {
         try {
           const wb = XLSX.read(e.target.result, { type: 'array' });
           const ws = wb.Sheets[wb.SheetNames[0]];
-          const csv = XLSX.utils.sheet_to_csv(ws);
-          const { headers, rows } = parseCSV(csv);
-          if (headers.length < 2) {
-            alert(`Only detected ${headers.length} column(s). Check your file format.`);
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          if (data.length < 1) {
+            alert('File appears to be empty.');
             return;
           }
+          const headers = (data[0] || []).map(h => String(h).trim()).filter(h => h);
+          if (headers.length < 1) {
+            alert('Could not detect column headers.');
+            return;
+          }
+          const rows = data.slice(1).map((row, idx) => {
+            const rowObj = {};
+            headers.forEach((h, i) => { rowObj[h] = String(row[i] || '').trim(); });
+            rowObj._rowIndex = idx + 2;
+            return rowObj;
+          });
           setHeaders(headers);
           setRawRows(rows);
           const autoMap = {};
@@ -115,7 +125,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
           setMapping(autoMap);
           setStep(2);
         } catch (err) {
-          alert('Error reading Excel file. Try converting to CSV.');
+          alert('Error reading Excel file: ' + err.message);
         }
       };
       reader.readAsArrayBuffer(file);
