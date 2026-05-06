@@ -35,10 +35,15 @@ function splitCSVLine(line, delimiter = ',') {
 }
 
 function detectDelimiter(firstLine) {
-  const commaCount = (firstLine.match(/,/g) || []).length;
-  const tabCount = (firstLine.match(/\t/g) || []).length;
-  const semiCount = (firstLine.match(/;/g) || []).length;
-  return tabCount > commaCount && tabCount > semiCount ? '\t' : (semiCount > commaCount ? ';' : ',');
+  // Try each delimiter and pick the one that yields most columns
+  const delimiters = [',', '\t', ';', '|'];
+  let bestDelim = ',';
+  let maxCols = 0;
+  for (const delim of delimiters) {
+    const cols = splitCSVLine(firstLine, delim).filter(c => c.length > 0).length;
+    if (cols > maxCols) { maxCols = cols; bestDelim = delim; }
+  }
+  return bestDelim;
 }
 
 function parseCSV(text) {
