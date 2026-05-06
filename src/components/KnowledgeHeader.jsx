@@ -5,8 +5,11 @@ export default function KnowledgeHeader({ onNotifications }) {
   return (
     <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="px-4 py-3">
+        {/* Title */}
+        <h1 className="text-lg font-bold text-foreground mb-2">Knowledge</h1>
+
         {/* Top Row: Logo + Bell */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
@@ -27,9 +30,6 @@ export default function KnowledgeHeader({ onNotifications }) {
             <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
           </button>
         </div>
-
-        {/* Title */}
-        <h1 className="text-lg font-bold text-foreground">Knowledge</h1>
       </div>
     </div>
   );
