@@ -25,12 +25,32 @@ Nitrile Gloves Medium,Sysco,SYS-7890123,disposables,Gloves,Kimberly-Clark,case,1
 To-Go Boxes 9x9,Restaurant Depot,RD-8901234,paper,Containers,,case,200 each,1,1,200,each,200,34.00,each,each,Dry Storage,,false,true,Kraft single compartment
 Sanitizer Test Strips,Sysco,SYS-9012345,chemicals,Sanitation,Ecolab,case,100 each,1,1,100,each,100,12.50,each,each,Chemical Storage,,false,true,Chlorine 0-200ppm range`;
 
+function splitCSVLine(line) {
+  const vals = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === ',' && !inQuotes) {
+      vals.push(cur.trim()); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  vals.push(cur.trim());
+  return vals;
+}
+
 function parseCSV(text) {
-  const lines = text.trim().split('\n');
+  // Normalize line endings
+  const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   if (lines.length < 2) return { headers: [], rows: [] };
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-  const rows = lines.slice(1).map((line, idx) => {
-    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+  const headers = splitCSVLine(lines[0]);
+  const rows = lines.slice(1).filter(l => l.trim()).map((line, idx) => {
+    const vals = splitCSVLine(line);
     const row = {};
     headers.forEach((h, i) => { row[h] = vals[i] || ''; });
     row._rowIndex = idx + 2;
