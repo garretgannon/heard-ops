@@ -35,8 +35,10 @@ function splitCSVLine(line, delimiter = ',') {
   return vals;
 }
 
-function detectDelimiter(firstLine) {
-  // Try each delimiter and pick the one that yields most columns
+function detectDelimiter(lines) {
+  // Try each delimiter on first line and pick the one that yields most columns
+  if (!lines || lines.length === 0) return ',';
+  const firstLine = lines[0];
   const delimiters = [',', '\t', ';', '|'];
   let bestDelim = ',';
   let maxCols = 0;
@@ -44,18 +46,18 @@ function detectDelimiter(firstLine) {
     const cols = splitCSVLine(firstLine, delim).filter(c => c.length > 0).length;
     if (cols > maxCols) { maxCols = cols; bestDelim = delim; }
   }
-  return bestDelim;
+  return maxCols < 2 ? ',' : bestDelim;
 }
 
 function parseCSV(text) {
-  const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  if (lines.length < 2) return { headers: [], rows: [] };
-  const delimiter = detectDelimiter(lines[0]);
-  const headers = splitCSVLine(lines[0], delimiter);
-  const rows = lines.slice(1).filter(l => l.trim()).map((line, idx) => {
+  const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
+  if (lines.length < 1) return { headers: [], rows: [] };
+  const delimiter = detectDelimiter(lines);
+  const headers = splitCSVLine(lines[0], delimiter).map(h => h.trim());
+  const rows = lines.slice(1).map((line, idx) => {
     const vals = splitCSVLine(line, delimiter);
     const row = {};
-    headers.forEach((h, i) => { row[h] = vals[i] || ''; });
+    headers.forEach((h, i) => { row[h] = (vals[i] || '').trim(); });
     row._rowIndex = idx + 2;
     return row;
   });
