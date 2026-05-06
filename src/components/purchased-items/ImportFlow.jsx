@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
 import { X, Upload, Download, ChevronRight, AlertTriangle, CheckCircle2, SkipForward, RefreshCw } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const IMPORT_FIELDS = [
   ['itemName','Item Name *'],['vendorName','Vendor'],['vendorItemNumber','Vendor Item #'],
@@ -87,7 +88,35 @@ export default function ImportFlow({ onClose, onComplete, user }) {
   const handleFile = (file) => {
     if (!file) return;
     if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-      alert('Please convert your Excel file to CSV format and upload again. Right-click the file > Export As > CSV.');
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const csv = XLSX.utils.sheet_to_csv(ws);
+          const { headers, rows } = parseCSV(csv);
+          if (headers.length < 2) {
+            alert(`Only detected ${headers.length} column(s). Check your file format.`);
+            return;
+          }
+          setHeaders(headers);
+          setRawRows(rows);
+          const autoMap = {};
+          headers.forEach(h => {
+            const normalized = h.toLowerCase().replace(/[\s\-_/]+/g, '');
+            const match = IMPORT_FIELDS.find(([k, l]) =>
+              k.toLowerCase() === normalized ||
+              l.toLowerCase().replace(/[\s\-_/*]+/g, '') === normalized
+            );
+            if (match) autoMap[h] = match[0];
+          });
+          setMapping(autoMap);
+          setStep(2);
+        } catch (err) {
+          alert('Error reading Excel file. Try converting to CSV.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
       return;
     }
     const reader = new FileReader();
@@ -99,9 +128,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
       }
       setHeaders(headers);
       setRawRows(rows);
-      // Auto-map obvious columns
       const autoMap = {};
-      const fieldLabels = IMPORT_FIELDS.map(([k]) => k.toLowerCase());
       headers.forEach(h => {
         const normalized = h.toLowerCase().replace(/[\s\-_/]+/g, '');
         const match = IMPORT_FIELDS.find(([k, l]) =>
