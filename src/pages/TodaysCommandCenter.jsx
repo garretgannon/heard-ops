@@ -295,10 +295,12 @@ export default function TodaysCommandCenter() {
           base44.entities.Issue.filter({ status: "open" }).catch(() => []),
         ]);
         const overdue = [...prepItems.filter(i => i.status === "overdue"), ...sideWork.filter(t => t.status === "overdue")];
+        const dueSoon = [...prepItems.filter(i => i.status === "in_progress" && i.due_time), ...sideWork.filter(t => ["pending", "in_progress"].includes(t.status))];
         const completionPct = prepItems.length > 0 ? Math.round((prepItems.filter(i => ["completed", "approved"].includes(i.status)).length / prepItems.length) * 100) : 0;
         setData(prev => ({
           ...prev,
           overdue: overdue.slice(0, 5),
+          dueSoon: dueSoon.slice(0, 5),
           completionPct,
         }));
       };
@@ -375,7 +377,9 @@ export default function TodaysCommandCenter() {
                 shift={currentShift}
                 completionPct={data?.completionPct || 0}
                 overdueCount={data?.overdue?.length || 0}
+                dueCount={data?.dueSoon?.length || 0}
                 reviewCount={data?.needsReview || 0}
+                criticalAlertCount={0}
                 onViewPlan={() => navigate('/shift-handoff')}
                 onEndShift={() => setShowCloseModal(true)}
               />
@@ -395,99 +399,21 @@ export default function TodaysCommandCenter() {
                 </button>
               </div>
             ) : null}
-            {currentShift?.status === 'running' && shiftLaunched && <CompactQuickActions onActionClick={setActiveModal} />}
+            {currentShift?.status === 'running' && shiftLaunched && (
+              <div className="px-0">
+                <CompactQuickActions onActionClick={setActiveModal} />
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <div className="px-4 py-4 space-y-4 pb-8">
-        {/* Shift Progress Summary Card */}
-        <div className="bg-card border border-border rounded-lg p-3 grid grid-cols-4 gap-2 text-center">
-          <div>
-            <p className="text-lg font-bold text-foreground">{data.completionPct}%</p>
-            <p className="text-[8px] text-muted-foreground">Complete</p>
-          </div>
-          <div className="bg-red-500/10 rounded p-2 border border-red-500/20">
-            <p className="text-base font-bold text-red-400">{data.overdue.length}</p>
-            <p className="text-[8px] text-red-300">Overdue</p>
-          </div>
-          <div className="bg-amber-500/10 rounded p-2 border border-amber-500/20">
-            <p className="text-base font-bold text-amber-400">{data.dueSoon.length}</p>
-            <p className="text-[8px] text-amber-300">Due Soon</p>
-          </div>
-          <div className="bg-blue-500/10 rounded p-2 border border-blue-500/20">
-            <p className="text-base font-bold text-blue-400">{data.needsReview}</p>
-            <p className="text-[8px] text-blue-300">Review</p>
-          </div>
-        </div>
-
-        {/* Needs Attention */}
-        {data.overdue.length > 0 && (
-          <div className="space-y-2.5">
-            <SectionLabel label="Needs Attention" icon={AlertTriangle} count={data.overdue.length} />
-            {data.overdue.slice(0, 5).map(item => (
-              <AttentionCard
-                key={item.id}
-                icon={AlertTriangle}
-                iconColor="text-red-400"
-                iconBg="bg-red-500/15"
-                title={item.title}
-                meta={item.station}
-                subtitle={item.assignee}
-                status="OVERDUE"
-                statusColor="bg-red-500/15 text-red-400 border-red-500/30"
-                onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Due Soon */}
-        {data.dueSoon.length > 0 && (
-          <div className="space-y-2.5">
-            <SectionLabel label="Due Soon" icon={Clock} count={data.dueSoon.length} />
-            {data.dueSoon.slice(0, 5).map(item => (
-              <DueSoonCard
-                key={item.id}
-                icon={Clock}
-                iconColor="text-amber-400"
-                iconBg="bg-amber-500/15"
-                title={item.title}
-                meta={item.station}
-                subtitle={item.assignee}
-                progress={item.progress}
-                onTap={() => {
-                  setActiveTab(item.type === "prep" ? "/today" : "/today");
-                  navigate(item.type === "prep" ? "/prep-lists" : "/side-work");
-                }}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Recently Completed */}
-        {data.completed.length > 0 && (
-          <div className="space-y-2">
-            <SectionLabel label="Recently Completed" icon={CheckCircle2} count={data.completed.length} />
-            {data.completed.map((item, i) => (
-              <CompletedCard
-                key={i}
-                title={item.title}
-                completedBy={item.completedBy}
-                completedAt={item.completedAt}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Daily Events */}
-        <DailyEventsCard />
-
-        {/* Food Safety */}
+      <div className="px-4 py-4 space-y-6 pb-8">
+        {/* FOOD SAFETY - First operational section */}
         {data.tempSafety && (
           <div className="space-y-2">
             <SectionLabel label="Food Safety" icon={Thermometer} />
-            <button onClick={() => navigate('/temp-logs')} className="w-full bg-card border border-border rounded-xl p-3 active:scale-95 transition-all text-left">
+            <button onClick={() => navigate('/temp-logs')} className="w-full bg-card border border-border/50 rounded-xl p-3 active:scale-95 transition-all text-left hover:border-border/80">
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { Icon: Wind, color: 'text-blue-400', bg: 'bg-blue-500/10', label: 'Cooling', count: data.tempSafety.cooling.total, issues: data.tempSafety.cooling.failed, issueLabel: 'failed' },
@@ -508,6 +434,50 @@ export default function TodaysCommandCenter() {
           </div>
         )}
 
+        {/* Needs Attention */}
+        {data.overdue.length > 0 && (
+          <div className="space-y-2.5">
+            <SectionLabel label="Needs Attention" icon={AlertTriangle} count={data.overdue.length} />
+            {data.overdue.slice(0, 3).map(item => (
+              <AttentionCard
+                key={item.id}
+                icon={AlertTriangle}
+                iconColor="text-red-400"
+                iconBg="bg-red-500/15"
+                title={item.title}
+                meta={item.station}
+                subtitle={item.assignee}
+                status="OVERDUE"
+                statusColor="bg-red-500/15 text-red-400 border-red-500/30"
+                onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Due Soon */}
+        {data.dueSoon.length > 0 && (
+          <div className="space-y-2.5">
+            <SectionLabel label="Due Soon" icon={Clock} count={data.dueSoon.length} />
+            {data.dueSoon.slice(0, 3).map(item => (
+              <DueSoonCard
+                key={item.id}
+                icon={Clock}
+                iconColor="text-amber-400"
+                iconBg="bg-amber-500/15"
+                title={item.title}
+                meta={item.station}
+                subtitle={item.assignee}
+                progress={item.progress}
+                onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Daily Events */}
+        <DailyEventsCard />
+
         {/* Shift Notes */}
         {data.latestHandoff && (
           <div className="space-y-2.5">
@@ -517,6 +487,21 @@ export default function TodaysCommandCenter() {
               manager={data.latestHandoff.from_manager_name}
               onTap={() => navigate("/shift-handoff")}
             />
+          </div>
+        )}
+
+        {/* Recently Completed */}
+        {data.completed.length > 0 && (
+          <div className="space-y-2">
+            <SectionLabel label="Recently Completed" icon={CheckCircle2} count={data.completed.length} />
+            {data.completed.slice(0, 2).map((item, i) => (
+              <CompletedCard
+                key={i}
+                title={item.title}
+                completedBy={item.completedBy}
+                completedAt={item.completedAt}
+              />
+            ))}
           </div>
         )}
       </div>

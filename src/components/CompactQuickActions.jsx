@@ -1,28 +1,32 @@
-import { FileText, Plus, Droplet, Thermometer } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { FileText, ListTodo, Thermometer, UtensilsCrossed, Lightbulb } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 
-export default function CompactQuickActions({ onActionClick }) {
-  const actions = [
-    { id: "manager-log", label: "Log", icon: FileText },
-    { id: "add-task", label: "Task", icon: Plus },
-    { id: "update-prep", label: "Prep", icon: Droplet },
-    { id: "log-temp", label: "Temp", icon: Thermometer },
-  ];
+const QUICK_ACTIONS = [
+  { id: "manager_log", label: "Manager Log", icon: FileText, color: "text-blue-400" },
+  { id: "add_task", label: "Add Task", icon: ListTodo, color: "text-primary" },
+  { id: "temp_log", label: "Temps", icon: Thermometer, color: "text-cyan-400" },
+  { id: "prep_item", label: "Prep", icon: UtensilsCrossed, color: "text-amber-400" },
+  { id: "issue", label: "Issue", icon: Lightbulb, color: "text-orange-400" },
+];
 
+export default function CompactQuickActions({ onActionClick }) {
   return (
-    <div className="flex gap-2">
-      {actions.map(action => (
+    <div className="grid grid-cols-5 gap-2">
+      {QUICK_ACTIONS.map(({ id, label, icon: Icon, color }) => (
         <button
-          key={action.id}
+          key={id}
           onClick={() => {
-            haptics.light?.();
-            onActionClick?.(action.id);
+            haptics.light();
+            onActionClick?.(id);
           }}
-          className="flex-1 h-8 rounded-lg border border-border bg-muted text-secondary-text text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all hover:bg-muted/80"
+          className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg bg-card border border-border/50 hover:border-border/80 active:scale-95 transition-all group"
         >
-          <action.icon className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{action.label}</span>
+          <div className="relative">
+            <Icon className={`h-5 w-5 stroke-[1.5] ${color}`} />
+          </div>
+          <span className="text-[9px] font-bold text-secondary-text text-center leading-tight group-hover:text-foreground transition-colors">
+            {label}
+          </span>
         </button>
       ))}
     </div>
