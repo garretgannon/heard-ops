@@ -89,7 +89,6 @@ export default function Logs() {
 
   useEffect(() => {
     const load = async () => {
-      setLoading(true);
       try {
         const collected = [];
 

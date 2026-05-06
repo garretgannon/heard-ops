@@ -127,14 +127,6 @@ export default function Knowledge() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="pb-24">
       <KnowledgeHeader onNotifications={() => navigate("/today")} />
