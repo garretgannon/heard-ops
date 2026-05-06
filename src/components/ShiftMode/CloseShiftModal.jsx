@@ -5,7 +5,7 @@ import { X, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 export default function CloseShiftModal({ isOpen, onClose, shift }) {
-  const { markClosing, completeShift } = useShiftMode();
+  const { markClosing, completeShift, reopenShift } = useShiftMode();
   const [blockers, setBlockers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState('blockers'); // blockers, handoff, complete
@@ -79,19 +79,29 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
   // Complete Screen
   if (screen === 'complete') {
     return (
-      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
-        <div className="text-center space-y-3">
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center p-6">
+        <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-6 text-center space-y-4">
           <div className="h-16 w-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-8 w-8 text-green-400" />
           </div>
-          <p className="text-foreground font-bold">Shift Complete</p>
-          <p className="text-sm text-secondary-text">Score: {shift.score}</p>
-          <button
-            onClick={onClose}
-            className="btn-primary mt-4 text-sm h-10"
-          >
-            Done
-          </button>
+          <div>
+            <p className="text-lg font-bold text-foreground">Shift Complete</p>
+            <p className="text-sm text-muted-foreground mt-1">Great work! The shift has been closed.</p>
+          </div>
+          <div className="space-y-2 pt-2">
+            <button
+              onClick={onClose}
+              className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold active:scale-95 transition-all"
+            >
+              Start New Shift
+            </button>
+            <button
+              onClick={async () => { haptics.medium(); await reopenShift(shift.id); onClose(); }}
+              className="w-full h-11 rounded-xl border border-border bg-muted text-foreground font-bold active:scale-95 transition-all"
+            >
+              Re-open This Shift
+            </button>
+          </div>
         </div>
       </div>
     );

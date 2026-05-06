@@ -58,6 +58,11 @@ export function ShiftModeProvider({ children }) {
     await loadCurrentShift();
   };
 
+  const reopenShift = async (shiftId) => {
+    await base44.entities.Shift.update(shiftId, { status: 'running', ended_at: null });
+    await loadCurrentShift();
+  };
+
   const markClosing = async (shiftId) => {
     await base44.entities.Shift.update(shiftId, { status: 'closing' });
     await loadCurrentShift();
@@ -75,7 +80,7 @@ export function ShiftModeProvider({ children }) {
   };
 
   return (
-    <ShiftModeContext.Provider value={{ currentShift, loading, startShift, updateSetupChecklist, markSetupComplete, markClosing, completeShift, loadCurrentShift }}>
+    <ShiftModeContext.Provider value={{ currentShift, loading, startShift, updateSetupChecklist, markSetupComplete, markClosing, completeShift, reopenShift, loadCurrentShift }}>
       {children}
     </ShiftModeContext.Provider>
   );
