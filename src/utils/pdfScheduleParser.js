@@ -17,7 +17,7 @@ export async function extractPDFText(file) {
 }
 
 export function parsePDFScheduleData(text) {
-  const lines = text.split('\n').filter(l => l.trim());
+  const lines = text.split('\n').filter(l => l.trim().length > 5);
   const data = [];
 
   for (const line of lines) {
@@ -41,32 +41,38 @@ export function parsePDFScheduleData(text) {
       entry.end_time = timeMatches[1].trim();
     }
 
-    // Extract employee name: text before the first date or time pattern
-    let nameSection = line;
+    // Extract employee name: look for capitalized words at the start of the line
+    let nameSection = '';
+    
+    // Get text before date or time
     if (dateMatch) {
       nameSection = line.substring(0, dateMatch.index).trim();
     } else if (timeMatches && timeMatches.length > 0) {
       const timeIndex = line.indexOf(timeMatches[0]);
       nameSection = line.substring(0, timeIndex).trim();
+    } else {
+      // If no date/time found, assume first portion is the name
+      nameSection = line.split(/\d{1,2}[:\/\-]/)[0].trim();
     }
-
-    // Clean up and extract name
+    
+    // Clean up name section
     if (nameSection) {
-      const roleKeywords = ['FOH', 'BOH', 'Host', 'Server', 'Chef', 'Manager', 'Busser', 'Bartender'];
+      const roleKeywords = ['FOH', 'BOH', 'Host', 'Server', 'Chef', 'Manager', 'Busser', 'Bartender', 'Line', 'Prep', 'Dish', 'Bar', 'Expo'];
       let cleanName = nameSection;
       
-      // Remove role keywords
+      // Remove role keywords and numbers at edges
       for (const keyword of roleKeywords) {
-        cleanName = cleanName.replace(new RegExp(keyword, 'gi'), '').trim();
+        cleanName = cleanName.replace(new RegExp('\\b' + keyword + '\\b', 'gi'), '');
       }
+      cleanName = cleanName.replace(/^[\d\s\-.,;:()\[\]{}|*#]+/, '').replace(/[\d\s\-.,;:()\[\]{}|*#]+$/, '').trim();
       
-      // Remove leading/trailing numbers, punctuation, and extra whitespace
-      cleanName = cleanName.replace(/^[\d\s\-.,;:()\[\]{}]+/, '').replace(/[\d\s\-.,;:()\[\]{}]+$/, '').trim();
-      
-      // Extract capitalized name pattern (First Last, or longer names)
-      const nameMatch = cleanName.match(/^([A-Z][a-z]*(?:\s+[A-Z][a-z]*)*)/);
-      if (nameMatch && nameMatch[0].length > 2) {
-        entry.employee_name = nameMatch[0].trim();
+      // Match capitalized word patterns: First Last format or single names
+      const nameMatch = cleanName.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/);
+      if (nameMatch) {
+        const possibleName = nameMatch[0].trim();
+        if (possibleName.length > 2 && possibleName.split(' ').every(word => /^[A-Za-z]+$/.test(word))) {
+          entry.employee_name = possibleName;
+        }
       }
     }
 
