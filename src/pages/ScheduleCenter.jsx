@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { haptics } from "@/utils/haptics";
 import { formatDistanceToNow, isToday, startOfToday, endOfToday, startOfWeek, endOfWeek, format, parse, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay } from "date-fns";
 
 const TABS = [
@@ -107,6 +108,7 @@ export default function ScheduleCenter() {
   const [requestDialog, setRequestDialog] = useState(null);
   const [importFile, setImportFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [seedingData, setSeedingData] = useState(false);
   const [form, setForm] = useState({
     employee_email: "", employee_name: "", date: "", start_time: "", end_time: "",
     role: "", department: "", notes: ""
@@ -210,11 +212,40 @@ export default function ScheduleCenter() {
     setUploading(false);
   };
 
+  const handleSeedDummyData = async () => {
+    setSeedingData(true);
+    try {
+      await base44.functions.invoke("seedDummyTeam", {});
+      haptics.success?.();
+      toast.success("Dummy team data created");
+      const [updatedShifts, updatedEmployees] = await Promise.all([
+        base44.entities.StaffShift.list("-date", 500).catch(() => []),
+        base44.entities.User.list().catch(() => [])
+      ]);
+      setShifts(updatedShifts);
+      setEmployees(updatedEmployees);
+    } catch (err) {
+      toast.error("Failed to seed data");
+    }
+    setSeedingData(false);
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center h-48">
       <div className="w-4 h-4 border-2 border-[#FF6A00] border-t-transparent rounded-full animate-spin" />
     </div>
   );
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center h-48 flex-col gap-4">
+        <p className="text-sm text-[#6B7280]">Only managers can view the schedule.</p>
+        <button onClick={handleSeedDummyData} disabled={seedingData} className="px-4 py-2 bg-[#FF6A00] text-black font-bold rounded-lg text-sm disabled:opacity-50 active:scale-95 transition-transform">
+          {seedingData ? "Seeding..." : "Seed Dummy Data"}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0B0B0D] pb-32">
@@ -426,19 +457,30 @@ export default function ScheduleCenter() {
                <Upload className="h-4 w-4" />
                <span className="text-xs">Go to Schedule Import</span>
              </button>
+            </div>
+
+           {/* Manual Add */}
+           <div>
+             <button
+               onClick={() => setShiftDialog("new")}
+               className="w-full h-10 flex items-center justify-center gap-2 rounded-lg bg-[#141418] border border-[#1F1F24] text-xs font-bold text-[#A1A1AA] hover:border-[#FF6A00] active:scale-95 transition-all"
+             >
+               <Plus className="h-4 w-4" /> Add Shift Manually
+             </button>
            </div>
 
-          {/* Manual Add */}
-          <div>
-            <button
-              onClick={() => setShiftDialog("new")}
-              className="w-full h-10 flex items-center justify-center gap-2 rounded-lg bg-[#141418] border border-[#1F1F24] text-xs font-bold text-[#A1A1AA] hover:border-[#FF6A00] active:scale-95 transition-all"
-            >
-              <Plus className="h-4 w-4" /> Add Shift Manually
-            </button>
-          </div>
-        </div>
-      )}
+           {/* Seed Dummy Data */}
+           <div>
+             <button
+               onClick={handleSeedDummyData}
+               disabled={seedingData}
+               className="w-full h-10 flex items-center justify-center gap-2 rounded-lg bg-[#141418] border border-[#1F1F24] text-xs font-bold text-[#A1A1AA] hover:border-amber-400 disabled:opacity-50 active:scale-95 transition-all"
+             >
+               {seedingData ? "Creating..." : "+ Seed Dummy Team Data"}
+             </button>
+           </div>
+         </div>
+       )}
 
       {/* Import Dialog */}
       <Dialog open={importDialog} onOpenChange={setImportDialog}>
