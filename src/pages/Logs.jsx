@@ -257,7 +257,7 @@ export default function Logs() {
     <div className="pb-24">
       <LogsHeader onNotifications={() => navigate("/today")} />
 
-      <div className="px-4 py-4 space-y-4">
+      <div className="px-4 py-2 space-y-4">
         {/* Filter Tabs */}
         <div className="flex gap-1.5 overflow-x-auto pb-2">
           {FILTER_TABS.map(tab => (
