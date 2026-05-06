@@ -2,67 +2,51 @@
   "name": "WasteEntry",
   "type": "object",
   "properties": {
-    "item_name": {
+    "itemName": {
       "type": "string",
       "title": "Item Name"
     },
-    "category": {
+    "purchasedItemId": {
       "type": "string",
-      "title": "Category",
-      "enum": [
-        "Kitchen",
-        "Bar",
-        "Bakery",
-        "Prep",
-        "Other"
-      ],
-      "enumNames": [
-        "Kitchen",
-        "Bar",
-        "Bakery",
-        "Prep",
-        "Other"
-      ]
+      "title": "Linked Purchased Item ID"
     },
     "quantity": {
       "type": "number",
-      "title": "Quantity Wasted"
+      "title": "Quantity"
     },
     "unit": {
       "type": "string",
-      "title": "Unit (e.g. lbs, portions, each)"
+      "title": "Unit"
+    },
+    "estimatedCost": {
+      "type": "number",
+      "title": "Estimated Waste Cost ($)"
     },
     "reason": {
       "type": "string",
-      "title": "Reason",
+      "title": "Waste Reason",
       "enum": [
-        "Spoiled",
-        "Over-prepped",
-        "Dropped",
         "Expired",
-        "Wrong order",
-        "Other"
-      ],
-      "enumNames": [
-        "Spoiled",
-        "Over-prepped",
+        "Overproduction",
         "Dropped",
-        "Expired",
-        "Wrong order",
+        "Contaminated",
+        "Trimming/Prep",
+        "Temperature Abuse",
         "Other"
       ]
     },
-    "dollar_value": {
-      "type": "number",
-      "title": "Dollar Value Lost"
-    },
-    "reported_by": {
+    "wasteDate": {
       "type": "string",
-      "title": "Reported By"
+      "format": "date",
+      "title": "Waste Date"
     },
-    "logged_at": {
+    "wasteTime": {
       "type": "string",
-      "title": "Logged At (ISO)"
+      "title": "Waste Time"
+    },
+    "wastedBy": {
+      "type": "string",
+      "title": "Logged By"
     },
     "notes": {
       "type": "string",
@@ -70,9 +54,6 @@
     }
   },
   "required": [
-    "item_name",
-    "category",
-    "quantity",
-    "reason"
+    "itemName"
   ]
 }

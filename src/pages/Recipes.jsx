@@ -6,6 +6,7 @@ import {
   BookOpen, Search, Plus, ChevronRight, Clock, Package, Archive,
   AlertTriangle, Link2, Camera, Edit2, Copy, X, CheckCircle2, Utensils
 } from 'lucide-react';
+import RecipeCosting from '@/components/recipes/RecipeCosting';
 
 const CATEGORIES = ['all','prep','sauce','protein','pantry','bakery','bar','dessert','archived'];
 const STATIONS = ['Grill','Fry','Pantry','Prep','Bakery','Bar','Expo'];
@@ -243,15 +244,20 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
           </SectionBlock>
         )}
 
+        {/* Recipe Costing (managers/admins only) */}
+        {isAdmin && ingredients.length > 0 && (
+          <RecipeCosting recipe={recipe} ingredients={ingredients} />
+        )}
+
         {/* Notes */}
         {recipe.notes && (
           <SectionBlock title="Notes">
             <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-xl p-3">{recipe.notes}</p>
           </SectionBlock>
         )}
-      </div>
+        </div>
 
-      {/* Manager Actions */}
+        {/* Manager Actions */}
       {isAdmin && (
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex gap-2">
           <button onClick={() => onEdit(recipe)} className="flex-1 btn-primary text-xs flex items-center justify-center gap-1 h-10">

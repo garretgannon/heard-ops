@@ -6,6 +6,7 @@ import {
   Utensils, Search, Plus, ChevronRight, Camera, AlertTriangle,
   Link2, Edit2, X, Package, Clock, AlertCircle, Copy, Archive
 } from 'lucide-react';
+import BuildCardCosting from '@/components/buildcards/BuildCardCosting';
 
 const CATEGORIES = ['all','appetizer','entree','sandwich','salad','dessert','cocktail','na-drink','archived'];
 const CATEGORY_LABELS = { 'na-drink': 'NA Drink', appetizer: 'Appetizer', entree: 'Entree', sandwich: 'Sandwich', salad: 'Salad', dessert: 'Dessert', cocktail: 'Cocktail' };
@@ -269,6 +270,11 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
               ))}
             </div>
           </SectionBlock>
+        )}
+
+        {/* Build Card Costing (managers/admins only) */}
+        {isAdmin && components.length > 0 && (
+          <BuildCardCosting card={card} components={components} />
         )}
 
         {/* Notes */}

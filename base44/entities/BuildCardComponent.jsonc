@@ -10,6 +10,14 @@
       "type": "string",
       "title": "Component"
     },
+    "purchasedItemId": {
+      "type": "string",
+      "title": "Linked Purchased Item ID"
+    },
+    "linkedRecipeId": {
+      "type": "string",
+      "title": "Linked Recipe ID"
+    },
     "quantity": {
       "type": "number",
       "title": "Quantity"
@@ -18,13 +26,28 @@
       "type": "string",
       "title": "Unit"
     },
+    "costPerUnit": {
+      "type": "number",
+      "title": "Cost Per Unit ($)"
+    },
+    "lineCost": {
+      "type": "number",
+      "title": "Line Cost ($)"
+    },
+    "costingStatus": {
+      "type": "string",
+      "title": "Costing Status",
+      "enum": [
+        "ok",
+        "unlinked",
+        "no-conversion",
+        "recipe-no-cost"
+      ],
+      "default": "unlinked"
+    },
     "placementInstruction": {
       "type": "string",
       "title": "Placement / Instruction"
-    },
-    "linkedRecipeId": {
-      "type": "string",
-      "title": "Linked Recipe ID"
     },
     "sortOrder": {
       "type": "number",

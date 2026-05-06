@@ -10,6 +10,10 @@
       "type": "string",
       "title": "Ingredient"
     },
+    "purchasedItemId": {
+      "type": "string",
+      "title": "Linked Purchased Item ID"
+    },
     "quantity": {
       "type": "number",
       "title": "Quantity"
@@ -17,6 +21,25 @@
     "unit": {
       "type": "string",
       "title": "Unit"
+    },
+    "costPerUnit": {
+      "type": "number",
+      "title": "Cost Per Unit ($)"
+    },
+    "lineCost": {
+      "type": "number",
+      "title": "Line Cost ($)"
+    },
+    "costingStatus": {
+      "type": "string",
+      "title": "Costing Status",
+      "enum": [
+        "ok",
+        "unlinked",
+        "no-conversion",
+        "unit-mismatch"
+      ],
+      "default": "unlinked"
     },
     "prepNote": {
       "type": "string",
