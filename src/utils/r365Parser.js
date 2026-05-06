@@ -7,19 +7,21 @@ import * as pdfjsLib from 'pdfjs-dist';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export const ROLE_MAPPINGS = {
-  'server': 'Server', 'srv': 'Server', 'foh server': 'Server',
+  'server': 'Server', 'srv': 'Server',
   'bartender': 'Bartender', 'bar': 'Bartender',
   'host': 'Host', 'hostess': 'Host',
   'busser': 'Busser', 'bus': 'Busser',
-  'cook': 'Cook', 'line cook': 'Cook', 'line': 'Cook',
+  'cook': 'Cook', 'line cook': 'Cook',
   'prep cook': 'Prep Cook', 'prep': 'Prep Cook',
   'dishwasher': 'Dishwasher', 'dish': 'Dishwasher',
   'expo': 'Expo', 'expediter': 'Expo',
-  'manager': 'Manager', 'mod': 'Manager', 'foh manager': 'Manager', 'boh manager': 'Manager',
+  'manager': 'Manager', 'mod': 'Manager',
   'kitchen lead hourly': 'Kitchen Lead',
   'event coordinator': 'Event Coordinator',
   'service professional': 'Service Professional',
   'baker': 'Baker',
+  'boh manager': 'Manager',
+  'foh manager': 'Manager',
 };
 
 export async function extractPDFText(file) {
@@ -38,79 +40,76 @@ export async function extractPDFText(file) {
 
 export function parsePDFScheduleText(text) {
   const shifts = [];
-
-  // Split text into lines and clean up
-  const lines = text.split('\n')
-    .map(l => l.trim())
-    .filter(l => l.length > 0);
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
   if (lines.length === 0) {
     return { shifts: [], confidence: 'low' };
   }
 
-  // Find all employee names (capitalized name patterns that appear as standalone lines)
-  const employeeIndices = [];
+  // Keywords to skip when identifying employee names
   const skipKeywords = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
-    'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'OT Hours', 'Fixed Labor', 'Sales', 'Labor',
-    'Week of', 'Schedule', 'Scheduler', 'Morning', 'Afternoon', 'Evening', 'Night'];
+    'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'OT', 'Fixed', 'Sales', 'Labor',
+    'Week', 'Schedule', 'Scheduler'];
 
-  lines.forEach((line, idx) => {
-    // Check if line looks like an employee name (First Last, or First Middle Last)
-    if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+$/.test(line)) {
-      // Skip if it's a keyword
-      if (!skipKeywords.some(kw => line.includes(kw))) {
-        employeeIndices.push({ name: line, idx });
+  // Find employee names and their associated shifts
+  for (let i = 0; i < lines.length - 1; i++) {
+    const line = lines[i];
+
+    // Check if this line is an employee name
+    if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(line) && !skipKeywords.some(k => line.includes(k))) {
+      const employeeName = line;
+
+      // Look ahead for shifts (time ranges) and roles
+      let j = i + 1;
+      while (j < lines.length && lines[j]) {
+        const nextLine = lines[j];
+
+        // Check if next line is a time range pattern (HH:MMp - HH:MMp)
+        const timeMatch = nextLine.match(/^(\d{1,2}):(\d{2})([ap])\s*-\s*(\d{1,2}):(\d{2})([ap])$/);
+
+        if (timeMatch) {
+          const [, startH, startM, startP, endH, endM, endP] = timeMatch;
+          const startTime = formatTime(parseInt(startH), startM, startP);
+          const endTime = formatTime(parseInt(endH), endM, endP);
+
+          // Look for role on next line
+          let role = '';
+          if (j + 1 < lines.length) {
+            const roleLine = lines[j + 1];
+            // Check if it looks like a role (capitalized words, not a time, not a name)
+            if (!/^\d{1,2}:\d{2}/.test(roleLine) && !/^[A-Z][a-z]+\s+[A-Z][a-z]+$/.test(roleLine)) {
+              role = roleLine;
+              j++; // Skip the role line
+            }
+          }
+
+          if (startTime && endTime) {
+            shifts.push({
+              raw_employee_name: employeeName,
+              shift_date: null,
+              raw_shift_text: `${nextLine}${role ? ' ' + role : ''}`,
+              parsed_start_time: startTime,
+              parsed_end_time: endTime,
+              raw_role: role,
+              status: 'warning',
+              error_message: 'Requires date selection',
+            });
+          }
+
+          j++;
+        } else if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(nextLine)) {
+          // Hit the next employee name, stop looking for shifts
+          break;
+        } else {
+          j++;
+        }
       }
     }
-  });
-
-  if (employeeIndices.length === 0) {
-    return { shifts: [], confidence: 'low' };
   }
 
-  // Extract shifts for each employee
-  employeeIndices.forEach((emp, empIdx) => {
-    const startIdx = emp.idx + 1;
-    const endIdx = empIdx < employeeIndices.length - 1 ? employeeIndices[empIdx + 1].idx : lines.length;
-
-    // Collect all text for this employee's shifts
-    const empText = lines.slice(startIdx, endIdx).join(' ');
-
-    // Match shift patterns: "HH:MMa - HH:MMp RoleType"
-    // Pattern handles: "3:00p - 9:00p Bartender" or "7:00a - 3:00p Kitchen Lead Hourly"
-    const shiftRegex = /(\d{1,2}):(\d{2})([ap])\s*-\s*(\d{1,2}):(\d{2})([ap])\s+([A-Za-z\s]+?)(?=\d{1,2}:\d{2}|$)/g;
-
-    let match;
-    while ((match = shiftRegex.exec(empText)) !== null) {
-      const startH = parseInt(match[1]);
-      const startM = match[2];
-      const startP = match[3];
-      const endH = parseInt(match[4]);
-      const endM = match[5];
-      const endP = match[6];
-      const roleText = match[7].trim();
-
-      const startTime = formatTime(startH, startM, startP);
-      const endTime = formatTime(endH, endM, endP);
-
-      if (startTime && endTime) {
-        shifts.push({
-          raw_employee_name: emp.name,
-          shift_date: null,
-          raw_shift_text: match[0].trim(),
-          parsed_start_time: startTime,
-          parsed_end_time: endTime,
-          raw_role: roleText,
-          status: 'warning',
-          error_message: 'Requires date selection',
-        });
-      }
-    }
-  });
-
-  return { 
-    shifts: shifts.length > 0 ? shifts : [],
-    confidence: shifts.length > 0 ? 'medium' : 'low' 
+  return {
+    shifts,
+    confidence: shifts.length > 0 ? 'medium' : 'low',
   };
 }
 
@@ -118,7 +117,7 @@ function formatTime(h, m, ampm) {
   let hours = h;
   if (ampm === 'p' && hours < 12) hours += 12;
   if (ampm === 'a' && hours === 12) hours = 0;
-  return `${String(hours).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  return `${String(hours).padStart(2, '0')}:${m}`;
 }
 
 export function detectLayout(rows) {
