@@ -21,9 +21,9 @@ export default function GlobalBottomNav() {
                 isActive && "text-primary"
               )}
             >
-              {/* Active indicator */}
+              {/* Active indicator — top pill */}
               {isActive && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-8 bg-primary rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 bg-primary rounded-full" />
               )}
 
               {/* Icon */}
