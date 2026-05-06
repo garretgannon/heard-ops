@@ -34,6 +34,7 @@ import {
   Notebook,
   ChefHat,
   LayoutTemplate,
+  Package,
 } from "lucide-react";
 
 /**
@@ -342,6 +343,19 @@ export const allRoutes = {
     },
   },
 
+  // ITEM MASTER
+  itemMaster: {
+    purchasedItems: {
+      path: '/purchased-items',
+      label: 'Purchased Items',
+      icon: Package,
+      component: 'PurchasedItems',
+      roles: ['admin'],
+      module: 'itemMaster',
+      description: 'Item master for recipe costing, inventory, vendors, and waste',
+    },
+  },
+
   // OPERATIONS & MANAGEMENT
   operations: {
     issues: {
@@ -499,6 +513,7 @@ export const morePageStructure = {
     title: "Inventory",
     description: "Waste and availability",
     items: [
+      "purchasedItems",
       "wasteLog",
       "wasteTemplates",
       "eightySixLog",

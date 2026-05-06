@@ -1,0 +1,201 @@
+{
+  "name": "PurchasedItem",
+  "type": "object",
+  "properties": {
+    "itemName": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "normalizedName": {
+      "type": "string",
+      "title": "Normalized Name"
+    },
+    "vendorId": {
+      "type": "string",
+      "title": "Vendor ID"
+    },
+    "vendorName": {
+      "type": "string",
+      "title": "Vendor Name"
+    },
+    "vendorItemNumber": {
+      "type": "string",
+      "title": "Vendor Item Number"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "protein",
+        "produce",
+        "dairy",
+        "dry-goods",
+        "frozen",
+        "beverage",
+        "alcohol",
+        "chemicals",
+        "disposables",
+        "smallwares",
+        "paper",
+        "bakery",
+        "seafood",
+        "other"
+      ],
+      "enumNames": [
+        "Protein",
+        "Produce",
+        "Dairy",
+        "Dry Goods",
+        "Frozen",
+        "Beverage",
+        "Alcohol",
+        "Chemicals",
+        "Disposables",
+        "Smallwares",
+        "Paper/Packaging",
+        "Bakery",
+        "Seafood",
+        "Other"
+      ]
+    },
+    "subcategory": {
+      "type": "string",
+      "title": "Subcategory"
+    },
+    "brand": {
+      "type": "string",
+      "title": "Brand"
+    },
+    "purchaseUnit": {
+      "type": "string",
+      "title": "Purchase Unit"
+    },
+    "packSize": {
+      "type": "string",
+      "title": "Pack Size (e.g. 40 lb)"
+    },
+    "caseQuantity": {
+      "type": "number",
+      "title": "Case Quantity"
+    },
+    "innerPackQuantity": {
+      "type": "number",
+      "title": "Inner Pack Quantity"
+    },
+    "itemSize": {
+      "type": "number",
+      "title": "Item Size"
+    },
+    "itemUnit": {
+      "type": "string",
+      "title": "Item Unit"
+    },
+    "totalCaseSize": {
+      "type": "number",
+      "title": "Total Case Size"
+    },
+    "caseCost": {
+      "type": "number",
+      "title": "Case Cost ($)"
+    },
+    "unitCost": {
+      "type": "number",
+      "title": "Unit Cost ($)"
+    },
+    "recipeUnit": {
+      "type": "string",
+      "title": "Recipe Unit"
+    },
+    "inventoryUnit": {
+      "type": "string",
+      "title": "Inventory Unit"
+    },
+    "conversionFactor": {
+      "type": "number",
+      "title": "Conversion Factor (purchase \u2192 recipe unit)"
+    },
+    "costPerRecipeUnit": {
+      "type": "number",
+      "title": "Cost Per Recipe Unit ($)"
+    },
+    "costPerOz": {
+      "type": "number",
+      "title": "Cost Per Oz ($)"
+    },
+    "costPerLb": {
+      "type": "number",
+      "title": "Cost Per Lb ($)"
+    },
+    "costPerEach": {
+      "type": "number",
+      "title": "Cost Per Each ($)"
+    },
+    "edibleYieldPercent": {
+      "type": "number",
+      "title": "Edible Yield (%)",
+      "default": 100
+    },
+    "trimWastePercent": {
+      "type": "number",
+      "title": "Trim/Waste (%)",
+      "default": 0
+    },
+    "storageArea": {
+      "type": "string",
+      "title": "Storage Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "parLevel": {
+      "type": "number",
+      "title": "Par Level"
+    },
+    "reorderPoint": {
+      "type": "number",
+      "title": "Reorder Point"
+    },
+    "countFrequency": {
+      "type": "string",
+      "title": "Count Frequency",
+      "enum": [
+        "daily",
+        "weekly",
+        "bi-weekly",
+        "monthly"
+      ],
+      "enumNames": [
+        "Daily",
+        "Weekly",
+        "Bi-Weekly",
+        "Monthly"
+      ]
+    },
+    "taxable": {
+      "type": "boolean",
+      "title": "Taxable",
+      "default": false
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "lastPriceUpdate": {
+      "type": "string",
+      "title": "Last Price Update"
+    },
+    "importBatchId": {
+      "type": "string",
+      "title": "Import Batch ID"
+    }
+  },
+  "required": [
+    "itemName"
+  ]
+}

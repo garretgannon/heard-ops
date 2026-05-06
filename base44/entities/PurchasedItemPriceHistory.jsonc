@@ -1,0 +1,68 @@
+{
+  "name": "PurchasedItemPriceHistory",
+  "type": "object",
+  "properties": {
+    "purchasedItemId": {
+      "type": "string",
+      "title": "Purchased Item ID"
+    },
+    "vendorId": {
+      "type": "string",
+      "title": "Vendor ID"
+    },
+    "vendorName": {
+      "type": "string",
+      "title": "Vendor Name"
+    },
+    "oldCaseCost": {
+      "type": "number",
+      "title": "Old Case Cost ($)"
+    },
+    "newCaseCost": {
+      "type": "number",
+      "title": "New Case Cost ($)"
+    },
+    "oldUnitCost": {
+      "type": "number",
+      "title": "Old Unit Cost ($)"
+    },
+    "newUnitCost": {
+      "type": "number",
+      "title": "New Unit Cost ($)"
+    },
+    "changePercent": {
+      "type": "number",
+      "title": "Change (%)"
+    },
+    "source": {
+      "type": "string",
+      "title": "Source",
+      "enum": [
+        "manual",
+        "import",
+        "vendor-invoice"
+      ],
+      "enumNames": [
+        "Manual",
+        "Import",
+        "Vendor Invoice"
+      ],
+      "default": "manual"
+    },
+    "changedBy": {
+      "type": "string",
+      "title": "Changed By"
+    },
+    "changedAt": {
+      "type": "string",
+      "title": "Changed At"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "purchasedItemId"
+  ]
+}

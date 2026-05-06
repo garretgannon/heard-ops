@@ -37,6 +37,7 @@ import MyRestaurant from './pages/MyRestaurant';
 import NotificationSettings from './pages/NotificationSettings';
 import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
 import ReservationsAndBEOs from './pages/ReservationsAndBEOs';
+import PurchasedItems from './pages/PurchasedItems';
 import Recipes from './pages/Recipes';
 import BuildCards from './pages/BuildCards';
 import Standards from './pages/Standards';
@@ -124,6 +125,7 @@ const AuthenticatedApp = () => {
         <Route path="/build-cards" element={<BuildCards />} />
         <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
         <Route path="/reservations" element={<ReservationsAndBEOs />} />
+        <Route path="/purchased-items" element={<PurchasedItems />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/msds" element={<MSDS />} />
         <Route path="/templates" element={<TemplateList />} />

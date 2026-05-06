@@ -1,0 +1,80 @@
+{
+  "name": "PurchasedItemImportRow",
+  "type": "object",
+  "properties": {
+    "importBatchId": {
+      "type": "string",
+      "title": "Import Batch ID"
+    },
+    "rowNumber": {
+      "type": "number",
+      "title": "Row Number"
+    },
+    "rawData": {
+      "type": "string",
+      "title": "Raw Data (JSON)"
+    },
+    "mappedData": {
+      "type": "string",
+      "title": "Mapped Data (JSON)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "ok",
+        "issue",
+        "skipped",
+        "merged",
+        "created",
+        "updated"
+      ],
+      "enumNames": [
+        "Pending",
+        "OK",
+        "Has Issues",
+        "Skipped",
+        "Merged",
+        "Created",
+        "Updated"
+      ],
+      "default": "pending"
+    },
+    "issueType": {
+      "type": "string",
+      "title": "Issue Type"
+    },
+    "issueMessage": {
+      "type": "string",
+      "title": "Issue Message"
+    },
+    "matchedPurchasedItemId": {
+      "type": "string",
+      "title": "Matched Item ID"
+    },
+    "actionTaken": {
+      "type": "string",
+      "title": "Action Taken",
+      "enum": [
+        "create",
+        "update",
+        "skip",
+        "merge",
+        "pending"
+      ],
+      "enumNames": [
+        "Create New",
+        "Update Existing",
+        "Skip",
+        "Merge",
+        "Pending"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "importBatchId",
+    "rowNumber"
+  ]
+}

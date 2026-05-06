@@ -1,0 +1,77 @@
+{
+  "name": "PurchasedItemImportBatch",
+  "type": "object",
+  "properties": {
+    "fileName": {
+      "type": "string",
+      "title": "File Name"
+    },
+    "uploadedBy": {
+      "type": "string",
+      "title": "Uploaded By"
+    },
+    "uploadedAt": {
+      "type": "string",
+      "title": "Uploaded At"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "mapping",
+        "preview",
+        "review",
+        "confirmed",
+        "complete",
+        "cancelled"
+      ],
+      "enumNames": [
+        "Pending",
+        "Mapping",
+        "Preview",
+        "Review",
+        "Confirmed",
+        "Complete",
+        "Cancelled"
+      ],
+      "default": "pending"
+    },
+    "totalRows": {
+      "type": "number",
+      "title": "Total Rows",
+      "default": 0
+    },
+    "createdCount": {
+      "type": "number",
+      "title": "Created",
+      "default": 0
+    },
+    "updatedCount": {
+      "type": "number",
+      "title": "Updated",
+      "default": 0
+    },
+    "skippedCount": {
+      "type": "number",
+      "title": "Skipped",
+      "default": 0
+    },
+    "issueCount": {
+      "type": "number",
+      "title": "Issues",
+      "default": 0
+    },
+    "columnMapping": {
+      "type": "string",
+      "title": "Column Mapping (JSON)"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "fileName"
+  ]
+}
