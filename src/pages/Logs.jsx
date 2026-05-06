@@ -92,12 +92,14 @@ export default function Logs() {
       try {
         const collected = [];
 
-        const [tempLogs, wasteLogs, eightySixItems, issues, managerLogs] = await Promise.all([
-          base44.entities.TemperatureLog.list("-logged_at", 50).catch(() => []),
-          base44.entities.WasteEntry.list("-created_date", 50).catch(() => []),
-          base44.entities.EightySixItem.list("-marked_at", 50).catch(() => []),
-          base44.entities.Issue.list("-created_date", 50).catch(() => []),
-          base44.entities.ManagerLog.list("-created_date", 50).catch(() => []),
+        const [tempLogs, wasteLogs] = await Promise.all([
+          base44.entities.TemperatureLog.list("-logged_at", 30).catch(() => []),
+          base44.entities.WasteEntry.list("-created_date", 30).catch(() => []),
+        ]);
+        const [eightySixItems, issues, managerLogs] = await Promise.all([
+          base44.entities.EightySixItem.list("-marked_at", 30).catch(() => []),
+          base44.entities.Issue.list("-created_date", 30).catch(() => []),
+          base44.entities.ManagerLog.list("-created_date", 30).catch(() => []),
         ]);
 
         // Temperature Logs

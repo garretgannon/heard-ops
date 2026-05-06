@@ -90,28 +90,17 @@ export default function Knowledge() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [recipes, vendors, knowledge, managerLogs, reservations, beos] = await Promise.all([
-          base44.entities.Recipe.list().catch(() => []),
-          base44.entities.Vendor.list().catch(() => []),
-          base44.entities.Knowledge.list().catch(() => []),
-          base44.entities.ManagerLog.list().catch(() => []),
-          base44.entities.Reservation.list().catch(() => []),
-          base44.entities.BEO.list().catch(() => []),
+        const [recipes, vendors] = await Promise.all([
+          base44.entities.Recipe.list('-created_date', 200).catch(() => []),
+          base44.entities.Vendor.list('-created_date', 200).catch(() => []),
         ]);
+        setCounts(prev => ({ ...prev, recipes: recipes.length, vendors: vendors.length }));
 
-        const equipmentGuides = knowledge.filter(k => k.type === "guide" && k.category?.includes("equipment")).length;
-        const sopGuides = knowledge.filter(k => k.type === "procedure" || k.type === "standard").length;
-        const forms = managerLogs.filter(m => m.category === "team_note").length;
-
-        setCounts({
-          recipes: recipes.length,
-          vendors: vendors.length,
-          equipment: equipmentGuides,
-          sops: sopGuides,
-          forms: forms,
-          reservations: reservations.length,
-          beos: beos.length,
-        });
+        const [reservations, beos] = await Promise.all([
+          base44.entities.Reservation.list('-created_date', 100).catch(() => []),
+          base44.entities.BEO.list('-created_date', 100).catch(() => []),
+        ]);
+        setCounts(prev => ({ ...prev, reservations: reservations.length, beos: beos.length }));
       } catch (e) {
         console.error(e);
       } finally {
