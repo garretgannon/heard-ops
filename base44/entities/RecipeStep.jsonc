@@ -1,0 +1,27 @@
+{
+  "name": "RecipeStep",
+  "type": "object",
+  "properties": {
+    "recipeId": {
+      "type": "string",
+      "title": "Recipe ID"
+    },
+    "stepNumber": {
+      "type": "number",
+      "title": "Step Number"
+    },
+    "instruction": {
+      "type": "string",
+      "title": "Instruction"
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "recipeId",
+    "instruction"
+  ]
+}

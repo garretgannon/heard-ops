@@ -10,96 +10,119 @@
       "type": "string",
       "title": "Category",
       "enum": [
-        "appetizer",
-        "entree",
-        "side",
+        "prep",
+        "sauce",
+        "protein",
+        "pantry",
+        "bakery",
         "bar",
         "dessert",
         "other"
       ],
       "enumNames": [
-        "Appetizer",
-        "Entree",
-        "Side",
+        "Prep",
+        "Sauce",
+        "Protein",
+        "Pantry",
+        "Bakery",
         "Bar",
         "Dessert",
         "Other"
       ]
     },
-    "description": {
+    "station": {
       "type": "string",
-      "title": "Short Description"
+      "title": "Station"
     },
-    "photo_url": {
+    "status": {
       "type": "string",
-      "title": "Photo URL"
+      "title": "Status",
+      "enum": [
+        "active",
+        "draft",
+        "archived"
+      ],
+      "enumNames": [
+        "Active",
+        "Draft",
+        "Archived"
+      ],
+      "default": "draft"
     },
-    "yield": {
+    "yieldAmount": {
+      "type": "number",
+      "title": "Yield Amount"
+    },
+    "yieldUnit": {
       "type": "string",
-      "title": "Yield (e.g. 1 plate, 4 servings)"
+      "title": "Yield Unit"
     },
-    "prep_time": {
+    "portionSize": {
       "type": "string",
-      "title": "Prep Time (e.g. 15 min)"
+      "title": "Portion Size"
     },
-    "ingredients": {
+    "prepTime": {
       "type": "string",
-      "title": "Ingredients (legacy)"
+      "title": "Prep Time"
     },
-    "build_steps": {
-      "type": "array",
-      "title": "Build Steps",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "step_number": {
-            "type": "number"
-          },
-          "instruction": {
-            "type": "string"
-          },
-          "image_url": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "plating_image_url": {
+    "cookTime": {
       "type": "string",
-      "title": "Final Plating Photo URL"
+      "title": "Cook Time"
     },
-    "plating_notes": {
+    "shelfLife": {
       "type": "string",
-      "title": "Plating Notes"
+      "title": "Shelf Life"
+    },
+    "storageLocation": {
+      "type": "string",
+      "title": "Storage Location"
+    },
+    "storageContainer": {
+      "type": "string",
+      "title": "Storage Container"
+    },
+    "labelingInstructions": {
+      "type": "string",
+      "title": "Labeling Instructions"
     },
     "allergens": {
+      "type": "array",
+      "title": "Allergens",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dietaryFlags": {
+      "type": "array",
+      "title": "Dietary Flags",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
       "type": "string",
-      "title": "Allergens"
+      "title": "Notes"
     },
-    "modifications": {
+    "imageUrl": {
       "type": "string",
-      "title": "Possible Modifications"
+      "title": "Image URL"
     },
-    "instructions": {
-      "type": "string",
-      "title": "Full Instructions (legacy)"
+    "linkedPrepTemplates": {
+      "type": "array",
+      "title": "Linked Prep Template IDs",
+      "items": {
+        "type": "string"
+      }
     },
-    "use_count": {
-      "type": "number",
-      "title": "Times Viewed / Used",
-      "default": 0
-    },
-    "is_active": {
-      "type": "boolean",
-      "title": "Active",
-      "default": true
+    "linkedBuildCards": {
+      "type": "array",
+      "title": "Linked Build Card IDs",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [
-    "name",
-    "category"
+    "name"
   ]
 }

@@ -36,6 +36,8 @@ import Profile from './pages/Profile';
 import MyRestaurant from './pages/MyRestaurant';
 import NotificationSettings from './pages/NotificationSettings';
 import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
+import Recipes from './pages/Recipes';
+import BuildCards from './pages/BuildCards';
 import Standards from './pages/Standards';
 import MSDS from './pages/MSDS';
 import TempLogs from './pages/TempLogs';
@@ -117,7 +119,9 @@ const AuthenticatedApp = () => {
         <Route path="/waste-log" element={<Navigate to="/waste-86" replace />} />
 
         {/* KNOWLEDGE ROUTES */}
-        <Route path="/recipes" element={<RecipesAndBuildCards />} />
+        <Route path="/recipes" element={<Recipes />} />
+        <Route path="/build-cards" element={<BuildCards />} />
+        <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/msds" element={<MSDS />} />
         <Route path="/templates" element={<TemplateList />} />

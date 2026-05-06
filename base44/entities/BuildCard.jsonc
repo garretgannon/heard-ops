@@ -1,0 +1,139 @@
+{
+  "name": "BuildCard",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Menu Item Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "appetizer",
+        "entree",
+        "sandwich",
+        "salad",
+        "dessert",
+        "cocktail",
+        "na-drink",
+        "other"
+      ],
+      "enumNames": [
+        "Appetizer",
+        "Entree",
+        "Sandwich",
+        "Salad",
+        "Dessert",
+        "Cocktail",
+        "NA Drink",
+        "Other"
+      ]
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "active",
+        "draft",
+        "archived"
+      ],
+      "enumNames": [
+        "Active",
+        "Draft",
+        "Archived"
+      ],
+      "default": "draft"
+    },
+    "menuPrice": {
+      "type": "number",
+      "title": "Menu Price"
+    },
+    "plateVessel": {
+      "type": "string",
+      "title": "Plate / Vessel"
+    },
+    "fireTime": {
+      "type": "string",
+      "title": "Fire Time"
+    },
+    "portionSize": {
+      "type": "string",
+      "title": "Portion Size"
+    },
+    "allergens": {
+      "type": "array",
+      "title": "Allergens",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dietaryFlags": {
+      "type": "array",
+      "title": "Dietary Flags",
+      "items": {
+        "type": "string"
+      }
+    },
+    "spiceLevel": {
+      "type": "string",
+      "title": "Spice Level",
+      "enum": [
+        "none",
+        "mild",
+        "medium",
+        "hot",
+        "extra-hot"
+      ]
+    },
+    "platingImageUrl": {
+      "type": "string",
+      "title": "Plating Photo URL"
+    },
+    "platingNotes": {
+      "type": "string",
+      "title": "Plating Notes"
+    },
+    "expoNotes": {
+      "type": "string",
+      "title": "Expo Notes"
+    },
+    "availabilityStatus": {
+      "type": "string",
+      "title": "Availability",
+      "enum": [
+        "available",
+        "low",
+        "eighty-six"
+      ],
+      "enumNames": [
+        "Available",
+        "Low Stock",
+        "86'd"
+      ],
+      "default": "available"
+    },
+    "eightySixReason": {
+      "type": "string",
+      "title": "86 Reason"
+    },
+    "linkedRecipes": {
+      "type": "array",
+      "title": "Linked Recipe IDs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

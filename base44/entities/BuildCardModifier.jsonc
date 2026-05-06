@@ -1,0 +1,32 @@
+{
+  "name": "BuildCardModifier",
+  "type": "object",
+  "properties": {
+    "buildCardId": {
+      "type": "string",
+      "title": "Build Card ID"
+    },
+    "modifierName": {
+      "type": "string",
+      "title": "Modifier"
+    },
+    "instruction": {
+      "type": "string",
+      "title": "Instruction"
+    },
+    "allergyRelevant": {
+      "type": "boolean",
+      "title": "Allergy Relevant",
+      "default": false
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "buildCardId",
+    "modifierName"
+  ]
+}
