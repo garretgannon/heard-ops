@@ -177,6 +177,10 @@ export default function TodaysCommandCenter() {
 
   useEffect(() => {
     isMounted.current = true;
+    // Auto-launch for admins
+    if (isAdmin && currentShift?.status === 'running' && !shiftLaunched) {
+      setShiftLaunched(true);
+    }
     const set = (updater) => { if (isMounted.current) setData(updater); };
 
     const cacheAge = Date.now() - cache.ts;
@@ -320,7 +324,7 @@ export default function TodaysCommandCenter() {
     return <div className="text-center py-10 text-secondary-text text-sm">Failed to load</div>;
   }
 
-  if (showLaunchModal) {
+  if (showLaunchModal && !isAdmin) {
     return (
       <div className="pb-32">
         <CommandCenterHeader
