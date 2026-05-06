@@ -73,8 +73,10 @@ function suggestCategory(description) {
 }
 
 function parsePrice(priceStr) {
-  if (!priceStr) return null;
-  const cleaned = String(priceStr).replace(/[$,\s]/g, '');
+  if (!priceStr && priceStr !== 0) return null;
+  const str = String(priceStr).trim();
+  if (!str) return null;
+  const cleaned = str.replace(/[$,\s]/g, '');
   const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;
 }
@@ -125,7 +127,7 @@ export default function VendorImportFlow({ onClose, onComplete }) {
       headers.forEach((header, idx) => {
         const lower = (header || '').toLowerCase();
         for (const [keyword, field] of Object.entries(fieldMap)) {
-          if (lower.includes(keyword)) {
+          if (lower.includes(keyword) || lower.startsWith(keyword)) {
             mapping[idx] = field;
             break;
           }
