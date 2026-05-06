@@ -7,7 +7,7 @@ export default function GlobalBottomNav() {
   const { pathname } = useLocation();
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-inset-bottom">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border safe-area-inset-bottom" style={{ background: 'rgba(248,250,252,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
       <div className="flex h-20 items-stretch justify-around px-2">
         {bottomNavRoutes.map(({ label, path, icon: Icon }) => {
           const isActive = pathname === path;
@@ -21,9 +21,9 @@ export default function GlobalBottomNav() {
                 isActive && "text-primary"
               )}
             >
-              {/* Glow underline */}
+              {/* Active indicator */}
               {isActive && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-8 bg-primary rounded-full shadow-glow" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-8 bg-primary rounded-full" />
               )}
 
               {/* Icon */}

@@ -87,8 +87,10 @@ module.exports = {
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		},
   		boxShadow: {
-  			'glow': '0 0 20px rgba(76, 255, 136, 0.15)',
-  			'glow-lg': '0 0 30px rgba(76, 255, 136, 0.25)',
+  			'glow': '0 0 20px rgba(15, 118, 110, 0.2)',
+  			'glow-lg': '0 0 30px rgba(15, 118, 110, 0.3)',
+  			'card': '0 1px 3px 0 rgba(0,0,0,0.07), 0 1px 2px -1px rgba(0,0,0,0.05)',
+  			'card-hover': '0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05)',
   		}
   	}
   },

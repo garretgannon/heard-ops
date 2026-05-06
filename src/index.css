@@ -8,119 +8,105 @@
   :root {
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
 
-    /* HeardOS - Mobile-First Dark Design System */
+    /* HeardOS — Professional Teal Design System */
     /* Backgrounds */
-    --background: 0 0% 3%;
-    /* #0A0A0A - Deep black */
-    --card: 0 0% 10%;
-    /* #1A1A1A - Dark gray */
-    --tertiary-bg: 0 0% 15%;
-    /* #262626 - Lighter dark */
+    --background: 210 40% 98%;       /* #F8FAFC */
+    --card: 0 0% 100%;               /* #FFFFFF */
+    --tertiary-bg: 214 32% 95%;      /* subtle card variant */
 
-    --card-foreground: 0 0% 100%;
-    /* #FFFFFF */
+    --card-foreground: 222 47% 11%;  /* #0F172A */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3%;
+    --popover-foreground: 222 47% 11%;
 
     /* Text Colors */
-    --foreground: 0 0% 100%;
-    /* #FFFFFF Primary text */
-    --secondary-text: 0 0% 60%;
-    /* #999999 Secondary text */
-    --muted-foreground: 0 0% 45%;
-    /* #737373 Muted text */
+    --foreground: 222 47% 11%;       /* #0F172A Primary text */
+    --secondary-text: 215 16% 47%;   /* #64748B Secondary text */
+    --muted-foreground: 215 16% 47%; /* #64748B Muted text */
 
-    /* Brand Primary - HeardOS Green */
-    --primary: 140 100% 50%;
-    /* #4CFF88 */
-    --primary-foreground: 0 0% 3%;
-    /* Deep black for contrast */
+    /* Brand Primary — Teal */
+    --primary: 175 77% 26%;          /* #0F766E */
+    --primary-dark: 174 68% 21%;     /* #115E59 */
+    --primary-light: 165 85% 90%;    /* #CCFBF1 */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
 
     /* Secondary */
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 214 32% 95%;
+    --secondary-foreground: 222 47% 11%;
 
     /* Muted */
-    --muted: 0 0% 15%;
-    /* #262626 */
+    --muted: 214 32% 95%;
 
     /* Accent */
-    --accent: 140 100% 50%;
-    --accent-foreground: 0 0% 3%;
+    --accent: 175 77% 26%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Status Colors - Only for status, not decorative */
-    --status-error: 0 100% 50%;
-    /* #FF4D4D Red - Overdue / Urgent */
-    --status-warning: 32 100% 50%;
-    /* #FF9F1C Orange - Due Soon / Warning */
-    --status-success: 140 100% 50%;
-    /* #4CFF88 Green - Complete / Healthy */
-    --status-info: 240 100% 60%;
-    /* #6BA3FF Blue - Review / Info */
+    /* Status Colors — intentional, not decorative */
+    --status-success: 142 71% 36%;   /* #16A34A — Complete / On Track / Safe */
+    --status-warning: 38 92% 50%;    /* #F59E0B — Due Soon / Warning */
+    --status-behind: 24 95% 53%;     /* #F97316 — Behind / Needs Attention */
+    --status-critical: 0 72% 51%;    /* #DC2626 — Overdue / Critical */
+    --status-review: 239 84% 67%;    /* #6366F1 — Needs Manager Review */
+    --status-info: 199 89% 39%;      /* #0284C7 — Info */
 
-    --destructive: 0 100% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders */
-    --border: 0 0% 20%;
-    /* #333333 */
-    --input: 120 8% 10%;
-    /* #121716 */
-    --ring: 140 100% 50%;
-    /* #4CFF88 */
+    --border: 214 32% 91%;           /* #E2E8F0 */
+    --input: 214 32% 91%;
+    --ring: 175 77% 26%;             /* Teal focus ring */
 
-    --chart-1: 140 100% 50%;
-    --chart-2: 0 100% 50%;
-    --chart-3: 32 100% 50%;
-    --chart-4: 240 90% 55%;
-    --chart-5: 180 100% 50%;
+    --chart-1: 175 77% 26%;
+    --chart-2: 142 71% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 239 84% 67%;
+    --chart-5: 199 89% 39%;
 
-    --radius: 1rem;
-    /* 16px border radius */
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 5.5%;
+    --sidebar-background: 222 47% 11%;      /* Dark sidebar on light app */
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 140 100% 50%;
-    --sidebar-primary-foreground: 0 0% 5.5%;
-    --sidebar-accent: 120 8% 10%;
+    --sidebar-primary: 175 77% 26%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 35% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 140 100% 50%;
+    --sidebar-border: 222 35% 20%;
+    --sidebar-ring: 175 77% 26%;
   }
 
   .dark {
-    --background: 0 0% 5.5%;
-    --foreground: 0 0% 100%;
-    --card: 120 8% 10%;
-    --card-foreground: 0 0% 100%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5.5%;
-    --primary: 140 100% 50%;
-    --primary-foreground: 0 0% 5.5%;
-    --secondary: 120 8% 10%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 50%;
-    --accent: 140 100% 50%;
-    --accent-foreground: 0 0% 5.5%;
-    --destructive: 0 100% 50%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 175 77% 26%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 32% 95%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 214 32% 95%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 175 77% 26%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 20%;
-    --input: 120 8% 10%;
-    --ring: 140 100% 50%;
-    --chart-1: 140 100% 50%;
-    --chart-2: 0 100% 50%;
-    --chart-3: 32 100% 50%;
-    --chart-4: 240 90% 55%;
-    --chart-5: 180 100% 50%;
-    --sidebar-background: 0 0% 5.5%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 175 77% 26%;
+    --chart-1: 175 77% 26%;
+    --chart-2: 142 71% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 239 84% 67%;
+    --chart-5: 199 89% 39%;
+    --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 140 100% 50%;
-    --sidebar-primary-foreground: 0 0% 5.5%;
-    --sidebar-accent: 120 8% 10%;
+    --sidebar-primary: 175 77% 26%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 35% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 140 100% 50%;
+    --sidebar-border: 222 35% 20%;
+    --sidebar-ring: 175 77% 26%;
   }
 }
 
@@ -131,10 +117,10 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
-    font-weight: 500;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(135deg, hsl(0, 0%, 5.5%) 0%, hsl(120, 8%, 10%) 100%);
+    background-color: hsl(var(--background));
   }
   h1 {
     @apply font-bold;
@@ -209,7 +195,7 @@
 
   /* Buttons - Unified Hierarchy */
   .btn-primary {
-    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 shadow-lg hover:shadow-[0_0_20px_rgba(76,255,136,0.3)];
+    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 shadow-sm hover:opacity-90;
   }
 
   .btn-secondary {
@@ -360,11 +346,11 @@
   @keyframes flash-animation {
     0% {
       opacity: 1;
-      background-color: rgba(76, 255, 136, 0.1);
+      background-color: rgba(15, 118, 110, 0.1);
     }
     50% {
       opacity: 0.9;
-      background-color: rgba(76, 255, 136, 0.2);
+      background-color: rgba(15, 118, 110, 0.2);
     }
     100% {
       opacity: 1;
@@ -408,16 +394,16 @@
 
   @keyframes deep-link-glow {
     0% {
-      background-color: rgba(76, 255, 136, 0.15);
-      box-shadow: 0 0 0 0 rgba(76, 255, 136, 0.3);
+      background-color: rgba(15, 118, 110, 0.15);
+      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.3);
     }
     50% {
-      background-color: rgba(76, 255, 136, 0.25);
-      box-shadow: 0 0 16px 4px rgba(76, 255, 136, 0.15);
+      background-color: rgba(15, 118, 110, 0.2);
+      box-shadow: 0 0 16px 4px rgba(15, 118, 110, 0.12);
     }
     100% {
       background-color: transparent;
-      box-shadow: 0 0 0 0 rgba(76, 255, 136, 0);
+      box-shadow: 0 0 0 0 rgba(15, 118, 110, 0);
     }
   }
 
