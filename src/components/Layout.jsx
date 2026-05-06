@@ -204,7 +204,7 @@ export default function Layout() {
         </AnimatePresence>
       </main>
 
-      <FloatingManagerLogButton />
+
     </div>
   );
 }
