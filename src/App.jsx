@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
 import { ShiftModeProvider } from '@/lib/ShiftModeContext';
+import { RoleSimulationProvider } from '@/lib/RoleSimulationContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -14,6 +15,7 @@ import { legacyRedirects } from '@/lib/routeConfig';
 import Layout from './components/Layout';
 import GlobalBottomNav from './components/GlobalBottomNav';
 import ToastContainer from './components/ToastContainer';
+import AdminSimulationBar from './components/AdminSimulationBar';
 import Landing from './pages/Landing';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import StaffTasks from './pages/StaffTasks';
@@ -52,6 +54,7 @@ import EightySixTemplates from './pages/86Templates';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
 import ScheduleImport from './pages/ScheduleImport';
+import AdminRoleSimulator from './pages/AdminRoleSimulator';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -144,6 +147,7 @@ const AuthenticatedApp = () => {
         <Route path="/stations" element={<Stations />} />
         <Route path="/job-codes" element={<JobCodes />} />
         <Route path="/schedule-import" element={<ScheduleImport />} />
+        <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
 
         {/* OPERATIONS ROUTES */}
         <Route path="/issues" element={<IssueTracker />} />
@@ -196,14 +200,17 @@ function App() {
     <AuthProvider>
       <ShiftModeProvider>
       <UnifiedStateProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <AuthenticatedApp />
-            <GlobalBottomNav />
-            <ToastContainer />
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
+        <RoleSimulationProvider>
+          <QueryClientProvider client={queryClientInstance}>
+            <Router>
+              <AdminSimulationBar />
+              <AuthenticatedApp />
+              <GlobalBottomNav />
+              <ToastContainer />
+            </Router>
+            <Toaster />
+          </QueryClientProvider>
+        </RoleSimulationProvider>
       </UnifiedStateProvider>
       </ShiftModeProvider>
     </AuthProvider>
