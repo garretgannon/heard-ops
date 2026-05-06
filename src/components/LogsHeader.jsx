@@ -9,7 +9,7 @@ export default function LogsHeader({ onNotifications }) {
         <h1 className="text-lg font-bold text-foreground mb-1">Logs</h1>
 
         {/* Top Row: Logo + Bell */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between -mt-1">
           {/* Logo */}
           <div className="flex items-center gap-2">
             
