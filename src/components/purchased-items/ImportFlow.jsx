@@ -91,14 +91,20 @@ export default function ImportFlow({ onClose, onComplete, user }) {
   const [result, setResult] = useState(null);
   const [pasteText, setPasteText] = useState('');
   const [usePaste, setUsePaste] = useState(false);
+  const [fileLoading, setFileLoading] = useState(false);
   const fileRef = useRef();
 
   const STEP_LABELS = ['Upload', 'Map Columns', 'Preview', 'Resolve Issues', 'Confirm', 'Complete'];
 
   const handleFile = (file) => {
     if (!file) return;
+    setFileLoading(true);
     if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
       const reader = new FileReader();
+      reader.onerror = () => {
+        alert('Failed to read file. Please try again.');
+        setFileLoading(false);
+      };
       reader.onload = (e) => {
         try {
           const wb = XLSX.read(e.target.result, { type: 'array' });
@@ -107,6 +113,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
           const { headers, rows } = parseCSV(csv);
           if (headers.length < 1) {
             alert('Could not detect columns. Check file format.');
+            setFileLoading(false);
             return;
           }
           setHeaders(headers);
@@ -121,9 +128,12 @@ export default function ImportFlow({ onClose, onComplete, user }) {
             if (match) autoMap[h] = match[0];
           });
           setMapping(autoMap);
+          setFileLoading(false);
           setStep(2);
         } catch (err) {
+          console.error('Excel parse error:', err);
           alert('Error reading Excel file: ' + err.message);
+          setFileLoading(false);
         }
       };
       reader.readAsArrayBuffer(file);
@@ -312,7 +322,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
               <p className="text-sm font-bold text-foreground mb-1">Upload CSV or Excel</p>
               <p className="text-xs text-muted-foreground mb-3">Drag and drop or click to select a file</p>
               <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={e => handleFile(e.target.files[0])} />
-              <button onClick={() => fileRef.current?.click()} className="btn-primary text-sm px-4 py-2">Choose File</button>
+              <button onClick={() => fileRef.current?.click()} disabled={fileLoading} className="btn-primary text-sm px-4 py-2">{fileLoading ? 'Reading...' : 'Choose File'}</button>
             </div>
 
 
