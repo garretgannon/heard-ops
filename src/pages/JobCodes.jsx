@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import JobCodeForm from '@/components/JobCodeForm';
 
 function JobCodeCard({ jobCode, onEdit, onDelete }) {
   const deptColors = {
@@ -40,6 +41,8 @@ export default function JobCodes() {
   const [jobCodes, setJobCodes] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingJobCode, setEditingJobCode] = useState(null);
 
   useEffect(() => {
     loadJobCodes();
@@ -56,14 +59,26 @@ export default function JobCodes() {
     setLoading(false);
   };
 
-  const filtered = jobCodes.filter(j => j.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = jobCodes.filter(j => (j.name || '').toLowerCase().includes(search.toLowerCase()));
 
   const handleDelete = async (id) => {
     haptics.light();
     if (confirm('Delete this job code?')) {
       await base44.entities.JobCode.delete(id);
-      loadJobCodes();
+      await loadJobCodes();
     }
+  };
+
+  const handleEdit = (jobCode) => {
+    haptics.light();
+    setEditingJobCode(jobCode);
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
+    await loadJobCodes();
+    setShowForm(false);
+    setEditingJobCode(null);
   };
 
   return (
@@ -94,16 +109,37 @@ export default function JobCodes() {
             <JobCodeCard
               key={jobCode.id}
               jobCode={jobCode}
-              onEdit={() => {}}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))
         )}
       </div>
 
-      <button className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all">
+      <button
+        onClick={() => { haptics.medium(); setEditingJobCode(null); setShowForm(true); }}
+        className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
+      >
         <Plus className="h-5 w-5" />
       </button>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
+          <div className="w-full bg-card rounded-t-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <h2 className="font-bold text-foreground">{editingJobCode ? 'Edit Job Code' : 'Create Job Code'}</h2>
+              <button onClick={() => { setShowForm(false); setEditingJobCode(null); }} className="text-secondary-text hover:text-foreground">✕</button>
+            </div>
+            <div className="p-4">
+              <JobCodeForm
+                jobCode={editingJobCode}
+                onSave={handleSave}
+                onClose={() => { setShowForm(false); setEditingJobCode(null); }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
