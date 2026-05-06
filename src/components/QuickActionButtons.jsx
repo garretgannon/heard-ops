@@ -1,20 +1,20 @@
 import { quickActionsConfig } from "@/lib/quickActionsConfig";
-import { FileText, CheckCircle2, AlertTriangle, Flame, Wrench } from "lucide-react";
+import { FileText, ListPlus, ChefHat, Trash2, AlertTriangle } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 
 const iconMap = {
   FileText,
-  CheckCircle2,
+  ListPlus,
+  ChefHat,
+  Trash2,
   AlertTriangle,
-  Flame,
-  Wrench,
 };
 
 export default function QuickActionButtons({ onActionClick }) {
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
       {quickActionsConfig.map((action) => {
-        const Icon = iconMap[action.icon];
+        const Icon = action.icon;
         return (
           <button
             key={action.id}
@@ -22,10 +22,10 @@ export default function QuickActionButtons({ onActionClick }) {
               haptics.light();
               onActionClick(action.targetModal);
             }}
-            className={`flex flex-col items-center gap-2 p-3 rounded-lg border border-border transition-all active:scale-95 ${action.color}`}
+            className="flex-shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-bold whitespace-nowrap transition-all active:scale-95 hover:bg-muted hover:border-primary/30"
           >
-            {Icon && <Icon className="h-5 w-5" />}
-            <span className="text-xs font-bold text-center">{action.label}</span>
+            {Icon && <Icon className="h-3.5 w-3.5 text-primary flex-shrink-0" />}
+            <span>{action.label}</span>
           </button>
         );
       })}

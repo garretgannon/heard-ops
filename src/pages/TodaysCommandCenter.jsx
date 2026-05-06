@@ -371,38 +371,35 @@ export default function TodaysCommandCenter() {
         onViewDay={() => navigate("/calendar")}
       />
 
-      {/* Shift Mode Controls */}
-      {isAdmin && (
-        <div className="px-4 pt-4">
-          {!currentShift ? (
-            <button
-              onClick={() => setShowStartModal(true)}
-              className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2"
-            >
-              <Zap className="h-4 w-4" />
-              Start Shift
-            </button>
-          ) : currentShift.status === 'setup' ? (
-            <button
-              onClick={() => {}}
-              className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-bold"
-              disabled
-            >
-              Completing Setup...
-            </button>
-          ) : currentShift.status === 'running' ? (
-            <button
-              onClick={() => setShowCloseModal(true)}
-              className="w-full h-12 rounded-lg bg-red-500 text-white font-bold"
-            >
-              End Shift
-            </button>
-          ) : null}
-        </div>
-      )}
-
-      {/* Quick Action Buttons */}
-      <div className="px-4 py-3 border-b border-border">
+      {/* Shift Mode Controls + Quick Actions */}
+      <div className="px-4 pt-3 pb-2 space-y-2.5 border-b border-border">
+        {isAdmin && (
+          <div>
+            {!currentShift ? (
+              <button
+                onClick={() => setShowStartModal(true)}
+                className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2 shadow-glow active:scale-95 transition-all"
+              >
+                <Zap className="h-4 w-4" />
+                Start Shift
+              </button>
+            ) : currentShift.status === 'setup' ? (
+              <button
+                disabled
+                className="w-full h-11 rounded-xl bg-primary/50 text-primary-foreground font-bold cursor-not-allowed"
+              >
+                Completing Setup...
+              </button>
+            ) : currentShift.status === 'running' ? (
+              <button
+                onClick={() => setShowCloseModal(true)}
+                className="w-full h-11 rounded-xl bg-red-500/90 text-white font-bold active:scale-95 transition-all"
+              >
+                End Shift
+              </button>
+            ) : null}
+          </div>
+        )}
         <QuickActionButtons onActionClick={setActiveModal} />
       </div>
 
@@ -411,8 +408,9 @@ export default function TodaysCommandCenter() {
         {/* Shift Progress */}
         {currentShift && currentShift.status === 'running' && <ShiftProgress shift={currentShift} />}
 
-        {/* Progress Stats Card */}
+        {/* Shift Progress Card */}
         <div className="bg-card border border-border rounded-xl p-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Shift Progress</p>
           <div className="flex items-center gap-6">
             <ProgressCircle value={data.completionPct} max={100} />
             <div className="flex-1 grid grid-cols-3 gap-3">

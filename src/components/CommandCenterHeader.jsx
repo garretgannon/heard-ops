@@ -28,8 +28,8 @@ export default function CommandCenterHeader({ onNotifications, onViewDay }) {
             </button>
             <button
               onClick={() => { haptics.light(); onViewDay?.(); }}
-              className="text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-all active:scale-95">
-              View Day
+              className="text-xs font-bold px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-all active:scale-95 border border-border">
+              Today's Plan
             </button>
           </div>
         </div>
