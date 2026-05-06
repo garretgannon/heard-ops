@@ -7,13 +7,17 @@ import { haptics } from '@/utils/haptics';
 import { allRoutes } from '@/lib/routeConfig';
 import OperationsSectionCard from '@/components/OperationsSectionCard';
 
+const PRIMARY_OPERATIONS = ['prepLists', 'sideWork', 'tempLogs', 'wasteLog'];
+
 const OPERATIONS_CENTER_SECTIONS = {
   operations: {
     title: 'Operations',
     icon: Zap,
     color: 'text-primary',
     description: 'Daily tasks and workflows',
-    items: ['prepLists', 'sideWork', 'tempLogs', 'wasteLog', 'cleaningChecklist', 'shiftHandoff', 'logs', 'issues'],
+    primaryItems: ['prepLists', 'sideWork', 'tempLogs', 'wasteLog'],
+    secondaryItems: ['cleaningChecklist', 'shiftHandoff', 'logs', 'issues'],
+    defaultExpanded: true,
   },
   knowledge: {
     title: 'Knowledge Base',
@@ -21,6 +25,7 @@ const OPERATIONS_CENTER_SECTIONS = {
     color: 'text-blue-400',
     description: 'Recipes, guides & standards',
     items: ['recipes', 'standards', 'msds', 'vendors'],
+    defaultExpanded: false,
   },
   team: {
     title: 'Team',
@@ -28,6 +33,7 @@ const OPERATIONS_CENTER_SECTIONS = {
     color: 'text-emerald-400',
     description: 'Staff management & insights',
     items: ['team', 'schedule'],
+    defaultExpanded: false,
   },
   insights: {
     title: 'Business Insights',
@@ -35,13 +41,16 @@ const OPERATIONS_CENTER_SECTIONS = {
     color: 'text-amber-400',
     description: 'Analytics & performance',
     items: ['reports', 'inventory'],
+    defaultExpanded: false,
   },
   admin: {
     title: 'Admin & Configuration',
     icon: Wrench,
     color: 'text-rose-400',
     description: 'System setup and control',
-    items: ['prepTemplates', 'sideWorkTemplates', 'cleaningTemplates', 'tempLogTemplates', 'wasteTemplates', 'eightsixTemplates', 'jobCodes', 'stations', 'restaurant', 'scheduleImport'],
+    items: ['jobCodes', 'stations', 'restaurant', 'purchasedItems'],
+    templates: true,
+    defaultExpanded: false,
   },
 };
 
@@ -72,6 +81,7 @@ export default function More() {
       return [];
     }
   });
+  const [collapsedSections, setCollapsedSections] = useState({});
 
   const toggleFavorite = (path) => {
     setFavorites(prev => {
@@ -88,6 +98,18 @@ export default function More() {
       return next;
     });
     navigate(path);
+  };
+
+  const toggleSection = (sectionKey) => {
+    haptics.light();
+    setCollapsedSections(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  };
+
+  const isSectionExpanded = (sectionKey, defaultExpanded) => {
+    return collapsedSections[sectionKey] !== undefined ? !collapsedSections[sectionKey] : defaultExpanded;
   };
 
   // Get all accessible tools and filter by search
@@ -159,7 +181,7 @@ export default function More() {
 
       {/* Normal View (no search) */}
       {!searchQuery.trim() && (
-        <div className="px-4 py-4 space-y-8">
+        <div className="px-4 py-4 space-y-5">
           {/* Pinned Favorites */}
           {favoriteTools.length > 0 && (
             <div className="space-y-3">
@@ -205,10 +227,19 @@ export default function More() {
           )}
 
           {/* Main Sections */}
-          <div className="space-y-8">
+          <div className="space-y-3">
             {Object.entries(OPERATIONS_CENTER_SECTIONS).map(([sectionKey, section]) => {
               const SectionIcon = section.icon;
-              const accessibleItems = section.items
+              const isExpanded = isSectionExpanded(sectionKey, section.defaultExpanded);
+
+              let allItems = [];
+              if (section.primaryItems) {
+                allItems = [...(section.primaryItems || []), ...(section.secondaryItems || [])];
+              } else {
+                allItems = section.items || [];
+              }
+
+              const accessibleItems = allItems
                 .map(findRoute)
                 .filter(route => {
                   if (!route) return false;
@@ -218,26 +249,96 @@ export default function More() {
 
               if (accessibleItems.length === 0) return null;
 
+              const primaryItems = section.primaryItems
+                ? accessibleItems.filter(t => section.primaryItems.includes(
+                    Object.entries(allRoutes).find(([_, module]) =>
+                      Object.values(module).some(route => route?.path === t.path)
+                    )?.[1]
+                  ))
+                : [];
+
+              const secondaryItems = section.secondaryItems
+                ? accessibleItems.filter(t => section.secondaryItems.includes(
+                    Object.entries(allRoutes).find(([_, module]) =>
+                      Object.values(module).some(route => route?.path === t.path)
+                    )?.[1]
+                  ))
+                : [];
+
+              const itemsToShow = primaryItems.length > 0 ? [...primaryItems, ...secondaryItems] : accessibleItems;
+
               return (
-                <div key={sectionKey} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <SectionIcon className={cn('h-5 w-5', section.color)} />
-                    <div>
-                      <h2 className="text-sm font-bold text-foreground">{section.title}</h2>
-                      <p className="text-[10px] text-secondary-text">{section.description}</p>
+                <div key={sectionKey} className="border border-border/50 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => toggleSection(sectionKey)}
+                    className="w-full bg-card/50 hover:bg-card/80 transition-colors p-3.5 flex items-center justify-between active:scale-95"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <SectionIcon className={cn('h-4 w-4', section.color)} />
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-foreground">{section.title}</p>
+                        <p className="text-[9px] text-secondary-text">{section.description}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    {accessibleItems.map(tool => (
-                      <OperationsSectionCard
-                        key={tool.path}
-                        route={tool}
-                        onClick={handleNavigate}
-                        isFavorite={favorites.includes(tool.path)}
-                        onToggleFavorite={toggleFavorite}
-                      />
-                    ))}
-                  </div>
+                    <div className="text-[10px] font-bold text-secondary-text">{isExpanded ? '−' : '+'}</div>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="border-t border-border/30 divide-y divide-border/30">
+                      {itemsToShow.map(tool => {
+                        const isSecondary = secondaryItems.includes(tool);
+                        return (
+                          <button
+                            key={tool.path}
+                            onClick={() => { haptics.light(); handleNavigate(tool.path); }}
+                            className={cn(
+                              'w-full text-left px-3.5 py-2 flex items-center gap-2.5 active:scale-95 transition-colors',
+                              'hover:bg-muted/30',
+                              isSecondary && 'opacity-80'
+                            )}
+                          >
+                            {(() => {
+                              const Icon = tool.icon;
+                              return (
+                                <div className={cn(
+                                  'rounded-lg flex items-center justify-center shrink-0',
+                                  isSecondary ? 'h-7 w-7 bg-muted' : 'h-8 w-8 bg-muted'
+                                )}>
+                                  <Icon className={cn(
+                                    'stroke-[1.5] text-secondary-text',
+                                    isSecondary ? 'h-3.5 w-3.5' : 'h-4 w-4'
+                                  )} />
+                                </div>
+                              );
+                            })()}
+                            <div className="flex-1 min-w-0">
+                              <p className={cn(
+                                'font-bold text-foreground',
+                                isSecondary ? 'text-xs' : 'text-sm'
+                              )}>
+                                {tool.label}
+                              </p>
+                              {!isSecondary && tool.description && (
+                                <p className="text-[10px] text-secondary-text mt-0.5">{tool.description}</p>
+                              )}
+                            </div>
+                            {!isSecondary && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  haptics.light();
+                                  toggleFavorite(tool.path);
+                                }}
+                                className="text-[10px] font-bold text-secondary-text hover:text-primary"
+                              >
+                                {favorites.includes(tool.path) ? '★' : '☆'}
+                              </button>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
