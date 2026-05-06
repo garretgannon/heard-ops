@@ -15,7 +15,7 @@ const IMPORT_FIELDS = [
 
 // Removed sample CSV - always import from user-provided file only
 
-function splitCSVLine(line) {
+function splitCSVLine(line, delimiter = ',') {
   const vals = [];
   let cur = '';
   let inQuotes = false;
@@ -24,7 +24,7 @@ function splitCSVLine(line) {
     if (ch === '"') {
       if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
       else { inQuotes = !inQuotes; }
-    } else if (ch === ',' && !inQuotes) {
+    } else if (ch === delimiter && !inQuotes) {
       vals.push(cur.trim()); cur = '';
     } else {
       cur += ch;
@@ -34,13 +34,20 @@ function splitCSVLine(line) {
   return vals;
 }
 
+function detectDelimiter(firstLine) {
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const tabCount = (firstLine.match(/\t/g) || []).length;
+  const semiCount = (firstLine.match(/;/g) || []).length;
+  return tabCount > commaCount && tabCount > semiCount ? '\t' : (semiCount > commaCount ? ';' : ',');
+}
+
 function parseCSV(text) {
-  // Normalize line endings
   const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   if (lines.length < 2) return { headers: [], rows: [] };
-  const headers = splitCSVLine(lines[0]);
+  const delimiter = detectDelimiter(lines[0]);
+  const headers = splitCSVLine(lines[0], delimiter);
   const rows = lines.slice(1).filter(l => l.trim()).map((line, idx) => {
-    const vals = splitCSVLine(line);
+    const vals = splitCSVLine(line, delimiter);
     const row = {};
     headers.forEach((h, i) => { row[h] = vals[i] || ''; });
     row._rowIndex = idx + 2;
