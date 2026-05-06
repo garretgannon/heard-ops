@@ -135,6 +135,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
   };
 
   const buildPreview = () => {
+    const seenInBatch = new Set();
     const rows = rawRows.map((raw, idx) => {
       const mapped = {};
       Object.entries(mapping).forEach(([header, field]) => {
@@ -142,6 +143,12 @@ export default function ImportFlow({ onClose, onComplete, user }) {
       });
       mapped._rowIndex = raw._rowIndex || idx + 2;
       const issues = validateRow(mapped);
+      const normalizedName = (mapped.itemName || '').toLowerCase().trim();
+      if (seenInBatch.has(normalizedName)) {
+        issues.push('Duplicate item in import');
+      } else if (normalizedName) {
+        seenInBatch.add(normalizedName);
+      }
       return { raw, mapped, issues, status: issues.length > 0 ? 'issue' : 'ok', action: 'create' };
     });
     setPreviewRows(rows);
