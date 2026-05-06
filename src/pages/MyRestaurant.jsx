@@ -486,7 +486,7 @@ export default function MyRestaurant() {
   const [modal, setModal] = useState(null);
 
   const loadCounts = async () => {
-    const [depts, areas, stations, jobCodes, equipment, vendors, qrcodes, foodSafety] = await Promise.all([
+    const [depts, areas, stations, jobCodes, equipment, vendors, qrcodes, foodSafety, profileSettings] = await Promise.all([
       base44.entities.Department.list('sortOrder', 100).catch(() => []),
       base44.entities.Area.list('sortOrder', 100).catch(() => []),
       base44.entities.Station.list().catch(() => []),
@@ -495,14 +495,15 @@ export default function MyRestaurant() {
       base44.entities.Vendor.list().catch(() => []),
       base44.entities.QRCode.list().catch(() => []),
       base44.entities.FoodSafetySettings.filter({ key: 'global' }).catch(() => []),
+      base44.entities.Settings.filter({ key: 'restaurant_name' }).catch(() => []),
     ]);
-    setCounts({ depts: depts.length, areas: areas.length, stations: stations.length, jobCodes: jobCodes.length, equipment: equipment.length, vendors: vendors.length, qrcodes: qrcodes.length, foodSafety: foodSafety.length });
+    setCounts({ depts: depts.length, areas: areas.length, stations: stations.length, jobCodes: jobCodes.length, equipment: equipment.length, vendors: vendors.length, qrcodes: qrcodes.length, foodSafety: foodSafety.length, profile: profileSettings.filter(s => s.value && s.value.trim()).length });
   };
 
   useEffect(() => { loadCounts(); }, []);
 
   const setupSections = [
-    { id: 'profile', label: 'Restaurant Profile', complete: false },
+    { id: 'profile', label: 'Restaurant Profile', complete: counts.profile > 0 },
     { id: 'departments', label: 'Departments', complete: counts.depts > 0 },
     { id: 'areas', label: 'Areas', complete: counts.areas > 0 },
     { id: 'stations', label: 'Stations', complete: counts.stations > 0 },
@@ -549,7 +550,7 @@ export default function MyRestaurant() {
       <div className="mb-5">
         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Restaurant Setup</p>
         <div className="space-y-2">
-          <SectionCard icon={Building2} title="Restaurant Profile" description="Name, address, concept type, locations" complete={false} needsSetup onClick={() => setModal('profile')} />
+          <SectionCard icon={Building2} title="Restaurant Profile" description="Name, address, concept type, locations" complete={counts.profile > 0} needsSetup={!counts.profile} onClick={() => setModal('profile')} />
           <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
           <SectionCard icon={MapPin} title="Areas" description="Line, prep area, dining room, bar..." count={counts.areas} complete={counts.areas > 0} needsSetup={!counts.areas} onClick={() => setModal('areas')} />
           <SectionCard icon={Building2} title="Stations" description="Grill, fry, expo, server alley..." count={counts.stations} complete={counts.stations > 0} needsSetup={!counts.stations} onClick={() => setModal('stations')} />
