@@ -36,25 +36,32 @@ function splitCSVLine(line, delimiter = ',') {
 }
 
 function detectDelimiter(lines) {
-  // Try each delimiter on first line and pick the one that yields most columns
   if (!lines || lines.length === 0) return ',';
-  const firstLine = lines[0];
+  // Try each delimiter on first data line and pick the one that yields most non-empty columns
+  let firstDataLine = lines[0] || '';
+  // Skip empty lines at the start
+  for (const line of lines) {
+    if (line.trim().length > 0) { firstDataLine = line; break; }
+  }
   const delimiters = [',', '\t', ';', '|'];
   let bestDelim = ',';
   let maxCols = 0;
   for (const delim of delimiters) {
-    const cols = splitCSVLine(firstLine, delim).filter(c => c.length > 0).length;
+    const cols = splitCSVLine(firstDataLine, delim).filter(c => c.trim().length > 0).length;
     if (cols > maxCols) { maxCols = cols; bestDelim = delim; }
   }
-  return maxCols < 2 ? ',' : bestDelim;
+  return maxCols < 1 ? ',' : bestDelim;
 }
 
 function parseCSV(text) {
-  const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
-  if (lines.length < 1) return { headers: [], rows: [] };
-  const delimiter = detectDelimiter(lines);
-  const headers = splitCSVLine(lines[0], delimiter).map(h => h.trim());
-  const rows = lines.slice(1).map((line, idx) => {
+  const lines = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const nonEmptyLines = lines.filter(l => l.trim().length > 0);
+  if (nonEmptyLines.length < 1) return { headers: [], rows: [] };
+  const delimiter = detectDelimiter(nonEmptyLines);
+  const headerLine = nonEmptyLines[0];
+  const headers = splitCSVLine(headerLine, delimiter).map(h => h.trim()).filter(h => h.length > 0);
+  if (headers.length < 1) return { headers: [], rows: [] };
+  const rows = nonEmptyLines.slice(1).map((line, idx) => {
     const vals = splitCSVLine(line, delimiter);
     const row = {};
     headers.forEach((h, i) => { row[h] = (vals[i] || '').trim(); });
