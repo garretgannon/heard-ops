@@ -123,7 +123,7 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
 
   const detectFormat = () => {
     // Simple heuristic: check if first row looks like headers
-    const headers = rawRows[0]?.map(h => String(h).toLowerCase()) || [];
+    const headers = rawRows[0]?.row?.map(h => String(h).toLowerCase()) || [];
     const dateKeywords = ['date', 'day', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
     const employeeKeywords = ['employee', 'name', 'staff', 'person'];
 
