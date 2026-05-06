@@ -5,11 +5,12 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
 import { Upload, Calendar, History, ChevronRight } from 'lucide-react';
 import ScheduleImportFlow from '@/components/schedule/ScheduleImportFlow';
+import R365ImportFlow from '@/components/schedule/R365ImportFlow';
 
 export default function ScheduleImport() {
   const navigate = useNavigate();
   const { user, isAdmin } = useCurrentUser();
-  const [showImport, setShowImport] = useState(false);
+  const [importType, setImportType] = useState(null);
   const [batches, setBatches] = useState([]);
 
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function ScheduleImport() {
   }, []);
 
   const handleImportComplete = () => {
-    setShowImport(false);
+    setImportType(null);
     base44.entities.ScheduleImportBatch.list('-uploadedAt', 20).then(setBatches).catch(() => {});
   };
 
@@ -31,8 +32,16 @@ export default function ScheduleImport() {
     );
   }
 
-  if (showImport) {
-    return <ScheduleImportFlow onClose={() => setShowImport(false)} onComplete={handleImportComplete} user={user} />;
+  if (importType === 'r365') {
+    return <R365ImportFlow onClose={() => setImportType(null)} onComplete={handleImportComplete} user={user} />;
+  }
+
+  if (importType === 'csv') {
+    return <ScheduleImportFlow onClose={() => setImportType(null)} onComplete={handleImportComplete} user={user} />;
+  }
+
+  if (importType) {
+    return null; // Loading
   }
 
   return (
@@ -45,20 +54,30 @@ export default function ScheduleImport() {
       </div>
 
       <div className="px-4 py-4 space-y-3">
-       <div className="flex gap-2">
-         <button
-           onClick={() => { haptics.medium?.(); setShowImport(true); }}
-           className="flex-1 bg-primary text-primary-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
-         >
-           <Upload className="h-5 w-5" /> Import
-         </button>
-         <button
-           onClick={() => { haptics.light?.(); navigate('/schedule'); }}
-           className="flex-1 bg-card border border-border text-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
-         >
-           <Calendar className="h-5 w-5" /> View
-         </button>
-       </div>
+        <div className="bg-card border border-border rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-foreground mb-2">Import Type</p>
+          <button
+            onClick={() => { haptics.medium?.(); setImportType('r365'); }}
+            className="w-full bg-primary/10 border border-primary/20 text-primary font-bold py-3 rounded-lg text-sm flex items-center justify-between px-3"
+          >
+            <span>R365 Schedule</span>
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => { haptics.medium?.(); setImportType('csv'); }}
+            className="w-full bg-muted text-foreground font-bold py-3 rounded-lg text-sm flex items-center justify-between px-3"
+          >
+            <span>CSV/Excel</span>
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        <button
+          onClick={() => { haptics.light?.(); navigate('/schedule'); }}
+          className="w-full bg-card border border-border text-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+        >
+          <Calendar className="h-5 w-5" /> View Schedule
+        </button>
 
         {batches.length > 0 && (
           <>

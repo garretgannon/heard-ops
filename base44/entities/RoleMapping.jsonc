@@ -1,0 +1,43 @@
+{
+  "name": "RoleMapping",
+  "type": "object",
+  "properties": {
+    "sourceRole": {
+      "type": "string",
+      "title": "R365 Role Name"
+    },
+    "mappedRole": {
+      "type": "string",
+      "title": "App Role"
+    },
+    "sourceSystem": {
+      "type": "string",
+      "title": "Source System",
+      "enum": [
+        "r365",
+        "7shifts",
+        "toast",
+        "homebase",
+        "hotschedules"
+      ],
+      "default": "r365"
+    },
+    "isAutomatic": {
+      "type": "boolean",
+      "title": "Auto-Mapped",
+      "default": false
+    },
+    "createdBy": {
+      "type": "string",
+      "title": "Created By"
+    },
+    "createdAt": {
+      "type": "string",
+      "title": "Created At"
+    }
+  },
+  "required": [
+    "sourceRole",
+    "mappedRole"
+  ]
+}
