@@ -42,7 +42,7 @@ function RecipeCard({ recipe, onClick }) {
             <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{recipe.prepTime}</span>
           )}
         </div>
-        {recipe.allergens?.length > 0 && (
+        {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 && (
           <div className="flex gap-1 mt-1.5 flex-wrap">
             {recipe.allergens.slice(0, 4).map(a => (
               <span key={a} className="text-[9px] bg-red-500/15 text-red-400 px-1.5 py-0.5 rounded font-bold">{a}</span>
@@ -143,7 +143,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
         </SectionBlock>
 
         {/* Allergens */}
-        {recipe.allergens?.length > 0 && (
+        {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 && (
           <SectionBlock title="Allergens & Dietary">
             <div className="flex flex-wrap gap-1.5">
               {recipe.allergens.map(a => (
@@ -151,7 +151,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                   <AlertTriangle className="h-3 w-3" />{a}
                 </span>
               ))}
-              {recipe.dietaryFlags?.map(f => (
+              {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.map(f => (
                 <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
               ))}
             </div>
@@ -276,6 +276,8 @@ function RecipeForm({ recipe, onSave, onClose }) {
     shelfLife: '', storageLocation: '', storageContainer: '', labelingInstructions: '',
     allergens: [], dietaryFlags: [], notes: '',
     ...recipe,
+    allergens: Array.isArray(recipe?.allergens) ? recipe.allergens : [],
+    dietaryFlags: Array.isArray(recipe?.dietaryFlags) ? recipe.dietaryFlags : [],
   });
   const [ingredients, setIngredients] = useState([]);
   const [steps, setSteps] = useState([]);
