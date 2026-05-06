@@ -37,67 +37,81 @@ export async function extractPDFText(file) {
 }
 
 export function parsePDFScheduleText(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   const shifts = [];
 
-  // Find all potential employee names and their line indices
-  // R365 lists employee names on separate lines before their shifts
-  const employeeLines = new Map();
+  // Split text into lines and clean up
+  const lines = text.split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  if (lines.length === 0) {
+    return { shifts: [], confidence: 'low' };
+  }
+
+  // Find all employee names (capitalized name patterns that appear as standalone lines)
+  const employeeIndices = [];
+  const skipKeywords = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+    'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'OT Hours', 'Fixed Labor', 'Sales', 'Labor',
+    'Week of', 'Schedule', 'Scheduler', 'Morning', 'Afternoon', 'Evening', 'Night'];
+
   lines.forEach((line, idx) => {
-    // Pattern: Capitalized words, not a day of week, not containing common keywords
-    const nameMatch = line.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)$/);
-    if (nameMatch) {
-      const name = nameMatch[1];
-      // Skip days of week and header keywords
-      if (!/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|OT|Fixed|Sales|Labor|Schedule|Week)/.test(name)) {
-        employeeLines.set(name, idx);
+    // Check if line looks like an employee name (First Last, or First Middle Last)
+    if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+$/.test(line)) {
+      // Skip if it's a keyword
+      if (!skipKeywords.some(kw => line.includes(kw))) {
+        employeeIndices.push({ name: line, idx });
       }
     }
   });
 
+  if (employeeIndices.length === 0) {
+    return { shifts: [], confidence: 'low' };
+  }
+
   // Extract shifts for each employee
-  const employeeNames = Array.from(employeeLines.keys());
-  
-  employeeNames.forEach((empName, empIdx) => {
-    const startIdx = employeeLines.get(empName);
-    const endIdx = empIdx < employeeNames.length - 1 ? employeeLines.get(employeeNames[empIdx + 1]) : lines.length;
+  employeeIndices.forEach((emp, empIdx) => {
+    const startIdx = emp.idx + 1;
+    const endIdx = empIdx < employeeIndices.length - 1 ? employeeIndices[empIdx + 1].idx : lines.length;
 
-    // Collect all shift text for this employee (lines after their name until next employee)
-    const empText = lines.slice(startIdx + 1, endIdx).join(' ');
+    // Collect all text for this employee's shifts
+    const empText = lines.slice(startIdx, endIdx).join(' ');
 
-    // R365 format: "HH:MMa - HH:MMp RoleType" or "HH:MMa - HH:MMp" followed by role
-    // Example: "3:00p - 9:00p Bartender"
-    const shiftPattern = /(\d{1,2}):(\d{2})([ap])\s*-\s*(\d{1,2}):(\d{2})([ap])\s+([A-Za-z\s]+?)(?=\d{1,2}:\d{2}|$)/gi;
+    // Match shift patterns: "HH:MMa - HH:MMp RoleType"
+    // Pattern handles: "3:00p - 9:00p Bartender" or "7:00a - 3:00p Kitchen Lead Hourly"
+    const shiftRegex = /(\d{1,2}):(\d{2})([ap])\s*-\s*(\d{1,2}):(\d{2})([ap])\s+([A-Za-z\s]+?)(?=\d{1,2}:\d{2}|$)/g;
+
     let match;
-
-    while ((match = shiftPattern.exec(empText)) !== null) {
+    while ((match = shiftRegex.exec(empText)) !== null) {
       const startH = parseInt(match[1]);
       const startM = match[2];
-      const startAMPM = match[3];
+      const startP = match[3];
       const endH = parseInt(match[4]);
       const endM = match[5];
-      const endAMPM = match[6];
+      const endP = match[6];
       const roleText = match[7].trim();
 
-      const startTime = formatTime(startH, startM, startAMPM);
-      const endTime = formatTime(endH, endM, endAMPM);
+      const startTime = formatTime(startH, startM, startP);
+      const endTime = formatTime(endH, endM, endP);
 
       if (startTime && endTime) {
         shifts.push({
-          raw_employee_name: empName,
-          shift_date: null, // Requires manual assignment during review
+          raw_employee_name: emp.name,
+          shift_date: null,
           raw_shift_text: match[0].trim(),
           parsed_start_time: startTime,
           parsed_end_time: endTime,
           raw_role: roleText,
           status: 'warning',
-          error_message: 'Requires manual date selection',
+          error_message: 'Requires date selection',
         });
       }
     }
   });
 
-  return { shifts, confidence: shifts.length > 0 ? 'medium' : 'low' };
+  return { 
+    shifts: shifts.length > 0 ? shifts : [],
+    confidence: shifts.length > 0 ? 'medium' : 'low' 
+  };
 }
 
 function formatTime(h, m, ampm) {
@@ -108,7 +122,7 @@ function formatTime(h, m, ampm) {
 }
 
 export function detectLayout(rows) {
-  return 'weekly-grid'; // R365 exports are always grid-based
+  return 'weekly-grid';
 }
 
 export function detectHeaderRow(rows) {
