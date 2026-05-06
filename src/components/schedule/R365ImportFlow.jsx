@@ -13,50 +13,10 @@ import {
   parsePDFScheduleText,
 } from '@/utils/r365Parser';
 
-function parseFile(file, callback) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      let rows = [];
-      if (file.name.endsWith('.csv')) {
-        const text = new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
-        rows = parseCSV(text);
-      } else {
-        const wb = XLSX.read(e.target.result, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-      }
-      callback(rows);
-    } catch (err) {
-      callback(null, err.message);
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
 
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  return lines.map(line => {
-    const cols = [];
-    let current = '';
-    let inQuote = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"' && (i === 0 || line[i - 1] !== '\\')) inQuote = !inQuote;
-      else if (ch === ',' && !inQuote) { cols.push(current.trim()); current = ''; }
-      else current += ch;
-    }
-    cols.push(current.trim());
-    return cols;
-  });
-}
 
 export default function R365ImportFlow({ onClose, onComplete, user }) {
   const [step, setStep] = useState(1);
-  const [rawRows, setRawRows] = useState([]);
-  const [layout, setLayout] = useState(null);
-  const [weekStart, setWeekStart] = useState('');
-  const [askForWeek, setAskForWeek] = useState(false);
   const [shifts, setShifts] = useState([]);
   const [editingIdx, setEditingIdx] = useState(null);
   const [importing, setImporting] = useState(false);
@@ -77,83 +37,40 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
 
   const handleFile = async (file) => {
     if (!file) return;
-
-    // Handle PDF separately
-    if (file.name.endsWith('.pdf')) {
-      try {
-        const text = await extractPDFText(file);
-        const { shifts, confidence } = parsePDFScheduleText(text);
-        if (shifts.length === 0) {
-          alert('Could not extract any shifts from PDF');
-          return;
-        }
-        setShifts(shifts);
-        setLayout('pdf');
-        setStep(confidence === 'low' ? 5 : 4); // Show warnings for low confidence
-      } catch (err) {
-        alert('PDF parsing failed: ' + err.message);
-      }
+    if (!file.name.endsWith('.pdf')) {
+      alert('R365 exports must be PDF files');
       return;
     }
-
-    // Handle CSV/Excel
-    parseFile(file, (rows, error) => {
-      if (error) { alert('Error reading file: ' + error); return; }
-      setRawRows(rows);
-      const detectedLayout = detectLayout(rows);
-      if (!detectedLayout) { alert('Could not detect schedule layout'); return; }
-      setLayout(detectedLayout);
-      setStep(2);
-    });
+    try {
+      const text = await extractPDFText(file);
+      const { shifts, confidence } = parsePDFScheduleText(text);
+      if (shifts.length === 0) {
+        alert('Could not extract any shifts from PDF. Please verify the file format.');
+        return;
+      }
+      setShifts(shifts);
+      setStep(2); // Go to role mapping if needed, else preview
+    } catch (err) {
+      alert('PDF parsing failed: ' + err.message);
+    }
   };
 
-  const detectWeek = () => {
-    const allDates = rawRows
-      .flat()
-      .map(cell => {
-        const str = String(cell).trim();
-        const d = new Date(str);
-        if (!isNaN(d) && str.match(/\d{1,2}[/-]\d{1,2}/)) return d;
-        return null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => a - b);
-
-    if (allDates.length > 0) {
-      const firstDate = allDates[0];
-      const dayOfWeek = firstDate.getDay();
-      const weekStart = new Date(firstDate);
-      weekStart.setDate(firstDate.getDate() - dayOfWeek);
-      return weekStart.toISOString().split('T')[0];
-    }
-    return null;
-  };
-
-  const proceedWithParsing = () => {
-    if (!weekStart) { alert('Please select a week start date'); return; }
-
-    const headerIdx = detectHeaderRow(rawRows);
-    let parsed = [];
-
-    if (layout === 'weekly-grid') {
-      parsed = parseWeeklyGrid(rawRows, headerIdx, weekStart);
-    } else if (layout === 'row-based') {
-      parsed = parseRowBased(rawRows, headerIdx, weekStart);
-    }
-
-    // Detect unmapped roles
+  useEffect(() => {
+    // Detect unmapped roles after shifts are loaded
     const unmapped = new Set();
-    parsed.forEach(shift => {
+    shifts.forEach(shift => {
       if (shift.raw_role) {
         const mapped = mapRole(shift.raw_role, roleMappings);
         if (!mapped) unmapped.add(shift.raw_role);
       }
     });
-
     setUnmappedRoles(unmapped);
-    setShifts(parsed);
-    setStep(unmapped.size > 0 ? 3 : 4);
-  };
+    if (unmapped.size > 0 && step === 1) {
+      setStep(2);
+    } else if (unmapped.size === 0 && step === 2) {
+      setStep(3);
+    }
+  }, [shifts]);
 
   const saveRoleMapping = async () => {
     if (!mappingRole || !mappingTo.trim()) return;
@@ -242,7 +159,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
       </div>
 
       <div className="flex px-4 py-2 gap-1 bg-muted/30 border-b border-border shrink-0">
-        {[1, 2, 3, 4, 5].map(i => (
+        {[1, 2, 3, 4].map(i => (
           <div key={i} className={`flex-1 h-1 rounded-full ${i <= step ? 'bg-primary' : 'bg-border'}`} />
         ))}
       </div>
@@ -253,50 +170,15 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
             <div className="text-center py-8 bg-card border-2 border-dashed border-border rounded-xl">
               <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm font-bold mb-1">Upload R365 Schedule Export</p>
-              <p className="text-xs text-muted-foreground mb-3">CSV, XLS, XLSX, or PDF</p>
+              <p className="text-xs text-muted-foreground mb-3">PDF file</p>
             </div>
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2">
-              <p className="text-[11px] text-blue-300">💡 PDF files will require manual review before importing.</p>
+              <p className="text-[11px] text-blue-300">💡 R365 PDFs require manual review before importing.</p>
             </div>
           </div>
         )}
 
         {step === 2 && (
-          <div className="space-y-4">
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-              <p className="text-xs font-bold text-blue-400 mb-1">Layout Detected: {layout === 'weekly-grid' ? 'Weekly Grid' : 'Row-Based'}</p>
-              <p className="text-[11px] text-blue-300">Employees × Days columns or One shift per row</p>
-            </div>
-
-            <div>
-              <label className="text-xs font-bold text-foreground block mb-2">Week Start Date</label>
-              <div className="flex gap-2">
-                <input
-                  type="date"
-                  value={weekStart}
-                  onChange={e => setWeekStart(e.target.value)}
-                  className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
-                />
-                {!weekStart && (
-                  <button
-                    onClick={() => {
-                      const detected = detectWeek();
-                      if (detected) setWeekStart(detected);
-                    }}
-                    className="btn-secondary text-sm"
-                  >
-                    Detect
-                  </button>
-                )}
-              </div>
-              <p className="text-[10px] text-muted-foreground mt-1">Default is Monday. Select Sunday if needed.</p>
-            </div>
-
-            <button onClick={proceedWithParsing} className="w-full btn-primary text-sm py-2.5">Parse Schedule</button>
-          </div>
-        )}
-
-        {step === 3 && (
           <div className="space-y-3">
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
               <p className="text-xs font-bold text-amber-400">Role Mapping Required</p>
@@ -344,17 +226,15 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
           </div>
         )}
 
-        {step === 4 && (
+        {step === 3 && (
           <div className="space-y-3">
-            {layout === 'pdf' && (
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex gap-2">
-                <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-bold text-amber-400">PDF requires manual review</p>
-                  <p className="text-[11px] text-amber-300">Verify all details before importing</p>
-                </div>
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 flex gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-amber-400">PDF requires manual review</p>
+                <p className="text-[11px] text-amber-300">Verify all details before importing</p>
               </div>
-            )}
+            </div>
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-green-500/10 rounded-lg p-2 text-center">
                 <p className="text-lg font-bold text-green-400">{readyCount}</p>
@@ -419,7 +299,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
           </div>
         )}
 
-        {step === 5 && result && (
+        {step === 4 && result && (
           <div className="space-y-3">
             <div className="text-center py-6">
               <CheckCircle2 className="h-10 w-10 text-green-400 mx-auto mb-2" />
@@ -434,9 +314,9 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
       </div>
 
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
-        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx,.pdf" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
-        {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose File</button>}
-        {step === 5 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Schedule</button>}
+        <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
+        {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose PDF</button>}
+        {step === 4 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Schedule</button>}
       </div>
     </div>
   );
