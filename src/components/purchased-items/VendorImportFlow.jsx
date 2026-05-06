@@ -116,6 +116,8 @@ export default function VendorImportFlow({ onClose, onComplete }) {
         pack: 'packSize',
         brand: 'brand',
         price: 'caseCost',
+        cost: 'caseCost',
+        case: 'caseCost',
         unit: 'purchaseUnit',
         avg: 'averageOrderQty',
         lwp: 'lastWeekPurchase',
@@ -156,7 +158,7 @@ export default function VendorImportFlow({ onClose, onComplete }) {
         mapped.rawPackSize = mapped.packSize;
         const issues = [];
         if (!mapped.itemName) issues.push('Missing description');
-        if (!mapped.caseCost) issues.push('Missing price');
+        if (mapped.caseCost === null || mapped.caseCost === undefined) issues.push('Missing/invalid price');
         if (!mapped.purchaseUnit) issues.push('Missing unit');
         return { row, mapped, issues, status: issues.length > 0 ? 'error' : 'ok' };
       });
