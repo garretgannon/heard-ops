@@ -1,0 +1,117 @@
+{
+  "name": "Reservation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Reservation Name"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "time": {
+      "type": "string",
+      "title": "Time (HH:MM)"
+    },
+    "partySize": {
+      "type": "number",
+      "title": "Party Size",
+      "default": 2
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "room": {
+      "type": "string",
+      "title": "Room"
+    },
+    "tableNumber": {
+      "type": "string",
+      "title": "Table Number"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "booked",
+        "confirmed",
+        "seated",
+        "completed",
+        "cancelled",
+        "no-show"
+      ],
+      "enumNames": [
+        "Booked",
+        "Confirmed",
+        "Seated",
+        "Completed",
+        "Cancelled",
+        "No-show"
+      ],
+      "default": "booked"
+    },
+    "source": {
+      "type": "string",
+      "title": "Source",
+      "enum": [
+        "phone",
+        "website",
+        "opentable",
+        "resy",
+        "toast-tables",
+        "walk-in",
+        "manual",
+        "other"
+      ],
+      "enumNames": [
+        "Phone",
+        "Website",
+        "OpenTable",
+        "Resy",
+        "Toast Tables",
+        "Walk-in",
+        "Manual",
+        "Other"
+      ]
+    },
+    "guestNotes": {
+      "type": "string",
+      "title": "Guest Notes"
+    },
+    "serviceNotes": {
+      "type": "string",
+      "title": "Service Notes"
+    },
+    "isVIP": {
+      "type": "boolean",
+      "title": "VIP",
+      "default": false
+    },
+    "hasDietaryRestrictions": {
+      "type": "boolean",
+      "title": "Has Dietary Restrictions",
+      "default": false
+    },
+    "dietaryNotes": {
+      "type": "string",
+      "title": "Dietary Notes"
+    },
+    "specialOccasion": {
+      "type": "string",
+      "title": "Special Occasion"
+    },
+    "linkedBEOId": {
+      "type": "string",
+      "title": "Linked BEO ID"
+    }
+  },
+  "required": [
+    "name",
+    "date",
+    "time",
+    "partySize"
+  ]
+}

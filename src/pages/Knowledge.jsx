@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, ChevronRight } from "lucide-react";
+import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
 import KnowledgeHeader from "@/components/KnowledgeHeader";
@@ -89,11 +89,13 @@ export default function Knowledge() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [recipes, vendors, knowledge, managerLogs] = await Promise.all([
+        const [recipes, vendors, knowledge, managerLogs, reservations, beos] = await Promise.all([
           base44.entities.Recipe.list().catch(() => []),
           base44.entities.Vendor.list().catch(() => []),
           base44.entities.Knowledge.list().catch(() => []),
           base44.entities.ManagerLog.list().catch(() => []),
+          base44.entities.Reservation.list().catch(() => []),
+          base44.entities.BEO.list().catch(() => []),
         ]);
 
         const equipmentGuides = knowledge.filter(k => k.type === "guide" && k.category?.includes("equipment")).length;
@@ -106,6 +108,8 @@ export default function Knowledge() {
           equipment: equipmentGuides,
           sops: sopGuides,
           forms: forms,
+          reservations: reservations.length,
+          beos: beos.length,
         });
       } catch (e) {
         console.error(e);
@@ -188,6 +192,12 @@ export default function Knowledge() {
               title="Forms & Checklists"
               count={counts.forms || 0}
               onClick={() => navigate("/forms")}
+            />
+            <BrowseCard
+              icon={CalendarDays}
+              title="Reservations & BEOs"
+              count={(counts.reservations || 0) + (counts.beos || 0)}
+              onClick={() => navigate("/reservations")}
             />
           </div>
         </div>

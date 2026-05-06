@@ -1,0 +1,118 @@
+import { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Search, Users, ChevronRight, Edit2, Trash2, CheckCircle2 } from 'lucide-react';
+import { haptics } from '@/utils/haptics';
+
+const STATUS_COLOR = {
+  inquiry: 'bg-muted text-muted-foreground',
+  tentative: 'bg-amber-500/15 text-amber-400',
+  confirmed: 'bg-green-500/15 text-green-400',
+  'in-production': 'bg-blue-500/15 text-blue-400',
+  ready: 'bg-primary/15 text-primary',
+  completed: 'bg-muted text-muted-foreground',
+  cancelled: 'bg-red-500/15 text-red-400',
+};
+
+function BEOCard({ beo, isAdmin, onSelect, onEdit, onDelete }) {
+  return (
+    <button
+      onClick={() => onSelect(beo)}
+      className="w-full text-left bg-card border border-blue-500/20 rounded-xl p-3 active:scale-[0.98] transition-all"
+    >
+      <div className="flex items-start gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+            <span className="text-sm font-bold text-foreground">{beo.eventName}</span>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full capitalize ${STATUS_COLOR[beo.status] || 'bg-muted text-muted-foreground'}`}>
+              {(beo.status || 'tentative').replace(/-/g, ' ')}
+            </span>
+            {beo.prepTasksGenerated && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400 flex items-center gap-0.5">
+                <CheckCircle2 className="h-2.5 w-2.5" />Prep ✓
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground">{beo.eventDate}</span>
+            {beo.startTime && <span className="text-xs text-muted-foreground">{beo.startTime}{beo.endTime ? `–${beo.endTime}` : ''}</span>}
+            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5"><Users className="h-2.5 w-2.5" />{beo.guestCount || '?'}</span>
+            {(beo.area || beo.room) && <span className="text-[10px] text-muted-foreground">· {beo.area || beo.room}</span>}
+          </div>
+          <div className="flex gap-1.5 mt-1.5 flex-wrap">
+            {beo.eventType && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 capitalize">{beo.eventType.replace(/-/g, ' ')}</span>}
+            {beo.serviceStyle && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground capitalize">{beo.serviceStyle.replace(/-/g, ' ')}</span>}
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          {isAdmin && (
+            <>
+              <button onClick={e => { e.stopPropagation(); onEdit(beo); }} className="p-1.5 rounded-lg bg-muted hover:bg-muted/80">
+                <Edit2 className="h-3 w-3 text-muted-foreground" />
+              </button>
+              <button onClick={e => { e.stopPropagation(); onDelete(beo.id); }} className="p-1.5 rounded-lg bg-muted hover:bg-red-500/15">
+                <Trash2 className="h-3 w-3 text-red-400" />
+              </button>
+            </>
+          )}
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </div>
+      </div>
+    </button>
+  );
+}
+
+export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh }) {
+  const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  const filtered = beos.filter(b => {
+    if (filterStatus !== 'all' && b.status !== filterStatus) return false;
+    if (search && !b.eventName.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const handleDelete = async (id) => {
+    await base44.entities.BEO.delete(id);
+    haptics.success();
+    onRefresh();
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="space-y-2">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search events…"
+            className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          />
+        </div>
+        <div className="flex gap-1 overflow-x-auto pb-0.5">
+          {['all','tentative','confirmed','in-production','ready','completed'].map(s => (
+            <button
+              key={s}
+              onClick={() => setFilterStatus(s)}
+              className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full capitalize transition-all ${filterStatus === s ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+            >
+              {s.replace(/-/g, ' ')}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="text-center py-10 bg-card border border-border rounded-xl">
+          <p className="text-sm text-muted-foreground">No BEOs found</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(b => (
+            <BEOCard key={b.id} beo={b} isAdmin={isAdmin} onSelect={onSelect} onEdit={onEdit} onDelete={handleDelete} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

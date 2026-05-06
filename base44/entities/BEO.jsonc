@@ -1,0 +1,200 @@
+{
+  "name": "BEO",
+  "type": "object",
+  "properties": {
+    "eventName": {
+      "type": "string",
+      "title": "Event Name"
+    },
+    "eventDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Event Date"
+    },
+    "startTime": {
+      "type": "string",
+      "title": "Start Time"
+    },
+    "endTime": {
+      "type": "string",
+      "title": "End Time"
+    },
+    "guestCount": {
+      "type": "number",
+      "title": "Guest Count",
+      "default": 0
+    },
+    "room": {
+      "type": "string",
+      "title": "Room"
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "eventType": {
+      "type": "string",
+      "title": "Event Type",
+      "enum": [
+        "private-dining",
+        "banquet",
+        "buyout",
+        "catering",
+        "tasting",
+        "meeting",
+        "wedding",
+        "corporate",
+        "holiday-party",
+        "other"
+      ],
+      "enumNames": [
+        "Private Dining",
+        "Banquet",
+        "Buyout",
+        "Catering",
+        "Tasting",
+        "Meeting",
+        "Wedding",
+        "Corporate",
+        "Holiday Party",
+        "Other"
+      ]
+    },
+    "serviceStyle": {
+      "type": "string",
+      "title": "Service Style",
+      "enum": [
+        "plated",
+        "buffet",
+        "family-style",
+        "passed-apps",
+        "stations",
+        "reception",
+        "bar-package",
+        "pickup-catering",
+        "drop-off-catering",
+        "other"
+      ],
+      "enumNames": [
+        "Plated",
+        "Buffet",
+        "Family Style",
+        "Passed Apps",
+        "Stations",
+        "Reception",
+        "Bar Package",
+        "Pickup Catering",
+        "Drop-off Catering",
+        "Other"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "inquiry",
+        "tentative",
+        "confirmed",
+        "in-production",
+        "ready",
+        "completed",
+        "cancelled"
+      ],
+      "enumNames": [
+        "Inquiry",
+        "Tentative",
+        "Confirmed",
+        "In Production",
+        "Ready",
+        "Completed",
+        "Cancelled"
+      ],
+      "default": "tentative"
+    },
+    "clientName": {
+      "type": "string",
+      "title": "Client / Host Name"
+    },
+    "internalEventOwner": {
+      "type": "string",
+      "title": "Internal Event Owner"
+    },
+    "prepNotes": {
+      "type": "string",
+      "title": "Prep Notes"
+    },
+    "kitchenNotes": {
+      "type": "string",
+      "title": "Kitchen Notes"
+    },
+    "fohNotes": {
+      "type": "string",
+      "title": "FOH Notes"
+    },
+    "barNotes": {
+      "type": "string",
+      "title": "Bar Notes"
+    },
+    "setupNotes": {
+      "type": "string",
+      "title": "Setup Notes"
+    },
+    "dietaryNotes": {
+      "type": "string",
+      "title": "Dietary Notes"
+    },
+    "allergenNotes": {
+      "type": "string",
+      "title": "Allergen Notes"
+    },
+    "equipmentNotes": {
+      "type": "string",
+      "title": "Equipment Notes"
+    },
+    "staffingNotes": {
+      "type": "string",
+      "title": "Staffing Notes"
+    },
+    "managerNotes": {
+      "type": "string",
+      "title": "Manager Notes"
+    },
+    "chefNotes": {
+      "type": "string",
+      "title": "Chef Notes"
+    },
+    "prepTasksGenerated": {
+      "type": "boolean",
+      "title": "Prep Tasks Generated",
+      "default": false
+    },
+    "serversNeeded": {
+      "type": "number",
+      "title": "Servers Needed"
+    },
+    "bartendersNeeded": {
+      "type": "number",
+      "title": "Bartenders Needed"
+    },
+    "cooksNeeded": {
+      "type": "number",
+      "title": "Cooks Needed"
+    },
+    "setupStaffNeeded": {
+      "type": "number",
+      "title": "Setup Staff Needed"
+    },
+    "eventCaptain": {
+      "type": "string",
+      "title": "Event Captain"
+    },
+    "managerOnDuty": {
+      "type": "string",
+      "title": "Manager on Duty"
+    }
+  },
+  "required": [
+    "eventName",
+    "eventDate"
+  ]
+}

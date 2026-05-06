@@ -1,0 +1,97 @@
+import { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { X } from 'lucide-react';
+import { haptics } from '@/utils/haptics';
+
+const STATUSES = ['booked','confirmed','seated','completed','cancelled','no-show'];
+const SOURCES = ['phone','website','opentable','resy','toast-tables','walk-in','manual','other'];
+
+export default function ReservationForm({ reservation, onSave, onClose }) {
+  const [form, setForm] = useState({
+    name: '', date: new Date().toISOString().split('T')[0], time: '', partySize: 2,
+    area: '', room: '', tableNumber: '', status: 'booked', source: 'phone',
+    guestNotes: '', serviceNotes: '', isVIP: false, hasDietaryRestrictions: false,
+    dietaryNotes: '', specialOccasion: '', linkedBEOId: '',
+    ...reservation,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const save = async () => {
+    if (!form.name.trim()) return;
+    setSaving(true);
+    if (reservation?.id) {
+      await base44.entities.Reservation.update(reservation.id, form);
+    } else {
+      await base44.entities.Reservation.create(form);
+    }
+    haptics.success();
+    setSaving(false);
+    onSave();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+      <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
+        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+          <X className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <h2 className="flex-1 text-sm font-extrabold text-foreground">{reservation ? 'Edit Reservation' : 'New Reservation'}</h2>
+        <button onClick={save} disabled={saving} className="btn-primary text-xs px-4 h-8">{saving ? 'Saving…' : 'Save'}</button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-10">
+        <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Reservation name *" className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-sm text-foreground font-bold" />
+        <div className="grid grid-cols-2 gap-2">
+          <input type="date" value={form.date} onChange={e => set('date', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          <input type="time" value={form.time} onChange={e => set('time', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground block mb-1">Party Size</label>
+            <input type="number" value={form.partySize} onChange={e => set('partySize', parseInt(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground block mb-1">Table #</label>
+            <input value={form.tableNumber} onChange={e => set('tableNumber', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <input value={form.area} onChange={e => set('area', e.target.value)} placeholder="Area" className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          <input value={form.room} onChange={e => set('room', e.target.value)} placeholder="Room" className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground block mb-1">Status</label>
+            <select value={form.status} onChange={e => set('status', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              {STATUSES.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-muted-foreground block mb-1">Source</label>
+            <select value={form.source} onChange={e => set('source', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              {SOURCES.map(s => <option key={s} value={s} className="capitalize">{s.replace(/-/g, ' ')}</option>)}
+            </select>
+          </div>
+        </div>
+        <input value={form.specialOccasion} onChange={e => set('specialOccasion', e.target.value)} placeholder="Special occasion" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+        <textarea value={form.guestNotes} onChange={e => set('guestNotes', e.target.value)} placeholder="Guest notes" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+        <textarea value={form.serviceNotes} onChange={e => set('serviceNotes', e.target.value)} placeholder="Service notes (internal)" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+            <input type="checkbox" checked={form.isVIP} onChange={e => set('isVIP', e.target.checked)} />
+            VIP Guest
+          </label>
+          <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+            <input type="checkbox" checked={form.hasDietaryRestrictions} onChange={e => set('hasDietaryRestrictions', e.target.checked)} />
+            Dietary Restrictions
+          </label>
+        </div>
+        {form.hasDietaryRestrictions && (
+          <textarea value={form.dietaryNotes} onChange={e => set('dietaryNotes', e.target.value)} placeholder="Dietary notes / restrictions" rows={2} className="w-full px-3 py-2 bg-background border border-red-500/30 rounded-lg text-sm text-foreground resize-none" />
+        )}
+      </div>
+    </div>
+  );
+}

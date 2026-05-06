@@ -1,0 +1,47 @@
+{
+  "name": "BEOMenuItem",
+  "type": "object",
+  "properties": {
+    "beoId": {
+      "type": "string",
+      "title": "BEO ID"
+    },
+    "itemName": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "course": {
+      "type": "string",
+      "title": "Course / Station"
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit"
+    },
+    "linkedRecipeId": {
+      "type": "string",
+      "title": "Linked Recipe ID"
+    },
+    "linkedBuildCardId": {
+      "type": "string",
+      "title": "Linked Build Card ID"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "beoId",
+    "itemName"
+  ]
+}

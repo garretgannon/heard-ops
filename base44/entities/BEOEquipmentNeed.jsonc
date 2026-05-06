@@ -1,0 +1,42 @@
+{
+  "name": "BEOEquipmentNeed",
+  "type": "object",
+  "properties": {
+    "beoId": {
+      "type": "string",
+      "title": "BEO ID"
+    },
+    "equipmentName": {
+      "type": "string",
+      "title": "Equipment Name"
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity",
+      "default": 1
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "needed",
+        "confirmed",
+        "on-site"
+      ],
+      "enumNames": [
+        "Needed",
+        "Confirmed",
+        "On Site"
+      ],
+      "default": "needed"
+    }
+  },
+  "required": [
+    "beoId",
+    "equipmentName"
+  ]
+}

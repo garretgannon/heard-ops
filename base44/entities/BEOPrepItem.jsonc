@@ -1,0 +1,71 @@
+{
+  "name": "BEOPrepItem",
+  "type": "object",
+  "properties": {
+    "beoId": {
+      "type": "string",
+      "title": "BEO ID"
+    },
+    "prepItem": {
+      "type": "string",
+      "title": "Prep Item"
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Due Date"
+    },
+    "dueTime": {
+      "type": "string",
+      "title": "Due Time"
+    },
+    "assignedStation": {
+      "type": "string",
+      "title": "Assigned Station"
+    },
+    "assignedJobCode": {
+      "type": "string",
+      "title": "Assigned Job Code"
+    },
+    "linkedRecipeId": {
+      "type": "string",
+      "title": "Linked Recipe ID"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in-progress",
+        "done"
+      ],
+      "enumNames": [
+        "Pending",
+        "In Progress",
+        "Done"
+      ],
+      "default": "pending"
+    },
+    "generatedPrepTaskId": {
+      "type": "string",
+      "title": "Generated Prep Task ID"
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "beoId",
+    "prepItem"
+  ]
+}

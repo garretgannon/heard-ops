@@ -1,0 +1,47 @@
+{
+  "name": "BEODietaryRestriction",
+  "type": "object",
+  "properties": {
+    "beoId": {
+      "type": "string",
+      "title": "BEO ID"
+    },
+    "guestName": {
+      "type": "string",
+      "title": "Guest Name"
+    },
+    "restriction": {
+      "type": "string",
+      "title": "Restriction"
+    },
+    "severity": {
+      "type": "string",
+      "title": "Severity",
+      "enum": [
+        "preference",
+        "intolerance",
+        "allergy",
+        "life-threatening"
+      ],
+      "enumNames": [
+        "Preference",
+        "Intolerance",
+        "Allergy",
+        "Life-Threatening"
+      ],
+      "default": "preference"
+    },
+    "menuAdjustment": {
+      "type": "string",
+      "title": "Menu Adjustment"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "beoId",
+    "restriction"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "BEOAttachment",
+  "type": "object",
+  "properties": {
+    "beoId": {
+      "type": "string",
+      "title": "BEO ID"
+    },
+    "fileName": {
+      "type": "string",
+      "title": "File Name"
+    },
+    "fileUrl": {
+      "type": "string",
+      "title": "File URL"
+    },
+    "fileType": {
+      "type": "string",
+      "title": "File Type",
+      "enum": [
+        "pdf",
+        "image",
+        "menu",
+        "floor-plan",
+        "contract",
+        "other"
+      ],
+      "enumNames": [
+        "PDF",
+        "Image",
+        "Menu",
+        "Floor Plan",
+        "Contract",
+        "Other"
+      ]
+    },
+    "uploadedBy": {
+      "type": "string",
+      "title": "Uploaded By"
+    },
+    "uploadedAt": {
+      "type": "string",
+      "title": "Uploaded At"
+    }
+  },
+  "required": [
+    "beoId",
+    "fileName",
+    "fileUrl"
+  ]
+}

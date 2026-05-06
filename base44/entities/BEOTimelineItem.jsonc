@@ -1,0 +1,31 @@
+{
+  "name": "BEOTimelineItem",
+  "type": "object",
+  "properties": {
+    "beoId": {
+      "type": "string",
+      "title": "BEO ID"
+    },
+    "time": {
+      "type": "string",
+      "title": "Time"
+    },
+    "label": {
+      "type": "string",
+      "title": "Label"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "beoId",
+    "label"
+  ]
+}
