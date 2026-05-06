@@ -240,13 +240,13 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={() => { haptics.light?.(); onClose?.(); }} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-          <X className="h-4 w-4" />
-        </button>
-        <div className="flex-1">
-          <h2 className="text-sm font-bold">Import Weekly Schedule</h2>
-          <p className="text-[10px] text-muted-foreground">Step {step} of 4</p>
-        </div>
+       <button onClick={() => { haptics.light?.(); onClose?.(); }} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+         <X className="h-4 w-4" />
+       </button>
+       <div className="flex-1">
+         <h2 className="text-sm font-bold">Import Weekly Schedule</h2>
+         <p className="text-[10px] text-muted-foreground">Step {step} of 4</p>
+       </div>
       </div>
 
       <div className="flex px-4 py-2 gap-1 bg-muted/30 border-b border-border shrink-0">
