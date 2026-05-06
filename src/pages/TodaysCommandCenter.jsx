@@ -10,62 +10,15 @@ import { haptics } from "@/utils/haptics";
 import { useToast } from "@/hooks/useToast";
 import CommandCenterHeader from "@/components/CommandCenterHeader";
 import DailyEventsCard from "@/components/reservations/DailyEventsCard";
-import ShiftProgress from "@/components/ShiftMode/ShiftProgress";
+import ActiveShiftCard from "@/components/ActiveShiftCard";
+import CompactQuickActions from "@/components/CompactQuickActions";
 import StartShiftModal from "@/components/ShiftMode/StartShiftModal";
 import SetupChecklist from "@/components/ShiftMode/SetupChecklist";
 import CloseShiftModal from "@/components/ShiftMode/CloseShiftModal";
-import QuickActionButtons from "@/components/QuickActionButtons";
 import { QuickActionModals } from "@/components/QuickActionModals";
 
-// Module-level cache — survives re-mounts and navigation
 const cache = { data: null, ts: 0 };
-const CACHE_TTL = 30_000; // 30s before background refresh
-
-function ProgressCircle({ value, max = 100 }) {
-  const circumference = 2 * Math.PI * 32;
-  const offset = circumference - (value / max) * circumference;
-  const percentage = (value / max) * 100;
-  const color = percentage >= 80 ? "#4CFF88" : percentage >= 60 ? "#FF9F1C" : "#FF4D4D";
-
-  return (
-    <div className="relative w-20 h-20 flex items-center justify-center">
-      <svg className="absolute w-full h-full" style={{ transform: "rotate(-90deg)" }}>
-        <circle cx="40" cy="40" r="32" fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
-        <circle
-          cx="40"
-          cy="40"
-          r="32"
-          fill="none"
-          stroke={color}
-          strokeWidth="4"
-          strokeDasharray={circumference}
-          style={{ strokeDasharray: circumference, strokeDashoffset: offset }}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="stroke-smooth"
-          style={{
-            "--stroke-dasharray": circumference,
-            "--final-offset": offset,
-          }}
-        />
-      </svg>
-      <div className="text-center z-10">
-        <p className="text-lg font-bold text-foreground">{value}%</p>
-        <p className="text-[10px] text-secondary-text font-semibold">Complete</p>
-      </div>
-    </div>
-  );
-}
-
-function StatItem({ icon: Icon, label, value, color }) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <Icon className={cn("h-5 w-5", color)} />
-      <p className={cn("text-2xl font-bold", color)}>{value}</p>
-      <p className="text-[9px] text-secondary-text font-semibold uppercase text-center leading-tight whitespace-nowrap">{label}</p>
-    </div>
-  );
-}
+const CACHE_TTL = 30_000;
 
 function AttentionCard({ icon: Icon, iconColor, iconBg, title, meta, subtitle, status, statusColor, onTap }) {
   return (
@@ -222,13 +175,11 @@ export default function TodaysCommandCenter() {
     isMounted.current = true;
     const set = (updater) => { if (isMounted.current) setData(updater); };
 
-    // If fresh cache exists, skip loading state entirely
     const cacheAge = Date.now() - cache.ts;
     if (cache.data && cacheAge < CACHE_TTL) {
       setLoading(false);
     }
 
-    // Fast primary load — core task data only
     const loadPrimary = async () => {
       try {
         const [prepItems, sideWork, issues] = await Promise.all([
@@ -274,7 +225,6 @@ export default function TodaysCommandCenter() {
       }
     };
 
-    // Deferred secondary load — supplementary data
     const loadSecondary = async () => {
       try {
         const [handoffs, coolingLogs, refrigLogs, hotLogs] = await Promise.all([
@@ -366,20 +316,18 @@ export default function TodaysCommandCenter() {
 
   return (
     <div className="pb-32">
-      {/* Command Center Header */}
       <CommandCenterHeader
         onNotifications={() => navigate("/logs")}
         onViewDay={() => navigate("/calendar")}
       />
 
-      {/* Shift Mode Controls + Quick Actions */}
-      <div className="px-4 pt-3 pb-2 space-y-2.5 border-b border-border">
+      <div className="px-4 py-3 space-y-2 border-b border-border">
         {isAdmin && (
-          <div>
+          <div className="space-y-2">
             {!currentShift ? (
               <button
                 onClick={() => setShowStartModal(true)}
-                className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold flex items-center justify-center gap-2 shadow-glow active:scale-95 transition-all"
+                className="w-full h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
               >
                 <Zap className="h-4 w-4" />
                 Start Shift
@@ -387,53 +335,58 @@ export default function TodaysCommandCenter() {
             ) : currentShift.status === 'setup' ? (
               <button
                 disabled
-                className="w-full h-11 rounded-xl bg-primary/50 text-primary-foreground font-bold cursor-not-allowed"
+                className="w-full h-9 rounded-lg bg-primary/50 text-primary-foreground font-bold text-sm cursor-not-allowed"
               >
                 Completing Setup...
               </button>
             ) : currentShift.status === 'running' ? (
-              <button
-                onClick={() => setShowCloseModal(true)}
-                className="w-full h-11 rounded-xl bg-red-500/90 text-white font-bold active:scale-95 transition-all"
-              >
-                End Shift
-              </button>
+              <ActiveShiftCard
+                shift={currentShift}
+                completionPct={data?.completionPct || 0}
+                overdueCount={data?.overdue?.length || 0}
+                reviewCount={data?.needsReview || 0}
+                onViewPlan={() => navigate('/shift-handoff')}
+                onEndShift={() => setShowCloseModal(true)}
+              />
             ) : currentShift.status === 'closed' || currentShift.status === 'completed' ? (
               <div className="flex gap-2">
                 <button
                   onClick={async () => { haptics.medium(); await reopenShift(currentShift.id); window.location.reload(); }}
-                  className="flex-1 h-11 rounded-xl border border-border bg-muted text-foreground font-bold active:scale-95 transition-all"
+                  className="flex-1 h-9 rounded-lg border border-border bg-muted text-foreground font-bold text-sm active:scale-95 transition-all"
                 >
-                  Reopen Shift
+                  Reopen
                 </button>
                 <button
                   onClick={() => navigate('/more')}
-                  className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-bold active:scale-95 transition-all"
+                  className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-all"
                 >
                   Edit
                 </button>
               </div>
             ) : null}
+            {currentShift?.status === 'running' && <CompactQuickActions onActionClick={setActiveModal} />}
           </div>
         )}
-        <QuickActionButtons onActionClick={setActiveModal} />
       </div>
 
-      {/* Main Content */}
       <div className="px-4 py-4 space-y-4 pb-8">
-        {/* Shift Progress */}
-        {currentShift && currentShift.status === 'running' && <ShiftProgress shift={currentShift} />}
-
-        {/* Shift Progress Card */}
-        <div className="bg-card border border-border rounded-xl p-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Shift Progress</p>
-          <div className="flex items-center gap-4">
-            <ProgressCircle value={data.completionPct} max={100} />
-            <div className="flex-1 grid grid-cols-3 gap-3">
-              <StatItem icon={AlertTriangle} label="Overdue" value={data.overdue.length} color="text-red-400" />
-              <StatItem icon={Clock} label="Due Soon" value={data.dueSoon.length} color="text-amber-400" />
-              <StatItem icon={AlertCircle} label="Review" value={data.needsReview} color="text-blue-400" />
-            </div>
+        {/* Shift Progress Summary Card */}
+        <div className="bg-card border border-border rounded-lg p-3 grid grid-cols-4 gap-2 text-center">
+          <div>
+            <p className="text-lg font-bold text-foreground">{data.completionPct}%</p>
+            <p className="text-[8px] text-muted-foreground">Complete</p>
+          </div>
+          <div className="bg-red-500/10 rounded p-2 border border-red-500/20">
+            <p className="text-base font-bold text-red-400">{data.overdue.length}</p>
+            <p className="text-[8px] text-red-300">Overdue</p>
+          </div>
+          <div className="bg-amber-500/10 rounded p-2 border border-amber-500/20">
+            <p className="text-base font-bold text-amber-400">{data.dueSoon.length}</p>
+            <p className="text-[8px] text-amber-300">Due Soon</p>
+          </div>
+          <div className="bg-blue-500/10 rounded p-2 border border-blue-500/20">
+            <p className="text-base font-bold text-blue-400">{data.needsReview}</p>
+            <p className="text-[8px] text-blue-300">Review</p>
           </div>
         </div>
 
@@ -537,14 +490,12 @@ export default function TodaysCommandCenter() {
         )}
       </div>
 
-      {/* Shift Mode Modals */}
       <StartShiftModal isOpen={showStartModal} onClose={() => setShowStartModal(false)} locationId="demo-location" locationName="Main" />
       {currentShift && currentShift.status === 'setup' && (
         <SetupChecklist shift={currentShift} onContinue={() => markSetupComplete(currentShift.id)} />
       )}
       <CloseShiftModal isOpen={showCloseModal} onClose={() => setShowCloseModal(false)} shift={currentShift} />
 
-      {/* Quick Action Modals */}
       <QuickActionModals activeModal={activeModal} onCloseModal={handleCloseModal} onSuccess={handleModalSuccess} />
     </div>
   );
