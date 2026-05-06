@@ -1,9 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-
-const logsCache = { data: null, ts: 0 };
-const CACHE_TTL = 60_000;
 import { Thermometer, Droplet, AlertTriangle, FileText, Plus, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
@@ -11,6 +8,9 @@ import { haptics } from "@/utils/haptics";
 import LogsHeader from "@/components/LogsHeader";
 import { useToast } from "@/hooks/useToast";
 import { useUnifiedState } from "@/lib/UnifiedStateContext";
+
+const logsCache = { data: null, ts: 0 };
+const CACHE_TTL = 60_000;
 
 const FILTER_TABS = [
   { id: "temps", label: "Temps", icon: Thermometer },

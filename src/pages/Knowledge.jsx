@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
-
-const knowledgeCache = { data: null, ts: 0 };
-const CACHE_TTL = 60_000;
 import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
 import KnowledgeHeader from "@/components/KnowledgeHeader";
+
+const knowledgeCache = { data: null, ts: 0 };
+const CACHE_TTL = 60_000;
 
 function SearchBar({ value, onChange, onFocus }) {
   return (
