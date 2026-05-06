@@ -13,17 +13,7 @@ const IMPORT_FIELDS = [
   ['taxable','Taxable'],['active','Active Status'],['notes','Notes'],
 ];
 
-const SAMPLE_CSV = `Item Name,Vendor,Vendor Item Number,Category,Subcategory,Brand,Purchase Unit,Pack Size,Case Quantity,Inner Pack Quantity,Item Size,Item Unit,Total Case Size,Case Cost,Recipe Unit,Inventory Unit,Storage Area,Station,Taxable,Active,Notes
-Chicken Breast Boneless Skinless,Sysco,SYS-1234567,protein,Poultry,Fieldale,case,40 lb,1,,40,lb,40,98.40,oz,lb,Walk-in Cooler,Grill,false,true,Fresh never frozen
-Roma Tomatoes,US Foods,USF-7654321,produce,Tomatoes,,case,25 lb,1,,25,lb,25,18.50,lb,lb,Walk-in Cooler,Pantry,false,true,
-Red Onion,Restaurant Depot,RD-2345678,produce,Onions,,case,50 lb,1,,50,lb,50,22.00,lb,lb,Walk-in Cooler,Prep,false,true,
-Cilantro Bunch,Sysco,SYS-3456789,produce,Herbs,,case,24 each,1,24,1,each,24,16.80,each,each,Walk-in Cooler,Prep,false,true,
-All-Purpose Flour,Sysco,SYS-4567890,dry-goods,Flour,Gold Medal,case,50 lb,1,,50,lb,50,24.50,oz,lb,Dry Storage,Prep,false,true,Bread and all-purpose
-Fry Oil Soybean,Restaurant Depot,RD-5678901,dry-goods,Oils,Stratas,case,35 lb,1,5,7,lb,35,38.00,oz,lb,Dry Storage,Fry,false,true,7lb jugs 5 per case
-Ranch Dressing,US Foods,USF-6789012,dry-goods,Dressings,Hidden Valley,case,4 gallon,4,1,1,gal,4,42.00,oz,gal,Dry Storage,Pantry,false,true,
-Nitrile Gloves Medium,Sysco,SYS-7890123,disposables,Gloves,Kimberly-Clark,case,1000 each,10,100,100,each,1000,58.00,each,each,Dry Storage,,false,true,Box of 100 10 per case
-To-Go Boxes 9x9,Restaurant Depot,RD-8901234,paper,Containers,,case,200 each,1,1,200,each,200,34.00,each,each,Dry Storage,,false,true,Kraft single compartment
-Sanitizer Test Strips,Sysco,SYS-9012345,chemicals,Sanitation,Ecolab,case,100 each,1,1,100,each,100,12.50,each,each,Chemical Storage,,false,true,Chlorine 0-200ppm range`;
+// Removed sample CSV - always import from user-provided file only
 
 function splitCSVLine(line) {
   const vals = [];
@@ -66,15 +56,7 @@ function validateRow(mapped) {
   return issues;
 }
 
-function downloadSample() {
-  const blob = new Blob([SAMPLE_CSV], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'purchased-items-template.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+
 
 export default function ImportFlow({ onClose, onComplete, user }) {
   const [step, setStep] = useState(1);
@@ -272,9 +254,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
               <button onClick={() => fileRef.current?.click()} className="btn-primary text-sm px-4 py-2">Choose File</button>
             </div>
 
-            <button onClick={downloadSample} className="w-full flex items-center gap-2 justify-center text-xs font-bold text-muted-foreground py-2 border border-border rounded-lg bg-card">
-              <Download className="h-3.5 w-3.5" /> Download Sample Template
-            </button>
+
 
             <div className="bg-card border border-border rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
