@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ClipboardList, Flame, Plus } from "lucide-react";
+import { ClipboardList, Flame } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 import SwipeableTaskCard from "@/components/SwipeableTaskCard";
 import CaughtUpEmptyState from "@/components/CaughtUpEmptyState";
@@ -11,6 +11,59 @@ import SectionCompleteMessage from "@/components/SectionCompleteMessage";
 import StandardPageShell from "@/components/StandardPageShell";
 import { useToast } from "@/hooks/useToast";
 import { useUnifiedState } from "@/lib/UnifiedStateContext";
+
+const rawCache = { prepItems: null, sideWork: null, ts: 0 };
+const CACHE_TTL = 30_000;
+
+function buildData(prepItems, sideWork, currentFilter, currentUser) {
+  const myPrep = prepItems.filter(i => {
+    if (i.assigned_to_individual === currentUser?.email) return true;
+    if (i.role_assignment === currentUser?.role && !i.assigned_to_individual) return true;
+    if (i.allow_all_roles && !i.role_assignment && !i.assigned_to_individual) return true;
+    return false;
+  });
+  const mySideWork = sideWork.filter(t => {
+    if (t.assigned_to_individual && t.assigned_to_email === currentUser?.email) return true;
+    if (t.role_assignment === currentUser?.role && !t.assigned_to_individual) return true;
+    if (!t.role_assignment && !t.assigned_to_individual) return true;
+    return false;
+  });
+
+  const allMyTasks = [
+    ...myPrep.map(i => ({
+      id: i.id, type: "prep", name: i.name, status: i.status,
+      priority: i.priority || "medium", due_time: null,
+      requires_photo: !!i.master_photo_url, photo_url: i.photo_url,
+      notes: i.completion_notes, assigned: i.assigned_to_individual,
+      station: i.station_name || "Prep",
+      progress: i.quantity ? `${i.completed_qty || 0}/${i.quantity}` : null,
+    })),
+    ...mySideWork.map(t => ({
+      id: t.id, type: "sidework", name: t.task_name, status: t.status,
+      priority: t.priority || "medium", due_time: t.due_time,
+      requires_photo: t.requires_photo, photo_url: t.photo_url,
+      notes: t.completion_notes, assigned: t.assigned_to_name,
+      station: t.role || "Side Work", progress: null,
+    })),
+  ];
+
+  const tasksByStation = {};
+  allMyTasks
+    .filter(t => !["completed", "approved"].includes(t.status))
+    .filter(t => currentFilter === "all" || (currentFilter === "prep" && t.type === "prep") || (currentFilter === "sidework" && t.type === "sidework"))
+    .forEach(t => {
+      if (!tasksByStation[t.station]) tasksByStation[t.station] = [];
+      tasksByStation[t.station].push(t);
+    });
+
+  return {
+    allMyTasks,
+    tasksByStation,
+    tasksDue: allMyTasks.filter(t => !["completed", "approved"].includes(t.status)).length,
+    completedTasks: allMyTasks.filter(t => ["completed", "approved"].includes(t.status)).length,
+    totalTasks: allMyTasks.length,
+  };
+}
 
 /* ── Group Header ──────────────────────────────────────────────── */
 function GroupHeader({ station, count }) {
@@ -30,8 +83,6 @@ export default function StaffTasks() {
   const { recordAction, setActiveTab } = useUnifiedState();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showBlockedDialog, setShowBlockedDialog] = useState(null);
-  const [blockedComment, setBlockedComment] = useState("");
   const [completingTask, setCompletingTask] = useState({});
   const [removingTask, setRemovingTask] = useState({});
   const [filter, setFilter] = useState("all");
@@ -44,74 +95,29 @@ export default function StaffTasks() {
       base44.entities.PrepItem.list("-created_date", 500),
       base44.entities.SideWorkAssignment.filter({ date: todayStr }),
     ]);
-
-    // My tasks
-    const myPrep = prepItems.filter(i => {
-      if (i.assigned_to_individual === user?.email) return true;
-      if (i.role_assignment === user?.role && !i.assigned_to_individual) return true;
-      if (i.allow_all_roles && !i.role_assignment && !i.assigned_to_individual) return true;
-      return false;
-    });
-    const mySideWork = sideWork.filter(t => {
-      if (t.assigned_to_individual && t.assigned_to_email === user?.email) return true;
-      if (t.role_assignment === user?.role && !t.assigned_to_individual) return true;
-      if (!t.role_assignment && !t.assigned_to_individual) return true;
-      return false;
-    });
-
-    const allMyTasks = [
-      ...myPrep.map(i => ({
-        id: i.id,
-        type: "prep",
-        name: i.name,
-        status: i.status,
-        priority: i.priority || "medium",
-        due_time: null,
-        requires_photo: !!i.master_photo_url,
-        photo_url: i.photo_url,
-        notes: i.completion_notes,
-        assigned: i.assigned_to_individual,
-        station: i.station_name || "Prep",
-        progress: i.quantity ? `${i.completed_qty || 0}/${i.quantity}` : null,
-      })),
-      ...mySideWork.map(t => ({
-        id: t.id,
-        type: "sidework",
-        name: t.task_name,
-        status: t.status,
-        priority: t.priority || "medium",
-        due_time: t.due_time,
-        requires_photo: t.requires_photo,
-        photo_url: t.photo_url,
-        notes: t.completion_notes,
-        assigned: t.assigned_to_name,
-        station: t.role || "Side Work",
-        progress: null,
-      })),
-    ];
-
-    // Group tasks by station
-    const tasksByStation = {};
-    allMyTasks
-      .filter(t => !["completed", "approved"].includes(t.status))
-      .filter(t => filter === "all" || (filter === "prep" && t.type === "prep") || (filter === "sidework" && t.type === "sidework"))
-      .forEach(t => {
-        if (!tasksByStation[t.station]) tasksByStation[t.station] = [];
-        tasksByStation[t.station].push(t);
-      });
-
-    setData({
-      allMyTasks,
-      tasksByStation,
-      tasksDue: allMyTasks.filter(t => !["completed", "approved"].includes(t.status)).length,
-      completedTasks: allMyTasks.filter(t => ["completed", "approved"].includes(t.status)).length,
-      totalTasks: allMyTasks.length,
-    });
+    rawCache.prepItems = prepItems;
+    rawCache.sideWork = sideWork;
+    rawCache.ts = Date.now();
+    setData(buildData(prepItems, sideWork, filter, user));
     setLoading(false);
   };
 
+  // Re-filter client-side when filter changes (no API call)
   useEffect(() => {
-    if (user?.email) load();
+    if (rawCache.prepItems && rawCache.sideWork) {
+      setData(buildData(rawCache.prepItems, rawCache.sideWork, filter, user));
+    }
+  }, [filter]);
+
+  // Fetch from API only on mount or after cache expiry
+  useEffect(() => {
+    if (!user?.email) return;
+    if (!rawCache.prepItems || Date.now() - rawCache.ts > CACHE_TTL) {
+      load();
+    } else {
+      setData(buildData(rawCache.prepItems, rawCache.sideWork, filter, user));
+      setLoading(false);
+    }
 
     let debounceTimer;
     const unsub = base44.entities.PrepItem.subscribe(() => {
@@ -122,7 +128,7 @@ export default function StaffTasks() {
       unsub?.();
       clearTimeout(debounceTimer);
     };
-  }, [user?.email, filter]);
+  }, [user?.email]);
 
   const handleCompleteTask = async (task) => {
     haptics.medium();
@@ -138,7 +144,6 @@ export default function StaffTasks() {
     setActiveTab('/');
     setCompletingTask(prev => ({ ...prev, [task.id]: false }));
     setRemovingTask(prev => ({ ...prev, [task.id]: false }));
-    // subscribe will trigger a debounced reload
   };
 
   const handleSectionComplete = (station) => {
@@ -207,26 +212,17 @@ export default function StaffTasks() {
                 <div className="space-y-1">
                   {tasks.map(task => (
                     <SwipeableTaskCard
-                       key={task.id}
-                       task={task}
-                       icon={task.type === "prep" ? ClipboardList : Flame}
-                       onComplete={() => handleCompleteTask(task)}
-                       completing={completingTask[task.id]}
-                       isRemoving={removingTask[task.id]}
-                       onSnooze={() => {
-                         setActiveTab('/today');
-                         toast("Snooze coming soon");
-                       }}
-                       onReassign={() => {
-                         setActiveTab('/today');
-                         toast("Reassign coming soon");
-                       }}
-                       onView={() => {
-                         setActiveTab('/today');
-                         toast("View coming soon");
-                       }}
-                     />
-                   ))}
+                      key={task.id}
+                      task={task}
+                      icon={task.type === "prep" ? ClipboardList : Flame}
+                      onComplete={() => handleCompleteTask(task)}
+                      completing={completingTask[task.id]}
+                      isRemoving={removingTask[task.id]}
+                      onSnooze={() => { setActiveTab('/today'); toast("Snooze coming soon"); }}
+                      onReassign={() => { setActiveTab('/today'); toast("Reassign coming soon"); }}
+                      onView={() => { setActiveTab('/today'); toast("View coming soon"); }}
+                    />
+                  ))}
                 </div>
               </div>
             );
