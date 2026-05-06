@@ -132,17 +132,14 @@ export default function Stations() {
       </button>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-          <div className="w-full bg-card rounded-t-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden">
+            <div className="bg-card border-b border-border p-4 flex items-center justify-between">
               <h2 className="font-bold text-foreground">
                 {editingStation ? 'Edit Station' : 'Create Station'}
               </h2>
               <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingStation(null);
-                }}
+                onClick={() => { setShowForm(false); setEditingStation(null); }}
                 className="text-secondary-text hover:text-foreground"
               >
                 ✕
@@ -152,10 +149,7 @@ export default function Stations() {
               <StationForm
                 station={editingStation}
                 onSave={handleSave}
-                onClose={() => {
-                  setShowForm(false);
-                  setEditingStation(null);
-                }}
+                onClose={() => { setShowForm(false); setEditingStation(null); }}
               />
             </div>
           </div>

@@ -264,17 +264,14 @@ export default function TemperatureLogTemplates() {
       </button>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-          <div className="w-full bg-card rounded-t-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto">
+            <div className="bg-card border-b border-border p-4 flex items-center justify-between sticky top-0">
               <h2 className="font-bold text-foreground">
                 {editingTemplate ? 'Edit Template' : 'Create Temperature Log Template'}
               </h2>
               <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingTemplate(null);
-                }}
+                onClick={() => { setShowForm(false); setEditingTemplate(null); }}
                 className="text-secondary-text hover:text-foreground"
               >
                 ✕

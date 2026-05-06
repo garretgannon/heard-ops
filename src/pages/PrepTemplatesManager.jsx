@@ -387,49 +387,48 @@ export default function PrepTemplatesManager() {
       </div>
 
       <div className="p-4 space-y-3">
-        {editingTemplate || isCreating ? (
-          <TemplateForm
-            template={editingTemplate}
-            onSave={() => {
-              setEditingTemplate(null);
-              setIsCreating(false);
-              loadTemplates();
-            }}
-            onCancel={() => {
-              setEditingTemplate(null);
-              setIsCreating(false);
-            }}
-          />
+        {loading ? (
+          <div className="text-center py-8 text-secondary-text">Loading...</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-8 text-secondary-text text-sm">
+            {templates.length === 0 ? 'No templates yet' : 'No templates match'}
+          </div>
         ) : (
-          <>
-            {loading ? (
-              <div className="text-center py-8 text-secondary-text">Loading...</div>
-            ) : filtered.length === 0 ? (
-              <div className="text-center py-8 text-secondary-text text-sm">
-                {templates.length === 0 ? 'No templates yet' : 'No templates match'}
-              </div>
-            ) : (
-              filtered.map(template => (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  onEdit={handleEdit}
-                  onDuplicate={handleDuplicate}
-                  onArchive={handleArchive}
-                />
-              ))
-            )}
-          </>
+          filtered.map(template => (
+            <TemplateCard
+              key={template.id}
+              template={template}
+              onEdit={handleEdit}
+              onDuplicate={handleDuplicate}
+              onArchive={handleArchive}
+            />
+          ))
         )}
       </div>
 
-      {!editingTemplate && !isCreating && (
-        <button
-          onClick={() => setIsCreating(true)}
-          className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
-        >
-          <Plus className="h-5 w-5" />
-        </button>
+      <button
+        onClick={() => setIsCreating(true)}
+        className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
+      >
+        <Plus className="h-5 w-5" />
+      </button>
+
+      {(editingTemplate || isCreating) && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-card rounded-2xl overflow-hidden max-h-[85vh] overflow-y-auto">
+            <div className="bg-card border-b border-border p-4 flex items-center justify-between sticky top-0">
+              <h2 className="font-bold text-foreground">{editingTemplate ? 'Edit Template' : 'Create Prep Template'}</h2>
+              <button onClick={() => { setEditingTemplate(null); setIsCreating(false); }} className="text-secondary-text hover:text-foreground">✕</button>
+            </div>
+            <div className="p-4">
+              <TemplateForm
+                template={editingTemplate}
+                onSave={() => { setEditingTemplate(null); setIsCreating(false); loadTemplates(); }}
+                onCancel={() => { setEditingTemplate(null); setIsCreating(false); }}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
