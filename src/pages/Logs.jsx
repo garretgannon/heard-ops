@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Thermometer, Droplet, AlertTriangle, FileText, Plus, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, isToday, isYesterday, parseISO } from "date-fns";
@@ -79,6 +79,7 @@ function DateGroup({ date, children }) {
 
 export default function Logs() {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const { recordAction } = useUnifiedState();
   const [currentTab, setCurrentTab] = useState("temps");
@@ -227,7 +228,7 @@ export default function Logs() {
       }
     };
     load();
-  }, []);
+  }, [location.key]);
 
   // Client-side filter by tab — no reload needed
   const filtered = useMemo(() =>

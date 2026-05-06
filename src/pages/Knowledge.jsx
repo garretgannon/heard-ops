@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
@@ -82,6 +82,7 @@ function BrowseCard({ icon: Icon, title, count, onClick }) {
 
 export default function Knowledge() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [counts, setCounts] = useState({});
   const [loading, setLoading] = useState(true);
@@ -118,7 +119,7 @@ export default function Knowledge() {
       }
     };
     load();
-  }, []);
+  }, [location.key]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
