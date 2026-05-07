@@ -1,7 +1,92 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus, GripVertical } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+
+function BulkTaskEntry({ items, onChange }) {
+  const rowRefs = useRef([]);
+
+  const update = (idx, field, value) => {
+    const updated = [...items];
+    updated[idx] = { ...updated[idx], [field]: value };
+    onChange(updated);
+  };
+
+  const addRow = useCallback((afterIdx) => {
+    const updated = [
+      ...items.slice(0, afterIdx + 1),
+      { taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' },
+      ...items.slice(afterIdx + 1),
+    ];
+    onChange(updated);
+    setTimeout(() => {
+      rowRefs.current[afterIdx + 1]?.querySelector('[data-field="name"]')?.focus();
+    }, 30);
+  }, [items, onChange]);
+
+  const removeRow = (idx) => {
+    if (items.length === 1) { onChange([{ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' }]); return; }
+    onChange(items.filter((_, i) => i !== idx));
+    setTimeout(() => {
+      rowRefs.current[Math.max(0, idx - 1)]?.querySelector('[data-field="name"]')?.focus();
+    }, 30);
+  };
+
+  return (
+    <div className="border-t border-border pt-4 space-y-0.5">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-bold text-secondary-text">Tasks ({items.filter(i => i.taskName).length})</p>
+        <span className="text-[10px] text-muted-foreground">Tab between fields · Enter for new row</span>
+      </div>
+      <div className="grid grid-cols-[1fr_80px_76px_28px] gap-1.5 px-1 mb-1">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Task Name</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Due Time</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Priority</span>
+        <span />
+      </div>
+      {items.map((item, idx) => (
+        <div key={idx} ref={el => rowRefs.current[idx] = el} className="grid grid-cols-[1fr_80px_76px_28px] gap-1.5 items-center">
+          <input
+            data-field="name"
+            type="text"
+            placeholder="Task name…"
+            value={item.taskName}
+            onChange={e => update(idx, 'taskName', e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') { e.preventDefault(); addRow(idx); }
+              if (e.key === 'Backspace' && item.taskName === '' && items.length > 1) { e.preventDefault(); removeRow(idx); }
+            }}
+            className="w-full h-8 px-2.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            autoComplete="off"
+          />
+          <input
+            type="time"
+            value={item.dueTime || ''}
+            onChange={e => update(idx, 'dueTime', e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addRow(idx); } }}
+            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+          />
+          <select
+            value={item.priority || 'medium'}
+            onChange={e => update(idx, 'priority', e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addRow(idx); } }}
+            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+          >
+            <option value="high">🔴 High</option>
+            <option value="medium">🟡 Med</option>
+            <option value="low">🔵 Low</option>
+          </select>
+          <button onClick={() => removeRow(idx)} tabIndex={-1} className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ))}
+      <button onClick={() => addRow(items.length - 1)} className="w-full h-8 mt-1 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1.5">
+        <Plus className="h-3.5 w-3.5" /> Add task <span className="text-[10px] opacity-60">(or press Enter on any row)</span>
+      </button>
+    </div>
+  );
+}
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const SHIFTS = [
@@ -33,16 +118,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
     notes: ''
   });
 
-  const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({
-    taskName: '',
-    description: '',
-    dueTime: '',
-    shiftPhase: 'anytime',
-    priority: 'medium',
-    requiresPhoto: false,
-    requiresManagerReview: false
-  });
+  const [items, setItems] = useState([{ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' }]);
   const [loading, setLoading] = useState(false);
   const [stations, setStations] = useState([]);
   const [jobCodes, setJobCodes] = useState([]);
@@ -67,12 +143,14 @@ export default function SideWorkTemplateForm({ template, onSave }) {
     loadStationsAndCodes();
   }, [template]);
 
+  const BLANK_ITEM = () => ({ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' });
+
   const loadItems = async (templateId) => {
     try {
       const data = await base44.entities.SideWorkTemplateItem.filter({
         sideWorkTemplateId: templateId
       });
-      setItems(data.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)));
+      setItems(data.length > 0 ? data.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)) : [BLANK_ITEM()]);
     } catch (error) {
       console.error('Failed to load items:', error);
     }
@@ -91,30 +169,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
     }
   };
 
-  const handleAddItem = () => {
-    if (!newItem.taskName.trim()) return;
-    
-    setItems([
-      ...items,
-      {
-        ...newItem,
-        sortOrder: items.length
-      }
-    ]);
-    setNewItem({
-      taskName: '',
-      description: '',
-      dueTime: '',
-      shiftPhase: 'anytime',
-      priority: 'medium',
-      requiresPhoto: false,
-      requiresManagerReview: false
-    });
-  };
 
-  const handleRemoveItem = (index) => {
-    setItems(items.filter((_, i) => i !== index));
-  };
 
   const handleSaveTemplate = async () => {
     if (!formData.name.trim() || !formData.station || !formData.jobCode) {
@@ -122,7 +177,8 @@ export default function SideWorkTemplateForm({ template, onSave }) {
       return;
     }
 
-    if (items.length === 0) {
+    const validItems = items.filter(i => i.taskName?.trim());
+    if (validItems.length === 0) {
       alert('Please add at least one side work item');
       return;
     }
@@ -131,7 +187,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
     try {
       const payload = {
         ...formData,
-        itemCount: items.length
+        itemCount: validItems.length
       };
 
       if (template) {
@@ -148,21 +204,19 @@ export default function SideWorkTemplateForm({ template, onSave }) {
           }
         }
         
-        for (let i = 0; i < items.length; i++) {
+        for (let i = 0; i < validItems.length; i++) {
           await base44.entities.SideWorkTemplateItem.create({
             sideWorkTemplateId: template.id,
-            ...items[i],
+            ...validItems[i],
             sortOrder: i
           });
         }
       } else {
-        // Create new
         const created = await base44.entities.SideWorkTemplate.create(payload);
-        
-        for (let i = 0; i < items.length; i++) {
+        for (let i = 0; i < validItems.length; i++) {
           await base44.entities.SideWorkTemplateItem.create({
             sideWorkTemplateId: created.id,
-            ...items[i],
+            ...validItems[i],
             sortOrder: i
           });
         }
@@ -278,92 +332,8 @@ export default function SideWorkTemplateForm({ template, onSave }) {
         />
       </div>
 
-      {/* Items Section */}
-      <div className="space-y-2">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-secondary-text">Side Work Items</h3>
-        
-        {items.map((item, idx) => (
-          <div key={idx} className="bg-muted/30 rounded-lg p-2 flex gap-2 items-start">
-            <GripVertical className="h-4 w-4 text-secondary-text mt-0.5 shrink-0" />
-            <div className="flex-1 min-w-0 text-xs space-y-1">
-              <p className="font-bold text-foreground truncate">{item.taskName}</p>
-              {item.dueTime && <p className="text-muted-foreground">Due: {item.dueTime}</p>}
-              {item.requiresPhoto && <span className="inline-block px-1 py-0.5 bg-amber-500/20 text-amber-300 rounded text-[9px] font-bold">Photo</span>}
-            </div>
-            <button
-              onClick={() => handleRemoveItem(idx)}
-              className="text-red-400 hover:text-red-300 shrink-0"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        ))}
-
-        {/* Add New Item */}
-        <div className="bg-muted/30 rounded-lg p-3 space-y-2">
-          <input
-            type="text"
-            placeholder="Task name (e.g. Roll silverware)"
-            value={newItem.taskName}
-            onChange={(e) => setNewItem({ ...newItem, taskName: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
-          />
-
-          <textarea
-            placeholder="Description (optional)"
-            value={newItem.description}
-            onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
-            rows="2"
-          />
-
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="time"
-              value={newItem.dueTime}
-              onChange={(e) => setNewItem({ ...newItem, dueTime: e.target.value })}
-              className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
-            />
-
-            <select
-              value={newItem.priority}
-              onChange={(e) => setNewItem({ ...newItem, priority: e.target.value })}
-              className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
-            >
-              {PRIORITIES.map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
-            </select>
-          </div>
-
-          <div className="flex gap-2">
-            <label className="flex items-center gap-2 flex-1 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={newItem.requiresPhoto}
-                onChange={(e) => setNewItem({ ...newItem, requiresPhoto: e.target.checked })}
-                className="rounded"
-              />
-              <span className="text-xs font-bold text-foreground">Photo</span>
-            </label>
-            <label className="flex items-center gap-2 flex-1 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={newItem.requiresManagerReview}
-                onChange={(e) => setNewItem({ ...newItem, requiresManagerReview: e.target.checked })}
-                className="rounded"
-              />
-              <span className="text-xs font-bold text-foreground">Manager review</span>
-            </label>
-          </div>
-
-          <button
-            onClick={handleAddItem}
-            className="w-full btn-secondary text-xs py-2 flex items-center justify-center gap-1 h-8"
-          >
-            <Plus className="h-3 w-3" />
-            Add Item
-          </button>
-        </div>
-      </div>
+      {/* Items Section — spreadsheet style */}
+      <BulkTaskEntry items={items} onChange={setItems} />
 
       {/* Save Button */}
       <button
