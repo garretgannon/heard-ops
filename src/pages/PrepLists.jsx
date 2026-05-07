@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Plus, Settings, Search, Bell, CalendarDays, ChevronRight, AlertTriangle, Clock, CheckCircle2, Filter } from 'lucide-react';
+import { Plus, Settings, Search, Bell, CalendarDays, ChevronRight, AlertTriangle, Clock, CheckCircle2, Filter, X, Save } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import PrepTaskCard from '@/components/PrepTaskCard';
@@ -42,6 +42,9 @@ export default function PrepLists() {
   const [filterStation, setFilterStation] = useState('');
   const [filterTab, setFilterTab] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [showAddStation, setShowAddStation] = useState(false);
+  const [newStation, setNewStation] = useState({ name: '', shift: 'all', jobCode: 'Prep Cook' });
+  const [addingStation, setAddingStation] = useState(false);
   const todayStr = new Date().toISOString().split('T')[0];
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
@@ -203,7 +206,7 @@ export default function PrepLists() {
             })}
           </div>
           {isAdmin && (
-            <button onClick={() => navigate('/prep-templates')} className="w-full h-8 rounded-lg border border-dashed border-border text-xs font-bold text-muted-foreground flex items-center justify-center gap-1.5 hover:border-primary/40 hover:text-primary transition-all">
+            <button onClick={() => { haptics.light(); setShowAddStation(true); }} className="w-full h-8 rounded-lg border border-dashed border-border text-xs font-bold text-muted-foreground flex items-center justify-center gap-1.5 hover:border-primary/40 hover:text-primary transition-all">
               <Plus className="h-3.5 w-3.5" /> Add Station
             </button>
           )}
@@ -297,6 +300,76 @@ export default function PrepLists() {
           </div>
         </div>
       </div>
+
+      {/* Add Station Modal */}
+      {showAddStation && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-sm bg-card rounded-2xl border border-border overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="font-bold text-foreground">Add Station</h2>
+              <button onClick={() => setShowAddStation(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div>
+                <label className="text-xs font-bold text-muted-foreground block mb-1">Station Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Grill, Sauté, Cold Station"
+                  value={newStation.name}
+                  onChange={e => setNewStation(s => ({ ...s, name: e.target.value }))}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground block mb-1">Shift</label>
+                <select value={newStation.shift} onChange={e => setNewStation(s => ({ ...s, shift: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+                  <option value="all">All Shifts</option>
+                  <option value="opening">Opening</option>
+                  <option value="mid">Mid</option>
+                  <option value="closing">Closing</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground block mb-1">Default Job Code</label>
+                <input
+                  type="text"
+                  placeholder="Prep Cook"
+                  value={newStation.jobCode}
+                  onChange={e => setNewStation(s => ({ ...s, jobCode: e.target.value }))}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 p-4 border-t border-border">
+              <button onClick={() => setShowAddStation(false)} className="flex-1 h-9 rounded-lg border border-border bg-card text-sm font-bold text-foreground hover:bg-muted active:scale-95">Cancel</button>
+              <button
+                disabled={!newStation.name.trim() || addingStation}
+                onClick={async () => {
+                  setAddingStation(true);
+                  haptics.medium();
+                  await base44.entities.PrepTemplate.create({
+                    name: `${newStation.name.trim()} Prep`,
+                    station: newStation.name.trim(),
+                    jobCode: newStation.jobCode || 'Prep Cook',
+                    shift: newStation.shift,
+                    isActive: true,
+                    repeatType: 'weekly',
+                    repeatDays: [1,2,3,4,5],
+                    itemCount: 0,
+                  });
+                  setAddingStation(false);
+                  setShowAddStation(false);
+                  setNewStation({ name: '', shift: 'all', jobCode: 'Prep Cook' });
+                  navigate('/prep-templates');
+                }}
+                className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
+              >
+                {addingStation ? <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="h-4 w-4" /> Create</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Content */}
       <div className="lg:hidden p-4 space-y-3">
