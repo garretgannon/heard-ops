@@ -51,9 +51,16 @@ export default function SwipeTabContainer() {
   const touchStart = useRef(null);
   const [dragOffset, setDragOffset] = useState(0);
   const isDragging = useRef(false);
+  const pageRefs = useRef([]);
 
   const activeIndex = TAB_PATHS.indexOf(location.pathname);
   const safeIndex = activeIndex === -1 ? 0 : activeIndex;
+
+  // Scroll the newly-active page to the top whenever the tab changes
+  useEffect(() => {
+    const el = pageRefs.current[safeIndex];
+    if (el) el.scrollTop = 0;
+  }, [safeIndex]);
 
   const goToTab = useCallback((index) => {
     if (index < 0 || index >= TAB_PAGES.length) return;
@@ -155,7 +162,8 @@ export default function SwipeTabContainer() {
         {TAB_PAGES.map(({ path, component: Page }, i) => (
           <div
             key={path}
-            className="w-full shrink-0"
+            ref={el => pageRefs.current[i] = el}
+            className="w-full shrink-0 overflow-y-auto"
             style={{ minWidth: '100%' }}
             aria-hidden={i !== safeIndex}
           >
