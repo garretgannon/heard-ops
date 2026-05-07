@@ -21,8 +21,8 @@ const LOG_TYPES = [
   { id: 'cleaning', label: 'Cleaning Log', desc: 'Log cleaning area, checklist completion, pass/fail status', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30', icon: '🧹' },
 ];
 
-export default function LogCreateModal({ onClose, onCreated }) {
-  const [selectedType, setSelectedType] = useState(null);
+export default function LogCreateModal({ onClose, onCreated, createType }) {
+  const [selectedType, setSelectedType] = useState(createType || null);
   const [saving, setSaving] = useState(false);
 
   const handleTypeSelect = (typeId) => {
