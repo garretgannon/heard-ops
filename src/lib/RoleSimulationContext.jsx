@@ -13,6 +13,7 @@ export const useRoleSimulation = () => {
 export function RoleSimulationProvider({ children }) {
   const [simulatedRole, setSimulatedRole] = useState(null);
   const [simulatedData, setSimulatedData] = useState({});
+  const [previewRole, setPreviewRole] = useState(null);
 
   const enterSimulation = useCallback((role, dummyData = {}) => {
     setSimulatedRole(role);
@@ -24,7 +25,16 @@ export function RoleSimulationProvider({ children }) {
     setSimulatedData({});
   }, []);
 
+  const setPreview = useCallback((role) => {
+    setPreviewRole(role);
+  }, []);
+
+  const exitPreview = useCallback(() => {
+    setPreviewRole(null);
+  }, []);
+
   const isSimulating = simulatedRole !== null;
+  const isPreviewing = previewRole !== null;
 
   return (
     <RoleSimulationContext.Provider
@@ -34,6 +44,10 @@ export function RoleSimulationProvider({ children }) {
         isSimulating,
         enterSimulation,
         exitSimulation,
+        previewRole,
+        setPreview,
+        exitPreview,
+        isPreviewing,
       }}
     >
       {children}

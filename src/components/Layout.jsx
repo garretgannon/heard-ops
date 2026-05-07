@@ -12,6 +12,8 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
 import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
+import AdminSimulationBar from '@/components/AdminSimulationBar';
+import AdminRolePreview from '@/components/AdminRolePreview';
 
 // Grouped desktop nav
 const DESKTOP_SECTIONS = [
@@ -91,6 +93,9 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Admin Tools */}
+      <AdminSimulationBar />
+      <AdminRolePreview />
 
       {/* Mobile header — frosted glass */}
       <header
