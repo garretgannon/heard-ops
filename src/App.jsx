@@ -25,7 +25,7 @@ import LogsCenter from './pages/LogsCenter';
 import Knowledge from './pages/Knowledge';
 import More from './pages/More';
 import Onboarding from './pages/Onboarding';
-import RestaurantTeam from './pages/RestaurantTeam';
+import TeamCenter from './pages/TeamCenter';
 import TemplateList from './pages/TemplateList';
 import ScheduleCenter from './pages/ScheduleCenter';
 import SideWork from './pages/SideWork';
@@ -112,7 +112,7 @@ const AuthenticatedApp = () => {
         <Route path="/shift" element={<Shift />} />
         <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/logs" element={<LogsCenter />} />
-        <Route path="/team" element={<RestaurantTeam />} />
+        <Route path="/team" element={<TeamCenter />} />
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/more" element={<More />} />
 
