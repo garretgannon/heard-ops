@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
-import { Plus, Download } from 'lucide-react';
+import { Plus, Download, Settings } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import LogCard from '@/components/logcenter/LogCard';
 import LogsMetricsRow from '@/components/logcenter/LogsMetricsRow';
 import LogsDetailDrawer from '@/components/logcenter/LogsDetailDrawer';
 import LogsFilterSidebar from '@/components/logcenter/LogsFilterSidebar';
+import LogsActiveFilters from '@/components/logcenter/LogsActiveFilters';
 import LogsReviewQueueView from '@/components/logcenter/LogsReviewQueueView';
 import LogTypeSelector from '@/components/logcenter/LogTypeSelector';
 import LogsCalendarView from '@/components/logcenter/LogsCalendarView';
@@ -27,6 +28,7 @@ export default function LogsCenter() {
   const [advancedFilters, setAdvancedFilters] = useState({});
   const [selectedLog, setSelectedLog] = useState(null);
   const [showLogDetail, setShowLogDetail] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const isMounted = useRef(true);
 
   // Load logs
@@ -165,6 +167,22 @@ export default function LogsCenter() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 h-10 px-3 rounded-lg bg-card border border-border/40 text-foreground text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
             />
+            <button
+              onClick={() => setShowAdvancedFilters(true)}
+              className={`h-10 px-3 rounded-lg border transition-all flex items-center gap-2 text-sm font-semibold ${
+                Object.keys(advancedFilters).length > 0
+                  ? 'bg-primary/15 border-primary/30 text-primary'
+                  : 'bg-card border-border/40 text-muted-foreground hover:border-border/60'
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              Filters
+              {Object.keys(advancedFilters).length > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 bg-primary/25 rounded-full text-xs font-bold">
+                  {Object.keys(advancedFilters).length}
+                </span>
+              )}
+            </button>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {QUICK_FILTER_CHIPS.map((chip) => (
@@ -181,9 +199,26 @@ export default function LogsCenter() {
               </button>
             ))}
           </div>
-        </div>
+          </div>
 
-        {/* Content Area */}
+          {/* Active Filters Row */}
+          {Object.keys(advancedFilters).length > 0 && (
+          <LogsActiveFilters
+           filters={advancedFilters}
+           onRemoveFilter={(label) => {
+             const newFilters = { ...advancedFilters };
+             Object.keys(newFilters).forEach((key) => {
+               if (Array.isArray(newFilters[key])) {
+                 newFilters[key] = newFilters[key].filter((v) => v.replace(/_/g, ' ') !== label);
+               }
+             });
+             setAdvancedFilters(newFilters);
+           }}
+           onClearAll={() => setAdvancedFilters({})}
+          />
+          )}
+
+          {/* Content Area */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {viewMode === 'feed' && (
             filteredLogs.length === 0 ? (
@@ -221,8 +256,18 @@ export default function LogsCenter() {
         </div>
       </div>
 
-      {/* Right Sidebar */}
-      <LogsFilterSidebar filters={advancedFilters} onFilterChange={setAdvancedFilters} />
+      {/* Advanced Filters Drawer - Hidden until Filters button clicked */}
+      {showAdvancedFilters && (
+        <LogsFilterSidebar
+          isOpen={showAdvancedFilters}
+          onClose={() => setShowAdvancedFilters(false)}
+          filters={advancedFilters}
+          onFilterChange={(filters) => {
+            setAdvancedFilters(filters);
+            setShowAdvancedFilters(false);
+          }}
+        />
+      )}
 
       {/* Modals */}
       <LogTypeSelector
