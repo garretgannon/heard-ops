@@ -1,0 +1,82 @@
+{
+  "name": "CleaningLog",
+  "type": "object",
+  "properties": {
+    "cleaning_area": {
+      "type": "string",
+      "title": "Cleaning Area"
+    },
+    "template_id": {
+      "type": "string",
+      "title": "Template ID"
+    },
+    "template_name": {
+      "type": "string",
+      "title": "Template Name"
+    },
+    "completed_by": {
+      "type": "string",
+      "title": "Completed By"
+    },
+    "logged_at": {
+      "type": "string",
+      "title": "Date / Time"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "passed",
+        "failed",
+        "completed",
+        "incomplete",
+        "needs_review"
+      ],
+      "default": "completed"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo Proof URL"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "assigned_role": {
+      "type": "string",
+      "title": "Assigned Role"
+    },
+    "assigned_station": {
+      "type": "string",
+      "title": "Assigned Station"
+    },
+    "manager_review_required": {
+      "type": "boolean",
+      "title": "Manager Review Required",
+      "default": false
+    },
+    "supplies_needed": {
+      "type": "string",
+      "title": "Supplies Needed"
+    },
+    "related_task_id": {
+      "type": "string",
+      "title": "Related Cleaning Task ID"
+    },
+    "issues_found": {
+      "type": "string",
+      "title": "Issues Found"
+    },
+    "safety_concerns": {
+      "type": "boolean",
+      "title": "Safety Concerns",
+      "default": false
+    }
+  },
+  "required": [
+    "cleaning_area",
+    "completed_by",
+    "logged_at",
+    "status"
+  ]
+}

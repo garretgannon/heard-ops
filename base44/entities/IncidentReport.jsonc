@@ -16,13 +16,14 @@
         "Other"
       ]
     },
-    "incident_date": {
+    "date_time": {
       "type": "string",
-      "title": "Date / Time of Incident"
+      "format": "date-time",
+      "title": "Date/Time of Incident"
     },
-    "location_area": {
+    "location": {
       "type": "string",
-      "title": "Location / Area"
+      "title": "Location/Area"
     },
     "description": {
       "type": "string",
@@ -70,6 +71,7 @@
     },
     "follow_up_due_date": {
       "type": "string",
+      "format": "date",
       "title": "Follow-up Due Date"
     },
     "resolution_notes": {
@@ -90,7 +92,8 @@
   },
   "required": [
     "incident_category",
-    "incident_date",
+    "date_time",
+    "location",
     "description",
     "reported_by",
     "severity"

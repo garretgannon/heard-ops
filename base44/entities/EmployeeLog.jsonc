@@ -2,13 +2,9 @@
   "name": "EmployeeLog",
   "type": "object",
   "properties": {
-    "employee_id": {
+    "tagged_employee": {
       "type": "string",
-      "title": "Employee ID"
-    },
-    "employee_name": {
-      "type": "string",
-      "title": "Employee Name"
+      "title": "Tagged Employee"
     },
     "log_category": {
       "type": "string",
@@ -27,6 +23,11 @@
         "Other"
       ]
     },
+    "date_time": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Date/Time"
+    },
     "created_by": {
       "type": "string",
       "title": "Created By"
@@ -35,9 +36,13 @@
       "type": "string",
       "title": "Notes"
     },
-    "logged_at": {
+    "visibility": {
       "type": "string",
-      "title": "Logged At"
+      "title": "Visibility",
+      "enum": [
+        "manager_only"
+      ],
+      "default": "manager_only"
     },
     "follow_up_required": {
       "type": "boolean",
@@ -46,19 +51,12 @@
     },
     "follow_up_date": {
       "type": "string",
+      "format": "date",
       "title": "Follow-up Date"
-    },
-    "related_shift_id": {
-      "type": "string",
-      "title": "Related Shift ID"
-    },
-    "related_task_id": {
-      "type": "string",
-      "title": "Related Task ID"
     },
     "photo_url": {
       "type": "string",
-      "title": "Photo or Attachment URL"
+      "title": "Photo URL"
     },
     "acknowledgement_required": {
       "type": "boolean",
@@ -71,17 +69,9 @@
       "enum": [
         "pending",
         "acknowledged",
-        "declined"
+        "not_required"
       ],
-      "default": "pending"
-    },
-    "visibility": {
-      "type": "string",
-      "title": "Visibility",
-      "enum": [
-        "manager_only"
-      ],
-      "default": "manager_only"
+      "default": "not_required"
     },
     "status": {
       "type": "string",
@@ -94,11 +84,10 @@
     }
   },
   "required": [
-    "employee_id",
-    "employee_name",
+    "tagged_employee",
     "log_category",
+    "date_time",
     "created_by",
-    "notes",
-    "logged_at"
+    "notes"
   ]
 }
