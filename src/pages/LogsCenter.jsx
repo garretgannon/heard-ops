@@ -14,6 +14,10 @@ import LogsCalendarView from '@/components/logcenter/LogsCalendarView';
 import LogsAnalyticsView from '@/components/logcenter/LogsAnalyticsView';
 import UnifiedLogForm from '@/components/UnifiedLogForm';
 
+/**
+ * Unified Logs Command Center
+ * Single system for all log types: temperature, maintenance, incidents, waste, cleaning, manager notes, etc.
+ */
 export default function LogsCenter() {
   const { user, isAdmin } = useCurrentUser();
   const [loading, setLoading] = useState(true);
@@ -67,11 +71,13 @@ export default function LogsCenter() {
     };
   }, [user]);
 
-  // Filter logs
+  // Filter logs with 'needs_attention' handling
   const filteredLogs = logs.filter((log) => {
-    if (activeFilter === 'needs_review' && !log.requires_review) return false;
+    const needsAttention = log.status === 'open' || log.status === 'flagged' || log.requires_review || (log.follow_up_required && !log.follow_up_due_date);
+    
+    if (activeFilter === 'needs_attention' && !needsAttention) return false;
     if (activeFilter === 'open' && log.status !== 'open') return false;
-    if (activeFilter !== 'all' && activeFilter !== 'needs_review' && activeFilter !== 'open' && log.type !== activeFilter) return false;
+    if (activeFilter !== 'all' && activeFilter !== 'needs_attention' && activeFilter !== 'open' && log.type !== activeFilter) return false;
     if (advancedFilters.types?.length && !advancedFilters.types.includes(log.type)) return false;
     if (advancedFilters.statuses?.length && !advancedFilters.statuses.includes(log.status)) return false;
     if (advancedFilters.requiresReview && !log.requires_review) return false;
@@ -94,13 +100,15 @@ export default function LogsCenter() {
 
   const QUICK_FILTER_CHIPS = [
     { id: 'all', label: 'All' },
-    { id: 'needs_review', label: 'Needs Review' },
+    { id: 'needs_attention', label: '⚠️ Needs Attention' },
     { id: 'open', label: 'Open' },
-    { id: 'temperature', label: 'Temps' },
-    { id: 'maintenance', label: 'Maintenance' },
-    { id: 'incident', label: 'Incidents' },
-    { id: 'prep', label: 'Prep' },
-    { id: 'cleaning', label: 'Cleaning' },
+    { id: 'temperature', label: '🌡️ Temps' },
+    { id: 'maintenance', label: '🔧 Maintenance' },
+    { id: 'incident', label: '🚨 Incidents' },
+    { id: 'cleaning', label: '🧹 Cleaning' },
+    { id: 'waste', label: '♻️ Waste/86' },
+    { id: 'manager_note', label: '📝 Manager' },
+    { id: 'bathroom', label: '🚽 Bathroom' },
   ];
 
   return (
@@ -203,31 +211,58 @@ export default function LogsCenter() {
           {/* Content Area */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {viewMode === 'feed' && (
-            filteredLogs.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg mb-3">No logs found</p>
-                <button
-                  onClick={() => { setActiveFilter('all'); setSearchQuery(''); setAdvancedFilters({}); }}
-                  className="px-4 py-2 rounded-lg bg-primary/15 text-primary font-semibold text-sm hover:bg-primary/25 transition-all"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredLogs.map((log) => (
-                  <LogCard
-                    key={log.id}
-                    log={log}
-                    onOpen={(logId) => {
-                      const log = filteredLogs.find((l) => l.id === logId);
-                      setSelectedLog(log);
-                      setShowLogDetail(true);
-                    }}
-                  />
-                ))}
-              </div>
-            )
+            <>
+              {filteredLogs.length > 0 && (
+                <div className="mb-4">
+                  {filteredLogs.filter((l) => l.status === 'open' || l.status === 'flagged' || l.requires_review).length > 0 && (
+                    <div className="mb-4">
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-status-critical mb-2">⚠️ Needs Attention</h3>
+                      <div className="space-y-2">
+                        {filteredLogs
+                          .filter((l) => l.status === 'open' || l.status === 'flagged' || l.requires_review)
+                          .slice(0, 3)
+                          .map((log) => (
+                            <LogCard
+                              key={log.id}
+                              log={log}
+                              onOpen={(logId) => {
+                                const log = filteredLogs.find((l) => l.id === logId);
+                                setSelectedLog(log);
+                                setShowLogDetail(true);
+                              }}
+                            />
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {filteredLogs.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg mb-3">No logs found</p>
+                  <button
+                    onClick={() => { setActiveFilter('all'); setSearchQuery(''); setAdvancedFilters({}); }}
+                    className="px-4 py-2 rounded-lg bg-primary/15 text-primary font-semibold text-sm hover:bg-primary/25 transition-all"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredLogs.map((log) => (
+                    <LogCard
+                      key={log.id}
+                      log={log}
+                      onOpen={(logId) => {
+                        const log = filteredLogs.find((l) => l.id === logId);
+                        setSelectedLog(log);
+                        setShowLogDetail(true);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {viewMode === 'review' && <LogsReviewQueueView logs={filteredLogs} onLogClick={(log) => { setSelectedLog(log); setShowLogDetail(true); }} />}

@@ -108,13 +108,24 @@ export default function LogCard({ log, onOpen, isHighlighted = false }) {
           <span className="flex-shrink-0">{submittedAt}</span>
 
           {/* Temperature Value */}
-          {log.custom_metadata?.temperatureValue && (
+          {log.custom_metadata?.temperature_reading && (
            <>
              <span className="flex-shrink-0">•</span>
-             <span className="flex items-center gap-1 flex-shrink-0">
+             <span className={`flex items-center gap-1 flex-shrink-0 font-semibold ${
+               log.custom_metadata.temperature_reading >= log.custom_metadata.min_temperature &&
+               log.custom_metadata.temperature_reading <= log.custom_metadata.max_temperature
+                 ? 'text-green-400'
+                 : 'text-red-400'
+             }`}>
                <Thermometer className="h-3 w-3 flex-shrink-0" />
-               <span className="truncate">{log.custom_metadata.temperatureValue}°{log.custom_metadata.temperatureUnit || 'F'}</span>
+               <span className="truncate">{log.custom_metadata.temperature_reading}°F</span>
              </span>
+           </>
+          )}
+          {log.custom_metadata?.min_temperature && !log.custom_metadata?.temperature_reading && (
+           <>
+             <span className="flex-shrink-0">•</span>
+             <span className="text-xs text-muted-foreground/60">Range: {log.custom_metadata.min_temperature}–{log.custom_metadata.max_temperature}°F</span>
            </>
           )}
         </div>

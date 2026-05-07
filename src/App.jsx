@@ -177,7 +177,20 @@ const AuthenticatedApp = () => {
         <Route path="/my-restaurant" element={<MyRestaurant />} />
         <Route path="/notifications" element={<NotificationSettings />} />
 
-        {/* LEGACY REDIRECTS */}
+        {/* LEGACY REDIRECTS - All logs → unified system */}
+        <Route path="/ManagerLog" element={<Navigate to="/logs" replace />} />
+        <Route path="/NewLog" element={<Navigate to="/logs" replace />} />
+        <Route path="/MaintenanceRequests" element={<Navigate to="/logs?type=maintenance" replace />} />
+        <Route path="/IncidentReports" element={<Navigate to="/logs?type=incident" replace />} />
+        <Route path="/Incidents" element={<Navigate to="/logs?type=incident" replace />} />
+        <Route path="/IssueTracker" element={<Navigate to="/logs?type=incident" replace />} />
+        <Route path="/BathroomChecks" element={<Navigate to="/logs?type=bathroom" replace />} />
+        <Route path="/TempLogs" element={<Navigate to="/logs?type=temperature" replace />} />
+        <Route path="/WasteLog" element={<Navigate to="/logs?type=waste" replace />} />
+        <Route path="/WasteEntry" element={<Navigate to="/logs?type=waste" replace />} />
+        <Route path="/CleaningLog" element={<Navigate to="/logs?type=cleaning" replace />} />
+        <Route path="/Cleaning" element={<Navigate to="/logs?type=cleaning" replace />} />
+        <Route path="/EightySix" element={<Navigate to="/logs?type=waste" replace />} />
         <Route path="/Inventory" element={<Navigate to="/inventory" replace />} />
         <Route path="/InventoryControl" element={<Navigate to="/inventory" replace />} />
         <Route path="/InventorySimplified" element={<Navigate to="/inventory" replace />} />
@@ -186,12 +199,6 @@ const AuthenticatedApp = () => {
         <Route path="/BuildBook" element={<Navigate to="/recipes" replace />} />
         <Route path="/BarBook" element={<Navigate to="/recipes" replace />} />
         <Route path="/RecipesAndBuildCards" element={<Navigate to="/recipes" replace />} />
-        <Route path="/ManagerLog" element={<Navigate to="/logs" replace />} />
-        <Route path="/NewLog" element={<Navigate to="/logs" replace />} />
-        <Route path="/MaintenanceRequests" element={<Navigate to="/logs?view=maintenance" replace />} />
-        <Route path="/IncidentReports" element={<Navigate to="/logs?view=incident" replace />} />
-        <Route path="/Incidents" element={<Navigate to="/logs?view=incident" replace />} />
-        <Route path="/IssueTracker" element={<Navigate to="/logs?view=issues" replace />} />
         <Route path="/Calendar" element={<Navigate to="/schedule" replace />} />
         <Route path="/EmployeeCalendar" element={<Navigate to="/schedule" replace />} />
         <Route path="/ScheduleImport" element={<Navigate to="/schedule" replace />} />
