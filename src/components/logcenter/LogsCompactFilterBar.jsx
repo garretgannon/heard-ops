@@ -37,7 +37,7 @@ export default function LogsCompactFilterBar({ search, onSearch, activeFilter, o
 
       {/* Quick Filter Chips - Internal Scroll Only */}
       <div className="px-4 py-2 overflow-x-auto overflow-y-hidden scrollbar-hide w-full box-border" style={{ overscrollBehavior: 'contain' }}>
-        <div className="flex gap-2 w-max">
+        <div className="inline-flex gap-2">
           {QUICK_FILTERS.map((filter) => (
             <button
               key={filter.id}
