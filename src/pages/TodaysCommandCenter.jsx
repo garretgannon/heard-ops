@@ -154,7 +154,7 @@ export default function TodaysCommandCenter() {
   }
 
   return (
-    <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
+    <div className="pb-40 lg:pb-32 bg-background min-h-screen lg:flex lg:flex-col">
       {/* Header */}
       <TodayHeader />
 

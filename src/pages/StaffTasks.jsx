@@ -300,7 +300,7 @@ export default function StaffTasks() {
       ref={scrollRef}
       onScroll={handleScroll}
       onTouchEnd={handleTouchEnd}
-      className="pb-28 lg:overflow-auto"
+      className="pb-40 lg:pb-28 lg:overflow-auto"
       style={{ maxHeight: 'calc(100vh - 52px)', overscrollBehavior: 'contain' }}
     >
       {pullRefresh > 0 && (
