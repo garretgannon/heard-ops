@@ -520,45 +520,43 @@ export default function TodaysCommandCenter() {
               <p className="text-xs font-bold text-amber-400">Complete Shift Launch to enable operations</p>
             </div>
           )}
-          {isAdmin && (
-            <div className="space-y-2">
-              {!currentShift ? (
-                <button onClick={() => setShowStartModal(true)}
-                  className="w-full h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
-                  <Zap className="h-4 w-4" /> Start Shift
+          <div className="space-y-2">
+            {!currentShift ? (
+              <button onClick={() => setShowStartModal(true)}
+                className="w-full h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
+                <Zap className="h-4 w-4" /> Start Shift
+              </button>
+            ) : currentShift.status === "setup" ? (
+              <button disabled className="w-full h-9 rounded-lg bg-primary/50 text-primary-foreground font-bold text-sm cursor-not-allowed">
+                Completing Setup...
+              </button>
+            ) : currentShift.status === "running" ? (
+              <ActiveShiftCard
+                shift={currentShift}
+                completionPct={data?.completionPct || 0}
+                overdueCount={data?.overdue?.length || 0}
+                dueCount={data?.dueSoon?.length || 0}
+                reviewCount={data?.needsReview || 0}
+                criticalAlertCount={0}
+                onViewPlan={() => navigate("/shift-handoff")}
+                onEndShift={() => setShowCloseModal(true)}
+              />
+            ) : (currentShift.status === "closed" || currentShift.status === "completed") ? (
+              <div className="flex gap-2">
+                <button onClick={async () => { haptics.medium(); await reopenShift(currentShift.id); window.location.reload(); }}
+                  className="flex-1 h-9 rounded-lg border border-border bg-muted text-foreground font-bold text-sm active:scale-95 transition-all">
+                  Reopen
                 </button>
-              ) : currentShift.status === "setup" ? (
-                <button disabled className="w-full h-9 rounded-lg bg-primary/50 text-primary-foreground font-bold text-sm cursor-not-allowed">
-                  Completing Setup...
+                <button onClick={() => navigate("/more")}
+                  className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-all">
+                  Edit
                 </button>
-              ) : currentShift.status === "running" ? (
-                <ActiveShiftCard
-                  shift={currentShift}
-                  completionPct={data?.completionPct || 0}
-                  overdueCount={data?.overdue?.length || 0}
-                  dueCount={data?.dueSoon?.length || 0}
-                  reviewCount={data?.needsReview || 0}
-                  criticalAlertCount={0}
-                  onViewPlan={() => navigate("/shift-handoff")}
-                  onEndShift={() => setShowCloseModal(true)}
-                />
-              ) : (currentShift.status === "closed" || currentShift.status === "completed") ? (
-                <div className="flex gap-2">
-                  <button onClick={async () => { haptics.medium(); await reopenShift(currentShift.id); window.location.reload(); }}
-                    className="flex-1 h-9 rounded-lg border border-border bg-muted text-foreground font-bold text-sm active:scale-95 transition-all">
-                    Reopen
-                  </button>
-                  <button onClick={() => navigate("/more")}
-                    className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-all">
-                    Edit
-                  </button>
-                </div>
-              ) : null}
-              {currentShift?.status === "running" && shiftLaunched && (
-                <RoleAwareQuickActions onActionClick={setActiveModal} />
-              )}
-            </div>
-          )}
+              </div>
+            ) : null}
+            {currentShift?.status === "running" && shiftLaunched && (
+              <RoleAwareQuickActions onActionClick={setActiveModal} />
+            )}
+          </div>
         </div>
 
         {/* Mobile content — stacked single column */}
@@ -619,19 +617,17 @@ export default function TodaysCommandCenter() {
           <div className="pb-3 border-b border-border/30">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Shift Control</p>
           </div>
-          {isAdmin && (
-            <DesktopShiftControlCard
-              currentShift={currentShift}
-              completionPct={data?.completionPct || 0}
-              overdueCount={data?.overdue?.length || 0}
-              dueCount={data?.dueSoon?.length || 0}
-              reviewCount={data?.needsReview || 0}
-              onViewPlan={() => navigate("/shift-handoff")}
-              onEndShift={() => setShowCloseModal(true)}
-              onStartShift={() => setShowStartModal(true)}
-              onReopen={async () => { haptics.medium(); await reopenShift(currentShift?.id); window.location.reload(); }}
-            />
-          )}
+          <DesktopShiftControlCard
+            currentShift={currentShift}
+            completionPct={data?.completionPct || 0}
+            overdueCount={data?.overdue?.length || 0}
+            dueCount={data?.dueSoon?.length || 0}
+            reviewCount={data?.needsReview || 0}
+            onViewPlan={() => navigate("/shift-handoff")}
+            onEndShift={() => setShowCloseModal(true)}
+            onStartShift={() => setShowStartModal(true)}
+            onReopen={async () => { haptics.medium(); await reopenShift(currentShift?.id); window.location.reload(); }}
+          />
 
           {/* Recently Completed on desktop (left col, below shift card) */}
           {data.completed.length > 0 && (
