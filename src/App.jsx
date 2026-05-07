@@ -65,6 +65,7 @@ import AdminRoleSimulator from './pages/AdminRoleSimulator';
 import AdminCommandCenter from './pages/AdminCommandCenter';
 import OnboardingSimulator from './pages/OnboardingSimulator';
 import TemplateManager from './pages/TemplateManager';
+import AppHealth from './pages/AppHealth';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -174,6 +175,7 @@ const AuthenticatedApp = () => {
         <Route path="/schedule-import" element={<ScheduleImport />} />
         <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
         <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
+        <Route path="/app-health" element={<AppHealth />} />
 
         {/* SETTINGS ROUTES */}
         <Route path="/profile" element={<Profile />} />
