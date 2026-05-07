@@ -1,0 +1,104 @@
+{
+  "name": "EmployeeLog",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
+    },
+    "log_category": {
+      "type": "string",
+      "title": "Log Category",
+      "enum": [
+        "Coaching",
+        "Praise",
+        "Attendance",
+        "Policy issue",
+        "Performance",
+        "Training",
+        "Uniform",
+        "Guest compliment",
+        "Guest complaint",
+        "Documentation",
+        "Other"
+      ]
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "logged_at": {
+      "type": "string",
+      "title": "Logged At"
+    },
+    "follow_up_required": {
+      "type": "boolean",
+      "title": "Follow-up Required",
+      "default": false
+    },
+    "follow_up_date": {
+      "type": "string",
+      "title": "Follow-up Date"
+    },
+    "related_shift_id": {
+      "type": "string",
+      "title": "Related Shift ID"
+    },
+    "related_task_id": {
+      "type": "string",
+      "title": "Related Task ID"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo or Attachment URL"
+    },
+    "acknowledgement_required": {
+      "type": "boolean",
+      "title": "Acknowledgement Required",
+      "default": false
+    },
+    "acknowledgement_status": {
+      "type": "string",
+      "title": "Acknowledgement Status",
+      "enum": [
+        "pending",
+        "acknowledged",
+        "declined"
+      ],
+      "default": "pending"
+    },
+    "visibility": {
+      "type": "string",
+      "title": "Visibility",
+      "enum": [
+        "manager_only"
+      ],
+      "default": "manager_only"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "employee_id",
+    "employee_name",
+    "log_category",
+    "created_by",
+    "notes",
+    "logged_at"
+  ]
+}
