@@ -3,7 +3,7 @@ import { haptics } from '@/utils/haptics';
 
 export default function LogsCommandHeader({ onSearch, onQuickAdd, searchQuery }) {
   return (
-    <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/80 backdrop-blur-sm border-b border-border/20 px-4 py-3 lg:px-8">
+    <div className="sticky top-0 z-20 bg-gradient-to-b from-background via-background to-background/80 backdrop-blur-sm border-b border-border/20 px-4 py-3 lg:px-8">
       <div className="flex items-center justify-between gap-3 mb-3">
         <h1 className="text-xl font-extrabold text-foreground">Logs</h1>
         <button
