@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertCircle, Clock, MapPin, Thermometer, Flag } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Flag, MapPin, Thermometer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
@@ -20,14 +20,14 @@ const LOG_TYPE_ICONS = {
 };
 
 const LOG_TYPE_COLORS = {
-  temperature: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
-  cleaning: 'bg-green-500/15 text-green-400 border-green-500/30',
+  temperature: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+  cleaning: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
   incident: 'bg-red-500/15 text-red-400 border-red-500/30',
-  maintenance: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
-  waste: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  eighty_six: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  employee_note: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-  manager_note: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+  maintenance: 'bg-gray-500/15 text-gray-400 border-gray-500/30',
+  waste: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
+  eighty_six: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
+  employee_note: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+  manager_note: 'bg-violet-500/15 text-violet-400 border-violet-500/30',
   shift_handoff: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
 };
 
@@ -57,18 +57,18 @@ export default function LogCard({ log, onOpen, isHighlighted = false }) {
     <button
       onClick={() => { haptics.light?.(); onOpen?.(log.id); }}
       className={cn(
-        'w-full text-left px-4 py-3 rounded-xl border transition-all active:scale-[0.98]',
+        'w-full text-left px-4 py-2.5 rounded-lg border transition-all active:scale-95',
         isHighlighted
           ? 'bg-primary/10 border-primary/30 ring-1 ring-primary/40'
-          : 'bg-card border-border/40 hover:border-border/60'
+          : 'bg-card border-border/30 hover:border-border/50'
       )}
     >
-      <div className="space-y-3">
+      <div className="space-y-2">
         {/* Header Row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-2.5 flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start gap-2 flex-1 min-w-0">
             {/* Type Icon */}
-            <span className="text-lg flex-shrink-0 mt-0.5">{typeIcon}</span>
+            <span className="text-base flex-shrink-0 mt-0.5">{typeIcon}</span>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
@@ -80,13 +80,13 @@ export default function LogCard({ log, onOpen, isHighlighted = false }) {
           </div>
 
           {/* Status Badge */}
-          <div className={cn('text-xs font-bold px-2 py-1 rounded-full flex-shrink-0', statusConfig.color)}>
+          <div className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0', statusConfig.color)}>
             {statusConfig.icon}
           </div>
         </div>
 
         {/* Details Row */}
-        <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground/80">
           {/* Location/Equipment */}
           {log.location && (
             <div className="flex items-center gap-1">
@@ -121,16 +121,16 @@ export default function LogCard({ log, onOpen, isHighlighted = false }) {
 
         {/* Alert Indicators */}
         {(isNeedsReview || isNeedsFollowUp) && (
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-1.5 text-[10px]">
             {isNeedsReview && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                <AlertCircle className="h-3 w-3" />
-                Needs Review
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                <AlertCircle className="h-2.5 w-2.5" />
+                Review
               </span>
             )}
             {isNeedsFollowUp && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                <Flag className="h-3 w-3" />
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                <Flag className="h-2.5 w-2.5" />
                 Follow-up
               </span>
             )}

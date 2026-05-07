@@ -1,4 +1,4 @@
-import { Activity, CheckCircle2, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Activity, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ShiftOverviewCard({
@@ -18,32 +18,32 @@ export default function ShiftOverviewCard({
   const status = getStatus();
 
   return (
-    <div className="bg-card border border-border/40 rounded-2xl p-6 space-y-5">
+    <div className="bg-card border border-border/30 rounded-xl p-5 space-y-4 shadow-lg">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-            <Activity className="h-5 w-5 text-primary" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-lg bg-primary/20 flex items-center justify-center">
+            <Activity className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h2 className="font-bold text-foreground">Shift Overview</h2>
-            <p className="text-xs text-muted-foreground">Today's progress</p>
+            <h2 className="font-bold text-sm text-foreground">Shift Status</h2>
+            <p className="text-[11px] text-muted-foreground">Progress today</p>
           </div>
         </div>
-        <div className={cn('text-xs font-bold px-3 py-1.5 rounded-full border', status.bg, status.color)}>
+        <div className={cn('text-[10px] font-bold px-2.5 py-1 rounded-lg border', status.bg, status.color)}>
           {status.label}
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-muted-foreground">Completion</p>
-          <p className="text-xl font-extrabold text-primary">{completionPct}%</p>
+          <p className="text-xs font-semibold text-muted-foreground">Progress</p>
+          <p className="text-lg font-bold text-primary">{completionPct}%</p>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div className="h-2 bg-muted/60 rounded-full overflow-hidden">
           <div
-            className="h-full bg-primary rounded-full transition-all duration-500"
+            className="h-full bg-primary rounded-full transition-all duration-300"
             style={{ width: `${completionPct}%` }}
           />
         </div>
@@ -51,30 +51,30 @@ export default function ShiftOverviewCard({
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-lg font-extrabold text-foreground">{completedCount}</p>
-          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide mt-0.5">Completed</p>
+        <div className="bg-muted/30 rounded-lg p-2.5 text-center">
+          <p className="text-base font-bold text-foreground">{completedCount}</p>
+          <p className="text-[9px] text-muted-foreground font-semibold uppercase mt-0.5">Done</p>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className="text-lg font-extrabold text-foreground">{totalCount}</p>
-          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide mt-0.5">Total</p>
+        <div className="bg-muted/30 rounded-lg p-2.5 text-center">
+          <p className="text-base font-bold text-foreground">{totalCount}</p>
+          <p className="text-[9px] text-muted-foreground font-semibold uppercase mt-0.5">Total</p>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <p className={cn('text-lg font-extrabold', overdueCount > 0 ? 'text-red-400' : 'text-green-400')}>
+        <div className="bg-muted/30 rounded-lg p-2.5 text-center">
+          <p className={cn('text-base font-bold', overdueCount > 0 ? 'text-red-400' : 'text-green-400')}>
             {overdueCount}
           </p>
-          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wide mt-0.5">Overdue</p>
+          <p className="text-[9px] text-muted-foreground font-semibold uppercase mt-0.5">Overdue</p>
         </div>
       </div>
 
       {/* Next Due Item */}
       {nextDueItem && (
         <div className="pt-3 border-t border-border/20">
-          <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Next Due</p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Next</p>
           <div className="flex items-center gap-2 text-sm">
-            <TrendingUp className="h-4 w-4 text-primary flex-shrink-0" />
+            <TrendingUp className="h-3.5 w-3.5 text-primary flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-foreground truncate">{nextDueItem.title}</p>
+              <p className="font-semibold text-foreground text-sm truncate">{nextDueItem.title}</p>
               <p className="text-xs text-muted-foreground">{nextDueItem.dueIn}</p>
             </div>
           </div>

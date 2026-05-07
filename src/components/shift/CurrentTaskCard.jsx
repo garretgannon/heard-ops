@@ -16,11 +16,11 @@ const TASK_TYPE_ICONS = {
 };
 
 const TASK_TYPE_COLORS = {
-  prep: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
-  sidework: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-  temperature: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30',
-  cleaning: 'bg-green-500/15 text-green-400 border-green-500/30',
-  manager_note: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+  prep: 'bg-green-500/15 text-green-400 border-green-500/30',
+  sidework: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
+  temperature: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+  cleaning: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+  manager_note: 'bg-violet-500/15 text-violet-400 border-violet-500/30',
   shift_handoff: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
   beo: 'bg-pink-500/15 text-pink-400 border-pink-500/30',
   incident: 'bg-red-500/15 text-red-400 border-red-500/30',
@@ -39,7 +39,7 @@ export default function CurrentTaskCard({
 
   if (!task) {
     return (
-      <div className="bg-card border border-border/40 rounded-2xl p-6 text-center space-y-3">
+      <div className="bg-card border border-border/30 rounded-xl p-5 text-center space-y-3 shadow-lg">
         <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto" />
         <div>
           <p className="font-bold text-foreground">All tasks complete!</p>
@@ -84,10 +84,10 @@ export default function CurrentTaskCard({
   return (
     <div className="space-y-4">
       {/* Task Card */}
-      <div className="bg-card border border-border/40 rounded-2xl p-6 space-y-4">
+      <div className="bg-card border border-border/30 rounded-xl p-5 space-y-4 shadow-lg">
         {/* Type Badge */}
-        <div className={cn('inline-block px-3 py-1.5 rounded-lg border text-xs font-bold', taskTypeColor)}>
-          {TASK_TYPE_ICONS[task.type]} {task.type.replace('_', ' ').toUpperCase()}
+        <div className={cn('inline-block px-2.5 py-1 rounded-lg border text-[10px] font-bold', taskTypeColor)}>
+          {TASK_TYPE_ICONS[task.type]} {task.type.replace('_', ' ')}
         </div>
 
         {/* Task Title */}
@@ -166,14 +166,14 @@ export default function CurrentTaskCard({
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleUnableClick}
-              className="h-10 rounded-lg border border-border/40 bg-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
+              className="h-10 rounded-lg border border-border/30 bg-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
             >
               Unable to Complete
             </button>
             {!isStartable && (
               <button
                 onClick={() => onSkip?.(task.id)}
-                className="h-10 rounded-lg border border-border/40 bg-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
+                className="h-10 rounded-lg border border-border/30 bg-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
               >
                 Skip for Now
               </button>
