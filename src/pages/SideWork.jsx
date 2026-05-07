@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Settings, Bell, CalendarDays, CheckCircle2, Clock, AlertTriangle, ChevronRight, CheckSquare } from 'lucide-react';
+import { Settings, Bell, CalendarDays, CheckCircle2, Clock, AlertTriangle, ChevronRight, CheckSquare, Plus, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
@@ -21,16 +21,37 @@ export default function SideWork() {
   const navigate = useNavigate();
   const { user, isAdmin } = useCurrentUser();
   const [tasks, setTasks] = useState([]);
+  const [jobCodes, setJobCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All Tasks');
+  const [showAddRole, setShowAddRole] = useState(false);
+  const [newRole, setNewRole] = useState({ name: '', department: 'BOH' });
+  const [savingRole, setSavingRole] = useState(false);
   const todayStr = new Date().toISOString().split('T')[0];
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   useEffect(() => {
     loadTasks();
+    loadJobCodes();
     const unsub = base44.entities.SideWorkAssignment.subscribe(() => loadTasks());
     return () => unsub?.();
   }, []);
+
+  const loadJobCodes = async () => {
+    const data = await base44.entities.JobCode.filter({ isActive: true }).catch(() => []);
+    setJobCodes(data);
+  };
+
+  const handleAddRole = async () => {
+    if (!newRole.name.trim()) return;
+    setSavingRole(true);
+    haptics.medium();
+    await base44.entities.JobCode.create({ name: newRole.name.trim(), department: newRole.department, isActive: true });
+    await loadJobCodes();
+    setSavingRole(false);
+    setShowAddRole(false);
+    setNewRole({ name: '', department: 'BOH' });
+  };
 
   const loadTasks = async () => {
     setLoading(true);
@@ -45,22 +66,22 @@ export default function SideWork() {
   const completionPct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
   const myTasks = tasks.filter(t => t.assigned_to_name === user?.full_name || t.assigned_to === user?.email);
 
-  // Zones
-  const zones = tasks.reduce((acc, t) => {
-    const zone = t.role || t.zone || 'General';
-    if (!acc[zone]) acc[zone] = { total: 0, done: 0 };
-    acc[zone].total++;
-    if (['completed','approved'].includes(t.status)) acc[zone].done++;
+  // Roles (job codes)
+  const roles = tasks.reduce((acc, t) => {
+    const role = t.role || t.zone || 'General';
+    if (!acc[role]) acc[role] = { total: 0, done: 0 };
+    acc[role].total++;
+    if (['completed','approved'].includes(t.status)) acc[role].done++;
     return acc;
   }, {});
 
   const filteredTasks = tasks.filter(t => {
     if (activeTab === 'All Tasks') return true;
-    const zone = t.role || t.zone || 'General';
-    return zone === activeTab;
+    const role = t.role || t.zone || 'General';
+    return role === activeTab;
   });
 
-  const zoneTabs = ['All Tasks', ...Object.keys(zones)];
+  const roleTabs = ['All Tasks', ...Object.keys(roles)];
 
   return (
     <div className="pb-24 lg:pb-0">
@@ -116,29 +137,34 @@ export default function SideWork() {
 
       {/* Desktop Layout */}
       <div className="hidden lg:grid lg:grid-cols-[200px_1fr_260px] lg:gap-0 lg:items-start min-h-[calc(100vh-200px)]">
-        {/* LEFT: Zones */}
+        {/* LEFT: Roles */}
         <div className="border-r border-border/30 px-4 py-4 space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Zones</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Roles</p>
           <div className="space-y-2">
-            {Object.entries(zones).map(([zone, stats]) => {
-              const pct = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
+            {jobCodes.map(jc => {
+              const stats = roles[jc.name];
+              const pct = stats ? Math.round((stats.done / stats.total) * 100) : 0;
               return (
-                <button key={zone} onClick={() => { haptics.light(); setActiveTab(zone); }} className={cn('w-full text-left bg-card border rounded-xl px-3 py-2.5 space-y-1.5 active:scale-[0.98] transition-all', activeTab === zone ? 'border-primary/40' : 'border-border/60')}>
+                <button key={jc.id} onClick={() => { haptics.light(); setActiveTab(jc.name); }} className={cn('w-full text-left bg-card border rounded-xl px-3 py-2.5 space-y-1.5 active:scale-[0.98] transition-all', activeTab === jc.name ? 'border-primary/40' : 'border-border/60')}>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold text-foreground">{zone}</p>
-                    <span className="text-xs font-bold text-foreground">{pct}%</span>
+                    <p className="text-xs font-bold text-foreground">{jc.name}</p>
+                    {stats ? <span className="text-xs font-bold text-foreground">{pct}%</span> : <span className="text-[10px] text-muted-foreground">No tasks</span>}
                   </div>
-                  <div className="h-1 bg-muted rounded-full overflow-hidden">
-                    <div className={cn('h-full rounded-full', pct === 100 ? 'bg-green-500' : 'bg-primary')} style={{ width: `${pct}%` }} />
-                  </div>
+                  {stats && (
+                    <div className="h-1 bg-muted rounded-full overflow-hidden">
+                      <div className={cn('h-full rounded-full', pct === 100 ? 'bg-green-500' : 'bg-primary')} style={{ width: `${pct}%` }} />
+                    </div>
+                  )}
                 </button>
               );
             })}
-            {Object.keys(zones).length === 0 && <p className="text-xs text-muted-foreground">No zones yet</p>}
+            {jobCodes.length === 0 && <p className="text-xs text-muted-foreground">No roles yet</p>}
           </div>
-          <button onClick={() => navigate('/more')} className="w-full text-[10px] font-bold text-primary hover:underline flex items-center justify-center gap-1">
-            View All Zones <ChevronRight className="h-3 w-3" />
-          </button>
+          {isAdmin && (
+            <button onClick={() => { haptics.light(); setShowAddRole(true); }} className="w-full h-8 rounded-lg border border-dashed border-border text-xs font-bold text-muted-foreground flex items-center justify-center gap-1.5 hover:border-primary/40 hover:text-primary transition-all">
+              <Plus className="h-3.5 w-3.5" /> Add Role
+            </button>
+          )}
         </div>
 
         {/* CENTER: Side Work Checklist */}
@@ -146,9 +172,9 @@ export default function SideWork() {
           <div className="flex items-center gap-2">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Side Work Checklist</p>
           </div>
-          {/* Zone tabs */}
+          {/* Role tabs */}
           <div className="flex gap-1 flex-wrap">
-            {zoneTabs.slice(0, 6).map(tab => (
+            {roleTabs.slice(0, 6).map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={cn('text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all', activeTab === tab ? 'bg-primary text-white border-primary' : 'bg-card text-muted-foreground border-border')}>
                 {tab}
               </button>
@@ -169,7 +195,7 @@ export default function SideWork() {
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
                     <th className="w-8 px-3 py-2" />
-                    {['Task','Zone','Due','Status'].map(h => (
+                    {['Task','Role','Due','Status'].map(h => (
                       <th key={h} className="text-left px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{h}</th>
                     ))}
                   </tr>
@@ -245,6 +271,50 @@ export default function SideWork() {
           </div>
         </div>
       </div>
+
+      {/* Add Role Modal */}
+      {showAddRole && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-sm bg-card rounded-2xl border border-border overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="font-bold text-foreground">Add Job Code / Role</h2>
+              <button onClick={() => setShowAddRole(false)} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="p-4 space-y-3">
+              <div>
+                <label className="text-xs font-bold text-muted-foreground block mb-1">Role Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Server, Busser, Prep Cook"
+                  value={newRole.name}
+                  onChange={e => setNewRole(r => ({ ...r, name: e.target.value }))}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground block mb-1">Department</label>
+                <select value={newRole.department} onChange={e => setNewRole(r => ({ ...r, department: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+                  <option value="BOH">Back of House</option>
+                  <option value="FOH">Front of House</option>
+                  <option value="Bar">Bar</option>
+                  <option value="Management">Management</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 p-4 border-t border-border">
+              <button onClick={() => setShowAddRole(false)} className="flex-1 h-9 rounded-lg border border-border bg-card text-sm font-bold text-foreground hover:bg-muted active:scale-95">Cancel</button>
+              <button
+                disabled={!newRole.name.trim() || savingRole}
+                onClick={handleAddRole}
+                className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
+              >
+                {savingRole ? <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save className="h-4 w-4" /> Save Role</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Content */}
       <div className="lg:hidden px-4 py-4 space-y-4">
