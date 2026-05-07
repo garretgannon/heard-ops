@@ -1,0 +1,46 @@
+{
+  "name": "LogTag",
+  "type": "object",
+  "properties": {
+    "tag_type": {
+      "type": "string",
+      "title": "Tag Type",
+      "enum": [
+        "employee",
+        "equipment",
+        "area",
+        "station",
+        "role",
+        "shift",
+        "vendor",
+        "recipe",
+        "inventory_item",
+        "beo_event",
+        "reservation",
+        "location",
+        "department"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "title": "Display Label"
+    },
+    "linked_id": {
+      "type": "string",
+      "title": "Linked Entity ID"
+    },
+    "linked_type": {
+      "type": "string",
+      "title": "Linked Entity Type"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "tag_type",
+    "label"
+  ]
+}

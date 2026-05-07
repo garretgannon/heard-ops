@@ -154,6 +154,24 @@ export function mapLog(raw, type) {
     routePath:   cfg.routePath,
     hasPhoto:    !!(raw.photoUrl || raw.photo_url || raw.imageUrl),
     requiresReview: !!(raw.requiresManagerReview || status === "needs_review"),
+    visibility:  getLogVisibility(type, raw),
+    created_by:  raw.created_by || "",
+    reported_by: raw.reported_by || "",
+    assigned_roles: raw.assigned_roles || raw.notify_roles || [],
     _raw:        raw,
   };
+}
+
+// Determine visibility level for a log type
+function getLogVisibility(type, raw) {
+  switch (type) {
+    case 'manager':
+    case 'incident':
+    case 'employee':
+      return 'manager_only';
+    case 'bathroom':
+      return raw.assigned_roles?.length > 0 ? 'assigned_roles_only' : 'team_log';
+    default:
+      return 'team_log';
+  }
 }

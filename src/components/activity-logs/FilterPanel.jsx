@@ -72,6 +72,7 @@ export const EMPTY_FILTERS = {
   requiresReview: false,
   hasPhoto:      false,
   assignedToMe:  false,
+  tags:          [],
 };
 
 function countActive(filters) {
@@ -92,6 +93,7 @@ function countActive(filters) {
   if (filters.requiresReview) n++;
   if (filters.hasPhoto)    n++;
   if (filters.assignedToMe) n++;
+  if (filters.tags?.length) n++;
   return n;
 }
 
@@ -363,6 +365,21 @@ export default function FilterPanel({ filters, onChange, currentUser, isOpen, on
                   className="w-full h-7 px-2 bg-background border border-border rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5" />
               </div>
             </div>
+          </Section>
+
+          {/* Tags */}
+          <Section label="Tags" open={false} onToggle={() => toggle("tags")}>
+            <div className="flex flex-wrap gap-1">
+              {filters.tags?.map(tag => (
+                <button key={tag.id}
+                  onClick={() => set("tags", filters.tags.filter(t => t.id !== tag.id))}
+                  className="h-6 px-2 rounded-full text-[10px] font-bold bg-primary/20 text-primary border border-primary/40 flex items-center gap-1 hover:bg-primary/30 transition-all">
+                  {tag.label}
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              ))}
+            </div>
+            {filters.tags?.length === 0 && <p className="text-[10px] text-muted-foreground">No tags selected</p>}
           </Section>
         </div>
 

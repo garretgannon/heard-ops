@@ -1,0 +1,31 @@
+{
+  "name": "LogsTag",
+  "type": "object",
+  "properties": {
+    "log_type": {
+      "type": "string",
+      "title": "Log Type"
+    },
+    "log_id": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "tag_id": {
+      "type": "string",
+      "title": "Tag ID"
+    },
+    "tag_type": {
+      "type": "string",
+      "title": "Tag Type"
+    },
+    "tag_label": {
+      "type": "string",
+      "title": "Tag Label"
+    }
+  },
+  "required": [
+    "log_type",
+    "log_id",
+    "tag_id"
+  ]
+}

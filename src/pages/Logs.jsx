@@ -109,6 +109,14 @@ function applyFilters(logs, search, filters, currentUserEmail) {
     // ── Assigned to Me ──
     if (filters.assignedToMe && log.assignedTo !== currentUserEmail && log.person !== currentUserEmail) return false;
 
+    // ── Tags ──
+    if (filters.tags?.length) {
+      const logTagIds = (log.tags || []).map(t => typeof t === 'string' ? t : t.id);
+      const filterTagIds = filters.tags.map(t => t.id);
+      const hasAllTags = filterTagIds.every(fId => logTagIds.includes(fId));
+      if (!hasAllTags) return false;
+    }
+
     // ── People text fields ──
     if (filters.createdBy  && !log.person?.toLowerCase().includes(filters.createdBy.toLowerCase()))    return false;
     if (filters.assignedTo && !log.assignedTo?.toLowerCase().includes(filters.assignedTo.toLowerCase())) return false;
@@ -177,14 +185,15 @@ export default function Logs() {
   );
 
   const todayStats = useMemo(() => {
-    const t = allLogs.filter(l => l.ts && isToday(new Date(l.ts)));
+    const filteredByAll = applyFilters(allLogs, "", filters, user?.email);
+    const t = filteredByAll.filter(l => l.ts && isToday(new Date(l.ts)));
     return {
-      total:   t.length,
+      total:   allLogs.filter(l => l.ts && isToday(new Date(l.ts))).length,
       flagged: t.filter(l => l.status === "flagged" || l.priority === "critical").length,
       review:  t.filter(l => l.status === "needs_review").length,
       done:    t.filter(l => CLOSED_STATUSES.has(l.status)).length,
     };
-  }, [allLogs]);
+  }, [allLogs, filters, user?.email])
 
   const activeFilterCount = useMemo(() => countActiveFilters(filters), [filters]);
   const hasActiveFilters  = activeFilterCount > 0 || !!search;
