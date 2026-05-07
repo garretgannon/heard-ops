@@ -86,20 +86,17 @@ function MonthView({ logs, currentDate, onDateClick, onLogClick }) {
                       const cfg = LOG_TYPE_CONFIG[log.type];
                       const isOverdue = isLogOverdue(log);
                       return (
-                        <button
+                        <div
                           key={log.id}
                           onClick={(e) => { e.stopPropagation(); onLogClick(log); }}
                           className={cn(
-                            'block w-full text-[9px] font-bold px-1 py-0.5 rounded truncate',
+                            'block w-full text-[9px] font-bold px-1 py-0.5 rounded truncate cursor-pointer hover:opacity-80 transition-opacity',
                             isOverdue ? 'bg-red-500/30 text-red-300' : cfg?.badge || 'bg-muted text-muted-foreground'
                           )}>
                           {log.title}
-                        </button>
+                        </div>
                       );
                     })}
-                    {dayLogs.length > 2 && (
-                      <span className="text-[8px] text-muted-foreground px-1 font-bold">+{dayLogs.length - 2} more</span>
-                    )}
                   </div>
                 </button>
               );
