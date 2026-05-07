@@ -50,7 +50,7 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 100, scale: 0.95 }}
           transition={{ duration: 0.2, type: 'spring', damping: 25 }}
-          className="w-full lg:w-full lg:max-w-md h-auto bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden"
+          className="w-full lg:w-full lg:max-w-md h-[90vh] lg:h-[95vh] bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-border/30 shrink-0">
