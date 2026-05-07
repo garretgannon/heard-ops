@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, Zap, Download, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell, DollarSign, Clock, TrendingUp, Target, Users, ChevronDown, Filter, Grid3x3, LayoutTemplate, RefreshCw } from 'lucide-react';
 import { addDays, startOfWeek, format, isSameDay, parseISO } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import LaborSummaryCards from '@/components/schedule/LaborSummaryCards';
@@ -59,55 +59,119 @@ export default function ScheduleCenter() {
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/20">
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-lg border-b border-border/20">
         <div className="px-4 lg:px-8 py-4">
           {/* Top Row */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Schedule</h1>
-              <p className="text-sm text-muted-foreground">{weekStart} — {weekEnd}</p>
+              <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+                <span>Schedule</span>
+              </h1>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowEmployeeSidebar(!showEmployeeSidebar)}
-                className="h-9 px-3 rounded-lg border border-border hover:bg-card text-sm font-medium text-foreground transition-colors"
-              >
-                {showEmployeeSidebar ? 'Hide' : 'Show'} Team
+              <WeekSelector currentWeek={currentWeek} onWeekChange={setCurrentWeek} />
+              <button className="h-9 px-3 rounded-lg border border-border hover:bg-card text-sm font-medium text-foreground transition-colors">
+                Today
               </button>
+              <div className="flex items-center gap-2">
+                <button className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                  <Search className="h-4 w-4" />
+                </button>
+                <button className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors relative">
+                  <Bell className="h-4 w-4" />
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500"></span>
+                </button>
+              </div>
               {isAdmin && (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
                 >
                   <Zap className="h-4 w-4" />
-                  <span className="hidden sm:inline">Auto Build</span>
+                  <span className="hidden sm:inline">Auto Schedule</span>
                 </motion.button>
               )}
-              <button className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
+              >
                 <Download className="h-4 w-4" />
-              </button>
+                <span className="hidden sm:inline">Publish Schedule</span>
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Metrics Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground font-medium">Total Labor Cost</p>
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold text-foreground">$12,746</p>
+              <p className="text-xs text-muted-foreground mt-1">18.7% of sales ↑</p>
+            </div>
+            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground font-medium">Scheduled Hours</p>
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold text-foreground">328.5</p>
+              <p className="text-xs text-green-400 mt-1">+ 22.5 vs last week</p>
+            </div>
+            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground font-medium">Forecasted Sales</p>
+                <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold text-foreground">$68,200</p>
+              <p className="text-xs text-green-400 mt-1">+ 8.2% vs last week</p>
+            </div>
+            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground font-medium">Labor Target</p>
+                <Target className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold text-foreground">18.0%</p>
+              <p className="text-xs text-green-400 mt-1">On Target ✓</p>
+            </div>
+            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground font-medium">Projected Labor</p>
+                <Users className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold text-foreground">17.6%</p>
+              <p className="text-xs text-green-400 mt-1">On Target ✓</p>
             </div>
           </div>
 
           {/* Controls Row */}
           <div className="flex items-center justify-between gap-4">
-            <WeekSelector currentWeek={currentWeek} onWeekChange={setCurrentWeek} />
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 px-3 h-9 rounded-lg border border-border bg-card/50">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search employees..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none w-40"
-                />
-              </div>
-              <ViewModeSwitcher viewMode={viewMode} onViewChange={setViewMode} />
-              <div className="flex items-center gap-2 px-3 h-9 rounded-lg bg-card border border-border/50">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <span className="text-xs font-medium text-muted-foreground">Published</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
+                <ChevronDown className="h-3.5 w-3.5" />
+                View by Employee
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
+                <Filter className="h-3.5 w-3.5" />
+                Filter
+              </button>
+              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
+                <Grid3x3 className="h-3.5 w-3.5" />
+                Group
+              </button>
+              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
+                <LayoutTemplate className="h-3.5 w-3.5" />
+                Templates
+              </button>
+              <button className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                <RefreshCw className="h-3.5 w-3.5" />
+              </button>
+              <button className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                <Calendar className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         </div>
@@ -139,22 +203,15 @@ export default function ScheduleCenter() {
 
           {/* Schedule Grid */}
           {viewMode === 'weekly' && !isMobile && (
-            <div className="grid grid-cols-[240px_1fr] gap-6">
-              <EmployeeSidebar
-                employees={employees}
-                shifts={shifts}
-                searchQuery={searchQuery}
-              />
-              <ScheduleGrid
-                shifts={shifts}
-                employees={employees}
-                weekDays={weekDays}
-                selectedShifts={selectedShifts}
-                onSelectShift={setSelectedShift}
-                onSelectShifts={setSelectedShifts}
-                onShiftUpdate={loadScheduleData}
-              />
-            </div>
+            <ScheduleGrid
+              shifts={shifts}
+              employees={employees}
+              weekDays={weekDays}
+              selectedShifts={selectedShifts}
+              onSelectShift={setSelectedShift}
+              onSelectShifts={setSelectedShifts}
+              onShiftUpdate={loadScheduleData}
+            />
           )}
 
           {/* Mobile Schedule */}
