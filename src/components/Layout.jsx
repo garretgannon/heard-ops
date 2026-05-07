@@ -9,6 +9,7 @@ import {
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
+import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 
 // Desktop sidebar nav — flat primary items per spec
 const DESKTOP_NAV_ITEMS = [
@@ -30,6 +31,13 @@ export default function Layout() {
   const { isAdmin } = useCurrentUser();
   const [logoUrl, setLogoUrl] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   useEffect(() => {
     base44.entities.Settings.filter({ key: "restaurant_name" }).then(results => {
@@ -134,19 +142,27 @@ export default function Layout() {
         className="lg:pl-60 min-h-screen flex flex-col"
         style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-8 lg:pt-6 lg:pb-8"
-            style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+        {isMobile && isTabRoute(location.pathname) ? (
+          /* Mobile swipe carousel for the 5 main tabs — pages own their own padding */
+          <div style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}>
+            <SwipeTabContainer />
+          </div>
+        ) : (
+          /* Desktop + non-tab pages: normal routed outlet */
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-8 lg:pt-6 lg:pb-8"
+              style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
+        )}
       </main>
     </div>
   );

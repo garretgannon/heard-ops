@@ -1,10 +1,11 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 import { bottomNavRoutes } from '@/lib/routeConfig';
 
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border safe-area-inset-bottom" style={{ background: 'rgba(11,15,20,0.96)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
@@ -12,12 +13,11 @@ export default function GlobalBottomNav() {
         {bottomNavRoutes.map(({ label, path, icon: Icon }) => {
           const isActive = pathname === path;
           return (
-            <Link
+            <button
               key={path}
-              to={path}
-              onClick={() => haptics.light()}
+              onClick={() => { haptics.light(); navigate(path); }}
               className={cn(
-                "flex flex-col items-center justify-center gap-1.5 flex-1 relative text-xs font-medium transition-all duration-200 active:scale-95 animate-tab-switch",
+                "flex flex-col items-center justify-center gap-1.5 flex-1 relative text-xs font-medium transition-all duration-200 active:scale-95",
                 isActive && "text-primary"
               )}
             >
@@ -30,9 +30,7 @@ export default function GlobalBottomNav() {
               <Icon
                 className={cn(
                   "h-5 w-5 transition-colors duration-80 stroke-[1.5]",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  isActive ? "text-primary" : "text-muted-foreground"
                 )}
               />
 
@@ -45,7 +43,7 @@ export default function GlobalBottomNav() {
               >
                 {label}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>
