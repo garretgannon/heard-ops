@@ -247,7 +247,7 @@ export default function Layout() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:w-full px-4 pt-3 lg:px-8 lg:pt-6 lg:pb-8"
+              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:w-full lg:mx-0 px-4 pt-3 lg:px-8 lg:pt-6 lg:pb-8"
               style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
             >
               <Outlet />
