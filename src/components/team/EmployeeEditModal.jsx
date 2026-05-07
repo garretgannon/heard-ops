@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -7,6 +7,28 @@ import { toast } from 'sonner';
 export default function EmployeeEditModal({ employee, onClose, onSave }) {
   const [formData, setFormData] = useState(employee || {});
   const [saving, setSaving] = useState(false);
+
+  const handleClose = () => {
+    document.body.classList.remove('modal-open');
+    onClose();
+  };
+
+  // Prevent body scroll and handle safe area
+  React.useEffect(() => {
+    document.body.classList.add('modal-open');
+    return () => document.body.classList.remove('modal-open');
+  }, []);
+
+  // Prevent nested scrolling
+  const handleTouchMove = (e) => {
+    const scrollable = e.target.closest('[data-scrollable]');
+    if (!scrollable) e.preventDefault();
+  };
+
+  React.useEffect(() => {
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => document.removeEventListener('touchmove', handleTouchMove, { passive: false });
+  }, []);
 
   const handleSave = async () => {
     if (!formData.full_name?.trim()) {
@@ -23,7 +45,6 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
         city: formData.city,
         state: formData.state,
         birthday: formData.birthday,
-
         department: formData.department,
         rate_of_pay: formData.rate_of_pay,
         start_date: formData.start_date,
@@ -31,10 +52,11 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
         emergency_contact_phone: formData.emergency_contact_phone,
         emergency_contact_relationship: formData.emergency_contact_relationship,
         role: formData.role,
+        certifications: formData.certifications,
       });
       toast.success('Employee updated');
       onSave?.();
-      onClose();
+      handleClose();
     } catch (err) {
       toast.error('Failed to save');
     } finally {
@@ -44,27 +66,30 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <motion.div
-          initial={{ opacity: 0, y: 100, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 100, scale: 0.95 }}
-          transition={{ duration: 0.2, type: 'spring', damping: 25 }}
-          className="w-full lg:w-full lg:max-w-md h-[90vh] lg:h-[95vh] bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden"
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 100 }}
+          transition={{ duration: 0.3, type: 'spring', damping: 20 }}
+          className="w-[min(95vw,500px)] lg:w-full lg:max-w-md max-h-[90vh] lg:max-h-[95vh] bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden"
+          style={{
+            paddingBottom: 'env(safe-area-inset-bottom)',
+          }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-border/30 shrink-0">
+          <div className="sticky top-0 z-10 flex items-center justify-between px-4 lg:px-6 py-4 border-b border-border/30 shrink-0 bg-card">
             <h2 className="text-lg font-bold text-foreground">Edit Employee</h2>
             <button
-              onClick={onClose}
-              className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center text-muted-foreground transition-colors"
+              onClick={handleClose}
+              className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center text-muted-foreground transition-colors active:scale-90"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-4 lg:p-6 space-y-4 flex-1 overflow-y-auto">
+          <div className="p-4 lg:p-6 space-y-4 flex-1 overflow-y-auto" data-scrollable>
             {/* Name */}
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Name</h3>
@@ -268,10 +293,10 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
           </div>
 
           {/* Footer */}
-          <div className="px-4 lg:px-6 py-3 border-t border-border/30 flex gap-2 shrink-0">
+          <div className="sticky bottom-0 px-4 lg:px-6 py-3 border-t border-border/30 flex gap-2 shrink-0 bg-card" style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom))' }}>
             <button
-              onClick={onClose}
-              className="flex-1 h-10 rounded-lg border border-border text-foreground font-semibold text-sm hover:bg-secondary transition-colors"
+              onClick={handleClose}
+              className="flex-1 h-10 rounded-lg border border-border text-foreground font-semibold text-sm hover:bg-secondary transition-colors active:scale-95"
             >
               Cancel
             </button>

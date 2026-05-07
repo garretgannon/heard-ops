@@ -126,6 +126,15 @@
     background: hsl(var(--background));
     overscroll-behavior: none;
   }
+  body.modal-open {
+    overflow: hidden;
+  }
+  @media (max-width: 1023px) {
+    input, textarea, select {
+      font-size: 16px !important;
+      -webkit-user-zoom: 1;
+    }
+  }
   * {
     @apply border-border outline-ring/50;
   }
@@ -160,6 +169,14 @@
   }
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/40;
+  }
+}
+
+@supports (padding: max(0px)) {
+  @media (max-width: 1023px) {
+    body.modal-open {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 }
 
