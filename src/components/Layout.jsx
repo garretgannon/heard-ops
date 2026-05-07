@@ -5,7 +5,7 @@ import {
   Bell, UserCircle, ChefHat,
   LayoutDashboard, ClipboardList,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
-  UtensilsCrossed, ChevronLeft, ChevronRight as ChevronRightIcon,
+  ChevronLeft, ChevronRight as ChevronRightIcon,
   FileText, CalendarDays, Users,
 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -22,8 +22,6 @@ const DESKTOP_SECTIONS = [
     items: [
       { path: "/", label: "Overview", icon: LayoutDashboard },
       { path: "/shift", label: "Shift", icon: ClipboardList },
-      { path: "/prep-lists", label: "Prep", icon: ClipboardList },
-      { path: "/side-work", label: "Side Work", icon: UtensilsCrossed },
       { path: "/logs", label: "Logs", icon: FileText },
     ],
   },
