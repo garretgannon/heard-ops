@@ -527,11 +527,11 @@ export default function TodaysCommandCenter() {
                 className="w-full h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
                 <Zap className="h-4 w-4" /> Start Shift
               </button>
-            ) : currentShift?.status === "setup" ? (
+            ) : currentShift && currentShift.status === "setup" ? (
               <button disabled className="w-full h-9 rounded-lg bg-primary/50 text-primary-foreground font-bold text-sm cursor-not-allowed">
                 Completing Setup...
               </button>
-            ) : currentShift.status === "running" ? (
+            ) : currentShift && currentShift.status === "running" ? (
               <ActiveShiftCard
                 shift={currentShift}
                 completionPct={data?.completionPct || 0}
@@ -542,7 +542,7 @@ export default function TodaysCommandCenter() {
                 onViewPlan={() => navigate("/shift-handoff")}
                 onEndShift={() => setShowCloseModal(true)}
               />
-            ) : (currentShift.status === "closed" || currentShift.status === "completed") ? (
+            ) : (currentShift && (currentShift.status === "closed" || currentShift.status === "completed")) ? (
               <div className="flex gap-2">
                 <button onClick={async () => { haptics.medium(); await reopenShift(currentShift.id); window.location.reload(); }}
                   className="flex-1 h-9 rounded-lg border border-border bg-muted text-foreground font-bold text-sm active:scale-95 transition-all">
