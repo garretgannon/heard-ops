@@ -266,14 +266,18 @@ export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }
 
               <div>
                 <p className="text-xs font-bold text-secondary-text mb-2">
-                  Found {importData.length} template{importData.length !== 1 ? 's' : ''}
+                  Found {importData.length} item{importData.length !== 1 ? 's' : ''} → will be added to template "{templateName}"
                 </p>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {importData.map((template, i) => (
-                    <div key={i} className="bg-muted/40 border border-border/50 rounded-lg p-2.5 text-xs">
-                      <p className="font-bold text-foreground">{template.name}</p>
-                      <p className="text-secondary-text">{template.station} • {template.jobCode}</p>
-                      <p className="text-muted-foreground">{template.items.length} items</p>
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {importData.map((item, i) => (
+                    <div key={i} className="bg-muted/40 border border-border/50 rounded-lg p-2.5 text-xs flex items-center gap-2">
+                      <span className={`px-1.5 py-0.5 rounded font-bold text-[10px] ${
+                        item.priority === 'high' ? 'bg-red-500/20 text-red-300' :
+                        item.priority === 'low' ? 'bg-blue-500/20 text-blue-300' :
+                        'bg-amber-500/20 text-amber-300'
+                      }`}>{item.priority}</span>
+                      <span className="font-bold text-foreground flex-1">{item.itemName}</span>
+                      <span className="text-muted-foreground">{item.quantity} {item.unit}</span>
                     </div>
                   ))}
                 </div>
