@@ -1,0 +1,84 @@
+{
+  "name": "Employee",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "title": "Full Name"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Phone"
+    },
+    "employee_id": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "clock_in_code": {
+      "type": "string",
+      "title": "Clock-In Code"
+    },
+    "job_code": {
+      "type": "string",
+      "title": "Job Code"
+    },
+    "rate_of_pay": {
+      "type": "number",
+      "title": "Rate of Pay"
+    },
+    "pay_type": {
+      "type": "string",
+      "title": "Pay Type",
+      "enum": [
+        "/ hr",
+        "salary"
+      ]
+    },
+    "department": {
+      "type": "string",
+      "title": "Department"
+    },
+    "primary_role": {
+      "type": "string",
+      "title": "Primary Role"
+    },
+    "secondary_roles": {
+      "type": "array",
+      "title": "Secondary Roles",
+      "items": {
+        "type": "string"
+      }
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "active",
+        "inactive",
+        "archived"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "employee_id",
+    "clock_in_code",
+    "job_code",
+    "rate_of_pay"
+  ]
+}

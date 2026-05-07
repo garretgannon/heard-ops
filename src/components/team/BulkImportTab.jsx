@@ -107,15 +107,28 @@ export default function BulkImportTab({ onSuccess }) {
 
     setIsImporting(true);
     try {
-      // Invite all valid employees
+      // Create all valid employee records
       const validRows = previewRows.filter(row => {
         return row['Full Name'] && row['Employee ID'] && row['Clock-In Code'] && row['Job Code'] && row['Rate of Pay'];
       });
 
       for (const row of validRows) {
-        if (row['Email Address']) {
-          await base44.users.inviteUser(row['Email Address'], 'user');
-        }
+        await base44.entities.Employee.create({
+          full_name: row['Full Name'],
+          email: row['Email Address'] || '',
+          phone: row['Phone Number'] || '',
+          employee_id: row['Employee ID'],
+          clock_in_code: row['Clock-In Code'],
+          job_code: row['Job Code'],
+          rate_of_pay: parseFloat(row['Rate of Pay']),
+          pay_type: row['Pay Type'] || '/ hr',
+          department: row['Department'] || '',
+          primary_role: row['Primary Role'] || '',
+          secondary_roles: row['Secondary Roles'] ? [row['Secondary Roles']] : [],
+          start_date: row['Start Date'] || '',
+          notes: row['Notes'] || '',
+          status: 'active',
+        });
       }
       
       onSuccess?.();

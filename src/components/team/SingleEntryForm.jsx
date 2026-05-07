@@ -51,8 +51,23 @@ export default function SingleEntryForm({ onSuccess }) {
 
     setIsSubmitting(true);
     try {
-      // Create employee in database
-      await base44.users.inviteUser(formData.email, 'user');
+      // Create employee record
+      await base44.entities.Employee.create({
+        full_name: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        employee_id: formData.employeeId.trim(),
+        clock_in_code: formData.clockInCode.trim(),
+        job_code: formData.jobCode,
+        rate_of_pay: parseFloat(formData.rateOfPay),
+        pay_type: formData.payType,
+        department: formData.department,
+        primary_role: formData.primaryRole,
+        secondary_roles: formData.secondaryRoles,
+        start_date: formData.startDate,
+        notes: formData.notes.trim(),
+        status: 'active',
+      });
       
       setSuccess(true);
       setTimeout(() => {
