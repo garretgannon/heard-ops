@@ -5,6 +5,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { OperationalProvider } from '@/lib/OperationalContext';
 import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
 import { SimulatorProvider } from '@/lib/SimulatorContext';
 import { ShiftModeProvider } from '@/lib/ShiftModeContext';
@@ -112,7 +113,7 @@ const AuthenticatedApp = () => {
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
         <Route path="/today" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
-        <Route path="/shift" element={<Shift />} />
+
         <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/logs" element={<LogsCenter />} />
         <Route path="/team" element={<TeamCenter />} />
@@ -127,11 +128,13 @@ const AuthenticatedApp = () => {
         <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
 
         {/* COMPLIANCE ROUTES */}
-        <Route path="/temp-logs" element={<Navigate to="/logs?view=temperature" replace />} />
+        <Route path="/temp-logs" element={<Navigate to="/logs?type=temperature" replace />} />
+        <Route path="/waste-86" element={<Navigate to="/logs?type=waste" replace />} />
+        <Route path="/waste-log" element={<Navigate to="/logs?type=waste" replace />} />
+
+        {/* ADMIN ONLY - Template Management */}
         <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
         <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
-        <Route path="/waste-86" element={<WasteLog />} />
-        <Route path="/waste-log" element={<Navigate to="/waste-86" replace />} />
 
         {/* KNOWLEDGE ROUTES */}
         <Route path="/recipes" element={<Recipes />} />
@@ -143,31 +146,31 @@ const AuthenticatedApp = () => {
         <Route path="/msds" element={<MSDS />} />
         <Route path="/vendors" element={<Vendors />} />
 
-        {/* TEMPLATE ROUTES */}
+        {/* TEMPLATE ROUTES (Admin) */}
         <Route path="/prep-templates" element={<PrepTemplatesManager />} />
         <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
         <Route path="/side-work-templates" element={<SideWorkTemplates />} />
         <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
         <Route path="/waste-templates" element={<WasteTemplates />} />
         <Route path="/86-templates" element={<EightySixTemplates />} />
-        <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
-        <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
 
-        {/* MANAGEMENT ROUTES */}
-        <Route path="/stations" element={<Stations />} />
-        <Route path="/job-codes" element={<JobCodes />} />
-        <Route path="/schedule-import" element={<ScheduleImport />} />
-        <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
-        <Route path="/admin/command-center" element={<AdminCommandCenter />} />
-        <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
-        <Route path="/templates" element={<TemplateManager />} />
-
-        {/* OPERATIONS ROUTES */}
-        <Route path="/issues" element={<Navigate to="/logs?view=issues" replace />} />
+        {/* OPERATIONS (Secondary) */}
+        <Route path="/issues" element={<Navigate to="/logs?type=incident" replace />} />
         <Route path="/schedule" element={<ScheduleCenter />} />
         <Route path="/inventory" element={<InventorySimplified />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/shift-handoff" element={<ShiftHandoff />} />
+
+        {/* ADMIN ROUTES (Under /more) */}
+        <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
+        <Route path="/admin/command-center" element={<AdminCommandCenter />} />
+        <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
+        <Route path="/templates" element={<TemplateManager />} />
+        <Route path="/stations" element={<Stations />} />
+        <Route path="/job-codes" element={<JobCodes />} />
+        <Route path="/schedule-import" element={<ScheduleImport />} />
+        <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
+        <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
 
         {/* SETTINGS ROUTES */}
         <Route path="/profile" element={<Profile />} />
@@ -211,6 +214,7 @@ function App() {
   return (
     <AuthProvider>
       <ShiftModeProvider>
+      <OperationalProvider>
       <UnifiedStateProvider>
         <SimulatorProvider>
         <RoleSimulationProvider>
@@ -228,6 +232,7 @@ function App() {
         </RoleSimulationProvider>
         </SimulatorProvider>
       </UnifiedStateProvider>
+      </OperationalProvider>
       </ShiftModeProvider>
     </AuthProvider>
   )
