@@ -446,13 +446,8 @@ export default function TodaysCommandCenter() {
 
   useEffect(() => {
     if (lastCompletedAction && lastCompletedAction.type !== "init") setActiveTab("/");
-  }, [lastCompletedAction]);
-
-  useEffect(() => {
-    if (isAdmin && !currentShift && !shiftLaunched) {
-      setShiftLaunched(true);
-    }
-  }, [isAdmin, currentShift, shiftLaunched]);
+    if (isAdmin && !shiftLaunched) setShiftLaunched(true);
+  }, [lastCompletedAction, isAdmin, shiftLaunched, setActiveTab]);
 
   const handleCloseModal = () => setActiveModal(null);
   const handleModalSuccess = () => {
@@ -532,9 +527,7 @@ export default function TodaysCommandCenter() {
                 className="w-full h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
                 <Zap className="h-4 w-4" /> Start Shift
               </button>
-            ) : isAdmin && !currentShift ? (
-              <div className="text-xs text-muted-foreground p-2 text-center">No active shift</div>
-            ) : currentShift.status === "setup" ? (
+            ) : currentShift?.status === "setup" ? (
               <button disabled className="w-full h-9 rounded-lg bg-primary/50 text-primary-foreground font-bold text-sm cursor-not-allowed">
                 Completing Setup...
               </button>
