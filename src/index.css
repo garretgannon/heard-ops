@@ -133,6 +133,8 @@
     input, textarea, select {
       font-size: 16px !important;
       -webkit-user-zoom: 1;
+      padding: 0.75rem !important;
+      min-height: 2.75rem;
     }
   }
   * {
