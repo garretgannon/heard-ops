@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
-import { LayoutDashboard, ClipboardList, Flame, UtensilsCrossed, MoreHorizontal } from 'lucide-react';
+import { Zap, Clock, Flame, Users, MoreHorizontal } from 'lucide-react';
 
 const MOBILE_NAV_ROUTES = [
-  { label: 'Today', path: '/', icon: LayoutDashboard },
-  { label: 'Prep', path: '/prep-lists', icon: ClipboardList },
+  { label: 'Today', path: '/', icon: Zap },
+  { label: 'Shift', path: '/shift', icon: Clock },
   { label: 'Logs', path: '/logs', icon: Flame },
-  { label: 'Side Work', path: '/side-work', icon: UtensilsCrossed },
+  { label: 'Team', path: '/team', icon: Users },
   { label: 'More', path: '/more', icon: MoreHorizontal },
 ];
 
