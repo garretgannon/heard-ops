@@ -3,9 +3,9 @@ import { haptics } from '@/utils/haptics';
 
 export default function LogsCommandHeader({ onSearch, onQuickAdd, searchQuery }) {
   return (
-    <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/80 backdrop-blur-sm border-b border-border/20 px-4 py-4 lg:px-8">
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <h1 className="text-2xl font-extrabold text-foreground">Logs</h1>
+    <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/80 backdrop-blur-sm border-b border-border/20 px-4 py-3 lg:px-8">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <h1 className="text-xl font-extrabold text-foreground">Logs</h1>
         <button
           onClick={() => { haptics.light?.(); onQuickAdd?.(); }}
           className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-all hover:brightness-110"

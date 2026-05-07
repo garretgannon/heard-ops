@@ -16,21 +16,21 @@ const FILTER_OPTIONS = [
 
 export default function LogFilterChips({ activeFilter, onFilterChange }) {
   return (
-    <div className="px-4 lg:px-8 py-4 border-b border-border/20 overflow-x-auto">
-      <div className="flex gap-2 min-w-max lg:flex-wrap">
+    <div className="px-4 lg:px-8 py-2 border-b border-border/20 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-1.5 min-w-min">
         {FILTER_OPTIONS.map(({ id, label, icon }) => (
           <button
             key={id}
             onClick={() => { haptics.light?.(); onFilterChange?.(id); }}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-semibold text-xs whitespace-nowrap transition-all active:scale-95',
+              'flex items-center gap-1 px-2.5 py-1 rounded-full border font-semibold text-xs whitespace-nowrap transition-all active:scale-95',
               activeFilter === id
                 ? 'border-primary bg-primary/15 text-primary'
                 : 'border-border/40 bg-card text-muted-foreground hover:border-border/60'
             )}
           >
-            <span>{icon}</span>
-            <span>{label}</span>
+            <span className="text-sm">{icon}</span>
+            <span className="hidden sm:inline">{label}</span>
           </button>
         ))}
       </div>
