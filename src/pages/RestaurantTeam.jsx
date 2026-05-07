@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast as toastSonner } from "sonner";
 import AddEmployeeModal from "@/components/team/AddEmployeeModal";
+import EmployeeEditModal from "@/components/team/EmployeeEditModal";
 
 const toast = {
   info: (msg) => toastSonner.info(msg),
@@ -29,6 +30,7 @@ export default function RestaurantTeam() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [editingEmployee, setEditingEmployee] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -74,6 +76,11 @@ export default function RestaurantTeam() {
     const all = await base44.entities.User.list();
     setEmployees(all);
     toast.success("Employee added!");
+  };
+
+  const handleUpdateEmployee = async () => {
+    const all = await base44.entities.User.list();
+    setEmployees(all);
   };
 
   const getRoleDisplay = (role) => {
@@ -197,7 +204,7 @@ export default function RestaurantTeam() {
                 </thead>
                 <tbody>
                   {paginatedEmployees.map(emp => (
-                    <tr key={emp.id} className="border-b border-border/20 hover:bg-secondary/20 transition-colors">
+                    <tr key={emp.id} onClick={() => setEditingEmployee(emp)} className="border-b border-border/20 hover:bg-secondary/20 transition-colors cursor-pointer">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
@@ -387,6 +394,15 @@ export default function RestaurantTeam() {
         <AddEmployeeModal
           onClose={() => setShowAddModal(false)}
           onSuccess={handleAddEmployee}
+        />
+      )}
+
+      {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <EmployeeEditModal
+          employee={editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          onSave={handleUpdateEmployee}
         />
       )}
     </motion.div>
