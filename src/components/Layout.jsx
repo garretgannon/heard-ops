@@ -5,33 +5,77 @@ import {
   Bell, UserCircle, ChefHat,
   LayoutDashboard, ClipboardList, Thermometer, CheckSquare,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
+  UtensilsCrossed, CalendarDays, Users, Wrench, BookOpen,
+  AlertCircle, FileText, ChevronLeft, ChevronRight as ChevronRightIcon, Zap,
+  Shield,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
 import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 
-// Desktop sidebar nav — flat primary items per spec
-const DESKTOP_NAV_ITEMS = [
-  { path: "/", label: "Today", icon: LayoutDashboard },
-  { path: "/prep-lists", label: "Prep", icon: ClipboardList },
-  { path: "/tasks", label: "Overview", icon: CheckSquare },
-  { path: "/temp-logs", label: "Temps", icon: Thermometer },
-  { path: "/side-work", label: "Side Work", icon: CheckSquare },
-  { path: "/recipes", label: "Recipes", icon: ChefHat },
-  { path: "/inventory", label: "Inventory", icon: Warehouse },
-  { path: "/vendors", label: "Vendors", icon: Truck },
-  { path: "/prep-templates", label: "Templates", icon: LayoutTemplate },
-  { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-  { path: "/profile", label: "Settings", icon: Settings },
+// Grouped desktop nav
+const DESKTOP_NAV = [
+  {
+    section: "Operations",
+    icon: Zap,
+    items: [
+      { path: "/", label: "Today", icon: LayoutDashboard },
+      { path: "/tasks", label: "My Tasks", icon: CheckSquare },
+      { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
+      { path: "/side-work", label: "Side Work", icon: UtensilsCrossed },
+      { path: "/temp-logs", label: "Temp Logs", icon: Thermometer },
+      { path: "/logs", label: "Logs", icon: FileText },
+      { path: "/issues", label: "Issues", icon: AlertCircle },
+    ],
+  },
+  {
+    section: "Knowledge",
+    icon: BookOpen,
+    items: [
+      { path: "/recipes", label: "Recipes", icon: ChefHat },
+      { path: "/inventory", label: "Inventory", icon: Warehouse },
+      { path: "/vendors", label: "Vendors", icon: Truck },
+      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+    ],
+  },
+  {
+    section: "Schedule",
+    icon: CalendarDays,
+    items: [
+      { path: "/schedule", label: "Schedule", icon: CalendarDays },
+      { path: "/reservations", label: "BEOs & Reservations", icon: BookOpen },
+    ],
+  },
+  {
+    section: "Admin",
+    icon: Shield,
+    items: [
+      { path: "/templates", label: "Templates", icon: LayoutTemplate },
+      { path: "/team", label: "Team & Roles", icon: Users },
+      { path: "/profile", label: "Settings", icon: Settings },
+    ],
+    adminOnly: true,
+  },
 ];
 
 export default function Layout() {
   const location = useLocation();
-  const { isAdmin } = useCurrentUser();
+  const { isAdmin, user } = useCurrentUser();
   const [logoUrl, setLogoUrl] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('sidebar_collapsed') === 'true'; } catch { return false; }
+  });
+
+  const toggleCollapsed = () => {
+    setCollapsed(prev => {
+      const next = !prev;
+      try { localStorage.setItem('sidebar_collapsed', String(next)); } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 1024);
@@ -84,62 +128,109 @@ export default function Layout() {
         </div>
       </header>
 
-      {/* Desktop sidebar — hidden on mobile */}
-      <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-60 border-r border-border/30 flex-col z-30" style={{ background: 'hsl(var(--sidebar-background))' }}>
+      {/* Desktop sidebar */}
+      <aside
+        className={cn(
+          "hidden lg:flex fixed left-0 top-0 bottom-0 border-r border-border/30 flex-col z-30 transition-all duration-200",
+          collapsed ? "w-[60px]" : "w-60"
+        )}
+        style={{ background: 'hsl(var(--sidebar-background))' }}
+      >
         {/* Logo / Brand */}
-        <div className="px-5 py-5 flex items-center gap-3 border-b border-border/30">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20 shrink-0">
+        <div className={cn("flex items-center border-b border-border/30 shrink-0", collapsed ? "px-3 py-4 justify-center" : "px-4 py-4 gap-3")}>
+          <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20 shrink-0">
             {logoUrl ? (
-              <img src={logoUrl} alt="logo" className="h-9 w-9 object-cover" />
+              <img src={logoUrl} alt="logo" className="h-8 w-8 object-cover" />
             ) : (
               <ChefHat className="h-4 w-4 text-primary-foreground" />
             )}
           </div>
-          <div className="min-w-0">
-            <h1 className="font-extrabold text-base tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
-            {restaurantName
-              ? <p className="text-[11px] text-primary/80 font-semibold tracking-wide uppercase truncate">{restaurantName}</p>
-              : <p className="text-[11px] text-muted-foreground tracking-wide uppercase">Restaurant Ops</p>
-            }
-          </div>
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <h1 className="font-extrabold text-[15px] tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
+              {restaurantName
+                ? <p className="text-[10px] text-primary/80 font-semibold tracking-wide uppercase truncate">{restaurantName}</p>
+                : <p className="text-[10px] text-muted-foreground tracking-wide uppercase">Restaurant Ops</p>
+              }
+            </div>
+          )}
         </div>
 
-        {/* Nav Links */}
-        <nav className="flex-1 px-2.5 overflow-y-auto py-3 space-y-0.5">
-          {DESKTOP_NAV_ITEMS.map(item => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+        {/* Role context badge */}
+        {!collapsed && isAdmin && (
+          <div className="mx-3 mt-2.5 mb-0 px-2.5 py-1.5 rounded-lg bg-primary/8 border border-primary/15 flex items-center gap-2">
+            <Shield className="h-3 w-3 text-primary shrink-0" />
+            <span className="text-[10px] font-bold text-primary uppercase tracking-wide truncate">Admin View</span>
+          </div>
+        )}
+
+        {/* Nav sections */}
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+          {DESKTOP_NAV.map((group) => {
+            if (group.adminOnly && !isAdmin) return null;
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              <div key={group.section} className="mb-3">
+                {!collapsed && (
+                  <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground/60 px-2 mb-1">{group.section}</p>
                 )}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                {item.label}
-              </Link>
+                {collapsed && (
+                  <div className="border-t border-border/20 my-2 mx-1" />
+                )}
+                {group.items.map(item => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path ||
+                    (item.path !== '/' && location.pathname.startsWith(item.path));
+                  return (
+                    <div key={item.path} className="relative group/navitem">
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "flex items-center rounded-lg text-sm font-medium transition-all duration-100",
+                          collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2.5 px-2.5 py-2",
+                          isActive
+                            ? "bg-primary/15 text-primary"
+                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        )}
+                      >
+                        <Icon className={cn("shrink-0", isActive ? "h-4 w-4 text-primary" : "h-4 w-4")} />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                        {!collapsed && isActive && (
+                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                        )}
+                      </Link>
+                      {/* Tooltip for collapsed mode */}
+                      {collapsed && (
+                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs font-medium text-foreground whitespace-nowrap opacity-0 group-hover/navitem:opacity-100 pointer-events-none transition-opacity z-50 shadow-lg">
+                          {item.label}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>
 
-        {/* Footer blurb */}
-        <div className="px-3 pb-4">
-          <div className="rounded-xl bg-primary/8 border border-primary/15 p-3">
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              The daily operating system for restaurants.
-            </p>
-          </div>
+        {/* Collapse toggle */}
+        <div className="border-t border-border/20 p-2">
+          <button
+            onClick={toggleCollapsed}
+            className={cn(
+              "flex items-center rounded-lg text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-100 w-full",
+              collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2 px-2.5 py-2"
+            )}
+          >
+            {collapsed
+              ? <ChevronRightIcon className="h-4 w-4" />
+              : <><ChevronLeft className="h-4 w-4" /><span>Collapse</span></>}
+          </button>
         </div>
       </aside>
 
       {/* Main content area */}
       <main
-        className="lg:pl-60 min-h-screen flex flex-col"
+        className={cn("min-h-screen flex flex-col transition-all duration-200", collapsed ? "lg:pl-[60px]" : "lg:pl-60")}
         style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
       >
         {isMobile && isTabRoute(location.pathname) ? (

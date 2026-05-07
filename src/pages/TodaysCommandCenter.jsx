@@ -616,8 +616,7 @@ export default function TodaysCommandCenter() {
 
         {/* LEFT: Shift Control */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-border/30">
-            <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+          <div className="pb-3 border-b border-border/30">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Shift Control</p>
           </div>
           {isAdmin && (
@@ -648,7 +647,11 @@ export default function TodaysCommandCenter() {
         </div>
 
         {/* CENTER: Primary Operational Focus */}
-        <div className="space-y-6 min-w-0">
+        <div className="space-y-5 min-w-0 bg-card/40 rounded-2xl border border-border/40 p-5">
+          <div className="pb-3 border-b border-border/30">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-foreground">Operations</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">What needs your attention now</p>
+          </div>
           {/* Needs Attention — highest priority */}
           {(data.overdue.length > 0 || data.needsReview > 0) && (
             <div className="space-y-2.5">
@@ -742,8 +745,7 @@ export default function TodaysCommandCenter() {
 
         {/* RIGHT: Supporting Context */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-border/30">
-            <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+          <div className="pb-3 border-b border-border/30">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Support</p>
           </div>
           {/* Shift Notes */}
