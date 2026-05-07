@@ -1,30 +1,29 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, Zap, Download, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Zap, Download } from 'lucide-react';
 import { addDays, startOfWeek, format, isSameDay, parseISO } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import LaborSummaryCards from '@/components/schedule/LaborSummaryCards';
 import ScheduleGrid from '@/components/schedule/ScheduleGrid';
-import EmployeeSidebar from '@/components/schedule/EmployeeSidebar';
-import ShiftDetailDrawer from '@/components/schedule/ShiftDetailDrawer';
-import BulkActionToolbar from '@/components/schedule/BulkActionToolbar';
-import ViewModeSwitcher from '@/components/schedule/ViewModeSwitcher';
-import WeekSelector from '@/components/schedule/WeekSelector';
-import TodayShiftView from '@/components/schedule/TodayShiftView';
+import MobileSchedulePreview from '@/components/schedule/MobileSchedulePreview';
+import ScheduleFeatures from '@/components/schedule/ScheduleFeatures';
+
+const FEATURES = [
+  { id: 'drag', label: 'Drag & Drop Scheduling', icon: '↔️' },
+  { id: 'bulk', label: 'Bulk Actions', icon: '☑️' },
+  { id: 'auto', label: 'Auto Scheduling (AI)', icon: '✨' },
+  { id: 'colors', label: 'Color Coded by Role', icon: '🎨' },
+  { id: 'conflict', label: 'Conflict Detection', icon: '⚠️' },
+  { id: 'labor', label: 'Labor Targets', icon: '📊' },
+  { id: 'export', label: 'Export to Excel, PDF', icon: '📁' },
+];
 
 export default function ScheduleCenter() {
   const { user, isAdmin } = useCurrentUser();
   const [currentWeek, setCurrentWeek] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
-  const [viewMode, setViewMode] = useState('weekly');
-  const [showEmployeeSidebar, setShowEmployeeSidebar] = useState(false);
-  const [selectedShift, setSelectedShift] = useState(null);
-  const [selectedShifts, setSelectedShifts] = useState([]);
   const [shifts, setShifts] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isPublished, setIsPublished] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
   useEffect(() => {
@@ -41,10 +40,10 @@ export default function ScheduleCenter() {
     setLoading(true);
     try {
       const [shiftsData, employeesData] = await Promise.all([
-        base44.entities.StaffShift.list('-created_date', 100).catch(() => []),
+        base44.entities.StaffShift?.list?.('-created_date', 100).catch(() => []),
         base44.entities.Employee?.list?.('-created_date', 100).catch(() => []),
       ]);
-      setShifts(shiftsData);
+      setShifts(shiftsData || []);
       setEmployees(employeesData || []);
     } catch (e) {
       console.error('Error loading schedule:', e);
@@ -56,141 +55,108 @@ export default function ScheduleCenter() {
   const weekStart = format(currentWeek, 'MMM d');
   const weekEnd = format(weekDays[6], 'MMM d, yyyy');
 
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background pb-32">
+        <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/20 px-4 py-4">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Schedule</h1>
+          <p className="text-sm text-muted-foreground">{weekStart} — {weekEnd}</p>
+        </div>
+        <div className="px-4 py-6">
+          <ScheduleGrid shifts={shifts} employees={employees} weekDays={weekDays} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Sticky Header */}
+      {/* Top Header */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/20">
-        <div className="px-4 lg:px-8 py-4">
-          {/* Top Row */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Schedule</h1>
-              <p className="text-sm text-muted-foreground">{weekStart} — {weekEnd}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowEmployeeSidebar(!showEmployeeSidebar)}
-                className="h-9 px-3 rounded-lg border border-border hover:bg-card text-sm font-medium text-foreground transition-colors"
-              >
-                {showEmployeeSidebar ? 'Hide' : 'Show'} Team
-              </button>
-              {isAdmin && (
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
-                >
-                  <Zap className="h-4 w-4" />
-                  <span className="hidden sm:inline">Auto Build</span>
-                </motion.button>
-              )}
-              <button className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
-                <Download className="h-4 w-4" />
-              </button>
-            </div>
+        <div className="px-6 py-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Schedule</h2>
+            <p className="text-xs text-muted-foreground">Manage weekly shifts and labor</p>
           </div>
 
-          {/* Controls Row */}
-          <div className="flex items-center justify-between gap-4">
-            <WeekSelector currentWeek={currentWeek} onWeekChange={setCurrentWeek} />
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2 px-3 h-9 rounded-lg border border-border bg-card/50">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search employees..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent text-sm text-foreground placeholder-muted-foreground outline-none w-40"
-                />
-              </div>
-              <ViewModeSwitcher viewMode={viewMode} onViewChange={setViewMode} />
-              <div className="flex items-center gap-2 px-3 h-9 rounded-lg bg-card border border-border/50">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <span className="text-xs font-medium text-muted-foreground">Published</span>
-              </div>
+          <div className="flex items-center gap-4">
+            {/* Date Range Picker */}
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setCurrentWeek(prev => addDays(prev, -7))}
+                className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </motion.button>
+              <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                {weekStart} – {format(weekDays[6], 'MMM d, yyyy')}
+              </span>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setCurrentWeek(prev => addDays(prev, 7))}
+                className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </motion.button>
             </div>
+
+            {/* Action Buttons */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+              className="h-9 px-4 rounded-lg border border-border hover:bg-card text-sm font-medium text-foreground"
+            >
+              Today
+            </motion.button>
+
+            {isAdmin && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110"
+              >
+                <Zap className="h-4 w-4" />
+                Publish Schedule
+              </motion.button>
+            )}
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center"
+            >
+              <Download className="h-4 w-4" />
+            </motion.button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={viewMode}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.15 }}
-          className="px-4 lg:px-8 py-6"
-        >
-          {/* Labor Summary */}
-          {viewMode === 'weekly' && (
-            <div className="mb-8">
-              <LaborSummaryCards shifts={shifts} weekDays={weekDays} />
+      {/* Main Layout */}
+      <div className="grid grid-cols-[200px_1fr_280px] gap-6 px-6 py-6 h-[calc(100vh-120px)]">
+        {/* Left Sidebar — Features */}
+        <div className="border-r border-border/20 pr-6 overflow-y-auto">
+          <ScheduleFeatures features={FEATURES} />
+        </div>
+
+        {/* Center — Schedule Grid */}
+        <div className="min-w-0 overflow-y-auto">
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
+          ) : (
+            <ScheduleGrid shifts={shifts} employees={employees} weekDays={weekDays} />
           )}
+        </div>
 
-          {/* Today View */}
-          {viewMode === 'today' && (
-            <div className="mb-8">
-              <TodayShiftView shifts={shifts} />
-            </div>
-          )}
-
-          {/* Schedule Grid */}
-          {viewMode === 'weekly' && !isMobile && (
-            <div className="grid grid-cols-[240px_1fr] gap-6">
-              <EmployeeSidebar
-                employees={employees}
-                shifts={shifts}
-                searchQuery={searchQuery}
-              />
-              <ScheduleGrid
-                shifts={shifts}
-                employees={employees}
-                weekDays={weekDays}
-                selectedShifts={selectedShifts}
-                onSelectShift={setSelectedShift}
-                onSelectShifts={setSelectedShifts}
-                onShiftUpdate={loadScheduleData}
-              />
-            </div>
-          )}
-
-          {/* Mobile Schedule */}
-          {viewMode === 'weekly' && isMobile && (
-            <ScheduleGrid
-              shifts={shifts}
-              employees={employees}
-              weekDays={weekDays}
-              selectedShifts={selectedShifts}
-              onSelectShift={setSelectedShift}
-              onSelectShifts={setSelectedShifts}
-              onShiftUpdate={loadScheduleData}
-              isMobile
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Shift Detail Drawer */}
-      {selectedShift && (
-        <ShiftDetailDrawer
-          shift={selectedShift}
-          employees={employees}
-          onClose={() => setSelectedShift(null)}
-          onUpdate={loadScheduleData}
-        />
-      )}
-
-      {/* Bulk Action Toolbar */}
-      {selectedShifts.length > 0 && (
-        <BulkActionToolbar
-          selectedCount={selectedShifts.length}
-          onClear={() => setSelectedShifts([])}
-          onAction={loadScheduleData}
-        />
-      )}
+        {/* Right Sidebar — Mobile Preview */}
+        <div className="border-l border-border/20 pl-6 overflow-y-auto">
+          <MobileSchedulePreview shifts={shifts} employees={employees} currentWeek={currentWeek} />
+        </div>
+      </div>
     </div>
   );
 }
