@@ -9,6 +9,9 @@ import LogsMetricsRow from '@/components/logcenter/LogsMetricsRow';
 import LogsDetailDrawer from '@/components/logcenter/LogsDetailDrawer';
 import LogsFilterSidebar from '@/components/logcenter/LogsFilterSidebar';
 import LogsReviewQueueView from '@/components/logcenter/LogsReviewQueueView';
+import LogTypeSelector from '@/components/logcenter/LogTypeSelector';
+import LogsCalendarView from '@/components/logcenter/LogsCalendarView';
+import LogsAnalyticsView from '@/components/logcenter/LogsAnalyticsView';
 import UnifiedLogForm from '@/components/UnifiedLogForm';
 
 export default function LogsCenter() {
@@ -18,6 +21,8 @@ export default function LogsCenter() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState('feed');
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
+  const [selectedLogType, setSelectedLogType] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState({});
   const [selectedLog, setSelectedLog] = useState(null);
@@ -110,7 +115,7 @@ export default function LogsCenter() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => setShowAddModal(true)}
+                onClick={() => setShowTypeSelector(true)}
                 className="h-11 px-4 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
               >
                 <Plus className="h-5 w-5" />
@@ -210,17 +215,9 @@ export default function LogsCenter() {
 
           {viewMode === 'review' && <LogsReviewQueueView logs={filteredLogs} onLogClick={(log) => { setSelectedLog(log); setShowLogDetail(true); }} />}
 
-          {viewMode === 'calendar' && (
-            <div className="text-center py-12 text-muted-foreground">
-              <p>Calendar view coming soon</p>
-            </div>
-          )}
+          {viewMode === 'calendar' && <LogsCalendarView logs={filteredLogs} />}
 
-          {viewMode === 'analytics' && (
-            <div className="text-center py-12 text-muted-foreground">
-              <p>Analytics view coming soon</p>
-            </div>
-          )}
+          {viewMode === 'analytics' && <LogsAnalyticsView logs={filteredLogs} />}
         </div>
       </div>
 
@@ -228,10 +225,20 @@ export default function LogsCenter() {
       <LogsFilterSidebar filters={advancedFilters} onFilterChange={setAdvancedFilters} />
 
       {/* Modals */}
+      <LogTypeSelector
+        isOpen={showTypeSelector}
+        onClose={() => setShowTypeSelector(false)}
+        onSelect={(logType) => {
+          setSelectedLogType(logType);
+          setShowAddModal(true);
+        }}
+      />
+
       {showAddModal && (
         <UnifiedLogForm
-          onClose={() => setShowAddModal(false)}
-          onSuccess={() => { setShowAddModal(false); toast.success('Log created'); }}
+          initialType={selectedLogType}
+          onClose={() => { setShowAddModal(false); setSelectedLogType(null); }}
+          onSuccess={() => { setShowAddModal(false); setSelectedLogType(null); toast.success('Log created'); }}
         />
       )}
 
