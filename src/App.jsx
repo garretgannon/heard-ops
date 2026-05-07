@@ -206,6 +206,9 @@ const AuthenticatedApp = () => {
         <Route path="/EmployeeCalendar" element={<Navigate to="/schedule" replace />} />
         <Route path="/ScheduleImport" element={<Navigate to="/schedule" replace />} />
         <Route path="/R365ScheduleImport" element={<Navigate to="/schedule" replace />} />
+        <Route path="/prep" element={<Navigate to="/shift" replace />} />
+        <Route path="/prep-lists" element={<Navigate to="/shift" replace />} />
+        <Route path="/side-work" element={<Navigate to="/shift" replace />} />
         <Route path="/SideWork" element={<Navigate to="/shift" replace />} />
         <Route path="/SideWorkManager" element={<Navigate to="/shift" replace />} />
         <Route path="/SideWorkStaff" element={<Navigate to="/shift" replace />} />

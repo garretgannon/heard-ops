@@ -27,7 +27,7 @@ export default function GlobalBottomNav() {
   // Determine active route
   const getActiveId = () => {
     if (pathname === '/' || pathname === '/today') return 'today';
-    if (pathname.startsWith('/shift')) return 'shift';
+    if (pathname.startsWith('/shift') || pathname.startsWith('/prep') || pathname.startsWith('/side-work')) return 'shift';
     if (pathname.startsWith('/logs')) return 'logs';
     if (pathname.startsWith('/team')) return 'team';
     if (pathname.startsWith('/more')) return 'more';
