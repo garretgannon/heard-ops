@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { haptics } from '@/utils/haptics';
 import {
   BookOpen, Search, Plus, ChevronRight, Clock, Package, Archive,
@@ -485,13 +486,81 @@ export default function Recipes() {
     setSelected(null);
   };
 
-  if (selected) return <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />;
+  // On desktop, RecipeDetail shows in right panel — only go fullscreen on mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+  if (selected && isMobile) return <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />;
   if (showForm) return <RecipeForm recipe={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />;
+
+  const categoryCounts = CATEGORIES.reduce((acc, c) => {
+    acc[c] = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.category === c && r.status !== 'archived').length;
+    return acc;
+  }, {});
 
   return (
     <div className="pb-28">
-      {/* Header */}
-      <div className="bg-card border-b border-border sticky top-0 z-10">
+      <DesktopPageHeader
+        title="Recipes"
+        subtitle="Recipe library and build management"
+        actions={
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-52 pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-xs text-foreground" />
+            </div>
+            {isAdmin && (
+              <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
+                <Plus className="h-3.5 w-3.5" /> New Recipe
+              </button>
+            )}
+          </div>
+        }
+      />
+
+      {/* Desktop 3-panel */}
+      <div className="hidden lg:grid lg:grid-cols-[180px_1fr_340px] lg:gap-0" style={{ height: 'calc(100vh - 120px)' }}>
+        {/* LEFT: Categories */}
+        <div className="border-r border-border/30 overflow-y-auto p-3 space-y-0.5">
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-2 py-2">Categories</p>
+          {CATEGORIES.map(c => (
+            <button key={c} onClick={() => setFilterCat(c)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                filterCat === c ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}>
+              <span className="capitalize">{c}</span>
+              <span className={`text-[10px] font-bold ${filterCat === c ? 'text-white/70' : 'text-muted-foreground'}`}>{categoryCounts[c] || 0}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* CENTER: Recipe list */}
+        <div className="overflow-y-auto border-r border-border/30 p-4 space-y-2">
+          {loading ? (
+            <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+              <p className="text-sm text-muted-foreground">No recipes found</p>
+            </div>
+          ) : (
+            filtered.map(r => <RecipeCard key={r.id} recipe={r} onClick={() => { haptics.light(); setSelected(r); }} />)
+          )}
+        </div>
+
+        {/* RIGHT: Recipe detail panel */}
+        <div className="overflow-y-auto">
+          {selected ? (
+            <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-center px-6">
+              <BookOpen className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <p className="text-sm font-semibold text-muted-foreground">Select a recipe to view details</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile header */}
+      <div className="lg:hidden bg-card border-b border-border sticky top-0 z-10">
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
@@ -505,20 +574,16 @@ export default function Recipes() {
             )}
           </div>
           <p className="text-[11px] text-muted-foreground mb-3">Kitchen production, prep methods, and batch instructions.</p>
-
           <div className="relative mb-2.5">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
           </div>
-
           <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
             {CATEGORIES.map(c => (
               <button key={c} onClick={() => setFilterCat(c)} className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-bold capitalize transition-all ${filterCat === c ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>{c}</button>
             ))}
           </div>
         </div>
-
-        {/* Station filter */}
         <div className="flex gap-1.5 overflow-x-auto px-4 pb-2.5">
           <button onClick={() => setFilterStation('')} className={`shrink-0 text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all ${!filterStation ? 'bg-card border border-primary/40 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>All Stations</button>
           {STATIONS.map(s => (
@@ -527,7 +592,8 @@ export default function Recipes() {
         </div>
       </div>
 
-      <div className="px-4 py-3 space-y-2.5">
+      {/* Mobile list */}
+      <div className="lg:hidden px-4 py-3 space-y-2.5">
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
