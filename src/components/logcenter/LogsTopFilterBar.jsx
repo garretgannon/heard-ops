@@ -42,8 +42,8 @@ export default function LogsTopFilterBar({ search, onSearchChange, filters, onFi
     <div className="bg-card/50 border-b border-border/40 sticky top-14 sm:top-16 z-10">
       {/* Search + Quick Filters Row */}
       <div className="px-4 sm:px-6 py-2 flex gap-1.5 items-center border-b border-border/20 overflow-x-auto scrollbar-hide" style={{ overscrollBehavior: 'contain' }}>
-        <div className="relative flex-1 min-w-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <div className="relative w-32 sm:w-40">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search logs, equipment, notes…"
@@ -122,7 +122,7 @@ export default function LogsTopFilterBar({ search, onSearchChange, filters, onFi
             key={view.id}
             onClick={() => handleViewClick(view.id)}
             className={cn(
-              'flex-shrink-0 h-7 px-3 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap',
+              'flex-shrink-0 h-6 px-2.5 rounded-full text-[9px] font-bold border transition-all whitespace-nowrap',
               activeView === view.id
                 ? 'bg-primary/25 text-primary border-primary/50 shadow-sm'
                 : 'bg-card border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
