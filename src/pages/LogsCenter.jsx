@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import LogsCommandHeader from '@/components/logcenter/LogsCommandHeader';
 import LogsCompactFilterBar from '@/components/logcenter/LogsCompactFilterBar';
@@ -9,55 +8,9 @@ import LogsViewTabs from '@/components/logcenter/LogsViewTabs';
 import AdvancedFilterSheet from '@/components/logcenter/AdvancedFilterSheet';
 import LogCard from '@/components/logcenter/LogCard';
 import UnifiedLogForm from '@/components/UnifiedLogForm';
-import LogsDesktopLayout from '@/components/logcenter/LogsDesktopLayout';
-
-const DEBUG_OVERFLOW = true; // Set to true to enable overflow debugging on mobile
-
-const DebugOverflowCheck = ({ name, children, className }) => {
-  const ref = useRef(null);
-  
-  useEffect(() => {
-    if (!DEBUG_OVERFLOW) return;
-    const el = ref.current;
-    if (!el) return;
-    
-    const checkOverflow = () => {
-      const clientWidth = el.clientWidth;
-      const scrollWidth = el.scrollWidth;
-      const diff = scrollWidth - clientWidth;
-      
-      if (diff > 0) {
-        console.log(`🔴 OVERFLOW DETECTED: ${name}`, {
-          element: name,
-          clientWidth,
-          scrollWidth,
-          difference: diff,
-          className: el.className,
-          overflow: diff > 1,
-        });
-      }
-    };
-    
-    checkOverflow();
-    window.addEventListener('resize', checkOverflow);
-    return () => window.removeEventListener('resize', checkOverflow);
-  }, [name]);
-  
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={DEBUG_OVERFLOW ? { border: '2px dashed rgba(255,100,100,0.5)', position: 'relative' } : {}}
-    >
-      {DEBUG_OVERFLOW && <div style={{ position: 'absolute', top: '-20px', left: '0', fontSize: '10px', color: 'red', backgroundColor: 'rgba(255,100,100,0.3)', padding: '2px 4px', zIndex: 999 }}>{name}</div>}
-      {children}
-    </div>
-  );
-};
 
 export default function LogsCenter() {
   const { user, isAdmin } = useCurrentUser();
-  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,29 +20,6 @@ export default function LogsCenter() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState({});
   const isMounted = useRef(true);
-
-  // Debug: log page dimensions on mobile
-  useEffect(() => {
-    if (!DEBUG_OVERFLOW) return;
-    const checkPageWidth = () => {
-      const bodyWidth = document.body.clientWidth;
-      const docWidth = document.documentElement.clientWidth;
-      const scrollWidth = document.documentElement.scrollWidth;
-      const windowWidth = window.innerWidth;
-      
-      console.log('📊 PAGE WIDTH DEBUG:', {
-        'window.innerWidth': windowWidth,
-        'document.documentElement.clientWidth': docWidth,
-        'document.documentElement.scrollWidth': scrollWidth,
-        'document.body.clientWidth': bodyWidth,
-        'scroll difference': scrollWidth - windowWidth,
-      });
-    };
-    
-    setTimeout(checkPageWidth, 100);
-    window.addEventListener('resize', checkPageWidth);
-    return () => window.removeEventListener('resize', checkPageWidth);
-  }, []);
 
   // Load logs
   useEffect(() => {
@@ -173,86 +103,44 @@ export default function LogsCenter() {
     );
   }
 
-  // Desktop layout for screens 1024px and above
-  if (!isMobile) {
-    return (
-      <>
-        <LogsDesktopLayout
-          logs={logs}
-          searchQuery={searchQuery}
-          onSearch={setSearchQuery}
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-          advancedFilters={advancedFilters}
-          onApplyAdvancedFilters={(filters) => {
-            setAdvancedFilters(filters);
-          }}
-          onClearAdvancedFilters={() => setAdvancedFilters({})}
-          viewMode={viewMode}
-          onViewChange={setViewMode}
-          onQuickAdd={() => setShowAddModal(true)}
-          filteredLogs={filteredLogs}
-        />
-        {showAddModal && (
-          <UnifiedLogForm
-            onClose={() => setShowAddModal(false)}
-            onSuccess={() => {
-              setShowAddModal(false);
-              toast.success('Log created');
-            }}
-          />
-        )}
-      </>
-    );
-  }
-
-  // Mobile layout for screens below 1024px
   return (
-    <DebugOverflowCheck name="PAGE_WRAPPER" className="w-full h-full bg-background flex flex-col overflow-hidden">
-      {/* Sticky Header Stack */}
-      <DebugOverflowCheck name="HEADER_STACK" className="flex-shrink-0 w-full overflow-x-hidden">
-        {/* Page Header */}
-        <LogsCommandHeader onQuickAdd={() => setShowAddModal(true)} />
+    <div className="pb-32 bg-background min-h-screen overflow-x-hidden lg:flex lg:flex-col">
+      {/* Header */}
+      <LogsCommandHeader onQuickAdd={() => setShowAddModal(true)} />
 
-        {/* Compact Filter Bar - Search + Button + Chips */}
-        <LogsCompactFilterBar
-          search={searchQuery}
-          onSearch={setSearchQuery}
-          activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
-          onShowAdvanced={() => setShowAdvancedFilters(true)}
-        />
+      {/* Compact Filter Bar */}
+      <LogsCompactFilterBar
+        search={searchQuery}
+        onSearch={setSearchQuery}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        onShowAdvanced={() => setShowAdvancedFilters(true)}
+      />
 
-        {/* View Tabs */}
-        <LogsViewTabs activeView={viewMode} onViewChange={setViewMode} />
-      </DebugOverflowCheck>
+      {/* View Tabs */}
+      <LogsViewTabs activeView={viewMode} onViewChange={setViewMode} />
 
-      {/* Scrollable Content Area */}
-      <DebugOverflowCheck name="CONTENT_AREA" className="flex-1 w-full overflow-y-auto overflow-x-hidden box-border">
-        <div className="w-full px-4 py-3 box-border">
-          {filteredLogs.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No logs found</p>
-              <p className="text-xs text-muted-foreground mt-1">Try adjusting filters</p>
-            </div>
-          ) : (
-            <DebugOverflowCheck name="LOG_LIST" className="space-y-2">
-              {filteredLogs.map((log) => (
-                <DebugOverflowCheck name={`LOG_CARD_${log.id.substring(0, 8)}`} className="w-full" key={log.id}>
-                  <LogCard
-                    log={log}
-                    onOpen={(logId) => {
-                      toast.info('Log detail view coming soon');
-                    }}
-                  />
-                </DebugOverflowCheck>
-              ))}
-            </DebugOverflowCheck>
-          )}
-        </div>
-        {/* Bottom padding for fixed nav */}
-        <div className="h-32" />
-      </DebugOverflowCheck>
+      {/* Content */}
+      <div className="flex-1 w-full px-4 py-3 lg:px-8 overflow-x-hidden box-border">
+        {filteredLogs.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No logs found</p>
+            <p className="text-xs text-muted-foreground mt-1">Try adjusting filters</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filteredLogs.map((log) => (
+              <LogCard
+                key={log.id}
+                log={log}
+                onOpen={(logId) => {
+                  toast.info('Log detail view coming soon');
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Add Log Modal */}
       {showAddModal && (
@@ -275,7 +163,7 @@ export default function LogsCenter() {
           setShowAdvancedFilters(false);
         }}
       />
-    </DebugOverflowCheck>
+    </div>
   );
 }
 

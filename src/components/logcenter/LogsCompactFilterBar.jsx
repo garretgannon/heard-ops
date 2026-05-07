@@ -3,16 +3,13 @@ import { haptics } from '@/utils/haptics';
 
 const QUICK_FILTERS = [
   { id: 'all', label: 'All' },
-  { id: 'temperature', label: 'Temperature' },
-  { id: 'bathroom', label: 'Bathroom' },
+  { id: 'needs_review', label: 'Needs Review' },
+  { id: 'open', label: 'Open' },
+  { id: 'temperature', label: 'Temps' },
   { id: 'maintenance', label: 'Maintenance' },
-  { id: 'incident', label: 'Incident' },
-  { id: 'employee_note', label: 'Employee Note' },
-  { id: 'manager_note', label: 'Manager Note' },
-  { id: 'waste', label: 'Waste' },
-  { id: 'eighty_six', label: '86' },
-  { id: 'chemical', label: 'Chemical' },
-  { id: 'custom', label: 'Custom' },
+  { id: 'incident', label: 'Incidents' },
+  { id: 'prep', label: 'Prep' },
+  { id: 'cleaning', label: 'Cleaning' },
 ];
 
 export default function LogsCompactFilterBar({ search, onSearch, activeFilter, onFilterChange, onShowAdvanced }) {
@@ -40,7 +37,7 @@ export default function LogsCompactFilterBar({ search, onSearch, activeFilter, o
 
       {/* Quick Filter Chips - Internal Scroll Only */}
       <div className="px-4 py-2 overflow-x-auto overflow-y-hidden scrollbar-hide w-full box-border" style={{ overscrollBehavior: 'contain' }}>
-        <div className="inline-flex gap-2">
+        <div className="flex gap-2 w-max">
           {QUICK_FILTERS.map((filter) => (
             <button
               key={filter.id}

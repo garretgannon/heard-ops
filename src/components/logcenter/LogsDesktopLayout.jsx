@@ -1,181 +1,149 @@
-import { Plus, Download, Settings, Search } from 'lucide-react';
-import { useState } from 'react';
-import { haptics } from '@/utils/haptics';
-import LogsMetricsRow from './LogsMetricsRow';
-import LogsAdvancedSidebar from './LogsAdvancedSidebar';
-import LogDetailDrawer from './LogDetailDrawer';
-import LogCard from './LogCard';
+import { useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
+import { Plus, Search, X, Calendar, List } from 'lucide-react';
+import FeedView from '@/components/activity-logs/FeedView';
+import LogsCalendarView from './LogsCalendarView';
+import LogsFilterSidebar from './LogsFilterSidebar';
+import LogsQuickActionsSidebar from './LogsQuickActionsSidebar';
+import { EMPTY_FILTERS } from '@/components/activity-logs/FilterPanel';
 
-const QUICK_FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'temperature', label: 'Temperatures' },
-  { id: 'maintenance', label: 'Maintenance' },
-  { id: 'incident', label: 'Incidents' },
-  { id: 'employee_note', label: 'Employee Notes' },
-  { id: 'manager_note', label: 'Manager Notes' },
-  { id: 'waste', label: 'Waste' },
-  { id: 'eighty_six', label: '86' },
-];
-
-export default function LogsDesktopLayout({
-  logs,
-  searchQuery,
-  onSearch,
-  activeFilter,
-  onFilterChange,
-  advancedFilters,
-  onApplyAdvancedFilters,
-  onClearAdvancedFilters,
-  viewMode,
-  onViewChange,
-  onQuickAdd,
-  filteredLogs,
+export default function LogsDesktopLayout({ 
+  logs, 
+  loading, 
+  onLogClick, 
+  filters, 
+  onFiltersChange,
+  search,
+  onSearchChange,
+  onCreateLog,
+  currentUser
 }) {
-  const [selectedLog, setSelectedLog] = useState(null);
-  const [showDetailDrawer, setShowDetailDrawer] = useState(false);
+  const [activeView, setActiveView] = useState('feed');
+  const [activeFilterCount, setActiveFilterCount] = useState(0);
 
-  const handleMetricClick = (metric) => {
-    // Map metric filters to active filter
-    if (metric === 'today') onFilterChange('all');
-    else if (metric === 'needs_review') onFilterChange('needs_review');
-    else if (metric === 'open') onFilterChange('open');
-    else if (metric === 'failed_temps') onFilterChange('temperature');
-    else if (metric === 'overdue_followup') onFilterChange('all');
-    else if (metric === 'resolved_today') onFilterChange('all');
-  };
+  const VIEWS = [
+    { id: 'feed', label: 'Feed', icon: List },
+    { id: 'calendar', label: 'Calendar', icon: Calendar },
+  ];
 
-  const handleLogClick = (logId) => {
-    const log = logs.find(l => l.id === logId);
-    if (log) {
-      setSelectedLog(log);
-      setShowDetailDrawer(true);
-    }
-  };
+  useMemo(() => {
+    let count = 0;
+    if (filters.types?.length) count++;
+    if (filters.statuses?.length) count++;
+    if (filters.priorities?.length) count++;
+    if (filters.datePreset || filters.dateFrom || filters.dateTo) count++;
+    if (filters.station || filters.area || filters.equipment) count++;
+    if (filters.requiresReview || filters.hasPhoto || filters.assignedToMe) count++;
+    setActiveFilterCount(count);
+  }, [filters]);
 
   return (
-    <div className="w-full h-full bg-background flex flex-col">
-      {/* Page Header */}
-      <div className="flex-shrink-0 border-b border-border/20 px-8 py-6">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Logs</h1>
-            <p className="text-sm text-muted-foreground mt-1">Track every operational record, issue, and shift note</p>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => { haptics.light?.(); onQuickAdd?.(); }}
-              className="h-11 px-4 rounded-lg bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition-all hover:brightness-110 flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              New Log
-            </button>
-            <button className="h-11 w-11 rounded-lg bg-card border border-border/40 text-muted-foreground flex items-center justify-center active:scale-95 transition-all hover:border-border/60">
-              <Download className="h-4 w-4" />
-            </button>
-            <button className="h-11 w-11 rounded-lg bg-card border border-border/40 text-muted-foreground flex items-center justify-center active:scale-95 transition-all hover:border-border/60">
-              <Settings className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
+    <div className="flex gap-4 h-[calc(100vh-80px)] bg-background">
+      {/* LEFT SIDEBAR - FILTERS */}
+      <LogsFilterSidebar
+        filters={filters}
+        onChange={onFiltersChange}
+        currentUser={currentUser}
+      />
 
-        {/* View Switcher */}
-        <div className="flex gap-1 bg-muted/30 rounded-lg p-1 w-fit">
-          {['feed', 'calendar', 'review', 'analytics'].map((view) => (
-            <button
-              key={view}
-              onClick={() => onViewChange?.(view)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                viewMode === view
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {view === 'feed' && 'Feed'}
-              {view === 'calendar' && 'Calendar'}
-              {view === 'review' && 'Review Queue'}
-              {view === 'analytics' && 'Analytics'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Metrics Row */}
-      <div className="flex-shrink-0 border-b border-border/20 px-8 py-4">
-        <LogsMetricsRow logs={logs} onMetricClick={handleMetricClick} />
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-hidden flex">
-        {/* Left Column - Feed */}
-        <div className="flex-1 overflow-y-auto flex flex-col">
-          {/* Search & Quick Filters */}
-          <div className="flex-shrink-0 border-b border-border/20 px-8 py-4 space-y-3">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search logs, employees, equipment, stations, notes..."
-                value={searchQuery}
-                onChange={(e) => onSearch(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-lg bg-card border border-border/40 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 box-border"
-              />
+      {/* CENTER - MAIN CONTENT */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <div className="border-b border-border/40 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-extrabold text-foreground">Logs</h1>
+              <p className="text-sm text-muted-foreground">Track every operational record, issue, checklist, and shift note</p>
             </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onCreateLog}
+                className="h-10 px-4 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 active:scale-95">
+                <Plus className="h-4 w-4" /> New Log
+              </button>
+            </div>
+          </div>
 
-            {/* Quick Filters */}
-            <div className="flex flex-wrap gap-2">
-              {QUICK_FILTERS.map((filter) => (
+          {/* View selector */}
+          <div className="flex items-center gap-2">
+            {VIEWS.map(v => {
+              const Icon = v.icon;
+              return (
                 <button
-                  key={filter.id}
-                  onClick={() => { haptics.light?.(); onFilterChange(filter.id); }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                    activeFilter === filter.id
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                      : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
-                  }`}
-                >
-                  {filter.label}
+                  key={v.id}
+                  onClick={() => setActiveView(v.id)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all",
+                    activeView === v.id
+                      ? "bg-primary/15 text-primary border-primary/30"
+                      : "bg-card border-border text-muted-foreground hover:bg-muted"
+                  )}>
+                  <Icon className="h-3.5 w-3.5" /> {v.label}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
-          {/* Log List */}
-          <div className="flex-1 overflow-y-auto px-8 py-4 space-y-2">
-            {filteredLogs.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No logs found</p>
-                <p className="text-xs text-muted-foreground mt-1">Try adjusting your search or filters</p>
-              </div>
-            ) : (
-              filteredLogs.map((log) => (
-                <LogCard
-                  key={log.id}
-                  log={log}
-                  onOpen={handleLogClick}
-                />
-              ))
+          {/* Search bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search logs, equipment, notes, tags…"
+              value={search}
+              onChange={e => onSearchChange(e.target.value)}
+              className="w-full h-10 pl-10 pr-10 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none"
+            />
+            {search && (
+              <button
+                onClick={() => onSearchChange('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
             )}
           </div>
+
+          {/* Active filter chips */}
+          {activeFilterCount > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {filters.types?.map(t => (
+                <span key={t} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/15 text-primary text-xs font-bold border border-primary/30">
+                  {t}
+                  <button onClick={() => onFiltersChange({ ...filters, types: filters.types.filter(x => x !== t) })}><X className="h-2.5 w-2.5" /></button>
+                </span>
+              ))}
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={() => onFiltersChange(EMPTY_FILTERS)}
+                  className="text-xs font-bold text-red-400 hover:text-red-300">
+                  Clear all ({activeFilterCount})
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Right Sidebar - Filters */}
-        <LogsAdvancedSidebar
-          filters={advancedFilters}
-          onApplyFilters={onApplyAdvancedFilters}
-          onClearFilters={onClearAdvancedFilters}
-        />
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-4 py-3">
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <>
+              {activeView === 'feed' && <FeedView logs={logs} onLogClick={onLogClick} />}
+              {activeView === 'calendar' && <LogsCalendarView logs={logs} onLogClick={onLogClick} />}
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Log Detail Drawer */}
-      <LogDetailDrawer
-        log={selectedLog}
-        isOpen={showDetailDrawer}
-        onClose={() => setShowDetailDrawer(false)}
-        onUpdate={(updatedLog) => {
-          // Handle log update
-          console.log('Update log:', updatedLog);
-        }}
+      {/* RIGHT SIDEBAR - QUICK ACTIONS */}
+      <LogsQuickActionsSidebar
+        logs={logs}
+        onLogClick={onLogClick}
+        onCreateLog={onCreateLog}
+        currentUser={currentUser}
       />
     </div>
   );
