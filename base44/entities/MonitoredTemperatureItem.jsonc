@@ -1,0 +1,110 @@
+{
+  "name": "MonitoredTemperatureItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Equipment/Item Name"
+    },
+    "type": {
+      "type": "string",
+      "title": "Type",
+      "enum": [
+        "refrigerator",
+        "freezer",
+        "hot_holding",
+        "cooling_log",
+        "custom"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "title": "Location/Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "assigned_role": {
+      "type": "string",
+      "title": "Assigned Role"
+    },
+    "assigned_employee_id": {
+      "type": "string",
+      "title": "Assigned Employee ID (Optional)"
+    },
+    "assigned_employee_name": {
+      "type": "string",
+      "title": "Assigned Employee Name"
+    },
+    "min_temperature": {
+      "type": "number",
+      "title": "Minimum Temperature (\u00b0F)"
+    },
+    "max_temperature": {
+      "type": "number",
+      "title": "Maximum Temperature (\u00b0F)"
+    },
+    "check_frequency_hours": {
+      "type": "number",
+      "title": "Check Frequency (Hours)"
+    },
+    "shift_assignment": {
+      "type": "string",
+      "title": "Shift Assignment",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all_day"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "active",
+        "inactive",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "grace_period_minutes": {
+      "type": "number",
+      "title": "Grace Period (Minutes)",
+      "default": 15
+    },
+    "corrective_action_required": {
+      "type": "boolean",
+      "title": "Corrective Action Required on Failure",
+      "default": true
+    },
+    "manager_review_required": {
+      "type": "boolean",
+      "title": "Manager Review Required on Failure",
+      "default": true
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By (User Email)"
+    },
+    "last_checked": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Check Timestamp"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Internal Notes"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "location",
+    "assigned_role",
+    "min_temperature",
+    "max_temperature",
+    "check_frequency_hours"
+  ]
+}

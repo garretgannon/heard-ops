@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Layout, BookOpen, Utensils, Building2, FileText, Settings, Users, BarChart3, Wrench, Clock } from 'lucide-react';
+import { Layout, BookOpen, Utensils, Building2, FileText, Settings, Users, BarChart3, Wrench, Clock, Thermometer } from 'lucide-react';
 import MoreSectionHeader from '@/components/more/MoreSectionHeader';
 import MoreRow from '@/components/more/MoreRow';
 
@@ -106,6 +106,12 @@ export default function More() {
               label="Role Preview"
               description="Preview the app as a specific role"
               onClick={() => navigate('/admin/role-simulator')}
+            />
+            <MoreRow
+              icon={Thermometer}
+              label="Temperature Monitoring"
+              description="Configure recurring temperature checks"
+              onClick={() => navigate('/temperature-monitoring')}
             />
           </div>
         </div>
