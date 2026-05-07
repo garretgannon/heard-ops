@@ -230,35 +230,43 @@ RoleAwareQuickActions component shows role-specific buttons:
 ✅ Document all button flows and form mappings  
 ✅ **NO CODE CHANGES**
 
-### Phase 2: Unified Task System (Next)
-**Goal**: Create a single `Task` entity that will serve prep, side work, and cleaning  
-**Changes**:
-- [ ] Create `Task` schema with fields: `type` (prep|sidework|cleaning|temperature|custom), `assignee`, `dueDate`, `status`, `metadata` (for type-specific data)
-- [ ] Create migration function to read from `PrepItem`, `SideWorkAssignment`, `DailyCleaningTask` and write to `Task`
-- [ ] Create reverse-compatibility view in `/prep-lists`, `/side-work`, `/cleaning` that query `Task` with filters
-- [ ] **NO DATA DELETED** - Keep originals as read-only archive
-- [ ] Update `/tasks` page to show all Task types
-- [ ] Wire quick actions to create Tasks instead of originals
+### Phase 2: Unified Task System (✅ CREATED)
+**Goal**: Create a single `Task` entity that will serve all task types  
+**Completed**:
+- ✅ Created `Task` entity schema with 25+ fields: `type`, `assignee`, `dueDate`, `status`, `priority`, `metadata`, etc.
+- ✅ Created `syncToUnifiedTasks.js` function to read from legacy tables and write to `Task`
+- ✅ Created `UnifiedTaskForm.jsx` component for creating all task types
+- ✅ All task types support: title, description, assignment, scheduling, priority, photo requirement, manager review, status tracking
+- ✅ Task types: prep, sidework, temperature, cleaning, waste, maintenance, incident, employee_note, manager_note, shift_handoff, beo_event
+- ✅ **NO DATA DELETED** - Original tables untouched; `source_entity` field tracks origin
 
-**Data Preservation**:
+**Data Structure**:
 ```
-PrepItem → Task { type: "prep", original_prep_item_id, ...metadata }
-SideWorkAssignment → Task { type: "sidework", original_sidework_id, ...metadata }
-DailyCleaningTask → Task { type: "cleaning", original_cleaning_id, ...metadata }
+PrepItem → Task { type: "prep", source_entity: "PrepItem", source_entity_id: "...", custom_metadata: {qty_needed, qty_completed, unit} }
+SideWorkAssignment → Task { type: "sidework", source_entity: "SideWorkAssignment", source_entity_id: "...", ... }
+CleaningLog → Task { type: "cleaning", source_entity: "CleaningLog", source_entity_id: "...", ... }
+TemperatureLog → Task { type: "temperature", source_entity: "TemperatureLog", source_entity_id: "...", custom_metadata: {temp_value, safe_min, safe_max} }
+WasteEntry → Task { type: "waste", source_entity: "WasteEntry", source_entity_id: "...", custom_metadata: {quantity, unit, reason, cost} }
 ```
 
-### Phase 3: Unified Log System (After Phase 2)
-**Goal**: Consolidate all logging (temperature, waste, incidents, notes) into Log system  
-**Changes**:
-- [ ] Verify Log schema covers all logTypes (temperature, waste, incident, employee, manager, maintenance, bathroom, eighty_six)
-- [ ] Create migration function to consolidate duplicate entities:
-  - WasteEntry → Log { logType: "waste" }
-  - IncidentReport → Log { logType: "incident" }
-  - EmployeeLog → Log { logType: "employee" }
-  - TemperatureLog → Log { logType: "temperature" }
-- [ ] Create reverse-compatibility views in each old route
-- [ ] **NO DATA DELETED** - Keep originals as read-only archive
-- [ ] Update `/logs` page to query unified Log system
+### Phase 3: Unified Log System (✅ CREATED)
+**Goal**: Create a single `UnifiedLog` entity for all logging activity  
+**Completed**:
+- ✅ Created `UnifiedLog` entity schema with 20+ fields: `type`, `location`, `employee_id`, `status`, `visibility`, `photo_urls`, `follow_up_required`, etc.
+- ✅ Created `UnifiedLogForm.jsx` component for recording all log types
+- ✅ Log types: temperature, bathroom, maintenance, incident, employee_note, manager_note, waste, eighty_86, chemical, custom
+- ✅ All logs support: title, description, location/equipment, employee tracking, visibility control, photos, attachments, follow-up assignment
+- ✅ Manager review workflow: requires_review, reviewed_by, reviewed_timestamp, review_status
+- ✅ **NO DATA DELETED** - Original tables untouched; `source_entity` field tracks origin
+
+**Data Structure**:
+```
+Log (existing) → UnifiedLog { type: "manager_note", source_entity: "Log", source_entity_id: "...", ... }
+TemperatureLog → UnifiedLog { type: "temperature", source_entity: "TemperatureLog", source_entity_id: "...", ... }
+IncidentReport → UnifiedLog { type: "incident", source_entity: "IncidentReport", source_entity_id: "...", ... }
+EmployeeLog → UnifiedLog { type: "employee_note", source_entity: "EmployeeLog", source_entity_id: "...", ... }
+WasteEntry → UnifiedLog { type: "waste", source_entity: "WasteEntry", source_entity_id: "...", ... }
+```
 
 ### Phase 4: UI/UX Consolidation (After Phases 2-3)
 **Changes**:
