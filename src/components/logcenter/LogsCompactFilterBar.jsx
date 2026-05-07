@@ -3,13 +3,16 @@ import { haptics } from '@/utils/haptics';
 
 const QUICK_FILTERS = [
   { id: 'all', label: 'All' },
-  { id: 'needs_review', label: 'Needs Review' },
-  { id: 'open', label: 'Open' },
-  { id: 'temperature', label: 'Temps' },
+  { id: 'temperature', label: 'Temperature' },
+  { id: 'bathroom', label: 'Bathroom' },
   { id: 'maintenance', label: 'Maintenance' },
-  { id: 'incident', label: 'Incidents' },
-  { id: 'prep', label: 'Prep' },
-  { id: 'cleaning', label: 'Cleaning' },
+  { id: 'incident', label: 'Incident' },
+  { id: 'employee_note', label: 'Employee Note' },
+  { id: 'manager_note', label: 'Manager Note' },
+  { id: 'waste', label: 'Waste' },
+  { id: 'eighty_six', label: '86' },
+  { id: 'chemical', label: 'Chemical' },
+  { id: 'custom', label: 'Custom' },
 ];
 
 export default function LogsCompactFilterBar({ search, onSearch, activeFilter, onFilterChange, onShowAdvanced }) {
