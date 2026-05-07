@@ -39,7 +39,8 @@ export default function LogsCenter() {
     isMounted.current = true;
     const loadLogs = async () => {
       try {
-        const allLogs = await base44.entities.UnifiedLog.list('-created_date', 500).catch(() => []);
+        // Reduced to 100 to avoid rate limit
+        const allLogs = await base44.entities.UnifiedLog.list('-created_date', 100).catch(() => []);
         const visibleLogs = user?.role === 'admin'
           ? allLogs
           : allLogs.filter((log) => {
