@@ -301,7 +301,7 @@ function DesktopPageHeader({ currentShift, onNotifications, onViewPlan }) {
     : null;
 
   return (
-    <div className="hidden lg:flex items-center justify-between px-6 pt-5 pb-4 border-b border-border/40">
+    <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
       <div>
         <div className="flex items-center gap-2.5">
           <h1 className="text-xl font-extrabold text-foreground">Today</h1>
@@ -612,7 +612,7 @@ export default function TodaysCommandCenter() {
       </div>
 
       {/* ── Desktop 3-Column Layout ── */}
-      <div className="hidden lg:grid lg:grid-cols-[280px_1fr_300px] lg:gap-5 lg:px-6 lg:py-5 lg:items-start">
+      <div className="hidden lg:grid lg:grid-cols-[260px_1fr_280px] lg:gap-6 lg:px-8 lg:py-6 lg:items-start">
 
         {/* LEFT: Shift Control */}
         <div className="space-y-4">

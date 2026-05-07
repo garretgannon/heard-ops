@@ -3,60 +3,28 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell, UserCircle, ChefHat,
-  LayoutDashboard, ClipboardList, Thermometer, CheckSquare,
+  LayoutDashboard, ClipboardList, Thermometer,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
-  UtensilsCrossed, CalendarDays, Users, Wrench, BookOpen,
-  AlertCircle, FileText, ChevronLeft, ChevronRight as ChevronRightIcon, Zap,
-  Shield,
+  UtensilsCrossed, ChevronLeft, ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
 import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 
-// Grouped desktop nav
+// Flat desktop nav matching mockup
 const DESKTOP_NAV = [
-  {
-    section: "Operations",
-    icon: Zap,
-    items: [
-      { path: "/", label: "Today", icon: LayoutDashboard },
-      { path: "/tasks", label: "My Tasks", icon: CheckSquare },
-      { path: "/prep-lists", label: "Prep Lists", icon: ClipboardList },
-      { path: "/side-work", label: "Side Work", icon: UtensilsCrossed },
-      { path: "/temp-logs", label: "Temp Logs", icon: Thermometer },
-      { path: "/logs", label: "Logs", icon: FileText },
-      { path: "/issues", label: "Issues", icon: AlertCircle },
-    ],
-  },
-  {
-    section: "Knowledge",
-    icon: BookOpen,
-    items: [
-      { path: "/recipes", label: "Recipes", icon: ChefHat },
-      { path: "/inventory", label: "Inventory", icon: Warehouse },
-      { path: "/vendors", label: "Vendors", icon: Truck },
-      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-    ],
-  },
-  {
-    section: "Schedule",
-    icon: CalendarDays,
-    items: [
-      { path: "/schedule", label: "Schedule", icon: CalendarDays },
-      { path: "/reservations", label: "BEOs & Reservations", icon: BookOpen },
-    ],
-  },
-  {
-    section: "Admin",
-    icon: Shield,
-    items: [
-      { path: "/templates", label: "Templates", icon: LayoutTemplate },
-      { path: "/team", label: "Team & Roles", icon: Users },
-      { path: "/profile", label: "Settings", icon: Settings },
-    ],
-    adminOnly: true,
-  },
+  { path: "/", label: "Today", icon: LayoutDashboard },
+  { path: "/prep-lists", label: "Prep", icon: ClipboardList },
+  { path: "/more", label: "Overview", icon: LayoutDashboard },
+  { path: "/temp-logs", label: "Temps", icon: Thermometer },
+  { path: "/side-work", label: "Side Work", icon: UtensilsCrossed },
+  { path: "/recipes", label: "Recipes", icon: ChefHat },
+  { path: "/inventory", label: "Inventory", icon: Warehouse },
+  { path: "/vendors", label: "Vendors", icon: Truck },
+  { path: "/templates", label: "Templates", icon: LayoutTemplate },
+  { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+  { path: "/profile", label: "Settings", icon: Settings },
 ];
 
 export default function Layout() {
@@ -149,76 +117,58 @@ export default function Layout() {
             <div className="min-w-0 flex-1">
               <h1 className="font-extrabold text-[15px] tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
               {restaurantName
-                ? <p className="text-[10px] text-primary/80 font-semibold tracking-wide uppercase truncate">{restaurantName}</p>
-                : <p className="text-[10px] text-muted-foreground tracking-wide uppercase">Restaurant Ops</p>
+                ? <p className="text-[10px] text-muted-foreground font-medium tracking-wide truncate">{restaurantName}</p>
+                : <p className="text-[10px] text-muted-foreground tracking-wide">Restaurant Ops</p>
               }
             </div>
           )}
         </div>
 
-        {/* Role context badge */}
-        {!collapsed && isAdmin && (
-          <div className="mx-3 mt-2.5 mb-0 px-2.5 py-1.5 rounded-lg bg-primary/8 border border-primary/15 flex items-center gap-2">
-            <Shield className="h-3 w-3 text-primary shrink-0" />
-            <span className="text-[10px] font-bold text-primary uppercase tracking-wide truncate">Admin View</span>
-          </div>
-        )}
-
-        {/* Nav sections */}
+        {/* Nav items — flat list */}
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-          {DESKTOP_NAV.map((group) => {
-            if (group.adminOnly && !isAdmin) return null;
+          {DESKTOP_NAV.map(item => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path ||
+              (item.path !== '/' && location.pathname.startsWith(item.path));
             return (
-              <div key={group.section} className="mb-3">
-                {!collapsed && (
-                  <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground/60 px-2 mb-1">{group.section}</p>
-                )}
+              <div key={item.path} className="relative group/navitem">
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center text-sm font-medium transition-all duration-100",
+                    collapsed ? "justify-center h-9 w-9 mx-auto rounded-lg" : "gap-3 px-3 py-2 rounded-xl",
+                    isActive
+                      ? "bg-primary text-white shadow-sm shadow-primary/30"
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  )}
+                >
+                  <Icon className={cn("shrink-0 h-4 w-4", isActive ? "text-white" : "")} />
+                  {!collapsed && <span className="truncate font-semibold text-[13px]">{item.label}</span>}
+                </Link>
                 {collapsed && (
-                  <div className="border-t border-border/20 my-2 mx-1" />
+                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs font-medium text-foreground whitespace-nowrap opacity-0 group-hover/navitem:opacity-100 pointer-events-none transition-opacity z-50 shadow-lg">
+                    {item.label}
+                  </div>
                 )}
-                {group.items.map(item => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.path ||
-                    (item.path !== '/' && location.pathname.startsWith(item.path));
-                  return (
-                    <div key={item.path} className="relative group/navitem">
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center rounded-lg text-sm font-medium transition-all duration-100",
-                          collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2.5 px-2.5 py-2",
-                          isActive
-                            ? "bg-primary/15 text-primary"
-                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                        )}
-                      >
-                        <Icon className={cn("shrink-0", isActive ? "h-4 w-4 text-primary" : "h-4 w-4")} />
-                        {!collapsed && <span className="truncate">{item.label}</span>}
-                        {!collapsed && isActive && (
-                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                        )}
-                      </Link>
-                      {/* Tooltip for collapsed mode */}
-                      {collapsed && (
-                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs font-medium text-foreground whitespace-nowrap opacity-0 group-hover/navitem:opacity-100 pointer-events-none transition-opacity z-50 shadow-lg">
-                          {item.label}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
               </div>
             );
           })}
         </nav>
+
+        {/* Bottom info card */}
+        {!collapsed && (
+          <div className="mx-2 mb-2 p-3 rounded-xl bg-white/4 border border-border/30">
+            <p className="text-[11px] font-semibold text-foreground/70 leading-relaxed">The daily operating system for restaurants.</p>
+          </div>
+        )}
 
         {/* Collapse toggle */}
         <div className="border-t border-border/20 p-2">
           <button
             onClick={toggleCollapsed}
             className={cn(
-              "flex items-center rounded-lg text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all duration-100 w-full",
-              collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2 px-2.5 py-2"
+              "flex items-center rounded-xl text-xs font-medium text-muted-foreground hover:bg-white/5 hover:text-foreground transition-all duration-100 w-full",
+              collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2 px-3 py-2"
             )}
           >
             {collapsed
@@ -230,7 +180,7 @@ export default function Layout() {
 
       {/* Main content area */}
       <main
-        className={cn("min-h-screen flex flex-col transition-all duration-200", collapsed ? "lg:pl-[60px]" : "lg:pl-60")}
+        className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[60px]" : "lg:pl-60")}
         style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
       >
         {isMobile && isTabRoute(location.pathname) ? (
@@ -247,7 +197,7 @@ export default function Layout() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:w-full lg:mx-0 px-4 pt-3 lg:px-8 lg:pt-6 lg:pb-8"
+              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-0 lg:pt-0 lg:pb-8"
               style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
             >
               <Outlet />
