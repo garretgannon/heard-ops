@@ -23,7 +23,7 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
         city: formData.city,
         state: formData.state,
         birthday: formData.birthday,
-        job_code: formData.job_code,
+
         department: formData.department,
         rate_of_pay: formData.rate_of_pay,
         start_date: formData.start_date,
@@ -175,17 +175,6 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
                   <option value="BOH">BOH</option>
                   <option value="Bar">Bar</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Job Code</label>
-                <input
-                  type="text"
-                  value={formData.job_code || ''}
-                  onChange={(e) => setFormData({ ...formData, job_code: e.target.value })}
-                  placeholder="e.g., MGR001"
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
               </div>
 
               <div>
