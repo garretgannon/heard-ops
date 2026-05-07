@@ -485,6 +485,10 @@ export default function TodaysCommandCenter() {
     );
   }
 
+  if (isAdmin && !currentShift) {
+    setShiftLaunched(true);
+  }
+
   const isDashboardLocked = currentShift?.status === "running" && !shiftLaunched;
   const urgencyCount = (data.overdue?.length || 0) + (data.needsReview || 0);
 
@@ -521,11 +525,13 @@ export default function TodaysCommandCenter() {
             </div>
           )}
           <div className="space-y-2">
-            {!currentShift ? (
+            {!isAdmin && !currentShift ? (
               <button onClick={() => setShowStartModal(true)}
                 className="w-full h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
                 <Zap className="h-4 w-4" /> Start Shift
               </button>
+            ) : isAdmin && !currentShift ? (
+              <div className="text-xs text-muted-foreground p-2 text-center">No active shift</div>
             ) : currentShift.status === "setup" ? (
               <button disabled className="w-full h-9 rounded-lg bg-primary/50 text-primary-foreground font-bold text-sm cursor-not-allowed">
                 Completing Setup...
