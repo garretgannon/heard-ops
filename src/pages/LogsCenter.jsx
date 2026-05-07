@@ -4,6 +4,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
 import LogsCommandHeader from '@/components/logcenter/LogsCommandHeader';
 import LogsCompactFilterBar from '@/components/logcenter/LogsCompactFilterBar';
+import LogsViewTabs from '@/components/logcenter/LogsViewTabs';
 import AdvancedFilterSheet from '@/components/logcenter/AdvancedFilterSheet';
 import LogCard from '@/components/logcenter/LogCard';
 import UnifiedLogForm from '@/components/UnifiedLogForm';
@@ -14,6 +15,7 @@ export default function LogsCenter() {
   const [logs, setLogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('feed');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState({});
@@ -114,6 +116,9 @@ export default function LogsCenter() {
         onFilterChange={setActiveFilter}
         onShowAdvanced={() => setShowAdvancedFilters(true)}
       />
+
+      {/* View Tabs */}
+      <LogsViewTabs activeView={viewMode} onViewChange={setViewMode} />
 
       {/* Content */}
       <div className="flex-1 px-4 py-4 lg:px-8 max-w-4xl mx-auto w-full">
