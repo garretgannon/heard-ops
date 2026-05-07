@@ -3,10 +3,10 @@ import { haptics } from '@/utils/haptics';
 
 export default function LogsCommandHeader({ onQuickAdd }) {
   return (
-    <div className="sticky top-0 z-20 bg-background border-b border-border/20 px-4 py-3 lg:px-8">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-extrabold text-foreground">Logs</h1>
+    <div className="sticky top-0 z-20 bg-background border-b border-border/20 px-4 py-3 lg:px-8 w-full overflow-x-hidden box-border">
+      <div className="flex items-center justify-between gap-3 w-full">
+        <div className="min-w-0">
+          <h1 className="text-xl font-extrabold text-foreground truncate">Logs</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Operations and compliance</p>
         </div>
         <button

@@ -104,7 +104,7 @@ export default function LogsCenter() {
   }
 
   return (
-    <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
+    <div className="pb-32 bg-background min-h-screen overflow-x-hidden lg:flex lg:flex-col">
       {/* Header */}
       <LogsCommandHeader onQuickAdd={() => setShowAddModal(true)} />
 
@@ -121,11 +121,11 @@ export default function LogsCenter() {
       <LogsViewTabs activeView={viewMode} onViewChange={setViewMode} />
 
       {/* Content */}
-      <div className="flex-1 px-4 py-4 lg:px-8 max-w-4xl mx-auto w-full">
+      <div className="flex-1 w-full px-4 py-3 lg:px-8 overflow-x-hidden">
         {filteredLogs.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-8">
             <p className="text-muted-foreground">No logs found</p>
-            <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters or search</p>
+            <p className="text-xs text-muted-foreground mt-1">Try adjusting filters</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -134,7 +134,6 @@ export default function LogsCenter() {
                 key={log.id}
                 log={log}
                 onOpen={(logId) => {
-                  // TODO: Open log detail modal
                   toast.info('Log detail view coming soon');
                 }}
               />

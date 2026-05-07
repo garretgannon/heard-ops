@@ -8,8 +8,8 @@ const VIEW_OPTIONS = [
 
 export default function LogsViewTabs({ activeView, onViewChange }) {
   return (
-    <div className="px-4 py-2 border-b border-border/20 bg-background">
-      <div className="flex gap-2">
+    <div className="w-full px-4 py-2 border-b border-border/20 bg-background overflow-x-hidden box-border">
+      <div className="flex gap-2 w-full">
         {VIEW_OPTIONS.map((view) => (
           <button
             key={view.id}
