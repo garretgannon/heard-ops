@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload, Download } from 'lucide-react';
@@ -43,6 +43,111 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   );
 }
 
+const UNITS = ['lbs','oz','kg','g','portions','each','batches','gallons','quarts','cups','tbsp','tsp','bags','cases','pans','trays','slices','pieces','servings','liters','ml','other'];
+
+const BLANK_ITEM = () => ({ itemName: '', quantity: 1, unit: 'lbs', priority: 'medium', jobCode: 'Prep Cook', notes: '', sortOrder: 0 });
+
+function BulkItemEntry({ items, onChange }) {
+  const rowRefs = useRef([]);
+
+  const updateItem = (idx, field, value) => {
+    const updated = [...items];
+    updated[idx] = { ...updated[idx], [field]: value };
+    onChange(updated);
+  };
+
+  const addRow = useCallback((afterIdx) => {
+    const updated = [
+      ...items.slice(0, afterIdx + 1),
+      BLANK_ITEM(),
+      ...items.slice(afterIdx + 1),
+    ];
+    onChange(updated);
+    setTimeout(() => {
+      rowRefs.current[afterIdx + 1]?.querySelector('[data-field="name"]')?.focus();
+    }, 30);
+  }, [items, onChange]);
+
+  const removeRow = (idx) => {
+    if (items.length === 1) { onChange([BLANK_ITEM()]); return; }
+    onChange(items.filter((_, i) => i !== idx));
+    setTimeout(() => {
+      rowRefs.current[Math.max(0, idx - 1)]?.querySelector('[data-field="name"]')?.focus();
+    }, 30);
+  };
+
+  const handleNameKeyDown = (e, idx) => {
+    if (e.key === 'Enter') { e.preventDefault(); addRow(idx); }
+    if (e.key === 'Backspace' && items[idx].itemName === '' && items.length > 1) { e.preventDefault(); removeRow(idx); }
+  };
+
+  const handleEnter = (e, idx) => {
+    if (e.key === 'Enter') { e.preventDefault(); addRow(idx); }
+  };
+
+  return (
+    <div className="space-y-0.5">
+      <div className="grid grid-cols-[1fr_60px_108px_76px_28px] gap-1.5 px-1 mb-1">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Item Name</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Qty</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Unit</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Priority</span>
+        <span />
+      </div>
+      {items.map((item, idx) => (
+        <div key={idx} ref={el => rowRefs.current[idx] = el} className="grid grid-cols-[1fr_60px_108px_76px_28px] gap-1.5 items-center">
+          <input
+            data-field="name"
+            type="text"
+            placeholder="Item name…"
+            value={item.itemName}
+            onChange={e => updateItem(idx, 'itemName', e.target.value)}
+            onKeyDown={e => handleNameKeyDown(e, idx)}
+            className="w-full h-8 px-2.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            autoComplete="off"
+          />
+          <input
+            data-field="qty"
+            type="number"
+            min="0"
+            step="0.5"
+            value={item.quantity}
+            onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value) || '')}
+            onKeyDown={e => handleEnter(e, idx)}
+            className="w-full h-8 px-2 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none text-center"
+          />
+          <select
+            data-field="unit"
+            value={item.unit || 'lbs'}
+            onChange={e => updateItem(idx, 'unit', e.target.value)}
+            onKeyDown={e => handleEnter(e, idx)}
+            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+          >
+            {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+          </select>
+          <select
+            data-field="priority"
+            value={item.priority || 'medium'}
+            onChange={e => updateItem(idx, 'priority', e.target.value)}
+            onKeyDown={e => handleEnter(e, idx)}
+            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+          >
+            <option value="high">🔴 High</option>
+            <option value="medium">🟡 Med</option>
+            <option value="low">🔵 Low</option>
+          </select>
+          <button onClick={() => removeRow(idx)} tabIndex={-1} className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ))}
+      <button onClick={() => addRow(items.length - 1)} className="w-full h-8 mt-1 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1.5">
+        <Plus className="h-3.5 w-3.5" /> Add item <span className="text-[10px] opacity-60">(or press Enter on any row)</span>
+      </button>
+    </div>
+  );
+}
+
 function TemplateForm({ template, onSave, onCancel }) {
   const [name, setName] = useState(template?.name || '');
   const [station, setStation] = useState(template?.station || '');
@@ -53,11 +158,13 @@ function TemplateForm({ template, onSave, onCancel }) {
   const [requiresPhoto, setRequiresPhoto] = useState(template?.requiresPhoto || false);
   const [requiresManagerReview, setRequiresManagerReview] = useState(template?.requiresManagerReview || false);
   const [notes, setNotes] = useState(template?.notes || '');
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState([BLANK_ITEM()]);
 
   useEffect(() => {
     if (template?.id) {
-      base44.entities.PrepTemplateItem.filter({ prepTemplateId: template.id }).then(setItems);
+      base44.entities.PrepTemplateItem.filter({ prepTemplateId: template.id }).then(loaded => {
+        setItems(loaded.length > 0 ? loaded : [BLANK_ITEM()]);
+      });
     }
   }, [template?.id]);
 
@@ -65,19 +172,7 @@ function TemplateForm({ template, onSave, onCancel }) {
     setRepeatDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day].sort((a, b) => a - b));
   };
 
-  const addItem = () => {
-    setItems([...items, { itemName: '', quantity: 1, unit: '', priority: 'medium', jobCode: 'Prep Cook', sortOrder: items.length }]);
-  };
 
-  const updateItem = (idx, field, value) => {
-    const updated = [...items];
-    updated[idx][field] = value;
-    setItems(updated);
-  };
-
-  const removeItem = (idx) => {
-    setItems(items.filter((_, i) => i !== idx));
-  };
 
   const handleSave = async () => {
     if (!name || !station || !jobCode) {
@@ -221,73 +316,11 @@ function TemplateForm({ template, onSave, onCancel }) {
       />
 
       <div className="border-t border-border pt-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-bold text-secondary-text">Items ({items.length})</p>
-          <button onClick={addItem} className="text-xs btn-secondary px-2 py-1">
-            <Plus className="h-3 w-3 inline mr-1" />
-            Add
-          </button>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-bold text-secondary-text">Items ({items.filter(i => i.itemName).length})</p>
+          <span className="text-[10px] text-muted-foreground">Tab between fields · Enter for new row</span>
         </div>
-
-        <div className="space-y-2">
-          {items.map((item, idx) => (
-            <div key={idx} className="bg-background border border-border rounded-lg p-2 space-y-2">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Item name"
-                  value={item.itemName}
-                  onChange={(e) => updateItem(idx, 'itemName', e.target.value)}
-                  className="flex-1 px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
-                />
-                <button onClick={() => removeItem(idx)} className="btn-secondary text-xs px-2 shrink-0">
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <input
-                  type="number"
-                  placeholder="Qty"
-                  value={item.quantity}
-                  onChange={(e) => updateItem(idx, 'quantity', parseFloat(e.target.value))}
-                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
-                />
-                <input
-                  type="text"
-                  placeholder="Unit"
-                  value={item.unit}
-                  onChange={(e) => updateItem(idx, 'unit', e.target.value)}
-                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
-                />
-                <select
-                  value={item.priority || 'medium'}
-                  onChange={(e) => updateItem(idx, 'priority', e.target.value)}
-                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  placeholder="Job code (optional)"
-                  value={item.jobCode || 'Prep Cook'}
-                  onChange={(e) => updateItem(idx, 'jobCode', e.target.value)}
-                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
-                />
-                <input
-                  type="text"
-                  placeholder="Notes (optional)"
-                  value={item.notes || ''}
-                  onChange={(e) => updateItem(idx, 'notes', e.target.value)}
-                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <BulkItemEntry items={items} onChange={setItems} />
       </div>
 
       <div className="flex gap-2 pt-4">
