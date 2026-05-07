@@ -11,8 +11,8 @@ const TABS = [
 
 export default function TeamTabNav({ activeTab, onTabChange, canManageRoles }) {
   return (
-    <div className="border-b border-border/20 px-4 lg:px-8">
-      <div className="flex gap-1">
+    <div className="border-b border-border/20 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-1 px-4 lg:px-8 min-w-min">
         {TABS.map(({ id, label, icon: IconComponent }) => {
           if (id === 'roles' && !canManageRoles) return null;
           
@@ -22,7 +22,7 @@ export default function TeamTabNav({ activeTab, onTabChange, canManageRoles }) {
               key={id}
               onClick={() => { haptics.light?.(); onTabChange?.(id); }}
               className={cn(
-                'flex items-center gap-2 px-4 py-3 border-b-2 font-semibold text-sm transition-all',
+                'flex items-center gap-2 px-4 py-3 border-b-2 font-semibold text-sm transition-all whitespace-nowrap',
                 isActive
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
