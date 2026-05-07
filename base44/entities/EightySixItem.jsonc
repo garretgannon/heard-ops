@@ -4,65 +4,89 @@
   "properties": {
     "item_name": {
       "type": "string",
-      "title": "Item Name"
-    },
-    "category": {
-      "type": "string",
-      "title": "Category",
-      "enum": [
-        "Kitchen",
-        "Bar",
-        "Bakery",
-        "Prep",
-        "Other"
-      ],
-      "enumNames": [
-        "Kitchen",
-        "Bar",
-        "Bakery",
-        "Prep",
-        "Other"
-      ]
+      "title": "Item Unavailable"
     },
     "reason": {
       "type": "string",
       "title": "Reason"
     },
-    "severity": {
+    "area_menu_category": {
       "type": "string",
-      "title": "Severity",
+      "title": "Area / Menu Category"
+    },
+    "date_time_started": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Date/Time Started"
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    },
+    "expected_return_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Expected Return Date"
+    },
+    "expected_return_time": {
+      "type": "string",
+      "title": "Expected Return Time"
+    },
+    "linked_inventory_item_id": {
+      "type": "string",
+      "title": "Linked Inventory Item ID"
+    },
+    "linked_recipe_id": {
+      "type": "string",
+      "title": "Linked Recipe/Menu Item ID"
+    },
+    "notify_roles": {
+      "type": "array",
+      "title": "Notify Roles",
+      "items": {
+        "type": "string",
+        "enum": [
+          "managers",
+          "servers",
+          "bartenders",
+          "cooks"
+        ]
+      },
+      "default": []
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
       "enum": [
-        "low",
-        "medium",
-        "high"
+        "active",
+        "resolved",
+        "back_in_stock"
       ],
-      "enumNames": [
-        "Low",
-        "Medium",
-        "High"
-      ],
-      "default": "medium"
+      "default": "active"
     },
-    "marked_at": {
+    "resolution_notes": {
       "type": "string",
-      "title": "Marked 86 At (ISO)"
-    },
-    "marked_by": {
-      "type": "string",
-      "title": "Marked By"
-    },
-    "is_active": {
-      "type": "boolean",
-      "title": "Still 86'd",
-      "default": true
+      "title": "Resolution Notes"
     },
     "resolved_at": {
       "type": "string",
-      "title": "Resolved At (ISO)"
+      "format": "date-time",
+      "title": "Resolved At"
+    },
+    "marked_back_in_stock_by": {
+      "type": "string",
+      "title": "Marked Back In Stock By"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
     }
   },
   "required": [
     "item_name",
-    "category"
+    "reason",
+    "area_menu_category",
+    "date_time_started",
+    "logged_by"
   ]
 }

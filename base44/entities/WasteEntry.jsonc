@@ -2,13 +2,9 @@
   "name": "WasteEntry",
   "type": "object",
   "properties": {
-    "itemName": {
+    "item_name": {
       "type": "string",
-      "title": "Item Name"
-    },
-    "purchasedItemId": {
-      "type": "string",
-      "title": "Linked Purchased Item ID"
+      "title": "Item Wasted"
     },
     "quantity": {
       "type": "number",
@@ -18,35 +14,56 @@
       "type": "string",
       "title": "Unit"
     },
-    "estimatedCost": {
-      "type": "number",
-      "title": "Estimated Waste Cost ($)"
-    },
     "reason": {
       "type": "string",
-      "title": "Waste Reason",
+      "title": "Reason",
       "enum": [
-        "Expired",
-        "Overproduction",
+        "Spoiled",
+        "Overproduced",
+        "Burned",
         "Dropped",
-        "Contaminated",
-        "Trimming/Prep",
-        "Temperature Abuse",
+        "Expired",
+        "Guest return",
         "Other"
       ]
     },
-    "wasteDate": {
+    "station_area": {
+      "type": "string",
+      "title": "Station/Area"
+    },
+    "logged_by": {
+      "type": "string",
+      "title": "Logged By"
+    },
+    "waste_date": {
       "type": "string",
       "format": "date",
       "title": "Waste Date"
     },
-    "wasteTime": {
+    "waste_time": {
       "type": "string",
       "title": "Waste Time"
     },
-    "wastedBy": {
+    "estimated_cost": {
+      "type": "number",
+      "title": "Estimated Cost ($)"
+    },
+    "photo_url": {
       "type": "string",
-      "title": "Logged By"
+      "title": "Photo URL"
+    },
+    "purchased_item_id": {
+      "type": "string",
+      "title": "Linked Purchased Item ID"
+    },
+    "recipe_id": {
+      "type": "string",
+      "title": "Linked Recipe ID"
+    },
+    "manager_review_required": {
+      "type": "boolean",
+      "title": "Manager Review Required",
+      "default": false
     },
     "notes": {
       "type": "string",
@@ -54,6 +71,12 @@
     }
   },
   "required": [
-    "itemName"
+    "item_name",
+    "quantity",
+    "unit",
+    "reason",
+    "station_area",
+    "logged_by",
+    "waste_date"
   ]
 }
