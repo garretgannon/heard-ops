@@ -238,8 +238,8 @@ export default function StaffTasks() {
 
   const load = async () => {
     const [prepItems, sideWork] = await Promise.all([
-      base44.entities.PrepItem.list("-created_date", 500),
-      base44.entities.SideWorkAssignment.filter({ date: todayStr }),
+      base44.entities.PrepItem.list("-created_date", 100).catch(() => rawCache.prepItems || []),
+      base44.entities.SideWorkAssignment.filter({ date: todayStr }).catch(() => rawCache.sideWork || []),
     ]);
     rawCache.prepItems = prepItems;
     rawCache.sideWork = sideWork;
