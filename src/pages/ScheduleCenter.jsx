@@ -13,6 +13,19 @@ import ViewModeSwitcher from '@/components/schedule/ViewModeSwitcher';
 import WeekSelector from '@/components/schedule/WeekSelector';
 import TodayShiftView from '@/components/schedule/TodayShiftView';
 
+const FAKE_EMPLOYEES = [
+  { id: '1', name: 'Alex R.', role: 'Manager', email: 'alex@heard.com', weeklyHours: 40 },
+  { id: '2', name: 'Jamie L.', role: 'Sous Chef', email: 'jamie@heard.com', weeklyHours: 40 },
+  { id: '3', name: 'Taylor S.', role: 'Bartender', email: 'taylor@heard.com', weeklyHours: 32 },
+  { id: '4', name: 'Morgan K.', role: 'Server', email: 'morgan@heard.com', weeklyHours: 35 },
+  { id: '5', name: 'Casey M.', role: 'Line Cook', email: 'casey@heard.com', weeklyHours: 38 },
+  { id: '6', name: 'Riley D.', role: 'Prep Cook', email: 'riley@heard.com', weeklyHours: 39 },
+  { id: '7', name: 'Jordan P.', role: 'Dishwasher', email: 'jordan@heard.com', weeklyHours: 24 },
+  { id: '8', name: 'Avery S.', role: 'Host', email: 'avery@heard.com', weeklyHours: 24 },
+  { id: '9', name: 'Dakota N.', role: 'Server', email: 'dakota@heard.com', weeklyHours: 36 },
+  { id: '10', name: 'Quinn M.', role: 'Bartender', email: 'quinn@heard.com', weeklyHours: 33 },
+];
+
 export default function ScheduleCenter() {
   const { user, isAdmin } = useCurrentUser();
   const [currentWeek, setCurrentWeek] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -45,7 +58,7 @@ export default function ScheduleCenter() {
         base44.entities.Employee?.list?.('-created_date', 100).catch(() => []),
       ]);
       setShifts(shiftsData);
-      setEmployees(employeesData || []);
+      setEmployees(employeesData || FAKE_EMPLOYEES);
     } catch (e) {
       console.error('Error loading schedule:', e);
     }
