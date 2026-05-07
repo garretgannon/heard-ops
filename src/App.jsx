@@ -121,7 +121,7 @@ const AuthenticatedApp = () => {
         <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
 
         {/* COMPLIANCE ROUTES */}
-        <Route path="/temp-logs" element={<TempLogs />} />
+        <Route path="/temp-logs" element={<Navigate to="/logs?view=temperature" replace />} />
         <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
         <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
         <Route path="/waste-86" element={<WasteLog />} />
@@ -154,7 +154,7 @@ const AuthenticatedApp = () => {
         <Route path="/admin/command-center" element={<AdminCommandCenter />} />
 
         {/* OPERATIONS ROUTES */}
-        <Route path="/issues" element={<IssueTracker />} />
+        <Route path="/issues" element={<Navigate to="/logs?view=issues" replace />} />
         <Route path="/schedule" element={<ScheduleCenter />} />
         <Route path="/inventory" element={<InventorySimplified />} />
         <Route path="/team" element={<RestaurantTeam />} />
@@ -177,10 +177,10 @@ const AuthenticatedApp = () => {
         <Route path="/RecipesAndBuildCards" element={<Navigate to="/recipes" replace />} />
         <Route path="/ManagerLog" element={<Navigate to="/logs" replace />} />
         <Route path="/NewLog" element={<Navigate to="/logs" replace />} />
-        <Route path="/MaintenanceRequests" element={<Navigate to="/issues" replace />} />
-        <Route path="/IncidentReports" element={<Navigate to="/issues" replace />} />
-        <Route path="/Incidents" element={<Navigate to="/issues" replace />} />
-        <Route path="/IssueTracker" element={<Navigate to="/issues" replace />} />
+        <Route path="/MaintenanceRequests" element={<Navigate to="/logs?view=maintenance" replace />} />
+        <Route path="/IncidentReports" element={<Navigate to="/logs?view=incident" replace />} />
+        <Route path="/Incidents" element={<Navigate to="/logs?view=incident" replace />} />
+        <Route path="/IssueTracker" element={<Navigate to="/logs?view=issues" replace />} />
         <Route path="/Calendar" element={<Navigate to="/schedule" replace />} />
         <Route path="/EmployeeCalendar" element={<Navigate to="/schedule" replace />} />
         <Route path="/ScheduleImport" element={<Navigate to="/schedule" replace />} />
