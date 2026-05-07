@@ -8,7 +8,6 @@ import LogCard from '@/components/logcenter/LogCard';
 import LogsMetricsRow from '@/components/logcenter/LogsMetricsRow';
 import LogsDetailDrawer from '@/components/logcenter/LogsDetailDrawer';
 import LogsFilterSidebar from '@/components/logcenter/LogsFilterSidebar';
-import LogsActiveFilters from '@/components/logcenter/LogsActiveFilters';
 import LogsReviewQueueView from '@/components/logcenter/LogsReviewQueueView';
 import LogTypeSelector from '@/components/logcenter/LogTypeSelector';
 import LogsCalendarView from '@/components/logcenter/LogsCalendarView';
@@ -200,23 +199,6 @@ export default function LogsCenter() {
             ))}
           </div>
           </div>
-
-          {/* Active Filters Row */}
-          {Object.keys(advancedFilters).length > 0 && (
-          <LogsActiveFilters
-           filters={advancedFilters}
-           onRemoveFilter={(label) => {
-             const newFilters = { ...advancedFilters };
-             Object.keys(newFilters).forEach((key) => {
-               if (Array.isArray(newFilters[key])) {
-                 newFilters[key] = newFilters[key].filter((v) => v.replace(/_/g, ' ') !== label);
-               }
-             });
-             setAdvancedFilters(newFilters);
-           }}
-           onClearAll={() => setAdvancedFilters({})}
-          />
-          )}
 
           {/* Content Area */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
