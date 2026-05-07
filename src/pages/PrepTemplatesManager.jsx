@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload } from 'lucide-react';
+import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload, Download } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import PrepListImportFlow from '@/components/PrepListImportFlow';
 
@@ -382,6 +382,29 @@ export default function PrepTemplatesManager() {
               </button>
               <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-1.5 rounded-lg ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 Archived
+              </button>
+              <button
+                onClick={() => {
+                  haptics.light();
+                  const headers = ['itemName','quantity','unit','dueTime','station','jobCode','notes'];
+                  const rows = [
+                    ['Chop Onions','10','lbs','10:00 AM','Prep','Prep Cook','Dice small'],
+                    ['Portion Chicken','20','portions','11:00 AM','Grill','Line Cook','6oz each'],
+                    ['Make Soup Base','2','batches','09:00 AM','Hot Line','Cook','See recipe card'],
+                  ];
+                  const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'prep_items_import_template.csv';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
+              >
+                <Download className="h-3 w-3" />
+                Template
               </button>
               <button
                 onClick={() => { haptics.light(); setShowImport(true); }}
