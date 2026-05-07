@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import {
   Building2, MapPin, Users, Wrench, QrCode, LayoutTemplate,
-  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Package, Calendar, Upload
+  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Package, Calendar, Upload, Bell
 } from 'lucide-react';
 import SetupProgressCard from '@/components/myrestaurant/SetupProgressCard';
 import SectionCard from '@/components/myrestaurant/SectionCard';
@@ -589,12 +589,121 @@ export default function MyRestaurant() {
   };
 
   return (
-    <div className="pb-28">
-      <div className="mb-4">
+    <div className="pb-28 lg:pb-0">
+      {/* Desktop Header */}
+      <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
+        <div>
+          <h1 className="text-xl font-extrabold text-foreground">My Restaurant</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">Manage your restaurant profile, locations, equipment and key information.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
+            Today's Plan
+          </button>
+          <button className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted active:scale-95">
+            <Bell className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Header */}
+      <div className="lg:hidden mb-4">
         <h1 className="text-2xl font-extrabold text-foreground">My Restaurant</h1>
         <p className="text-xs text-muted-foreground mt-0.5">Setup and configuration center</p>
       </div>
 
+      {/* Desktop 2-col Card Grid */}
+      <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 lg:px-8 lg:py-6">
+        {/* Restaurant Profile */}
+        <div className="bg-card border border-border/60 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Restaurant Profile</p>
+            <button onClick={() => setModal('profile')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+              <Building2 className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">My Restaurant</p>
+              <p className="text-xs text-muted-foreground">Click Edit to add restaurant details</p>
+            </div>
+          </div>
+        </div>
+        {/* Locations */}
+        <div className="bg-card border border-border/60 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Locations</p>
+            <button onClick={() => setModal('areas')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+          </div>
+          <p className="text-2xl font-extrabold text-foreground">{counts.areas || 0}</p>
+          <p className="text-xs text-muted-foreground">Areas configured</p>
+        </div>
+        {/* Equipment */}
+        <div className="bg-card border border-border/60 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Equipment</p>
+            <button onClick={() => setModal('equipment')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+          </div>
+          <div className="space-y-1.5">
+            {[{label:'Refrigerators / Freezers',count:counts.equipment||0},{label:'Cooking Equipment',count:0},{label:'Hot Holding',count:0},{label:'Smallwares',count:0}].map(i=>(
+              <div key={i.label} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{i.label}</span><span className="font-bold text-foreground">{i.count}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => setModal('equipment')} className="mt-3 text-[10px] font-bold text-primary hover:underline">View All Equipment →</button>
+        </div>
+        {/* Food Safety */}
+        <div className="bg-card border border-border/60 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Food Safety Systems</p>
+            <button onClick={() => setModal('foodSafety')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+          </div>
+          <div className="space-y-1.5">
+            {['Temperature Monitoring','Cooling Logs','HACCP Plan','Allergen Tracking'].map(s=>(
+              <div key={s} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{s}</span>
+                <span className={`font-bold ${counts.foodSafety > 0 ? 'text-green-400' : 'text-muted-foreground'}`}>{counts.foodSafety > 0 ? 'Enabled' : 'Not Set'}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => navigate('/temp-logs')} className="mt-3 text-[10px] font-bold text-primary hover:underline">View Food Safety Settings →</button>
+        </div>
+        {/* Emergency Contacts */}
+        <div className="bg-card border border-border/60 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Emergency Contacts</p>
+            <button className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+          </div>
+          <div className="space-y-2">
+            {['Primary Contact','Alternative Contact','Health Department','Fire Department'].map(c=>(
+              <div key={c} className="flex items-center gap-2 text-xs">
+                <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0"><Users className="h-3 w-3 text-muted-foreground" /></div>
+                <span className="text-muted-foreground flex-1">{c}</span>
+                <span className="text-foreground font-bold">—</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Key Operating Info */}
+        <div className="bg-card border border-border/60 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Key Operating Information</p>
+            <button className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+          </div>
+          <div className="space-y-1.5">
+            {['Operating Hours','Employee Count','Seating Capacity','License Number','Last Health Inspection'].map(k=>(
+              <div key={k} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{k}</span><span className="font-bold text-foreground">—</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
       <SetupProgressCard sections={setupSections} onContinue={s => setModal(s.id)} />
 
       <div className="mb-5">
@@ -664,6 +773,8 @@ export default function MyRestaurant() {
           <SectionCard icon={LayoutTemplate} title="86 Templates" description="Create and manage 86 log templates" onClick={() => navigate('/86-templates')} />
         </div>
       </div>
+
+      </div>{/* end lg:hidden */}
 
       {renderModal()}
     </div>

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Settings, Thermometer, Snowflake, Flame, Wind, ChevronRight, AlertTriangle, CheckCircle2, Clock, Plus, X } from 'lucide-react';
+import { Settings, Thermometer, Snowflake, Flame, Wind, ChevronRight, AlertTriangle, CheckCircle2, Clock, Plus, X, Bell, CalendarDays } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
 const today = () => new Date().toISOString().split('T')[0];

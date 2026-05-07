@@ -100,7 +100,7 @@ export default function Layout() {
       <aside
         className={cn(
           "hidden lg:flex fixed left-0 top-0 bottom-0 border-r border-border/30 flex-col z-30 transition-all duration-200",
-          collapsed ? "w-[60px]" : "w-60"
+          collapsed ? "w-[56px]" : "w-[180px]"
         )}
         style={{ background: 'hsl(var(--sidebar-background))' }}
       >
@@ -180,7 +180,7 @@ export default function Layout() {
 
       {/* Main content area */}
       <main
-        className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[60px]" : "lg:pl-60")}
+        className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[56px]" : "lg:pl-[180px]")}
         style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
       >
         {isMobile && isTabRoute(location.pathname) ? (
