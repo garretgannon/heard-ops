@@ -62,12 +62,26 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
     }
   };
 
+  const getFormTitle = () => {
+    const titles = {
+      temperature: 'Log Temperature',
+      maintenance: 'Report Maintenance',
+      incident: 'Report Incident',
+      waste: 'Log Waste / 86',
+      employee_note: 'Add Employee Note',
+      manager_note: 'Add Manager Note',
+      bathroom: 'Bathroom Check',
+      custom: 'Add Log',
+    };
+    return titles[logType] || 'New Log Entry';
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="w-full lg:max-w-lg max-h-[90vh] bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-border/30 shrink-0">
-          <h2 className="text-lg font-bold text-foreground">New Log Entry</h2>
+          <h2 className="text-lg font-bold text-foreground">{getFormTitle()}</h2>
           <button onClick={onClose} className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center">
             <X className="h-4 w-4" />
           </button>
@@ -79,7 +93,7 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
           <div>
             <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Log Type</label>
             <div className="grid grid-cols-2 gap-2">
-              {LOG_TYPES.map(t => (
+              {LOG_TYPES.filter(t => !initialType || t.id === initialType).map(t => (
                 <button
                   key={t.id}
                   onClick={() => { setLogType(t.id); setFormData({ ...formData, type: t.id }); }}
@@ -210,7 +224,7 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
             className="flex-1 h-10 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Save className="h-4 w-4" />
-            {saving ? 'Saving...' : 'Record Log'}
+            {saving ? 'Saving...' : 'Save Log'}
           </button>
         </div>
       </div>

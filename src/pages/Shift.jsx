@@ -18,6 +18,7 @@ export default function Shift() {
   const [tasks, setTasks] = useState([]);
   const [currentTask, setCurrentTask] = useState(null);
   const [stats, setStats] = useState({ completedCount: 0, totalCount: 0 });
+  const [activeModal, setActiveModal] = useState(null);
   const isMounted = useRef(true);
 
   // Load shift tasks
@@ -153,6 +154,11 @@ export default function Shift() {
     const nextIdx = remaining.findIndex((t) => t.id === taskId) + 1;
     const nextTask = remaining[nextIdx] || null;
     setCurrentTask(nextTask);
+  };
+
+  const handleModalSuccess = () => {
+    setActiveModal(null);
+    window.location.reload();
   };
 
   if (loading) {

@@ -8,8 +8,7 @@ import ShiftOverviewCard from '@/components/today/ShiftOverviewCard';
 import PrioritiesSection from '@/components/today/PrioritiesSection';
 import AlertsSection from '@/components/today/AlertsSection';
 import QuickActionsBar from '@/components/today/QuickActionsBar';
-import UnifiedTaskForm from '@/components/UnifiedTaskForm';
-import UnifiedLogForm from '@/components/UnifiedLogForm';
+import QuickActionModal from '@/components/quickactions/QuickActionModal';
 
 export default function TodaysCommandCenter() {
   const navigate = useNavigate();
@@ -26,6 +25,7 @@ export default function TodaysCommandCenter() {
   });
   const [nextDueItem, setNextDueItem] = useState(null);
   const [activeModal, setActiveModal] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const isMounted = useRef(true);
 
   // Load task and priority data
@@ -108,11 +108,22 @@ export default function TodaysCommandCenter() {
   }, []);
 
   const handleQuickAction = (actionId) => {
-    if (actionId === 'add_log') setActiveModal('log');
-    else if (actionId === 'create_task') setActiveModal('task');
-    else if (actionId === 'temp_log') setActiveModal('log_temp');
-    else if (actionId === 'report_issue') setActiveModal('log_incident');
+    // Map old action IDs to new action types
+    const actionMap = {
+      'add_log': 'add_log',
+      'temp_log': 'log_temperature',
+      'create_task': 'add_task',
+      'report_issue': 'report_incident',
+      'handoff': null, // Handled separately
+    };
+    const actionType = actionMap[actionId];
+    if (actionType) setActiveModal(actionType);
     else if (actionId === 'handoff') navigate('/shift-handoff');
+  };
+
+  const handleModalSuccess = () => {
+    setActiveModal(null);
+    setRefreshKey(k => k + 1);
   };
 
   if (loading) {
@@ -151,43 +162,13 @@ export default function TodaysCommandCenter() {
         </div>
       </div>
 
-      {/* Modals */}
-      {activeModal === 'task' && (
-        <UnifiedTaskForm
+      {/* Quick Action Modal */}
+      {activeModal && (
+        <QuickActionModal
+          actionType={activeModal}
           onClose={() => setActiveModal(null)}
-          onSuccess={() => {
-            setActiveModal(null);
-            window.location.reload();
-          }}
-        />
-      )}
-      {activeModal === 'log' && (
-        <UnifiedLogForm
-          onClose={() => setActiveModal(null)}
-          onSuccess={() => {
-            setActiveModal(null);
-            window.location.reload();
-          }}
-        />
-      )}
-      {activeModal === 'log_temp' && (
-        <UnifiedLogForm
-          initialType="temperature"
-          onClose={() => setActiveModal(null)}
-          onSuccess={() => {
-            setActiveModal(null);
-            window.location.reload();
-          }}
-        />
-      )}
-      {activeModal === 'log_incident' && (
-        <UnifiedLogForm
-          initialType="incident"
-          onClose={() => setActiveModal(null)}
-          onSuccess={() => {
-            setActiveModal(null);
-            window.location.reload();
-          }}
+          onSuccess={handleModalSuccess}
+          key={refreshKey}
         />
       )}
     </div>
