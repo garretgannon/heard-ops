@@ -133,7 +133,7 @@ export default function More() {
   const recentToolsData = recentTools.map(findRoute).filter(Boolean);
 
   return (
-    <div className="pb-32">
+    <div className="pb-32 max-w-[1280px] mx-auto">
       {/* Sticky Header */}
       <div className="sticky top-0 z-40 bg-gradient-to-b from-card via-card to-card/80 border-b border-border backdrop-blur-sm px-4 py-4">
         <div className="mb-4">
@@ -227,7 +227,7 @@ export default function More() {
           )}
 
           {/* Main Sections */}
-          <div className="space-y-3">
+          <div className="lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-3 space-y-3 lg:space-y-0">
             {Object.entries(OPERATIONS_CENTER_SECTIONS).map(([sectionKey, section]) => {
               const SectionIcon = section.icon;
               const isExpanded = isSectionExpanded(sectionKey, section.defaultExpanded);

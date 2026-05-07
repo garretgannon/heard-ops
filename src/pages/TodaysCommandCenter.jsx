@@ -453,102 +453,108 @@ export default function TodaysCommandCenter() {
         )}
       </div>
 
-      <div className="px-4 py-4 space-y-6 pb-8">
-        {/* FOOD SAFETY - First operational section */}
-        {data.tempSafety && (
-          <div className="space-y-2">
-            <SectionLabel label="Food Safety" icon={Thermometer} />
-            <button onClick={() => navigate('/temp-logs')} className="w-full bg-card border border-border/50 rounded-xl p-3 active:scale-95 transition-all text-left hover:border-border/80">
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { Icon: Wind, color: 'text-blue-400', bg: 'bg-blue-500/10', label: 'Cooling', count: data.tempSafety.cooling.total, issues: data.tempSafety.cooling.failed, issueLabel: 'failed' },
-                  { Icon: Snowflake, color: 'text-cyan-400', bg: 'bg-cyan-500/10', label: 'Fridge/Freezer', count: data.tempSafety.refrig.total, issues: data.tempSafety.refrig.outOfRange, issueLabel: 'OOR' },
-                  { Icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10', label: 'Hot Holding', count: data.tempSafety.hot.total, issues: data.tempSafety.hot.outOfRange, issueLabel: 'OOR' },
-                ].map(({ Icon, color, bg, label, count, issues, issueLabel }) => (
-                  <div key={label} className="text-center">
-                    <div className={`h-7 w-7 rounded-lg ${bg} flex items-center justify-center mx-auto mb-1`}>
-                      <Icon className={`h-3.5 w-3.5 ${color}`} />
-                    </div>
-                    <p className="text-[10px] font-bold text-muted-foreground leading-tight">{label}</p>
-                    <p className="text-sm font-extrabold text-foreground">{count} logged</p>
-                    {issues > 0 && <p className="text-[9px] font-bold text-red-400">{issues} {issueLabel}</p>}
+      <div className="px-4 py-4 pb-8 lg:px-6 lg:py-6">
+        <div className="lg:grid lg:grid-cols-3 lg:gap-5 space-y-6 lg:space-y-0">
+
+          {/* ── Left: Food Safety + Needs Attention ── */}
+          <div className="space-y-5">
+            {data.tempSafety && (
+              <div className="space-y-2">
+                <SectionLabel label="Food Safety" icon={Thermometer} />
+                <button onClick={() => navigate('/temp-logs')} className="w-full bg-card border border-border/50 rounded-xl p-3 active:scale-95 transition-all text-left hover:border-border/80">
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { Icon: Wind, color: 'text-blue-400', bg: 'bg-blue-500/10', label: 'Cooling', count: data.tempSafety.cooling.total, issues: data.tempSafety.cooling.failed, issueLabel: 'failed' },
+                      { Icon: Snowflake, color: 'text-cyan-400', bg: 'bg-cyan-500/10', label: 'Fridge/Freezer', count: data.tempSafety.refrig.total, issues: data.tempSafety.refrig.outOfRange, issueLabel: 'OOR' },
+                      { Icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10', label: 'Hot Holding', count: data.tempSafety.hot.total, issues: data.tempSafety.hot.outOfRange, issueLabel: 'OOR' },
+                    ].map(({ Icon, color, bg, label, count, issues, issueLabel }) => (
+                      <div key={label} className="text-center">
+                        <div className={`h-7 w-7 rounded-lg ${bg} flex items-center justify-center mx-auto mb-1`}>
+                          <Icon className={`h-3.5 w-3.5 ${color}`} />
+                        </div>
+                        <p className="text-[10px] font-bold text-muted-foreground leading-tight">{label}</p>
+                        <p className="text-sm font-extrabold text-foreground">{count} logged</p>
+                        {issues > 0 && <p className="text-[9px] font-bold text-red-400">{issues} {issueLabel}</p>}
+                      </div>
+                    ))}
                   </div>
+                </button>
+              </div>
+            )}
+
+            {data.overdue.length > 0 && (
+              <div className="space-y-2.5">
+                <SectionLabel label="Needs Attention" icon={AlertTriangle} count={data.overdue.length} />
+                {data.overdue.slice(0, 3).map(item => (
+                  <AttentionCard
+                    key={item.id}
+                    icon={AlertTriangle}
+                    iconColor="text-red-400"
+                    iconBg="bg-red-500/15"
+                    title={item.title}
+                    meta={item.station}
+                    subtitle={item.assignee}
+                    status="OVERDUE"
+                    statusColor="bg-red-500/15 text-red-400 border-red-500/30"
+                    onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
+                  />
                 ))}
               </div>
-            </button>
+            )}
           </div>
-        )}
 
-        {/* Needs Attention */}
-        {data.overdue.length > 0 && (
-          <div className="space-y-2.5">
-            <SectionLabel label="Needs Attention" icon={AlertTriangle} count={data.overdue.length} />
-            {data.overdue.slice(0, 3).map(item => (
-              <AttentionCard
-                key={item.id}
-                icon={AlertTriangle}
-                iconColor="text-red-400"
-                iconBg="bg-red-500/15"
-                title={item.title}
-                meta={item.station}
-                subtitle={item.assignee}
-                status="OVERDUE"
-                statusColor="bg-red-500/15 text-red-400 border-red-500/30"
-                onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
-              />
-            ))}
+          {/* ── Center: Due Soon + Daily Events ── */}
+          <div className="space-y-5">
+            {data.dueSoon.length > 0 && (
+              <div className="space-y-2.5">
+                <SectionLabel label="Due Soon" icon={Clock} count={data.dueSoon.length} />
+                {data.dueSoon.slice(0, 3).map(item => (
+                  <DueSoonCard
+                    key={item.id}
+                    icon={Clock}
+                    iconColor="text-amber-400"
+                    iconBg="bg-amber-500/15"
+                    title={item.title}
+                    meta={item.station}
+                    subtitle={item.assignee}
+                    progress={item.progress}
+                    onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
+                  />
+                ))}
+              </div>
+            )}
+            <DailyEventsCard />
           </div>
-        )}
 
-        {/* Due Soon */}
-        {data.dueSoon.length > 0 && (
-          <div className="space-y-2.5">
-            <SectionLabel label="Due Soon" icon={Clock} count={data.dueSoon.length} />
-            {data.dueSoon.slice(0, 3).map(item => (
-              <DueSoonCard
-                key={item.id}
-                icon={Clock}
-                iconColor="text-amber-400"
-                iconBg="bg-amber-500/15"
-                title={item.title}
-                meta={item.station}
-                subtitle={item.assignee}
-                progress={item.progress}
-                onTap={() => navigate(item.type === "prep" ? "/prep-lists" : "/side-work")}
-              />
-            ))}
+          {/* ── Right: Shift Notes + Recently Completed ── */}
+          <div className="space-y-5">
+            {data.latestHandoff && (
+              <div className="space-y-2.5">
+                <SectionLabel label="Shift Notes" icon={FileText} />
+                <ShiftNotesCard
+                  note={data.latestHandoff.key_notes || "No shift notes available."}
+                  manager={data.latestHandoff.from_manager_name}
+                  onTap={() => navigate("/shift-handoff")}
+                />
+              </div>
+            )}
+
+            {data.completed.length > 0 && (
+              <div className="space-y-2">
+                <SectionLabel label="Recently Completed" icon={CheckCircle2} count={data.completed.length} />
+                {data.completed.slice(0, 2).map((item, i) => (
+                  <CompletedCard
+                    key={i}
+                    title={item.title}
+                    completedBy={item.completedBy}
+                    completedAt={item.completedAt}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Daily Events */}
-        <DailyEventsCard />
-
-        {/* Shift Notes */}
-        {data.latestHandoff && (
-          <div className="space-y-2.5">
-            <SectionLabel label="Shift Notes" icon={FileText} />
-            <ShiftNotesCard
-              note={data.latestHandoff.key_notes || "No shift notes available."}
-              manager={data.latestHandoff.from_manager_name}
-              onTap={() => navigate("/shift-handoff")}
-            />
-          </div>
-        )}
-
-        {/* Recently Completed */}
-        {data.completed.length > 0 && (
-          <div className="space-y-2">
-            <SectionLabel label="Recently Completed" icon={CheckCircle2} count={data.completed.length} />
-            {data.completed.slice(0, 2).map((item, i) => (
-              <CompletedCard
-                key={i}
-                title={item.title}
-                completedBy={item.completedBy}
-                completedAt={item.completedAt}
-              />
-            ))}
-          </div>
-        )}
+        </div>
       </div>
 
       <ShiftLaunchModal 

@@ -317,7 +317,7 @@ export default function StaffTasks() {
         <p className="text-[11px] text-muted-foreground">Your shift mission list</p>
       </div>
 
-      <div className="px-4 py-3 space-y-4">
+      <div className="px-4 py-3 space-y-4 max-w-[1100px] mx-auto lg:px-6">
         {/* Shift summary card */}
         {data && (
           <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-4">

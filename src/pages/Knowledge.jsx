@@ -62,7 +62,7 @@ export default function Knowledge() {
   };
 
   return (
-    <div className="pb-24" onScroll={handleScroll}>
+    <div className="pb-24 max-w-[1100px] mx-auto" onScroll={handleScroll}>
       <KnowledgeHeader onNotifications={() => navigate("/today")} />
 
       <div className="px-4 py-3 space-y-4">
@@ -87,7 +87,7 @@ export default function Knowledge() {
         {/* Quick Access Section */}
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase tracking-widest text-secondary-text">Quick Access</p>
-          <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory">
+          <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory lg:grid lg:grid-cols-5 lg:overflow-visible lg:pb-0">
             <QuickAccessCard
               icon={ChefHat}
               title="Recipes"
@@ -131,7 +131,7 @@ export default function Knowledge() {
         {/* Operations Library */}
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase tracking-widest text-secondary-text">Operations Library</p>
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 lg:grid lg:grid-cols-2 lg:gap-2 lg:space-y-0">
             <OperationsLibraryRow
               icon={ChefHat}
               title="Recipes"

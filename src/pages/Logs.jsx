@@ -349,21 +349,19 @@ export default function Logs() {
       <LogsHeader onNotifications={() => navigate("/today")} />
       <ActiveLogsSummary stats={stats} />
 
-      <div className="px-4 py-3 space-y-3">
-        {/* Filter Tabs */}
-        <div className="flex gap-1.5 overflow-x-auto pb-2">
+      <div className="lg:flex lg:items-start">
+        {/* Desktop filter sidebar */}
+        <div className="hidden lg:flex lg:flex-col lg:w-52 lg:shrink-0 border-r border-border/30 px-3 py-4 space-y-1 lg:sticky lg:top-0 min-h-[50vh]">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2 mb-2">Filters</p>
           {FILTER_OPTIONS.map(filter => (
             <button
               key={filter.id}
-              onClick={() => {
-                haptics.light?.();
-                setActiveFilter(filter.id);
-              }}
+              onClick={() => { haptics.light?.(); setActiveFilter(filter.id); }}
               className={cn(
-                "flex-shrink-0 h-8 px-3 rounded-full text-xs font-bold whitespace-nowrap border transition-all flex items-center gap-1.5",
+                "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all",
                 activeFilter === filter.id
-                  ? "bg-primary/15 text-primary border-primary/30"
-                  : "bg-card border-border text-secondary-text hover:bg-muted"
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
               {filter.label}
@@ -371,27 +369,50 @@ export default function Logs() {
           ))}
         </div>
 
-        {/* Active Logs Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-1 gap-2">
-            {filtered.map(log => (
-              <ActiveLogCard
-                key={`${log.sourceType}-${log.id}`}
-                log={log}
-                onAction={handleLogAction}
-              />
+        <div className="flex-1 px-4 py-3 space-y-3">
+          {/* Mobile Filter Tabs */}
+          <div className="lg:hidden flex gap-1.5 overflow-x-auto pb-2">
+            {FILTER_OPTIONS.map(filter => (
+              <button
+                key={filter.id}
+                onClick={() => {
+                  haptics.light?.();
+                  setActiveFilter(filter.id);
+                }}
+                className={cn(
+                  "flex-shrink-0 h-8 px-3 rounded-full text-xs font-bold whitespace-nowrap border transition-all flex items-center gap-1.5",
+                  activeFilter === filter.id
+                    ? "bg-primary/15 text-primary border-primary/30"
+                    : "bg-card border-border text-secondary-text hover:bg-muted"
+                )}
+              >
+                {filter.label}
+              </button>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-12 text-secondary-text text-sm">
-            <FileText className="h-8 w-8 mx-auto mb-2 text-muted" />
-            <p>No active logs</p>
-          </div>
-        )}
+
+          {/* Active Logs Grid */}
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : filtered.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+              {filtered.map(log => (
+                <ActiveLogCard
+                  key={`${log.sourceType}-${log.id}`}
+                  log={log}
+                  onAction={handleLogAction}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-secondary-text text-sm">
+              <FileText className="h-8 w-8 mx-auto mb-2 text-muted" />
+              <p>No active logs</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Floating Action Button */}
