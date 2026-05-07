@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import { Search, Plus, MessageSquare, CheckSquare2, User, Bell, Filter, ChefHat, Users, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast as toastSonner } from "sonner";
+import AddEmployeeModal from "@/components/team/AddEmployeeModal";
+import EmployeeDirectory from "@/components/team/EmployeeDirectory";
 
 const toast = {
   info: (msg) => toastSonner.info(msg),
@@ -27,10 +27,7 @@ export default function RestaurantTeam() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
-  const [showInvite, setShowInvite] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [invitingRole, setInvitingRole] = useState("user");
-  const [inviting, setInviting] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -67,15 +64,11 @@ export default function RestaurantTeam() {
   const onShiftEmployees = filteredEmployees.filter(e => e.status === "active");
   const offShiftEmployees = filteredEmployees.filter(e => e.status !== "active");
 
-  const handleInvite = async () => {
-    if (!inviteEmail.trim()) return;
-    setInviting(true);
-    await base44.users.inviteUser(inviteEmail.trim(), invitingRole);
-    toast.success("Invite sent!");
-    setInviteEmail("");
-    setInvitingRole("user");
-    setShowInvite(false);
-    setInviting(false);
+  const handleAddEmployee = async () => {
+    setShowAddModal(false);
+    const all = await base44.entities.User.list();
+    setEmployees(all);
+    toast.success("Employee added!");
   };
 
   const getRoleDisplay = (role) => {
@@ -320,49 +313,17 @@ export default function RestaurantTeam() {
                       </div>
       </div>
 
-      {/* Invite Dialog */}
-      <Dialog open={showInvite} onOpenChange={setShowInvite}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">Add Team Member</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div className="space-y-1">
-              <label className="text-sm font-semibold text-foreground">Email Address</label>
-              <Input
-                type="email"
-                placeholder="staff@restaurant.com"
-                value={inviteEmail}
-                onChange={e => setInviteEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-semibold text-foreground">Role</label>
-              <Select value={invitingRole} onValueChange={setInvitingRole}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Manager</SelectItem>
-                  <SelectItem value="user">BOH</SelectItem>
-                  <SelectItem value="foh">FOH</SelectItem>
-                  <SelectItem value="busser">Busser</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowInvite(false)}>Cancel</Button>
-            <Button onClick={handleInvite} disabled={inviting || !inviteEmail.trim()}>
-              {inviting ? "Sending..." : "Send Invite"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Add Employee Modal */}
+      {showAddModal && (
+        <AddEmployeeModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={handleAddEmployee}
+        />
+      )}
 
       {/* Sticky Add Member Button */}
       <div className="fixed bottom-20 left-4 right-4 z-30">
-        <Button onClick={() => setShowInvite(true)} className="w-full gap-2 h-12 text-base">
+        <Button onClick={() => setShowAddModal(true)} className="w-full gap-2 h-12 text-base">
           <Plus className="h-5 w-5" /> Add Team Member
         </Button>
       </div>
