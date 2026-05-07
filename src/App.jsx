@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'r
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
+import { SimulatorProvider } from '@/lib/SimulatorContext';
 import { ShiftModeProvider } from '@/lib/ShiftModeContext';
 import { RoleSimulationProvider } from '@/lib/RoleSimulationContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
@@ -58,6 +59,7 @@ import ScheduleImport from './pages/ScheduleImport';
 import ShiftHandoff from './pages/ShiftHandoff';
 import AdminRoleSimulator from './pages/AdminRoleSimulator';
 import AdminCommandCenter from './pages/AdminCommandCenter';
+import OnboardingSimulator from './pages/OnboardingSimulator';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -152,6 +154,7 @@ const AuthenticatedApp = () => {
         <Route path="/schedule-import" element={<ScheduleImport />} />
         <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
         <Route path="/admin/command-center" element={<AdminCommandCenter />} />
+        <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
 
         {/* OPERATIONS ROUTES */}
         <Route path="/issues" element={<Navigate to="/logs?view=issues" replace />} />
@@ -204,6 +207,7 @@ function App() {
     <AuthProvider>
       <ShiftModeProvider>
       <UnifiedStateProvider>
+        <SimulatorProvider>
         <RoleSimulationProvider>
           <QueryClientProvider client={queryClientInstance}>
             <TabHistoryProvider>
@@ -217,6 +221,7 @@ function App() {
             <Toaster />
           </QueryClientProvider>
         </RoleSimulationProvider>
+        </SimulatorProvider>
       </UnifiedStateProvider>
       </ShiftModeProvider>
     </AuthProvider>
