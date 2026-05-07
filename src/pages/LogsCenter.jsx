@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import LogsCommandHeader from '@/components/logcenter/LogsCommandHeader';
 import LogsCompactFilterBar from '@/components/logcenter/LogsCompactFilterBar';
@@ -8,6 +9,7 @@ import LogsViewTabs from '@/components/logcenter/LogsViewTabs';
 import AdvancedFilterSheet from '@/components/logcenter/AdvancedFilterSheet';
 import LogCard from '@/components/logcenter/LogCard';
 import UnifiedLogForm from '@/components/UnifiedLogForm';
+import LogsDesktopLayout from '@/components/logcenter/LogsDesktopLayout';
 
 const DEBUG_OVERFLOW = true; // Set to true to enable overflow debugging on mobile
 
@@ -55,6 +57,7 @@ const DebugOverflowCheck = ({ name, children, className }) => {
 
 export default function LogsCenter() {
   const { user, isAdmin } = useCurrentUser();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -170,6 +173,40 @@ export default function LogsCenter() {
     );
   }
 
+  // Desktop layout for screens 1024px and above
+  if (!isMobile) {
+    return (
+      <>
+        <LogsDesktopLayout
+          logs={logs}
+          searchQuery={searchQuery}
+          onSearch={setSearchQuery}
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+          advancedFilters={advancedFilters}
+          onApplyAdvancedFilters={(filters) => {
+            setAdvancedFilters(filters);
+          }}
+          onClearAdvancedFilters={() => setAdvancedFilters({})}
+          viewMode={viewMode}
+          onViewChange={setViewMode}
+          onQuickAdd={() => setShowAddModal(true)}
+          filteredLogs={filteredLogs}
+        />
+        {showAddModal && (
+          <UnifiedLogForm
+            onClose={() => setShowAddModal(false)}
+            onSuccess={() => {
+              setShowAddModal(false);
+              toast.success('Log created');
+            }}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Mobile layout for screens below 1024px
   return (
     <DebugOverflowCheck name="PAGE_WRAPPER" className="w-full h-full bg-background flex flex-col overflow-hidden">
       {/* Sticky Header Stack */}
