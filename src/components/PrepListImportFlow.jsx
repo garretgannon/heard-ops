@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Upload, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle2, X, FileText, Loader2 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import * as XLSX from 'xlsx';
 
 export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }) {
-  const [step, setStep] = useState(1); // 1: upload, 2: preview, 3: importing, 4: complete
+  const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
+  const [parsing, setParsing] = useState(false);
+  const [templateName, setTemplateName] = useState('');
   const [importData, setImportData] = useState([]);
   const [errors, setErrors] = useState([]);
   const [importingCount, setImportingCount] = useState(0);
@@ -20,63 +22,84 @@ export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }
 
     haptics.light();
     setFile(selectedFile);
+    setErrors([]);
+    setImportData([]);
+    setParsing(true);
+
+    // Auto-suggest template name from filename
+    const baseName = selectedFile.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+    if (!templateName) setTemplateName(baseName);
 
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const workbook = XLSX.read(event.target.result, { type: 'array' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(worksheet);
+        let rows = [];
+        if (selectedFile.name.endsWith('.csv')) {
+          // Parse CSV manually
+          const text = new TextDecoder().decode(event.target.result);
+          const lines = text.trim().split('\n');
+          const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+          rows = lines.slice(1).map(line => {
+            const vals = line.split(',').map(v => v.replace(/"/g, '').trim());
+            const obj = {};
+            headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+            return obj;
+          }).filter(r => r['itemName']);
+        } else {
+          const workbook = XLSX.read(event.target.result, { type: 'array' });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          rows = XLSX.utils.sheet_to_json(worksheet);
+        }
 
+        if (rows.length === 0) {
+          setErrors(['No data rows found in file. Make sure the file has headers and at least one row.']);
+          setParsing(false);
+          return;
+        }
+
+        // Support our CSV format: itemName, quantity, unit, priority, jobCode, notes
         const parsed = [];
         const newErrors = [];
-
         rows.forEach((row, idx) => {
-          if (!row['Template Name'] || !row['Station'] || !row['Job Code']) {
-            newErrors.push(`Row ${idx + 2}: Missing required fields (Template Name, Station, Job Code)`);
+          const itemName = row['itemName'] || row['Item Name'] || row['item_name'];
+          if (!itemName) {
+            newErrors.push(`Row ${idx + 2}: Missing item name — skipped`);
             return;
           }
-
-          const items = [];
-          let itemCount = 1;
-          while (row[`Item ${itemCount}`]) {
-            items.push({
-              itemName: row[`Item ${itemCount}`],
-              quantity: row[`Item ${itemCount} Qty`] || 1,
-              unit: row[`Item ${itemCount} Unit`] || '',
-              dueTime: row[`Item ${itemCount} Due Time`] || '',
-            });
-            itemCount++;
-          }
-
           parsed.push({
-            name: row['Template Name'],
-            station: row['Station'],
-            jobCode: row['Job Code'],
-            shift: row['Shift'] || 'all',
-            notes: row['Notes'] || '',
-            items,
-            rowNum: idx + 2,
+            itemName: itemName.trim(),
+            quantity: parseFloat(row['quantity'] || row['Quantity'] || 1) || 1,
+            unit: (row['unit'] || row['Unit'] || '').trim(),
+            priority: (row['priority'] || row['Priority'] || 'medium').toLowerCase(),
+            jobCode: (row['jobCode'] || row['Job Code'] || row['job_code'] || 'Prep Cook').trim(),
+            notes: (row['notes'] || row['Notes'] || '').trim(),
           });
         });
 
         if (parsed.length === 0) {
-          setErrors(['No valid templates found in Excel file']);
+          setErrors(['No valid items found. Ensure your file uses the downloaded template format (itemName, quantity, unit, priority, jobCode, notes).']);
+          setParsing(false);
           return;
         }
 
         setImportData(parsed);
         setErrors(newErrors);
+        setParsing(false);
         setStep(2);
       } catch (error) {
         haptics.medium();
-        setErrors([`Failed to parse Excel: ${error.message}`]);
+        setErrors([`Failed to parse file: ${error.message}`]);
+        setParsing(false);
       }
     };
     reader.readAsArrayBuffer(selectedFile);
   };
 
   const handleImport = async () => {
+    if (!templateName.trim()) {
+      setErrors(['Please enter a template name before importing.']);
+      return;
+    }
     haptics.medium();
     setStep(3);
     setTotalCount(importData.length);
@@ -87,40 +110,42 @@ export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }
     let success = 0;
     let fail = 0;
 
-    for (let i = 0; i < importData.length; i++) {
-      const template = importData[i];
-      setImportingCount(i + 1);
+    try {
+      // Create one template for all items
+      const newTemplate = await base44.entities.PrepTemplate.create({
+        name: templateName.trim(),
+        station: 'Prep',
+        jobCode: 'Prep Cook',
+        shift: 'all',
+        itemCount: importData.length,
+        isActive: true,
+        repeatType: 'weekly',
+        repeatDays: [1, 2, 3, 4, 5],
+      });
 
-      try {
-        const newTemplate = await base44.entities.PrepTemplate.create({
-          name: template.name,
-          station: template.station,
-          jobCode: template.jobCode,
-          shift: template.shift,
-          notes: template.notes,
-          itemCount: template.items.length,
-          isActive: true,
-          repeatType: 'weekly',
-          repeatDays: [1, 2, 3, 4, 5],
-        });
-
-        // Create items
-        for (const item of template.items) {
+      for (let i = 0; i < importData.length; i++) {
+        const item = importData[i];
+        setImportingCount(i + 1);
+        try {
           await base44.entities.PrepTemplateItem.create({
             prepTemplateId: newTemplate.id,
             itemName: item.itemName,
             quantity: item.quantity,
             unit: item.unit,
-            dueTime: item.dueTime,
-            sortOrder: template.items.indexOf(item),
+            priority: item.priority,
+            jobCode: item.jobCode,
+            notes: item.notes,
+            sortOrder: i,
           });
+          success++;
+        } catch (err) {
+          console.error(`Failed to import item "${item.itemName}":`, err);
+          fail++;
         }
-
-        success++;
-      } catch (error) {
-        console.error(`Failed to import template "${template.name}":`, error);
-        fail++;
       }
+    } catch (error) {
+      console.error('Failed to create template:', error);
+      fail = importData.length;
     }
 
     setSuccessCount(success);
@@ -132,6 +157,8 @@ export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }
   const handleReset = () => {
     setStep(1);
     setFile(null);
+    setParsing(false);
+    setTemplateName('');
     setImportData([]);
     setErrors([]);
     setSuccessCount(0);
@@ -164,41 +191,64 @@ export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }
           {/* Step 1: Upload */}
           {step === 1 && (
             <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-secondary-text block mb-1">Template Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Morning Prep List"
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                />
+              </div>
+
               <div className="bg-muted/30 border-2 border-dashed border-border rounded-lg p-6 text-center space-y-2">
-                <Upload className="h-8 w-8 text-secondary-text mx-auto" />
-                <p className="text-sm font-bold text-foreground">Upload Excel File</p>
-                <p className="text-xs text-secondary-text">Supports .xlsx and .xls files</p>
+                {parsing ? (
+                  <>
+                    <Loader2 className="h-8 w-8 text-primary mx-auto animate-spin" />
+                    <p className="text-sm font-bold text-foreground">Parsing file...</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-secondary-text mx-auto" />
+                    <p className="text-sm font-bold text-foreground">Upload CSV or Excel File</p>
+                    <p className="text-xs text-secondary-text">Supports .csv, .xlsx and .xls</p>
+                  </>
+                )}
                 <input
                   type="file"
-                  accept=".xlsx,.xls"
+                  accept=".csv,.xlsx,.xls"
                   onChange={handleFileSelect}
                   className="hidden"
                   id="file-input"
                 />
                 <button
                   onClick={() => document.getElementById('file-input').click()}
-                  className="w-full bg-primary text-primary-foreground font-bold text-sm py-2 rounded-lg active:scale-95"
+                  disabled={parsing}
+                  className="w-full bg-primary text-primary-foreground font-bold text-sm py-2 rounded-lg active:scale-95 disabled:opacity-50"
                 >
-                  Choose File
+                  {file ? 'Choose Different File' : 'Choose File'}
                 </button>
               </div>
 
-              {file && (
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
-                  <p className="text-xs font-bold text-green-300">✓ File selected: {file.name}</p>
+              {file && !parsing && (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-green-400 shrink-0" />
+                  <p className="text-xs font-bold text-green-300">{file.name}</p>
                 </div>
               )}
 
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 space-y-2">
-                <p className="text-xs font-bold text-blue-300">Excel Format Required:</p>
-                <p className="text-[10px] text-blue-200 space-y-1">
-                  <div>• Column A: Template Name</div>
-                  <div>• Column B: Station</div>
-                  <div>• Column C: Job Code</div>
-                  <div>• Column D: Shift (optional: all, opening, mid, closing)</div>
-                  <div>• Column E: Notes (optional)</div>
-                  <div>• Columns F+: Item 1, Item 1 Qty, Item 1 Unit, Item 1 Due Time, Item 2, ...</div>
-                </p>
+              {errors.length > 0 && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 space-y-1">
+                  {errors.map((err, i) => (
+                    <p key={i} className="text-xs text-red-300">⚠ {err}</p>
+                  ))}
+                </div>
+              )}
+
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 space-y-1">
+                <p className="text-xs font-bold text-blue-300">Expected columns (use Download Template):</p>
+                <p className="text-[10px] text-blue-200">itemName · quantity · unit · priority · jobCode · notes</p>
               </div>
             </div>
           )}
