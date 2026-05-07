@@ -10,11 +10,8 @@ const TABS = [
   { id: 'bulk', label: 'Bulk Import', icon: Upload },
 ];
 
-export default function AddEmployeeModal({ isOpen, onClose, onEmployeeAdded }) {
+export default function AddEmployeeModal({ onClose, onSuccess }) {
   const [activeTab, setActiveTab] = useState('single');
-  const [isLoading, setIsLoading] = useState(false);
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -73,7 +70,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onEmployeeAdded }) {
                 transition={{ duration: 0.2 }}
                 className="p-4 lg:p-6"
               >
-                <SingleEntryForm onSuccess={() => { onEmployeeAdded?.(); onClose(); }} />
+                <SingleEntryForm onSuccess={() => { onSuccess?.(); onClose(); }} />
               </motion.div>
             )}
 
@@ -86,7 +83,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onEmployeeAdded }) {
                 transition={{ duration: 0.2 }}
                 className="p-4 lg:p-6"
               >
-                <BulkImportTab onSuccess={() => { onEmployeeAdded?.(); onClose(); }} />
+                <BulkImportTab onSuccess={() => { onSuccess?.(); onClose(); }} />
               </motion.div>
             )}
           </AnimatePresence>
