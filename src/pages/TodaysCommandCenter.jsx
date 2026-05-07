@@ -448,6 +448,12 @@ export default function TodaysCommandCenter() {
     if (lastCompletedAction && lastCompletedAction.type !== "init") setActiveTab("/");
   }, [lastCompletedAction]);
 
+  useEffect(() => {
+    if (isAdmin && !currentShift && !shiftLaunched) {
+      setShiftLaunched(true);
+    }
+  }, [isAdmin, currentShift, shiftLaunched]);
+
   const handleCloseModal = () => setActiveModal(null);
   const handleModalSuccess = () => {
     setTimeout(async () => {
@@ -483,10 +489,6 @@ export default function TodaysCommandCenter() {
         />
       </div>
     );
-  }
-
-  if (isAdmin && !currentShift) {
-    setShiftLaunched(true);
   }
 
   const isDashboardLocked = currentShift?.status === "running" && !shiftLaunched;
