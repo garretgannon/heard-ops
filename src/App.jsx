@@ -54,6 +54,7 @@ import TemperatureLogTemplates from './pages/TemperatureLogTemplates';
 import WasteTemplates from './pages/WasteTemplates';
 import EightySixTemplates from './pages/86Templates';
 import TemperatureMonitoring from './pages/TemperatureMonitoring';
+import TemperatureDashboard from './pages/TemperatureDashboard';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
 import ScheduleImport from './pages/ScheduleImport';
@@ -150,6 +151,7 @@ const AuthenticatedApp = () => {
         <Route path="/waste-templates" element={<WasteTemplates />} />
         <Route path="/86-templates" element={<EightySixTemplates />} />
         <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
+        <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
 
         {/* MANAGEMENT ROUTES */}
         <Route path="/stations" element={<Stations />} />

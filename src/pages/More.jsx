@@ -113,6 +113,12 @@ export default function More() {
               description="Configure recurring temperature checks"
               onClick={() => navigate('/temperature-monitoring')}
             />
+            <MoreRow
+              icon={Thermometer}
+              label="Temperature Dashboard"
+              description="Review compliance and failed checks"
+              onClick={() => navigate('/temperature-dashboard')}
+            />
           </div>
         </div>
 
