@@ -64,6 +64,21 @@ export default function TemperatureMonitoring() {
 
   const activeItems = items.filter((i) => i.status === 'active');
 
+  // Group items by type
+  const itemsByType = activeItems.reduce((acc, item) => {
+    if (!acc[item.type]) acc[item.type] = [];
+    acc[item.type].push(item);
+    return acc;
+  }, {});
+
+  const typeLabels = {
+    refrigerator: 'Refrigerators',
+    freezer: 'Freezers',
+    hot_holding: 'Hot Holding',
+    cooling_log: 'Cooling Logs',
+    custom: 'Custom',
+  };
+
   return (
     <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
       {/* Header */}
@@ -84,74 +99,70 @@ export default function TemperatureMonitoring() {
 
       {/* Content */}
       <div className="flex-1 px-6 py-6 lg:px-8 max-w-5xl mx-auto w-full">
-        {items.length === 0 ? (
+        {Object.keys(itemsByType).length === 0 ? (
           <div className="text-center py-12">
             <Thermometer className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-foreground font-semibold mb-2">No temperature items yet</p>
             <p className="text-muted-foreground text-sm">Create monitored items to enable recurring temperature checks</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className={`p-4 rounded-lg border transition-all ${
-                    item.status === 'active'
-                      ? 'bg-card border-blue-500/20'
-                      : 'bg-muted/20 border-border/20 opacity-60'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-foreground text-sm">{item.name}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {item.type.replace(/_/g, ' ').toUpperCase()} • {item.location}
-                      </p>
-                    </div>
-                    <span
-                      className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-                        item.status === 'active'
-                          ? 'bg-green-500/15 text-green-400'
-                          : 'bg-slate-500/15 text-slate-400'
-                      }`}
+          <div className="space-y-8">
+            {Object.entries(itemsByType).map(([type, typeItems]) => (
+              <div key={type} className="space-y-3">
+                <h2 className="text-lg font-bold text-foreground capitalize">{typeLabels[type] || type}</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {typeItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 rounded-lg border bg-card border-blue-500/20 transition-all"
                     >
-                      {item.status}
-                    </span>
-                  </div>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-foreground text-sm">{item.name}</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {item.location}
+                            {item.station && ` • ${item.station}`}
+                          </p>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-500/15 text-green-400">
+                          active
+                        </span>
+                      </div>
 
-                  <div className="space-y-2 text-xs text-muted-foreground mb-3">
-                    <div className="flex justify-between">
-                      <span>Range:</span>
-                      <span className="font-mono font-bold">{item.min_temperature}°F – {item.max_temperature}°F</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Frequency:</span>
-                      <span className="font-bold">Every {item.check_frequency_hours} hours</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Assigned:</span>
-                      <span className="font-bold">{item.assigned_role}</span>
-                    </div>
-                  </div>
+                      <div className="space-y-2 text-xs text-muted-foreground mb-3">
+                        <div className="flex justify-between">
+                          <span>Range:</span>
+                          <span className="font-mono font-bold">{item.min_temperature}°F – {item.max_temperature}°F</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Frequency:</span>
+                          <span className="font-bold">Every {item.check_frequency_hours} hours</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Assigned:</span>
+                          <span className="font-bold">{item.assigned_role}</span>
+                        </div>
+                      </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => { setSelectedItem(item); setShowForm(true); }}
-                      className="flex-1 h-8 text-xs font-bold rounded bg-primary/20 text-primary hover:bg-primary/30 active:scale-95 transition-all"
-                    >
-                      <Edit2 className="h-3 w-3 inline mr-1" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="flex-1 h-8 text-xs font-bold rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 active:scale-95 transition-all"
-                    >
-                      <Trash2 className="h-3 w-3 inline mr-1" /> Delete
-                    </button>
-                  </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => { setSelectedItem(item); setShowForm(true); }}
+                          className="flex-1 h-8 text-xs font-bold rounded bg-primary/20 text-primary hover:bg-primary/30 active:scale-95 transition-all"
+                        >
+                          <Edit2 className="h-3 w-3 inline mr-1" /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="flex-1 h-8 text-xs font-bold rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 active:scale-95 transition-all"
+                        >
+                          <Trash2 className="h-3 w-3 inline mr-1" /> Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
