@@ -65,9 +65,9 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
 
           {/* Content */}
           <div className="p-4 lg:p-6 space-y-4 flex-1 overflow-y-auto">
-            {/* Personal Info */}
+            {/* Name */}
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Personal Information</h3>
+              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Name</h3>
               
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-2">Employee Number</label>
@@ -97,65 +97,6 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
                   disabled
                   className="w-full h-10 px-3 rounded-lg border border-border bg-secondary text-muted-foreground text-sm opacity-60"
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Phone</label>
-                <input
-                  type="tel"
-                  value={formData.phone || ''}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="(555) 123-4567"
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Birthday</label>
-                <input
-                  type="date"
-                  value={formData.birthday || ''}
-                  onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="space-y-3 pt-3 border-t border-border/20">
-              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Address</h3>
-              
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Street Address</label>
-                <input
-                  type="text"
-                  value={formData.address || ''}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="123 Main St"
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-2">City</label>
-                  <input
-                    type="text"
-                    value={formData.city || ''}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-2">State</label>
-                  <input
-                    type="text"
-                    value={formData.state || ''}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    maxLength="2"
-                    className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
               </div>
             </div>
 
@@ -213,6 +154,65 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
               </div>
             </div>
 
+            {/* Personal Information */}
+            <div className="space-y-3 pt-3 border-t border-border/20">
+              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Personal Information</h3>
+              
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Phone</label>
+                <input
+                  type="tel"
+                  value={formData.phone || ''}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="(555) 123-4567"
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Birthday</label>
+                <input
+                  type="date"
+                  value={formData.birthday || ''}
+                  onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Street Address</label>
+                <input
+                  type="text"
+                  value={formData.address || ''}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="123 Main St"
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-2">City</label>
+                  <input
+                    type="text"
+                    value={formData.city || ''}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-2">State</label>
+                  <input
+                    type="text"
+                    value={formData.state || ''}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    maxLength="2"
+                    className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Emergency Contact */}
             <div className="space-y-3 pt-3 border-t border-border/20">
               <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Emergency Contact</h3>
@@ -245,6 +245,22 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
                   value={formData.emergency_contact_relationship || ''}
                   onChange={(e) => setFormData({ ...formData, emergency_contact_relationship: e.target.value })}
                   placeholder="e.g., Parent, Spouse"
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            {/* Certifications */}
+            <div className="space-y-3 pt-3 border-t border-border/20">
+              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Certifications</h3>
+              
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Current Certifications</label>
+                <input
+                  type="text"
+                  value={formData.certifications || ''}
+                  onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
+                  placeholder="e.g., Food Handler, Alcohol Server"
                   className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
