@@ -15,38 +15,17 @@ import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
 
-// Grouped desktop nav
+// Grouped desktop nav: 6 main navigation items
 const DESKTOP_SECTIONS = [
   {
-    label: "Operations",
+    label: "Main",
     items: [
-      { path: "/", label: "Overview", icon: LayoutDashboard },
+      { path: "/overview", label: "Overview", icon: LayoutDashboard },
+      { path: "/", label: "Today", icon: LayoutDashboard },
       { path: "/shift", label: "Shift", icon: ClipboardList },
       { path: "/logs", label: "Logs", icon: FileText },
-    ],
-  },
-  {
-    label: "Knowledge",
-    items: [
-      { path: "/recipes", label: "Recipes", icon: ChefHat },
-      { path: "/inventory", label: "Inventory", icon: Warehouse },
-      { path: "/vendors", label: "Vendors", icon: Truck },
-      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-    ],
-  },
-  {
-    label: "Schedule",
-    items: [
-      { path: "/schedule", label: "Schedule", icon: CalendarDays },
-      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate },
-    ],
-  },
-  {
-    label: "Admin",
-    items: [
-      { path: "/templates", label: "Templates", icon: LayoutTemplate },
-      { path: "/team", label: "Team & Roles", icon: Users },
-      { path: "/profile", label: "Settings", icon: Settings },
+      { path: "/team", label: "Team", icon: Users },
+      { path: "/more", label: "More", icon: LayoutTemplate },
     ],
   },
 ];
