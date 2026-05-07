@@ -139,7 +139,6 @@ const AuthenticatedApp = () => {
         <Route path="/purchased-items" element={<PurchasedItems />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/msds" element={<MSDS />} />
-        <Route path="/templates" element={<TemplateList />} />
         <Route path="/vendors" element={<Vendors />} />
 
         {/* TEMPLATE ROUTES */}

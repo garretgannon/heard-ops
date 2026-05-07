@@ -7,11 +7,6 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (!user || user.role !== 'admin') {
-      return Response.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const today = new Date().toISOString().split('T')[0];
     const templates = await base44.entities.Template.filter({
@@ -57,7 +52,7 @@ Deno.serve(async (req) => {
             visibility: template.visibility,
             from_template: true,
             template_id: template.id,
-            created_by_user: user.email,
+            created_by_user: 'system@app.local',
           });
 
           results.generated++;
@@ -78,7 +73,7 @@ Deno.serve(async (req) => {
             priority: template.priority,
             visibility: template.visibility,
             requires_review: template.manager_review_required,
-            created_by: user.email,
+            created_by: 'system@app.local',
             custom_metadata: {
               template_id: template.id,
               checklist_items: template.checklist_items || [],
@@ -95,7 +90,7 @@ Deno.serve(async (req) => {
             status: 'open',
             priority: template.priority,
             visibility: 'team_only',
-            created_by: user.email,
+            created_by: 'system@app.local',
             custom_metadata: {
               template_id: template.id,
               template_type: 'shift_handoff',
@@ -119,7 +114,7 @@ Deno.serve(async (req) => {
             visibility: template.visibility,
             from_template: true,
             template_id: template.id,
-            created_by_user: user.email,
+            created_by_user: 'system@app.local',
           });
 
           results.generated++;
