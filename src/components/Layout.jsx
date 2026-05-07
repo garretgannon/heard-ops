@@ -6,25 +6,51 @@ import {
   LayoutDashboard, ClipboardList, Thermometer,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   UtensilsCrossed, ChevronLeft, ChevronRight as ChevronRightIcon,
+  AlertTriangle, FileText, CalendarDays, Users,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { cn } from "@/lib/utils";
 import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 
-// Flat desktop nav matching mockup
-const DESKTOP_NAV = [
-  { path: "/", label: "Today", icon: LayoutDashboard },
-  { path: "/prep-lists", label: "Prep", icon: ClipboardList },
-  { path: "/more", label: "Overview", icon: LayoutDashboard },
-  { path: "/temp-logs", label: "Temps", icon: Thermometer },
-  { path: "/side-work", label: "Side Work", icon: UtensilsCrossed },
-  { path: "/recipes", label: "Recipes", icon: ChefHat },
-  { path: "/inventory", label: "Inventory", icon: Warehouse },
-  { path: "/vendors", label: "Vendors", icon: Truck },
-  { path: "/templates", label: "Templates", icon: LayoutTemplate },
-  { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-  { path: "/profile", label: "Settings", icon: Settings },
+// Grouped desktop nav
+const DESKTOP_SECTIONS = [
+  {
+    label: "Operations",
+    items: [
+      { path: "/", label: "Today", icon: LayoutDashboard },
+      { path: "/more", label: "Overview", icon: LayoutDashboard },
+      { path: "/prep-lists", label: "Prep", icon: ClipboardList },
+      { path: "/side-work", label: "Side Work", icon: UtensilsCrossed },
+      { path: "/temp-logs", label: "Temps", icon: Thermometer },
+      { path: "/issues", label: "Issues", icon: AlertTriangle },
+      { path: "/logs", label: "Logs", icon: FileText },
+    ],
+  },
+  {
+    label: "Knowledge",
+    items: [
+      { path: "/recipes", label: "Recipes", icon: ChefHat },
+      { path: "/inventory", label: "Inventory", icon: Warehouse },
+      { path: "/vendors", label: "Vendors", icon: Truck },
+      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+    ],
+  },
+  {
+    label: "Schedule",
+    items: [
+      { path: "/schedule", label: "Schedule", icon: CalendarDays },
+      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      { path: "/templates", label: "Templates", icon: LayoutTemplate },
+      { path: "/team", label: "Team & Roles", icon: Users },
+      { path: "/profile", label: "Settings", icon: Settings },
+    ],
+  },
 ];
 
 export default function Layout() {
@@ -124,35 +150,45 @@ export default function Layout() {
           )}
         </div>
 
-        {/* Nav items — flat list */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
-          {DESKTOP_NAV.map(item => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path ||
-              (item.path !== '/' && location.pathname.startsWith(item.path));
-            return (
-              <div key={item.path} className="relative group/navitem">
-                <Link
-                  to={item.path}
-                  className={cn(
-                    "flex items-center text-sm font-medium transition-all duration-100",
-                    collapsed ? "justify-center h-9 w-9 mx-auto rounded-lg" : "gap-3 px-3 py-2 rounded-xl",
-                    isActive
-                      ? "bg-primary text-white shadow-sm shadow-primary/30"
-                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
-                  )}
-                >
-                  <Icon className={cn("shrink-0 h-4 w-4", isActive ? "text-white" : "")} />
-                  {!collapsed && <span className="truncate font-semibold text-[13px]">{item.label}</span>}
-                </Link>
-                {collapsed && (
-                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs font-medium text-foreground whitespace-nowrap opacity-0 group-hover/navitem:opacity-100 pointer-events-none transition-opacity z-50 shadow-lg">
-                    {item.label}
-                  </div>
-                )}
+        {/* Nav items — grouped sections */}
+        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0">
+          {DESKTOP_SECTIONS.map((section, si) => (
+            <div key={section.label} className={cn(si > 0 && !collapsed ? "mt-3" : si > 0 ? "mt-2" : "")}>
+              {!collapsed && (
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 px-3 mb-1">{section.label}</p>
+              )}
+              {collapsed && si > 0 && <div className="mx-2 my-2 border-t border-border/30" />}
+              <div className="space-y-0.5">
+                {section.items.map(item => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path ||
+                    (item.path !== '/' && location.pathname.startsWith(item.path));
+                  return (
+                    <div key={item.path} className="relative group/navitem">
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "flex items-center text-sm font-medium transition-all duration-100",
+                          collapsed ? "justify-center h-9 w-9 mx-auto rounded-lg" : "gap-3 px-3 py-2 rounded-xl",
+                          isActive
+                            ? "bg-primary text-white shadow-sm shadow-primary/30"
+                            : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                        )}
+                      >
+                        <Icon className={cn("shrink-0 h-4 w-4", isActive ? "text-white" : "")} />
+                        {!collapsed && <span className="truncate font-semibold text-[13px]">{item.label}</span>}
+                      </Link>
+                      {collapsed && (
+                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs font-medium text-foreground whitespace-nowrap opacity-0 group-hover/navitem:opacity-100 pointer-events-none transition-opacity z-50 shadow-lg">
+                          {item.label}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </nav>
 
         {/* Bottom info card */}
