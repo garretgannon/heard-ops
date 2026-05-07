@@ -66,7 +66,7 @@ function TemplateForm({ template, onSave, onCancel }) {
   };
 
   const addItem = () => {
-    setItems([...items, { itemName: '', quantity: 1, unit: '', sortOrder: items.length }]);
+    setItems([...items, { itemName: '', quantity: 1, unit: '', priority: 'medium', jobCode: 'Prep Cook', sortOrder: items.length }]);
   };
 
   const updateItem = (idx, field, value) => {
@@ -273,7 +273,7 @@ function TemplateForm({ template, onSave, onCancel }) {
                 <input
                   type="text"
                   placeholder="Job code (optional)"
-                  value={item.jobCode || ''}
+                  value={item.jobCode || 'Prep Cook'}
                   onChange={(e) => updateItem(idx, 'jobCode', e.target.value)}
                   className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
                 />
