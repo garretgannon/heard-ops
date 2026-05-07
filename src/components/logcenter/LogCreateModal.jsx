@@ -6,7 +6,7 @@ import WasteLogForm from './WasteLogForm';
 import IssueLogForm from './IssueLogForm';
 import ManagerLogForm from './ManagerLogForm';
 import EightySixLogForm from './EightySixLogForm';
-import BathroomChecklistLogForm from './BathroomChecklistLogForm';
+import MaintenanceRequestForm from './MaintenanceRequestForm';
 
 const LOG_TYPES = [
   { id: 'temperature', label: 'Temperature Log', desc: 'Log equipment temps (cooler, fryer, etc)', color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', icon: '🌡️' },
@@ -14,7 +14,7 @@ const LOG_TYPES = [
   { id: 'issue', label: 'Issue / Incident', desc: 'Report equipment, safety, or operational issue', color: 'bg-red-500/20 text-red-300 border-red-500/30', icon: '⚠️' },
   { id: 'manager', label: 'Manager Note', desc: 'Shift notes, observations, follow-up items', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30', icon: '📝' },
   { id: 'eighty_six', label: '86 Item', desc: 'Mark item as out of stock', color: 'bg-orange-500/20 text-orange-300 border-orange-500/30', icon: '❌' },
-  { id: 'bathroom', label: 'Bathroom Checklist', desc: 'Daily bathroom cleanliness & supply check', color: 'bg-teal-500/20 text-teal-300 border-teal-500/30', icon: '🚽' },
+  { id: 'maintenance', label: 'Maintenance Request', desc: 'Equipment repair or maintenance issue', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', icon: '🔧' },
 ];
 
 export default function LogCreateModal({ onClose, onCreated }) {
@@ -44,8 +44,8 @@ export default function LogCreateModal({ onClose, onCreated }) {
         return <ManagerLogForm onSave={handleFormSave} loading={saving} />;
       case 'eighty_six':
         return <EightySixLogForm onSave={handleFormSave} loading={saving} />;
-      case 'bathroom':
-        return <BathroomChecklistLogForm onSave={handleFormSave} loading={saving} />;
+      case 'maintenance':
+        return <MaintenanceRequestForm onSave={handleFormSave} loading={saving} />;
       default:
         return null;
     }
