@@ -61,6 +61,7 @@ import AdminRoleSimulator from './pages/AdminRoleSimulator';
 import AdminCommandCenter from './pages/AdminCommandCenter';
 import OnboardingSimulator from './pages/OnboardingSimulator';
 import Shift from './pages/Shift';
+import TemplateManager from './pages/TemplateManager';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -156,6 +157,7 @@ const AuthenticatedApp = () => {
         <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
         <Route path="/admin/command-center" element={<AdminCommandCenter />} />
         <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
+        <Route path="/templates" element={<TemplateManager />} />
 
         {/* OPERATIONS ROUTES */}
         <Route path="/issues" element={<Navigate to="/logs?view=issues" replace />} />

@@ -6,99 +6,56 @@
       "type": "string",
       "title": "Template Name"
     },
-    "type": {
+    "template_type": {
       "type": "string",
       "title": "Template Type",
       "enum": [
-        "prep_list",
-        "side_work",
+        "prep",
+        "sidework",
         "cleaning",
-        "temp_log",
-        "waste_log",
-        "86_log"
-      ],
-      "enumNames": [
-        "Prep List",
-        "Side Work",
-        "Cleaning Checklist",
-        "Temperature Log",
-        "Waste Log",
-        "86 Log"
+        "temperature",
+        "waste_86",
+        "maintenance",
+        "opening_checklist",
+        "closing_checklist",
+        "shift_handoff",
+        "beo_event"
       ]
+    },
+    "assigned_role": {
+      "type": "string",
+      "title": "Assigned Role (e.g., Kitchen Lead, Server)"
+    },
+    "assigned_station": {
+      "type": "string",
+      "title": "Assigned Station / Area"
     },
     "description": {
       "type": "string",
-      "title": "Description"
+      "title": "Template Description / Instructions"
     },
-    "assignedStations": {
-      "type": "array",
-      "title": "Assigned Stations",
-      "items": {
-        "type": "string"
-      }
-    },
-    "assignedJobCodes": {
-      "type": "array",
-      "title": "Assigned Job Codes",
-      "items": {
-        "type": "string"
-      }
-    },
-    "assignedShifts": {
-      "type": "array",
-      "title": "Assigned Shifts",
-      "items": {
-        "type": "string"
-      }
-    },
-    "repeatType": {
+    "recurrence_type": {
       "type": "string",
-      "title": "Repeat Type",
+      "title": "Recurrence Type",
       "enum": [
-        "once",
         "daily",
         "weekly",
-        "custom"
-      ],
-      "enumNames": [
-        "One Time",
-        "Daily",
-        "Weekly",
-        "Custom"
+        "every_shift",
+        "on_demand"
       ],
       "default": "daily"
     },
-    "repeatDays": {
+    "recurrence_days": {
       "type": "array",
-      "title": "Repeat Days (0=Sun, 6=Sat)",
+      "title": "Days of Week (if weekly)",
       "items": {
         "type": "integer"
-      }
+      },
+      "description": "0=Sunday, 6=Saturday"
     },
-    "startDate": {
+    "due_time": {
       "type": "string",
-      "format": "date",
-      "title": "Start Date"
-    },
-    "endDate": {
-      "type": "string",
-      "format": "date",
-      "title": "End Date"
-    },
-    "isActive": {
-      "type": "boolean",
-      "title": "Active",
-      "default": true
-    },
-    "requiresPhoto": {
-      "type": "boolean",
-      "title": "Requires Photo",
-      "default": false
-    },
-    "requiresManagerReview": {
-      "type": "boolean",
-      "title": "Requires Manager Review",
-      "default": false
+      "title": "Due Time (HH:MM)"
     },
     "priority": {
       "type": "string",
@@ -109,34 +66,66 @@
         "high",
         "critical"
       ],
-      "enumNames": [
-        "Low",
-        "Medium",
-        "High",
-        "Critical"
-      ],
       "default": "medium"
     },
-    "notes": {
-      "type": "string",
-      "title": "Notes / Instructions"
+    "photo_required": {
+      "type": "boolean",
+      "title": "Photo Required",
+      "default": false
     },
-    "createdBy": {
-      "type": "string",
-      "title": "Created By (Email)"
+    "manager_review_required": {
+      "type": "boolean",
+      "title": "Manager Review Required",
+      "default": false
     },
-    "updatedBy": {
+    "visibility": {
       "type": "string",
-      "title": "Updated By (Email)"
+      "title": "Visibility",
+      "enum": [
+        "team_only",
+        "manager_only",
+        "assigned_only",
+        "private"
+      ],
+      "default": "team_only"
     },
-    "itemCount": {
-      "type": "number",
-      "title": "Item Count",
-      "default": 0
+    "checklist_items": {
+      "type": "array",
+      "title": "Checklist Items (for cleaning, opening, closing, handoff types)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "custom_fields": {
+      "type": "object",
+      "title": "Custom Metadata (type-specific data)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "last_generated_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Last Generated Date (to prevent duplicates)"
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By (User Email)"
     }
   },
   "required": [
     "name",
-    "type"
+    "template_type",
+    "assigned_role"
   ]
 }
