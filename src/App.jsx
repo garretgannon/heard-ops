@@ -55,6 +55,7 @@ import EightySixTemplates from './pages/86Templates';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
 import ScheduleImport from './pages/ScheduleImport';
+import ShiftHandoff from './pages/ShiftHandoff';
 import AdminRoleSimulator from './pages/AdminRoleSimulator';
 import AdminCommandCenter from './pages/AdminCommandCenter';
 
@@ -158,7 +159,7 @@ const AuthenticatedApp = () => {
         <Route path="/inventory" element={<InventorySimplified />} />
         <Route path="/team" element={<RestaurantTeam />} />
         <Route path="/reports" element={<Reports />} />
-        <Route path="/shift-handoff" element={<RestaurantTeam />} /> {/* Placeholder */}
+        <Route path="/shift-handoff" element={<ShiftHandoff />} />
 
         {/* SETTINGS ROUTES */}
         <Route path="/profile" element={<Profile />} />

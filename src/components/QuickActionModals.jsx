@@ -457,15 +457,106 @@ function ReportIssueModal({ isOpen, onClose, onSuccess }) {
   );
 }
 
+/* ── 6. Quick Temp Log ────────────────────────────────── */
+function TempLogModal({ isOpen, onClose, onSuccess }) {
+  const toast = useToast();
+  const { user } = useCurrentUser();
+  const [submitting, setSubmitting] = useState(false);
+  const [logType, setLogType] = useState('fridge');
+  const [location, setLocation] = useState('');
+  const [temperature, setTemperature] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const reset = () => { setLogType('fridge'); setLocation(''); setTemperature(''); setNotes(''); };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const tempVal = parseFloat(temperature);
+    if (logType === 'fridge') {
+      await base44.entities.RefrigeratorFreezerLog.create({
+        location: location || 'Walk-in Cooler',
+        temperature: tempVal,
+        date: todayStr,
+        time: nowTime,
+        loggedBy: user?.full_name || user?.email,
+        notes: notes.trim(),
+        isOutOfRange: tempVal > 41 || tempVal < 28,
+      });
+    } else if (logType === 'hot') {
+      await base44.entities.HotHoldingLog.create({
+        itemName: location || 'Hot Item',
+        temperature: tempVal,
+        date: todayStr,
+        time: nowTime,
+        loggedBy: user?.full_name || user?.email,
+        notes: notes.trim(),
+        isOutOfRange: tempVal < 135,
+      });
+    } else {
+      await base44.entities.TemperatureLog.create({
+        location: location || 'General',
+        temperature: tempVal,
+        log_date: todayStr,
+        log_time: nowTime,
+        logged_by: user?.email,
+        notes: notes.trim(),
+      });
+    }
+    toast('Temperature logged');
+    onSuccess?.();
+    reset();
+    onClose();
+    setSubmitting(false);
+  };
+
+  if (!isOpen) return null;
+  return (
+    <ModalShell
+      title="Log Temperature"
+      onClose={onClose}
+      footer={
+        <>
+          <button onClick={handleSubmit} disabled={submitting || !temperature} className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold disabled:opacity-40 active:scale-95 transition-all">
+            {submitting ? 'Saving...' : 'Save Temperature'}
+          </button>
+          <button onClick={onClose} className="w-full h-10 rounded-lg border border-border font-bold text-sm active:scale-95">Cancel</button>
+        </>
+      }
+    >
+      <Field label="Log Type">
+        <select value={logType} onChange={e => setLogType(e.target.value)} className={inputCls}>
+          <option value="fridge">Fridge / Freezer</option>
+          <option value="hot">Hot Holding</option>
+          <option value="general">General Temp</option>
+        </select>
+      </Field>
+      <Field label={logType === 'hot' ? 'Item Name' : 'Location'}>
+        <input type="text" value={location} onChange={e => setLocation(e.target.value)}
+          placeholder={logType === 'hot' ? 'e.g., Soup, Sauce...' : 'e.g., Walk-in Cooler...'} className={inputCls} autoFocus />
+      </Field>
+      <Field label="Temperature (°F) *">
+        <input type="number" value={temperature} onChange={e => setTemperature(e.target.value)}
+          placeholder="e.g., 38" step="0.1" className={inputCls} />
+      </Field>
+      <Field label="Notes">
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes..." rows={3} className={inputCls + ' resize-none'} />
+      </Field>
+    </ModalShell>
+  );
+}
+
 /* ── Dispatcher ───────────────────────────────────────── */
 export function QuickActionModals({ activeModal, onCloseModal, onSuccess }) {
   return (
     <>
-      <ManagerLogModal    isOpen={activeModal === "quick-log"}  onClose={onCloseModal} onSuccess={onSuccess} />
-      <AddTaskModal       isOpen={activeModal === "add-task"}   onClose={onCloseModal} onSuccess={onSuccess} />
-      <UpdatePrepModal    isOpen={activeModal === "add-prep"}   onClose={onCloseModal} onSuccess={onSuccess} />
-      <LogWasteModal      isOpen={activeModal === "add-waste"}  onClose={onCloseModal} onSuccess={onSuccess} />
-      <ReportIssueModal   isOpen={activeModal === "add-issue"}  onClose={onCloseModal} onSuccess={onSuccess} />
+      <ManagerLogModal    isOpen={activeModal === 'quick-log'}  onClose={onCloseModal} onSuccess={onSuccess} />
+      <AddTaskModal       isOpen={activeModal === 'add-task'}   onClose={onCloseModal} onSuccess={onSuccess} />
+      <UpdatePrepModal    isOpen={activeModal === 'add-prep'}   onClose={onCloseModal} onSuccess={onSuccess} />
+      <LogWasteModal      isOpen={activeModal === 'add-waste'}  onClose={onCloseModal} onSuccess={onSuccess} />
+      <ReportIssueModal   isOpen={activeModal === 'add-issue'}  onClose={onCloseModal} onSuccess={onSuccess} />
+      <TempLogModal       isOpen={activeModal === 'temp-log'}   onClose={onCloseModal} onSuccess={onSuccess} />
     </>
   );
 }
