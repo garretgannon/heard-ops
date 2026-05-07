@@ -49,7 +49,7 @@ export default function AdvancedFilterSheet({ isOpen, onClose, filters, onApplyF
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end">
+    <div className="fixed inset-0 z-50 flex items-end box-border">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -57,9 +57,9 @@ export default function AdvancedFilterSheet({ isOpen, onClose, filters, onApplyF
       />
 
       {/* Sheet */}
-      <div className="relative w-full bg-card rounded-t-2xl max-h-[80vh] overflow-y-auto">
+      <div className="relative w-screen max-w-full bg-card rounded-t-2xl max-h-[80vh] overflow-y-auto overflow-x-hidden box-border">
         {/* Header */}
-        <div className="sticky top-0 bg-card border-b border-border/20 px-4 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-card border-b border-border/20 px-4 py-4 flex items-center justify-between w-full box-border">
           <h2 className="text-lg font-bold text-foreground">Advanced Filters</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
             <X className="h-5 w-5" />
@@ -67,7 +67,7 @@ export default function AdvancedFilterSheet({ isOpen, onClose, filters, onApplyF
         </div>
 
         {/* Content */}
-        <div className="px-4 py-4 space-y-6">
+        <div className="px-4 py-4 space-y-6 w-full box-border">
           {/* Log Types */}
           <div>
             <h3 className="text-sm font-bold text-foreground mb-2">Log Type</h3>
@@ -155,7 +155,7 @@ export default function AdvancedFilterSheet({ isOpen, onClose, filters, onApplyF
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-card border-t border-border/20 px-4 py-3 flex gap-2">
+        <div className="sticky bottom-0 bg-card border-t border-border/20 px-4 py-3 flex gap-2 w-full box-border">
           <button
             onClick={handleReset}
             className="flex-1 h-11 rounded-lg border border-border/40 bg-background text-foreground font-semibold text-sm active:scale-95 transition-all hover:bg-muted/20"

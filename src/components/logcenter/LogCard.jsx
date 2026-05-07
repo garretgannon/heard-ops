@@ -57,7 +57,7 @@ export default function LogCard({ log, onOpen, isHighlighted = false }) {
     <button
       onClick={() => { haptics.light?.(); onOpen?.(log.id); }}
       className={cn(
-        'w-full text-left px-4 py-2.5 rounded-lg border transition-all active:scale-95',
+        'w-full text-left px-4 py-2.5 rounded-lg border transition-all active:scale-95 box-border overflow-hidden',
         isHighlighted
           ? 'bg-primary/10 border-primary/30 ring-1 ring-primary/40'
           : 'bg-card border-border/30 hover:border-border/50'
@@ -86,36 +86,36 @@ export default function LogCard({ log, onOpen, isHighlighted = false }) {
         </div>
 
         {/* Details Row */}
-        <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground/80">
+        <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80 overflow-hidden">
           {/* Location/Equipment */}
           {log.location && (
-            <div className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              <span>{log.location}</span>
-            </div>
+           <div className="flex items-center gap-1 flex-shrink-0">
+             <MapPin className="h-3 w-3 flex-shrink-0" />
+             <span className="truncate">{log.location}</span>
+           </div>
           )}
 
           {/* Employee */}
           {log.employee_name && (
-            <>
-              <span>•</span>
-              <span>{log.employee_name}</span>
-            </>
+           <>
+             <span className="flex-shrink-0">•</span>
+             <span className="truncate flex-shrink-0">{log.employee_name}</span>
+           </>
           )}
 
           {/* Time */}
-          <span>•</span>
-          <span>{submittedAt}</span>
+          <span className="flex-shrink-0">•</span>
+          <span className="flex-shrink-0">{submittedAt}</span>
 
           {/* Temperature Value */}
           {log.custom_metadata?.temperatureValue && (
-            <>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <Thermometer className="h-3 w-3" />
-                {log.custom_metadata.temperatureValue}°{log.custom_metadata.temperatureUnit || 'F'}
-              </span>
-            </>
+           <>
+             <span className="flex-shrink-0">•</span>
+             <span className="flex items-center gap-1 flex-shrink-0">
+               <Thermometer className="h-3 w-3 flex-shrink-0" />
+               <span className="truncate">{log.custom_metadata.temperatureValue}°{log.custom_metadata.temperatureUnit || 'F'}</span>
+             </span>
+           </>
           )}
         </div>
 

@@ -121,7 +121,7 @@ export default function LogsCenter() {
       <LogsViewTabs activeView={viewMode} onViewChange={setViewMode} />
 
       {/* Content */}
-      <div className="flex-1 w-full px-4 py-3 lg:px-8 overflow-x-hidden">
+      <div className="flex-1 w-full px-4 py-3 lg:px-8 overflow-x-hidden box-border">
         {filteredLogs.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">No logs found</p>
