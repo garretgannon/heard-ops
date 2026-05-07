@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import LogTagManager from './LogTagManager';
+import { createLogTags } from '@/hooks/useLogTags';
 
 const NOTIFY_ROLES = [
   { id: 'managers', label: 'Managers' },
@@ -32,6 +34,7 @@ export default function EightySixLogForm({ onSave, loading }) {
   const [inventoryItems, setInventoryItems] = useState([]);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -112,7 +115,12 @@ export default function EightySixLogForm({ onSave, loading }) {
       photo_url: photoUrl,
       notes: form.notes,
       status: 'active',
-    }).then(onSave).catch(err => {
+    }).then(async (created) => {
+      if (selectedTags.length > 0) {
+        await createLogTags(created.id, 'eighty_six', selectedTags);
+      }
+      onSave();
+    }).catch(err => {
       console.error('Failed to save 86 item:', err);
       alert('Failed to save 86 item');
     });
@@ -260,6 +268,12 @@ export default function EightySixLogForm({ onSave, loading }) {
         <textarea placeholder="Additional details..." value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
           className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+      </div>
+
+      {/* Tags */}
+      <div>
+        <label className="text-xs font-bold text-secondary-text block mb-2">Tags (Optional)</label>
+        <LogTagManager selectedTags={selectedTags} onChange={setSelectedTags} maxTags={5} />
       </div>
 
       {/* Save Button */}

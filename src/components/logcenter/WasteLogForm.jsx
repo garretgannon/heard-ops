@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import LogTagManager from './LogTagManager';
+import { createLogTags } from '@/hooks/useLogTags';
 
 const WASTE_REASONS = [
   'Spoiled',
@@ -40,6 +42,7 @@ export default function WasteLogForm({ onSave, loading }) {
   const [recipes, setRecipes] = useState([]);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -107,7 +110,12 @@ export default function WasteLogForm({ onSave, loading }) {
       recipe_id: form.recipe_id || null,
       manager_review_required: form.manager_review_required,
       notes: form.notes,
-    }).then(onSave).catch(err => {
+    }).then(async (created) => {
+      if (selectedTags.length > 0) {
+        await createLogTags(created.id, 'waste', selectedTags);
+      }
+      onSave();
+    }).catch(err => {
       console.error('Failed to save waste entry:', err);
       alert('Failed to save waste entry');
     });
@@ -271,6 +279,12 @@ export default function WasteLogForm({ onSave, loading }) {
         <input type="checkbox" checked={form.manager_review_required} onChange={e => setForm({ ...form, manager_review_required: e.target.checked })} />
         <span className="text-xs font-bold text-foreground">Manager review required</span>
       </label>
+
+      {/* Tags */}
+      <div>
+        <label className="text-xs font-bold text-secondary-text block mb-2">Tags (Optional)</label>
+        <LogTagManager selectedTags={selectedTags} onChange={setSelectedTags} maxTags={5} />
+      </div>
 
       {/* Save Button */}
       <button onClick={handleSave} disabled={loading}
