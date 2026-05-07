@@ -34,7 +34,7 @@ export default function RestaurantTeam() {
 
   useEffect(() => {
     const load = async () => {
-      const all = await base44.entities.User.list();
+      const all = await base44.entities.Employee.list();
       setEmployees(all);
       setLoading(false);
     };
@@ -73,13 +73,13 @@ export default function RestaurantTeam() {
 
   const handleAddEmployee = async () => {
     setShowAddModal(false);
-    const all = await base44.entities.User.list();
+    const all = await base44.entities.Employee.list();
     setEmployees(all);
     toast.success("Employee added!");
   };
 
   const handleUpdateEmployee = async () => {
-    const all = await base44.entities.User.list();
+    const all = await base44.entities.Employee.list();
     setEmployees(all);
   };
 
