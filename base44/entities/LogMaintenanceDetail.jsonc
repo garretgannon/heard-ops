@@ -1,0 +1,41 @@
+{
+  "name": "LogMaintenanceDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "equipmentId": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "vendorId": {
+      "type": "string",
+      "title": "Vendor ID"
+    },
+    "estimatedCost": {
+      "type": "number",
+      "title": "Estimated Cost ($)"
+    },
+    "resolutionNotes": {
+      "type": "string",
+      "title": "Resolution Notes"
+    },
+    "maintenanceStatus": {
+      "type": "string",
+      "title": "Maintenance Status",
+      "enum": [
+        "pending",
+        "scheduled",
+        "in_progress",
+        "completed",
+        "on_hold",
+        "cancelled"
+      ]
+    }
+  },
+  "required": [
+    "logId"
+  ]
+}

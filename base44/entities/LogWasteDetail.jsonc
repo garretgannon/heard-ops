@@ -1,0 +1,51 @@
+{
+  "name": "LogWasteDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "itemName": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason",
+      "enum": [
+        "spoiled",
+        "overproduced",
+        "burned",
+        "dropped",
+        "expired",
+        "guest_return",
+        "other"
+      ]
+    },
+    "estimatedCost": {
+      "type": "number",
+      "title": "Estimated Cost ($)"
+    },
+    "linkedInventoryItemId": {
+      "type": "string",
+      "title": "Linked Inventory Item ID"
+    },
+    "linkedRecipeId": {
+      "type": "string",
+      "title": "Linked Recipe ID"
+    }
+  },
+  "required": [
+    "logId",
+    "itemName"
+  ]
+}

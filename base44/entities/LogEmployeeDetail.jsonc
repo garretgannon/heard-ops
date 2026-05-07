@@ -1,0 +1,54 @@
+{
+  "name": "LogEmployeeDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "employeeId": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "employeeLogCategory": {
+      "type": "string",
+      "title": "Log Category",
+      "enum": [
+        "coaching",
+        "praise",
+        "attendance",
+        "policy_issue",
+        "performance",
+        "training",
+        "uniform",
+        "guest_compliment",
+        "guest_complaint",
+        "documentation",
+        "other"
+      ]
+    },
+    "acknowledgementRequired": {
+      "type": "boolean",
+      "title": "Acknowledgement Required",
+      "default": false
+    },
+    "acknowledgementStatus": {
+      "type": "string",
+      "title": "Acknowledgement Status",
+      "enum": [
+        "pending",
+        "acknowledged",
+        "declined"
+      ],
+      "default": "pending"
+    },
+    "followUpDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Follow-up Date"
+    }
+  },
+  "required": [
+    "logId"
+  ]
+}

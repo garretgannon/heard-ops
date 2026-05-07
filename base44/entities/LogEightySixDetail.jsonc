@@ -1,0 +1,39 @@
+{
+  "name": "LogEightySixDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "itemName": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason"
+    },
+    "expectedReturnAt": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Expected Return At"
+    },
+    "notifyRoles": {
+      "type": "array",
+      "title": "Notify Roles",
+      "items": {
+        "type": "string"
+      }
+    },
+    "isBackInStock": {
+      "type": "boolean",
+      "title": "Back In Stock",
+      "default": false
+    }
+  },
+  "required": [
+    "logId",
+    "itemName"
+  ]
+}

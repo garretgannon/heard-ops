@@ -1,0 +1,65 @@
+{
+  "name": "LogIncidentDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "incidentCategory": {
+      "type": "string",
+      "title": "Incident Category",
+      "enum": [
+        "guest_injury",
+        "employee_injury",
+        "security",
+        "property_damage",
+        "food_safety",
+        "guest_complaint",
+        "policy_violation",
+        "other"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "title": "Severity",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "peopleInvolved": {
+      "type": "array",
+      "title": "People Involved",
+      "items": {
+        "type": "string"
+      }
+    },
+    "witnesses": {
+      "type": "array",
+      "title": "Witnesses",
+      "items": {
+        "type": "string"
+      }
+    },
+    "managerNotified": {
+      "type": "boolean",
+      "title": "Manager Notified",
+      "default": false
+    },
+    "followUpRequired": {
+      "type": "boolean",
+      "title": "Follow-up Required",
+      "default": false
+    },
+    "followUpOwner": {
+      "type": "string",
+      "title": "Follow-up Owner"
+    }
+  },
+  "required": [
+    "logId"
+  ]
+}

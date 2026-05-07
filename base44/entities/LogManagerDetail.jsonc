@@ -1,0 +1,42 @@
+{
+  "name": "LogManagerDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "shiftType": {
+      "type": "string",
+      "title": "Shift Type",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    },
+    "department": {
+      "type": "string",
+      "title": "Department"
+    },
+    "salesNotes": {
+      "type": "string",
+      "title": "Sales Notes"
+    },
+    "staffingNotes": {
+      "type": "string",
+      "title": "Staffing Notes"
+    },
+    "guestNotes": {
+      "type": "string",
+      "title": "Guest Notes"
+    },
+    "foodSafetyNotes": {
+      "type": "string",
+      "title": "Food Safety Notes"
+    }
+  },
+  "required": [
+    "logId"
+  ]
+}

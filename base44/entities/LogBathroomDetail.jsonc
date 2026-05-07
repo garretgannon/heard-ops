@@ -1,0 +1,49 @@
+{
+  "name": "LogBathroomDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "bathroomLocation": {
+      "type": "string",
+      "title": "Bathroom Location"
+    },
+    "checklistItems": {
+      "type": "array",
+      "title": "Checklist Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "failedItems": {
+      "type": "array",
+      "title": "Failed Items",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supplyIssue": {
+      "type": "boolean",
+      "title": "Supply Issue",
+      "default": false
+    },
+    "maintenanceNeeded": {
+      "type": "boolean",
+      "title": "Maintenance Needed",
+      "default": false
+    }
+  },
+  "required": [
+    "logId"
+  ]
+}

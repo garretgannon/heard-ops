@@ -1,0 +1,63 @@
+{
+  "name": "LogTemperatureDetail",
+  "type": "object",
+  "properties": {
+    "logId": {
+      "type": "string",
+      "title": "Log ID"
+    },
+    "temperatureCategory": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "walk_in_cooler",
+        "walk_in_freezer",
+        "reach_in_cooler",
+        "reach_in_freezer",
+        "prep_table_cooler",
+        "lowboy_cooler",
+        "hot_holding",
+        "ice_machine",
+        "dish_machine",
+        "other"
+      ]
+    },
+    "temperatureValue": {
+      "type": "number",
+      "title": "Temperature Value"
+    },
+    "temperatureUnit": {
+      "type": "string",
+      "title": "Unit",
+      "enum": [
+        "F",
+        "C"
+      ],
+      "default": "F"
+    },
+    "safeMin": {
+      "type": "number",
+      "title": "Safe Minimum"
+    },
+    "safeMax": {
+      "type": "number",
+      "title": "Safe Maximum"
+    },
+    "passFail": {
+      "type": "string",
+      "title": "Pass/Fail",
+      "enum": [
+        "pass",
+        "fail"
+      ]
+    },
+    "correctiveAction": {
+      "type": "string",
+      "title": "Corrective Action"
+    }
+  },
+  "required": [
+    "logId",
+    "temperatureValue"
+  ]
+}

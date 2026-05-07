@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { LOG_TYPES, STATUS_META } from '@/components/activity-logs/logConfig.js';
+import { LOG_TYPES, STATUS_META } from '../activity-logs/logConfig';
 import { base44 } from '@/api/base44Client';
 
 const PRIORITIES = ["critical", "high", "medium", "low"];

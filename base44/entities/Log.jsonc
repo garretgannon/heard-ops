@@ -2,118 +2,216 @@
   "name": "Log",
   "type": "object",
   "properties": {
-    "type": {
+    "logType": {
       "type": "string",
       "title": "Log Type",
       "enum": [
         "temperature",
-        "waste",
-        "chemical",
         "bathroom",
-        "dish_machine",
-        "safety",
+        "maintenance",
         "incident",
-        "manager_note"
-      ],
-      "enumNames": [
-        "Temperature",
-        "Waste",
-        "Chemical",
-        "Bathroom Check",
-        "Dish Machine",
-        "Safety",
-        "Incident",
-        "Manager Note"
+        "employee",
+        "manager",
+        "waste",
+        "eighty_six"
       ]
-    },
-    "shift_id": {
-      "type": "string",
-      "title": "Shift ID"
-    },
-    "station_id": {
-      "type": "string",
-      "title": "Station ID"
-    },
-    "location_id": {
-      "type": "string",
-      "title": "Location ID"
-    },
-    "logged_by_email": {
-      "type": "string",
-      "title": "Logged By (Email)"
-    },
-    "logged_by_name": {
-      "type": "string",
-      "title": "Logged By (Name)"
-    },
-    "logged_at": {
-      "type": "string",
-      "title": "Logged At (ISO)"
     },
     "title": {
       "type": "string",
       "title": "Title"
     },
-    "notes": {
+    "description": {
       "type": "string",
-      "title": "Notes"
-    },
-    "value": {
-      "type": "number",
-      "title": "Numeric Value (temp, count, etc)"
-    },
-    "value_unit": {
-      "type": "string",
-      "title": "Unit (\u00b0F, lbs, items, etc)"
+      "title": "Description"
     },
     "status": {
       "type": "string",
       "title": "Status",
       "enum": [
-        "safe",
-        "warning",
-        "danger",
-        "out_of_range",
-        "flagged"
-      ],
-      "enumNames": [
-        "Safe",
-        "Warning",
-        "Danger",
-        "Out of Range",
-        "Flagged"
-      ],
-      "default": "safe"
+        "open",
+        "in_progress",
+        "completed",
+        "flagged",
+        "needs_review",
+        "resolved",
+        "approved",
+        "failed",
+        "passed",
+        "pending",
+        "active",
+        "archived"
+      ]
     },
-    "photo_url": {
+    "priority": {
       "type": "string",
-      "title": "Photo URL"
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
     },
-    "created_issue_id": {
+    "createdAt": {
       "type": "string",
-      "title": "Created Issue ID"
+      "format": "date-time",
+      "title": "Created At"
     },
-    "linked_issue_ids": {
+    "createdBy": {
+      "type": "string",
+      "title": "Created By (Email)"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+    },
+    "updatedBy": {
+      "type": "string",
+      "title": "Updated By (Email)"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Log Date/Time"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Due Date"
+    },
+    "assignedToEmployeeId": {
+      "type": "string",
+      "title": "Assigned To Employee ID"
+    },
+    "assignedToRole": {
+      "type": "string",
+      "title": "Assigned To Role"
+    },
+    "assignedToStation": {
+      "type": "string",
+      "title": "Assigned To Station"
+    },
+    "locationId": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "department": {
+      "type": "string",
+      "title": "Department"
+    },
+    "area": {
+      "type": "string",
+      "title": "Area"
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "equipmentId": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "employeeId": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "vendorId": {
+      "type": "string",
+      "title": "Vendor ID"
+    },
+    "recipeId": {
+      "type": "string",
+      "title": "Recipe ID"
+    },
+    "inventoryItemId": {
+      "type": "string",
+      "title": "Inventory Item ID"
+    },
+    "shiftId": {
+      "type": "string",
+      "title": "Shift ID"
+    },
+    "eventId": {
+      "type": "string",
+      "title": "Event/BEO ID"
+    },
+    "visibility": {
+      "type": "string",
+      "title": "Visibility",
+      "enum": [
+        "team_log",
+        "manager_only",
+        "assigned_roles_only",
+        "private"
+      ],
+      "default": "team_log"
+    },
+    "requiresReview": {
+      "type": "boolean",
+      "title": "Requires Review",
+      "default": false
+    },
+    "reviewedBy": {
+      "type": "string",
+      "title": "Reviewed By (Email)"
+    },
+    "reviewedAt": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Reviewed At"
+    },
+    "reviewStatus": {
+      "type": "string",
+      "title": "Review Status",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "needs_revision"
+      ]
+    },
+    "photos": {
       "type": "array",
-      "title": "Linked Issue IDs",
+      "title": "Photo URLs",
       "items": {
         "type": "string"
       }
     },
-    "corrective_action": {
-      "type": "string",
-      "title": "Corrective Action"
+    "attachments": {
+      "type": "array",
+      "title": "Attachment URLs",
+      "items": {
+        "type": "string"
+      }
     },
-    "corrective_action_resolved": {
-      "type": "boolean",
-      "title": "Corrective Action Resolved",
-      "default": false
+    "tags": {
+      "type": "array",
+      "title": "Tag IDs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source": {
+      "type": "string",
+      "title": "Source",
+      "enum": [
+        "manual",
+        "import",
+        "api",
+        "automation"
+      ]
+    },
+    "relatedLogId": {
+      "type": "string",
+      "title": "Related Log ID"
     }
   },
   "required": [
-    "type",
-    "shift_id",
-    "location_id",
-    "logged_at"
+    "logType",
+    "title",
+    "status",
+    "createdBy",
+    "dateTime"
   ]
 }
