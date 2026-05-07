@@ -9,6 +9,7 @@ import ShiftModeHeader from '@/components/shift/ShiftModeHeader';
 import ShiftProgressCard from '@/components/shift/ShiftProgressCard';
 import CurrentTaskCard from '@/components/shift/CurrentTaskCard';
 import UpNextList from '@/components/shift/UpNextList';
+import AdminShiftDashboard from '@/components/shift/AdminShiftDashboard';
 
 export default function Shift() {
   const navigate = useNavigate();
@@ -17,8 +18,9 @@ export default function Shift() {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
   const [currentTask, setCurrentTask] = useState(null);
-  const [stats, setStats] = useState({ completedCount: 0, totalCount: 0 });
+  const [stats, setStats] = useState({ completedCount: 0, totalCount: 0, completionPct: 0 });
   const [activeModal, setActiveModal] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
   const isMounted = useRef(true);
 
   // Load shift tasks
@@ -43,10 +45,11 @@ export default function Shift() {
 
           const completedCount = allTasks.filter((t) => ['complete', 'approved'].includes(t.status)).length;
           const totalCount = allTasks.length;
+          const completionPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
           setTasks(sorted);
           setCurrentTask(current);
-          setStats({ completedCount, totalCount });
+          setStats({ completedCount, totalCount, completionPct });
           setLoading(false);
         }
       } catch (err) {
@@ -59,6 +62,13 @@ export default function Shift() {
     return () => {
       isMounted.current = false;
     };
+  }, []);
+
+  // Track mobile/desktop on resize
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
   }, []);
 
   const handleStartTask = async (taskId) => {
@@ -158,7 +168,32 @@ export default function Shift() {
 
   const handleModalSuccess = () => {
     setActiveModal(null);
-    window.location.reload();
+    // Reload task data instead of full page reload
+    loadTasks();
+  };
+
+  const loadTasks = async () => {
+    try {
+      const allTasks = await base44.entities.Task.list('-updated_date', 100).catch(() => []);
+      const sorted = allTasks.sort((a, b) => {
+        const statusOrder = { overdue: 0, in_progress: 1, not_started: 2, complete: 3, approved: 4, needs_review: 5 };
+        if (statusOrder[a.status] !== statusOrder[b.status]) {
+          return statusOrder[a.status] - statusOrder[b.status];
+        }
+        return new Date(a.due_date || 0) - new Date(b.due_date || 0);
+      });
+
+      const completedCount = allTasks.filter((t) => ['complete', 'approved'].includes(t.status)).length;
+      const totalCount = allTasks.length;
+      const completionPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+      if (isMounted.current) {
+        setTasks(sorted);
+        setStats({ completedCount, totalCount, completionPct });
+      }
+    } catch (err) {
+      console.error('Failed to reload tasks:', err);
+    }
   };
 
   if (loading) {
@@ -178,27 +213,42 @@ export default function Shift() {
       <ShiftModeHeader />
 
       {/* Main Content */}
-      <div className="flex-1 px-4 py-6 lg:px-8 max-w-2xl mx-auto w-full space-y-6">
-        {/* Shift Progress */}
-        <ShiftProgressCard
-          completedCount={stats.completedCount}
-          totalCount={stats.totalCount}
-          status={currentTask?.status || 'complete'}
-          nextDueTime={nextDueTime}
-        />
+      <div className="flex-1 px-4 py-6 lg:px-8 w-full">
+        {isMobile ? (
+          /* Mobile Staff View */
+          <div className="max-w-2xl mx-auto w-full space-y-6">
+            {/* Shift Progress */}
+            <ShiftProgressCard
+              completedCount={stats.completedCount}
+              totalCount={stats.totalCount}
+              status={currentTask?.status || 'complete'}
+              nextDueTime={nextDueTime}
+            />
 
-        {/* Current Task */}
-        <CurrentTaskCard
-          task={currentTask}
-          onStart={handleStartTask}
-          onComplete={handleCompleteTask}
-          onReview={handleMarkReview}
-          onUnableToComplete={handleUnableToComplete}
-          onSkip={handleSkipTask}
-        />
+            {/* Current Task */}
+            <CurrentTaskCard
+              task={currentTask}
+              onStart={handleStartTask}
+              onComplete={handleCompleteTask}
+              onReview={handleMarkReview}
+              onUnableToComplete={handleUnableToComplete}
+              onSkip={handleSkipTask}
+            />
 
-        {/* Up Next */}
-        {nextTasks.length > 0 && <UpNextList tasks={nextTasks} />}
+            {/* Up Next */}
+            {nextTasks.length > 0 && <UpNextList tasks={nextTasks} />}
+          </div>
+        ) : (
+          /* Desktop Admin/Manager View */
+          <div className="max-w-7xl mx-auto w-full">
+            <AdminShiftDashboard
+              tasks={tasks}
+              stats={stats}
+              user={user}
+              onTaskUpdate={handleModalSuccess}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
