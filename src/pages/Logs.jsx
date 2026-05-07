@@ -9,11 +9,12 @@ import {
   CalendarDays, AlertCircle, BarChart2, Filter,
 } from "lucide-react";
 import { LOG_TYPE_CONFIG, STATUS_META, TYPE_FILTER_LIST } from "@/components/logcenter/logConfig";
-import LogsFeedView from "@/components/logcenter/LogsFeedView";
-import LogsCategoryView from "@/components/logcenter/LogsCategoryView";
-import LogsCalendarView from "@/components/logcenter/LogsCalendarView";
-import LogsReviewView from "@/components/logcenter/LogsReviewView";
-import LogsAnalyticsView from "@/components/logcenter/LogsAnalyticsView";
+import FeedView from "@/components/activity-logs/FeedView";
+import CategoryView from "@/components/activity-logs/CategoryView";
+import CalendarView from "@/components/activity-logs/CalendarView";
+import ReviewView from "@/components/activity-logs/ReviewView";
+import AnalyticsView from "@/components/activity-logs/AnalyticsView";
+import FilterPanel from "@/components/activity-logs/FilterPanel";
 import LogCreateModal from "@/components/logcenter/LogCreateModal";
 
 // ── Map raw entity records to unified log shape ───────────────────
@@ -85,6 +86,7 @@ export default function Logs() {
   const [deptFilter, setDeptFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({});
   const [showCreate, setShowCreate] = useState(false);
 
   const fetchAll = async () => {
@@ -263,11 +265,11 @@ export default function Logs() {
 
       {/* ── Content ── */}
       <div className="px-4 py-3">
-        {view === "feed" && <LogsFeedView logs={filtered} onLogClick={handleLogClick} loading={loading} />}
-        {view === "category" && <LogsCategoryView logs={filtered} onLogClick={handleLogClick} loading={loading} />}
-        {view === "calendar" && <LogsCalendarView logs={allLogs} onLogClick={handleLogClick} />}
-        {view === "review" && <LogsReviewView logs={allLogs} onLogClick={handleLogClick} loading={loading} />}
-        {view === "analytics" && <LogsAnalyticsView logs={allLogs} />}
+        {view === "feed" && <FeedView logs={filtered} onLogClick={handleLogClick} loading={loading} />}
+        {view === "category" && <CategoryView logs={filtered} onLogClick={handleLogClick} loading={loading} />}
+        {view === "calendar" && <CalendarView logs={allLogs} onLogClick={handleLogClick} />}
+        {view === "review" && <ReviewView logs={allLogs} onLogClick={handleLogClick} loading={loading} />}
+        {view === "analytics" && <AnalyticsView logs={allLogs} />}
       </div>
 
       {/* FAB */}
