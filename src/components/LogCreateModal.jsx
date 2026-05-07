@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Save, Loader2 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
@@ -16,6 +16,19 @@ export default function LogCreateModal({ onClose, onCreated }) {
   const { user } = useCurrentUser();
   const [type, setType] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  React.useEffect(() => {
+    document.body.classList.add('modal-open');
+    const handleTouchMove = (e) => {
+      const scrollable = e.target.closest('[data-scrollable]');
+      if (!scrollable) e.preventDefault();
+    };
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => {
+      document.body.classList.remove('modal-open');
+      document.removeEventListener('touchmove', handleTouchMove, { passive: false });
+    };
+  }, []);
   const [form, setForm] = useState({
     title: '', notes: '', priority: 'medium', department: 'BOH',
     location: '', itemName: '', quantity: 1, unit: 'each',
@@ -95,13 +108,14 @@ export default function LogCreateModal({ onClose, onCreated }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full sm:max-w-md bg-card rounded-t-2xl sm:rounded-2xl border border-border overflow-hidden max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 border-b border-border sticky top-0 bg-card z-10">
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="w-[min(95vw,500px)] sm:max-w-md bg-card rounded-t-2xl sm:rounded-2xl border border-border flex flex-col max-h-[90vh]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border bg-card">
           <h2 className="font-bold text-foreground">New Log Entry</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground active:scale-90"><X className="h-5 w-5" /></button>
         </div>
 
+        <div className="flex-1 overflow-y-auto" data-scrollable>
         <div className="p-4 space-y-4">
           {/* Type selector */}
           {!type ? (
@@ -132,7 +146,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                 </label>
                 <input type="text" placeholder="Enter title..." value={form.title}
                   onChange={e => set('title', e.target.value)}
-                  className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+                  className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
               </div>
 
               {(type === 'waste' || type === 'eighty_six') && (
@@ -141,13 +155,13 @@ export default function LogCreateModal({ onClose, onCreated }) {
                     <label className="text-xs font-bold text-muted-foreground block mb-1">Quantity</label>
                     <input type="number" min="0" step="0.5" value={form.quantity}
                       onChange={e => set('quantity', e.target.value)}
-                      className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-muted-foreground block mb-1">Unit</label>
-                    <input type="text" placeholder="lbs, each..." value={form.unit}
-                      onChange={e => set('unit', e.target.value)}
-                      className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+                      className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
+                    </div>
+                    <div>
+                     <label className="text-xs font-bold text-muted-foreground block mb-1">Unit</label>
+                     <input type="text" placeholder="lbs, each..." value={form.unit}
+                       onChange={e => set('unit', e.target.value)}
+                       className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
                   </div>
                 </div>
               )}
@@ -158,12 +172,12 @@ export default function LogCreateModal({ onClose, onCreated }) {
                     <label className="text-xs font-bold text-muted-foreground block mb-1">Est. Cost ($)</label>
                     <input type="number" min="0" step="0.01" placeholder="0.00" value={form.estimatedCost}
                       onChange={e => set('estimatedCost', e.target.value)}
-                      className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+                      className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-muted-foreground block mb-1">Reason</label>
                     <select value={form.reason} onChange={e => set('reason', e.target.value)}
-                      className="w-full h-9 px-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+                      className="w-full h-9 px-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none">
                       {['Expired','Overproduction','Dropped','Contaminated','Trimming/Prep','Temperature Abuse','Other'].map(r => <option key={r}>{r}</option>)}
                     </select>
                   </div>
@@ -175,7 +189,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                   <div>
                     <label className="text-xs font-bold text-muted-foreground block mb-1">Priority</label>
                     <select value={form.priority} onChange={e => set('priority', e.target.value)}
-                      className="w-full h-9 px-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+                      className="w-full h-9 px-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none">
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
                       <option value="high">High</option>
@@ -185,7 +199,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                   <div>
                     <label className="text-xs font-bold text-muted-foreground block mb-1">Department</label>
                     <select value={form.department} onChange={e => set('department', e.target.value)}
-                      className="w-full h-9 px-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+                      className="w-full h-9 px-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none">
                       <option value="BOH">BOH</option>
                       <option value="FOH">FOH</option>
                       <option value="Bar">Bar</option>
@@ -200,7 +214,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                   <label className="text-xs font-bold text-muted-foreground block mb-1">Location / Area</label>
                   <input type="text" placeholder="e.g. Walk-in Cooler, Line 2..." value={form.location}
                     onChange={e => set('location', e.target.value)}
-                    className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+                    className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
                 </div>
               )}
 
@@ -208,7 +222,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                 <label className="text-xs font-bold text-muted-foreground block mb-1">Notes</label>
                 <textarea placeholder="Details, context, follow-up needed..." value={form.notes}
                   onChange={e => set('notes', e.target.value)} rows={3}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+                  className="w-full px-3 py-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none resize-none" />
               </div>
 
               <button onClick={handleSave} disabled={saving}
@@ -217,9 +231,10 @@ export default function LogCreateModal({ onClose, onCreated }) {
                 {saving ? 'Saving...' : 'Save Log'}
               </button>
             </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+            )}
+            </div>
+            </div>
+            </div>
+            </div>
+            );
 }

@@ -145,9 +145,9 @@ export default function TemperatureLogForm({ onSave, loading }) {
           Equipment *
         </label>
         <select value={form.equipment_name} onChange={e => setForm({ ...form, equipment_name: e.target.value })}
-          className={`w-full h-9 px-3 bg-background border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none ${
-            errors.equipment_name ? 'border-red-500/50' : 'border-border'
-          }`}>
+         className={`w-full h-9 px-3 bg-background border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none ${
+           errors.equipment_name ? 'border-red-500/50' : 'border-border'
+         }`}>
           <option value="">Select equipment...</option>
           {equipment.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}
         </select>
@@ -159,7 +159,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Area / Station</label>
         <input type="text" placeholder="e.g. Walk-in Cooler, Line 2..." value={form.area_station}
           onChange={e => setForm({ ...form, area_station: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Temperature Reading */}
@@ -170,14 +170,14 @@ export default function TemperatureLogForm({ onSave, loading }) {
           </label>
           <input type="number" step="0.1" placeholder="38.5" value={form.temperature}
             onChange={e => setForm({ ...form, temperature: e.target.value })}
-            className={`w-full h-9 px-3 bg-background border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none ${
+            className={`w-full h-9 px-3 bg-background border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none ${
               errors.temperature ? 'border-red-500/50' : 'border-border'
             }`} />
           {errors.temperature && <p className="text-xs text-red-400 mt-0.5">{errors.temperature}</p>}
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Unit</label>
-          <input type="text" value="°F" disabled className="w-full h-9 px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground" />
+          <input type="text" value="°F" disabled className="w-full h-9 px-3 bg-muted border border-border rounded-lg sm:text-sm text-base text-muted-foreground" />
         </div>
       </div>
 
@@ -203,7 +203,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
           </label>
           <textarea placeholder="What action was taken to correct this?" value={form.corrective_action}
             onChange={e => setForm({ ...form, corrective_action: e.target.value })} rows={2}
-            className={`w-full px-3 py-2 bg-background border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none ${
+            className={`w-full px-3 py-2 bg-background border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none resize-none ${
               errors.corrective_action ? 'border-red-500/50' : 'border-border'
             }`} />
           {errors.corrective_action && <p className="text-xs text-red-400 mt-0.5">{errors.corrective_action}</p>}
@@ -216,13 +216,13 @@ export default function TemperatureLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Recorded By</label>
           <input type="text" value={form.recorded_by}
             onChange={e => setForm({ ...form, recorded_by: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Assigned To</label>
           <input type="text" placeholder="Role / Station / Employee..." value={form.assigned_to}
             onChange={e => setForm({ ...form, assigned_to: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -231,7 +231,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Date / Time Recorded</label>
         <input type="datetime-local" value={form.logged_at}
           onChange={e => setForm({ ...form, logged_at: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Photo Upload */}
@@ -272,7 +272,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Notes</label>
         <textarea placeholder="Additional details..." value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Save Button */}

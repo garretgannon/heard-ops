@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChipSelect, YesNo, StepHeader, BigInput, BigTextarea, StickyNav } from "./ChipSelect";
 import { Camera, X } from "lucide-react";
@@ -80,9 +81,14 @@ export default function MaintenanceForm({ open, onClose, onSaved }) {
     true,
   ][step - 1];
 
+  useEffect(() => {
+    document.body.classList.add('modal-open');
+    return () => document.body.classList.remove('modal-open');
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto p-6">
+      <DialogContent className="w-[min(95vw,500px)] max-h-[90vh] overflow-y-auto p-6" style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom))' }}>
 
         {/* Step 1: What & Where */}
         {step === 1 && (
