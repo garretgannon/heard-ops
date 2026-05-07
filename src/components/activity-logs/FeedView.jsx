@@ -19,9 +19,9 @@ export default function FeedView({ logs, onLogClick, loading }) {
     );
   }
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {logs.map(log => (
-        <LogCard key={`${log.type}-${log.id}`} log={log} onClick={onLogClick} />
+        <LogCard key={log.id} log={log} onClick={onLogClick} />
       ))}
     </div>
   );

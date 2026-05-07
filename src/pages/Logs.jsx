@@ -198,7 +198,7 @@ export default function Logs() {
       <>
         <LogsPageHeader onCreateClick={handleCreateLog} onViewChange={setActiveView} activeView={activeView} />
         <LogsTopFilterBar search={search} onSearchChange={setSearch} filters={filters} onFiltersChange={setFilters} onShowAdvanced={() => setShowAdvanced(true)} />
-        <div className="grid grid-cols-[1fr_320px] gap-6 px-8 py-6 h-[calc(100vh-240px)]">
+        <div className="grid grid-cols-[1fr_280px] gap-8 px-8 py-6 h-[calc(100vh-240px)]">
           {/* Main feed */}
           <div className="min-w-0 overflow-y-auto">
             {loading ? (
@@ -214,7 +214,7 @@ export default function Logs() {
             )}
           </div>
           {/* Right attention queue */}
-          <div className="border-l border-border/40 pl-6 overflow-y-auto">
+          <div className="border-l border-border/20 pl-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Status</p>
               <button onClick={refresh} className={cn("h-5 w-5 text-muted-foreground hover:text-foreground", refreshing && "animate-spin")}>

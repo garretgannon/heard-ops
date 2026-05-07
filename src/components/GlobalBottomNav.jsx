@@ -1,7 +1,15 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
-import { bottomNavRoutes } from '@/lib/routeConfig';
+import { LayoutDashboard, ClipboardList, Flame, UtensilsCrossed, MoreHorizontal } from 'lucide-react';
+
+const MOBILE_NAV_ROUTES = [
+  { label: 'Today', path: '/', icon: LayoutDashboard },
+  { label: 'Prep', path: '/prep-lists', icon: ClipboardList },
+  { label: 'Logs', path: '/logs', icon: Flame },
+  { label: 'Side Work', path: '/side-work', icon: UtensilsCrossed },
+  { label: 'More', path: '/more', icon: MoreHorizontal },
+];
 
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
@@ -10,7 +18,7 @@ export default function GlobalBottomNav() {
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border safe-area-inset-bottom" style={{ background: 'rgba(11,15,20,0.96)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
       <div className="flex h-20 items-stretch justify-around px-2">
-        {bottomNavRoutes.map(({ label, path, icon: Icon }) => {
+        {MOBILE_NAV_ROUTES.map(({ label, path, icon: Icon }) => {
           const isActive = pathname === path;
           return (
             <button

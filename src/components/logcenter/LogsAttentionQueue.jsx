@@ -1,18 +1,20 @@
 import { AlertTriangle, AlertCircle, Zap, CheckCircle2, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-function AttentionItem({ icon: Icon, iconColor, label, count, onView }) {
+function AttentionItem({ icon: Icon, iconColor, label, count, onView, highlight }) {
   if (count === 0) return null;
   return (
     <button
       onClick={onView}
-      className="w-full text-left p-2.5 rounded-lg border border-border/40 bg-card/50 hover:bg-muted transition-all active:scale-95 flex items-center gap-2">
-      <Icon className={cn("h-3.5 w-3.5 shrink-0", iconColor)} />
-      <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-bold text-foreground">{label}</p>
-        <p className="text-[9px] text-muted-foreground">{count} item{count > 1 ? 's' : ''}</p>
-      </div>
-      <span className="text-[10px] font-extrabold text-foreground/60 shrink-0">{count}</span>
+      className={cn(
+        'w-full text-left p-1.5 rounded-lg border transition-all active:scale-95 flex items-center gap-2',
+        highlight
+          ? 'border-red-500/40 bg-red-500/8 hover:bg-red-500/12'
+          : 'border-border/30 bg-card/40 hover:bg-card/60'
+      )}>
+      <Icon className={cn('h-3 w-3 shrink-0', highlight ? 'text-red-400' : iconColor)} />
+      <span className={cn('flex-1 text-[10px] font-bold', highlight ? 'text-foreground' : 'text-muted-foreground')}>{label}</span>
+      <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0', highlight ? 'bg-red-500/30 text-red-300' : 'bg-muted/40 text-muted-foreground')}>{count}</span>
     </button>
   );
 }
@@ -55,40 +57,44 @@ export default function LogsAttentionQueue({ logs, onFilterClick, isAdmin }) {
 
       <div className="space-y-1.5">
         <AttentionItem
-          icon={AlertTriangle}
-          iconColor="text-red-400"
-          label="Needs Review"
-          count={needsReview}
-          onView={() => onFilterClick({ requiresReview: true })}
-        />
-        <AttentionItem
-          icon={AlertCircle}
-          iconColor="text-blue-400"
-          label="Failed Temps"
-          count={failedTemps}
-          onView={() => onFilterClick({ types: ['temperature'], passFail: 'failed' })}
-        />
-        <AttentionItem
-          icon={Zap}
-          iconColor="text-amber-400"
-          label="Open Maintenance"
-          count={openMaint}
-          onView={() => onFilterClick({ types: ['maintenance'], openClosed: 'open' })}
-        />
-        <AttentionItem
-          icon={AlertCircle}
-          iconColor="text-pink-400"
-          label="Incidents"
-          count={incidents}
-          onView={() => onFilterClick({ types: ['incident'] })}
-        />
-        <AttentionItem
-          icon={Clock}
-          iconColor="text-orange-400"
-          label="Overdue"
-          count={overdue}
-          onView={() => onFilterClick({ openClosed: 'open', datePreset: 'last_7' })}
-        />
+            icon={AlertTriangle}
+            iconColor="text-red-400"
+            label="Needs Review"
+            count={needsReview}
+            highlight
+            onView={() => onFilterClick({ requiresReview: true })}
+          />
+          <AttentionItem
+            icon={AlertCircle}
+            iconColor="text-blue-400"
+            label="Failed Temps"
+            count={failedTemps}
+            highlight
+            onView={() => onFilterClick({ types: ['temperature'], passFail: 'failed' })}
+          />
+          <AttentionItem
+            icon={Zap}
+            iconColor="text-amber-400"
+            label="Open Maintenance"
+            count={openMaint}
+            highlight
+            onView={() => onFilterClick({ types: ['maintenance'], openClosed: 'open' })}
+          />
+          <AttentionItem
+            icon={AlertCircle}
+            iconColor="text-pink-400"
+            label="Incidents"
+            count={incidents}
+            highlight
+            onView={() => onFilterClick({ types: ['incident'] })}
+          />
+          <AttentionItem
+            icon={Clock}
+            iconColor="text-orange-400"
+            label="Overdue"
+            count={overdue}
+            onView={() => onFilterClick({ openClosed: 'open', datePreset: 'last_7' })}
+          />
         {isAdmin && (
           <AttentionItem
             icon={AlertCircle}

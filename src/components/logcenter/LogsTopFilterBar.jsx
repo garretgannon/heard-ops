@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -116,16 +116,16 @@ export default function LogsTopFilterBar({ search, onSearchChange, filters, onFi
       </div>
 
       {/* Saved Views Row */}
-      <div className="px-4 sm:px-6 py-2 overflow-x-auto no-scrollbar flex gap-1.5 items-center">
+      <div className="px-4 sm:px-6 py-2.5 overflow-x-auto no-scrollbar flex gap-1.5 items-center border-t border-border/20">
         {SAVED_VIEWS.map(view => (
           <button
             key={view.id}
             onClick={() => handleViewClick(view.id)}
             className={cn(
-              'flex-shrink-0 h-6 px-2.5 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap',
+              'flex-shrink-0 h-7 px-3 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap',
               activeView === view.id
-                ? 'bg-primary/20 text-primary border-primary/40'
-                : 'bg-background border-border text-muted-foreground hover:bg-muted'
+                ? 'bg-primary/25 text-primary border-primary/50 shadow-sm'
+                : 'bg-card border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
             )}>
             {view.label}
           </button>

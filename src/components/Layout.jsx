@@ -3,10 +3,10 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell, UserCircle, ChefHat,
-  LayoutDashboard, ClipboardList, Thermometer,
+  LayoutDashboard, ClipboardList,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   UtensilsCrossed, ChevronLeft, ChevronRight as ChevronRightIcon,
-  AlertTriangle, FileText, CalendarDays, Users,
+  FileText, CalendarDays, Users,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -22,8 +22,6 @@ const DESKTOP_SECTIONS = [
       { path: "/more", label: "Overview", icon: LayoutDashboard },
       { path: "/prep-lists", label: "Prep", icon: ClipboardList },
       { path: "/side-work", label: "Side Work", icon: UtensilsCrossed },
-      { path: "/temp-logs", label: "Temps", icon: Thermometer },
-      { path: "/issues", label: "Issues", icon: AlertTriangle },
       { path: "/logs", label: "Logs", icon: FileText },
     ],
   },
