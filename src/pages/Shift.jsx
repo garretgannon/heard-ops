@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useShiftMode } from '@/lib/ShiftModeContext';
 import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
+import { ClipboardList } from 'lucide-react';
 import ShiftModeHeader from '@/components/shift/ShiftModeHeader';
 import ShiftProgressCard from '@/components/shift/ShiftProgressCard';
 import CurrentTaskCard from '@/components/shift/CurrentTaskCard';
@@ -204,30 +205,26 @@ export default function Shift() {
     );
   }
 
-  // Check if there are any tasks at all
-  const hasAnyTasks = stats.totalCount > 0;
-  const nextDueTime = currentTask?.due_time || null;
-  const nextTasks = tasks.filter((t) => !['complete', 'approved'].includes(t.status)).slice(1, 6);
-
-  // Empty state: no tasks assigned
-  if (!hasAnyTasks) {
+  // Empty state: no tasks at all
+  if (stats.totalCount === 0) {
     return (
       <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
         <ShiftModeHeader />
-        <div className="flex-1 flex items-center justify-center px-4 py-12">
-          <div className="text-center max-w-sm space-y-4">
-            <div className="h-16 w-16 rounded-2xl bg-amber-500/15 flex items-center justify-center mx-auto">
-              <span className="text-3xl">📋</span>
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-sm">
+            <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+              <ClipboardList className="h-8 w-8 text-muted-foreground" />
             </div>
-            <div>
-              <p className="text-xl font-bold text-foreground">No Shift Plan Assigned</p>
-              <p className="text-sm text-muted-foreground mt-2">Check back when your shift tasks are ready.</p>
-            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">No Shift Plan Assigned</h2>
+            <p className="text-sm text-muted-foreground">No tasks have been assigned to you for today. Check back later or contact your manager.</p>
           </div>
         </div>
       </div>
     );
   }
+
+  const nextDueTime = currentTask?.due_time || null;
+  const nextTasks = tasks.filter((t) => !['complete', 'approved'].includes(t.status)).slice(1, 6);
 
   return (
     <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
@@ -262,12 +259,14 @@ export default function Shift() {
           </div>
         ) : (
           /* Desktop Admin/Manager View */
-          <AdminShiftDashboard
-            tasks={tasks}
-            stats={stats}
-            user={user}
-            onTaskUpdate={handleModalSuccess}
-          />
+          <div className="max-w-7xl mx-auto w-full">
+            <AdminShiftDashboard
+              tasks={tasks}
+              stats={stats}
+              user={user}
+              onTaskUpdate={handleModalSuccess}
+            />
+          </div>
         )}
       </div>
     </div>
