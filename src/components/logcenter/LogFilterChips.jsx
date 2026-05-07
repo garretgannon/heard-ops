@@ -16,8 +16,8 @@ const FILTER_OPTIONS = [
 
 export default function LogFilterChips({ activeFilter, onFilterChange }) {
   return (
-    <div className="sticky top-12 z-10 bg-background/95 backdrop-blur-sm px-4 lg:px-8 py-2 border-b border-border/20 overflow-x-auto scrollbar-hide">
-      <div className="flex gap-1.5 min-w-min">
+    <div className="sticky top-12 z-10 w-full bg-background border-b border-border/20 overflow-x-auto scrollbar-hide" style={{ overscrollBehavior: 'contain' }}>
+      <div className="flex gap-1.5 px-4 lg:px-8 py-2 min-w-min">
         {FILTER_OPTIONS.map(({ id, label, icon }) => (
           <button
             key={id}
