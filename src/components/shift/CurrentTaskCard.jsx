@@ -3,6 +3,7 @@ import { AlertCircle, Camera, CheckCircle2, Clock, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 import { toast } from 'sonner';
+import TemperatureCheckForm from '@/components/temperature/TemperatureCheckForm';
 
 const TASK_TYPE_ICONS = {
   prep: '🧅',
@@ -36,6 +37,7 @@ export default function CurrentTaskCard({
 }) {
   const [showActions, setShowActions] = useState(false);
   const [reason, setReason] = useState('');
+  const [showTempForm, setShowTempForm] = useState(false);
 
   if (!task) {
     return (
@@ -55,6 +57,11 @@ export default function CurrentTaskCard({
 
   const handleComplete = () => {
     haptics.medium?.();
+    // Temperature tasks open the check form instead of direct completion
+    if (task.type === 'temperature') {
+      setShowTempForm(true);
+      return;
+    }
     if (task.photo_required) {
       toast.info('Photo required for completion');
       return;
@@ -153,13 +160,13 @@ export default function CurrentTaskCard({
               Start Task
             </button>
           ) : isInProgress ? (
-            <button
-              onClick={handleComplete}
-              className="w-full h-12 rounded-xl bg-green-600 text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:brightness-110"
-            >
-              <CheckCircle2 className="h-5 w-5" />
-              Complete Task
-            </button>
+           <button
+             onClick={handleComplete}
+             className="w-full h-12 rounded-xl bg-green-600 text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:brightness-110"
+           >
+             <CheckCircle2 className="h-5 w-5" />
+             {task.type === 'temperature' ? 'Log Temperature' : 'Complete Task'}
+           </button>
           ) : null}
 
           {/* Secondary Actions */}
@@ -181,6 +188,18 @@ export default function CurrentTaskCard({
           </div>
         </div>
       </div>
+
+      {/* Temperature Check Form Modal */}
+      {showTempForm && (
+        <TemperatureCheckForm
+          task={task}
+          onClose={() => setShowTempForm(false)}
+          onSuccess={() => {
+            setShowTempForm(false);
+            onComplete?.(task.id);
+          }}
+        />
+      )}
 
       {/* Unable to Complete Dialog */}
       {showActions && (
