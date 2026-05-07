@@ -51,8 +51,9 @@ export default function SingleEntryForm({ onSuccess }) {
 
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(r => setTimeout(r, 1000));
+      // Create employee in database
+      await base44.users.inviteUser(formData.email, 'user');
+      
       setSuccess(true);
       setTimeout(() => {
         onSuccess?.();

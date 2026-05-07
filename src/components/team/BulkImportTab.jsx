@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Upload, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { base44 } from '@/api/base44Client';
 
 const TEMPLATE_COLUMNS = [
   'Full Name',
@@ -106,7 +107,17 @@ export default function BulkImportTab({ onSuccess }) {
 
     setIsImporting(true);
     try {
-      await new Promise(r => setTimeout(r, 2000));
+      // Invite all valid employees
+      const validRows = previewRows.filter(row => {
+        return row['Full Name'] && row['Employee ID'] && row['Clock-In Code'] && row['Job Code'] && row['Rate of Pay'];
+      });
+
+      for (const row of validRows) {
+        if (row['Email Address']) {
+          await base44.users.inviteUser(row['Email Address'], 'user');
+        }
+      }
+      
       onSuccess?.();
     } catch (err) {
       console.error(err);
