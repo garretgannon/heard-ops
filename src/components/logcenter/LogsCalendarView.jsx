@@ -1,167 +1,305 @@
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { LOG_TYPE_CONFIG } from "./logConfig";
-import {
-  format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
-  eachDayOfInterval, isSameMonth, isToday, isSameDay,
-  addMonths, subMonths, addWeeks, subWeeks,
-} from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useMemo } from 'react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, isToday, isSameDay, isAfter, startOfDay, addDays } from 'date-fns';
+import { ChevronLeft, ChevronRight, Calendar, List, Clock } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { LOG_TYPE_CONFIG } from './logConfig';
+import LogCard from './LogCard';
 
-function EventDot({ type }) {
-  const cfg = LOG_TYPE_CONFIG[type];
-  return <div className={cn("h-1.5 w-1.5 rounded-full shrink-0", cfg?.dot || "bg-primary")} />;
+const VIEWS = [
+  { id: 'month', label: 'Month', icon: Calendar },
+  { id: 'week', label: 'Week', icon: Calendar },
+  { id: 'day', label: 'Day', icon: Clock },
+];
+
+function getLogDate(log) {
+  // Map log type to appropriate date field
+  if (log.ts) return new Date(log.ts);
+  if (log.createdAt) return new Date(log.createdAt);
+  if (log.created_date) return new Date(log.created_date);
+  return null;
 }
 
-export default function LogsCalendarView({ logs, onLogClick }) {
-  const [viewType, setViewType] = useState("month");
-  const [cursor, setCursor] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState(null);
+function isLogOverdue(log) {
+  const logDate = getLogDate(log);
+  if (!logDate) return false;
+  return isAfter(new Date(), logDate) && !['completed', 'approved', 'resolved', 'passed'].includes(log.status);
+}
+
+function MonthView({ logs, currentDate, onDateClick, onLogClick }) {
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(monthStart);
+  const calendarStart = startOfWeek(monthStart);
+  const calendarEnd = endOfWeek(monthEnd);
+  const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   const logsByDate = {};
   logs.forEach(log => {
-    if (!log.ts) return;
-    try {
-      const key = format(new Date(log.ts), "yyyy-MM-dd");
-      if (!logsByDate[key]) logsByDate[key] = [];
-      logsByDate[key].push(log);
-    } catch {}
+    const logDate = getLogDate(log);
+    if (logDate) {
+      const dateKey = format(logDate, 'yyyy-MM-dd');
+      if (!logsByDate[dateKey]) logsByDate[dateKey] = [];
+      logsByDate[dateKey].push(log);
+    }
   });
 
-  const nav = (dir) => {
-    if (viewType === "month") setCursor(dir === 1 ? addMonths(cursor, 1) : subMonths(cursor, 1));
-    else if (viewType === "week") setCursor(dir === 1 ? addWeeks(cursor, 1) : subWeeks(cursor, 1));
-    else setCursor(prev => { const d = new Date(prev); d.setDate(d.getDate() + dir); return d; });
-  };
-
-  const monthStart = startOfMonth(cursor);
-  const gridDays = eachDayOfInterval({ start: startOfWeek(monthStart), end: endOfWeek(endOfMonth(cursor)) });
-  const weekDays = eachDayOfInterval({ start: startOfWeek(cursor), end: endOfWeek(cursor) });
-  const dayKey = format(cursor, "yyyy-MM-dd");
-  const dayLogs = selectedDay ? (logsByDate[format(selectedDay, "yyyy-MM-dd")] || []) : [];
-
-  const LogRow = ({ log }) => {
-    const cfg = LOG_TYPE_CONFIG[log.type];
-    const Icon = cfg?.icon;
-    return (
-      <button onClick={() => onLogClick(log)}
-        className={cn("w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg border-l-4 bg-background hover:bg-muted transition-all", cfg?.border)}>
-        {Icon && <Icon className={cn("h-3.5 w-3.5 shrink-0", cfg?.text)} />}
-        <p className="text-xs font-bold text-foreground truncate flex-1">{log.title}</p>
-        <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded border ml-auto shrink-0", cfg?.badge)}>{cfg?.label}</span>
-      </button>
-    );
-  };
+  const weeks = [];
+  for (let i = 0; i < calendarDays.length; i += 7) {
+    weeks.push(calendarDays.slice(i, i + 7));
+  }
 
   return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex gap-1">
-          {["month", "week", "day"].map(v => (
-            <button key={v} onClick={() => setViewType(v)}
-              className={cn("h-7 px-3 rounded-lg text-xs font-bold capitalize transition-all",
-                viewType === v ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground hover:bg-muted")}>
-              {v}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => nav(-1)} className="h-7 w-7 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <p className="text-sm font-bold text-foreground min-w-[130px] text-center">
-            {viewType === "month" && format(cursor, "MMMM yyyy")}
-            {viewType === "week" && `${format(startOfWeek(cursor), "MMM d")} – ${format(endOfWeek(cursor), "MMM d")}`}
-            {viewType === "day" && format(cursor, "EEE, MMM d")}
-          </p>
-          <button onClick={() => nav(1)} className="h-7 w-7 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
-            <ChevronRight className="h-4 w-4" />
-          </button>
-          <button onClick={() => { setCursor(new Date()); setSelectedDay(null); }} className="h-7 px-2 rounded-lg bg-card border border-border text-xs font-bold text-muted-foreground hover:text-foreground">
-            Today
-          </button>
-        </div>
+    <div className="space-y-2">
+      {/* Day headers */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          <div key={day} className="h-8 flex items-center justify-center text-[11px] font-bold text-muted-foreground uppercase">
+            {day}
+          </div>
+        ))}
       </div>
 
-      {/* Month grid */}
-      {viewType === "month" && (
-        <>
-          <div className="grid grid-cols-7">
-            {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => (
-              <div key={d} className="text-[10px] font-bold text-muted-foreground text-center py-1">{d}</div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-0.5">
-            {gridDays.map(day => {
-              const key = format(day, "yyyy-MM-dd");
-              const dls = logsByDate[key] || [];
-              const isSelected = selectedDay && isSameDay(day, selectedDay);
+      {/* Calendar grid */}
+      <div className="space-y-1">
+        {weeks.map((week, weekIdx) => (
+          <div key={weekIdx} className="grid grid-cols-7 gap-1">
+            {week.map(day => {
+              const dateKey = format(day, 'yyyy-MM-dd');
+              const dayLogs = logsByDate[dateKey] || [];
+              const isCurrentMonth = isSameDay(day, currentDate) || (day >= monthStart && day <= monthEnd);
+              const isTodayDate = isToday(day);
+              const hasOverdue = dayLogs.some(isLogOverdue);
+
               return (
-                <button key={key}
-                  onClick={() => setSelectedDay(isSelected ? null : day)}
-                  className={cn("min-h-[58px] p-1 rounded-lg text-left transition-all border",
-                    isSelected ? "bg-primary/15 border-primary/40" : "bg-card border-border/40 hover:border-border",
-                    !isSameMonth(day, cursor) && "opacity-25")}>
-                  <p className={cn("text-[11px] font-bold mb-1 h-5 w-5 rounded-full flex items-center justify-center",
-                    isToday(day) ? "bg-primary text-primary-foreground" : "text-foreground")}>
-                    {format(day, "d")}
-                  </p>
-                  <div className="flex flex-wrap gap-0.5">
-                    {dls.slice(0, 4).map((log, i) => <EventDot key={i} type={log.type} />)}
-                    {dls.length > 4 && <span className="text-[8px] text-muted-foreground">+{dls.length - 4}</span>}
+                <button
+                  key={dateKey}
+                  onClick={() => onDateClick(day)}
+                  className={cn(
+                    'flex flex-col min-h-24 p-1.5 rounded-lg border transition-all active:scale-95',
+                    isTodayDate ? 'border-primary/50 bg-primary/10' : !isCurrentMonth ? 'border-border/20 bg-background/50' : 'border-border bg-card',
+                    hasOverdue && 'border-red-500/50 bg-red-500/5'
+                  )}>
+                  <span className={cn('text-xs font-bold', isTodayDate ? 'text-primary' : !isCurrentMonth ? 'text-muted-foreground/50' : 'text-foreground')}>
+                    {format(day, 'd')}
+                  </span>
+                  <div className="flex-1 min-w-0 mt-0.5 space-y-0.5 overflow-hidden">
+                    {dayLogs.slice(0, 2).map(log => {
+                      const cfg = LOG_TYPE_CONFIG[log.type];
+                      const isOverdue = isLogOverdue(log);
+                      return (
+                        <button
+                          key={log.id}
+                          onClick={(e) => { e.stopPropagation(); onLogClick(log); }}
+                          className={cn(
+                            'block w-full text-[9px] font-bold px-1 py-0.5 rounded truncate',
+                            isOverdue ? 'bg-red-500/30 text-red-300' : cfg?.badge || 'bg-muted text-muted-foreground'
+                          )}>
+                          {log.title}
+                        </button>
+                      );
+                    })}
+                    {dayLogs.length > 2 && (
+                      <span className="text-[8px] text-muted-foreground px-1 font-bold">+{dayLogs.length - 2} more</span>
+                    )}
                   </div>
                 </button>
               );
             })}
           </div>
-          {/* Selected day detail */}
-          {selectedDay && dayLogs.length > 0 && (
-            <div className="border border-border/60 rounded-xl overflow-hidden">
-              <div className="px-3 py-2 bg-muted/30 border-b border-border/40">
-                <p className="text-xs font-bold text-foreground">{format(selectedDay, "EEEE, MMMM d")} · {dayLogs.length} log{dayLogs.length !== 1 ? "s" : ""}</p>
-              </div>
-              <div className="p-2 space-y-1.5">
-                {dayLogs.map(log => <LogRow key={`${log.type}-${log.id}`} log={log} />)}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+        ))}
+      </div>
+    </div>
+  );
+}
 
-      {/* Week view */}
-      {viewType === "week" && (
-        <div className="space-y-2">
-          {weekDays.map(day => {
-            const key = format(day, "yyyy-MM-dd");
-            const dls = logsByDate[key] || [];
-            return (
-              <div key={key} className={cn("rounded-xl border overflow-hidden", isToday(day) ? "border-primary/30" : "border-border/60")}>
-                <div className={cn("px-3 py-2 flex items-center justify-between", isToday(day) ? "bg-primary/10" : "bg-muted/30")}>
-                  <p className={cn("text-xs font-bold", isToday(day) ? "text-primary" : "text-foreground")}>{format(day, "EEEE, MMM d")}</p>
-                  <span className="text-[10px] text-muted-foreground">{dls.length} log{dls.length !== 1 ? "s" : ""}</span>
-                </div>
-                {dls.length > 0 && (
-                  <div className="p-2 space-y-1.5">
-                    {dls.map(log => <LogRow key={`${log.type}-${log.id}`} log={log} />)}
-                  </div>
+function WeekView({ logs, currentDate, onDateClick, onLogClick }) {
+  const weekStart = startOfWeek(currentDate);
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  const logsByDate = {};
+  logs.forEach(log => {
+    const logDate = getLogDate(log);
+    if (logDate) {
+      const dateKey = format(logDate, 'yyyy-MM-dd');
+      if (!logsByDate[dateKey]) logsByDate[dateKey] = [];
+      logsByDate[dateKey].push(log);
+    }
+  });
+
+  return (
+    <div className="space-y-2 overflow-x-auto">
+      <div className="grid grid-cols-7 gap-2 min-w-max">
+        {weekDays.map(day => {
+          const dateKey = format(day, 'yyyy-MM-dd');
+          const dayLogs = logsByDate[dateKey] || [];
+          const isTodayDate = isToday(day);
+          const hasOverdue = dayLogs.some(isLogOverdue);
+
+          return (
+            <div key={dateKey} className={cn(
+              'flex flex-col min-w-48 p-2 rounded-lg border',
+              isTodayDate ? 'border-primary/50 bg-primary/10' : 'border-border bg-card',
+              hasOverdue && 'border-red-500/50 bg-red-500/5'
+            )}>
+              <div className="flex items-center justify-between mb-2">
+                <span className={cn('text-sm font-bold', isTodayDate && 'text-primary')}>
+                  {format(day, 'EEE')}
+                </span>
+                <span className={cn('text-xs font-bold', isTodayDate ? 'text-primary' : 'text-muted-foreground')}>
+                  {format(day, 'd MMM')}
+                </span>
+              </div>
+              <div className="space-y-1 flex-1 overflow-y-auto max-h-64">
+                {dayLogs.length > 0 ? (
+                  dayLogs.map(log => {
+                    const cfg = LOG_TYPE_CONFIG[log.type];
+                    const isOverdue = isLogOverdue(log);
+                    return (
+                      <button
+                        key={log.id}
+                        onClick={() => onLogClick(log)}
+                        className={cn(
+                          'block w-full text-[10px] font-bold px-2 py-1 rounded text-left',
+                          isOverdue ? 'bg-red-500/30 text-red-300' : cfg?.badge || 'bg-muted text-muted-foreground'
+                        )}>
+                        <div className="truncate">{log.title}</div>
+                        <div className="text-[8px] opacity-80 truncate">{log.subtitle}</div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="text-[10px] text-muted-foreground text-center py-4">No logs</p>
                 )}
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-      {/* Day view */}
-      {viewType === "day" && (
-        <div className="space-y-2">
-          {(logsByDate[dayKey] || []).length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">No logs for {format(cursor, "MMMM d")}</div>
-          ) : (
-            (logsByDate[dayKey] || []).map(log => <LogRow key={`${log.type}-${log.id}`} log={log} />)
-          )}
+function DayView({ logs, currentDate, onLogClick }) {
+  const dateKey = format(currentDate, 'yyyy-MM-dd');
+  const dayLogs = logs.filter(log => {
+    const logDate = getLogDate(log);
+    return logDate && isSameDay(logDate, currentDate);
+  }).sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0));
+
+  const isTodayDate = isToday(currentDate);
+
+  return (
+    <div className="space-y-2">
+      <div className={cn(
+        'p-4 rounded-lg border',
+        isTodayDate ? 'border-primary/50 bg-primary/10' : 'border-border bg-card'
+      )}>
+        <h3 className={cn('text-lg font-bold', isTodayDate && 'text-primary')}>
+          {format(currentDate, 'EEEE, MMMM d, yyyy')}
+        </h3>
+        <p className="text-xs text-muted-foreground mt-1">
+          {dayLogs.length} log{dayLogs.length !== 1 ? 's' : ''} this day
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        {dayLogs.length > 0 ? (
+          dayLogs.map(log => {
+            const cfg = LOG_TYPE_CONFIG[log.type];
+            const isOverdue = isLogOverdue(log);
+            return (
+              <button
+                key={log.id}
+                onClick={() => onLogClick(log)}
+                className={cn(
+                  'w-full text-left p-3 rounded-lg border transition-all active:scale-95',
+                  isOverdue ? 'border-red-500/50 bg-red-500/5' : 'border-border bg-card hover:bg-muted/40'
+                )}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <h4 className="font-bold text-sm text-foreground">{log.title}</h4>
+                    {log.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{log.subtitle}</p>}
+                    {log.notes && <p className="text-xs text-secondary-text mt-1 line-clamp-2">{log.notes}</p>}
+                  </div>
+                  <div className={cn('shrink-0 h-6 px-2 rounded-full text-[9px] font-bold flex items-center whitespace-nowrap', cfg?.badge || 'bg-muted text-muted-foreground')}>
+                    {cfg?.label || log.type}
+                  </div>
+                </div>
+                {isOverdue && (
+                  <div className="mt-2 text-[10px] font-bold text-red-400 flex items-center gap-1">
+                    ⚠️ Overdue
+                  </div>
+                )}
+              </button>
+            );
+          })
+        ) : (
+          <div className="p-8 text-center">
+            <p className="text-sm text-muted-foreground">No logs scheduled for this day</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function LogsCalendarView({ logs, onLogClick }) {
+  const [viewType, setViewType] = useState('month');
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setCurrentDate(d => addDays(d, -1))} className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <h3 className="font-bold text-foreground min-w-48 text-center">
+            {viewType === 'month' && format(currentDate, 'MMMM yyyy')}
+            {viewType === 'week' && `Week of ${format(startOfWeek(currentDate), 'MMM d')}`}
+            {viewType === 'day' && format(currentDate, 'MMM d, yyyy')}
+          </h3>
+          <button onClick={() => setCurrentDate(d => addDays(d, 1))} className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
-      )}
+        <button onClick={() => setCurrentDate(new Date())} className="h-8 px-3 rounded-lg border border-border bg-card text-muted-foreground text-xs font-bold hover:text-foreground active:scale-90">
+          Today
+        </button>
+      </div>
+
+      {/* View toggle */}
+      <div className="flex gap-1">
+        {VIEWS.map(v => {
+          const Icon = v.icon;
+          return (
+            <button key={v.id} onClick={() => setViewType(v.id)}
+              className={cn(
+                'h-8 px-3 rounded-lg text-xs font-bold border transition-all flex items-center gap-1',
+                viewType === v.id ? 'bg-primary/15 text-primary border-primary/30' : 'bg-card border-border text-muted-foreground hover:bg-muted'
+              )}>
+              <Icon className="h-3.5 w-3.5" />{v.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Calendar */}
+      <div className="bg-card/50 rounded-lg p-4 border border-border/40">
+        {viewType === 'month' && <MonthView logs={logs} currentDate={currentDate} onDateClick={setCurrentDate} onLogClick={onLogClick} />}
+        {viewType === 'week' && <WeekView logs={logs} currentDate={currentDate} onDateClick={setCurrentDate} onLogClick={onLogClick} />}
+        {viewType === 'day' && <DayView logs={logs} currentDate={currentDate} onLogClick={onLogClick} />}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(LOG_TYPE_CONFIG).slice(0, 6).map(([type, cfg]) => (
+          <div key={type} className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-border/40 bg-card/50">
+            <div className={cn('h-2.5 w-2.5 rounded-full', cfg.dot)} />
+            <span className="text-[10px] font-bold text-muted-foreground">{cfg.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

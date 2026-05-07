@@ -13,6 +13,7 @@ import ReviewView    from "@/components/logcenter/LogsReviewView";
 import AnalyticsView from "@/components/logcenter/LogsAnalyticsView";
 import FilterPanel, { EMPTY_FILTERS } from "@/components/activity-logs/FilterPanel";
 import LogCreateModal from "@/components/logcenter/LogCreateModal";
+import LogsDesktopLayout from "@/components/logcenter/LogsDesktopLayout";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const VIEWS = [
@@ -164,6 +165,13 @@ export default function Logs() {
   const [filters,    setFilters]    = useState(EMPTY_FILTERS);
   const [showPanel,  setShowPanel]  = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [isDesktop, setIsDesktop]   = useState(window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const load = async (quiet = false) => {
     if (!quiet) setLoading(true);
@@ -199,10 +207,32 @@ export default function Logs() {
   const hasActiveFilters  = activeFilterCount > 0 || !!search;
 
   const handleLogClick = (log) => navigate(log.routePath);
+  const handleCreateLog = () => setShowCreate(true);
 
   // Which logs to pass to each view (Feed uses filtered, others use full set filtered by everything except search for context)
   const viewLogs = activeView === "feed" ? filteredLogs : applyFilters(allLogs, "", filters, user?.email);
 
+  // Desktop layout
+  if (isDesktop) {
+    return (
+      <>
+        <LogsDesktopLayout
+          logs={filteredLogs}
+          loading={loading}
+          onLogClick={handleLogClick}
+          filters={filters}
+          onFiltersChange={setFilters}
+          search={search}
+          onSearchChange={setSearch}
+          onCreateLog={handleCreateLog}
+          currentUser={user}
+        />
+        {showCreate && <LogCreateModal onClose={() => setShowCreate(false)} onCreated={refresh} />}
+      </>
+    );
+  }
+
+  // Mobile layout
   return (
     <div className="pb-28 min-h-screen">
       {/* ── Sticky header ── */}
@@ -355,7 +385,7 @@ export default function Logs() {
       </div>
 
       {/* FAB */}
-      <button onClick={() => setShowCreate(true)}
+      <button onClick={handleCreateLog}
         className="fixed bottom-24 right-4 z-40 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-90 transition-all lg:hidden">
         <Plus className="h-6 w-6" />
       </button>
