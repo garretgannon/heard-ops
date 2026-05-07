@@ -3,8 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
 import LogsCommandHeader from '@/components/logcenter/LogsCommandHeader';
-import LogFilterChips from '@/components/logcenter/LogFilterChips';
-import LogsViewToggle from '@/components/logcenter/LogsViewToggle';
+import LogsCompactFilterBar from '@/components/logcenter/LogsCompactFilterBar';
+import AdvancedFilterSheet from '@/components/logcenter/AdvancedFilterSheet';
 import LogCard from '@/components/logcenter/LogCard';
 import UnifiedLogForm from '@/components/UnifiedLogForm';
 
@@ -14,8 +14,9 @@ export default function LogsCenter() {
   const [logs, setLogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [viewMode, setViewMode] = useState('list');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({});
   const isMounted = useRef(true);
 
   // Load logs
@@ -63,10 +64,19 @@ export default function LogsCenter() {
 
   // Filter logs
   const filteredLogs = logs.filter((log) => {
-    // Type filter
-    if (activeFilter !== 'all' && log.type !== activeFilter) {
-      return false;
+    // Quick filter (active chip)
+    if (activeFilter !== 'all') {
+      if (activeFilter === 'needs_review' && !log.requires_review) return false;
+      if (activeFilter === 'open' && log.status !== 'open') return false;
+      if (activeFilter !== 'needs_review' && activeFilter !== 'open' && log.type !== activeFilter) return false;
     }
+
+    // Advanced filters
+    if (advancedFilters.types?.length && !advancedFilters.types.includes(log.type)) return false;
+    if (advancedFilters.statuses?.length && !advancedFilters.statuses.includes(log.status)) return false;
+    if (advancedFilters.requiresReview && !log.requires_review) return false;
+    if (advancedFilters.hasPhoto && (!log.photo_urls || log.photo_urls.length === 0)) return false;
+    if (advancedFilters.openFollowUp && (!log.follow_up_required || log.follow_up_due_date <= new Date().toISOString())) return false;
 
     // Search filter
     if (searchQuery.trim()) {
@@ -94,20 +104,19 @@ export default function LogsCenter() {
   return (
     <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
       {/* Header */}
-      <LogsCommandHeader
-        searchQuery={searchQuery}
+      <LogsCommandHeader onQuickAdd={() => setShowAddModal(true)} />
+
+      {/* Compact Filter Bar */}
+      <LogsCompactFilterBar
+        search={searchQuery}
         onSearch={setSearchQuery}
-        onQuickAdd={() => setShowAddModal(true)}
+        activeFilter={activeFilter}
+        onFilterChange={setActiveFilter}
+        onShowAdvanced={() => setShowAdvancedFilters(true)}
       />
 
-      {/* Filter Chips */}
-      <LogFilterChips activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-
-      {/* View Toggle */}
-      <LogsViewToggle view={viewMode} onViewChange={setViewMode} />
-
       {/* Content */}
-      <div className="flex-1 px-4 py-6 lg:px-8 max-w-4xl mx-auto w-full">
+      <div className="flex-1 px-4 py-4 lg:px-8 max-w-4xl mx-auto w-full">
         {filteredLogs.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No logs found</p>
@@ -139,6 +148,17 @@ export default function LogsCenter() {
           }}
         />
       )}
+
+      {/* Advanced Filter Sheet */}
+      <AdvancedFilterSheet
+        isOpen={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        filters={advancedFilters}
+        onApplyFilters={(filters) => {
+          setAdvancedFilters(filters);
+          setShowAdvancedFilters(false);
+        }}
+      />
     </div>
   );
 }
