@@ -104,42 +104,53 @@ export default function LogsCenter() {
   }
 
   return (
-    <div className="pb-32 bg-background min-h-screen overflow-x-hidden lg:flex lg:flex-col">
-      {/* Header */}
-      <LogsCommandHeader onQuickAdd={() => setShowAddModal(true)} />
+    <div className="w-full h-full bg-background flex flex-col overflow-hidden">
+      {/* Sticky Header Stack */}
+      <div className="flex-shrink-0 w-full overflow-x-hidden">
+        {/* Page Header */}
+        <LogsCommandHeader onQuickAdd={() => setShowAddModal(true)} />
 
-      {/* Compact Filter Bar */}
-      <LogsCompactFilterBar
-        search={searchQuery}
-        onSearch={setSearchQuery}
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-        onShowAdvanced={() => setShowAdvancedFilters(true)}
-      />
+        {/* Compact Filter Bar - Search + Button + Chips */}
+        <LogsCompactFilterBar
+          search={searchQuery}
+          onSearch={setSearchQuery}
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+          onShowAdvanced={() => setShowAdvancedFilters(true)}
+        />
 
-      {/* View Tabs */}
-      <LogsViewTabs activeView={viewMode} onViewChange={setViewMode} />
+        {/* View Tabs */}
+        <LogsViewTabs activeView={viewMode} onViewChange={setViewMode} />
+      </div>
 
-      {/* Content */}
-      <div className="flex-1 w-full px-4 py-3 lg:px-8 overflow-x-hidden box-border">
-        {filteredLogs.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No logs found</p>
-            <p className="text-xs text-muted-foreground mt-1">Try adjusting filters</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filteredLogs.map((log) => (
-              <LogCard
-                key={log.id}
-                log={log}
-                onOpen={(logId) => {
-                  toast.info('Log detail view coming soon');
-                }}
-              />
-            ))}
-          </div>
-        )}
+      {/* Scrollable Content Area */}
+      <div className="flex-1 w-full overflow-y-auto overflow-x-hidden box-border">
+        <div className="w-full px-4 py-3 box-border">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : filteredLogs.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No logs found</p>
+              <p className="text-xs text-muted-foreground mt-1">Try adjusting filters</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredLogs.map((log) => (
+                <LogCard
+                  key={log.id}
+                  log={log}
+                  onOpen={(logId) => {
+                    toast.info('Log detail view coming soon');
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Bottom padding for fixed nav */}
+        <div className="h-32" />
       </div>
 
       {/* Add Log Modal */}
