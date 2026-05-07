@@ -232,21 +232,17 @@ function TemplateForm({ template, onSave, onCancel }) {
         <div className="space-y-2">
           {items.map((item, idx) => (
             <div key={idx} className="bg-background border border-border rounded-lg p-2 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Item name"
                   value={item.itemName}
                   onChange={(e) => updateItem(idx, 'itemName', e.target.value)}
-                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
+                  className="flex-1 px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
                 />
-                <input
-                  type="text"
-                  placeholder="Due time"
-                  value={item.dueTime || ''}
-                  onChange={(e) => updateItem(idx, 'dueTime', e.target.value)}
-                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
-                />
+                <button onClick={() => removeItem(idx)} className="btn-secondary text-xs px-2 shrink-0">
+                  <X className="h-3 w-3" />
+                </button>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <input
@@ -263,9 +259,31 @@ function TemplateForm({ template, onSave, onCancel }) {
                   onChange={(e) => updateItem(idx, 'unit', e.target.value)}
                   className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
                 />
-                <button onClick={() => removeItem(idx)} className="btn-secondary text-xs px-2">
-                  <X className="h-3 w-3" />
-                </button>
+                <select
+                  value={item.priority || 'medium'}
+                  onChange={(e) => updateItem(idx, 'priority', e.target.value)}
+                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  placeholder="Job code (optional)"
+                  value={item.jobCode || ''}
+                  onChange={(e) => updateItem(idx, 'jobCode', e.target.value)}
+                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
+                />
+                <input
+                  type="text"
+                  placeholder="Notes (optional)"
+                  value={item.notes || ''}
+                  onChange={(e) => updateItem(idx, 'notes', e.target.value)}
+                  className="w-full px-2 py-1 bg-card border border-border rounded text-xs text-foreground"
+                />
               </div>
             </div>
           ))}
@@ -386,11 +404,11 @@ export default function PrepTemplatesManager() {
               <button
                 onClick={() => {
                   haptics.light();
-                  const headers = ['itemName','quantity','unit','dueTime','station','jobCode','notes'];
+                  const headers = ['itemName','quantity','unit','priority','jobCode','notes'];
                   const rows = [
-                    ['Chop Onions','10','lbs','10:00 AM','Prep','Prep Cook','Dice small'],
-                    ['Portion Chicken','20','portions','11:00 AM','Grill','Line Cook','6oz each'],
-                    ['Make Soup Base','2','batches','09:00 AM','Hot Line','Cook','See recipe card'],
+                    ['Chop Onions','10','lbs','high','Prep Cook','Dice small'],
+                    ['Portion Chicken','20','portions','medium','Line Cook','6oz each'],
+                    ['Make Soup Base','2','batches','low','Cook','See recipe card'],
                   ];
                   const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
                   const blob = new Blob([csv], { type: 'text/csv' });
