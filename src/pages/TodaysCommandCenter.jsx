@@ -27,11 +27,14 @@ const CACHE_TTL = 30_000;
 
 // ── Sub-components ──────────────────────────────────────────────
 
-function SectionLabel({ label, icon: Icon, count, action, onAction }) {
+function SectionLabel({ label, icon: Icon, count, action, onAction, emphasis }) {
   return (
-    <div className="flex items-center gap-2 mb-2">
-      {Icon && <Icon className="h-3.5 w-3.5 text-primary shrink-0" />}
-      <h2 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex-1">{label}</h2>
+    <div className="flex items-center gap-2 mb-2.5">
+      {Icon && <Icon className={cn("h-3.5 w-3.5 shrink-0", emphasis ? "text-foreground" : "text-primary")} />}
+      <h2 className={cn(
+        "text-[10px] font-bold uppercase tracking-widest flex-1",
+        emphasis ? "text-foreground" : "text-muted-foreground"
+      )}>{label}</h2>
       {count !== undefined && count > 0 && (
         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-foreground">{count}</span>
       )}
@@ -613,6 +616,10 @@ export default function TodaysCommandCenter() {
 
         {/* LEFT: Shift Control */}
         <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-border/30">
+            <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Shift Control</p>
+          </div>
           {isAdmin && (
             <DesktopShiftControlCard
               currentShift={currentShift}
@@ -640,18 +647,23 @@ export default function TodaysCommandCenter() {
           )}
         </div>
 
-        {/* CENTER: Needs Attention + Quick Actions + Due Soon + Events */}
-        <div className="space-y-5 min-w-0">
+        {/* CENTER: Primary Operational Focus */}
+        <div className="space-y-6 min-w-0">
           {/* Needs Attention — highest priority */}
           {(data.overdue.length > 0 || data.needsReview > 0) && (
-            <div>
-              <SectionLabel
-                label="Needs Attention"
-                icon={AlertTriangle}
-                count={urgencyCount}
-                action={data.overdue.length > 3 ? `View all ${data.overdue.length}` : undefined}
-                onAction={() => navigate("/tasks")}
-              />
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                  <h2 className="text-sm font-bold text-foreground">Needs Attention</h2>
+                  {urgencyCount > 0 && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30">{urgencyCount}</span>
+                  )}
+                </div>
+                {data.overdue.length > 3 && (
+                  <button onClick={() => navigate("/tasks")} className="text-[10px] font-bold text-primary hover:underline">View all {data.overdue.length}</button>
+                )}
+              </div>
               <div className="space-y-2">
                 {data.overdue.slice(0, 4).map(item => (
                   <AttentionCard key={item.id} icon={AlertTriangle} iconColor="text-red-400" iconBg="bg-red-500/15"
@@ -676,24 +688,30 @@ export default function TodaysCommandCenter() {
             </div>
           )}
 
-          {/* Today Actions — quick action row, only shown when shift is running */}
+          {/* Today Actions */}
           {isAdmin && currentShift?.status === "running" && shiftLaunched && (
-            <div>
-              <SectionLabel label="Today Actions" icon={Zap} />
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-bold text-foreground">Today Actions</h2>
+              </div>
               <RoleAwareQuickActions onActionClick={setActiveModal} />
             </div>
           )}
 
           {/* Due Soon */}
           {data.dueSoon.length > 0 && (
-            <div>
-              <SectionLabel
-                label="Due Soon"
-                icon={Clock}
-                count={data.dueSoon.length}
-                action={data.dueSoon.length > 3 ? "View all" : undefined}
-                onAction={() => navigate("/tasks")}
-              />
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-amber-400" />
+                  <h2 className="text-sm font-bold text-foreground">Due Soon</h2>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">{data.dueSoon.length}</span>
+                </div>
+                {data.dueSoon.length > 3 && (
+                  <button onClick={() => navigate("/tasks")} className="text-[10px] font-bold text-primary hover:underline">View all</button>
+                )}
+              </div>
               <div className="space-y-2">
                 {data.dueSoon.slice(0, 4).map(item => (
                   <DueSoonCard key={item.id} title={item.title} meta={item.station} progress={item.progress}
@@ -704,8 +722,11 @@ export default function TodaysCommandCenter() {
           )}
 
           {/* Daily Events */}
-          <div>
-            <SectionLabel label="Today's Events" icon={CalendarDays} />
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-bold text-foreground">Today's Events</h2>
+            </div>
             <DailyEventsCard />
           </div>
 
@@ -719,8 +740,12 @@ export default function TodaysCommandCenter() {
           )}
         </div>
 
-        {/* RIGHT: Supporting Info */}
+        {/* RIGHT: Supporting Context */}
         <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-border/30">
+            <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Support</p>
+          </div>
           {/* Shift Notes */}
           {data.latestHandoff && (
             <ShiftNotesCard
