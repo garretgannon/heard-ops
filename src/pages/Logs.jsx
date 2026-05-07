@@ -14,7 +14,7 @@ import LogsCategoryView from "@/components/logcenter/LogsCategoryView";
 import LogsCalendarView from "@/components/logcenter/LogsCalendarView";
 import LogsReviewView from "@/components/logcenter/LogsReviewView";
 import LogsAnalyticsView from "@/components/logcenter/LogsAnalyticsView";
-import LogCreateModal from "@/components/LogCreateModal";
+import LogCreateModal from "@/components/logcenter/LogCreateModal";
 
 // ── Map raw entity records to unified log shape ───────────────────
 function getStatus(raw, type) {
