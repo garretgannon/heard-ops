@@ -21,7 +21,7 @@ import { TabHistoryProvider } from '@/lib/TabHistoryContext';
 import Landing from './pages/Landing';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import StaffTasks from './pages/StaffTasks';
-import Logs from './pages/Logs';
+import LogsCenter from './pages/LogsCenter';
 import Knowledge from './pages/Knowledge';
 import More from './pages/More';
 import Onboarding from './pages/Onboarding';
@@ -111,7 +111,7 @@ const AuthenticatedApp = () => {
         <Route path="/today" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
         <Route path="/shift" element={<Shift />} />
         <Route path="/tasks" element={<StaffTasks />} />
-        <Route path="/logs" element={<Logs />} />
+        <Route path="/logs" element={<LogsCenter />} />
         <Route path="/team" element={<RestaurantTeam />} />
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/more" element={<More />} />
