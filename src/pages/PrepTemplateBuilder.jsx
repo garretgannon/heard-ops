@@ -289,20 +289,26 @@ export default function PrepTemplateBuilder() {
                               >
                                 {item.is_header ? (
                                   <>
-                                    <td className="px-2 py-3" {...provided.dragHandleProps}>
-                                      <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                                    </td>
-                                    <td colSpan="8" className="px-3 py-3">
-                                      <input
-                                        type="text"
-                                        value={item.item_name}
-                                        onChange={e => {
-                                          const items = [...template.items];
-                                          items[idx].item_name = e.target.value;
-                                          setTemplate(p => ({ ...p, items }));
-                                        }}
-                                        className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-bold text-primary uppercase tracking-wide"
-                                      />
+                                    <td colSpan="9" className="">
+                                      <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-t-2 border-b-2 border-primary px-4 py-4 flex items-center gap-3">
+                                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
+                                          <GripVertical className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <input
+                                          type="text"
+                                          value={item.item_name}
+                                          onChange={e => {
+                                            const items = [...template.items];
+                                            items[idx].item_name = e.target.value;
+                                            setTemplate(p => ({ ...p, items }));
+                                          }}
+                                          className="flex-1 px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg text-base font-extrabold text-primary uppercase tracking-widest placeholder-primary/40"
+                                          placeholder="Section name"
+                                        />
+                                        <button onClick={() => deleteRow(idx)} className="h-8 w-8 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                      </div>
                                     </td>
                                   </>
                                 ) : (
