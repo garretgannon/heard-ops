@@ -21,6 +21,7 @@ import AdminSimulationBar from './components/AdminSimulationBar';
 import { TabHistoryProvider } from '@/lib/TabHistoryContext';
 import Landing from './pages/Landing';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
+import Pulse from './pages/Pulse';
 import StaffTasks from './pages/StaffTasks';
 import LogsCenter from './pages/LogsCenter';
 import Knowledge from './pages/Knowledge';
@@ -118,7 +119,7 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
-        <Route path="/pulse" element={<TodaysCommandCenter />} />
+        <Route path="/pulse" element={<Pulse />} />
         <Route path="/shift" element={<Shift />} />
         <Route path="/analytics" element={<Reports />} />
         <Route path="/tasks" element={<StaffTasks />} />
