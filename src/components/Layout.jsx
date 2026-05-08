@@ -37,6 +37,7 @@ const DESKTOP_SECTIONS = [
   {
     label: "PLANNING",
     items: [
+      { path: "/prep-planning", label: "Prep Planning", icon: ClipboardList },
       { path: "/schedule", label: "Schedule", icon: CalendarDays },
       { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate },
     ],
