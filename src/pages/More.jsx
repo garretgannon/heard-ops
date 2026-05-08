@@ -134,12 +134,6 @@ export default function More() {
               badge="Setup"
               badgeColor="bg-amber-500/15 text-amber-400"
             />
-            <MoreRow
-              icon={Wrench}
-              label="Cleaning Standards"
-              description="Cleaning procedures and best practices"
-              onClick={() => navigate('/cleaning-templates')}
-            />
 
           </div>
         </div>
