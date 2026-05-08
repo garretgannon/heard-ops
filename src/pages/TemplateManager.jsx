@@ -179,7 +179,7 @@ export default function TemplateManager() {
       </div>
 
       {/* Template Cards */}
-      <div className="px-4 py-4 space-y-3 max-w-6xl lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
+      <div className="px-4 py-4 space-y-2 max-w-6xl lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
         {filtered.length === 0 ? (
           <div className="col-span-2 text-center py-20">
             <AlertCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
@@ -198,99 +198,109 @@ export default function TemplateManager() {
           filtered.map(template => {
             const warnings = getWarnings(template);
             const creates = getCreates(template);
+            const typeLabel = TEMPLATE_TYPES.find(t => t.id === template.template_type)?.label;
             return (
-              <div key={template.id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-border/50 transition-all">
-                <div className="p-4 space-y-3">
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground truncate">{template.name}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{TEMPLATE_TYPES.find(t => t.id === template.template_type)?.label}</p>
-                    </div>
-                    <span className={cn('text-[10px] font-bold px-2 py-1 rounded', template.is_active && !warnings.length ? 'bg-green-500/15 text-green-400' : warnings.length ? 'bg-amber-500/15 text-amber-400' : 'bg-slate-500/15 text-slate-400')}>
-                      {template.is_active && !warnings.length ? 'ACTIVE' : warnings.length ? 'SETUP' : 'DRAFT'}
-                    </span>
+              <div key={template.id} className="bg-card/50 border border-border rounded-lg overflow-hidden hover:border-border/60 hover:bg-card/70 transition-all">
+                {/* Top Row: Name + Action Buttons */}
+                <div className="px-3 py-2.5 flex items-center justify-between gap-2 border-b border-border/50">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-sm text-foreground truncate">{template.name}</h3>
                   </div>
-
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    {template.assigned_role && (
-                      <div><p className="text-muted-foreground">Role</p><p className="font-medium text-foreground">{template.assigned_role}</p></div>
-                    )}
-                    {template.assigned_station && (
-                      <div><p className="text-muted-foreground">Station</p><p className="font-medium text-foreground">{template.assigned_station}</p></div>
-                    )}
-                    {template.shift && template.shift !== 'any' && (
-                      <div><p className="text-muted-foreground">Shift</p><p className="font-medium text-foreground capitalize">{template.shift}</p></div>
-                    )}
-                    {template.recurrence_type && (
-                      <div><p className="text-muted-foreground">Schedule</p><p className="font-medium text-foreground capitalize">{template.recurrence_type}</p></div>
-                    )}
-                    {template.due_time && (
-                      <div><p className="text-muted-foreground">Due</p><p className="font-medium text-foreground">{template.due_time}</p></div>
-                    )}
-                    {creates.length > 0 && (
-                      <div><p className="text-muted-foreground">Creates</p><p className="font-medium text-foreground">{creates.join(' + ')}</p></div>
-                    )}
-                  </div>
-
-                  {/* Requirements Badges */}
-                  {(template.photo_required || template.manager_review_required || template.template_type === 'temperature') && (
-                    <div className="flex flex-wrap gap-1">
-                      {template.photo_required && <span className="text-[10px] bg-blue-500/15 text-blue-400 font-bold px-2 py-1 rounded">📸 Photo</span>}
-                      {template.manager_review_required && <span className="text-[10px] bg-purple-500/15 text-purple-400 font-bold px-2 py-1 rounded">✓ Review</span>}
-                      {template.template_type === 'temperature' && <span className="text-[10px] bg-cyan-500/15 text-cyan-400 font-bold px-2 py-1 rounded">🌡️ Compliance</span>}
-                    </div>
-                  )}
-
-                  {/* Warnings */}
-                  {warnings.length > 0 && (
-                    <div className="p-2 rounded bg-amber-500/10 border border-amber-500/20">
-                      <p className="text-[10px] text-amber-400 font-bold">⚠️ Missing Setup:</p>
-                      <ul className="text-[10px] text-amber-300 mt-1 space-y-0.5">
-                        {warnings.map((w, i) => <li key={i}>• {w}</li>)}
-                      </ul>
+                  {isAdmin && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => setPreviewTemplate(template)}
+                        className="h-6 w-6 flex items-center justify-center rounded-md bg-primary/10 hover:bg-primary/15 text-primary transition-all active:scale-90"
+                        title="Preview"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => { setSelectedTemplate(template); setActiveModal('edit'); }}
+                        className="h-6 w-6 flex items-center justify-center rounded-md bg-muted/40 hover:bg-muted/60 text-muted-foreground transition-all active:scale-90"
+                        title="Edit"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={() => handleDuplicate(template)}
+                        className="h-6 w-6 flex items-center justify-center rounded-md bg-muted/40 hover:bg-muted/60 text-muted-foreground transition-all active:scale-90"
+                        title="Duplicate"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(template.id)}
+                        className="h-6 w-6 flex items-center justify-center rounded-md bg-red-500/10 hover:bg-red-500/15 text-red-500 transition-all active:scale-90"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
                     </div>
                   )}
                 </div>
 
-                {/* Actions */}
-                {isAdmin && (
-                  <div className="px-4 py-3 border-t border-border flex items-center gap-2">
-                    <button
-                      onClick={() => setPreviewTemplate(template)}
-                      className="flex-1 h-8 flex items-center justify-center gap-1 rounded-lg bg-primary/10 hover:bg-primary/15 text-primary font-bold text-xs transition-all active:scale-95"
-                    >
-                      <Eye className="h-3.5 w-3.5" /> Preview
-                    </button>
-                    <button
-                      onClick={() => { setSelectedTemplate(template); setActiveModal('edit'); }}
-                      className="flex-1 h-8 flex items-center justify-center gap-1 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground font-bold text-xs transition-all active:scale-95"
-                    >
-                      <Edit2 className="h-3.5 w-3.5" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDuplicate(template)}
-                      className="h-8 w-8 flex items-center justify-center rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground transition-all active:scale-95"
-                      title="Duplicate as draft"
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleToggleActive(template)}
-                      className={cn('h-8 px-2 rounded-lg font-bold text-xs transition-all active:scale-95', template.is_active ? 'bg-green-500/15 text-green-400' : 'bg-slate-500/15 text-slate-400')}
-                    >
-                      {template.is_active ? 'Active' : 'Draft'}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(template.id)}
-                      className="h-8 w-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/15 text-red-500 transition-all active:scale-95"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                {/* Second Row: Type + Role + Shift + Station */}
+                <div className="px-3 py-2 flex items-center gap-1.5 border-b border-border/50 flex-wrap">
+                  <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', TYPE_COLORS[template.template_type] || 'bg-muted text-muted-foreground')}>
+                    {typeLabel}
+                  </span>
+                  {template.assigned_role && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">👤 {template.assigned_role}</span>}
+                  {template.shift && template.shift !== 'any' && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">🕐 {template.shift}</span>}
+                  {template.assigned_station && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">📍 {template.assigned_station}</span>}
+                </div>
+
+                {/* Details Row: Schedule + Due + Last Generated + Creates */}
+                <div className="px-3 py-2 border-b border-border/50">
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Recurrence:</span>
+                      <span className="font-bold text-foreground capitalize">{template.recurrence_type || 'daily'}</span>
+                    </div>
+                    {template.due_time && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Due:</span>
+                        <span className="font-bold text-foreground">{template.due_time}</span>
+                      </div>
+                    )}
+                    {template.last_generated_date && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Last Generated:</span>
+                        <span className="font-bold text-foreground">{template.last_generated_date}</span>
+                      </div>
+                    )}
+                    {creates.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Creates:</span>
+                        <span className="font-bold text-foreground">{creates.join(' + ')}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Requirements Row */}
+                {(template.photo_required || template.manager_review_required || (template.template_type === 'temperature' && template.temp_corrective_action)) && (
+                  <div className="px-3 py-1.5 border-b border-border/50 flex flex-wrap gap-1">
+                    {template.photo_required && <span className="text-[9px] bg-blue-500/20 text-blue-300 font-bold px-1.5 py-0.5 rounded">📸 Photo</span>}
+                    {template.manager_review_required && <span className="text-[9px] bg-purple-500/20 text-purple-300 font-bold px-1.5 py-0.5 rounded">✓ Review</span>}
+                    {template.template_type === 'temperature' && template.temp_corrective_action && <span className="text-[9px] bg-orange-500/20 text-orange-300 font-bold px-1.5 py-0.5 rounded">🔧 Action</span>}
                   </div>
                 )}
+
+                {/* Status Badge + Last Updated + Warnings */}
+                <div className="px-3 py-2 flex items-center justify-between text-[10px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn('font-bold px-2 py-0.5 rounded', template.is_active && !warnings.length ? 'bg-green-500/20 text-green-300' : warnings.length ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-500/20 text-slate-300')}>
+                      {template.is_active && !warnings.length ? '✓ ACTIVE' : warnings.length ? '⚠️ SETUP' : 'DRAFT'}
+                    </span>
+                    {template.updated_date && <span className="text-muted-foreground">Updated {template.updated_date.split('T')[0]}</span>}
+                  </div>
+                  {warnings.length > 0 && (
+                    <div className="text-amber-400 font-bold cursor-help" title={warnings.join(', ')}>
+                      {warnings.length} issues
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })
