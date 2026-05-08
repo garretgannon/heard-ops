@@ -309,12 +309,12 @@ export default function PrepTemplateBuilder() {
           )}
 
           {/* Add Row Form */}
-          <div className="bg-background/50 rounded-lg p-4 space-y-3 border border-border/30" onKeyDown={handleFormKeyDown}>
+          <div className="bg-background/50 rounded-lg p-4 space-y-3 border border-border/30">
             <p className="text-xs font-bold text-muted-foreground uppercase">Add New Row</p>
             <div className="grid grid-cols-5 gap-2">
-              <input value={newItem.item_name} onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))} placeholder="Item name" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <input type="number" value={newItem.par_quantity} onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))} placeholder="Par qty" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <input value={newItem.unit} onChange={e => setNewItem(p => ({ ...p, unit: e.target.value }))} placeholder="Unit" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
+              <input value={newItem.item_name} onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Item name" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
+              <input type="number" value={newItem.par_quantity} onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Par qty" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
+              <input value={newItem.unit} onChange={e => setNewItem(p => ({ ...p, unit: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Unit" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
               <select value={newItem.priority} onChange={e => setNewItem(p => ({ ...p, priority: e.target.value }))} onKeyDown={handleFormKeyDown} className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground">
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
