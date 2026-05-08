@@ -10,33 +10,66 @@ import SectionCard from '@/components/myrestaurant/SectionCard';
 import CenteredModal from '@/components/myrestaurant/CenteredModal';
 
 const DEPT_SUGGESTIONS = ['Kitchen', 'FOH', 'Bar', 'Bakery', 'Dish', 'Catering', 'Management', 'Maintenance'];
-const EQUIPMENT_TYPES = [
-  { value: 'dish-machine', label: 'Dish Machine' },
-  { value: '3-compartment-sink', label: '3-Compartment Sink' },
-  { value: 'walk-in-cooler', label: 'Walk-in Cooler' },
-  { value: 'walk-in-freezer', label: 'Walk-in Freezer' },
-  { value: 'reach-in-cooler', label: 'Reach-in Cooler' },
-  { value: 'reach-in-freezer', label: 'Reach-in Freezer' },
-  { value: 'fryer', label: 'Fryer' },
-  { value: 'flat-top', label: 'Flat Top' },
-  { value: 'grill', label: 'Grill' },
-  { value: 'oven', label: 'Oven' },
-  { value: 'ice-machine', label: 'Ice Machine' },
-  { value: 'steam-table', label: 'Steam Table' },
-  { value: 'hot-holding-cabinet', label: 'Hot Holding Cabinet' },
-  { value: 'prep-table-cooler', label: 'Prep Table Cooler' },
-  { value: 'lowboy-cooler', label: 'Lowboy Cooler' },
-  { value: 'beer-cooler', label: 'Beer Cooler' },
-  { value: 'wine-cooler', label: 'Wine Cooler' },
-  { value: 'soda-gun', label: 'Soda Gun' },
-  { value: 'glass-washer', label: 'Glass Washer' },
-  { value: 'hood-system', label: 'Hood System' },
-  { value: 'grease-trap', label: 'Grease Trap' },
-  { value: 'hvac', label: 'HVAC' },
-  { value: 'water-heater', label: 'Water Heater' },
-  { value: 'hand-sink', label: 'Hand Sink' },
-  { value: 'other', label: 'Other' },
+const EQUIPMENT_CATEGORIES = [
+  {
+    id: 'sinks', label: 'Sinks',
+    types: [
+      { value: 'hand-sink', label: 'Hand Sink' },
+      { value: '3-compartment-sink', label: '3-Compartment Sink' },
+      { value: 'dish-sink', label: 'Dish Sink' },
+      { value: 'prep-sink', label: 'Prep Sink' },
+    ],
+  },
+  {
+    id: 'dish-machines', label: 'Dish Machines',
+    types: [
+      { value: 'dish-machine', label: 'Dish Machine' },
+      { value: 'glass-washer', label: 'Glass Washer' },
+    ],
+  },
+  {
+    id: 'refrigerators', label: 'Refrigerators',
+    types: [
+      { value: 'walk-in-cooler', label: 'Walk-in Cooler' },
+      { value: 'lowboy-cooler', label: 'Low Boy' },
+      { value: 'reach-in-cooler', label: 'Upright Reach-in' },
+      { value: 'prep-table-cooler', label: 'Prep Table Cooler' },
+      { value: 'beer-cooler', label: 'Beer Cooler' },
+      { value: 'wine-cooler', label: 'Wine Cooler' },
+    ],
+  },
+  {
+    id: 'freezers', label: 'Freezers',
+    types: [
+      { value: 'walk-in-freezer', label: 'Walk-in Freezer' },
+      { value: 'chest-freezer', label: 'Chest Freezer' },
+      { value: 'reach-in-freezer', label: 'Upright Reach-in Freezer' },
+    ],
+  },
+  {
+    id: 'hot-equipment', label: 'Hot Equipment',
+    types: [
+      { value: 'fryer', label: 'Fryer' },
+      { value: 'flat-top', label: 'Flat Top' },
+      { value: 'grill', label: 'Grill' },
+      { value: 'oven', label: 'Oven' },
+      { value: 'steam-table', label: 'Steam Table' },
+      { value: 'hot-holding-cabinet', label: 'Hot Holding Cabinet' },
+    ],
+  },
+  {
+    id: 'other', label: 'Other Equipment',
+    types: [
+      { value: 'ice-machine', label: 'Ice Machine' },
+      { value: 'hood-system', label: 'Hood System' },
+      { value: 'grease-trap', label: 'Grease Trap' },
+      { value: 'hvac', label: 'HVAC' },
+      { value: 'water-heater', label: 'Water Heater' },
+      { value: 'other', label: 'Other' },
+    ],
+  },
 ];
+const ALL_EQUIPMENT_TYPES = EQUIPMENT_CATEGORIES.flatMap(c => c.types);
 const VENDOR_CATEGORIES = [
   'Food Vendor','Beverage Vendor','Linen','Chemicals','Dish Machine Service',
   'Refrigeration Repair','Plumbing','Electrical','Hood Cleaning','Pest Control',
@@ -151,96 +184,155 @@ function EquipmentModal({ onClose }) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ name: '', equipmentType: '', department: '', area: '', station: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, isActive: true });
+  const [editingId, setEditingId] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const emptyForm = { name: '', equipmentType: '', department: '', station: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, isActive: true };
+  const [form, setForm] = useState(emptyForm);
 
-  useEffect(() => { base44.entities.Equipment.list('-updated_date', 100).then(setItems); }, []);
+  const reload = () => base44.entities.Equipment.list('-updated_date', 200).then(setItems);
+  useEffect(() => { reload(); }, []);
+
+  const typeLabel = (v) => ALL_EQUIPMENT_TYPES.find(t => t.value === v)?.label || v;
+  const categoryForType = (v) => EQUIPMENT_CATEGORIES.find(c => c.types.some(t => t.value === v))?.id || 'other';
 
   const save = async () => {
     if (!form.name.trim() || !form.equipmentType) return;
-    await base44.entities.Equipment.create(form);
-    setAdding(false);
-    setForm({ name: '', equipmentType: '', department: '', area: '', station: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, isActive: true });
-    base44.entities.Equipment.list('-updated_date', 100).then(setItems);
+    if (editingId) {
+      await base44.entities.Equipment.update(editingId, form);
+      setEditingId(null);
+    } else {
+      await base44.entities.Equipment.create(form);
+      setAdding(false);
+    }
+    setForm(emptyForm);
+    reload();
   };
+
+  const startEdit = (item) => {
+    setEditingId(item.id);
+    setAdding(false);
+    setForm({ name: item.name, equipmentType: item.equipmentType, department: item.department || '', station: item.station || '', modelNumber: item.modelNumber || '', serialNumber: item.serialNumber || '', requiresTemperatureLog: !!item.requiresTemperatureLog, requiresCleaningChecklist: !!item.requiresCleaningChecklist, requiresMaintenanceChecklist: !!item.requiresMaintenanceChecklist, isActive: item.isActive !== false });
+  };
+
+  const cancelEdit = () => { setEditingId(null); setAdding(false); setForm(emptyForm); };
   const del = async (id) => { await base44.entities.Equipment.delete(id); setItems(p => p.filter(i => i.id !== id)); };
-  const typeLabel = (v) => EQUIPMENT_TYPES.find(t => t.value === v)?.label || v;
-  const COLD_TYPES = ['walk-in-cooler','walk-in-freezer','reach-in-cooler','reach-in-freezer','prep-table-cooler','lowboy-cooler','beer-cooler','wine-cooler','bar-cooler'];
+
+  const COLD_TYPES = ['walk-in-cooler','walk-in-freezer','reach-in-cooler','reach-in-freezer','prep-table-cooler','lowboy-cooler','beer-cooler','wine-cooler','chest-freezer'];
   const isColdStorage = (type) => COLD_TYPES.includes(type);
+
+  const filteredItems = activeCategory === 'all' ? items : items.filter(i => categoryForType(i.equipmentType) === activeCategory);
+
+  const FormFields = () => (
+    <div className="space-y-3 mt-3 p-3 bg-background border border-border rounded-xl">
+      <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
+        className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+      <div className="space-y-1">
+        <label className="text-[10px] font-bold text-muted-foreground uppercase">Category & Type *</label>
+        {EQUIPMENT_CATEGORIES.map(cat => (
+          <div key={cat.id}>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2 mb-1">{cat.label}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {cat.types.map(t => (
+                <button key={t.value} type="button"
+                  onClick={() => setForm(p => ({ ...p, equipmentType: t.value }))}
+                  className={`text-xs px-2.5 py-1 rounded-full border font-semibold transition-all ${
+                    form.equipmentType === t.value
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
+                  }`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <input value={form.department} onChange={e => setForm(p => ({ ...p, department: e.target.value }))} placeholder="Department"
+          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+        <input value={form.station} onChange={e => setForm(p => ({ ...p, station: e.target.value }))} placeholder="Station"
+          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
+          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+        <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
+          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+      </div>
+      <div className="space-y-1.5">
+        {[['requiresTemperatureLog','Requires Temperature Log'],['requiresCleaningChecklist','Requires Cleaning Checklist'],['requiresMaintenanceChecklist','Requires Maintenance Checklist']].map(([key, label]) => (
+          <label key={key} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+            <input type="checkbox" checked={form[key]} onChange={e => setForm(p => ({ ...p, [key]: e.target.checked }))} className="rounded" />
+            {label}
+          </label>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <button onClick={save} className="flex-1 btn-primary text-sm">Save</button>
+        <button onClick={cancelEdit} className="flex-1 btn-secondary text-sm">Cancel</button>
+      </div>
+    </div>
+  );
 
   return (
     <CenteredModal title="Equipment and Assets" onClose={onClose}>
-      {items.length === 0 && !adding && (
-        <div className="text-center py-6 mb-4">
-          <p className="text-sm text-muted-foreground">No equipment added yet.</p>
-          <p className="text-xs text-muted-foreground mt-1">Start by adding your dish machine, walk-in cooler, 3-compartment sink, ice machine, and main cooking equipment.</p>
+      {/* Category filter tabs */}
+      <div className="flex gap-1.5 flex-wrap mb-4">
+        <button onClick={() => setActiveCategory('all')} className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${ activeCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border' }`}>All ({items.length})</button>
+        {EQUIPMENT_CATEGORIES.map(cat => {
+          const count = items.filter(i => categoryForType(i.equipmentType) === cat.id).length;
+          if (count === 0 && activeCategory !== cat.id) return null;
+          return (
+            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${ activeCategory === cat.id ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border' }`}>
+              {cat.label} {count > 0 && `(${count})`}
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredItems.length === 0 && !adding && (
+        <div className="text-center py-4 mb-3">
+          <p className="text-sm text-muted-foreground">No equipment in this category yet.</p>
         </div>
       )}
+
       <div className="space-y-2 mb-4">
-        {items.map(item => (
-          <div key={item.id} className="bg-background border border-border rounded-lg px-3 py-2.5">
-            <div className="flex items-center gap-2">
-              <div className="flex-1">
-                <p className="text-sm font-bold text-foreground">{item.name}</p>
-                <p className="text-xs text-muted-foreground">{typeLabel(item.equipmentType)}{item.station ? ` · ${item.station}` : ''}</p>
-              </div>
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${item.isActive ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'}`}>
-                {item.isActive ? 'Active' : 'Inactive'}
-              </span>
-              <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
-            </div>
-            <div className="flex gap-1.5 mt-1.5 flex-wrap">
-              {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">Temp Log</span>}
-              {item.requiresCleaningChecklist && <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold">Cleaning</span>}
-              {item.requiresMaintenanceChecklist && <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">Maintenance</span>}
-            </div>
-            {isColdStorage(item.equipmentType) && (
-              <div className="flex gap-1.5 mt-2">
-                <button onClick={() => { onClose(); navigate('/temp-logs'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 active:scale-95 transition-all">View Temp History</button>
-                <button onClick={() => { onClose(); navigate('/temp-log-templates'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 active:scale-95 transition-all">Create Temp Template</button>
+        {filteredItems.map(item => (
+          <div key={item.id}>
+            {editingId === item.id ? (
+              <FormFields />
+            ) : (
+              <div className="bg-background border border-border rounded-lg px-3 py-2.5">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-foreground">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">{typeLabel(item.equipmentType)}{item.station ? ` · ${item.station}` : ''}</p>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => startEdit(item)} className="text-xs font-bold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 active:scale-95">Edit</button>
+                    <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
+                  </div>
+                </div>
+                <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                  {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">Temp Log</span>}
+                  {item.requiresCleaningChecklist && <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold">Cleaning</span>}
+                  {item.requiresMaintenanceChecklist && <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">Maintenance</span>}
+                </div>
+                {isColdStorage(item.equipmentType) && (
+                  <div className="flex gap-1.5 mt-2">
+                    <button onClick={() => { onClose(); navigate('/temp-logs'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 active:scale-95">View Temp History</button>
+                    <button onClick={() => { onClose(); navigate('/temp-log-templates'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 active:scale-95">Create Temp Template</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
         ))}
       </div>
-      {adding ? (
-        <div className="space-y-3">
-          <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-          <select value={form.equipmentType} onChange={e => setForm(p => ({ ...p, equipmentType: e.target.value }))}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
-            <option value="">Select type *</option>
-            {EQUIPMENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
-          <div className="grid grid-cols-2 gap-2">
-            <input value={form.department} onChange={e => setForm(p => ({ ...p, department: e.target.value }))} placeholder="Department"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-            <input value={form.station} onChange={e => setForm(p => ({ ...p, station: e.target.value }))} placeholder="Station"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-            <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-          </div>
-          <div className="space-y-1.5">
-            {[
-              ['requiresTemperatureLog', 'Requires Temperature Log'],
-              ['requiresCleaningChecklist', 'Requires Cleaning Checklist'],
-              ['requiresMaintenanceChecklist', 'Requires Maintenance Checklist'],
-            ].map(([key, label]) => (
-              <label key={key} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
-                <input type="checkbox" checked={form[key]} onChange={e => setForm(p => ({ ...p, [key]: e.target.checked }))} className="rounded" />
-                {label}
-              </label>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <button onClick={save} className="flex-1 btn-primary text-sm">Save Equipment</button>
-            <button onClick={() => setAdding(false)} className="flex-1 btn-secondary text-sm">Cancel</button>
-          </div>
-        </div>
-      ) : (
+
+      {adding && <FormFields />}
+
+      {!adding && !editingId && (
         <button onClick={() => setAdding(true)} className="w-full btn-primary text-sm flex items-center justify-center gap-2">
           <Plus className="h-4 w-4" /> Add Equipment
         </button>
