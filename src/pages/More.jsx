@@ -73,6 +73,12 @@ export default function More() {
               description="Manage reservations and banquet events"
               onClick={() => navigate('/reservations')}
             />
+            <MoreRow
+              icon={Award}
+              label="Approvals"
+              description="Review and approve pending requests"
+              onClick={() => navigate('/approvals')}
+            />
           </div>
         </div>
 
