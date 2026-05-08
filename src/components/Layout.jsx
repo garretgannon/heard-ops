@@ -50,7 +50,6 @@ const DESKTOP_SECTIONS = [
       { path: "/reports", label: "Reports", icon: BarChart3 },
       { path: "/temperature-monitoring", label: "Temp Monitoring", icon: Thermometer },
       { path: "/temperature-dashboard", label: "Temp Dashboard", icon: Thermometer },
-      { path: "/admin/role-simulator", label: "Permissions", icon: Settings },
       { path: "/profile", label: "Profile", icon: Settings },
     ],
   },
