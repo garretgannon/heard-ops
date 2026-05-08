@@ -118,7 +118,9 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
-
+        <Route path="/pulse" element={<TodaysCommandCenter />} />
+        <Route path="/shift" element={<Shift />} />
+        <Route path="/analytics" element={<Reports />} />
         <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/logs" element={<LogsCenter />} />
         <Route path="/team" element={<TeamCenter />} />
