@@ -292,8 +292,17 @@ export default function PrepTemplateBuilder() {
                                     <td className="px-2 py-3" {...provided.dragHandleProps}>
                                       <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
                                     </td>
-                                    <td colSpan="8" className="px-3 py-3 font-bold text-primary text-sm uppercase tracking-wide">
-                                      {item.item_name}
+                                    <td colSpan="8" className="px-3 py-3">
+                                      <input
+                                        type="text"
+                                        value={item.item_name}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].item_name = e.target.value;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="w-full px-2 py-1 bg-background border border-border rounded text-xs font-bold text-primary uppercase tracking-wide"
+                                      />
                                     </td>
                                   </>
                                 ) : (
@@ -301,10 +310,57 @@ export default function PrepTemplateBuilder() {
                                     <td className="px-2 py-2 text-center" {...provided.dragHandleProps}>
                                       <GripVertical className="h-3.5 w-3.5 text-muted-foreground cursor-grab active:cursor-grabbing" />
                                     </td>
-                                    <td className="px-3 py-2 font-semibold text-foreground">{item.item_name}</td>
-                                    <td className="px-3 py-2 text-muted-foreground">{item.par_quantity}</td>
-                                    <td className="px-3 py-2 text-muted-foreground">{item.unit}</td>
-                                    <td className="px-3 py-2 text-muted-foreground text-[10px] capitalize">{item.priority || 'medium'}</td>
+                                    <td className="px-3 py-2">
+                                      <input
+                                        type="text"
+                                        value={item.item_name}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].item_name = e.target.value;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground font-semibold"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <input
+                                        type="number"
+                                        value={item.par_quantity}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].par_quantity = e.target.value;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <input
+                                        type="text"
+                                        value={item.unit}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].unit = e.target.value;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <select
+                                        value={item.priority || 'medium'}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].priority = e.target.value;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground"
+                                      >
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                      </select>
+                                    </td>
                                     <td className="px-3 py-2 text-center">
                                       <input
                                         type="checkbox"
