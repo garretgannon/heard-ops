@@ -78,6 +78,7 @@ export default function PrepTemplateBuilder() {
       ...p,
       items: (p.items || []).filter((_, i) => i !== idx),
     }));
+    toast.success('Item deleted');
   };
 
   const duplicateRow = (idx) => {
@@ -86,6 +87,7 @@ export default function PrepTemplateBuilder() {
       ...p,
       items: [...(p.items || []), { ...item, sort_order: (p.items?.length || 0) }],
     }));
+    toast.success('Item duplicated');
   };
 
   const moveRow = (idx, direction) => {
@@ -300,6 +302,20 @@ export default function PrepTemplateBuilder() {
                           }}
                           className="rounded border-border"
                         />
+                      </td>
+                      <td className="px-3 py-2 text-center flex items-center justify-center gap-1">
+                        <button onClick={() => moveRow(idx, 'up')} disabled={idx === 0} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move up">
+                          <ChevronUp className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => moveRow(idx, 'down')} disabled={idx === template.items.length - 1} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move down">
+                          <ChevronDown className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => duplicateRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Duplicate">
+                          <Copy className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => deleteRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
+                          <Trash2 className="h-3 w-3" />
+                        </button>
                       </td>
                     </tr>
                   ))}
