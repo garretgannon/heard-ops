@@ -20,7 +20,9 @@ const DESKTOP_SECTIONS = [
   {
     label: "WORK",
     items: [
-      { path: "/", label: "Today", icon: LayoutDashboard },
+      { path: "/", label: "Overview", icon: LayoutDashboard },
+      { path: "/today", label: "Today", icon: FileText },
+      { path: "/shift", label: "Shift", icon: ClipboardList },
       { path: "/logs", label: "Logs", icon: FileText },
       { path: "/team", label: "Team", icon: Users },
     ],
