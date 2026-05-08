@@ -28,7 +28,6 @@ const DESKTOP_SECTIONS = [
     label: "Knowledge",
     items: [
       { path: "/recipes", label: "Recipes", icon: ChefHat },
-      { path: "/standards", label: "SOPs & Training", icon: ClipboardList },
       { path: "/knowledge", label: "Training", icon: BookOpen },
       { path: "/inventory", label: "Inventory", icon: Warehouse },
       { path: "/vendors", label: "Vendors", icon: Truck },
