@@ -54,6 +54,7 @@ import PrepPlanning from './pages/PrepPlanning';
 import PrepInventoryCounter from './pages/PrepInventoryCounter';
 import PrepPlanReview from './pages/PrepPlanReview';
 import PrepPlanTemplatesManager from './pages/PrepPlanTemplatesManager';
+import PrepTemplateBuilder from './pages/PrepTemplateBuilder';
 import SideWorkTemplates from './pages/SideWorkTemplates';
 import CleaningTemplates from './pages/CleaningTemplates';
 import TemperatureLogTemplates from './pages/TemperatureLogTemplates';
@@ -158,6 +159,8 @@ const AuthenticatedApp = () => {
         <Route path="/prep-templates" element={<PrepTemplatesManager />} />
         <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
         <Route path="/prep-plan-templates" element={<PrepPlanTemplatesManager />} />
+        <Route path="/prep-plan-templates/new" element={<PrepTemplateBuilder />} />
+        <Route path="/prep-plan-templates/:id" element={<PrepTemplateBuilder />} />
         <Route path="/side-work-templates" element={<SideWorkTemplates />} />
         <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
         <Route path="/waste-templates" element={<WasteTemplates />} />
