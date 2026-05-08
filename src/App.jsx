@@ -58,7 +58,7 @@ import TemperatureMonitoring from './pages/TemperatureMonitoring';
 import TemperatureDashboard from './pages/TemperatureDashboard';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
-import ScheduleImport from './pages/ScheduleImport';
+
 import ShiftHandoff from './pages/ShiftHandoff';
 import AdminRoleSimulator from './pages/AdminRoleSimulator';
 import AdminCommandCenter from './pages/AdminCommandCenter';
@@ -168,7 +168,7 @@ const AuthenticatedApp = () => {
         <Route path="/templates" element={<TemplateManager />} />
         <Route path="/stations" element={<Stations />} />
         <Route path="/job-codes" element={<JobCodes />} />
-        <Route path="/schedule-import" element={<ScheduleImport />} />
+
         <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
         <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
 
