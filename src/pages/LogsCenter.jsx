@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
-import { Plus, Settings, Search } from 'lucide-react';
+import { Plus, Settings, Search, Wand2 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import LogsInboxHeader from '@/components/logcenter/LogsInboxHeader';
 import LogsFeedView from '@/components/logcenter/LogsFeedView';
@@ -122,6 +122,24 @@ export default function LogsCenter() {
     }
   };
 
+  const generateDummyLogs = async () => {
+    try {
+      haptics.medium?.();
+      const res = await base44.functions.invoke('generateDummyLogs', {});
+      toast.success(`Created ${res.data.count} test logs`);
+      // Reload logs
+      setTimeout(() => {
+        const loadLogs = async () => {
+          const allLogs = await base44.entities.UnifiedLog.list('-created_date', 100).catch(() => []);
+          setLogs(allLogs);
+        };
+        loadLogs();
+      }, 500);
+    } catch (err) {
+      toast.error('Failed to generate logs: ' + err.message);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-background overflow-hidden pb-40 lg:pb-0">
       {/* Main Content */}
@@ -161,6 +179,14 @@ export default function LogsCenter() {
             </button>
           ))}
           <div className="flex-1" />
+          <button
+            onClick={generateDummyLogs}
+            className="h-8 px-3 rounded-lg bg-slate-600 text-white font-bold text-xs hover:bg-slate-700 active:scale-95 transition-all flex items-center gap-1"
+            title="Generate test logs"
+          >
+            <Wand2 className="h-3.5 w-3.5" />
+            Test Data
+          </button>
           <button
             onClick={() => setShowTypeSelector(true)}
             className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:brightness-110 active:scale-95 transition-all flex items-center gap-1"
