@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Plus, Search, X, Calendar, List } from 'lucide-react';
-import FeedView from '@/components/activity-logs/FeedView';
+import LogsFeedView from './LogsFeedView';
 import LogsCalendarView from './LogsCalendarView';
 import LogsFilterSidebar from './LogsFilterSidebar';
 import LogsQuickActionsSidebar from './LogsQuickActionsSidebar';
-import { EMPTY_FILTERS } from '@/components/activity-logs/FilterPanel';
+
+const EMPTY_FILTERS = { types: [], statuses: [], priorities: [], datePreset: null, dateFrom: null, dateTo: null, station: null, area: null, equipment: null, requiresReview: false, hasPhoto: false, assignedToMe: false };
 
 export default function LogsDesktopLayout({ 
   logs, 
@@ -131,7 +132,7 @@ export default function LogsDesktopLayout({
             </div>
           ) : (
             <>
-              {activeView === 'feed' && <FeedView logs={logs} onLogClick={onLogClick} />}
+              {activeView === 'feed' && <LogsFeedView logs={logs} onLogClick={onLogClick} />}
               {activeView === 'calendar' && <LogsCalendarView logs={logs} onLogClick={onLogClick} />}
             </>
           )}

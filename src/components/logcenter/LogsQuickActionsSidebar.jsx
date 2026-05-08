@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { AlertTriangle, Wrench, Thermometer, Plus } from 'lucide-react';
-import { LOG_TYPES } from '@/components/activity-logs/logConfig';
+
 
 export default function LogsQuickActionsSidebar({ logs, onLogClick, onCreateLog, currentUser }) {
   const { needsReview, openMaintenance, failedTemps } = useMemo(() => {
