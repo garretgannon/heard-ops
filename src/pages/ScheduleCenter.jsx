@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell, DollarSign, Clock, TrendingUp, Target, Users, ChevronDown, Filter, Grid3x3, LayoutTemplate, RefreshCw, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell, DollarSign, Clock, TrendingUp, Target, Users, ChevronDown, Filter, Grid3x3, LayoutTemplate, RefreshCw, X, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { addDays, startOfWeek, format, isSameDay, parseISO } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -42,6 +43,11 @@ export default function ScheduleCenter() {
   const [showSearch, setShowSearch] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [groupBy, setGroupBy] = useState('employee'); // 'employee' | 'department' | 'role'
+  const [filterDepts, setFilterDepts] = useState([]); // empty = show all
+  const [showGroupPanel, setShowGroupPanel] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 1024);
@@ -111,9 +117,17 @@ export default function ScheduleCenter() {
     }
   };
 
-  const filteredEmployees = searchQuery
-    ? employees.filter(e => e.name?.toLowerCase().includes(searchQuery.toLowerCase()) || e.role?.toLowerCase().includes(searchQuery.toLowerCase()))
-    : employees;
+  const DEPARTMENTS = ['FOH', 'BOH', 'Bar', 'Management'];
+
+  const filteredEmployees = employees.filter(e => {
+    const matchesSearch = !searchQuery || e.name?.toLowerCase().includes(searchQuery.toLowerCase()) || e.role?.toLowerCase().includes(searchQuery.toLowerCase());
+    // Get the department for this employee from their shifts
+    const empDept = shifts.find(s => s.employee_name === e.name || s.employee_email === e.email)?.department || '';
+    const matchesDept = filterDepts.length === 0 || filterDepts.includes(empDept);
+    return matchesSearch && matchesDept;
+  });
+
+  const toggleFilterDept = (dept) => setFilterDepts(prev => prev.includes(dept) ? prev.filter(d => d !== dept) : [...prev, dept]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -211,29 +225,74 @@ export default function ScheduleCenter() {
 
           {/* Controls Row */}
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
+            <div className="flex items-center gap-2 relative">
+              <button
+                onClick={() => { setShowGroupPanel(false); setShowFilterPanel(false); }}
+                className={`h-8 px-3 rounded-lg border text-xs font-medium transition-colors flex items-center gap-1 ${ groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-foreground'}`}>
                 <ChevronDown className="h-3.5 w-3.5" />
-                View by Employee
+                View by {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Department' : 'Role'}
               </button>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
-                <Filter className="h-3.5 w-3.5" />
-                Filter
-              </button>
-              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
-                <Grid3x3 className="h-3.5 w-3.5" />
-                Group
-              </button>
-              <button className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
+            <div className="flex items-center gap-2 relative">
+              {/* Filter */}
+              <div className="relative">
+                <button
+                  onClick={() => { setShowFilterPanel(p => !p); setShowGroupPanel(false); }}
+                  className={`h-8 px-3 rounded-lg border text-xs font-medium transition-colors flex items-center gap-1 ${filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-foreground'}`}>
+                  <Filter className="h-3.5 w-3.5" />
+                  Filter {filterDepts.length > 0 && `(${filterDepts.length})`}
+                </button>
+                {showFilterPanel && (
+                  <div className="absolute top-10 right-0 z-50 w-48 rounded-xl border border-border bg-card shadow-xl p-3 space-y-1">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Department</p>
+                    {DEPARTMENTS.map(dept => (
+                      <button key={dept} onClick={() => toggleFilterDept(dept)}
+                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-secondary text-sm text-foreground transition-colors">
+                        <div className={`h-4 w-4 rounded border flex items-center justify-center flex-shrink-0 ${filterDepts.includes(dept) ? 'bg-primary border-primary' : 'border-border'}`}>
+                          {filterDepts.includes(dept) && <Check className="h-2.5 w-2.5 text-white" />}
+                        </div>
+                        {dept}
+                      </button>
+                    ))}
+                    {filterDepts.length > 0 && (
+                      <button onClick={() => setFilterDepts([])} className="w-full mt-2 text-xs text-primary hover:underline">Clear filters</button>
+                    )}
+                  </div>
+                )}
+              </div>
+              {/* Group */}
+              <div className="relative">
+                <button
+                  onClick={() => { setShowGroupPanel(p => !p); setShowFilterPanel(false); }}
+                  className={`h-8 px-3 rounded-lg border text-xs font-medium transition-colors flex items-center gap-1 ${groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-foreground'}`}>
+                  <Grid3x3 className="h-3.5 w-3.5" />
+                  Group
+                </button>
+                {showGroupPanel && (
+                  <div className="absolute top-10 right-0 z-50 w-44 rounded-xl border border-border bg-card shadow-xl p-3 space-y-1">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Group by</p>
+                    {[['employee', 'Employee'], ['department', 'Department'], ['role', 'Role']].map(([val, label]) => (
+                      <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }}
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-colors ${groupBy === val ? 'bg-primary/10 text-primary' : 'hover:bg-secondary text-foreground'}`}>
+                        {groupBy === val && <Check className="h-3.5 w-3.5" />}
+                        {groupBy !== val && <span className="w-3.5" />}
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Templates */}
+              <button
+                onClick={() => navigate('/templates')}
+                className="h-8 px-3 rounded-lg border border-border hover:bg-card text-xs font-medium text-foreground transition-colors flex items-center gap-1">
                 <LayoutTemplate className="h-3.5 w-3.5" />
                 Templates
               </button>
               <button onClick={loadScheduleData} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                 <RefreshCw className="h-3.5 w-3.5" />
               </button>
-              <button className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+              <button onClick={() => setViewMode(v => v === 'today' ? 'weekly' : 'today')} className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-colors ${viewMode === 'today' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground'}`}>
                 <Calendar className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -291,6 +350,7 @@ export default function ScheduleCenter() {
               onSelectShift={setSelectedShift}
               onSelectShifts={setSelectedShifts}
               onShiftUpdate={loadScheduleData}
+              groupBy={groupBy}
             />
           )}
 
@@ -304,6 +364,7 @@ export default function ScheduleCenter() {
               onSelectShift={setSelectedShift}
               onSelectShifts={setSelectedShifts}
               onShiftUpdate={loadScheduleData}
+              groupBy={groupBy}
               isMobile
             />
           )}

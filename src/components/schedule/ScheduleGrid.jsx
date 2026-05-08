@@ -24,6 +24,7 @@ export default function ScheduleGrid({
   onSelectShifts,
   onShiftUpdate,
   isMobile,
+  groupBy = 'employee',
 }) {
   const [draggedShift, setDraggedShift] = useState(null);
 
@@ -87,66 +88,88 @@ export default function ScheduleGrid({
 
           {/* Schedule Grid */}
           <div className="space-y-2">
-            {employees.map((employee, empIdx) => (
-              <div key={employee.id} className="grid gap-2 items-start" style={{gridTemplateColumns: '160px repeat(7, 1fr)'}}>
-                <div className="flex flex-col justify-start pt-2 px-2">
-                  <p className="text-sm font-bold text-foreground truncate">{employee.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{employee.role}</p>
+            {groupBy === 'employee' ? (
+              employees.map((employee, empIdx) => (
+                <EmployeeRow key={employee.id} employee={employee} weekDays={weekDays} shifts={shifts} selectedShifts={selectedShifts} onSelectShift={onSelectShift} onSelectShifts={onSelectShifts} />
+              ))
+            ) : (
+              Object.entries(
+                employees.reduce((acc, emp) => {
+                  const key = groupBy === 'department'
+                    ? (shifts.find(s => s.employee_name === emp.name || s.employee_email === emp.email)?.department || 'Other')
+                    : (emp.role || 'Other');
+                  if (!acc[key]) acc[key] = [];
+                  acc[key].push(emp);
+                  return acc;
+                }, {})
+              ).map(([group, groupEmps]) => (
+                <div key={group}>
+                  <div className="py-2 px-3 mb-1">
+                    <p className="text-xs font-bold uppercase tracking-widest text-primary">{group}</p>
+                  </div>
+                  {groupEmps.map(employee => (
+                    <EmployeeRow key={employee.id} employee={employee} weekDays={weekDays} shifts={shifts} selectedShifts={selectedShifts} onSelectShift={onSelectShift} onSelectShifts={onSelectShifts} />
+                  ))}
                 </div>
-                {weekDays.map((day, dayIdx) => {
-                  const dayShifts = shifts.filter(
-                    s => isSameDay(parseISO(s.date), day) && (s.employee_email === employee.email || s.employee_name === employee.name)
-                  );
-
-                  return (
-                    <Droppable key={`${employee.id}-${dayIdx}`} droppableId={`${employee.id}-${dayIdx}`}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={cn(
-                            'min-h-[80px] rounded-lg border-2 border-dashed border-transparent transition-colors',
-                            snapshot.isDraggingOver && 'border-primary bg-primary/5'
-                          )}
-                        >
-                          {dayShifts.map((shift, shiftIdx) => (
-                            <Draggable key={shift.id} draggableId={shift.id} index={shiftIdx}>
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  className="mb-2"
-                                >
-                                  <ShiftBlock
-                                    shift={shift}
-                                    employee={employee}
-                                    isSelected={selectedShifts.includes(shift.id)}
-                                    onSelect={() => onSelectShift(shift)}
-                                    onMultiSelect={() => {
-                                      if (selectedShifts.includes(shift.id)) {
-                                        onSelectShifts(selectedShifts.filter(id => id !== shift.id));
-                                      } else {
-                                        onSelectShifts([...selectedShifts, shift.id]);
-                                      }
-                                    }}
-                                    isDragging={snapshot.isDragging}
-                                  />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  );
-                })}
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
     </DragDropContext>
+  );
+}
+
+function EmployeeRow({ employee, weekDays, shifts, selectedShifts, onSelectShift, onSelectShifts }) {
+  return (
+    <div className="grid gap-2 items-start" style={{gridTemplateColumns: '160px repeat(7, 1fr)'}}>
+      <div className="flex flex-col justify-start pt-2 px-2">
+        <p className="text-sm font-bold text-foreground truncate">{employee.name}</p>
+        <p className="text-xs text-muted-foreground truncate">{employee.role}</p>
+      </div>
+      {weekDays.map((day, dayIdx) => {
+        const dayShifts = shifts.filter(
+          s => isSameDay(parseISO(s.date), day) && (s.employee_email === employee.email || s.employee_name === employee.name)
+        );
+        return (
+          <Droppable key={`${employee.id}-${dayIdx}`} droppableId={`${employee.id}-${dayIdx}`}>
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className={cn(
+                  'min-h-[80px] rounded-lg border-2 border-dashed border-transparent transition-colors',
+                  snapshot.isDraggingOver && 'border-primary bg-primary/5'
+                )}
+              >
+                {dayShifts.map((shift, shiftIdx) => (
+                  <Draggable key={shift.id} draggableId={shift.id} index={shiftIdx}>
+                    {(provided, snapshot) => (
+                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="mb-2">
+                        <ShiftBlock
+                          shift={shift}
+                          employee={employee}
+                          isSelected={selectedShifts.includes(shift.id)}
+                          onSelect={() => onSelectShift(shift)}
+                          onMultiSelect={() => {
+                            if (selectedShifts.includes(shift.id)) {
+                              onSelectShifts(selectedShifts.filter(id => id !== shift.id));
+                            } else {
+                              onSelectShifts([...selectedShifts, shift.id]);
+                            }
+                          }}
+                          isDragging={snapshot.isDragging}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        );
+      })}
+    </div>
   );
 }
