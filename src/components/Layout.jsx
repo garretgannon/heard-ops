@@ -21,7 +21,6 @@ const DESKTOP_SECTIONS = [
     label: "Operations",
     items: [
       { path: "/", label: "Today", icon: LayoutDashboard },
-      { path: "/shift", label: "Shift", icon: ClipboardList },
       { path: "/logs", label: "Logs", icon: FileText },
     ],
   },
