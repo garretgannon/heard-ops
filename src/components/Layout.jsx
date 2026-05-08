@@ -110,10 +110,7 @@ export default function Layout() {
           borderBottom: "1px solid #2A3441",
         }}
       >
-        <div className="flex-1 flex items-center gap-2">
-          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-7" />
-          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/eb8a9fa4d_HeardOS_wordmark_no_tagline.svg" alt="HeardOS" className="h-6" />
-        </div>
+        <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/[WORDMARK_URL]" alt="HeardOS" className="h-6 object-contain" />
         <div className="flex items-center gap-1.5">
           <Link to="/logs" className="relative h-9 w-9 flex items-center justify-center rounded-xl transition-colors" style={{ background: 'rgba(230,106,31,0.08)' }}>
             <Bell style={{ color: '#94A3B8', width: 18, height: 18 }} />
@@ -134,7 +131,7 @@ export default function Layout() {
       >
         {/* Logo / Brand */}
         <div className={cn("flex items-center border-b border-border/30 shrink-0", collapsed ? "px-3 py-4 justify-center" : "px-4 py-4 gap-3")}>
-          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-8 rounded-xl shrink-0" />
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-6 object-contain shrink-0" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <h1 className="font-extrabold text-[15px] tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
