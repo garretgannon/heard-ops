@@ -85,7 +85,14 @@ export default function TemplateFormModal({ template, isNew, onClose, onSuccess 
     setSaving(true);
     try {
       let templateId;
-      const payload = { ...form, created_by: form.created_by || user?.email };
+      // Strip empty-string numeric fields so the API doesn't reject them
+      const numericFields = ['temp_min', 'temp_max', 'temp_check_frequency_minutes', 'temp_grace_period_minutes'];
+      const cleaned = { ...form };
+      numericFields.forEach(f => {
+        if (cleaned[f] === '' || cleaned[f] === null) delete cleaned[f];
+        else if (cleaned[f] !== undefined) cleaned[f] = Number(cleaned[f]);
+      });
+      const payload = { ...cleaned, created_by: form.created_by || user?.email };
       if (isNew) {
         const created = await base44.entities.Template.create(payload);
         templateId = created.id;
