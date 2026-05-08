@@ -1,0 +1,76 @@
+{
+  "name": "TrainingAssignment",
+  "type": "object",
+  "properties": {
+    "moduleId": {
+      "type": "string",
+      "title": "Training Module ID"
+    },
+    "moduleName": {
+      "type": "string",
+      "title": "Module Name (denormalized)"
+    },
+    "assignedToEmployeeId": {
+      "type": "string",
+      "title": "Assigned to Employee ID (optional)"
+    },
+    "assignedToEmployeeName": {
+      "type": "string",
+      "title": "Employee Name (denormalized)"
+    },
+    "assignedToRoleId": {
+      "type": "string",
+      "title": "Assigned to Role ID (optional)"
+    },
+    "assignedToRoleName": {
+      "type": "string",
+      "title": "Role Name (denormalized)"
+    },
+    "assignedToStationId": {
+      "type": "string",
+      "title": "Assigned to Station ID (optional)"
+    },
+    "assignedToStationName": {
+      "type": "string",
+      "title": "Station Name (denormalized)"
+    },
+    "dueDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Due Date"
+    },
+    "required": {
+      "type": "boolean",
+      "title": "Required Completion",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "complete",
+        "overdue"
+      ],
+      "enumNames": [
+        "Not Started",
+        "In Progress",
+        "Complete",
+        "Overdue"
+      ],
+      "default": "not_started"
+    },
+    "assignedBy": {
+      "type": "string",
+      "title": "Assigned By (Email)"
+    },
+    "assignedAt": {
+      "type": "string",
+      "title": "Assigned At (ISO 8601)"
+    }
+  },
+  "required": [
+    "moduleId"
+  ]
+}

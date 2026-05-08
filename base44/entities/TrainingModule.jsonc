@@ -1,0 +1,125 @@
+{
+  "name": "TrainingModule",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Module Title"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "onboarding",
+        "role_training",
+        "compliance",
+        "food_safety",
+        "system_training",
+        "skill_development",
+        "certification",
+        "other"
+      ],
+      "enumNames": [
+        "Onboarding",
+        "Role Training",
+        "Compliance",
+        "Food Safety",
+        "System Training",
+        "Skill Development",
+        "Certification",
+        "Other"
+      ]
+    },
+    "moduleType": {
+      "type": "string",
+      "title": "Module Type",
+      "enum": [
+        "video",
+        "checklist",
+        "reading",
+        "quiz",
+        "certification",
+        "learning_path"
+      ],
+      "enumNames": [
+        "Video",
+        "Checklist",
+        "Reading",
+        "Quiz",
+        "Certification",
+        "Learning Path"
+      ]
+    },
+    "estimatedMinutes": {
+      "type": "number",
+      "title": "Estimated Duration (minutes)"
+    },
+    "contentUrl": {
+      "type": "string",
+      "title": "Content URL (video, document, etc.)"
+    },
+    "instructions": {
+      "type": "string",
+      "title": "Instructions / Learning Objectives"
+    },
+    "quizQuestions": {
+      "type": "array",
+      "title": "Quiz Questions (for Quiz/Certification modules)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "Answer Options"
+          },
+          "correctAnswer": {
+            "type": "string",
+            "title": "Correct Answer"
+          }
+        }
+      }
+    },
+    "passingScore": {
+      "type": "number",
+      "title": "Passing Score (%)",
+      "description": "Required for Quiz/Certification modules"
+    },
+    "linkedSOP": {
+      "type": "string",
+      "title": "Linked SOP / Standard ID"
+    },
+    "linkedRecipe": {
+      "type": "string",
+      "title": "Linked Recipe / Build Card ID"
+    },
+    "linkedTaskTemplate": {
+      "type": "string",
+      "title": "Linked Task Template ID"
+    },
+    "linkedLogType": {
+      "type": "string",
+      "title": "Linked Log Type",
+      "description": "e.g., temperature_log, cleaning_log"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "moduleType"
+  ]
+}

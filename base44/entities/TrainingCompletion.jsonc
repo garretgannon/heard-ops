@@ -1,0 +1,72 @@
+{
+  "name": "TrainingCompletion",
+  "type": "object",
+  "properties": {
+    "moduleId": {
+      "type": "string",
+      "title": "Training Module ID"
+    },
+    "moduleName": {
+      "type": "string",
+      "title": "Module Name (denormalized)"
+    },
+    "employeeId": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "employeeName": {
+      "type": "string",
+      "title": "Employee Name (denormalized)"
+    },
+    "assignmentId": {
+      "type": "string",
+      "title": "Training Assignment ID (optional)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Completion Status",
+      "enum": [
+        "passed",
+        "failed",
+        "completed"
+      ],
+      "enumNames": [
+        "Passed",
+        "Failed",
+        "Completed"
+      ]
+    },
+    "score": {
+      "type": "number",
+      "title": "Score (%)",
+      "description": "For quiz/certification modules"
+    },
+    "completedAt": {
+      "type": "string",
+      "title": "Completed At (ISO 8601)"
+    },
+    "timeSpent": {
+      "type": "number",
+      "title": "Time Spent (minutes)"
+    },
+    "acknowledged": {
+      "type": "boolean",
+      "title": "Acknowledged by Employee",
+      "default": false
+    },
+    "managerReviewed": {
+      "type": "boolean",
+      "title": "Manager Reviewed",
+      "default": false
+    },
+    "managerNotes": {
+      "type": "string",
+      "title": "Manager Review Notes"
+    }
+  },
+  "required": [
+    "moduleId",
+    "employeeId",
+    "status"
+  ]
+}

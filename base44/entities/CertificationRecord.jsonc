@@ -1,0 +1,66 @@
+{
+  "name": "CertificationRecord",
+  "type": "object",
+  "properties": {
+    "employeeId": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "employeeName": {
+      "type": "string",
+      "title": "Employee Name (denormalized)"
+    },
+    "moduleId": {
+      "type": "string",
+      "title": "Training Module ID"
+    },
+    "certificationName": {
+      "type": "string",
+      "title": "Certification Name"
+    },
+    "issueDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Issue Date"
+    },
+    "expirationDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Expiration Date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "active",
+        "expiring_soon",
+        "expired"
+      ],
+      "enumNames": [
+        "Active",
+        "Expiring Soon",
+        "Expired"
+      ]
+    },
+    "documentUrl": {
+      "type": "string",
+      "title": "Certificate Document URL"
+    },
+    "renewalRequired": {
+      "type": "boolean",
+      "title": "Renewal Required",
+      "default": false
+    },
+    "renewalDueDate": {
+      "type": "string",
+      "format": "date",
+      "title": "Renewal Due Date"
+    }
+  },
+  "required": [
+    "employeeId",
+    "moduleId",
+    "certificationName",
+    "issueDate"
+  ]
+}
