@@ -2,55 +2,13 @@
   "name": "PrepPlanTemplate",
   "type": "object",
   "properties": {
-    "item_name": {
+    "template_name": {
       "type": "string",
-      "title": "Prep Item Name"
+      "title": "Template Name"
     },
     "station": {
       "type": "string",
       "title": "Station"
-    },
-    "assigned_role": {
-      "type": "string",
-      "title": "Assigned Role"
-    },
-    "assigned_employee": {
-      "type": "string",
-      "title": "Assigned Employee (Email, optional)"
-    },
-    "default_par": {
-      "type": "number",
-      "title": "Default Par Quantity"
-    },
-    "minimum_par": {
-      "type": "number",
-      "title": "Minimum Par Quantity (optional)"
-    },
-    "unit": {
-      "type": "string",
-      "title": "Unit (oz, lb, cup, qt, each, etc.)"
-    },
-    "batch_size": {
-      "type": "number",
-      "title": "Batch Size / Round-up Quantity (optional)"
-    },
-    "recurrence": {
-      "type": "string",
-      "title": "Recurrence",
-      "enum": [
-        "daily",
-        "weekly",
-        "every_shift",
-        "on_demand"
-      ],
-      "default": "daily"
-    },
-    "recurrence_days": {
-      "type": "array",
-      "title": "Days of Week (if weekly, 0=Sun)",
-      "items": {
-        "type": "integer"
-      }
     },
     "shift": {
       "type": "string",
@@ -63,43 +21,80 @@
       ],
       "default": "opening"
     },
+    "assigned_role": {
+      "type": "string",
+      "title": "Assigned Role"
+    },
+    "assigned_employee": {
+      "type": "string",
+      "title": "Assigned Employee (Email, optional)"
+    },
     "due_time": {
       "type": "string",
       "title": "Due Time (HH:MM)"
-    },
-    "linked_recipe_id": {
-      "type": "string",
-      "title": "Linked Recipe / Build Card ID (optional)"
     },
     "requires_inventory_count": {
       "type": "boolean",
       "title": "Requires Inventory Count",
       "default": true
     },
-    "requires_photo": {
-      "type": "boolean",
-      "title": "Requires Photo",
-      "default": false
-    },
-    "requires_manager_review": {
-      "type": "boolean",
-      "title": "Requires Manager Review",
-      "default": false
-    },
     "is_active": {
       "type": "boolean",
       "title": "Active",
       "default": true
     },
+    "items": {
+      "type": "array",
+      "title": "Prep Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_name": {
+            "type": "string",
+            "title": "Item Name"
+          },
+          "par_quantity": {
+            "type": "number",
+            "title": "Par Quantity"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "default": "medium"
+          },
+          "requires_photo": {
+            "type": "boolean",
+            "title": "Requires Photo",
+            "default": false
+          },
+          "requires_manager_review": {
+            "type": "boolean",
+            "title": "Requires Manager Review",
+            "default": false
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          }
+        }
+      }
+    },
     "notes": {
       "type": "string",
-      "title": "Notes"
+      "title": "Template Notes"
     }
   },
   "required": [
-    "item_name",
-    "station",
-    "default_par",
-    "unit"
+    "template_name",
+    "station"
   ]
 }
