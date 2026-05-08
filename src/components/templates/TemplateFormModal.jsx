@@ -85,12 +85,13 @@ export default function TemplateFormModal({ template, isNew, onClose, onSuccess 
     setSaving(true);
     try {
       let templateId;
-      // Strip empty-string numeric fields so the API doesn't reject them
+      // Clean the payload: strip empty strings, convert numeric fields
       const numericFields = ['temp_min', 'temp_max', 'temp_check_frequency_minutes', 'temp_grace_period_minutes'];
-      const cleaned = { ...form };
-      numericFields.forEach(f => {
-        if (cleaned[f] === '' || cleaned[f] === null) delete cleaned[f];
-        else if (cleaned[f] !== undefined) cleaned[f] = Number(cleaned[f]);
+      const cleaned = {};
+      Object.entries(form).forEach(([k, v]) => {
+        if (v === '' || v === null) return; // skip empty strings
+        if (numericFields.includes(k)) cleaned[k] = Number(v);
+        else cleaned[k] = v;
       });
       const payload = { ...cleaned, created_by: form.created_by || user?.email };
       if (isNew) {
