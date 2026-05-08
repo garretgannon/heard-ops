@@ -15,42 +15,40 @@ import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
 
-// Grouped desktop nav
+// Grouped desktop nav — organized by user intent
 const DESKTOP_SECTIONS = [
   {
-    label: "Operations",
+    label: "WORK",
     items: [
       { path: "/", label: "Today", icon: LayoutDashboard },
       { path: "/logs", label: "Logs", icon: FileText },
+      { path: "/team", label: "Team", icon: Users },
     ],
   },
   {
-    label: "Knowledge",
+    label: "RESOURCES",
     items: [
       { path: "/recipes", label: "Recipes", icon: ChefHat },
-      { path: "/knowledge", label: "Training", icon: BookOpen },
+      { path: "/training", label: "Training", icon: Award },
       { path: "/inventory", label: "Inventory", icon: Warehouse },
       { path: "/vendors", label: "Vendors", icon: Truck },
-      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
     ],
   },
   {
-    label: "Schedule",
+    label: "PLANNING",
     items: [
       { path: "/schedule", label: "Schedule", icon: CalendarDays },
       { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate },
     ],
   },
   {
-    label: "Admin",
+    label: "SETUP",
     items: [
-      { path: "/templates", label: "Templates", icon: LayoutTemplate },
-      { path: "/team", label: "Team & Roles", icon: Users },
+      { path: "/templates", label: "Templates", icon: ClipboardList },
+      { path: "/temperature-monitoring", label: "Temperature", icon: Thermometer },
       { path: "/reports", label: "Reports", icon: BarChart3 },
-      { path: "/training", label: "Training", icon: Award },
-      { path: "/temperature-monitoring", label: "Temp Monitoring", icon: Thermometer },
-      { path: "/temperature-dashboard", label: "Temp Dashboard", icon: Thermometer },
-      { path: "/profile", label: "Profile", icon: Settings },
+      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+      { path: "/profile", label: "Settings", icon: Settings },
     ],
   },
 ];
