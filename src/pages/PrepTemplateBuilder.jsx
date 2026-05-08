@@ -25,9 +25,8 @@ const DEFAULT_ITEM = {
   item_name: '',
   par_quantity: '',
   unit: '',
-  due_time: '',
-  batch_size: '',
-  assigned_role: '',
+  priority: 'medium',
+  requires_photo: false,
   requires_inventory_count: true,
   is_active: true,
 };
@@ -246,9 +245,8 @@ export default function PrepTemplateBuilder() {
                     <th className="px-3 py-2 text-left font-bold text-foreground">Item</th>
                     <th className="px-3 py-2 text-left font-bold text-foreground">Par</th>
                     <th className="px-3 py-2 text-left font-bold text-foreground">Unit</th>
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Due</th>
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Batch</th>
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Role</th>
+                    <th className="px-3 py-2 text-left font-bold text-foreground">Priority</th>
+                    <th className="px-3 py-2 text-center font-bold text-foreground">Photo</th>
                     <th className="px-3 py-2 text-center font-bold text-foreground">Count</th>
                     <th className="px-3 py-2 text-center font-bold text-foreground">Active</th>
                     <th className="px-3 py-2 text-center font-bold text-foreground">Actions</th>
@@ -260,9 +258,19 @@ export default function PrepTemplateBuilder() {
                       <td className="px-3 py-2 font-semibold text-foreground">{item.item_name}</td>
                       <td className="px-3 py-2 text-muted-foreground">{item.par_quantity}</td>
                       <td className="px-3 py-2 text-muted-foreground">{item.unit}</td>
-                      <td className="px-3 py-2 text-muted-foreground text-[10px]">{item.due_time || '—'}</td>
-                      <td className="px-3 py-2 text-muted-foreground text-[10px]">{item.batch_size || '—'}</td>
-                      <td className="px-3 py-2 text-muted-foreground text-[10px]">{item.assigned_role || '—'}</td>
+                      <td className="px-3 py-2 text-muted-foreground text-[10px] capitalize">{item.priority || 'medium'}</td>
+                      <td className="px-3 py-2 text-center">
+                        <input
+                          type="checkbox"
+                          checked={item.requires_photo}
+                          onChange={e => {
+                            const items = [...template.items];
+                            items[idx].requires_photo = e.target.checked;
+                            setTemplate(p => ({ ...p, items }));
+                          }}
+                          className="rounded border-border"
+                        />
+                      </td>
                       <td className="px-3 py-2 text-center">
                         <input
                           type="checkbox"
@@ -287,20 +295,6 @@ export default function PrepTemplateBuilder() {
                           className="rounded border-border"
                         />
                       </td>
-                      <td className="px-3 py-2 text-center flex items-center justify-center gap-1">
-                        <button onClick={() => moveRow(idx, 'up')} disabled={idx === 0} className="h-6 w-6 rounded hover:bg-secondary disabled:opacity-30">
-                          <ChevronUp className="h-3 w-3" />
-                        </button>
-                        <button onClick={() => moveRow(idx, 'down')} disabled={idx === template.items.length - 1} className="h-6 w-6 rounded hover:bg-secondary disabled:opacity-30">
-                          <ChevronDown className="h-3 w-3" />
-                        </button>
-                        <button onClick={() => duplicateRow(idx)} className="h-6 w-6 rounded hover:bg-secondary text-muted-foreground">
-                          <Copy className="h-3 w-3" />
-                        </button>
-                        <button onClick={() => deleteRow(idx)} className="h-6 w-6 rounded hover:bg-red-500/10 hover:text-red-500 text-muted-foreground">
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -311,23 +305,29 @@ export default function PrepTemplateBuilder() {
           {/* Add Row Form */}
           <div className="bg-background/50 rounded-lg p-4 space-y-3 border border-border/30">
             <p className="text-xs font-bold text-muted-foreground uppercase">Add New Row</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               <input value={newItem.item_name} onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))} placeholder="Item name" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
               <input type="number" value={newItem.par_quantity} onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))} placeholder="Par qty" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
               <input value={newItem.unit} onChange={e => setNewItem(p => ({ ...p, unit: e.target.value }))} placeholder="Unit" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <input type="time" value={newItem.due_time} onChange={e => setNewItem(p => ({ ...p, due_time: e.target.value }))} placeholder="Due" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <input type="number" value={newItem.batch_size} onChange={e => setNewItem(p => ({ ...p, batch_size: e.target.value }))} placeholder="Batch" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <input value={newItem.assigned_role} onChange={e => setNewItem(p => ({ ...p, assigned_role: e.target.value }))} placeholder="Role" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-            </div>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
-                <input type="checkbox" checked={newItem.requires_inventory_count} onChange={e => setNewItem(p => ({ ...p, requires_inventory_count: e.target.checked }))} className="rounded border-border" />
-                Count
-              </label>
-              <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
-                <input type="checkbox" checked={newItem.is_active} onChange={e => setNewItem(p => ({ ...p, is_active: e.target.checked }))} className="rounded border-border" />
-                Active
-              </label>
+              <select value={newItem.priority} onChange={e => setNewItem(p => ({ ...p, priority: e.target.value }))} className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+              <div className="flex items-center gap-1.5">
+                <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
+                  <input type="checkbox" checked={newItem.requires_photo} onChange={e => setNewItem(p => ({ ...p, requires_photo: e.target.checked }))} className="rounded border-border" />
+                  Photo
+                </label>
+                <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
+                  <input type="checkbox" checked={newItem.requires_inventory_count} onChange={e => setNewItem(p => ({ ...p, requires_inventory_count: e.target.checked }))} className="rounded border-border" />
+                  Count
+                </label>
+                <label className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
+                  <input type="checkbox" checked={newItem.is_active} onChange={e => setNewItem(p => ({ ...p, is_active: e.target.checked }))} className="rounded border-border" />
+                  Active
+                </label>
+              </div>
               <button onClick={addRow} className="ml-auto px-3 py-1.5 bg-primary text-white text-xs font-bold rounded hover:brightness-110 flex items-center gap-1">
                 <Plus className="h-3 w-3" /> Add Row
               </button>
