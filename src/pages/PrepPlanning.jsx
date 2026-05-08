@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, Plus, AlertCircle, CheckCircle2, Clock, Zap } from 'lucide-react';
+import { ChefHat, Plus, AlertCircle, CheckCircle2, Clock, Zap, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import BulkParEditorModal from '@/components/prep/BulkParEditorModal';
 
 const ALLOWED_ROLES = ['admin', 'manager', 'chef', 'kitchen_lead'];
 
@@ -15,6 +16,9 @@ export default function PrepPlanning() {
   const [prepPlans, setPrepPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [today] = useState(new Date());
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [selectedShift, setSelectedShift] = useState('opening');
 
   const isAllowed = isAdmin || ALLOWED_ROLES.includes(user?.role);
 
@@ -150,12 +154,20 @@ export default function PrepPlanning() {
                 <p className="text-xs text-muted-foreground">Configure par-based recipes</p>
               </div>
             </div>
-            <button
-              onClick={() => navigate('/prep-plan-templates')}
-              className="w-full btn-secondary text-xs h-8 flex items-center justify-center gap-1"
-            >
-              <Plus className="h-3 w-3" /> Manage
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate('/prep-plan-templates')}
+                className="flex-1 btn-secondary text-xs h-8 flex items-center justify-center gap-1"
+              >
+                <Plus className="h-3 w-3" /> Manage
+              </button>
+              <button
+                onClick={() => { setSelectedStation('Prep'); setSelectedShift('opening'); setBulkEditOpen(true); }}
+                className="flex-1 btn-secondary text-xs h-8 flex items-center justify-center gap-1"
+              >
+                <Settings className="h-3 w-3" /> Bulk Edit
+              </button>
+            </div>
           </div>
         </div>
 
@@ -188,6 +200,16 @@ export default function PrepPlanning() {
           </div>
         )}
       </div>
+
+      {/* Bulk Edit Modal */}
+      {bulkEditOpen && (
+        <BulkParEditorModal
+          station={selectedStation}
+          shift={selectedShift}
+          onClose={() => setBulkEditOpen(false)}
+          onSave={() => loadData()}
+        />
+      )}
     </div>
   );
 }
