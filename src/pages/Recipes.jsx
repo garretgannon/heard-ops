@@ -390,154 +390,156 @@ function RecipeForm({ recipe, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
       {/* Header */}
-      <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0 sticky top-0 z-10">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
-          <X className="h-4 w-4 text-muted-foreground" />
+      <div className="bg-card border-b border-border px-3 py-2 flex items-center gap-2 shrink-0 sticky top-0 z-10">
+        <button onClick={onClose} className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
+          <X className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
         <div className="flex-1 min-w-0">
-          <h2 className="text-sm font-extrabold text-foreground">{recipe ? 'Edit Recipe' : 'New Recipe'}</h2>
-          <p className="text-[10px] text-muted-foreground">{form.name || 'Untitled'}</p>
+          <h2 className="text-xs font-extrabold text-foreground">{recipe ? 'Edit Recipe' : 'New Recipe'}</h2>
+          <p className="text-[9px] text-muted-foreground truncate">{form.name || 'Untitled'}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => { setForm(p => ({ ...p, status: 'draft' })); handleSaveDraft(); }} className="btn-secondary text-xs px-3 h-8">
-            {saving ? 'Saving…' : 'Save Draft'}
+        <div className="flex items-center gap-1.5">
+          <button onClick={() => { setForm(p => ({ ...p, status: 'draft' })); handleSaveDraft(); }} className="btn-secondary text-[10px] px-2.5 h-7">
+            {saving ? '...' : 'Draft'}
           </button>
-          <button onClick={save} disabled={saving} className="btn-primary text-xs px-4 h-8">{saving ? 'Saving…' : 'Approve'}</button>
+          <button onClick={save} disabled={saving} className="btn-primary text-[10px] px-2.5 h-7">{saving ? '...' : 'Approve'}</button>
         </div>
       </div>
 
       {/* Recipe Type Selector */}
-      <div className="bg-card/50 border-b border-border px-4 py-3">
-        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Recipe Type</p>
-        <div className="grid grid-cols-6 gap-2">
+      <div className="bg-card/50 border-b border-border px-3 py-2">
+        <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Type</p>
+        <div className="grid grid-cols-6 gap-1">
           {RECIPE_TYPES.map(t => (
-            <button key={t.id} onClick={() => set('recipeType', t.id)} className={cn('py-2 px-2 rounded-lg text-xs font-bold transition-all text-center', form.recipeType === t.id ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground hover:bg-muted/60')}>
-              <div className="text-lg mb-0.5">{t.icon}</div>
-              <div className="leading-tight">{t.label}</div>
+            <button key={t.id} onClick={() => set('recipeType', t.id)} className={cn('py-1.5 px-1 rounded text-[9px] font-bold transition-all text-center', form.recipeType === t.id ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground hover:bg-muted/60')}>
+              <div className="text-sm">{t.icon}</div>
+              <div className="leading-tight text-[7px]">{t.label}</div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-border flex items-center gap-0 overflow-x-auto px-4 bg-card/30">
+      <div className="border-b border-border flex items-center gap-0 overflow-x-auto px-3 bg-card/30">
         {tabs.map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={cn('text-xs font-bold px-4 py-2.5 border-b-2 transition-all capitalize whitespace-nowrap', activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')}>
+          <button key={tab} onClick={() => setActiveTab(tab)} className={cn('text-[10px] font-bold px-2.5 py-1.5 border-b-2 transition-all capitalize whitespace-nowrap', activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')}>
             {tab}
           </button>
         ))}
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-10">
+      <div className="flex-1 overflow-y-auto px-3 py-2.5 space-y-2.5 pb-10">
         {/* BASICS TAB */}
         {activeTab === 'basics' && (
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Recipe Name *</label>
-              <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g., Classic Cheeseburger" className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-sm text-foreground font-bold" />
+              <label className="text-[10px] font-bold text-foreground block mb-0.5">Name *</label>
+              <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Recipe name" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground font-bold" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-1.5">
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Category</label>
-                <select value={form.category} onChange={e => set('category', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
-                  <option value="">Select category</option>
-                  {['prep','sauce','protein','pantry','bakery','bar','dessert','other'].map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Category</label>
+                <select value={form.category} onChange={e => set('category', e.target.value)} className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground">
+                  <option value="">—</option>
+                  {['prep','sauce','protein','pantry','bakery','bar','dessert','other'].map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Station</label>
-                <input value={form.station} onChange={e => set('station', e.target.value)} placeholder="e.g., Grill" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Station</label>
+                <input value={form.station} onChange={e => set('station', e.target.value)} placeholder="Grill" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <div>
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Status</label>
+                <select value={form.status} onChange={e => set('status', e.target.value)} className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground">
+                  <option value="draft">Draft</option>
+                  <option value="approved">Approved</option>
+                  <option value="archived">Archived</option>
+                </select>
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Status</label>
-              <select value={form.status} onChange={e => set('status', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
-                <option value="draft">Draft</option>
-                <option value="approved">Approved</option>
-                <option value="archived">Archived</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Short Description</label>
-              <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Describe this recipe in a few words..." rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+              <label className="text-[10px] font-bold text-foreground block mb-0.5">Notes</label>
+              <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Brief description..." rows={1} className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground resize-none" />
             </div>
           </div>
         )}
 
         {/* YIELD TAB */}
         {activeTab === 'yield' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Yield Amount</label>
-                <input type="number" value={form.yieldAmount} onChange={e => set('yieldAmount', e.target.value)} placeholder="10" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Amount</label>
+                <input type="number" value={form.yieldAmount} onChange={e => set('yieldAmount', e.target.value)} placeholder="10" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Yield Unit</label>
-                <select value={form.yieldUnit} onChange={e => set('yieldUnit', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
-                  <option value="">Select unit</option>
-                  {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Unit</label>
+                <select value={form.yieldUnit} onChange={e => set('yieldUnit', e.target.value)} className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs">
+                  <option value="">—</option>
+                  {UNITS.slice(0, 8).map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-1.5">
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Portion Size</label>
-                <input value={form.portionSize} onChange={e => set('portionSize', e.target.value)} placeholder="e.g., 1 plate" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Portion</label>
+                <input value={form.portionSize} onChange={e => set('portionSize', e.target.value)} placeholder="1 plate" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
               </div>
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Prep Time</label>
-                <input value={form.prepTime} onChange={e => set('prepTime', e.target.value)} placeholder="15 min" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Cook Time</label>
-                <input value={form.cookTime} onChange={e => set('cookTime', e.target.value)} placeholder="30 min" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-              </div>
-              <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Shelf Life</label>
-                <input value={form.shelfLife} onChange={e => set('shelfLife', e.target.value)} placeholder="3 days" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Prep Time</label>
+                <input value={form.prepTime} onChange={e => set('prepTime', e.target.value)} placeholder="15m" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
               </div>
             </div>
-            <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Storage Location</label>
-              <input value={form.storageLocation} onChange={e => set('storageLocation', e.target.value)} placeholder="e.g., Refrigerator" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-1.5">
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Container</label>
-                <input value={form.storageContainer} onChange={e => set('storageContainer', e.target.value)} placeholder="e.g., 6qt container" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Cook Time</label>
+                <input value={form.cookTime} onChange={e => set('cookTime', e.target.value)} placeholder="30m" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Shelf Life</label>
+                <input value={form.shelfLife} onChange={e => set('shelfLife', e.target.value)} placeholder="3 days" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Labeling Instructions</label>
-              <input value={form.labelingInstructions} onChange={e => set('labelingInstructions', e.target.value)} placeholder="Label date and contents..." className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <label className="text-[10px] font-bold text-foreground block mb-0.5">Storage</label>
+              <input value={form.storageLocation} onChange={e => set('storageLocation', e.target.value)} placeholder="Fridge" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <div>
+                <label className="text-[10px] font-bold text-foreground block mb-0.5">Container</label>
+                <input value={form.storageContainer} onChange={e => set('storageContainer', e.target.value)} placeholder="6qt" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
+              </div>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-foreground block mb-0.5">Label</label>
+              <input value={form.labelingInstructions} onChange={e => set('labelingInstructions', e.target.value)} placeholder="Date + contents" className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs" />
             </div>
           </div>
         )}
 
         {/* INGREDIENTS TAB */}
         {activeTab === 'ingredients' && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-foreground">Ingredients ({ingredients.filter(i => !i._deleted).length})</p>
-              <button onClick={addIngredient} className="text-xs font-bold text-primary flex items-center gap-1 hover:text-primary/80"><Plus className="h-3.5 w-3.5" />Add</button>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-[10px]">
+              <p className="font-bold text-foreground">Items ({ingredients.filter(i => !i._deleted).length})</p>
+              <button onClick={addIngredient} className="font-bold text-primary flex items-center gap-0.5 hover:text-primary/80"><Plus className="h-2.5 w-2.5" />Add</button>
             </div>
             {ingredients.filter(i => !i._deleted).length === 0 ? (
-              <p className="text-xs text-muted-foreground italic py-4 text-center">No ingredients yet. Add one to get started.</p>
+              <p className="text-[10px] text-muted-foreground italic py-2 text-center">Add ingredient to start</p>
             ) : (
-              <div className="border border-border rounded-lg overflow-hidden">
+              <div className="border border-border rounded overflow-hidden">
                 {ingredients.filter(i => !i._deleted).map((ing, idx) => (
-                  <div key={idx} className={`grid grid-cols-12 gap-2 p-2.5 items-center ${idx % 2 === 0 ? '' : 'bg-muted/10'} ${idx < ingredients.length - 1 ? 'border-b border-border/50' : ''}`}>
-                    <input value={ing.ingredientName} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, ingredientName: e.target.value, _dirty: true} : x))} placeholder="Ingredient" className="col-span-5 px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground" />
-                    <input type="number" value={ing.quantity} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty: true} : x))} placeholder="0" className="col-span-2 px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground text-center" />
-                    <select value={ing.unit} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty: true} : x))} className="col-span-2 px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground">
+                  <div key={idx} className={`grid grid-cols-12 gap-1 p-1.5 items-center text-[9px] ${idx % 2 === 0 ? '' : 'bg-muted/10'} ${idx < ingredients.length - 1 ? 'border-b border-border/50' : ''}`}>
+                    <input value={ing.ingredientName} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, ingredientName: e.target.value, _dirty: true} : x))} placeholder="Item" className="col-span-5 px-1 py-1 bg-background border border-border rounded text-[9px]" />
+                    <input type="number" value={ing.quantity} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty: true} : x))} placeholder="0" className="col-span-2 px-1 py-1 bg-background border border-border rounded text-[9px] text-center" />
+                    <select value={ing.unit} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty: true} : x))} className="col-span-2 px-1 py-1 bg-background border border-border rounded text-[9px]">
                       <option value="">—</option>
-                      {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                      {UNITS.slice(0, 10).map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
-                    <button onClick={() => setIngredients(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="col-span-1 text-red-400 hover:text-red-300"><X className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => setIngredients(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="col-span-1 text-red-400 hover:text-red-300"><X className="h-2.5 w-2.5" /></button>
                   </div>
                 ))}
               </div>
@@ -547,20 +549,20 @@ function RecipeForm({ recipe, onSave, onClose }) {
 
         {/* METHOD TAB */}
         {activeTab === 'method' && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-foreground">Instructions ({steps.filter(s => !s._deleted).length} steps)</p>
-              <button onClick={addStep} className="text-xs font-bold text-primary flex items-center gap-1 hover:text-primary/80"><Plus className="h-3.5 w-3.5" />Add Step</button>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-[10px]">
+              <p className="font-bold text-foreground">Steps ({steps.filter(s => !s._deleted).length})</p>
+              <button onClick={addStep} className="font-bold text-primary flex items-center gap-0.5 hover:text-primary/80"><Plus className="h-2.5 w-2.5" />Add</button>
             </div>
             {steps.filter(s => !s._deleted).length === 0 ? (
-              <p className="text-xs text-muted-foreground italic py-4 text-center">No steps yet. Add one to get started.</p>
+              <p className="text-[10px] text-muted-foreground italic py-2 text-center">Add step to start</p>
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-1.5">
                 {steps.filter(s => !s._deleted).map((step, idx) => (
-                  <div key={idx} className="flex gap-3 items-start bg-muted/20 rounded-lg p-3">
-                    <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</div>
-                    <textarea value={step.instruction} onChange={e => setSteps(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Step instructions..." rows={2} className="flex-1 px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground resize-none" />
-                    <button onClick={() => setSteps(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="text-red-400 hover:text-red-300 mt-1"><X className="h-3.5 w-3.5" /></button>
+                  <div key={idx} className="flex gap-2 items-start bg-muted/20 rounded p-2">
+                    <div className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-[8px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</div>
+                    <textarea value={step.instruction} onChange={e => setSteps(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Instructions..." rows={1} className="flex-1 px-1.5 py-1 bg-background border border-border rounded text-[9px] resize-none" />
+                    <button onClick={() => setSteps(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="text-red-400 hover:text-red-300 mt-0.5"><X className="h-2.5 w-2.5" /></button>
                   </div>
                 ))}
               </div>
@@ -570,34 +572,34 @@ function RecipeForm({ recipe, onSave, onClose }) {
 
         {/* BUILD CARD TAB */}
         {activeTab === 'build' && (
-          <div className="space-y-4">
+          <div className="space-y-1.5">
             <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Plating Notes</label>
-              <textarea value={form.platingNotes} onChange={e => set('platingNotes', e.target.value)} placeholder="Describe how to plate this dish..." rows={3} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+              <label className="text-[10px] font-bold text-foreground block mb-0.5">Plating</label>
+              <textarea value={form.platingNotes} onChange={e => set('platingNotes', e.target.value)} placeholder="How to plate..." rows={2} className="w-full px-2 py-1 bg-background border border-border rounded text-[9px] resize-none" />
             </div>
             <div>
-              <label className="text-xs font-bold text-foreground block mb-1">Build Card / Assembly</label>
-              <textarea value={form.buildCardNotes} onChange={e => set('buildCardNotes', e.target.value)} placeholder="Step-by-step assembly instructions..." rows={3} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+              <label className="text-[10px] font-bold text-foreground block mb-0.5">Assembly</label>
+              <textarea value={form.buildCardNotes} onChange={e => set('buildCardNotes', e.target.value)} placeholder="Assembly steps..." rows={2} className="w-full px-2 py-1 bg-background border border-border rounded text-[9px] resize-none" />
             </div>
           </div>
         )}
 
         {/* ALLERGENS TAB */}
         {activeTab === 'allergens' && (
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
-              <p className="text-xs font-bold text-foreground mb-2">Allergens</p>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-[10px] font-bold text-foreground mb-1">Allergens</p>
+              <div className="flex flex-wrap gap-1">
                 {ALLERGEN_LIST.map(a => (
-                  <button key={a} onClick={() => toggleArr('allergens', a)} className={cn('text-xs px-3 py-1.5 rounded-lg border font-bold transition-all', form.allergens?.includes(a) ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-muted/50 border-border text-muted-foreground hover:bg-muted')}>{a}</button>
+                  <button key={a} onClick={() => toggleArr('allergens', a)} className={cn('text-[9px] px-2 py-0.5 rounded border font-bold transition-all', form.allergens?.includes(a) ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-muted/50 border-border text-muted-foreground')}>{a}</button>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-xs font-bold text-foreground mb-2">Dietary Tags</p>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-[10px] font-bold text-foreground mb-1">Dietary</p>
+              <div className="flex flex-wrap gap-1">
                 {DIETARY_FLAGS.map(f => (
-                  <button key={f} onClick={() => toggleArr('dietaryFlags', f)} className={cn('text-xs px-3 py-1.5 rounded-lg border font-bold transition-all', form.dietaryFlags?.includes(f) ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-muted/50 border-border text-muted-foreground hover:bg-muted')}>{f}</button>
+                  <button key={f} onClick={() => toggleArr('dietaryFlags', f)} className={cn('text-[9px] px-2 py-0.5 rounded border font-bold transition-all', form.dietaryFlags?.includes(f) ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-muted/50 border-border text-muted-foreground')}>{f}</button>
                 ))}
               </div>
             </div>
@@ -606,36 +608,32 @@ function RecipeForm({ recipe, onSave, onClose }) {
 
         {/* REVIEW TAB */}
         {activeTab === 'review' && (
-          <div className="space-y-3">
-            <div className="bg-muted/30 rounded-lg p-4 space-y-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Recipe Name</span>
-                <span className={cn('font-bold', form.name ? 'text-green-400' : 'text-red-400')}>{form.name || '✗ Required'}</span>
+          <div className="space-y-1.5">
+            <div className="bg-muted/30 rounded p-2 space-y-1">
+              <div className="flex items-center justify-between text-[9px]">
+                <span className="text-muted-foreground">Name</span>
+                <span className={cn('font-bold', form.name ? 'text-green-400' : 'text-red-400')}>{form.name ? '✓' : '✗'}</span>
               </div>
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-[9px]">
                 <span className="text-muted-foreground">Type</span>
-                <span className={cn('font-bold', form.recipeType ? 'text-green-400' : 'text-red-400')}>{form.recipeType || '✗ Required'}</span>
+                <span className={cn('font-bold', form.recipeType ? 'text-green-400' : 'text-red-400')}>{form.recipeType ? '✓' : '✗'}</span>
               </div>
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-[9px]">
                 <span className="text-muted-foreground">Yield</span>
-                <span className={cn('font-bold', form.yieldAmount ? 'text-green-400' : 'text-amber-400')}>{form.yieldAmount ? '✓' : '○ Recommended'}</span>
+                <span className={cn('font-bold', form.yieldAmount ? 'text-green-400' : 'text-amber-400')}>{form.yieldAmount || '○'}</span>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Ingredients</span>
-                <span className={cn('font-bold', ingredients.filter(i => !i._deleted).length > 0 ? 'text-green-400' : 'text-amber-400')}>{ingredients.filter(i => !i._deleted).length} items</span>
+              <div className="flex items-center justify-between text-[9px]">
+                <span className="text-muted-foreground">Items</span>
+                <span className={cn('font-bold', ingredients.filter(i => !i._deleted).length > 0 ? 'text-green-400' : 'text-amber-400')}>{ingredients.filter(i => !i._deleted).length}</span>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Instructions</span>
-                <span className={cn('font-bold', steps.filter(s => !s._deleted).length > 0 ? 'text-green-400' : 'text-amber-400')}>{steps.filter(s => !s._deleted).length} steps</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Allergens</span>
-                <span className={cn('font-bold', form.allergens?.length > 0 ? 'text-green-400' : 'text-amber-400')}>{form.allergens?.length > 0 ? '✓ Tagged' : '○ None marked'}</span>
+              <div className="flex items-center justify-between text-[9px]">
+                <span className="text-muted-foreground">Steps</span>
+                <span className={cn('font-bold', steps.filter(s => !s._deleted).length > 0 ? 'text-green-400' : 'text-amber-400')}>{steps.filter(s => !s._deleted).length}</span>
               </div>
             </div>
-            <div className="text-[11px] text-muted-foreground italic p-3 bg-muted/20 rounded-lg">
-              Your recipe is ready to save as a draft. Fill in all fields to approve for restaurant use.
-            </div>
+            <p className="text-[9px] text-muted-foreground italic p-2 bg-muted/20 rounded">
+              Save as Draft or Approve when ready.
+            </p>
           </div>
         )}
       </div>
