@@ -17,9 +17,18 @@ const PRIORITY_CONFIG = {
 export default function PrioritiesSection({ priorities }) {
   const navigate = useNavigate();
 
+  const ROUTE_MAP = {
+    prep: '/?tab=prep',
+    sidework: '/?tab=sidework',
+    incident: '/logs?type=incident',
+    maintenance: '/logs?type=maintenance',
+    cleaning: '/cleaning',
+    temperature: '/logs?type=temperature',
+  };
+
   const handleTap = (type) => {
     haptics.light?.();
-    navigate(`/tasks?filter=${type}`);
+    navigate(ROUTE_MAP[type] || `/tasks?filter=${type}`);
   };
 
   if (!priorities || priorities.length === 0) {
