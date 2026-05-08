@@ -1,10 +1,32 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Plus, Edit2, Trash2, X, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
-import { cn } from '@/lib/utils';
+
+const DEFAULT_FORM = {
+  template_name: '',
+  station: '',
+  shift: 'opening',
+  assigned_role: '',
+  assigned_employee: '',
+  due_time: '',
+  requires_inventory_count: true,
+  is_active: true,
+  items: [],
+  notes: '',
+};
+
+const DEFAULT_ITEM = {
+  item_name: '',
+  par_quantity: '',
+  unit: '',
+  priority: 'medium',
+  requires_photo: false,
+  requires_manager_review: false,
+  notes: '',
+};
 
 export default function PrepPlanTemplatesManager() {
   const { isAdmin } = useCurrentUser();
@@ -12,27 +34,8 @@ export default function PrepPlanTemplatesManager() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({
-    template_name: '',
-    station: '',
-    shift: 'opening',
-    assigned_role: '',
-    assigned_employee: '',
-    due_time: '',
-    requires_inventory_count: true,
-    is_active: true,
-    items: [],
-    notes: '',
-  });
-  const [newItem, setNewItem] = useState({
-    item_name: '',
-    par_quantity: '',
-    unit: '',
-    priority: 'medium',
-    requires_photo: false,
-    requires_manager_review: false,
-    notes: '',
-  });
+  const [form, setForm] = useState(DEFAULT_FORM);
+  const [newItem, setNewItem] = useState(DEFAULT_ITEM);
 
   useEffect(() => {
     loadTemplates();
@@ -48,71 +51,54 @@ export default function PrepPlanTemplatesManager() {
     setLoading(false);
   };
 
+  const resetForm = () => {
+    setForm({ ...DEFAULT_FORM });
+    setNewItem({ ...DEFAULT_ITEM });
+  };
+
   const addItem = () => {
-    if (!newItem.item_name || !newItem.par_quantity || !newItem.unit) {
+    if (!newItem.item_name?.trim() || !newItem.par_quantity || !newItem.unit?.trim()) {
       toast.error('Fill in item name, par quantity, and unit');
       return;
     }
-    setForm(p => ({
-      ...p,
-      items: [...p.items, { ...newItem }],
-    }));
-    setNewItem({
-      item_name: '',
-      par_quantity: '',
-      unit: '',
-      priority: 'medium',
-      requires_photo: false,
-      requires_manager_review: false,
-      notes: '',
-    });
+    const updated = {
+      ...form,
+      items: [...(form.items || []), { ...newItem, par_quantity: parseFloat(newItem.par_quantity) }],
+    };
+    setForm(updated);
+    setNewItem({ ...DEFAULT_ITEM });
     toast.success('Item added');
   };
 
   const removeItem = (idx) => {
     setForm(p => ({
       ...p,
-      items: p.items.filter((_, i) => i !== idx),
+      items: (p.items || []).filter((_, i) => i !== idx),
     }));
   };
 
   const handleSave = async () => {
-    if (!form.template_name || !form.station || form.items.length === 0) {
+    if (!form.template_name?.trim() || !form.station?.trim() || !form.items || form.items.length === 0) {
       toast.error('Fill in template name, station, and add at least one item');
       return;
     }
 
     try {
+      const saveData = {
+        ...form,
+        template_name: form.template_name.trim(),
+        station: form.station.trim(),
+      };
       if (editing) {
-        await base44.entities.PrepPlanTemplate?.update?.(editing.id, form);
+        await base44.entities.PrepPlanTemplate?.update?.(editing.id, saveData);
         toast.success('Template updated');
       } else {
-        await base44.entities.PrepPlanTemplate?.create?.(form);
+        await base44.entities.PrepPlanTemplate?.create?.(saveData);
         toast.success('Template created');
       }
       setShowForm(false);
       setEditing(null);
-      setForm({
-        template_name: '',
-        station: '',
-        shift: 'opening',
-        assigned_role: '',
-        assigned_employee: '',
-        due_time: '',
-        requires_inventory_count: true,
-        is_active: true,
-        items: [],
-        notes: '',
-      });
-      setNewItem({
-        item_name: '',
-        par_quantity: '',
-        unit: '',
-        priority: 'medium',
-        requires_photo: false,
-        requires_manager_review: false,
-        notes: '',
-      });
+      resetForm();
       await loadTemplates();
     } catch (e) {
       toast.error('Failed to save: ' + e.message);
@@ -144,18 +130,7 @@ export default function PrepPlanTemplatesManager() {
         title="Prep Plan Templates"
         subtitle="Build templates with multiple items, each with priority and photo requirements"
         actions={
-          <button onClick={() => { setEditing(null); setForm({
-            template_name: '',
-            station: '',
-            shift: 'opening',
-            assigned_role: '',
-            assigned_employee: '',
-            due_time: '',
-            requires_inventory_count: true,
-            is_active: true,
-            items: [],
-            notes: '',
-          }); setShowForm(true); }} className="btn-primary text-xs h-8 px-3 flex items-center gap-1">
+          <button onClick={() => { setEditing(null); resetForm(); setShowForm(true); }} className="btn-primary text-xs h-8 px-3 flex items-center gap-1">
             <Plus className="h-3.5 w-3.5" /> New Template
           </button>
         }
@@ -168,7 +143,7 @@ export default function PrepPlanTemplatesManager() {
           <div className="text-center py-12 bg-card border border-border rounded-xl">
             <p className="text-foreground font-bold mb-3">No prep templates yet</p>
             <button
-              onClick={() => { setEditing(null); setShowForm(true); }}
+              onClick={() => { setEditing(null); resetForm(); setShowForm(true); }}
               className="btn-primary text-xs px-4 py-2 inline-flex items-center gap-1"
             >
               <Plus className="h-3.5 w-3.5" /> Create First Template
@@ -185,7 +160,7 @@ export default function PrepPlanTemplatesManager() {
                 <div className="flex items-center gap-1">
                   {!t.is_active && <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground font-bold">Inactive</span>}
                   <button
-                    onClick={() => { setEditing(t); setForm(t); setShowForm(true); }}
+                    onClick={() => { setEditing(t); setForm({ ...DEFAULT_FORM, ...t, items: t.items || [] }); setShowForm(true); }}
                     className="h-8 w-8 rounded border border-border hover:bg-muted flex items-center justify-center text-muted-foreground"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
@@ -203,13 +178,11 @@ export default function PrepPlanTemplatesManager() {
         )}
       </div>
 
-      {/* Modal Form */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <h2 className="text-lg font-bold text-foreground">{editing ? 'Edit' : 'New'} Prep Template</h2>
 
-            {/* Template basics */}
             <div className="space-y-3 pb-4 border-b border-border">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -254,12 +227,11 @@ export default function PrepPlanTemplatesManager() {
               </div>
             </div>
 
-            {/* Items builder */}
             <div className="space-y-3">
-              <h3 className="font-bold text-foreground text-sm">Prep Items</h3>
+              <h3 className="font-bold text-foreground text-sm">Prep Items ({form.items?.length || 0})</h3>
               
-              {form.items.length > 0 && (
-                <div className="space-y-2 bg-background/50 rounded-lg p-3">
+              {form.items && form.items.length > 0 && (
+                <div className="space-y-2 bg-background/50 rounded-lg p-3 max-h-48 overflow-y-auto">
                   {form.items.map((item, idx) => (
                     <div key={idx} className="bg-card border border-border rounded p-2.5 flex items-start justify-between text-sm">
                       <div className="flex-1">
@@ -267,10 +239,7 @@ export default function PrepPlanTemplatesManager() {
                         <p className="text-xs text-muted-foreground">{item.par_quantity} {item.unit} • {item.priority}</p>
                         {item.requires_photo && <span className="text-[10px] px-1.5 py-0.5 bg-primary/20 text-primary rounded inline-block mt-1">📸 Photo</span>}
                       </div>
-                      <button
-                        onClick={() => removeItem(idx)}
-                        className="h-6 w-6 rounded hover:bg-red-500/10 flex items-center justify-center text-muted-foreground hover:text-red-500"
-                      >
+                      <button onClick={() => removeItem(idx)} className="h-6 w-6 rounded hover:bg-red-500/10 flex items-center justify-center text-muted-foreground hover:text-red-500">
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -278,34 +247,13 @@ export default function PrepPlanTemplatesManager() {
                 </div>
               )}
 
-              {/* Add item form */}
               <div className="bg-background/50 rounded-lg p-3 space-y-2 border border-border/50">
                 <p className="text-xs font-bold text-muted-foreground uppercase">Add Item</p>
                 <div className="grid grid-cols-2 gap-2">
-                  <input
-                    value={newItem.item_name}
-                    onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))}
-                    placeholder="Item name"
-                    className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground"
-                  />
-                  <input
-                    type="number"
-                    value={newItem.par_quantity}
-                    onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))}
-                    placeholder="Par qty"
-                    className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground"
-                  />
-                  <input
-                    value={newItem.unit}
-                    onChange={e => setNewItem(p => ({ ...p, unit: e.target.value }))}
-                    placeholder="Unit"
-                    className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground"
-                  />
-                  <select
-                    value={newItem.priority}
-                    onChange={e => setNewItem(p => ({ ...p, priority: e.target.value }))}
-                    className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground"
-                  >
+                  <input value={newItem.item_name} onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))} placeholder="Item name" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
+                  <input type="number" value={newItem.par_quantity} onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))} placeholder="Par qty" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
+                  <input value={newItem.unit} onChange={e => setNewItem(p => ({ ...p, unit: e.target.value }))} placeholder="Unit" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
+                  <select value={newItem.priority} onChange={e => setNewItem(p => ({ ...p, priority: e.target.value }))} className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground">
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
@@ -321,17 +269,14 @@ export default function PrepPlanTemplatesManager() {
                     Manager Review
                   </label>
                 </div>
-                <button
-                  onClick={addItem}
-                  className="w-full py-1.5 bg-primary text-white text-xs font-bold rounded hover:brightness-110 transition-all flex items-center justify-center gap-1"
-                >
+                <button onClick={addItem} className="w-full py-1.5 bg-primary text-white text-xs font-bold rounded hover:brightness-110 transition-all flex items-center justify-center gap-1">
                   <Plus className="h-3.5 w-3.5" /> Add Item
                 </button>
               </div>
             </div>
 
             <div className="flex gap-2 pt-4 border-t border-border">
-              <button onClick={() => setShowForm(false)} className="flex-1 btn-secondary text-xs h-9">Cancel</button>
+              <button onClick={() => { setShowForm(false); resetForm(); }} className="flex-1 btn-secondary text-xs h-9">Cancel</button>
               <button onClick={handleSave} className="flex-1 btn-primary text-xs h-9">Save Template</button>
             </div>
           </div>
