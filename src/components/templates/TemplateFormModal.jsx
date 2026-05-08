@@ -143,7 +143,7 @@ export default function TemplateFormModal({ template, isNew, onClose, onSuccess 
           className="input-base" />
       </Section>
 
-      <Section label="Template Type">
+      <Section label="Template Type *">
         <div className="grid grid-cols-2 gap-2">
           {TEMPLATE_TYPES.map(t => (
             <button key={t.id} type="button"
