@@ -1,19 +1,37 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { haptics } from '@/utils/haptics';
-import { Home, Clock, FileText, Users, MoreHorizontal } from 'lucide-react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { Home, Activity, FileText, Users, MoreHorizontal, Zap, BarChart3 } from 'lucide-react';
+import NavItem from '@/components/nav/NavItem';
 
-const MOBILE_NAV_ROUTES = [
-  { label: 'Today', path: '/', icon: Home, id: 'today' },
-  { label: 'Shift', path: '/today', icon: Clock, id: 'shift' },
-  { label: 'Logs', path: '/logs', icon: FileText, id: 'logs' },
-  { label: 'Team', path: '/team', icon: Users, id: 'team' },
-  { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
-];
+const NAV_CONFIG = {
+  admin: [
+    { label: 'Today', path: '/', icon: Home, id: 'today' },
+    { label: 'Pulse', path: '/pulse', icon: Activity, id: 'pulse' },
+    { label: 'Analytics', path: '/reports', icon: BarChart3, id: 'analytics' },
+    { label: 'Team', path: '/team', icon: Users, id: 'team' },
+    { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
+  ],
+  manager: [
+    { label: 'Today', path: '/', icon: Home, id: 'today' },
+    { label: 'Pulse', path: '/pulse', icon: Activity, id: 'pulse' },
+    { label: 'Logs', path: '/logs', icon: FileText, id: 'logs' },
+    { label: 'Team', path: '/team', icon: Users, id: 'team' },
+    { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
+  ],
+  cook: [
+    { label: 'Today', path: '/', icon: Home, id: 'today' },
+    { label: 'Shift', path: '/shift', icon: Zap, id: 'shift' },
+    { label: 'Prep', path: '/?tab=prep', icon: FileText, id: 'prep' },
+    { label: 'Logs', path: '/logs', icon: Activity, id: 'logs' },
+    { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
+  ],
+};
 
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { user, isAdmin } = useCurrentUser();
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
   useEffect(() => {
@@ -22,52 +40,60 @@ export default function GlobalBottomNav() {
     return () => window.removeEventListener('resize', handler);
   }, []);
 
-  if (!isMobile) return null;
+  if (!isMobile || !user) return null;
+
+  // Determine role-based navigation
+  let navConfig = NAV_CONFIG.cook; // default
+  if (isAdmin) {
+    navConfig = NAV_CONFIG.admin;
+  } else if (['manager', 'lead', 'supervisor'].includes(user?.role)) {
+    navConfig = NAV_CONFIG.manager;
+  }
 
   // Determine active route
   const getActiveId = () => {
-    if (pathname === '/' || pathname === '/today') return 'today';
+    if (pathname === '/' || pathname.startsWith('/?')) return 'today';
+    if (pathname.startsWith('/pulse')) return 'pulse';
     if (pathname.startsWith('/logs')) return 'logs';
     if (pathname.startsWith('/team')) return 'team';
     if (pathname.startsWith('/more')) return 'more';
-    if (pathname.startsWith('/shift') || pathname.startsWith('/tasks')) return 'shift';
+    if (pathname.startsWith('/shift')) return 'shift';
+    if (pathname.startsWith('/prep')) return 'prep';
+    if (pathname.startsWith('/reports') || pathname.startsWith('/analytics')) return 'analytics';
     return 'today';
   };
 
   const activeId = getActiveId();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[999] flex justify-center items-end pointer-events-none" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      {/* Floating Pill Container */}
-      <div className="pointer-events-auto mb-4 mx-4 px-2 py-2 rounded-full shadow-lg border border-border/30" style={{
-        width: 'calc(100% - 2rem)',
-        maxWidth: '100%',
-        background: 'rgba(18, 24, 33, 0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-      }}>
-        <div className="flex justify-around items-center gap-1">
-          {MOBILE_NAV_ROUTES.map(({ label, path, icon: Icon, id }) => {
-            const isActive = activeId === id;
-            return (
-              <button
-                key={id}
-                onClick={() => {
-                  haptics.light?.();
-                  navigate(path);
-                }}
-                className="flex flex-col items-center justify-center gap-0.5 px-3 py-2.5 rounded-full transition-all duration-200 active:scale-95"
-                style={{
-                  background: isActive ? 'hsl(24, 78%, 51%)' : 'transparent',
-                  color: isActive ? 'white' : 'hsl(215, 16%, 65%)',
-                }}
-              >
-                <Icon className="h-5 w-5 transition-colors duration-200" strokeWidth={1.5} />
-                <span className="text-[10px] font-bold leading-none mt-0.5">{label}</span>
-              </button>
-            );
-          })}
-        </div>
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-[999] flex justify-center items-end pointer-events-none"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      {/* Premium Floating Dock Container */}
+      <div
+        className="pointer-events-auto mb-5 mx-4 px-3 py-3 rounded-2xl border border-border/20 shadow-2xl flex justify-center items-center gap-2"
+        style={{
+          width: 'calc(100% - 2rem)',
+          maxWidth: '100%',
+          background: 'rgba(11, 15, 20, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+        }}
+      >
+        {navConfig.map(({ label, path, icon, id }) => {
+          const isActive = activeId === id;
+          return (
+            <NavItem
+              key={id}
+              icon={icon}
+              label={label}
+              isActive={isActive}
+              onClick={() => navigate(path)}
+            />
+          );
+        })}
       </div>
     </nav>
   );
