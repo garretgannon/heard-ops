@@ -189,7 +189,7 @@ function EquipmentModal({ onClose }) {
               <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
             </div>
             <div className="flex gap-1.5 mt-1.5 flex-wrap">
-               {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">Temp Log</span>}
+              {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">Temp Log</span>}
               {item.requiresCleaningChecklist && <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold">Cleaning</span>}
               {item.requiresMaintenanceChecklist && <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">Maintenance</span>}
             </div>
@@ -199,10 +199,10 @@ function EquipmentModal({ onClose }) {
                 <button onClick={() => { onClose(); navigate('/temp-log-templates'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 active:scale-95 transition-all">Create Temp Template</button>
               </div>
             )}
-            </div>
-            ))}
-            </div>
-            {adding ? (
+          </div>
+        ))}
+      </div>
+      {adding ? (
         <div className="space-y-3">
           <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
             className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
@@ -251,13 +251,10 @@ function EquipmentModal({ onClose }) {
 
 function FoodSafetyModal({ onClose }) {
   const [form, setForm] = useState({
-    // Cooling
     coolingTwoHourTarget: 70, coolingSixHourTarget: 41,
     coolingRequiresCorrectiveAction: true, coolingRequiresManagerReview: false,
-    // Refrigerators / Freezers
     coolerMin: 34, coolerMax: 41, freezerMin: -10, freezerMax: 0,
     fridgeRequiresCorrectiveAction: true, fridgeRequiresManagerReview: false,
-    // Hot Holding
     hotHoldingMin: 135, hotReheatTarget: 165,
     hotRequiresCorrectiveAction: true, hotRequiresManagerReview: false,
   });
@@ -299,11 +296,9 @@ function FoodSafetyModal({ onClose }) {
     <CenteredModal title="Food Safety Settings" onClose={onClose}>
       <div className="space-y-4">
         <p className="text-xs text-muted-foreground">Configure defaults for all 3 temperature log categories.</p>
-
-        {/* Cooling Logs */}
         <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 space-y-2">
-          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">❄ Cooling Logs</p>
-          <p className="text-[10px] text-muted-foreground">Food must cool 135°F → 70°F (2 hrs) → 41°F (6 hrs total)</p>
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">Cooling Logs</p>
+          <p className="text-[10px] text-muted-foreground">Food must cool 135F to 70F (2 hrs) to 41F (6 hrs total)</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="2-Hour Max" field="coolingTwoHourTarget" unit="F" />
             <Field label="6-Hour Max" field="coolingSixHourTarget" unit="F" />
@@ -313,10 +308,8 @@ function FoodSafetyModal({ onClose }) {
             <Toggle field="coolingRequiresManagerReview" label="Manager Review" />
           </div>
         </div>
-
-        {/* Refrigerators / Freezers */}
         <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 space-y-2">
-          <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest">🧊 Refrigerators / Freezers</p>
+          <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Refrigerators / Freezers</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Cooler Min" field="coolerMin" unit="F" />
             <Field label="Cooler Max" field="coolerMax" unit="F" />
@@ -328,10 +321,8 @@ function FoodSafetyModal({ onClose }) {
             <Toggle field="fridgeRequiresManagerReview" label="Manager Review" />
           </div>
         </div>
-
-        {/* Hot Holding */}
         <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3 space-y-2">
-          <p className="text-xs font-bold text-orange-400 uppercase tracking-widest">🔥 Hot Holding</p>
+          <p className="text-xs font-bold text-orange-400 uppercase tracking-widest">Hot Holding</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Holding Minimum" field="hotHoldingMin" unit="F" />
             <Field label="Reheat Target" field="hotReheatTarget" unit="F" />
@@ -341,7 +332,6 @@ function FoodSafetyModal({ onClose }) {
             <Toggle field="hotRequiresManagerReview" label="Manager Review" />
           </div>
         </div>
-
         <button onClick={save} className="w-full btn-primary text-sm flex items-center justify-center gap-2">
           <Save className="h-4 w-4" /> {saved ? 'Update Settings' : 'Save Food Safety Settings'}
         </button>
@@ -474,6 +464,132 @@ function QRCodeModal({ onClose }) {
   );
 }
 
+function EmergencyContactsModal({ onClose }) {
+  const [form, setForm] = useState({ primaryName: '', primaryPhone: '', altName: '', altPhone: '', healthDept: '', fireDept: '', police: '', poison: '', gasCompany: '', electricCompany: '', plumber: '', hvac: '' });
+  const [existingId, setExistingId] = useState(null);
+
+  useEffect(() => {
+    base44.entities.Settings.filter({ key: 'emergency_contacts' }).then(results => {
+      if (results.length > 0) { try { setForm(p => ({ ...p, ...JSON.parse(results[0].value || '{}') })); setExistingId(results[0].id); } catch {} }
+    });
+  }, []);
+
+  const save = async () => {
+    const val = JSON.stringify(form);
+    if (existingId) { await base44.entities.Settings.update(existingId, { value: val }); }
+    else { await base44.entities.Settings.create({ key: 'emergency_contacts', value: val }); }
+    onClose();
+  };
+
+  const Field = ({ label, field }) => (
+    <div>
+      <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">{label}</label>
+      <input value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))} placeholder={label}
+        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+    </div>
+  );
+
+  return (
+    <CenteredModal title="Emergency Contacts" onClose={onClose}>
+      <div className="space-y-4">
+        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-red-400 uppercase tracking-widest">Internal Contacts</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Primary Contact Name" field="primaryName" />
+            <Field label="Primary Phone" field="primaryPhone" />
+            <Field label="Alternate Contact" field="altName" />
+            <Field label="Alternate Phone" field="altPhone" />
+          </div>
+        </div>
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-amber-400 uppercase tracking-widest">Emergency Services</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Health Department" field="healthDept" />
+            <Field label="Fire Department" field="fireDept" />
+            <Field label="Police" field="police" />
+            <Field label="Poison Control" field="poison" />
+          </div>
+        </div>
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">Utilities and Vendors</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Gas Company" field="gasCompany" />
+            <Field label="Electric Company" field="electricCompany" />
+            <Field label="Plumber" field="plumber" />
+            <Field label="HVAC" field="hvac" />
+          </div>
+        </div>
+        <button onClick={save} className="w-full btn-primary text-sm flex items-center justify-center gap-2">
+          <Save className="h-4 w-4" /> Save Contacts
+        </button>
+      </div>
+    </CenteredModal>
+  );
+}
+
+function OperatingInfoModal({ onClose }) {
+  const [form, setForm] = useState({ hoursMonFri: '', hoursSat: '', hoursSun: '', seatingCapacity: '', employeeCount: '', licenseNumber: '', permitNumber: '', lastHealthInspection: '', nextHealthInspection: '', liquorLicense: '', taxId: '', openDate: '' });
+  const [existingId, setExistingId] = useState(null);
+
+  useEffect(() => {
+    base44.entities.Settings.filter({ key: 'operating_info' }).then(results => {
+      if (results.length > 0) { try { setForm(p => ({ ...p, ...JSON.parse(results[0].value || '{}') })); setExistingId(results[0].id); } catch {} }
+    });
+  }, []);
+
+  const save = async () => {
+    const val = JSON.stringify(form);
+    if (existingId) { await base44.entities.Settings.update(existingId, { value: val }); }
+    else { await base44.entities.Settings.create({ key: 'operating_info', value: val }); }
+    onClose();
+  };
+
+  const Field = ({ label, field, type = 'text' }) => (
+    <div>
+      <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">{label}</label>
+      <input type={type} value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))} placeholder={label}
+        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+    </div>
+  );
+
+  return (
+    <CenteredModal title="Operating Information" onClose={onClose}>
+      <div className="space-y-4">
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-primary uppercase tracking-widest">Hours of Operation</p>
+          <div className="space-y-2">
+            <Field label="Mon - Fri Hours" field="hoursMonFri" />
+            <Field label="Saturday Hours" field="hoursSat" />
+            <Field label="Sunday Hours" field="hoursSun" />
+          </div>
+        </div>
+        <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-green-400 uppercase tracking-widest">Capacity and Staffing</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Seating Capacity" field="seatingCapacity" />
+            <Field label="Employee Count" field="employeeCount" />
+            <Field label="Open Date" field="openDate" type="date" />
+          </div>
+        </div>
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 space-y-2">
+          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">Licenses and Permits</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="Business License #" field="licenseNumber" />
+            <Field label="Health Permit #" field="permitNumber" />
+            <Field label="Liquor License" field="liquorLicense" />
+            <Field label="Tax ID" field="taxId" />
+            <Field label="Last Inspection" field="lastHealthInspection" type="date" />
+            <Field label="Next Inspection" field="nextHealthInspection" type="date" />
+          </div>
+        </div>
+        <button onClick={save} className="w-full btn-primary text-sm flex items-center justify-center gap-2">
+          <Save className="h-4 w-4" /> Save Operating Info
+        </button>
+      </div>
+    </CenteredModal>
+  );
+}
+
 function ProfileModal({ onClose, onSaved }) {
   const [form, setForm] = useState({ name: '', address: '', phone: '', conceptType: '', locationCount: 1 });
   const [existingId, setExistingId] = useState(null);
@@ -483,7 +599,6 @@ function ProfileModal({ onClose, onSaved }) {
       if (results.length > 0) {
         try { setForm(JSON.parse(results[0].value || '{}')); setExistingId(results[0].id); } catch {}
       } else {
-        // Pre-fill name if available
         const nameResults = await base44.entities.Settings.filter({ key: 'restaurant_name' });
         if (nameResults.length > 0) setForm(p => ({ ...p, name: nameResults[0].value || '' }));
       }
@@ -584,6 +699,8 @@ export default function MyRestaurant() {
       case 'foodSafety': return <FoodSafetyModal onClose={() => { setModal(null); loadCounts(); }} />;
       case 'vendors': return <VendorModal onClose={() => { setModal(null); loadCounts(); }} />;
       case 'qrcodes': return <QRCodeModal onClose={() => { setModal(null); loadCounts(); }} />;
+      case 'emergencyContacts': return <EmergencyContactsModal onClose={() => { setModal(null); loadCounts(); }} />;
+      case 'operatingInfo': return <OperatingInfoModal onClose={() => { setModal(null); loadCounts(); }} />;
       default: return null;
     }
   };
@@ -630,6 +747,7 @@ export default function MyRestaurant() {
             </div>
           </div>
         </div>
+
         {/* Locations */}
         <div className="bg-card border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
@@ -639,6 +757,7 @@ export default function MyRestaurant() {
           <p className="text-2xl font-extrabold text-foreground">{counts.areas || 0}</p>
           <p className="text-xs text-muted-foreground">Areas configured</p>
         </div>
+
         {/* Equipment */}
         <div className="bg-card border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
@@ -646,7 +765,7 @@ export default function MyRestaurant() {
             <button onClick={() => setModal('equipment')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
           </div>
           <div className="space-y-1.5">
-            {[{label:'Refrigerators / Freezers',count:counts.equipment||0},{label:'Cooking Equipment',count:0},{label:'Hot Holding',count:0},{label:'Smallwares',count:0}].map(i=>(
+            {[{label:'Total Equipment',count:counts.equipment||0},{label:'Stations',count:counts.stations||0}].map(i=>(
               <div key={i.label} className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{i.label}</span><span className="font-bold text-foreground">{i.count}</span>
               </div>
@@ -654,6 +773,7 @@ export default function MyRestaurant() {
           </div>
           <button onClick={() => setModal('equipment')} className="mt-3 text-[10px] font-bold text-primary hover:underline">View All Equipment →</button>
         </div>
+
         {/* Food Safety */}
         <div className="bg-card border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
@@ -668,29 +788,29 @@ export default function MyRestaurant() {
               </div>
             ))}
           </div>
-          <button onClick={() => navigate('/temp-logs')} className="mt-3 text-[10px] font-bold text-primary hover:underline">View Food Safety Settings →</button>
         </div>
+
         {/* Emergency Contacts */}
         <div className="bg-card border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Emergency Contacts</p>
-            <button className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+            <button onClick={() => setModal('emergencyContacts')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
           </div>
           <div className="space-y-2">
-            {['Primary Contact','Alternative Contact','Health Department','Fire Department'].map(c=>(
+            {['Primary Contact','Alternate Contact','Health Department','Fire Department','Utilities'].map(c=>(
               <div key={c} className="flex items-center gap-2 text-xs">
                 <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0"><Users className="h-3 w-3 text-muted-foreground" /></div>
                 <span className="text-muted-foreground flex-1">{c}</span>
-                <span className="text-foreground font-bold">—</span>
               </div>
             ))}
           </div>
         </div>
+
         {/* Key Operating Info */}
         <div className="bg-card border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Key Operating Information</p>
-            <button className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+            <button onClick={() => setModal('operatingInfo')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
           </div>
           <div className="space-y-1.5">
             {['Operating Hours','Employee Count','Seating Capacity','License Number','Last Health Inspection'].map(k=>(
@@ -704,77 +824,84 @@ export default function MyRestaurant() {
 
       {/* Mobile Layout */}
       <div className="lg:hidden">
-      <SetupProgressCard sections={setupSections} onContinue={s => setModal(s.id)} />
+        <SetupProgressCard sections={setupSections} onContinue={s => setModal(s.id)} />
 
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Restaurant Setup</p>
-        <div className="space-y-2">
-          <SectionCard icon={Building2} title="Restaurant Profile" description="Name, address, concept type, locations" complete={counts.profile > 0} needsSetup={!counts.profile} onClick={() => setModal('profile')} />
-          <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
-          <SectionCard icon={MapPin} title="Areas" description="Line, prep area, dining room, bar..." count={counts.areas} complete={counts.areas > 0} needsSetup={!counts.areas} onClick={() => setModal('areas')} />
-          <SectionCard icon={Building2} title="Stations" description="Grill, fry, expo, server alley..." count={counts.stations} complete={counts.stations > 0} needsSetup={!counts.stations} onClick={() => setModal('stations')} />
-          <SectionCard icon={Users} title="Job Codes" description="Cook, server, bartender, manager..." count={counts.jobCodes} complete={counts.jobCodes > 0} needsSetup={!counts.jobCodes} onClick={() => setModal('jobCodes')} />
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Restaurant Setup</p>
+          <div className="space-y-2">
+            <SectionCard icon={Building2} title="Restaurant Profile" description="Name, address, concept type, locations" complete={counts.profile > 0} needsSetup={!counts.profile} onClick={() => setModal('profile')} />
+            <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
+            <SectionCard icon={MapPin} title="Areas" description="Line, prep area, dining room, bar..." count={counts.areas} complete={counts.areas > 0} needsSetup={!counts.areas} onClick={() => setModal('areas')} />
+            <SectionCard icon={Building2} title="Stations" description="Grill, fry, expo, server alley..." count={counts.stations} complete={counts.stations > 0} needsSetup={!counts.stations} onClick={() => setModal('stations')} />
+            <SectionCard icon={Users} title="Job Codes" description="Cook, server, bartender, manager..." count={counts.jobCodes} complete={counts.jobCodes > 0} needsSetup={!counts.jobCodes} onClick={() => setModal('jobCodes')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Equipment and Compliance</p>
+          <div className="space-y-2">
+            <SectionCard icon={Wrench} title="Equipment and Assets" description="Dish machine, coolers, fryers, ovens..." count={counts.equipment} complete={counts.equipment > 0} needsSetup={!counts.equipment} onClick={() => setModal('equipment')} />
+            <SectionCard icon={Thermometer} title="Food Safety Settings" description="Temp targets, PPM ranges, corrective actions" complete={counts.foodSafety > 0} needsSetup={!counts.foodSafety} onClick={() => setModal('foodSafety')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">People</p>
+          <div className="space-y-2">
+            <SectionCard icon={Users} title="Team Directory" description="View and manage your team members" onClick={() => navigate('/team')} />
+            <SectionCard icon={Shield} title="Job Code Assignments" description="Assign job codes to stations" onClick={() => navigate('/job-codes')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Operations</p>
+          <div className="space-y-2">
+            <SectionCard icon={Calendar} title="Schedule Center" description="View and manage employee shifts" onClick={() => navigate('/schedule')} />
+            <SectionCard icon={Upload} title="Schedule Import" description="Bulk import shifts from CSV, Excel, or PDF" onClick={() => navigate('/schedule-import')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Inventory Setup</p>
+          <div className="space-y-2">
+            <SectionCard icon={Package} title="Purchased Items" description="Item master for recipe costing, inventory, vendors, and waste" onClick={() => navigate('/purchased-items')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Contacts</p>
+          <div className="space-y-2">
+            <SectionCard icon={Truck} title="Vendor Directory" description="Food vendors, repair contacts, service numbers" count={counts.vendors} complete={counts.vendors > 0} needsSetup={!counts.vendors} onClick={() => setModal('vendors')} />
+            <SectionCard icon={Shield} title="Emergency Contacts" description="Primary, health dept, fire, utilities, plumber" onClick={() => setModal('emergencyContacts')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Operating Information</p>
+          <div className="space-y-2">
+            <SectionCard icon={Building2} title="Operating Info" description="Hours, capacity, licenses, permits, health inspection" onClick={() => setModal('operatingInfo')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">QR Codes</p>
+          <div className="space-y-2">
+            <SectionCard icon={QrCode} title="QR Code Setup" description="Link QR codes to equipment, stations, and logs" count={counts.qrcodes} complete={counts.qrcodes > 0} onClick={() => setModal('qrcodes')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Template Setup</p>
+          <div className="space-y-2">
+            <SectionCard icon={LayoutTemplate} title="Prep Templates" description="Create and manage prep list templates" onClick={() => navigate('/prep-templates')} />
+            <SectionCard icon={LayoutTemplate} title="Side Work Templates" description="Create and manage side work templates" onClick={() => navigate('/side-work-templates')} />
+            <SectionCard icon={LayoutTemplate} title="Cleaning Templates" description="Create and manage cleaning checklists" onClick={() => navigate('/cleaning-templates')} />
+            <SectionCard icon={LayoutTemplate} title="Temperature Log Templates" description="Create and manage temp log templates" onClick={() => navigate('/temp-log-templates')} />
+            <SectionCard icon={LayoutTemplate} title="Waste Templates" description="Create and manage waste log templates" onClick={() => navigate('/waste-templates')} />
+            <SectionCard icon={LayoutTemplate} title="86 Templates" description="Create and manage 86 log templates" onClick={() => navigate('/86-templates')} />
+          </div>
         </div>
       </div>
-
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Equipment and Compliance</p>
-        <div className="space-y-2">
-          <SectionCard icon={Wrench} title="Equipment and Assets" description="Dish machine, coolers, fryers, ovens..." count={counts.equipment} complete={counts.equipment > 0} needsSetup={!counts.equipment} onClick={() => setModal('equipment')} />
-          <SectionCard icon={Thermometer} title="Food Safety Settings" description="Temp targets, PPM ranges, corrective actions" complete={counts.foodSafety > 0} needsSetup={!counts.foodSafety} onClick={() => setModal('foodSafety')} />
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">People</p>
-        <div className="space-y-2">
-          <SectionCard icon={Users} title="Team Directory" description="View and manage your team members" onClick={() => navigate('/team')} />
-          <SectionCard icon={Shield} title="Job Code Assignments" description="Assign job codes to stations" onClick={() => navigate('/job-codes')} />
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Operations</p>
-        <div className="space-y-2">
-          <SectionCard icon={Calendar} title="Schedule Center" description="View and manage employee shifts" onClick={() => navigate('/schedule')} />
-          <SectionCard icon={Upload} title="Schedule Import" description="Bulk import shifts from CSV, Excel, or PDF" onClick={() => navigate('/schedule-import')} />
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Inventory Setup</p>
-        <div className="space-y-2">
-          <SectionCard icon={Package} title="Purchased Items" description="Item master for recipe costing, inventory, vendors, and waste" onClick={() => navigate('/purchased-items')} />
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Vendors and Contacts</p>
-        <div className="space-y-2">
-          <SectionCard icon={Truck} title="Vendor Directory" description="Food vendors, repair contacts, emergency numbers" count={counts.vendors} complete={counts.vendors > 0} needsSetup={!counts.vendors} onClick={() => setModal('vendors')} />
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">QR Codes</p>
-        <div className="space-y-2">
-          <SectionCard icon={QrCode} title="QR Code Setup" description="Link QR codes to equipment, stations, and logs" count={counts.qrcodes} complete={counts.qrcodes > 0} onClick={() => setModal('qrcodes')} />
-        </div>
-      </div>
-
-      <div className="mb-5">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Template Setup</p>
-        <div className="space-y-2">
-          <SectionCard icon={LayoutTemplate} title="Prep Templates" description="Create and manage prep list templates" onClick={() => navigate('/prep-templates')} />
-          <SectionCard icon={LayoutTemplate} title="Side Work Templates" description="Create and manage side work templates" onClick={() => navigate('/side-work-templates')} />
-          <SectionCard icon={LayoutTemplate} title="Cleaning Templates" description="Create and manage cleaning checklists" onClick={() => navigate('/cleaning-templates')} />
-          <SectionCard icon={LayoutTemplate} title="Temperature Log Templates" description="Create and manage temp log templates" onClick={() => navigate('/temp-log-templates')} />
-          <SectionCard icon={LayoutTemplate} title="Waste Templates" description="Create and manage waste log templates" onClick={() => navigate('/waste-templates')} />
-          <SectionCard icon={LayoutTemplate} title="86 Templates" description="Create and manage 86 log templates" onClick={() => navigate('/86-templates')} />
-        </div>
-      </div>
-
-      </div>{/* end lg:hidden */}
 
       {renderModal()}
     </div>
