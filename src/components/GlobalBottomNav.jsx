@@ -1,14 +1,14 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Home, Activity, FileText, Users, MoreHorizontal, Zap, BarChart3 } from 'lucide-react';
+import { Home, Activity, FileText, Users, MoreHorizontal, Zap } from 'lucide-react';
 import NavItem from '@/components/nav/NavItem';
 
 const NAV_CONFIG = {
   admin: [
     { label: 'Today', path: '/', icon: Home, id: 'today' },
     { label: 'Pulse', path: '/pulse', icon: Activity, id: 'pulse' },
-    { label: 'Analytics', path: '/reports', icon: BarChart3, id: 'analytics' },
+    { label: 'Logs', path: '/logs', icon: FileText, id: 'logs' },
     { label: 'Team', path: '/team', icon: Users, id: 'team' },
     { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
   ],
@@ -59,7 +59,7 @@ export default function GlobalBottomNav() {
     if (pathname.startsWith('/more')) return 'more';
     if (pathname.startsWith('/shift')) return 'shift';
     if (pathname.startsWith('/prep')) return 'prep';
-    if (pathname.startsWith('/reports') || pathname.startsWith('/analytics')) return 'analytics';
+
     return 'today';
   };
 
