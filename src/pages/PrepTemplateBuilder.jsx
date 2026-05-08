@@ -290,9 +290,9 @@ export default function PrepTemplateBuilder() {
                                 {item.is_header ? (
                                   <>
                                     <td colSpan="9" className="">
-                                      <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-t-2 border-b-2 border-primary px-4 py-4 flex items-center gap-3">
+                                      <div className="bg-gradient-to-r from-primary/20 to-primary/10 border-t-2 border-b-2 border-primary px-4 py-2.5 flex items-center gap-3">
                                         <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                          <GripVertical className="h-4 w-4 text-primary" />
+                                          <GripVertical className="h-3.5 w-3.5 text-primary" />
                                         </div>
                                         <input
                                           type="text"
@@ -302,7 +302,7 @@ export default function PrepTemplateBuilder() {
                                             items[idx].item_name = e.target.value;
                                             setTemplate(p => ({ ...p, items }));
                                           }}
-                                          className="flex-1 px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg text-base font-extrabold text-primary uppercase tracking-widest placeholder-primary/40"
+                                          className="flex-1 px-3 py-1.5 bg-primary/10 border border-primary/30 rounded-lg text-sm font-bold text-primary uppercase tracking-wide placeholder-primary/40"
                                           placeholder="Section name"
                                         />
                                         <button onClick={() => deleteRow(idx)} className="h-8 w-8 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
