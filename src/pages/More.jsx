@@ -52,7 +52,7 @@ export default function More() {
               icon={Wrench}
               label="Equipment"
               description="Manage equipment, maintenance schedules, and logs"
-              onClick={() => navigate('/standards')}
+              onClick={() => navigate('/my-restaurant')}
               badge="Setup"
               badgeColor="bg-amber-500/15 text-amber-400"
             />
@@ -85,8 +85,7 @@ export default function More() {
               icon={Wrench}
               label="Integrations"
               description="Connect external services and APIs"
-              onClick={() => navigate('/more')}
-              badge="Coming"
+              badge="Coming Soon"
               badgeColor="bg-slate-500/15 text-slate-400"
             />
             <MoreRow
@@ -101,12 +100,7 @@ export default function More() {
               description="Manage user roles and access controls"
               onClick={() => navigate('/admin/role-simulator')}
             />
-            <MoreRow
-              icon={Wrench}
-              label="Role Preview"
-              description="Preview the app as a specific role"
-              onClick={() => navigate('/admin/role-simulator')}
-            />
+
             <MoreRow
               icon={Thermometer}
               label="Temperature Monitoring"
@@ -127,12 +121,6 @@ export default function More() {
           <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">📚 Knowledge</h2>
           <div className="space-y-2">
             <MoreRow
-              icon={Building2}
-              label="My Restaurant"
-              description="Edit restaurant details and brand settings"
-              onClick={() => navigate('/my-restaurant')}
-            />
-            <MoreRow
               icon={FileText}
               label="SOPs"
               description="Standard operating procedures and guides"
@@ -152,12 +140,7 @@ export default function More() {
               description="Cleaning procedures and best practices"
               onClick={() => navigate('/cleaning-templates')}
             />
-            <MoreRow
-              icon={Wrench}
-              label="Equipment Guides"
-              description="Equipment documentation and maintenance"
-              onClick={() => navigate('/standards')}
-            />
+
           </div>
         </div>
       </div>

@@ -20,7 +20,7 @@ const DESKTOP_SECTIONS = [
   {
     label: "Operations",
     items: [
-      { path: "/", label: "Overview", icon: LayoutDashboard },
+      { path: "/", label: "Today", icon: LayoutDashboard },
       { path: "/shift", label: "Shift", icon: ClipboardList },
       { path: "/logs", label: "Logs", icon: FileText },
     ],
@@ -46,7 +46,7 @@ const DESKTOP_SECTIONS = [
     items: [
       { path: "/templates", label: "Templates", icon: LayoutTemplate },
       { path: "/team", label: "Team & Roles", icon: Users },
-      { path: "/profile", label: "Settings", icon: Settings },
+      { path: "/profile", label: "Profile", icon: Settings },
     ],
   },
 ];
@@ -218,7 +218,7 @@ export default function Layout() {
       {/* Main content area */}
       <main
         className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[56px]" : "lg:pl-[180px]")}
-        style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
+        style={isMobile ? { paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" } : {}}
       >
         {isMobile && isTabRoute(location.pathname) ? (
           /* Mobile swipe carousel for the 5 main tabs — pages own their own padding */
@@ -235,7 +235,6 @@ export default function Layout() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-0 lg:pt-0 lg:pb-8"
-              style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
             >
               <Outlet />
             </motion.div>
