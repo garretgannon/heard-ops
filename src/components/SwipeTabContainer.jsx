@@ -4,14 +4,14 @@ import { bottomNavRoutes } from '@/lib/routeConfig';
 import { haptics } from '@/utils/haptics';
 import TodaysCommandCenter from '@/pages/TodaysCommandCenter';
 import StaffTasks from '@/pages/StaffTasks';
-import Logs from '@/pages/Logs';
+import LogsCenter from '@/pages/LogsCenter';
 import Knowledge from '@/pages/Knowledge';
 import More from '@/pages/More';
 
 const TAB_PAGES = [
   { path: '/', component: TodaysCommandCenter },
   { path: '/tasks', component: StaffTasks },
-  { path: '/logs', component: Logs },
+  { path: '/logs', component: LogsCenter },
   { path: '/knowledge', component: Knowledge },
   { path: '/more', component: More },
 ];

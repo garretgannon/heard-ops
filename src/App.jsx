@@ -27,13 +27,13 @@ import Knowledge from './pages/Knowledge';
 import More from './pages/More';
 import Onboarding from './pages/Onboarding';
 import TeamCenter from './pages/TeamCenter';
-import TemplateList from './pages/TemplateList';
+
 import ScheduleCenter from './pages/ScheduleCenter';
-import SideWork from './pages/SideWork';
-import PrepLists from './pages/PrepLists';
+
+
 import Cleaning from './pages/Cleaning';
-import WasteLog from './pages/WasteLog';
-import IssueTracker from './pages/IssueTracker';
+
+
 import InventorySimplified from './pages/InventorySimplified';
 import Vendors from './pages/Vendors';
 import Reports from './pages/Reports';
@@ -47,7 +47,7 @@ import Recipes from './pages/Recipes';
 import BuildCards from './pages/BuildCards';
 import Standards from './pages/Standards';
 import MSDS from './pages/MSDS';
-import TempLogs from './pages/TempLogs';
+
 import PrepTemplatesManager from './pages/PrepTemplatesManager';
 import SideWorkTemplates from './pages/SideWorkTemplates';
 import CleaningTemplates from './pages/CleaningTemplates';
