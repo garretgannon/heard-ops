@@ -1,30 +1,21 @@
-import { useState } from 'react';
-import { format, isSameDay, parseISO, isToday } from 'date-fns';
-import { Droppable, Draggable, DragDropContext } from '@hello-pangea/dnd';
+import { format, isSameDay, parseISO, isToday, getDay } from 'date-fns';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ShiftBlock from './ShiftBlock';
 import { cn } from '@/lib/utils';
+import { Plus } from 'lucide-react';
 
 export default function ScheduleGrid({
-  shifts,
-  employees,
-  weekDays,
-  selectedShifts,
-  onSelectShift,
-  onSelectShifts,
-  onShiftUpdate,
-  isMobile,
-  groupBy = 'employee',
+  shifts, employees, weekDays,
+  selectedShiftIds, onSelectShift, onSelectShifts,
+  shiftConflicts, timeOffRequests, availability,
+  onDragEnd, onAddShift, onShiftContextMenu, onEmptyCellContextMenu,
+  isMobile, groupBy = 'employee',
 }) {
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
-    // TODO: Update shift with new employee/day
-  };
-
   if (isMobile) {
     return (
       <div className="space-y-3">
         {weekDays.map((day, dayIdx) => {
-          const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), day));
+          const dayShifts = shifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } });
           const today = isToday(day);
           return (
             <div key={dayIdx} className={cn('rounded-xl border overflow-hidden', today ? 'border-primary/50' : 'border-border/40')}>
@@ -38,18 +29,14 @@ export default function ScheduleGrid({
                   ? <p className="text-xs text-muted-foreground text-center py-3">No shifts</p>
                   : dayShifts.map(shift => (
                     <ShiftBlock
-                      key={shift.id}
-                      shift={shift}
-                      employee={employees.find(e => e.email === shift.employee_email || e.name === shift.employee_name)}
-                      isSelected={selectedShifts.includes(shift.id)}
+                      key={shift.id} shift={shift}
+                      isSelected={selectedShiftIds.includes(shift.id)}
                       onSelect={() => onSelectShift(shift)}
                       onMultiSelect={() => {
-                        if (selectedShifts.includes(shift.id)) {
-                          onSelectShifts(selectedShifts.filter(id => id !== shift.id));
-                        } else {
-                          onSelectShifts([...selectedShifts, shift.id]);
-                        }
+                        if (selectedShiftIds.includes(shift.id)) onSelectShifts(selectedShiftIds.filter(id => id !== shift.id));
+                        else onSelectShifts([...selectedShiftIds, shift.id]);
                       }}
+                      conflicts={shiftConflicts?.[shift.id]}
                     />
                   ))}
               </div>
@@ -60,142 +47,185 @@ export default function ScheduleGrid({
     );
   }
 
-  const renderRows = (empList, startIdx = 0) =>
+  const getTimeOffStatus = (empEmail, day) => {
+    const dateStr = format(day, 'yyyy-MM-dd');
+    const req = timeOffRequests?.find(r =>
+      r.employee_email === empEmail &&
+      dateStr >= r.start_date && dateStr <= r.end_date
+    );
+    return req?.status || null;
+  };
+
+  const getAvailability = (empEmail, day) => {
+    const dow = getDay(day);
+    return availability?.find(a => a.employee_email === empEmail && a.day_of_week === dow);
+  };
+
+  const renderRows = (empList) =>
     empList.map((employee, i) => (
       <EmployeeRow
         key={employee.id}
         employee={employee}
         weekDays={weekDays}
         shifts={shifts}
-        selectedShifts={selectedShifts}
+        selectedShiftIds={selectedShiftIds}
         onSelectShift={onSelectShift}
         onSelectShifts={onSelectShifts}
-        isEven={(startIdx + i) % 2 === 0}
+        shiftConflicts={shiftConflicts}
+        getTimeOffStatus={getTimeOffStatus}
+        getAvailability={getAvailability}
+        onAddShift={onAddShift}
+        onShiftContextMenu={onShiftContextMenu}
+        onEmptyCellContextMenu={onEmptyCellContextMenu}
+        isEven={i % 2 === 0}
       />
     ));
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="overflow-x-auto rounded-xl border border-border/50 bg-card shadow-sm">
-        <div className="min-w-[900px]">
-          {/* Column headers */}
-          <div className="grid border-b border-border/50" style={{ gridTemplateColumns: '200px repeat(7, 1fr)' }}>
-            <div className="px-4 py-3 bg-card/80">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Employee</p>
-            </div>
-            {weekDays.map((day, idx) => {
-              const today = isToday(day);
-              return (
-                <div
-                  key={idx}
-                  className={cn(
-                    'py-3 px-2 text-center border-l border-border/30',
-                    today ? 'bg-primary/10' : 'bg-card/80'
-                  )}
-                >
-                  <p className={cn('text-[10px] font-bold uppercase tracking-widest', today ? 'text-primary' : 'text-muted-foreground')}>
-                    {format(day, 'EEE')}
-                  </p>
-                  <p className={cn('text-sm font-bold mt-0.5', today ? 'text-primary' : 'text-foreground')}>
-                    {format(day, 'MMM d')}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Rows */}
-          {groupBy === 'employee' ? (
-            renderRows(employees)
-          ) : (
-            Object.entries(
-              employees.reduce((acc, emp) => {
-                const key = groupBy === 'department'
-                  ? (shifts.find(s => s.employee_name === emp.name || s.employee_email === emp.email)?.department || 'Other')
-                  : (emp.role || 'Other');
-                if (!acc[key]) acc[key] = [];
-                acc[key].push(emp);
-                return acc;
-              }, {})
-            ).map(([group, groupEmps], gi) => (
-              <div key={group}>
-                <div className="px-4 py-2 bg-muted/30 border-t border-border/40">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary">{group}</p>
-                </div>
-                {renderRows(groupEmps, gi * 10)}
+    <DragDropContext onDragEnd={onDragEnd}>
+      <div className="rounded-xl border border-border/40 bg-card shadow-sm overflow-hidden">
+        <div className="overflow-auto max-h-[calc(100vh-340px)]">
+          <div className="min-w-[860px]">
+            {/* Sticky header */}
+            <div className="grid sticky top-0 z-20 border-b border-border/50" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+              <div className="px-4 py-3 bg-card border-r border-border/30 sticky left-0 z-30">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Employee</p>
               </div>
-            ))
-          )}
+              {weekDays.map((day, idx) => {
+                const today = isToday(day);
+                return (
+                  <div key={idx} className={cn('py-2.5 px-2 text-center border-l border-border/30', today ? 'bg-primary/10' : 'bg-card')}>
+                    <p className={cn('text-[10px] font-bold uppercase tracking-widest', today ? 'text-primary' : 'text-muted-foreground')}>{format(day, 'EEE')}</p>
+                    <p className={cn('text-sm font-bold mt-0.5', today ? 'text-primary' : 'text-foreground')}>{format(day, 'd')}</p>
+                    <p className={cn('text-[9px] mt-0.5', today ? 'text-primary/70' : 'text-muted-foreground')}>{format(day, 'MMM')}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Rows */}
+            {groupBy === 'employee' ? (
+              renderRows(employees)
+            ) : (
+              Object.entries(
+                employees.reduce((acc, emp) => {
+                  const key = groupBy === 'department'
+                    ? (shifts.find(s => s.employee_name === emp.name || s.employee_email === emp.email)?.department || 'Other')
+                    : (emp.role || 'Other');
+                  if (!acc[key]) acc[key] = [];
+                  acc[key].push(emp);
+                  return acc;
+                }, {})
+              ).map(([group, groupEmps]) => (
+                <div key={group}>
+                  <div className="px-4 py-1.5 bg-muted/20 border-t border-border/40 sticky left-0">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-primary">{group}</p>
+                  </div>
+                  {renderRows(groupEmps)}
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </DragDropContext>
   );
 }
 
-function EmployeeRow({ employee, weekDays, shifts, selectedShifts, onSelectShift, onSelectShifts, isEven }) {
+function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShift, onSelectShifts, shiftConflicts, getTimeOffStatus, getAvailability, onAddShift, onShiftContextMenu, onEmptyCellContextMenu, isEven }) {
+  const empShiftsThisWeek = shifts.filter(s => s.employee_email === employee.email || s.employee_name === employee.name);
+  const totalHours = empShiftsThisWeek.reduce((sum, s) => {
+    if (!s.start_time || !s.end_time) return sum;
+    const [sh, sm] = s.start_time.split(':').map(Number);
+    const [eh, em] = s.end_time.split(':').map(Number);
+    const diff = (eh * 60 + em) - (sh * 60 + sm);
+    return sum + (diff > 0 ? diff / 60 : 0);
+  }, 0);
+
   return (
-    <div
-      className={cn('grid border-t border-border/30', isEven ? 'bg-card/30' : 'bg-background/60')}
-      style={{ gridTemplateColumns: '200px repeat(7, 1fr)' }}
-    >
-      {/* Employee cell */}
-      <div className="flex items-center gap-3 px-4 py-3 border-r border-border/30">
-        <div className="h-9 w-9 rounded-full bg-primary/25 flex items-center justify-center shrink-0">
-          <span className="text-xs font-extrabold text-primary">
+    <div className={cn('grid border-t border-border/25', isEven ? 'bg-card/20' : 'bg-background/40')} style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+      {/* Sticky employee cell */}
+      <div className="flex items-center gap-2.5 px-3 py-2.5 border-r border-border/30 sticky left-0 z-10 bg-inherit">
+        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+          <span className="text-[11px] font-extrabold text-primary">
             {(employee.name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
           </span>
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-foreground truncate leading-tight">{employee.name}</p>
-          <p className="text-[11px] text-muted-foreground truncate capitalize">{employee.role}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold text-foreground truncate leading-tight">{employee.name}</p>
+          <p className="text-[10px] text-muted-foreground truncate capitalize">{employee.role}</p>
+          {totalHours > 0 && (
+            <p className={cn('text-[9px] font-bold mt-0.5', totalHours > 40 ? 'text-red-400' : 'text-muted-foreground/70')}>
+              {totalHours.toFixed(1)}h
+            </p>
+          )}
         </div>
       </div>
 
       {/* Day cells */}
       {weekDays.map((day, dayIdx) => {
         const today = isToday(day);
-        const dayShifts = shifts.filter(
-          s => isSameDay(parseISO(s.date), day) &&
-            (s.employee_email === employee.email || s.employee_name === employee.name)
-        );
+        const dayShifts = shifts.filter(s => {
+          try { return isSameDay(parseISO(s.date), day) && (s.employee_email === employee.email || s.employee_name === employee.name); }
+          catch { return false; }
+        });
+        const timeOffStatus = getTimeOffStatus(employee.email, day);
+        const avail = getAvailability(employee.email, day);
+        const isUnavailable = avail && !avail.is_available;
+        const droppableId = `${employee.id}__${dayIdx}`;
+
         return (
-          <Droppable key={`${employee.id}-${dayIdx}`} droppableId={`${employee.id}-${dayIdx}`}>
+          <Droppable key={droppableId} droppableId={droppableId}>
             {(provided, snapshot) => (
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
+                onClick={() => { if (dayShifts.length === 0) onAddShift?.(employee, day); }}
+                onContextMenu={(e) => {
+                  if (dayShifts.length === 0) { e.preventDefault(); onEmptyCellContextMenu?.(employee, day, e.clientX, e.clientY); }
+                }}
                 className={cn(
-                  'min-h-[60px] px-1.5 py-2 border-l border-border/25 transition-colors',
+                  'min-h-[68px] px-1.5 py-1.5 border-l border-border/20 relative transition-colors group/cell',
                   today && 'bg-primary/5',
-                  snapshot.isDraggingOver && 'bg-primary/15'
+                  snapshot.isDraggingOver && 'bg-primary/15 border-primary/40',
+                  timeOffStatus === 'approved' && 'bg-red-500/8',
+                  timeOffStatus === 'pending' && 'bg-amber-500/5',
+                  isUnavailable && 'bg-muted/20',
+                  dayShifts.length === 0 && !snapshot.isDraggingOver && 'cursor-pointer hover:bg-white/3'
                 )}
               >
-                {dayShifts.length === 0 ? (
-                  <span className="flex items-center justify-center h-full text-muted-foreground/40 text-sm font-medium">—</span>
-                ) : (
-                  dayShifts.map((shift, shiftIdx) => (
-                    <Draggable key={shift.id} draggableId={shift.id} index={shiftIdx}>
-                      {(provided, snapshot) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="mb-1 last:mb-0">
-                          <ShiftBlock
-                            shift={shift}
-                            employee={employee}
-                            isSelected={selectedShifts.includes(shift.id)}
-                            onSelect={() => onSelectShift(shift)}
-                            onMultiSelect={() => {
-                              if (selectedShifts.includes(shift.id)) {
-                                onSelectShifts(selectedShifts.filter(id => id !== shift.id));
-                              } else {
-                                onSelectShifts([...selectedShifts, shift.id]);
-                              }
-                            }}
-                            isDragging={snapshot.isDragging}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))
+                {/* Time-off indicator */}
+                {timeOffStatus && (
+                  <div className={cn('absolute top-1 right-1 h-1.5 w-1.5 rounded-full', timeOffStatus === 'approved' ? 'bg-red-400' : 'bg-amber-400')} title={`${timeOffStatus} time off`} />
                 )}
+
+                {/* Empty state + hover add button */}
+                {dayShifts.length === 0 && !snapshot.isDraggingOver && (
+                  <div className="flex items-center justify-center h-full opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                    <Plus className="h-3.5 w-3.5 text-primary/50" />
+                  </div>
+                )}
+
+                {dayShifts.map((shift, shiftIdx) => (
+                  <Draggable key={shift.id} draggableId={shift.id} index={shiftIdx}>
+                    {(provided, snapshot) => (
+                      <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="mb-1 last:mb-0">
+                        <ShiftBlock
+                          shift={shift}
+                          isSelected={selectedShiftIds.includes(shift.id)}
+                          onSelect={() => onSelectShift(shift)}
+                          onMultiSelect={() => {
+                            if (selectedShiftIds.includes(shift.id)) onSelectShifts(selectedShiftIds.filter(id => id !== shift.id));
+                            else onSelectShifts([...selectedShiftIds, shift.id]);
+                          }}
+                          onContextMenu={(e) => onShiftContextMenu?.(shift, employee, day, e.clientX, e.clientY)}
+                          isDragging={snapshot.isDragging}
+                          conflicts={shiftConflicts?.[shift.id]}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
                 {provided.placeholder}
               </div>
             )}

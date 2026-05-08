@@ -1,178 +1,210 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Clock, MapPin, DollarSign, Save } from 'lucide-react';
+import { X, Clock, MapPin, Save, Trash2, Copy, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-export default function ShiftDetailDrawer({ shift, employees, onClose, onUpdate }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({
+const ROLES = ['Manager', 'Bartender', 'Server', 'Host', 'Line Cook', 'Prep Cook', 'Dishwasher', 'Busser', 'Food Runner', 'Sous Chef'];
+
+function calcHours(start, end) {
+  if (!start || !end) return null;
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  const diff = (eh * 60 + em) - (sh * 60 + sm);
+  return diff > 0 ? (diff / 60).toFixed(1) : null;
+}
+
+export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose, onUpdate, onCopy, onDuplicate }) {
+  const [form, setForm] = useState({
     start_time: shift.start_time || '',
     end_time: shift.end_time || '',
     station: shift.station || '',
     role: shift.role || '',
     notes: shift.notes || '',
+    status: shift.status || 'draft',
+    employee_name: shift.employee_name || '',
+    employee_email: shift.employee_email || '',
+    date: shift.date || '',
   });
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const hours = calcHours(form.start_time, form.end_time);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await base44.entities.StaffShift.update(shift.id, formData);
+      await base44.entities.StaffShift.update(shift.id, form);
       toast.success('Shift saved');
       onUpdate?.();
-      setIsEditing(false);
-    } catch (e) {
-      toast.error('Failed to save shift');
-    }
+      onClose();
+    } catch { toast.error('Failed to save'); }
     setSaving(false);
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await base44.entities.StaffShift.delete(shift.id);
+      toast.success('Shift deleted');
+      onUpdate?.();
+      onClose();
+    } catch { toast.error('Failed to delete'); }
+    setDeleting(false);
+  };
+
+  const handlePublish = async () => {
+    try {
+      await base44.entities.StaffShift.update(shift.id, { status: 'published' });
+      toast.success('Shift published');
+      onUpdate?.();
+      onClose();
+    } catch { toast.error('Failed to publish'); }
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-end"
-    >
-      <motion.div
-        initial={{ x: '100%' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100%' }}
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md h-full bg-card border-l border-border/30 flex flex-col overflow-y-auto"
-      >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      onClick={onClose} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-stretch justify-end">
+      <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        onClick={e => e.stopPropagation()} className="w-full max-w-[380px] h-full bg-card border-l border-border/30 flex flex-col overflow-y-auto">
+
         {/* Header */}
-        <div className="sticky top-0 z-20 border-b border-border/30 bg-card p-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-foreground">Shift Details</h2>
-          <button
-            onClick={onClose}
-            className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
+        <div className="sticky top-0 z-20 border-b border-border/30 bg-card px-5 py-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-foreground">Shift Details</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{form.employee_name}</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => onCopy?.(shift)} title="Copy shift"
+              className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center transition-colors">
+              <Copy className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <button onClick={onClose} className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center">
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 p-6 space-y-6">
+        {/* Conflicts */}
+        {conflicts && conflicts.length > 0 && (
+          <div className="mx-5 mt-4 rounded-xl border border-border/40 bg-background overflow-hidden">
+            {conflicts.map((c, i) => (
+              <div key={i} className={cn('flex items-start gap-2.5 px-3 py-2.5 text-xs', i > 0 && 'border-t border-border/30')}>
+                {c.type === 'error' ? <AlertCircle className="h-3.5 w-3.5 text-red-400 mt-0.5 shrink-0" /> : <AlertTriangle className="h-3.5 w-3.5 text-amber-400 mt-0.5 shrink-0" />}
+                <span className={c.type === 'error' ? 'text-red-300' : 'text-amber-300'}>{c.msg}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Form */}
+        <div className="flex-1 px-5 py-4 space-y-4">
           {/* Employee */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Employee</p>
-            <div className="p-4 rounded-lg bg-card border border-border/30">
-              <p className="font-bold text-foreground text-lg">{shift.employee_name || shift.employeeName}</p>
-              <p className="text-sm text-muted-foreground capitalize mt-1">{shift.role}</p>
-            </div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Employee</label>
+            <select value={form.employee_email} onChange={e => {
+              const emp = employees.find(em => em.email === e.target.value);
+              setForm(f => ({ ...f, employee_email: e.target.value, employee_name: emp?.name || f.employee_name }));
+            }} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              {employees.map(e => <option key={e.id} value={e.email}>{e.name}</option>)}
+            </select>
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Date</label>
+            <input type="date" value={form.date} onChange={e => setForm(f => ({...f, date: e.target.value}))}
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
           </div>
 
           {/* Time */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Time</p>
-            <div className="space-y-3">
-              {isEditing ? (
-                <>
-                  <input
-                    type="time"
-                    value={formData.start_time}
-                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm"
-                  />
-                  <input
-                    type="time"
-                    value={formData.end_time}
-                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm"
-                  />
-                </>
-              ) : (
-                <div className="flex items-center gap-3 text-foreground">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-semibold">{formData.start_time} — {formData.end_time}</p>
-                    <p className="text-sm text-muted-foreground">8 hours</p>
-                  </div>
-                </div>
-              )}
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">
+              Time {hours && <span className="text-primary font-bold">· {hours}h</span>}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <input type="time" value={form.start_time} onChange={e => setForm(f => ({...f, start_time: e.target.value}))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input type="time" value={form.end_time} onChange={e => setForm(f => ({...f, end_time: e.target.value}))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
             </div>
+          </div>
+
+          {/* Role */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Role</label>
+            <select value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <option value="">No role</option>
+              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
           </div>
 
           {/* Station */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Station</p>
-            {isEditing ? (
-              <input
-                type="text"
-                value={formData.station}
-                onChange={(e) => setFormData({ ...formData, station: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm"
-                placeholder="Station"
-              />
-            ) : (
-              <div className="flex items-center gap-3 text-foreground">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <p className="font-semibold">{formData.station || 'Not assigned'}</p>
-              </div>
-            )}
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Station</label>
+            <input type="text" value={form.station} onChange={e => setForm(f => ({...f, station: e.target.value}))}
+              placeholder="e.g. Bar, Line, Expo" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
           </div>
 
-          {/* Labor Cost */}
+          {/* Status */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Labor Cost</p>
-            <div className="flex items-center gap-3 text-foreground">
-              <DollarSign className="h-5 w-5 text-muted-foreground" />
-              <p className="font-semibold">$120</p>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Status</label>
+            <div className="flex gap-2">
+              {['draft', 'published', 'needs_review'].map(s => (
+                <button key={s} onClick={() => setForm(f => ({...f, status: s}))}
+                  className={cn('flex-1 py-1.5 rounded-lg border text-[11px] font-bold capitalize transition-all',
+                    form.status === s ? 'bg-primary border-primary text-white' : 'border-border bg-secondary text-muted-foreground hover:text-foreground')}>
+                  {s.replace('_', ' ')}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Notes */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Notes</p>
-            <textarea
-              value={formData.notes}
-              onChange={e => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm"
-              placeholder="Add notes..."
-              rows="3"
-            />
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Notes</label>
+            <textarea value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))}
+              rows={2} placeholder="Add notes…" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="sticky bottom-0 border-t border-border/30 bg-card p-6 space-y-3">
-          {!isEditing ? (
-            <>
-              <button
-                onClick={() => setIsEditing(true)}
-                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:brightness-110 transition-all"
-              >
-                Edit Shift
+        {/* Footer actions */}
+        <div className="sticky bottom-0 border-t border-border/30 bg-card px-5 py-4 space-y-2">
+          {/* Primary row */}
+          <div className="flex gap-2">
+            <button onClick={handleSave} disabled={saving}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:brightness-110 transition-all disabled:opacity-60">
+              <Save className="h-3.5 w-3.5" />{saving ? 'Saving…' : 'Save'}
+            </button>
+            {form.status !== 'published' && (
+              <button onClick={handlePublish}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-green-600/80 text-white text-sm font-bold hover:brightness-110 transition-all">
+                <CheckCircle className="h-3.5 w-3.5" />Publish
               </button>
-              <button
-                onClick={onClose}
-                className="w-full px-4 py-2.5 rounded-lg border border-border hover:bg-secondary text-foreground font-bold text-sm transition-all"
-              >
-                Close
+            )}
+          </div>
+
+          {/* Secondary row */}
+          <div className="flex gap-2">
+            <button onClick={() => onDuplicate?.(shift)}
+              className="flex-1 py-2 rounded-xl border border-border text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+              Duplicate
+            </button>
+            {!confirmDelete ? (
+              <button onClick={() => setConfirmDelete(true)}
+                className="flex-1 py-2 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-colors">
+                Delete
               </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all disabled:opacity-60"
-              >
-                <Save className="h-4 w-4" />
-                {saving ? 'Saving…' : 'Save Changes'}
+            ) : (
+              <button onClick={handleDelete} disabled={deleting}
+                className="flex-1 py-2 rounded-xl border border-red-500 bg-red-500/20 text-red-400 text-xs font-bold hover:bg-red-500/30 transition-colors">
+                {deleting ? '…' : 'Confirm Delete'}
               </button>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="w-full px-4 py-2.5 rounded-lg border border-border text-foreground font-bold text-sm transition-all"
-              >
-                Cancel
-              </button>
-            </>
-          )}
+            )}
+          </div>
         </div>
       </motion.div>
     </motion.div>

@@ -1,0 +1,60 @@
+{
+  "name": "TimeOffRequest",
+  "type": "object",
+  "properties": {
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "approved",
+        "denied"
+      ],
+      "enumNames": [
+        "Pending",
+        "Approved",
+        "Denied"
+      ],
+      "default": "pending"
+    },
+    "submitted_date": {
+      "type": "string",
+      "title": "Submitted Date"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "title": "Reviewed By"
+    },
+    "manager_notes": {
+      "type": "string",
+      "title": "Manager Notes"
+    }
+  },
+  "required": [
+    "employee_email",
+    "start_date",
+    "end_date"
+  ]
+}

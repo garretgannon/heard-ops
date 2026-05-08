@@ -1,0 +1,52 @@
+{
+  "name": "EmployeeAvailability",
+  "type": "object",
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
+    },
+    "day_of_week": {
+      "type": "integer",
+      "title": "Day of Week (0=Sun, 6=Sat)"
+    },
+    "is_available": {
+      "type": "boolean",
+      "title": "Available",
+      "default": true
+    },
+    "start_time": {
+      "type": "string",
+      "title": "Available Start (HH:MM)"
+    },
+    "end_time": {
+      "type": "string",
+      "title": "Available End (HH:MM)"
+    },
+    "max_hours_per_week": {
+      "type": "number",
+      "title": "Max Hours Per Week"
+    },
+    "preferred": {
+      "type": "boolean",
+      "title": "Preferred Day",
+      "default": false
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "employee_email",
+    "day_of_week"
+  ]
+}
