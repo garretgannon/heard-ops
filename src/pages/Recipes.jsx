@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { haptics } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 import {
   BookOpen, Search, Plus, ChevronRight, Clock, Package, Archive,
   AlertTriangle, Link2, Camera, Edit2, Copy, X, CheckCircle2, Utensils
@@ -22,41 +23,58 @@ const STATUS_STYLE = {
 };
 
 function RecipeCard({ recipe, onClick }) {
+  const getCostStatus = () => {
+    if (recipe.costStatus === 'complete') return { label: 'Costed', color: 'bg-green-500/15 text-green-400' };
+    if (recipe.costStatus === 'incomplete') return { label: 'Incomplete', color: 'bg-amber-500/15 text-amber-300' };
+    if (recipe.costStatus === 'needs_links') return { label: 'No Links', color: 'bg-red-500/15 text-red-400' };
+    return { label: 'Draft', color: 'bg-slate-500/15 text-slate-400' };
+  };
+
+  const costStatus = getCostStatus();
+  const typeLabel = recipe.recipeType === 'menu_item' ? 'Menu Item' : recipe.recipeType === 'build_card' ? 'Build Card' : recipe.recipeType === 'sauce' ? 'Sauce' : 'Recipe';
+
   return (
-    <button onClick={onClick} className="w-full text-left bg-card border border-border rounded-xl overflow-hidden active:scale-[0.99] transition-all">
-      <div className="px-4 py-3">
-        <div className="flex items-start justify-between gap-2">
+    <button onClick={onClick} className="w-full text-left bg-card/50 border border-border rounded-lg overflow-hidden hover:border-border/60 hover:bg-card/70 transition-all active:scale-[0.98]">
+      <div className="px-3 py-2.5">
+        {/* Name + Type */}
+        <div className="flex items-start justify-between gap-2 mb-1.5">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-foreground leading-tight truncate">{recipe.name}</h3>
-            <p className="text-[11px] text-muted-foreground mt-0.5 capitalize">
-              {recipe.category}{recipe.station ? ` · ${recipe.station}` : ''}
-            </p>
+            <h3 className="text-sm font-bold text-foreground truncate">{recipe.name}</h3>
+            <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">{typeLabel}</span>
+              {recipe.station && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">📍 {recipe.station}</span>}
+            </div>
           </div>
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0 capitalize ${STATUS_STYLE[recipe.status] || STATUS_STYLE.draft}`}>
-            {recipe.status || 'Draft'}
-          </span>
         </div>
-        <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground">
-          {(recipe.yieldAmount || recipe.yieldUnit) && (
-            <span className="flex items-center gap-1"><Package className="h-3 w-3" />Yield: {recipe.yieldAmount} {recipe.yieldUnit}</span>
+
+        {/* Yield + Cost + Approval */}
+        <div className="grid grid-cols-3 gap-2 text-[10px] mb-1.5">
+          {recipe.yieldAmount && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Yield:</span>
+              <span className="font-bold text-foreground">{recipe.yieldAmount} {recipe.yieldUnit}</span>
+            </div>
           )}
-          {recipe.prepTime && (
-            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{recipe.prepTime}</span>
-          )}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Cost:</span>
+            <span className={cn('font-bold text-[9px] px-1.5 py-0.5 rounded', costStatus.color)}>{costStatus.label}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Status:</span>
+            <span className={cn('font-bold text-[9px] px-1.5 py-0.5 rounded capitalize', STATUS_STYLE[recipe.status] || STATUS_STYLE.draft)}>{recipe.status || 'Draft'}</span>
+          </div>
         </div>
+
+        {/* Allergens count */}
         {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 && (
-          <div className="flex gap-1 mt-1.5 flex-wrap">
-            {recipe.allergens.slice(0, 4).map(a => (
-              <span key={a} className="text-[9px] bg-red-500/15 text-red-400 px-1.5 py-0.5 rounded font-bold">{a}</span>
-            ))}
-          </div>
+          <p className="text-[9px] text-red-400 font-bold">⚠️ {recipe.allergens.length} allergen(s)</p>
         )}
       </div>
-      <div className="border-t border-border px-4 py-2 flex items-center justify-between bg-muted/30">
-        <span className="text-[10px] text-muted-foreground">
-          {recipe.updated_date ? `Updated ${new Date(recipe.updated_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'No date'}
+      <div className="border-t border-border/50 px-3 py-1.5 flex items-center justify-between bg-muted/20 text-[10px]">
+        <span className="text-muted-foreground">
+          {recipe.updated_date ? new Date(recipe.updated_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No date'}
         </span>
-        <span className="text-[10px] font-bold text-primary flex items-center gap-1">View Recipe <ChevronRight className="h-3 w-3" /></span>
+        <span className="text-primary font-bold">View →</span>
       </div>
     </button>
   );
@@ -518,18 +536,59 @@ export default function Recipes() {
 
       {/* Desktop 3-panel */}
       <div className="hidden lg:grid lg:grid-cols-[180px_1fr_340px] lg:gap-0" style={{ height: 'calc(100vh - 120px)' }}>
-        {/* LEFT: Categories */}
-        <div className="border-r border-border/30 overflow-y-auto p-3 space-y-0.5">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-2 py-2">Categories</p>
-          {CATEGORIES.map(c => (
-            <button key={c} onClick={() => setFilterCat(c)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                filterCat === c ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}>
-              <span className="capitalize">{c}</span>
-              <span className={`text-[10px] font-bold ${filterCat === c ? 'text-white/70' : 'text-muted-foreground'}`}>{categoryCounts[c] || 0}</span>
-            </button>
-          ))}
+        {/* LEFT: Filters */}
+        <div className="border-r border-border/30 overflow-y-auto p-3 space-y-3">
+          {/* TYPE */}
+          <div>
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">TYPE</p>
+            <div className="space-y-0.5">
+              {['all', 'menu', 'prep', 'build_card', 'sauce'].map(c => {
+                const count = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => (r.recipeType || 'prep') === c && r.status !== 'archived').length;
+                return (
+                  <button key={c} onClick={() => setFilterCat(c)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === c ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                    <span className="capitalize">{c === 'menu' ? 'Menu Items' : c === 'build_card' ? 'Build Cards' : c === 'sauce' ? 'Sauces' : 'All'}</span>
+                    <span className={`text-[9px] font-bold ${filterCat === c ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* STATION */}
+          <div>
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">STATION</p>
+            <div className="space-y-0.5">
+              {['Grill', 'Prep', 'Pantry', 'Bakery', 'Bar'].map(s => {
+                const count = recipes.filter(r => r.station === s && r.status !== 'archived').length;
+                return (
+                  <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterStation === s ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                    <span>{s}</span>
+                    <span className={`text-[9px] font-bold ${filterStation === s ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* STATUS */}
+          <div>
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">STATUS</p>
+            <div className="space-y-0.5">
+              {['all_active', 'draft', 'approved'].map(s => {
+                const count = s === 'all_active' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.status === s).length;
+                return (
+                  <button key={s} onClick={() => setFilterCat(s)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === s ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                    <span className="capitalize">{s === 'all_active' ? 'Active' : s}</span>
+                    <span className={`text-[9px] font-bold ${filterCat === s ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>
+                  </button>
+                );
+              })}
+              <button onClick={() => setFilterCat('archived')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'archived' ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                <span>Archived</span>
+                <span className={`text-[9px] font-bold ${filterCat === 'archived' ? 'text-white/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status === 'archived').length}</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* CENTER: Recipe list */}
@@ -547,13 +606,21 @@ export default function Recipes() {
         </div>
 
         {/* RIGHT: Recipe detail panel */}
-        <div className="overflow-y-auto">
+        <div className="overflow-y-auto bg-card/30">
           {selected ? (
             <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-center px-6">
-              <BookOpen className="h-10 w-10 text-muted-foreground/30 mb-3" />
-              <p className="text-sm font-semibold text-muted-foreground">Select a recipe to view details</p>
+            <div className="flex flex-col items-center justify-center h-full text-center px-6 py-8">
+              <BookOpen className="h-12 w-12 text-muted-foreground/30 mb-4" />
+              <p className="text-sm font-semibold text-foreground mb-1">Select a recipe to view details</p>
+              <p className="text-xs text-muted-foreground mb-6">Or create and manage your recipe library</p>
+              {isAdmin && (
+                <div className="flex flex-col gap-2 w-full">
+                  <button onClick={() => { setEditing(null); setShowForm(true); }} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95">
+                    <Plus className="h-3.5 w-3.5" /> New Recipe
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
