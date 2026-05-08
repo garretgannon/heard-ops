@@ -46,6 +46,7 @@ import PurchasedItems from './pages/PurchasedItems';
 import Recipes from './pages/Recipes';
 import BuildCards from './pages/BuildCards';
 import Standards from './pages/Standards';
+import Training from './pages/Training';
 import MSDS from './pages/MSDS';
 
 import PrepTemplatesManager from './pages/PrepTemplatesManager';
@@ -144,6 +145,7 @@ const AuthenticatedApp = () => {
         <Route path="/purchased-items" element={<PurchasedItems />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/msds" element={<MSDS />} />
+        <Route path="/training" element={<Training />} />
         <Route path="/vendors" element={<Vendors />} />
 
         {/* TEMPLATE ROUTES (Admin) */}

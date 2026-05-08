@@ -130,9 +130,9 @@ export default function More() {
               icon={BookOpen}
               label="Training"
               description="Training materials and onboarding content"
-              onClick={() => navigate('/knowledge')}
-              badge="Setup"
-              badgeColor="bg-amber-500/15 text-amber-400"
+              onClick={() => navigate('/training')}
+              badge="Admin"
+              badgeColor="bg-blue-500/15 text-blue-400"
             />
 
           </div>
