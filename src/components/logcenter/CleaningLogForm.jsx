@@ -89,21 +89,21 @@ export default function CleaningLogForm({ onSave, loading }) {
       photoUrl = await uploadPhoto();
     }
 
-    base44.entities.CleaningLog.create({
-      cleaning_area: form.cleaning_area,
-      template_id: form.template_id,
-      template_name: form.template_name,
-      completed_by: form.completed_by,
-      logged_at: form.logged_at,
-      status: form.status,
-      photo_url: photoUrl,
-      notes: form.notes,
-      assigned_role: form.assigned_role,
-      assigned_station: form.assigned_station,
-      manager_review_required: form.manager_review_required,
-      supplies_needed: form.supplies_needed,
-      issues_found: form.issues_found,
-      safety_concerns: form.safety_concerns,
+    base44.entities.UnifiedLog.create({
+      type: 'cleaning',
+      title: form.cleaning_area,
+      description: [
+        form.notes,
+        form.issues_found && `Issues: ${form.issues_found}`,
+        form.supplies_needed && `Supplies needed: ${form.supplies_needed}`,
+      ].filter(Boolean).join('\n\n'),
+      location: form.cleaning_area,
+      employee_name: form.completed_by,
+      status: (form.status === 'failed' || form.status === 'incomplete') ? 'flagged' : 'resolved',
+      priority: form.safety_concerns ? 'high' : 'medium',
+      visibility: 'team_log',
+      requires_review: form.manager_review_required,
+      photo_urls: photoUrl ? [photoUrl] : [],
     }).then(onSave).catch(err => {
       console.error('Failed to save cleaning log:', err);
       alert('Failed to save cleaning log');

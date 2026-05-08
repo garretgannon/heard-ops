@@ -33,19 +33,21 @@ export default function ManagerLogForm({ onSave, loading }) {
 
   const handleSave = async () => {
     if (!validate()) return;
-    base44.entities.ManagerLog.create({
-      shift: form.shift,
-      manager_on_duty: form.manager_on_duty,
-      date_time: form.date_time,
-      summary: form.summary,
-      department: form.department,
-      sales_notes: form.sales_notes,
-      staffing_notes: form.staffing_notes,
-      guest_notes: form.guest_notes,
-      maintenance_notes: form.maintenance_notes,
-      food_safety_notes: form.food_safety_notes,
-      follow_up_tasks: form.follow_up_tasks,
-      status: 'active',
+    base44.entities.UnifiedLog.create({
+      type: 'manager_note',
+      title: form.summary,
+      description: [
+        form.sales_notes && `Sales: ${form.sales_notes}`,
+        form.staffing_notes && `Staffing: ${form.staffing_notes}`,
+        form.guest_notes && `Guests: ${form.guest_notes}`,
+        form.maintenance_notes && `Maintenance: ${form.maintenance_notes}`,
+        form.food_safety_notes && `Food Safety: ${form.food_safety_notes}`,
+        form.follow_up_tasks && `Follow-up: ${form.follow_up_tasks}`,
+      ].filter(Boolean).join('\n\n'),
+      employee_name: form.manager_on_duty,
+      status: 'open',
+      priority: 'medium',
+      visibility: 'team_log',
     }).then(onSave).catch(err => {
       console.error('Failed to save manager log:', err);
       alert('Failed to save manager log');

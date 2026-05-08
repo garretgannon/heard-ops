@@ -72,19 +72,17 @@ export default function EmployeeLogForm({ onSave, loading }) {
       photoUrl = await uploadPhoto();
     }
 
-    base44.entities.EmployeeLog.create({
-      tagged_employee: form.tagged_employee,
-      log_category: form.log_category,
-      date_time: form.date_time,
-      created_by: form.created_by,
-      notes: form.notes,
-      follow_up_required: form.follow_up_required,
-      follow_up_date: form.follow_up_date,
-      acknowledgement_required: form.acknowledgement_required,
-      acknowledgement_status: form.acknowledgement_required ? 'pending' : 'not_required',
-      photo_url: photoUrl,
+    base44.entities.UnifiedLog.create({
+      type: 'employee',
+      title: `${form.log_category} — ${form.tagged_employee}`,
+      description: form.notes,
+      employee_name: form.tagged_employee,
+      status: 'open',
+      priority: 'medium',
       visibility: 'manager_only',
-      status: 'active',
+      follow_up_required: form.follow_up_required,
+      follow_up_due_date: form.follow_up_date || null,
+      photo_urls: photoUrl ? [photoUrl] : [],
     }).then(onSave).catch(err => {
       console.error('Failed to save employee log:', err);
       alert('Failed to save employee log');
