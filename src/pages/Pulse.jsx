@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Activity, AlertTriangle, TrendingUp, Clock } from 'lucide-react';
+import { Activity, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import StatusBadge from '@/components/pulse/StatusBadge';
 
 export default function Pulse() {
   const { user } = useCurrentUser();
@@ -71,7 +72,7 @@ export default function Pulse() {
           {/* Active Alerts */}
           <div className="bg-card border border-border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-500" />
+              <AlertCircle className="h-4 w-4 text-red-500" />
               <p className="text-xs font-bold text-muted-foreground uppercase">Alerts</p>
             </div>
             <p className="text-3xl font-bold text-foreground">{metrics.activeAlerts}</p>
@@ -99,37 +100,26 @@ export default function Pulse() {
           </div>
         </div>
 
-        {/* Insights Section */}
-        <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-          <h3 className="text-sm font-bold uppercase text-muted-foreground">Operational Insights</h3>
-          <div className="space-y-3">
-            {metrics.activeAlerts > 0 && (
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                <div className="text-sm">
-                  <p className="font-bold text-red-600">{metrics.activeAlerts} items need attention</p>
-                  <p className="text-xs text-red-500/80">Check Logs tab for details</p>
-                </div>
-              </div>
+        {/* Status Insights Section */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold uppercase text-muted-foreground px-2">Status Overview</h3>
+          <div className="space-y-2.5">
+            {metrics.completionRate === 100 && metrics.activeAlerts === 0 ? (
+              <StatusBadge status="on_track" label="On Track" />
+            ) : (
+              <>
+                {metrics.activeAlerts > 0 && (
+                  <StatusBadge status="attention" label="Attention" />
+                )}
+                {metrics.overdueItems > 0 && (
+                  <StatusBadge status="behind" label="Behind" />
+                )}
+                {metrics.activeAlerts > 2 && (
+                  <StatusBadge status="critical" label="Critical" />
+                )}
+              </>
             )}
-            {metrics.overdueItems > 0 && (
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <Clock className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                <div className="text-sm">
-                  <p className="font-bold text-amber-600">{metrics.overdueItems} tasks overdue</p>
-                  <p className="text-xs text-amber-500/80">Prioritize completion immediately</p>
-                </div>
-              </div>
-            )}
-            {metrics.completionRate === 100 && metrics.activeAlerts === 0 && (
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                <Activity className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <div className="text-sm">
-                  <p className="font-bold text-green-600">All systems operational</p>
-                  <p className="text-xs text-green-500/80">Restaurant running smoothly</p>
-                </div>
-              </div>
-            )}
+            <StatusBadge status="info" label="Info">Latest update 2 min ago</StatusBadge>
           </div>
         </div>
       </div>
