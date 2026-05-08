@@ -15,28 +15,61 @@
         "cleaning",
         "temperature",
         "waste_86",
-        "maintenance",
-        "opening_checklist",
-        "closing_checklist",
-        "shift_handoff",
-        "beo_event"
+        "opening",
+        "closing",
+        "handoff",
+        "beo_event",
+        "custom"
+      ],
+      "enumNames": [
+        "Prep",
+        "Side Work",
+        "Cleaning",
+        "Temperature Log",
+        "Waste / 86",
+        "Opening Checklist",
+        "Closing Checklist",
+        "Shift Handoff",
+        "BEO / Event",
+        "Custom"
       ]
     },
     "assigned_role": {
       "type": "string",
-      "title": "Assigned Role (e.g., Kitchen Lead, Server)"
+      "title": "Assigned Role"
+    },
+    "assigned_employee": {
+      "type": "string",
+      "title": "Assigned Employee (Email, optional)"
     },
     "assigned_station": {
       "type": "string",
-      "title": "Assigned Station / Area"
+      "title": "Station / Area"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "any"
+      ],
+      "enumNames": [
+        "Opening",
+        "Mid-Shift",
+        "Closing",
+        "Any"
+      ],
+      "default": "any"
     },
     "description": {
       "type": "string",
-      "title": "Template Description / Instructions"
+      "title": "Instructions / Notes"
     },
     "recurrence_type": {
       "type": "string",
-      "title": "Recurrence Type",
+      "title": "Recurrence",
       "enum": [
         "daily",
         "weekly",
@@ -47,11 +80,10 @@
     },
     "recurrence_days": {
       "type": "array",
-      "title": "Days of Week (if weekly)",
+      "title": "Days of Week (if weekly, 0=Sun)",
       "items": {
         "type": "integer"
-      },
-      "description": "0=Sunday, 6=Saturday"
+      }
     },
     "due_time": {
       "type": "string",
@@ -78,54 +110,86 @@
       "title": "Manager Review Required",
       "default": false
     },
-    "visibility": {
-      "type": "string",
-      "title": "Visibility",
-      "enum": [
-        "team_only",
-        "manager_only",
-        "assigned_only",
-        "private"
-      ],
-      "default": "team_only"
-    },
-    "checklist_items": {
-      "type": "array",
-      "title": "Checklist Items (for cleaning, opening, closing, handoff types)",
-      "items": {
-        "type": "object",
-        "properties": {
-          "item": {
-            "type": "string"
-          },
-          "required": {
-            "type": "boolean"
-          }
-        }
-      }
-    },
-    "custom_fields": {
-      "type": "object",
-      "title": "Custom Metadata (type-specific data)"
-    },
     "is_active": {
       "type": "boolean",
       "title": "Active",
       "default": true
     },
+    "created_by": {
+      "type": "string",
+      "title": "Created By (Email)"
+    },
     "last_generated_date": {
       "type": "string",
       "format": "date",
-      "title": "Last Generated Date (to prevent duplicates)"
+      "title": "Last Generated Date"
     },
-    "created_by": {
+    "temp_category": {
       "type": "string",
-      "title": "Created By (User Email)"
+      "title": "[Temp] Category",
+      "enum": [
+        "refrigerator",
+        "freezer",
+        "hot_holding",
+        "cooling"
+      ],
+      "enumNames": [
+        "Refrigerator",
+        "Freezer",
+        "Hot Holding",
+        "Cooling"
+      ]
+    },
+    "temp_min": {
+      "type": "number",
+      "title": "[Temp] Minimum Safe Temp (\u00b0F)"
+    },
+    "temp_max": {
+      "type": "number",
+      "title": "[Temp] Maximum Safe Temp (\u00b0F)"
+    },
+    "temp_check_frequency_minutes": {
+      "type": "number",
+      "title": "[Temp] Check Every (minutes)"
+    },
+    "temp_grace_period_minutes": {
+      "type": "number",
+      "title": "[Temp] Grace Period (minutes)"
+    },
+    "temp_corrective_action": {
+      "type": "string",
+      "title": "[Temp] Corrective Action Instructions"
+    },
+    "temp_review_on_failure": {
+      "type": "boolean",
+      "title": "[Temp] Manager Review on Failure",
+      "default": false
+    },
+    "handoff_shift_type": {
+      "type": "string",
+      "title": "[Handoff] Shift Type"
+    },
+    "handoff_next_shift_visible": {
+      "type": "boolean",
+      "title": "[Handoff] Visible to Next Shift",
+      "default": true
+    },
+    "beo_event_date": {
+      "type": "string",
+      "format": "date",
+      "title": "[BEO] Event Date"
+    },
+    "beo_event_name": {
+      "type": "string",
+      "title": "[BEO] Event Name"
+    },
+    "beo_department": {
+      "type": "string",
+      "title": "[BEO] Department"
     }
   },
   "required": [
     "name",
-    "template_type",
-    "assigned_role"
+    "template_type"
   ]
 }

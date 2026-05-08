@@ -8,55 +8,83 @@
     },
     "title": {
       "type": "string",
-      "title": "Task Name"
+      "title": "Task / Item Name"
     },
     "description": {
       "type": "string",
       "title": "Description / Instructions"
     },
-    "station": {
-      "type": "string",
-      "title": "Station"
+    "sort_order": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
     },
-    "jobCode": {
-      "type": "string",
-      "title": "Job Code"
+    "requires_photo": {
+      "type": "boolean",
+      "title": "Requires Photo",
+      "default": false
     },
-    "dueTime": {
+    "requires_manager_review": {
+      "type": "boolean",
+      "title": "Requires Manager Review",
+      "default": false
+    },
+    "is_critical": {
+      "type": "boolean",
+      "title": "Critical",
+      "default": false
+    },
+    "due_time": {
       "type": "string",
       "title": "Due Time (HH:MM)"
     },
     "quantity": {
       "type": "number",
-      "title": "Quantity"
+      "title": "[Prep] Quantity Needed"
     },
     "unit": {
       "type": "string",
-      "title": "Unit"
+      "title": "[Prep] Unit (lbs, oz, portions\u2026)"
     },
-    "requiresPhoto": {
-      "type": "boolean",
-      "title": "Requires Photo",
-      "default": false
-    },
-    "requiresManagerReview": {
-      "type": "boolean",
-      "title": "Requires Manager Review",
-      "default": false
-    },
-    "isCritical": {
-      "type": "boolean",
-      "title": "Critical Task",
-      "default": false
-    },
-    "sortOrder": {
+    "par_level": {
       "type": "number",
-      "title": "Sort Order",
-      "default": 0
+      "title": "[Prep] Par Level"
     },
-    "instructions": {
+    "recipe_link": {
       "type": "string",
-      "title": "Detailed Instructions"
+      "title": "[Prep] Recipe / Build Card ID"
+    },
+    "cleaning_chemical": {
+      "type": "string",
+      "title": "[Cleaning] Chemical / Tool Needed"
+    },
+    "cleaning_frequency": {
+      "type": "string",
+      "title": "[Cleaning] Frequency (e.g., Daily, Weekly)"
+    },
+    "waste_reason": {
+      "type": "string",
+      "title": "[Waste] Reason"
+    },
+    "waste_quantity": {
+      "type": "number",
+      "title": "[Waste] Quantity"
+    },
+    "waste_unit": {
+      "type": "string",
+      "title": "[Waste] Unit"
+    },
+    "waste_cost_impact": {
+      "type": "number",
+      "title": "[Waste] Cost Impact ($)"
+    },
+    "handoff_question": {
+      "type": "string",
+      "title": "[Handoff] Required Question"
+    },
+    "beo_task_notes": {
+      "type": "string",
+      "title": "[BEO] Task Notes"
     }
   },
   "required": [
