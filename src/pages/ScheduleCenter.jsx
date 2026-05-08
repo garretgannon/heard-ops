@@ -346,146 +346,152 @@ export default function ScheduleCenter() {
   const DEPARTMENTS = ['FOH', 'BOH', 'Bar', 'Management'];
 
   return (
-    <div className="min-h-screen bg-background" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); }}>
+    <div className="min-h-screen bg-background pb-24 lg:pb-0" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); }}>
 
       {/* ── Sticky Header ── */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border/20">
         <div className="px-4 lg:px-6 py-3">
+
           {/* Top row */}
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg font-bold text-foreground">Schedule</h1>
+            <div className="flex items-center gap-2 min-w-0">
+              <h1 className="text-base font-bold text-foreground shrink-0">Schedule</h1>
               <WeekSelector currentWeek={currentWeek} onWeekChange={setCurrentWeek} />
-              <button onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-                className="h-8 px-2.5 rounded-lg border border-border hover:bg-card text-xs font-bold text-muted-foreground transition-colors">
-                Today
-              </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Undo / Redo */}
-              <button onClick={handleUndo} disabled={undoStack.length === 0} title="Undo (⌘Z)"
-                className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors disabled:opacity-30">
-                <RotateCcw className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={handleRedo} disabled={redoStack.length === 0} title="Redo (⌘⇧Z)"
-                className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors disabled:opacity-30">
-                <RotateCw className="h-3.5 w-3.5" />
-              </button>
-
-              <div className="w-px h-5 bg-border/50" />
-
-              <button onClick={() => setShowSearch(s => !s)}
-                className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
-                <Search className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }}
-                className={cn("h-8 px-2.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-colors",
-                  pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border hover:bg-card text-muted-foreground')}>
-                <CalendarOff className="h-3.5 w-3.5" />
-                {pendingTimeOff > 0 ? `${pendingTimeOff} pending` : 'Time Off'}
-              </button>
-
-              {isAdmin && (
-                <button onClick={() => setShowMassAdd(true)}
-                  className="h-8 px-3 rounded-lg bg-primary/15 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/25 transition-all">
-                  <Plus className="h-3.5 w-3.5" /> Mass Add
+            {/* Mobile actions */}
+            {isMobile ? (
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button onClick={() => setShowRequestOff(true)}
+                  className={cn('h-8 w-8 rounded-lg border flex items-center justify-center', pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border bg-card text-muted-foreground')}>
+                  <CalendarOff className="h-3.5 w-3.5" />
                 </button>
-              )}
-
-              <button onClick={handlePublish} disabled={publishing}
-                className={cn("h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60",
-                  draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border bg-card text-muted-foreground')}>
-                <Download className="h-3.5 w-3.5" />
-                {publishing ? 'Publishing…' : draftCount > 0 ? `Publish ${draftCount}` : 'Published'}
-              </button>
-            </div>
+                <button onClick={() => setShowMassAdd(true)}
+                  className="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center">
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={handlePublish} disabled={publishing}
+                  className={cn('h-8 px-3 rounded-lg text-xs font-bold transition-all disabled:opacity-60',
+                    draftCount > 0 ? 'bg-primary text-white' : 'border border-border bg-card text-muted-foreground')}>
+                  {publishing ? '…' : draftCount > 0 ? `Pub ${draftCount}` : '✓ Done'}
+                </button>
+              </div>
+            ) : (
+              /* Desktop actions */
+              <div className="flex items-center gap-2">
+                <button onClick={handleUndo} disabled={undoStack.length === 0} title="Undo (⌘Z)"
+                  className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors disabled:opacity-30">
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={handleRedo} disabled={redoStack.length === 0} title="Redo (⌘⇧Z)"
+                  className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors disabled:opacity-30">
+                  <RotateCw className="h-3.5 w-3.5" />
+                </button>
+                <div className="w-px h-5 bg-border/50" />
+                <button onClick={() => setShowSearch(s => !s)}
+                  className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                  <Search className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }}
+                  className={cn('h-8 px-2.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-colors',
+                    pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border hover:bg-card text-muted-foreground')}>
+                  <CalendarOff className="h-3.5 w-3.5" />
+                  {pendingTimeOff > 0 ? `${pendingTimeOff} pending` : 'Time Off'}
+                </button>
+                {isAdmin && (
+                  <button onClick={() => setShowMassAdd(true)}
+                    className="h-8 px-3 rounded-lg bg-primary/15 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/25 transition-all">
+                    <Plus className="h-3.5 w-3.5" /> Mass Add
+                  </button>
+                )}
+                <button onClick={handlePublish} disabled={publishing}
+                  className={cn('h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60',
+                    draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border bg-card text-muted-foreground')}>
+                  <Download className="h-3.5 w-3.5" />
+                  {publishing ? 'Publishing…' : draftCount > 0 ? `Publish ${draftCount}` : 'Published'}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* KPI row */}
-          <div className="flex items-center gap-3 mb-3 overflow-x-auto pb-0.5">
+          <div className="flex items-center gap-2 mb-3 overflow-x-auto">
             {[
-              { label: 'Total Hours', value: totalHours.toFixed(1) + 'h', icon: Clock, color: 'text-foreground' },
-              { label: 'Employees', value: filteredEmployees.length, icon: Users, color: 'text-foreground' },
+              { label: 'Hours', value: totalHours.toFixed(0) + 'h', icon: Clock, color: 'text-foreground' },
+              { label: 'Staff', value: filteredEmployees.length, icon: Users, color: 'text-foreground' },
               { label: 'Draft', value: draftCount, icon: Calendar, color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground' },
-              { label: 'Conflicts', value: conflictCount, icon: Bell, color: conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground' },
+              { label: 'Issues', value: conflictCount, icon: Bell, color: conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground' },
             ].map(({ label, value, icon: KpiIcon, color }) => (
-              <div key={label} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/30 bg-card/40 shrink-0">
-                <KpiIcon className={cn('h-3.5 w-3.5', color)} />
+              <div key={label} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border/30 bg-card/40 shrink-0">
+                <KpiIcon className={cn('h-3 w-3', color)} />
                 <div>
-                  <p className={cn('text-sm font-bold leading-none', color)}>{value}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+                  <p className={cn('text-xs font-bold leading-none', color)}>{value}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5">{label}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Controls row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }}
-                  className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
-                  <Grid3x3 className="h-3 w-3" /> {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Dept' : 'Role'}
+          {/* Desktop controls */}
+          {!isMobile && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }}
+                    className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
+                    <Grid3x3 className="h-3 w-3" /> {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Dept' : 'Role'}
+                  </button>
+                  {showGroupPanel && (
+                    <div className="absolute top-9 left-0 z-50 w-40 rounded-xl border border-border bg-card shadow-xl p-2 space-y-0.5" onClick={e => e.stopPropagation()}>
+                      {[['employee','Employee'],['department','Department'],['role','Role']].map(([val, label]) => (
+                        <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }}
+                          className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors', groupBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
+                          {groupBy === val && <Check className="h-3 w-3" />}{groupBy !== val && <span className="w-3" />}{label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="relative">
+                  <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); }}
+                    className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
+                    <Filter className="h-3 w-3" /> Filter {filterDepts.length > 0 && `(${filterDepts.length})`}
+                  </button>
+                  {showFilterPanel && (
+                    <div className="absolute top-9 left-0 z-50 w-44 rounded-xl border border-border bg-card shadow-xl p-2 space-y-0.5" onClick={e => e.stopPropagation()}>
+                      {DEPARTMENTS.map(d => (
+                        <button key={d} onClick={() => setFilterDepts(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d])}
+                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-foreground hover:bg-secondary transition-colors">
+                          <div className={cn('h-3.5 w-3.5 rounded border flex items-center justify-center', filterDepts.includes(d) ? 'bg-primary border-primary' : 'border-border')}>
+                            {filterDepts.includes(d) && <Check className="h-2 w-2 text-white" />}
+                          </div>
+                          {d}
+                        </button>
+                      ))}
+                      {filterDepts.length > 0 && <button onClick={() => setFilterDepts([])} className="w-full mt-1 text-[10px] text-primary hover:underline">Clear</button>}
+                    </div>
+                  )}
+                </div>
+                <button onClick={() => navigate('/templates')}
+                  className="h-7 px-2.5 rounded-lg border border-border hover:bg-card text-[11px] font-bold text-muted-foreground flex items-center gap-1 transition-colors">
+                  <LayoutTemplate className="h-3 w-3" /> Templates
                 </button>
-                {showGroupPanel && (
-                  <div className="absolute top-9 left-0 z-50 w-40 rounded-xl border border-border bg-card shadow-xl p-2 space-y-0.5" onClick={e => e.stopPropagation()}>
-                    {[['employee','Employee'],['department','Department'],['role','Role']].map(([val, label]) => (
-                      <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }}
-                        className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors', groupBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
-                        {groupBy === val && <Check className="h-3 w-3" />}{groupBy !== val && <span className="w-3" />}{label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="relative">
-                <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); }}
-                  className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
-                  <Filter className="h-3 w-3" /> Filter {filterDepts.length > 0 && `(${filterDepts.length})`}
+                <button onClick={() => setShowShortcuts(p => !p)}
+                  className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
+                  <Keyboard className="h-3 w-3" /> Shortcuts
                 </button>
-                {showFilterPanel && (
-                  <div className="absolute top-9 left-0 z-50 w-44 rounded-xl border border-border bg-card shadow-xl p-2 space-y-0.5" onClick={e => e.stopPropagation()}>
-                    {DEPARTMENTS.map(d => (
-                      <button key={d} onClick={() => setFilterDepts(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d])}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-foreground hover:bg-secondary transition-colors">
-                        <div className={cn('h-3.5 w-3.5 rounded border flex items-center justify-center', filterDepts.includes(d) ? 'bg-primary border-primary' : 'border-border')}>
-                          {filterDepts.includes(d) && <Check className="h-2 w-2 text-white" />}
-                        </div>
-                        {d}
-                      </button>
-                    ))}
-                    {filterDepts.length > 0 && <button onClick={() => setFilterDepts([])} className="w-full mt-1 text-[10px] text-primary hover:underline">Clear</button>}
-                  </div>
-                )}
               </div>
-
-              <button onClick={() => navigate('/templates')}
-                className="h-7 px-2.5 rounded-lg border border-border hover:bg-card text-[11px] font-bold text-muted-foreground flex items-center gap-1 transition-colors">
-                <LayoutTemplate className="h-3 w-3" /> Templates
-              </button>
-
-              <button onClick={() => setShowShortcuts(p => !p)}
-                className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
-                <Keyboard className="h-3 w-3" /> Shortcuts
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                  <RefreshCw className="h-3 w-3" />
+                </button>
+              </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
-                <RefreshCw className="h-3 w-3" />
-              </button>
-              <button onClick={() => setViewMode(v => v === 'today' ? 'weekly' : 'today')}
-                className={cn('h-7 w-7 rounded-lg border flex items-center justify-center transition-colors', viewMode === 'today' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
-                <Calendar className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Search */}
-        {showSearch && (
+        {/* Search (desktop) */}
+        {showSearch && !isMobile && (
           <div className="px-6 py-2 border-t border-border/20 flex items-center gap-2 bg-background/90">
             <Search className="h-3.5 w-3.5 text-muted-foreground" />
             <input autoFocus type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
@@ -494,14 +500,11 @@ export default function ScheduleCenter() {
           </div>
         )}
 
-        {/* Keyboard shortcuts help */}
-        {showShortcuts && (
+        {/* Keyboard shortcuts */}
+        {showShortcuts && !isMobile && (
           <div className="px-6 py-3 border-t border-border/20 bg-card/50" onClick={e => e.stopPropagation()}>
             <div className="flex flex-wrap gap-x-6 gap-y-1.5">
-              {[
-                ['⌘C', 'Copy shift'], ['⌘V', 'Paste shift'], ['⌘D', 'Duplicate'], ['⌘Z', 'Undo'], ['⌘⇧Z', 'Redo'],
-                ['Del', 'Delete selected'], ['Esc', 'Clear selection'], ['Click cell', 'Add shift'], ['Right-click', 'Context menu'],
-              ].map(([key, label]) => (
+              {[['⌘C','Copy'],['⌘V','Paste'],['⌘D','Duplicate'],['⌘Z','Undo'],['⌘⇧Z','Redo'],['Del','Delete'],['Esc','Clear']].map(([key, label]) => (
                 <div key={key} className="flex items-center gap-1.5 text-xs">
                   <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border/50 text-[10px] font-mono font-bold text-foreground">{key}</kbd>
                   <span className="text-muted-foreground">{label}</span>
@@ -513,39 +516,33 @@ export default function ScheduleCenter() {
       </div>
 
       {/* ── Main Content ── */}
-      <div className="px-4 lg:px-6 py-4">
+      <div className="px-3 lg:px-6 py-3">
         {loading && (
           <div className="flex items-center justify-center py-16">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
-        {!loading && viewMode === 'today' && <TodayShiftView shifts={shifts} />}
-
-        {!loading && viewMode === 'weekly' && (
-          <ScheduleGrid
-            shifts={shifts}
-            employees={filteredEmployees}
-            weekDays={weekDays}
-            selectedShiftIds={selectedShiftIds}
-            onSelectShift={(shift) => { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); }}
-            onSelectShifts={setSelectedShiftIds}
-            shiftConflicts={shiftConflicts}
-            timeOffRequests={timeOffRequests}
-            availability={availability}
-            onDragEnd={handleDragEnd}
-            onAddShift={(emp, day) => setQuickAdd({ employee: emp, day })}
-            onShiftContextMenu={(shift, emp, day, x, y) => setContextMenu({ shift, employee: emp, day, x, y })}
-            onEmptyCellContextMenu={(emp, day, x, y) => setContextMenu({ shift: null, employee: emp, day, x, y })}
-            isMobile={isMobile}
-            groupBy={groupBy}
-          />
-        )}
+        {!loading && <ScheduleGrid
+          shifts={shifts}
+          employees={filteredEmployees}
+          weekDays={weekDays}
+          selectedShiftIds={selectedShiftIds}
+          onSelectShift={(shift) => { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); }}
+          onSelectShifts={setSelectedShiftIds}
+          shiftConflicts={shiftConflicts}
+          timeOffRequests={timeOffRequests}
+          availability={availability}
+          onDragEnd={handleDragEnd}
+          onAddShift={(emp, day) => setQuickAdd({ employee: emp, day })}
+          onShiftContextMenu={(shift, emp, day, x, y) => setContextMenu({ shift, employee: emp, day, x, y })}
+          onEmptyCellContextMenu={(emp, day, x, y) => setContextMenu({ shift: null, employee: emp, day, x, y })}
+          isMobile={isMobile}
+          groupBy={groupBy}
+        />}
       </div>
 
-      {/* ── Modals & Overlays ── */}
-
-      {/* Shift Detail */}
+      {/* ── Overlays ── */}
       <AnimatePresence>
         {selectedShiftDetail && (
           <ShiftDetailDrawer
@@ -560,7 +557,6 @@ export default function ScheduleCenter() {
         )}
       </AnimatePresence>
 
-      {/* Bulk Toolbar */}
       <AnimatePresence>
         {selectedShiftIds.length > 0 && !selectedShiftDetail && (
           <BulkActionToolbar
@@ -574,11 +570,9 @@ export default function ScheduleCenter() {
         )}
       </AnimatePresence>
 
-      {/* Context Menu */}
       {contextMenu && (
         <ShiftContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
+          x={contextMenu.x} y={contextMenu.y}
           shift={contextMenu.shift}
           hasClipboard={!!clipboard}
           onEdit={() => { if (contextMenu.shift) setSelectedShiftDetail(contextMenu.shift); else setQuickAdd({ employee: contextMenu.employee, day: contextMenu.day }); }}
@@ -591,7 +585,6 @@ export default function ScheduleCenter() {
         />
       )}
 
-      {/* Quick Add */}
       {quickAdd && (
         <QuickAddShiftModal
           employee={quickAdd.employee}
@@ -601,7 +594,6 @@ export default function ScheduleCenter() {
         />
       )}
 
-      {/* Mass Add */}
       {showMassAdd && (
         <MassAddModal
           employees={employees}
@@ -611,7 +603,6 @@ export default function ScheduleCenter() {
         />
       )}
 
-      {/* Request Off Panel */}
       {showRequestOff && (
         <RequestOffPanel employees={employees} onClose={() => setShowRequestOff(false)} />
       )}
