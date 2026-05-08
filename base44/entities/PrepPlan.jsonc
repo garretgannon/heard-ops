@@ -1,0 +1,135 @@
+{
+  "name": "PrepPlan",
+  "type": "object",
+  "properties": {
+    "inventory_count_id": {
+      "type": "string",
+      "title": "Inventory Count ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Prep Plan Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "ready_for_review",
+        "approved",
+        "tasks_generated",
+        "rejected"
+      ],
+      "default": "ready_for_review"
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By (Email)"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "title": "Reviewed By (Email, optional)"
+    },
+    "items": {
+      "type": "array",
+      "title": "Calculated Prep Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "template_id": {
+            "type": "string",
+            "title": "Prep Plan Template ID"
+          },
+          "item_name": {
+            "type": "string",
+            "title": "Item Name"
+          },
+          "par_quantity": {
+            "type": "number",
+            "title": "Par Quantity"
+          },
+          "on_hand_quantity": {
+            "type": "number",
+            "title": "On-Hand Quantity"
+          },
+          "beo_addon_quantity": {
+            "type": "number",
+            "title": "BEO/Event Add-on Quantity"
+          },
+          "manager_adjustment_quantity": {
+            "type": "number",
+            "title": "Manager Adjustment Quantity"
+          },
+          "recommended_prep": {
+            "type": "number",
+            "title": "Recommended Prep"
+          },
+          "final_prep_quantity": {
+            "type": "number",
+            "title": "Final Prep Quantity (rounded)"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Calculation Logic"
+          },
+          "linked_recipe_id": {
+            "type": "string",
+            "title": "Linked Recipe ID"
+          },
+          "requires_photo": {
+            "type": "boolean",
+            "title": "Requires Photo"
+          },
+          "requires_manager_review": {
+            "type": "boolean",
+            "title": "Requires Manager Review"
+          },
+          "assigned_role": {
+            "type": "string",
+            "title": "Assigned Role"
+          },
+          "assigned_employee": {
+            "type": "string",
+            "title": "Assigned Employee (Email)"
+          },
+          "approved": {
+            "type": "boolean",
+            "title": "Approved",
+            "default": true
+          },
+          "generated_task_id": {
+            "type": "string",
+            "title": "Generated Task ID"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "title": "Plan Notes"
+    }
+  },
+  "required": [
+    "inventory_count_id",
+    "date",
+    "shift",
+    "station"
+  ]
+}

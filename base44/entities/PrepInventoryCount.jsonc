@@ -1,0 +1,78 @@
+{
+  "name": "PrepInventoryCount",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Count Date"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    },
+    "station": {
+      "type": "string",
+      "title": "Station"
+    },
+    "counted_by": {
+      "type": "string",
+      "title": "Counted By (Email)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "in_progress",
+        "submitted",
+        "needs_review",
+        "approved",
+        "tasks_generated"
+      ],
+      "default": "in_progress"
+    },
+    "items": {
+      "type": "array",
+      "title": "Counted Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "template_id": {
+            "type": "string",
+            "title": "Prep Plan Template ID"
+          },
+          "item_name": {
+            "type": "string",
+            "title": "Item Name"
+          },
+          "on_hand_quantity": {
+            "type": "number",
+            "title": "On-Hand Quantity"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Count Notes"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "title": "Count Session Notes"
+    }
+  },
+  "required": [
+    "date",
+    "shift",
+    "station"
+  ]
+}

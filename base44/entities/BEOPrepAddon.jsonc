@@ -1,0 +1,62 @@
+{
+  "name": "BEOPrepAddon",
+  "type": "object",
+  "properties": {
+    "beo_id": {
+      "type": "string",
+      "title": "BEO / Event ID"
+    },
+    "event_name": {
+      "type": "string",
+      "title": "Event Name"
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Event Date"
+    },
+    "prep_template_id": {
+      "type": "string",
+      "title": "Prep Plan Template ID"
+    },
+    "item_name": {
+      "type": "string",
+      "title": "Prep Item Name"
+    },
+    "quantity_needed": {
+      "type": "number",
+      "title": "Quantity Needed"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit"
+    },
+    "shift": {
+      "type": "string",
+      "title": "Shift",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "beo_id",
+    "event_name",
+    "event_date",
+    "prep_template_id",
+    "item_name",
+    "quantity_needed",
+    "unit"
+  ]
+}

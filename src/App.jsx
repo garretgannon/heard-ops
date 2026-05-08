@@ -50,6 +50,10 @@ import Training from './pages/Training';
 import MSDS from './pages/MSDS';
 
 import PrepTemplatesManager from './pages/PrepTemplatesManager';
+import PrepPlanning from './pages/PrepPlanning';
+import PrepInventoryCounter from './pages/PrepInventoryCounter';
+import PrepPlanReview from './pages/PrepPlanReview';
+import PrepPlanTemplatesManager from './pages/PrepPlanTemplatesManager';
 import SideWorkTemplates from './pages/SideWorkTemplates';
 import CleaningTemplates from './pages/CleaningTemplates';
 import TemperatureLogTemplates from './pages/TemperatureLogTemplates';
@@ -150,12 +154,17 @@ const AuthenticatedApp = () => {
         {/* TEMPLATE ROUTES (Admin) */}
         <Route path="/prep-templates" element={<PrepTemplatesManager />} />
         <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
+        <Route path="/prep-plan-templates" element={<PrepPlanTemplatesManager />} />
         <Route path="/side-work-templates" element={<SideWorkTemplates />} />
         <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
         <Route path="/waste-templates" element={<WasteTemplates />} />
         <Route path="/86-templates" element={<EightySixTemplates />} />
 
         {/* OPERATIONS (Secondary) */}
+        <Route path="/prep-planning" element={<PrepPlanning />} />
+        <Route path="/prep-count" element={<PrepInventoryCounter />} />
+        <Route path="/prep-count/:id" element={<PrepInventoryCounter />} />
+        <Route path="/prep-plan/:id" element={<PrepPlanReview />} />
         <Route path="/issues" element={<Navigate to="/logs?type=incident" replace />} />
         <Route path="/schedule" element={<ScheduleCenter />} />
         <Route path="/inventory" element={<InventorySimplified />} />
