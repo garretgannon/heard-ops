@@ -32,10 +32,7 @@ export default function Landing() {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/5902f730e_HeardOS_app_icon_H_pulse_1024.png" alt="HeardOS" className="h-8 w-8" />
-            <span className="font-bold text-lg"><span className="text-primary">heard</span>OS</span>
-          </div>
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/786999293_HeardOS_horizontal_logo.svg" alt="HeardOS" className="h-8" />
           <Button variant="outline" size="sm" onClick={() => base44.auth.redirectToLogin()}>Sign In</Button>
         </div>
       </header>

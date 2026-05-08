@@ -5,7 +5,7 @@ import { Activity, TrendingUp, Clock, AlertCircle } from 'lucide-react';
  import DesktopPageHeader from '@/components/DesktopPageHeader';
  import StatusBadge from '@/components/pulse/StatusBadge';
 
- const PULSE_ICON_URL = 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/c3a1ddfd3_HeardOS_app_icon_pulse_1024.png';
+ const PULSE_ICON_URL = 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg';
 
 export default function Pulse() {
   const { user } = useCurrentUser();

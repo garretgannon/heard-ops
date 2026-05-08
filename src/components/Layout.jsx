@@ -111,13 +111,8 @@ export default function Layout() {
         }}
       >
         <div className="flex-1 flex items-center gap-2">
-          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/b1b52980c_HeardOS_app_icon_pulse_58.png" alt="HeardOS" className="h-7 w-7" />
-          <div>
-            <div className="font-extrabold text-[18px] tracking-tight leading-none" style={{ color: '#F8FAFC' }}>
-              Heard<span style={{ color: '#E66A1F' }}>OS</span>
-            </div>
-            <div className="text-[9px] font-bold tracking-widest" style={{ color: '#94A3B8', letterSpacing: '0.12em' }}>OPS SYSTEM</div>
-          </div>
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-7" />
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/eb8a9fa4d_HeardOS_wordmark_no_tagline.svg" alt="HeardOS" className="h-6" />
         </div>
         <div className="flex items-center gap-1.5">
           <Link to="/logs" className="relative h-9 w-9 flex items-center justify-center rounded-xl transition-colors" style={{ background: 'rgba(230,106,31,0.08)' }}>
@@ -139,7 +134,7 @@ export default function Layout() {
       >
         {/* Logo / Brand */}
         <div className={cn("flex items-center border-b border-border/30 shrink-0", collapsed ? "px-3 py-4 justify-center" : "px-4 py-4 gap-3")}>
-          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/b1b52980c_HeardOS_app_icon_pulse_58.png" alt="HeardOS" className="h-8 w-8 rounded-xl shrink-0" />
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-8 rounded-xl shrink-0" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <h1 className="font-extrabold text-[15px] tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
