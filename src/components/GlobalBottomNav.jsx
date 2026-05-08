@@ -70,16 +70,17 @@ export default function GlobalBottomNav() {
       className="fixed bottom-0 left-0 right-0 z-[999] flex justify-center items-end pointer-events-none"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {/* Premium Floating Dock Container */}
+      {/* Premium Floating Glass Dock */}
       <div
-        className="pointer-events-auto mb-5 mx-4 px-3 py-3 rounded-2xl border border-border/20 shadow-2xl flex justify-center items-center gap-2"
+        className="pointer-events-auto mb-5 mx-4 px-2 py-3 rounded-3xl border flex justify-center items-center gap-1 transition-all duration-300"
         style={{
           width: 'calc(100% - 2rem)',
           maxWidth: '100%',
-          background: 'rgba(11, 15, 20, 0.75)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+          background: 'rgba(11, 15, 20, 0.85)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderColor: 'rgba(230, 106, 31, 0.15)',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(230, 106, 31, 0.1)',
         }}
       >
         {navConfig.map(({ label, path, icon, id }) => {

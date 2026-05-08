@@ -1,43 +1,63 @@
-import { haptics } from '@/utils/haptics';
+import { useEffect, useState } from 'react';
+import { Home, Activity, FileText, Users, MoreHorizontal, Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export default function NavItem({ icon: Icon, label, isActive, onClick }) {
+const ICON_MAP = {
+  home: Home,
+  activity: Activity,
+  filetext: FileText,
+  users: Users,
+  more: MoreHorizontal,
+  zap: Zap,
+};
+
+export default function NavItem({ icon, label, isActive, onClick }) {
+  const Icon = icon || Home;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <button
-      onClick={() => {
-        haptics.medium?.();
-        onClick?.();
-      }}
-      className="relative flex flex-col items-center justify-center gap-1 px-4 py-2.5 rounded-xl transition-all duration-300 active:scale-90 group"
+      onClick={onClick}
+      className={cn(
+        'flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200',
+        isActive
+          ? 'scale-110'
+          : 'hover:scale-105 active:scale-95'
+      )}
       style={{
-        background: isActive ? 'rgba(230, 106, 31, 0.15)' : 'transparent',
+        background: isActive
+          ? 'rgba(230, 106, 31, 0.15)'
+          : 'transparent',
+        boxShadow: isActive
+          ? '0 0 16px rgba(230, 106, 31, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1)'
+          : 'none',
       }}
     >
-      {/* Active glow backdrop */}
-      {isActive && (
-        <div className="absolute inset-0 rounded-xl opacity-20 blur-lg bg-primary animate-pulse" />
-      )}
-
-      {/* Icon */}
       <Icon
-        className={`h-6 w-6 transition-all duration-300 ${
-          isActive ? 'text-primary scale-110' : 'text-muted-foreground group-hover:text-foreground'
-        }`}
-        strokeWidth={1.5}
+        className={cn(
+          'h-6 w-6 transition-all duration-200',
+          isActive
+            ? 'text-primary'
+            : 'text-muted-foreground'
+        )}
+        strokeWidth={isActive ? 2.5 : 2}
       />
-
-      {/* Label */}
       <span
-        className={`text-[11px] font-bold tracking-tight leading-none transition-all duration-300 ${
-          isActive ? 'text-primary scale-105' : 'text-muted-foreground group-hover:text-foreground'
-        }`}
+        className={cn(
+          'text-xs font-bold transition-colors duration-200',
+          isActive
+            ? 'text-primary'
+            : 'text-muted-foreground'
+        )}
       >
         {label}
       </span>
-
-      {/* Active indicator dot (subtle) */}
-      {isActive && (
-        <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-primary animate-pulse" />
-      )}
     </button>
   );
 }
