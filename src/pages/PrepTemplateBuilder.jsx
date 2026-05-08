@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Plus, Trash2, Copy, ChevronUp, ChevronDown, Save, X } from 'lucide-react';
+import { Plus, Trash2, Copy, GripVertical, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -100,13 +101,14 @@ export default function PrepTemplateBuilder() {
     toast.success('Item duplicated');
   };
 
-  const moveRow = (idx, direction) => {
+  const handleDragEnd = (result) => {
+    const { source, destination } = result;
+    if (!destination) return;
+    if (source.index === destination.index) return;
+    
     const items = [...(template.items || [])];
-    if (direction === 'up' && idx > 0) {
-      [items[idx], items[idx - 1]] = [items[idx - 1], items[idx]];
-    } else if (direction === 'down' && idx < items.length - 1) {
-      [items[idx], items[idx + 1]] = [items[idx + 1], items[idx]];
-    }
+    const [movedItem] = items.splice(source.index, 1);
+    items.splice(destination.index, 0, movedItem);
     setTemplate(p => ({ ...p, items }));
   };
 
@@ -256,93 +258,110 @@ export default function PrepTemplateBuilder() {
           </div>
 
           {template.items && template.items.length > 0 && (
-            <div className="overflow-x-auto border border-border/30 rounded-lg">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-border/30 bg-background/50">
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Item / Section</th>
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Par</th>
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Unit</th>
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Priority</th>
-                    <th className="px-3 py-2 text-center font-bold text-foreground">Photo</th>
-                    <th className="px-3 py-2 text-center font-bold text-foreground">Count</th>
-                    <th className="px-3 py-2 text-center font-bold text-foreground">Active</th>
-                    <th className="px-3 py-2 text-center font-bold text-foreground">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {template.items.map((item, idx) => {
-                    if (item.is_header) {
-                      return (
-                        <tr key={idx} className="border-b-2 border-primary/30 bg-primary/10 hover:bg-primary/15">
-                          <td colSpan="8" className="px-3 py-3 font-bold text-primary text-sm uppercase tracking-wide">
-                            {item.item_name}
-                          </td>
-                        </tr>
-                      );
-                    }
-                    return (
-                      <tr key={idx} className="border-b border-border/30 hover:bg-background/50">
-                        <td className="px-3 py-2 font-semibold text-foreground">{item.item_name}</td>
-                        <td className="px-3 py-2 text-muted-foreground">{item.par_quantity}</td>
-                        <td className="px-3 py-2 text-muted-foreground">{item.unit}</td>
-                        <td className="px-3 py-2 text-muted-foreground text-[10px] capitalize">{item.priority || 'medium'}</td>
-                        <td className="px-3 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={item.requires_photo}
-                            onChange={e => {
-                              const items = [...template.items];
-                              items[idx].requires_photo = e.target.checked;
-                              setTemplate(p => ({ ...p, items }));
-                            }}
-                            className="rounded border-border"
-                          />
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={item.requires_inventory_count}
-                            onChange={e => {
-                              const items = [...template.items];
-                              items[idx].requires_inventory_count = e.target.checked;
-                              setTemplate(p => ({ ...p, items }));
-                            }}
-                            className="rounded border-border"
-                          />
-                        </td>
-                        <td className="px-3 py-2 text-center">
-                          <input
-                            type="checkbox"
-                            checked={item.is_active}
-                            onChange={e => {
-                              const items = [...template.items];
-                              items[idx].is_active = e.target.checked;
-                              setTemplate(p => ({ ...p, items }));
-                            }}
-                            className="rounded border-border"
-                          />
-                        </td>
-                        <td className="px-3 py-2 text-center flex items-center justify-center gap-1">
-                          <button onClick={() => moveRow(idx, 'up')} disabled={idx === 0} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move up">
-                            <ChevronUp className="h-3 w-3" />
-                          </button>
-                          <button onClick={() => moveRow(idx, 'down')} disabled={idx === template.items.length - 1} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move down">
-                            <ChevronDown className="h-3 w-3" />
-                          </button>
-                          <button onClick={() => duplicateRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Duplicate">
-                            <Copy className="h-3 w-3" />
-                          </button>
-                          <button onClick={() => deleteRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <div className="overflow-x-auto border border-border/30 rounded-lg">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-border/30 bg-background/50">
+                      <th className="px-2 py-2 text-center font-bold text-foreground w-8"></th>
+                      <th className="px-3 py-2 text-left font-bold text-foreground">Item / Section</th>
+                      <th className="px-3 py-2 text-left font-bold text-foreground">Par</th>
+                      <th className="px-3 py-2 text-left font-bold text-foreground">Unit</th>
+                      <th className="px-3 py-2 text-left font-bold text-foreground">Priority</th>
+                      <th className="px-3 py-2 text-center font-bold text-foreground">Photo</th>
+                      <th className="px-3 py-2 text-center font-bold text-foreground">Count</th>
+                      <th className="px-3 py-2 text-center font-bold text-foreground">Active</th>
+                      <th className="px-3 py-2 text-center font-bold text-foreground">Actions</th>
+                    </tr>
+                  </thead>
+                  <Droppable droppableId="items-list">
+                    {(provided, snapshot) => (
+                      <tbody {...provided.droppableProps} ref={provided.innerRef} className={snapshot.isDraggingOver ? 'bg-primary/5' : ''}>
+                        {template.items.map((item, idx) => (
+                          <Draggable key={`item-${idx}`} draggableId={`item-${idx}`} index={idx}>
+                            {(provided, snapshot) => (
+                              <tr
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`border-b border-border/30 hover:bg-background/50 ${
+                                  snapshot.isDragging ? 'bg-primary/20 shadow-lg' : ''
+                                }`}
+                              >
+                                {item.is_header ? (
+                                  <>
+                                    <td className="px-2 py-3" {...provided.dragHandleProps}>
+                                      <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                                    </td>
+                                    <td colSpan="8" className="px-3 py-3 font-bold text-primary text-sm uppercase tracking-wide">
+                                      {item.item_name}
+                                    </td>
+                                  </>
+                                ) : (
+                                  <>
+                                    <td className="px-2 py-2 text-center" {...provided.dragHandleProps}>
+                                      <GripVertical className="h-3.5 w-3.5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+                                    </td>
+                                    <td className="px-3 py-2 font-semibold text-foreground">{item.item_name}</td>
+                                    <td className="px-3 py-2 text-muted-foreground">{item.par_quantity}</td>
+                                    <td className="px-3 py-2 text-muted-foreground">{item.unit}</td>
+                                    <td className="px-3 py-2 text-muted-foreground text-[10px] capitalize">{item.priority || 'medium'}</td>
+                                    <td className="px-3 py-2 text-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={item.requires_photo}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].requires_photo = e.target.checked;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="rounded border-border"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 text-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={item.requires_inventory_count}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].requires_inventory_count = e.target.checked;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="rounded border-border"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 text-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={item.is_active}
+                                        onChange={e => {
+                                          const items = [...template.items];
+                                          items[idx].is_active = e.target.checked;
+                                          setTemplate(p => ({ ...p, items }));
+                                        }}
+                                        className="rounded border-border"
+                                      />
+                                    </td>
+                                    <td className="px-3 py-2 text-center flex items-center justify-center gap-1">
+                                      <button onClick={() => duplicateRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Duplicate">
+                                        <Copy className="h-3 w-3" />
+                                      </button>
+                                      <button onClick={() => deleteRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
+                                        <Trash2 className="h-3 w-3" />
+                                      </button>
+                                    </td>
+                                  </>
+                                )}
+                              </tr>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </tbody>
+                    )}
+                  </Droppable>
+                </table>
+              </div>
+            </DragDropContext>
           )}
 
           {/* Add Row Form */}
