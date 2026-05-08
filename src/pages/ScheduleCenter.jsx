@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { addDays, startOfWeek, format, isSameDay, parseISO } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import LaborSummaryCards from '@/components/schedule/LaborSummaryCards';
+
 import ScheduleGrid from '@/components/schedule/ScheduleGrid';
 import EmployeeSidebar from '@/components/schedule/EmployeeSidebar';
 import ShiftDetailDrawer from '@/components/schedule/ShiftDetailDrawer';
@@ -179,16 +179,8 @@ export default function ScheduleCenter() {
             </div>
           </div>
 
-          {/* Metrics Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-muted-foreground font-medium">Total Labor Cost</p>
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-              </div>
-              <p className="text-lg font-bold text-foreground">$12,746</p>
-              <p className="text-xs text-muted-foreground mt-1">18.7% of sales ↑</p>
-            </div>
+          {/* KPI Row (Single Metrics) */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
             <div className="p-3 rounded-lg border border-border/30 bg-card/40">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs text-muted-foreground font-medium">Scheduled Hours</p>
@@ -196,6 +188,14 @@ export default function ScheduleCenter() {
               </div>
               <p className="text-lg font-bold text-foreground">328.5</p>
               <p className="text-xs text-green-400 mt-1">+ 22.5 vs last week</p>
+            </div>
+            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground font-medium">Labor Cost</p>
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold text-foreground">$12,746</p>
+              <p className="text-xs text-muted-foreground mt-1">18.7% of sales</p>
             </div>
             <div className="p-3 rounded-lg border border-border/30 bg-card/40">
               <div className="flex items-center justify-between mb-1">
@@ -207,19 +207,19 @@ export default function ScheduleCenter() {
             </div>
             <div className="p-3 rounded-lg border border-border/30 bg-card/40">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-muted-foreground font-medium">Labor Target</p>
-                <Target className="h-3.5 w-3.5 text-muted-foreground" />
-              </div>
-              <p className="text-lg font-bold text-foreground">18.0%</p>
-              <p className="text-xs text-green-400 mt-1">On Target ✓</p>
-            </div>
-            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-xs text-muted-foreground font-medium">Projected Labor</p>
+                <p className="text-xs text-muted-foreground font-medium">Projected Labor %</p>
                 <Users className="h-3.5 w-3.5 text-muted-foreground" />
               </div>
               <p className="text-lg font-bold text-foreground">17.6%</p>
-              <p className="text-xs text-green-400 mt-1">On Target ✓</p>
+              <p className="text-xs text-green-400 mt-1">vs target 18.0%</p>
+            </div>
+            <div className="p-3 rounded-lg border border-border/30 bg-card/40">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground font-medium">Alerts</p>
+                <Zap className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold text-foreground">2</p>
+              <p className="text-xs text-amber-400 mt-1">Scheduling issues</p>
             </div>
           </div>
 
@@ -326,16 +326,11 @@ export default function ScheduleCenter() {
           transition={{ duration: 0.15 }}
           className="px-4 lg:px-8 py-6"
         >
-          {/* Labor Summary */}
-          {viewMode === 'weekly' && (
-            <div className="mb-8">
-              <LaborSummaryCards shifts={shifts} weekDays={weekDays} />
-            </div>
-          )}
+
 
           {/* Today View */}
           {viewMode === 'today' && (
-            <div className="mb-8">
+            <div className="mb-4">
               <TodayShiftView shifts={shifts} />
             </div>
           )}
