@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Activity, TrendingUp, Clock, AlertCircle } from 'lucide-react';
-import DesktopPageHeader from '@/components/DesktopPageHeader';
-import StatusBadge from '@/components/pulse/StatusBadge';
+ import DesktopPageHeader from '@/components/DesktopPageHeader';
+ import StatusBadge from '@/components/pulse/StatusBadge';
+
+ const PULSE_ICON_URL = 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/c3a1ddfd3_HeardOS_app_icon_pulse_1024.png';
 
 export default function Pulse() {
   const { user } = useCurrentUser();
@@ -53,8 +55,14 @@ export default function Pulse() {
   }
 
   return (
-    <div className="pb-32 bg-background min-h-screen">
-      <DesktopPageHeader title="Pulse" subtitle="Real-time operational health" />
+     <div className="pb-32 bg-background min-h-screen">
+       <div className="border-b border-border/20 px-4 lg:px-8 py-4 flex items-center gap-3">
+         <img src={PULSE_ICON_URL} alt="Pulse" className="h-8 w-8" />
+         <div>
+           <h1 className="font-bold text-xl">Pulse</h1>
+           <p className="text-xs text-muted-foreground">Real-time operational health</p>
+         </div>
+       </div>
 
       <div className="px-4 py-6 lg:px-8 max-w-6xl mx-auto space-y-6">
         {/* Operational Health Grid */}

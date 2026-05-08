@@ -110,11 +110,14 @@ export default function Layout() {
           borderBottom: "1px solid #2A3441",
         }}
       >
-        <div className="flex-1">
-          <div className="font-extrabold text-[18px] tracking-tight leading-none" style={{ color: '#F8FAFC' }}>
-            Heard<span style={{ color: '#E66A1F' }}>OS</span>
+        <div className="flex-1 flex items-center gap-2">
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/b1b52980c_HeardOS_app_icon_pulse_58.png" alt="HeardOS" className="h-7 w-7" />
+          <div>
+            <div className="font-extrabold text-[18px] tracking-tight leading-none" style={{ color: '#F8FAFC' }}>
+              Heard<span style={{ color: '#E66A1F' }}>OS</span>
+            </div>
+            <div className="text-[9px] font-bold tracking-widest" style={{ color: '#94A3B8', letterSpacing: '0.12em' }}>OPS SYSTEM</div>
           </div>
-          <div className="text-[9px] font-bold tracking-widest mt-0.5" style={{ color: '#94A3B8', letterSpacing: '0.12em' }}>RESTAURANT OPERATIONS SYSTEM</div>
         </div>
         <div className="flex items-center gap-1.5">
           <Link to="/logs" className="relative h-9 w-9 flex items-center justify-center rounded-xl transition-colors" style={{ background: 'rgba(230,106,31,0.08)' }}>
@@ -136,13 +139,7 @@ export default function Layout() {
       >
         {/* Logo / Brand */}
         <div className={cn("flex items-center border-b border-border/30 shrink-0", collapsed ? "px-3 py-4 justify-center" : "px-4 py-4 gap-3")}>
-          <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center overflow-hidden shadow-lg shadow-primary/20 shrink-0">
-            {logoUrl ? (
-              <img src={logoUrl} alt="logo" className="h-8 w-8 object-cover" />
-            ) : (
-              <ChefHat className="h-4 w-4 text-primary-foreground" />
-            )}
-          </div>
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/b1b52980c_HeardOS_app_icon_pulse_58.png" alt="HeardOS" className="h-8 w-8 rounded-xl shrink-0" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <h1 className="font-extrabold text-[15px] tracking-tight text-foreground">Heard<span className="text-primary">OS</span></h1>
