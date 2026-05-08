@@ -8,6 +8,7 @@ import DirectoryView from '@/components/team/DirectoryView';
 import ScheduleView from '@/components/team/ScheduleView';
 import MessagesView from '@/components/team/MessagesView';
 import RolesView from '@/components/team/RolesView';
+import AddEmployeeModal from '@/components/team/AddEmployeeModal';
 
 export default function TeamCenter() {
   const { user, isAdmin, isFOH } = useCurrentUser();
@@ -18,29 +19,29 @@ export default function TeamCenter() {
   const [schedules, setSchedules] = useState([]);
   const [roles, setRoles] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [showAddEmployee, setShowAddEmployee] = useState(false);
   const isMounted = useRef(true);
+
+  const loadData = async () => {
+    try {
+      const [empData, rolesData] = await Promise.all([
+        base44.entities.Employee.list('full_name', 100).catch(() => []),
+        base44.entities.Role?.list?.() || [],
+      ]);
+      if (isMounted.current) {
+        setEmployees(empData);
+        setRoles(rolesData || []);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Failed to load team data:', err);
+      if (isMounted.current) setLoading(false);
+    }
+  };
 
   // Load team data
   useEffect(() => {
     isMounted.current = true;
-    const loadData = async () => {
-      try {
-        const [empData, rolesData] = await Promise.all([
-          base44.entities.Employee.list('full_name', 100).catch(() => []),
-          base44.entities.Role?.list?.() || [],
-        ]);
-
-        if (isMounted.current) {
-          setEmployees(empData);
-          setRoles(rolesData || []);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Failed to load team data:', err);
-        if (isMounted.current) setLoading(false);
-      }
-    };
-
     loadData();
     return () => {
       isMounted.current = false;
@@ -73,7 +74,7 @@ export default function TeamCenter() {
       <TeamCommandHeader
         searchQuery={searchQuery}
         onSearch={setSearchQuery}
-        onAddEmployee={() => toast.info('Add employee coming soon')}
+        onAddEmployee={() => setShowAddEmployee(true)}
         canAdd={isAdmin}
       />
 
@@ -120,6 +121,13 @@ export default function TeamCenter() {
           />
         )}
       </div>
+
+      {showAddEmployee && (
+        <AddEmployeeModal
+          onClose={() => setShowAddEmployee(false)}
+          onSuccess={() => { setShowAddEmployee(false); loadData(); }}
+        />
+      )}
     </div>
   );
 }
