@@ -163,28 +163,60 @@ export default function TodaysCommandCenter() {
       <div className="flex-1 px-4 py-6 lg:px-8 w-full">
         {isMobile ? (
           /* Mobile Layout */
-          <div className="max-w-6xl mx-auto w-full space-y-6">
-            {/* Shift Overview */}
-            <ShiftOverviewCard
-              completionPct={stats.completionPct}
-              completedCount={stats.completedCount}
-              totalCount={stats.totalCount}
-              overdueCount={stats.overdueCount}
-              nextDueItem={nextDueItem}
-            />
+          <div className="max-w-6xl mx-auto w-full space-y-8">
+            {/* Quick Overview */}
+            <div className="space-y-2">
+              <p className="text-xs font-bold uppercase text-muted-foreground">Today's Status</p>
+              <ShiftOverviewCard
+                completionPct={stats.completionPct}
+                completedCount={stats.completedCount}
+                totalCount={stats.totalCount}
+                overdueCount={stats.overdueCount}
+                nextDueItem={nextDueItem}
+              />
+            </div>
 
             {/* Alerts */}
-            <AlertsSection alerts={alerts} />
+            {alerts.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase text-muted-foreground">Attention</p>
+                <AlertsSection alerts={alerts} />
+              </div>
+            )}
 
-            {/* Prep Planning */}
-            <PrepPlanningCards />
+            {/* Prep Planning Cards Grid */}
+            <div className="space-y-3">
+              <p className="text-xs font-bold uppercase text-muted-foreground">Food Prep</p>
+              <div className="grid grid-cols-2 gap-3">
+                <PrepPlanningCards />
+              </div>
+            </div>
 
-            {/* Priorities */}
-            <PrioritiesSection priorities={priorities} />
-
-            {/* Quick Actions */}
-            <div className="pt-4">
-              <QuickActionsBar role={user?.role} onAction={handleQuickAction} />
+            {/* Quick Actions Grid */}
+            <div className="space-y-3">
+              <p className="text-xs font-bold uppercase text-muted-foreground">Quick Actions</p>
+              <div className="grid grid-cols-2 gap-3">
+                <button onClick={() => handleQuickAction('add_log')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+                  <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">📝</div>
+                  <p className="text-xs font-bold text-foreground">New Log</p>
+                  <p className="text-[10px] text-muted-foreground">Add entry</p>
+                </button>
+                <button onClick={() => handleQuickAction('create_task')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+                  <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">✓</div>
+                  <p className="text-xs font-bold text-foreground">New Task</p>
+                  <p className="text-[10px] text-muted-foreground">Create item</p>
+                </button>
+                <button onClick={() => handleQuickAction('report_issue')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+                  <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">⚠️</div>
+                  <p className="text-xs font-bold text-foreground">Issue</p>
+                  <p className="text-[10px] text-muted-foreground">Report problem</p>
+                </button>
+                <button onClick={() => navigate('/shift-handoff')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center justify-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+                  <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">📋</div>
+                  <p className="text-xs font-bold text-foreground">Handoff</p>
+                  <p className="text-[10px] text-muted-foreground">Shift plan</p>
+                </button>
+              </div>
             </div>
           </div>
         ) : (
