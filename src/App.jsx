@@ -29,7 +29,7 @@ import Onboarding from './pages/Onboarding';
 import TeamCenter from './pages/TeamCenter';
 
 import ScheduleCenter from './pages/ScheduleCenter';
-
+import ApprovalInbox from './pages/ApprovalInbox';
 
 import Cleaning from './pages/Cleaning';
 
@@ -135,6 +135,9 @@ const AuthenticatedApp = () => {
         <Route path="/temp-logs" element={<Navigate to="/logs?type=temperature" replace />} />
         <Route path="/waste-86" element={<Navigate to="/logs?type=waste" replace />} />
         <Route path="/waste-log" element={<Navigate to="/logs?type=waste" replace />} />
+
+        {/* ADMIN/MANAGER - Approvals */}
+        <Route path="/approvals" element={<ApprovalInbox />} />
 
         {/* ADMIN ONLY - Template Management */}
         <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
