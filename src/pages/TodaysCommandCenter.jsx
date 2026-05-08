@@ -10,6 +10,7 @@ import AlertsSection from '@/components/today/AlertsSection';
 import QuickActionsBar from '@/components/today/QuickActionsBar';
 import QuickActionModal from '@/components/quickactions/QuickActionModal';
 import DesktopOverviewDashboard from '@/components/today/DesktopOverviewDashboard';
+import PrepPlanningCards from '@/components/today/PrepPlanningCards';
 
 export default function TodaysCommandCenter() {
   const navigate = useNavigate();
@@ -174,6 +175,9 @@ export default function TodaysCommandCenter() {
 
             {/* Alerts */}
             <AlertsSection alerts={alerts} />
+
+            {/* Prep Planning */}
+            <PrepPlanningCards />
 
             {/* Priorities */}
             <PrioritiesSection priorities={priorities} />
