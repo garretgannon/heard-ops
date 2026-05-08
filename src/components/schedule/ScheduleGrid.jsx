@@ -49,7 +49,7 @@ export default function ScheduleGrid({
                   <ShiftBlock
                     key={shift.id}
                     shift={shift}
-                    employee={employees.find(e => e.id === shift.employeeId)}
+                    employee={employees.find(e => e.email === shift.employee_email || e.name === shift.employee_name)}
                     isSelected={selectedShifts.includes(shift.id)}
                     onSelect={() => onSelectShift(shift)}
                     onMultiSelect={() => {
@@ -73,7 +73,8 @@ export default function ScheduleGrid({
       <div className="overflow-x-auto">
         <div className="min-w-[1000px]">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-2 mb-4 sticky top-[120px] z-20">
+          <div className="grid gap-2 mb-4 sticky top-[120px] z-20" style={{gridTemplateColumns: '160px repeat(7, 1fr)'}}>            
+            <div />
             {weekDays.map((day, idx) => (
               <div key={idx} className="text-center">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
@@ -87,10 +88,14 @@ export default function ScheduleGrid({
           {/* Schedule Grid */}
           <div className="space-y-2">
             {employees.map((employee, empIdx) => (
-              <div key={employee.id} className="grid grid-cols-7 gap-2 items-start">
+              <div key={employee.id} className="grid gap-2 items-start" style={{gridTemplateColumns: '160px repeat(7, 1fr)'}}>
+                <div className="flex flex-col justify-start pt-2 px-2">
+                  <p className="text-sm font-bold text-foreground truncate">{employee.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{employee.role}</p>
+                </div>
                 {weekDays.map((day, dayIdx) => {
                   const dayShifts = shifts.filter(
-                    s => isSameDay(parseISO(s.date), day) && s.employeeId === employee.id
+                    s => isSameDay(parseISO(s.date), day) && (s.employee_email === employee.email || s.employee_name === employee.name)
                   );
 
                   return (

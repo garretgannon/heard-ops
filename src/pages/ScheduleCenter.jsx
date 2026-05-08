@@ -53,12 +53,25 @@ export default function ScheduleCenter() {
   const loadScheduleData = async () => {
     setLoading(true);
     try {
-      const [shiftsData, employeesData] = await Promise.all([
-        base44.entities.StaffShift.list('-created_date', 100).catch(() => []),
+      const [shiftsData, rawEmployees] = await Promise.all([
+        base44.entities.StaffShift.list('-created_date', 200).catch(() => []),
         base44.entities.Employee?.list?.('-created_date', 100).catch(() => []),
       ]);
       setShifts(shiftsData);
-      setEmployees(employeesData || FAKE_EMPLOYEES);
+      // Normalize DB employees (data is nested under .data)
+      const normalized = (rawEmployees || []).map(e => ({
+        id: e.id,
+        name: e.data?.full_name || e.full_name || e.name || 'Unknown',
+        email: e.data?.email || e.email || '',
+        role: e.data?.job_code || e.data?.primary_role || e.role || '',
+        weeklyHours: e.data?.weekly_hours || 40,
+      }));
+      // Merge with any shift employees not in DB
+      const shiftEmployeeNames = [...new Set(shiftsData.map(s => s.employee_name).filter(Boolean))];
+      const extra = shiftEmployeeNames
+        .filter(name => !normalized.find(e => e.name === name))
+        .map((name, i) => ({ id: `shift-emp-${i}`, name, email: shiftsData.find(s => s.employee_name === name)?.employee_email || '', role: shiftsData.find(s => s.employee_name === name)?.role || '' }));
+      setEmployees(normalized.length > 0 ? [...normalized, ...extra] : [...extra, ...FAKE_EMPLOYEES].slice(0, Math.max(extra.length, FAKE_EMPLOYEES.length)));
     } catch (e) {
       console.error('Error loading schedule:', e);
     }
