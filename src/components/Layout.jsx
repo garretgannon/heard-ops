@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ClipboardList,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   ChevronLeft, ChevronRight as ChevronRightIcon,
-  FileText, CalendarDays, Users,
+  FileText, CalendarDays, Users, BarChart3, Thermometer, BookOpen, Download,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -46,7 +46,19 @@ const DESKTOP_SECTIONS = [
     items: [
       { path: "/templates", label: "Templates", icon: LayoutTemplate },
       { path: "/team", label: "Team & Roles", icon: Users },
+      { path: "/reports", label: "Reports", icon: BarChart3 },
+      { path: "/schedule-import", label: "Imports", icon: Download },
+      { path: "/temperature-monitoring", label: "Temp Monitoring", icon: Thermometer },
+      { path: "/temperature-dashboard", label: "Temp Dashboard", icon: Thermometer },
+      { path: "/admin/role-simulator", label: "Permissions", icon: Settings },
       { path: "/profile", label: "Profile", icon: Settings },
+    ],
+  },
+  {
+    label: "Knowledge",
+    items: [
+      { path: "/standards", label: "SOPs & Training", icon: ClipboardList },
+      { path: "/knowledge", label: "Training", icon: BookOpen },
     ],
   },
 ];
