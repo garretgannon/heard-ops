@@ -62,19 +62,19 @@ export default function EmployeeCard({ employee, onSelect, canContact, canManage
         {(canContact || canManage) && (
           <div className="flex gap-2 pt-2 border-t border-border/20">
             {canContact && employee.phone && (
-              <button className="flex-1 h-8 rounded-lg bg-primary/10 text-primary font-semibold text-xs hover:bg-primary/20 transition-all active:scale-95 flex items-center justify-center gap-1">
+              <a href={`tel:${employee.phone}`} onClick={e => e.stopPropagation()} className="flex-1 h-8 rounded-lg bg-primary/10 text-primary font-semibold text-xs hover:bg-primary/20 transition-all active:scale-95 flex items-center justify-center gap-1">
                 <Phone className="h-3 w-3" />
                 Call
-              </button>
+              </a>
             )}
             {canContact && employee.email && (
-              <button className="flex-1 h-8 rounded-lg bg-primary/10 text-primary font-semibold text-xs hover:bg-primary/20 transition-all active:scale-95 flex items-center justify-center gap-1">
+              <a href={`mailto:${employee.email}`} onClick={e => e.stopPropagation()} className="flex-1 h-8 rounded-lg bg-primary/10 text-primary font-semibold text-xs hover:bg-primary/20 transition-all active:scale-95 flex items-center justify-center gap-1">
                 <Mail className="h-3 w-3" />
                 Email
-              </button>
+              </a>
             )}
             {canManage && (
-              <button className="flex-1 h-8 rounded-lg border border-border/40 text-muted-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95">
+              <button onClick={e => { e.stopPropagation(); onSelect?.(employee.id); }} className="flex-1 h-8 rounded-lg border border-border/40 text-muted-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95">
                 Manage
               </button>
             )}

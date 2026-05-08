@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
@@ -9,6 +10,7 @@ import ScheduleView from '@/components/team/ScheduleView';
 import MessagesView from '@/components/team/MessagesView';
 import RolesView from '@/components/team/RolesView';
 import AddEmployeeModal from '@/components/team/AddEmployeeModal';
+import EmployeeEditModal from '@/components/team/EmployeeEditModal';
 
 export default function TeamCenter() {
   const { user, isAdmin, isFOH } = useCurrentUser();
@@ -20,6 +22,8 @@ export default function TeamCenter() {
   const [roles, setRoles] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [showAddEmployee, setShowAddEmployee] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const navigate = useNavigate();
   const isMounted = useRef(true);
 
   const loadData = async () => {
@@ -92,7 +96,7 @@ export default function TeamCenter() {
             employees={filteredEmployees}
             isAdmin={isAdmin}
             isFOH={isFOH}
-            onEmployeeSelect={(empId) => toast.info('Employee detail coming soon')}
+            onEmployeeSelect={(empId) => setSelectedEmployee(employees.find(e => e.id === empId) || null)}
           />
         )}
 
@@ -116,8 +120,8 @@ export default function TeamCenter() {
           <RolesView
             roles={roles}
             employees={employees}
-            onPreviewRole={(roleName) => toast.info(`Preview as ${roleName}`)}
-            onManageRole={(roleId) => toast.info('Role management coming soon')}
+            onPreviewRole={() => navigate('/admin/role-simulator')}
+            onManageRole={() => navigate('/admin/role-simulator')}
           />
         )}
       </div>
@@ -126,6 +130,14 @@ export default function TeamCenter() {
         <AddEmployeeModal
           onClose={() => setShowAddEmployee(false)}
           onSuccess={() => { setShowAddEmployee(false); loadData(); }}
+        />
+      )}
+
+      {selectedEmployee && (
+        <EmployeeEditModal
+          employee={selectedEmployee}
+          onClose={() => setSelectedEmployee(null)}
+          onSave={() => { setSelectedEmployee(null); loadData(); }}
         />
       )}
     </div>
