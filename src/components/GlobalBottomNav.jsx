@@ -37,7 +37,7 @@ export default function GlobalBottomNav() {
   const activeId = getActiveId();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center items-end pointer-events-none" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav className="fixed bottom-0 left-0 right-0 z-[999] flex justify-center items-end pointer-events-none" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {/* Floating Pill Container */}
       <div className="pointer-events-auto mb-4 mx-4 px-2 py-2 rounded-full shadow-lg border border-border/30" style={{
         width: 'calc(100% - 2rem)',
