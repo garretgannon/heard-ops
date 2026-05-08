@@ -5,7 +5,6 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useShiftMode } from '@/lib/ShiftModeContext';
 import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
-import { ClipboardList } from 'lucide-react';
 import ShiftModeHeader from '@/components/shift/ShiftModeHeader';
 import ShiftProgressCard from '@/components/shift/ShiftProgressCard';
 import CurrentTaskCard from '@/components/shift/CurrentTaskCard';
@@ -201,24 +200,6 @@ export default function Shift() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // Empty state: no tasks at all
-  if (stats.totalCount === 0) {
-    return (
-      <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
-        <ShiftModeHeader />
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="text-center max-w-sm">
-            <div className="h-16 w-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-              <ClipboardList className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">No Shift Plan Assigned</h2>
-            <p className="text-sm text-muted-foreground">No tasks have been assigned to you for today. Check back later or contact your manager.</p>
-          </div>
-        </div>
       </div>
     );
   }

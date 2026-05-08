@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Layout, BookOpen, Utensils, Building2, FileText, Settings, Users, BarChart3, Wrench, Clock, Thermometer, Shield, Truck, AlertCircle } from 'lucide-react';
+import { Layout, BookOpen, Utensils, Building2, FileText, Settings, Users, BarChart3, Wrench, Clock, Thermometer } from 'lucide-react';
 import MoreSectionHeader from '@/components/more/MoreSectionHeader';
 import MoreRow from '@/components/more/MoreRow';
 
@@ -28,7 +28,7 @@ export default function More() {
       <div className="flex-1 px-4 py-6 lg:px-8 max-w-6xl mx-auto w-full space-y-8">
         {/* Management Section */}
         <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">📋 MANAGEMENT</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">📋 Management</h2>
           <div className="space-y-2">
             <MoreRow
               icon={Layout}
@@ -38,31 +38,27 @@ export default function More() {
             />
             <MoreRow
               icon={Utensils}
-              label="Recipes & Build Cards"
+              label="Recipes & Builds"
               description="Manage recipes, build cards, and menu items"
               onClick={() => navigate('/recipes')}
             />
             <MoreRow
               icon={Building2}
               label="Inventory"
-              description="Track purchased items and stock levels"
+              description="Track purchased items, vendors, and stock levels"
               onClick={() => navigate('/inventory')}
-            />
-            <MoreRow
-              icon={Truck}
-              label="Vendors"
-              description="Manage vendor information and pricing"
-              onClick={() => navigate('/vendors')}
             />
             <MoreRow
               icon={Wrench}
               label="Equipment"
-              description="Manage equipment and maintenance logs"
+              description="Manage equipment, maintenance schedules, and logs"
               onClick={() => navigate('/standards')}
+              badge="Setup"
+              badgeColor="bg-amber-500/15 text-amber-400"
             />
             <MoreRow
               icon={Clock}
-              label="BEOs / Events"
+              label="BEOs / Banquets"
               description="Manage reservations and banquet events"
               onClick={() => navigate('/reservations')}
             />
@@ -71,7 +67,7 @@ export default function More() {
 
         {/* Admin Section */}
         <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">⚙️ ADMIN</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">⚙️ Admin</h2>
           <div className="space-y-2">
             <MoreRow
               icon={BarChart3}
@@ -89,27 +85,27 @@ export default function More() {
               icon={Wrench}
               label="Integrations"
               description="Connect external services and APIs"
+              onClick={() => navigate('/more')}
               badge="Coming"
               badgeColor="bg-slate-500/15 text-slate-400"
-              disabled
-            />
-            <MoreRow
-              icon={Shield}
-              label="Role Preview"
-              description="Preview the app as a specific role"
-              onClick={() => navigate('/admin/role-simulator')}
-            />
-            <MoreRow
-              icon={Users}
-              label="Job Codes"
-              description="Manage job codes and classifications"
-              onClick={() => navigate('/job-codes')}
             />
             <MoreRow
               icon={Settings}
               label="Settings"
               description="Configure app behavior and preferences"
               onClick={() => navigate('/my-restaurant')}
+            />
+            <MoreRow
+              icon={Users}
+              label="Permissions & Roles"
+              description="Manage user roles and access controls"
+              onClick={() => navigate('/admin/role-simulator')}
+            />
+            <MoreRow
+              icon={Wrench}
+              label="Role Preview"
+              description="Preview the app as a specific role"
+              onClick={() => navigate('/admin/role-simulator')}
             />
             <MoreRow
               icon={Thermometer}
@@ -123,30 +119,22 @@ export default function More() {
               description="Review compliance and failed checks"
               onClick={() => navigate('/temperature-dashboard')}
             />
-            <MoreRow
-              icon={AlertCircle}
-              label="App Health"
-              description="Diagnostic dashboard for routes, forms, and entities"
-              onClick={() => navigate('/app-health')}
-              badge="Diagnostic"
-              badgeColor="bg-blue-500/15 text-blue-400"
-            />
           </div>
         </div>
 
         {/* Knowledge Section */}
         <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">📚 KNOWLEDGE</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">📚 Knowledge</h2>
           <div className="space-y-2">
             <MoreRow
               icon={Building2}
-              label="Restaurant Settings"
+              label="My Restaurant"
               description="Edit restaurant details and brand settings"
               onClick={() => navigate('/my-restaurant')}
             />
             <MoreRow
               icon={FileText}
-              label="SOPs / Standards"
+              label="SOPs"
               description="Standard operating procedures and guides"
               onClick={() => navigate('/standards')}
             />
@@ -160,15 +148,15 @@ export default function More() {
             />
             <MoreRow
               icon={Wrench}
-              label="MSDS / Safety"
-              description="Material safety and compliance docs"
-              onClick={() => navigate('/msds')}
+              label="Cleaning Standards"
+              description="Cleaning procedures and best practices"
+              onClick={() => navigate('/cleaning-templates')}
             />
             <MoreRow
-              icon={Utensils}
-              label="Build Cards"
-              description="Recipe components and build instructions"
-              onClick={() => navigate('/build-cards')}
+              icon={Wrench}
+              label="Equipment Guides"
+              description="Equipment documentation and maintenance"
+              onClick={() => navigate('/standards')}
             />
           </div>
         </div>

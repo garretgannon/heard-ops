@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 
 /**
- * BOTTOM NAV ROUTES (5 main navigation points for mobile & desktop)
+ * BOTTOM NAV ROUTES (5 main navigation points)
  */
 export const bottomNavRoutes = [
   {
@@ -51,11 +51,11 @@ export const bottomNavRoutes = [
     module: "dailyOps",
   },
   {
-    id: "shift",
-    label: "Shift",
-    path: "/shift",
+    id: "tasks",
+    label: "Tasks",
+    path: "/tasks",
     icon: ClipboardList,
-    description: "Task workflow & shift progress",
+    description: "Prep & side work tasks",
     module: "tasks",
   },
   {
@@ -67,34 +67,20 @@ export const bottomNavRoutes = [
     module: "compliance",
   },
   {
-    id: "team",
-    label: "Team",
-    path: "/team",
-    icon: Users,
-    description: "Team directory & management",
-    module: "operations",
+    id: "knowledge",
+    label: "Knowledge",
+    path: "/knowledge",
+    icon: BookOpen,
+    description: "Recipes, guides, standards",
+    module: "knowledge",
   },
   {
     id: "more",
     label: "More",
     path: "/more",
     icon: MoreHorizontal,
-    description: "Knowledge, admin, settings",
+    description: "All features and settings",
     module: "management",
-  },
-];
-
-/**
- * DESKTOP-ONLY ROUTE (Overview)
- */
-export const desktopOnlyRoutes = [
-  {
-    id: "overview",
-    label: "Overview",
-    path: "/overview",
-    icon: LayoutDashboard,
-    description: "Dashboard overview",
-    module: "dailyOps",
   },
 ];
 

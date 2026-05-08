@@ -5,7 +5,7 @@ import { Home, Clock, FileText, Users, MoreHorizontal } from 'lucide-react';
 
 const MOBILE_NAV_ROUTES = [
   { label: 'Today', path: '/', icon: Home, id: 'today' },
-  { label: 'Shift', path: '/shift', icon: Clock, id: 'shift' },
+  { label: 'Shift', path: '/today', icon: Clock, id: 'shift' },
   { label: 'Logs', path: '/logs', icon: FileText, id: 'logs' },
   { label: 'Team', path: '/team', icon: Users, id: 'team' },
   { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
@@ -27,10 +27,10 @@ export default function GlobalBottomNav() {
   // Determine active route
   const getActiveId = () => {
     if (pathname === '/' || pathname === '/today') return 'today';
-    if (pathname.startsWith('/shift') || pathname.startsWith('/prep') || pathname.startsWith('/side-work')) return 'shift';
     if (pathname.startsWith('/logs')) return 'logs';
     if (pathname.startsWith('/team')) return 'team';
     if (pathname.startsWith('/more')) return 'more';
+    if (pathname.startsWith('/shift') || pathname.startsWith('/tasks')) return 'shift';
     return 'today';
   };
 

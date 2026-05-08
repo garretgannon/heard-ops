@@ -15,17 +15,38 @@ import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
 
-// Grouped desktop nav: 6 main navigation items
+// Grouped desktop nav
 const DESKTOP_SECTIONS = [
   {
-    label: "Main",
+    label: "Operations",
     items: [
-      { path: "/overview", label: "Overview", icon: LayoutDashboard },
-      { path: "/", label: "Today", icon: LayoutDashboard },
+      { path: "/", label: "Overview", icon: LayoutDashboard },
       { path: "/shift", label: "Shift", icon: ClipboardList },
       { path: "/logs", label: "Logs", icon: FileText },
-      { path: "/team", label: "Team", icon: Users },
-      { path: "/more", label: "More", icon: LayoutTemplate },
+    ],
+  },
+  {
+    label: "Knowledge",
+    items: [
+      { path: "/recipes", label: "Recipes", icon: ChefHat },
+      { path: "/inventory", label: "Inventory", icon: Warehouse },
+      { path: "/vendors", label: "Vendors", icon: Truck },
+      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+    ],
+  },
+  {
+    label: "Schedule",
+    items: [
+      { path: "/schedule", label: "Schedule", icon: CalendarDays },
+      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      { path: "/templates", label: "Templates", icon: LayoutTemplate },
+      { path: "/team", label: "Team & Roles", icon: Users },
+      { path: "/profile", label: "Settings", icon: Settings },
     ],
   },
 ];
@@ -35,6 +56,7 @@ export default function Layout() {
   const { isAdmin, user } = useCurrentUser();
   const [logoUrl, setLogoUrl] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem('sidebar_collapsed') === 'true'; } catch { return false; }
   });
@@ -47,6 +69,11 @@ export default function Layout() {
     });
   };
 
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   useEffect(() => {
     base44.entities.Settings.filter({ key: "restaurant_name" }).then(results => {
@@ -190,34 +217,16 @@ export default function Layout() {
 
       {/* Main content area */}
       <main
-        className={cn(
-          "min-h-screen transition-all duration-200",
-          "pt-[calc(52px+env(safe-area-inset-top,0px))] lg:pt-0",
-          collapsed ? "lg:pl-[56px]" : "lg:pl-[180px]"
-        )}
+        className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[56px]" : "lg:pl-[180px]")}
+        style={{ paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" }}
       >
-        {isTabRoute(location.pathname) ? (
-          <>
-            {/* Mobile: swipe carousel */}
-            <div className="lg:hidden" style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}>
-              <SwipeTabContainer />
-            </div>
-            {/* Desktop: normal routed outlet */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="hidden lg:block w-full pb-8"
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
-          </>
+        {isMobile && isTabRoute(location.pathname) ? (
+          /* Mobile swipe carousel for the 5 main tabs — pages own their own padding */
+          <div style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}>
+            <SwipeTabContainer />
+          </div>
         ) : (
-          /* Non-tab pages: always routed outlet */
+          /* Desktop + non-tab pages: normal routed outlet */
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -225,7 +234,7 @@ export default function Layout() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="w-full max-w-[430px] mx-auto px-4 pt-3 lg:max-w-none lg:mx-0 lg:px-0 lg:pt-0 lg:pb-8"
+              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-0 lg:pt-0 lg:pb-8"
               style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}
             >
               <Outlet />

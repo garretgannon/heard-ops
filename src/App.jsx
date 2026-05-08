@@ -21,7 +21,6 @@ import AdminSimulationBar from './components/AdminSimulationBar';
 import { TabHistoryProvider } from '@/lib/TabHistoryContext';
 import Landing from './pages/Landing';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
-import Shift from './pages/Shift';
 import StaffTasks from './pages/StaffTasks';
 import LogsCenter from './pages/LogsCenter';
 import Knowledge from './pages/Knowledge';
@@ -64,8 +63,8 @@ import ShiftHandoff from './pages/ShiftHandoff';
 import AdminRoleSimulator from './pages/AdminRoleSimulator';
 import AdminCommandCenter from './pages/AdminCommandCenter';
 import OnboardingSimulator from './pages/OnboardingSimulator';
+import Shift from './pages/Shift';
 import TemplateManager from './pages/TemplateManager';
-import AppHealth from './pages/AppHealth';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -111,22 +110,19 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
-        {/* MAIN NAV ROUTES (6 total: 5 mobile + 1 desktop-only) */}
-        {/* Overview (desktop-only) */}
-        <Route path="/overview" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
-        {/* Today */}
+        {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
-        {/* Shift */}
-        <Route path="/shift" element={<Shift />} />
-        {/* Logs */}
+        <Route path="/today" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
+
+        <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/logs" element={<LogsCenter />} />
-        {/* Team */}
         <Route path="/team" element={<TeamCenter />} />
-        {/* More (contains Knowledge, Admin, Setup) */}
+        <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/more" element={<More />} />
 
-        {/* Secondary Routes (not in main nav) */}
-        <Route path="/tasks" element={<StaffTasks />} />
+        {/* TASK ROUTES - Redirected to Today with filters */}
+        <Route path="/prep-lists" element={<Navigate to="/?tab=prep" replace />} />
+        <Route path="/side-work" element={<Navigate to="/?tab=sidework" replace />} />
         <Route path="/cleaning" element={<Cleaning />} />
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
         <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
@@ -175,7 +171,6 @@ const AuthenticatedApp = () => {
         <Route path="/schedule-import" element={<ScheduleImport />} />
         <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
         <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
-        <Route path="/app-health" element={<AppHealth />} />
 
         {/* SETTINGS ROUTES */}
         <Route path="/profile" element={<Profile />} />
@@ -208,13 +203,10 @@ const AuthenticatedApp = () => {
         <Route path="/EmployeeCalendar" element={<Navigate to="/schedule" replace />} />
         <Route path="/ScheduleImport" element={<Navigate to="/schedule" replace />} />
         <Route path="/R365ScheduleImport" element={<Navigate to="/schedule" replace />} />
-        <Route path="/prep" element={<Navigate to="/shift" replace />} />
-        <Route path="/prep-lists" element={<Navigate to="/shift" replace />} />
-        <Route path="/side-work" element={<Navigate to="/shift" replace />} />
-        <Route path="/SideWork" element={<Navigate to="/shift" replace />} />
-        <Route path="/SideWorkManager" element={<Navigate to="/shift" replace />} />
-        <Route path="/SideWorkStaff" element={<Navigate to="/shift" replace />} />
-        <Route path="/SideWorkProduction" element={<Navigate to="/shift" replace />} />
+        <Route path="/SideWork" element={<Navigate to="/?tab=sidework" replace />} />
+        <Route path="/SideWorkManager" element={<Navigate to="/?tab=sidework" replace />} />
+        <Route path="/SideWorkStaff" element={<Navigate to="/?tab=sidework" replace />} />
+        <Route path="/SideWorkProduction" element={<Navigate to="/?tab=sidework" replace />} />
         <Route path="/restaurant-team" element={<Navigate to="/team" replace />} />
         <Route path="/schedule-center" element={<Navigate to="/schedule" replace />} />
 
