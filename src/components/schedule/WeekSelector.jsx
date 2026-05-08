@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { addWeeks, subWeeks, startOfToday, startOfWeek, isSameWeek } from 'date-fns';
@@ -41,5 +42,3 @@ export default function WeekSelector({ currentWeek, onWeekChange }) {
     </div>
   );
 }
-
-import { cn } from '@/lib/utils';

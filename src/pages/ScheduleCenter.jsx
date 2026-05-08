@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell, DollarSign, Clock, TrendingUp, Target, Users, ChevronDown, Filter, Grid3x3, LayoutTemplate, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell, DollarSign, Clock, TrendingUp, Target, Users, ChevronDown, Filter, Grid3x3, LayoutTemplate, RefreshCw, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { addDays, startOfWeek, format, isSameDay, parseISO } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import LaborSummaryCards from '@/components/schedule/LaborSummaryCards';
@@ -38,6 +39,8 @@ export default function ScheduleCenter() {
   const [loading, setLoading] = useState(true);
   const [isPublished, setIsPublished] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
   useEffect(() => {
@@ -82,6 +85,36 @@ export default function ScheduleCenter() {
   const weekStart = format(currentWeek, 'MMM d');
   const weekEnd = format(weekDays[6], 'MMM d, yyyy');
 
+  const handlePublish = async () => {
+    if (publishing) return;
+    setPublishing(true);
+    try {
+      const draftShifts = shifts.filter(s => s.status === 'draft');
+      if (draftShifts.length === 0) { toast.info('No draft shifts to publish'); setPublishing(false); return; }
+      await Promise.all(draftShifts.map(s => base44.entities.StaffShift.update(s.id, { status: 'published' })));
+      toast.success(`Published ${draftShifts.length} shifts`);
+      await loadScheduleData();
+    } catch (e) {
+      toast.error('Failed to publish');
+    }
+    setPublishing(false);
+  };
+
+  const handleAutoSchedule = async () => {
+    toast.info('Auto-schedule: generating shifts from templates…');
+    try {
+      await base44.functions.invoke('generateShiftTasks', { week_start: format(currentWeek, 'yyyy-MM-dd') });
+      toast.success('Shifts generated!');
+      await loadScheduleData();
+    } catch (e) {
+      toast.error('Auto-schedule failed: ' + e.message);
+    }
+  };
+
+  const filteredEmployees = searchQuery
+    ? employees.filter(e => e.name?.toLowerCase().includes(searchQuery.toLowerCase()) || e.role?.toLowerCase().includes(searchQuery.toLowerCase()))
+    : employees;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Header */}
@@ -96,11 +129,13 @@ export default function ScheduleCenter() {
             </div>
             <div className="flex items-center gap-3">
               <WeekSelector currentWeek={currentWeek} onWeekChange={setCurrentWeek} />
-              <button className="h-9 px-3 rounded-lg border border-border hover:bg-card text-sm font-medium text-foreground transition-colors">
+              <button
+                onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+                className="h-9 px-3 rounded-lg border border-border hover:bg-card text-sm font-medium text-foreground transition-colors">
                 Today
               </button>
               <div className="flex items-center gap-2">
-                <button className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                <button onClick={() => setShowSearch(s => !s)} className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                   <Search className="h-4 w-4" />
                 </button>
                 <button className="h-9 w-9 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors relative">
@@ -111,7 +146,8 @@ export default function ScheduleCenter() {
               {isAdmin && (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
+                  onClick={handleAutoSchedule}
+                  className="h-9 px-4 rounded-lg bg-primary/20 text-primary border border-primary/30 text-sm font-bold flex items-center gap-2 hover:bg-primary/30 transition-all"
                 >
                   <Zap className="h-4 w-4" />
                   <span className="hidden sm:inline">Auto Schedule</span>
@@ -119,10 +155,12 @@ export default function ScheduleCenter() {
               )}
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
+                onClick={handlePublish}
+                disabled={publishing}
+                className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all disabled:opacity-60"
               >
                 <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Publish Schedule</span>
+                <span className="hidden sm:inline">{publishing ? 'Publishing…' : 'Publish Schedule'}</span>
               </motion.button>
             </div>
           </div>
@@ -192,7 +230,7 @@ export default function ScheduleCenter() {
                 <LayoutTemplate className="h-3.5 w-3.5" />
                 Templates
               </button>
-              <button className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+              <button onClick={loadScheduleData} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                 <RefreshCw className="h-3.5 w-3.5" />
               </button>
               <button className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
@@ -202,6 +240,22 @@ export default function ScheduleCenter() {
           </div>
         </div>
       </div>
+
+      {/* Search Bar */}
+      {showSearch && (
+        <div className="px-4 lg:px-8 py-2 border-b border-border/20 flex items-center gap-2">
+          <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <input
+            autoFocus
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search by name or role…"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+          />
+          {searchQuery && <button onClick={() => setSearchQuery('')}><X className="h-4 w-4 text-muted-foreground" /></button>}
+        </div>
+      )}
 
       {/* Main Content */}
       <AnimatePresence mode="wait">
@@ -231,7 +285,7 @@ export default function ScheduleCenter() {
           {viewMode === 'weekly' && !isMobile && (
             <ScheduleGrid
               shifts={shifts}
-              employees={employees}
+              employees={filteredEmployees}
               weekDays={weekDays}
               selectedShifts={selectedShifts}
               onSelectShift={setSelectedShift}
@@ -244,7 +298,7 @@ export default function ScheduleCenter() {
           {viewMode === 'weekly' && isMobile && (
             <ScheduleGrid
               shifts={shifts}
-              employees={employees}
+              employees={filteredEmployees}
               weekDays={weekDays}
               selectedShifts={selectedShifts}
               onSelectShift={setSelectedShift}

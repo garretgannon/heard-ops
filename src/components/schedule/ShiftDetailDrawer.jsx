@@ -1,21 +1,32 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Clock, MapPin, DollarSign, Save } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function ShiftDetailDrawer({ shift, employees, onClose, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    startTime: shift.startTime || '9:00 AM',
-    endTime: shift.endTime || '5:00 PM',
+    start_time: shift.start_time || '',
+    end_time: shift.end_time || '',
     station: shift.station || '',
-    role: shift.role || 'host',
+    role: shift.role || '',
+    notes: shift.notes || '',
   });
 
   const handleSave = async () => {
-    // TODO: Save shift changes
-    onUpdate?.();
-    setIsEditing(false);
+    setSaving(true);
+    try {
+      await base44.entities.StaffShift.update(shift.id, formData);
+      toast.success('Shift saved');
+      onUpdate?.();
+      setIsEditing(false);
+    } catch (e) {
+      toast.error('Failed to save shift');
+    }
+    setSaving(false);
   };
 
   return (
@@ -50,7 +61,7 @@ export default function ShiftDetailDrawer({ shift, employees, onClose, onUpdate 
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Employee</p>
             <div className="p-4 rounded-lg bg-card border border-border/30">
-              <p className="font-bold text-foreground text-lg">{shift.employeeName}</p>
+              <p className="font-bold text-foreground text-lg">{shift.employee_name || shift.employeeName}</p>
               <p className="text-sm text-muted-foreground capitalize mt-1">{shift.role}</p>
             </div>
           </div>
@@ -62,25 +73,23 @@ export default function ShiftDetailDrawer({ shift, employees, onClose, onUpdate 
               {isEditing ? (
                 <>
                   <input
-                    type="text"
-                    value={formData.startTime}
-                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    type="time"
+                    value={formData.start_time}
+                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm"
-                    placeholder="Start time"
                   />
                   <input
-                    type="text"
-                    value={formData.endTime}
-                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    type="time"
+                    value={formData.end_time}
+                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm"
-                    placeholder="End time"
                   />
                 </>
               ) : (
                 <div className="flex items-center gap-3 text-foreground">
                   <Clock className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="font-semibold">{formData.startTime} — {formData.endTime}</p>
+                    <p className="font-semibold">{formData.start_time} — {formData.end_time}</p>
                     <p className="text-sm text-muted-foreground">8 hours</p>
                   </div>
                 </div>
@@ -120,6 +129,8 @@ export default function ShiftDetailDrawer({ shift, employees, onClose, onUpdate 
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Notes</p>
             <textarea
+              value={formData.notes}
+              onChange={e => setFormData({ ...formData, notes: e.target.value })}
               className="w-full px-3 py-2 rounded-lg bg-background border border-border text-foreground text-sm"
               placeholder="Add notes..."
               rows="3"
@@ -148,10 +159,11 @@ export default function ShiftDetailDrawer({ shift, employees, onClose, onUpdate 
             <>
               <button
                 onClick={handleSave}
-                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all"
+                disabled={saving}
+                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all disabled:opacity-60"
               >
                 <Save className="h-4 w-4" />
-                Save Changes
+                {saving ? 'Saving…' : 'Save Changes'}
               </button>
               <button
                 onClick={() => setIsEditing(false)}
