@@ -180,21 +180,7 @@ export default function Profile() {
             <p className="text-xs text-secondary-text mt-2">Role: <span className="font-bold text-primary">{user?.role?.toUpperCase()}</span></p>
           </div>
 
-          {isAdmin && (
-            <div className="space-y-2">
-              <p className="text-xs text-secondary-text font-bold uppercase px-1">Admin Tools</p>
-              <button onClick={() => navigate('/admin/command-center')} className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 active:scale-95 transition-all group hover:border-border/80">
-                <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center"><Settings className="h-5 w-5 text-primary" /></div>
-                <div className="flex-1 text-left"><p className="font-bold text-foreground">Admin Command Center</p><p className="text-[12px] text-secondary-text">Manage roles and permissions</p></div>
-                <Zap className="h-4 w-4 text-secondary-text group-hover:text-primary" />
-              </button>
-              <button onClick={() => navigate('/admin/role-simulator')} className="w-full bg-card border border-border rounded-xl p-4 flex items-center gap-3 active:scale-95 transition-all group hover:border-border/80">
-                <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center"><Shield className="h-5 w-5 text-primary" /></div>
-                <div className="flex-1 text-left"><p className="font-bold text-foreground">Role Simulator</p><p className="text-[12px] text-secondary-text">Preview app as any role</p></div>
-                <Zap className="h-4 w-4 text-secondary-text group-hover:text-primary" />
-              </button>
-            </div>
-          )}
+
 
           <div className="space-y-2">
             <button onClick={() => setShowDeleteConfirm(true)} className="w-full h-12 rounded-xl border border-red-500/50 bg-red-500/10 text-red-400 font-bold flex items-center justify-center gap-2 active:scale-95">
