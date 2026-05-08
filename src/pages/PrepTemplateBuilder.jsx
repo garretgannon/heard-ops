@@ -61,9 +61,19 @@ export default function PrepTemplateBuilder() {
     }
     setTemplate(p => ({
       ...p,
-      items: [...(p.items || []), { ...newItem, sort_order: (p.items?.length || 0) }],
+      items: [...(p.items || []), { ...newItem, sort_order: (p.items?.length || 0), is_header: false }],
     }));
     setNewItem(DEFAULT_ITEM);
+  };
+
+  const addHeader = () => {
+    const headerName = prompt('Header name (e.g., "Cold Prep", "Hot Line", "Sauces"):');
+    if (!headerName?.trim()) return;
+    setTemplate(p => ({
+      ...p,
+      items: [...(p.items || []), { item_name: headerName.trim(), is_header: true, sort_order: (p.items?.length || 0) }],
+    }));
+    toast.success('Header added');
   };
 
   const handleFormKeyDown = (e) => {
@@ -250,7 +260,7 @@ export default function PrepTemplateBuilder() {
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-border/30 bg-background/50">
-                    <th className="px-3 py-2 text-left font-bold text-foreground">Item</th>
+                    <th className="px-3 py-2 text-left font-bold text-foreground">Item / Section</th>
                     <th className="px-3 py-2 text-left font-bold text-foreground">Par</th>
                     <th className="px-3 py-2 text-left font-bold text-foreground">Unit</th>
                     <th className="px-3 py-2 text-left font-bold text-foreground">Priority</th>
@@ -261,64 +271,75 @@ export default function PrepTemplateBuilder() {
                   </tr>
                 </thead>
                 <tbody>
-                  {template.items.map((item, idx) => (
-                    <tr key={idx} className="border-b border-border/30 hover:bg-background/50">
-                      <td className="px-3 py-2 font-semibold text-foreground">{item.item_name}</td>
-                      <td className="px-3 py-2 text-muted-foreground">{item.par_quantity}</td>
-                      <td className="px-3 py-2 text-muted-foreground">{item.unit}</td>
-                      <td className="px-3 py-2 text-muted-foreground text-[10px] capitalize">{item.priority || 'medium'}</td>
-                      <td className="px-3 py-2 text-center">
-                        <input
-                          type="checkbox"
-                          checked={item.requires_photo}
-                          onChange={e => {
-                            const items = [...template.items];
-                            items[idx].requires_photo = e.target.checked;
-                            setTemplate(p => ({ ...p, items }));
-                          }}
-                          className="rounded border-border"
-                        />
-                      </td>
-                      <td className="px-3 py-2 text-center">
-                        <input
-                          type="checkbox"
-                          checked={item.requires_inventory_count}
-                          onChange={e => {
-                            const items = [...template.items];
-                            items[idx].requires_inventory_count = e.target.checked;
-                            setTemplate(p => ({ ...p, items }));
-                          }}
-                          className="rounded border-border"
-                        />
-                      </td>
-                      <td className="px-3 py-2 text-center">
-                        <input
-                          type="checkbox"
-                          checked={item.is_active}
-                          onChange={e => {
-                            const items = [...template.items];
-                            items[idx].is_active = e.target.checked;
-                            setTemplate(p => ({ ...p, items }));
-                          }}
-                          className="rounded border-border"
-                        />
-                      </td>
-                      <td className="px-3 py-2 text-center flex items-center justify-center gap-1">
-                        <button onClick={() => moveRow(idx, 'up')} disabled={idx === 0} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move up">
-                          <ChevronUp className="h-3 w-3" />
-                        </button>
-                        <button onClick={() => moveRow(idx, 'down')} disabled={idx === template.items.length - 1} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move down">
-                          <ChevronDown className="h-3 w-3" />
-                        </button>
-                        <button onClick={() => duplicateRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Duplicate">
-                          <Copy className="h-3 w-3" />
-                        </button>
-                        <button onClick={() => deleteRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
-                          <Trash2 className="h-3 w-3" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {template.items.map((item, idx) => {
+                    if (item.is_header) {
+                      return (
+                        <tr key={idx} className="border-b-2 border-primary/30 bg-primary/10 hover:bg-primary/15">
+                          <td colSpan="8" className="px-3 py-3 font-bold text-primary text-sm uppercase tracking-wide">
+                            {item.item_name}
+                          </td>
+                        </tr>
+                      );
+                    }
+                    return (
+                      <tr key={idx} className="border-b border-border/30 hover:bg-background/50">
+                        <td className="px-3 py-2 font-semibold text-foreground">{item.item_name}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{item.par_quantity}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{item.unit}</td>
+                        <td className="px-3 py-2 text-muted-foreground text-[10px] capitalize">{item.priority || 'medium'}</td>
+                        <td className="px-3 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={item.requires_photo}
+                            onChange={e => {
+                              const items = [...template.items];
+                              items[idx].requires_photo = e.target.checked;
+                              setTemplate(p => ({ ...p, items }));
+                            }}
+                            className="rounded border-border"
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={item.requires_inventory_count}
+                            onChange={e => {
+                              const items = [...template.items];
+                              items[idx].requires_inventory_count = e.target.checked;
+                              setTemplate(p => ({ ...p, items }));
+                            }}
+                            className="rounded border-border"
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={item.is_active}
+                            onChange={e => {
+                              const items = [...template.items];
+                              items[idx].is_active = e.target.checked;
+                              setTemplate(p => ({ ...p, items }));
+                            }}
+                            className="rounded border-border"
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-center flex items-center justify-center gap-1">
+                          <button onClick={() => moveRow(idx, 'up')} disabled={idx === 0} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move up">
+                            <ChevronUp className="h-3 w-3" />
+                          </button>
+                          <button onClick={() => moveRow(idx, 'down')} disabled={idx === template.items.length - 1} className="h-6 w-6 rounded border border-border hover:bg-card disabled:opacity-30 flex items-center justify-center text-muted-foreground transition-colors" title="Move down">
+                            <ChevronDown className="h-3 w-3" />
+                          </button>
+                          <button onClick={() => duplicateRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Duplicate">
+                            <Copy className="h-3 w-3" />
+                          </button>
+                          <button onClick={() => deleteRow(idx)} className="h-6 w-6 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -326,7 +347,12 @@ export default function PrepTemplateBuilder() {
 
           {/* Add Row Form */}
           <div className="bg-background/50 rounded-lg p-4 space-y-3 border border-border/30">
-            <p className="text-xs font-bold text-muted-foreground uppercase">Add New Row</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-muted-foreground uppercase">Add New Row</p>
+              <button onClick={addHeader} className="text-xs font-bold px-2.5 py-1 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-colors">
+                + Section Header
+              </button>
+            </div>
             <div className="grid grid-cols-5 gap-2">
               <input value={newItem.item_name} onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Item name" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
               <input type="number" value={newItem.par_quantity} onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Par qty" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
