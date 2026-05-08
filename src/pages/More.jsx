@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ChefHat, Award, Warehouse, Truck, CalendarDays, LayoutTemplate, Layout, BarChart3, Thermometer, Building2, Settings } from 'lucide-react';
+import { Clock, FileText, AlertTriangle, Thermometer, Users, CalendarDays, BookOpen, ChefHat, Package, Trash2, Truck, BarChart3, Cog, Warehouse } from 'lucide-react';
 import MoreSectionHeader from '@/components/more/MoreSectionHeader';
-import MoreRow from '@/components/more/MoreRow';
 
 export default function More() {
   const navigate = useNavigate();
@@ -25,100 +24,111 @@ export default function More() {
       <MoreSectionHeader />
 
       {/* Main Content */}
-      <div className="flex-1 px-4 py-6 lg:px-8 max-w-6xl mx-auto w-full space-y-8">
-        {/* Resources Section */}
+       <div className="flex-1 px-4 py-6 lg:px-8 max-w-6xl mx-auto w-full space-y-10">
+        {/* OPERATIONS Section */}
         <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">📚 Resources</h2>
-          <div className="space-y-2">
-            <MoreRow
-              icon={ChefHat}
-              label="Recipes"
-              description="Manage recipes, build cards, and menu items"
-              onClick={() => navigate('/recipes')}
-            />
-            <MoreRow
-              icon={Award}
-              label="Training"
-              description="Training materials and onboarding content"
-              onClick={() => navigate('/training')}
-            />
-            <MoreRow
-              icon={Warehouse}
-              label="Inventory"
-              description="Track purchased items and stock levels"
-              onClick={() => navigate('/inventory')}
-            />
-            <MoreRow
-              icon={Truck}
-              label="Vendors"
-              description="Manage vendor contacts and orders"
-              onClick={() => navigate('/vendors')}
-            />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Operations</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <button onClick={() => navigate('/shift-handoff')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Clock className="h-6 w-6 text-green-500" />
+              <p className="text-xs font-bold text-foreground text-center">Shift</p>
+              <p className="text-[10px] text-muted-foreground text-center">Manage shifts</p>
+            </button>
+            <button onClick={() => navigate('/logs')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <FileText className="h-6 w-6 text-primary" />
+              <p className="text-xs font-bold text-foreground text-center">Logs</p>
+              <p className="text-[10px] text-muted-foreground text-center">View manage</p>
+            </button>
+            <button onClick={() => navigate('/logs?type=incident')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <AlertTriangle className="h-6 w-6 text-red-500" />
+              <p className="text-xs font-bold text-foreground text-center">Issues</p>
+              <p className="text-[10px] text-muted-foreground text-center">Track issues</p>
+            </button>
+            <button onClick={() => navigate('/temperature-monitoring')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Thermometer className="h-6 w-6 text-purple-500" />
+              <p className="text-xs font-bold text-foreground text-center">Temps</p>
+              <p className="text-[10px] text-muted-foreground text-center">Temperature</p>
+            </button>
           </div>
         </div>
 
-        {/* Planning Section */}
+        {/* PEOPLE Section */}
         <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">📅 Planning</h2>
-          <div className="space-y-2">
-            <MoreRow
-              icon={CalendarDays}
-              label="Schedule"
-              description="Manage employee shifts and schedules"
-              onClick={() => navigate('/schedule')}
-            />
-            <MoreRow
-              icon={LayoutTemplate}
-              label="BEOs / Events"
-              description="Manage reservations and banquet events"
-              onClick={() => navigate('/reservations')}
-            />
-            <MoreRow
-              icon={Award}
-              label="Approvals"
-              description="Review and approve pending requests"
-              onClick={() => navigate('/approvals')}
-            />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">People</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <button onClick={() => navigate('/team')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Users className="h-6 w-6 text-blue-500" />
+              <p className="text-xs font-bold text-foreground text-center">Team</p>
+              <p className="text-[10px] text-muted-foreground text-center">Your team</p>
+            </button>
+            <button onClick={() => navigate('/schedule')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <CalendarDays className="h-6 w-6 text-primary" />
+              <p className="text-xs font-bold text-foreground text-center">Schedule</p>
+              <p className="text-[10px] text-muted-foreground text-center">View schedule</p>
+            </button>
+            <button onClick={() => navigate('/training')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <BookOpen className="h-6 w-6 text-green-500" />
+              <p className="text-xs font-bold text-foreground text-center">Training</p>
+              <p className="text-[10px] text-muted-foreground text-center">Training center</p>
+            </button>
+            <div />
           </div>
         </div>
 
-        {/* Setup Section */}
+        {/* FOOD Section */}
         <div className="space-y-3">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">⚙️ Setup</h2>
-          <div className="space-y-2">
-            <MoreRow
-              icon={Layout}
-              label="Templates"
-              description="Create prep, side work, cleaning, and temperature templates"
-              onClick={() => navigate('/templates')}
-            />
-            <MoreRow
-              icon={Thermometer}
-              label="Temperature Monitoring"
-              description="Configure recurring temperature checks"
-              onClick={() => navigate('/temperature-monitoring')}
-            />
-            <MoreRow
-              icon={BarChart3}
-              label="Reports"
-              description="View analytics, compliance scores, and performance"
-              onClick={() => navigate('/reports')}
-            />
-            <MoreRow
-              icon={Building2}
-              label="My Restaurant"
-              description="Manage restaurant info, equipment, and integrations"
-              onClick={() => navigate('/my-restaurant')}
-            />
-            <MoreRow
-              icon={Settings}
-              label="Settings"
-              description="Configure app behavior and preferences"
-              onClick={() => navigate('/profile')}
-            />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Food</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <button onClick={() => navigate('/recipes')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <ChefHat className="h-6 w-6 text-primary" />
+              <p className="text-xs font-bold text-foreground text-center">Recipes</p>
+              <p className="text-[10px] text-muted-foreground text-center">Manage recipes</p>
+            </button>
+            <button onClick={() => navigate('/?tab=prep')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Package className="h-6 w-6 text-primary" />
+              <p className="text-xs font-bold text-foreground text-center">Prep</p>
+              <p className="text-[10px] text-muted-foreground text-center">Prep plans</p>
+            </button>
+            <button onClick={() => navigate('/inventory')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Warehouse className="h-6 w-6 text-blue-500" />
+              <p className="text-xs font-bold text-foreground text-center">Inventory</p>
+              <p className="text-[10px] text-muted-foreground text-center">Stock levels</p>
+            </button>
+            <button onClick={() => navigate('/logs?type=waste')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Trash2 className="h-6 w-6 text-red-500" />
+              <p className="text-xs font-bold text-foreground text-center">Waste</p>
+              <p className="text-[10px] text-muted-foreground text-center">Waste log</p>
+            </button>
           </div>
         </div>
-      </div>
+
+        {/* BUSINESS Section */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Business</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <button onClick={() => navigate('/vendors')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Truck className="h-6 w-6 text-green-500" />
+              <p className="text-xs font-bold text-foreground text-center">Vendors</p>
+              <p className="text-[10px] text-muted-foreground text-center">Vendors orders</p>
+            </button>
+            <button onClick={() => navigate('/reservations')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <CalendarDays className="h-6 w-6 text-primary" />
+              <p className="text-xs font-bold text-foreground text-center">BEOs</p>
+              <p className="text-[10px] text-muted-foreground text-center">Banquet events</p>
+            </button>
+            <button onClick={() => navigate('/reports')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <BarChart3 className="h-6 w-6 text-blue-500" />
+              <p className="text-xs font-bold text-foreground text-center">Reports</p>
+              <p className="text-[10px] text-muted-foreground text-center">View reports</p>
+            </button>
+            <button onClick={() => navigate('/profile')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
+              <Cog className="h-6 w-6 text-slate-500" />
+              <p className="text-xs font-bold text-foreground text-center">Settings</p>
+              <p className="text-[10px] text-muted-foreground text-center">App settings</p>
+            </button>
+          </div>
+        </div>
+       </div>
     </div>
   );
 }
