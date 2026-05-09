@@ -9,7 +9,6 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import AccessRestricted from '@/components/AccessRestricted';
 
 const SECTIONS = [
-  { id: 'roles',       label: 'Roles',          icon: Users },
   { id: 'permissions', label: 'Permissions',    icon: Shield },
   { id: 'preview',     label: 'Preview as Role', icon: Eye },
   { id: 'job-codes',   label: 'Job Codes',      icon: Settings },
@@ -17,7 +16,7 @@ const SECTIONS = [
 
 export default function AdminCommandCenter() {
   const { isAdmin } = useCurrentUser();
-  const [active, setActive] = useState('roles');
+  const [active, setActive] = useState('permissions');
   const [jobCodes, setJobCodes] = useState([]);
 
   useEffect(() => {
@@ -56,7 +55,6 @@ export default function AdminCommandCenter() {
       </div>
 
       <div className="px-4 py-5">
-        {active === 'roles'       && <RolesManager />}
         {active === 'permissions' && <RolePermissionBuilder />}
         {active === 'preview'     && <RolePreview jobCodes={[]} />}
         {active === 'job-codes'   && <JobCodeManager jobCodes={jobCodes} setJobCodes={setJobCodes} />}
