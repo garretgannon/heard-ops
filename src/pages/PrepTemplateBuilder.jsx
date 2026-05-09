@@ -40,9 +40,13 @@ export default function PrepTemplateBuilder() {
   const [loading, setLoading] = useState(!!id);
   const [saving, setSaving] = useState(false);
   const [newItem, setNewItem] = useState(DEFAULT_ITEM);
+  const [stations, setStations] = useState([]);
+  const [roles, setRoles] = useState([]);
 
   useEffect(() => {
     if (id) loadTemplate();
+    base44.entities.Station.filter({ isActive: true }).then(setStations).catch(() => {});
+    base44.entities.Role.list().then(setRoles).catch(() => {});
   }, [id]);
 
   const loadTemplate = async () => {
@@ -194,7 +198,10 @@ export default function PrepTemplateBuilder() {
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Station *</label>
-              <input value={template.station} onChange={e => setTemplate(p => ({ ...p, station: e.target.value }))} placeholder="e.g. Grill" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <select value={template.station} onChange={e => setTemplate(p => ({ ...p, station: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+                <option value="">Select station…</option>
+                {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Shift</label>
@@ -207,10 +214,13 @@ export default function PrepTemplateBuilder() {
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Role</label>
-              <input value={template.assigned_role} onChange={e => setTemplate(p => ({ ...p, assigned_role: e.target.value }))} placeholder="e.g. Lead Cook" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <select value={template.assigned_role} onChange={e => setTemplate(p => ({ ...p, assigned_role: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+                <option value="">Select role…</option>
+                {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
+              </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-foreground mb-2">Department / Location</label>
+              <label className="block text-xs font-bold text-foreground mb-2">Equipment / Storage</label>
               <input value={template.department_location} onChange={e => setTemplate(p => ({ ...p, department_location: e.target.value }))} placeholder="Optional" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
             </div>
           </div>
