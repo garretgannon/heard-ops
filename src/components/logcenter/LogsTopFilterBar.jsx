@@ -124,7 +124,7 @@ export default function LogsTopFilterBar({ search, onSearchChange, filters, onFi
             className={cn(
               'flex-shrink-0 h-6 px-2.5 rounded-full text-[9px] font-bold border transition-all whitespace-nowrap',
               activeView === view.id
-                ? 'bg-primary/25 text-primary border-primary/50 shadow-sm'
+                ? 'glow-active border-transparent'
                 : 'bg-card border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
             )}>
             {view.label}

@@ -1,4 +1,5 @@
 import { Search, SlidersHorizontal } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
 const QUICK_FILTERS = [
@@ -42,11 +43,12 @@ export default function LogsCompactFilterBar({ search, onSearch, activeFilter, o
             <button
               key={filter.id}
               onClick={() => { haptics.light?.(); onFilterChange(filter.id); }}
-              className={`flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+              className={cn(
+                'flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
                 activeFilter === filter.id
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                  ? 'glow-active'
                   : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
-              }`}
+              )}
             >
               {filter.label}
             </button>

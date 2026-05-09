@@ -25,7 +25,7 @@ export default function LogFilterChips({ activeFilter, onFilterChange }) {
             className={cn(
               'flex items-center gap-1 px-2.5 py-1 rounded-full border font-semibold text-xs whitespace-nowrap transition-all active:scale-95',
               activeFilter === id
-                ? 'border-primary bg-primary/15 text-primary'
+                ? 'glow-active border-transparent'
                 : 'border-border/40 bg-card text-muted-foreground hover:border-border/60'
             )}
           >

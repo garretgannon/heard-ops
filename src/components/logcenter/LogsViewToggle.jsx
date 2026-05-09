@@ -10,7 +10,7 @@ export default function LogsViewToggle({ view, onViewChange }) {
         className={cn(
           'flex items-center gap-2 px-3 py-1.5 rounded-lg border font-semibold text-sm transition-all active:scale-95',
           view === 'list'
-            ? 'border-primary bg-primary/15 text-primary'
+            ? 'glow-active border-transparent'
             : 'border-border/40 bg-card text-muted-foreground hover:border-border/60'
         )}
       >
@@ -23,7 +23,7 @@ export default function LogsViewToggle({ view, onViewChange }) {
         className={cn(
           'flex items-center gap-2 px-3 py-1.5 rounded-lg border font-semibold text-sm transition-all active:scale-95',
           view === 'calendar'
-            ? 'border-primary bg-primary/15 text-primary'
+            ? 'glow-active border-transparent'
             : 'border-border/40 bg-card text-muted-foreground hover:border-border/60'
         )}
       >

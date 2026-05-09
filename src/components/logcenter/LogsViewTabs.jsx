@@ -1,4 +1,5 @@
 import { haptics } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 
 const VIEW_OPTIONS = [
   { id: 'feed', label: 'Feed' },
@@ -14,11 +15,12 @@ export default function LogsViewTabs({ activeView, onViewChange }) {
           <button
             key={view.id}
             onClick={() => { haptics.light?.(); onViewChange(view.id); }}
-            className={`flex-1 h-9 rounded-lg text-xs font-semibold transition-all ${
+            className={cn(
+              'flex-1 h-9 rounded-lg text-xs font-semibold transition-all duration-200',
               activeView === view.id
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                ? 'glow-active'
                 : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60'
-            }`}
+            )}
           >
             {view.label}
           </button>
