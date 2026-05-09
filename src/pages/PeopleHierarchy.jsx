@@ -6,6 +6,7 @@ import OwnershipTab from '@/components/people/OwnershipTab';
 import RolesManagerTab from '@/components/people/RolesManagerTab';
 import JobCodesTab from '@/components/people/JobCodesTab';
 import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
+import AssignmentAuthorityEditor from '@/components/people/AssignmentAuthorityEditor';
 import { useNavigate } from 'react-router-dom';
 
 const TABS = [
@@ -85,23 +86,13 @@ export default function PeopleHierarchy() {
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-sm font-bold text-foreground">Assignment Authority</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Who can assign tasks to whom (default rules)</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Who can assign tasks to whom</p>
               </div>
-              <div className="divide-y divide-border/30">
-                {DEFAULT_AUTHORITY.map(row => (
-                  <div key={row.role} className="flex items-center gap-3 px-4 py-2.5">
-                    <p className="text-xs font-semibold text-foreground w-32 shrink-0">{row.role}</p>
-                    <p className="text-xs text-muted-foreground flex-1">
-                      {row.canAssign
-                        ? row.canAssign
-                        : <span className="italic text-muted-foreground/50">Cannot assign tasks</span>
-                      }
-                    </p>
-                  </div>
-                ))}
+              <div className="p-4">
+                <AssignmentAuthorityEditor />
               </div>
-              <div className="px-4 py-3 border-t border-border/40">
-                <p className="text-xs text-muted-foreground">Per-employee overrides can be set in Directory, Edit Employee, Can Assign Tasks To.</p>
+              <div className="px-4 py-3 border-t border-border/40 bg-background/50">
+                <p className="text-[10px] text-muted-foreground">Individual employee overrides can be set in Directory → Edit Employee → Can Assign Tasks To.</p>
               </div>
             </div>
           </div>
