@@ -355,9 +355,22 @@ export default function ScheduleCenter() {
 
           {/* Header: Title + Week Navigation + Right Actions */}
           <div className="flex items-center justify-between">
-            {/* LEFT: Title + Week Nav */}
+            {/* LEFT: Title + Week Nav + Expand */}
             <div className="flex items-center gap-4 min-w-0">
-              <h1 className="text-lg font-extrabold text-foreground shrink-0">Schedule</h1>
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-lg font-extrabold text-foreground shrink-0">Schedule</h1>
+                {!isMobile && (
+                  isExpanded ? (
+                    <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Collapse">
+                      <Minimize className="h-3.5 w-3.5" />
+                    </button>
+                  ) : (
+                    <button onClick={() => setIsExpanded(true)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Expand">
+                      <Expand className="h-3.5 w-3.5" />
+                    </button>
+                  )
+                )}
+              </div>
               {!isMobile && (
                 <div className="flex items-center gap-1.5">
                   <button onClick={() => setCurrentWeek(addDays(currentWeek, -7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Previous week">
@@ -376,16 +389,6 @@ export default function ScheduleCenter() {
             </div>
 
             {/* RIGHT: Actions */}
-            {!isMobile && !isExpanded && (
-              <button onClick={() => setIsExpanded(true)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Expand">
-                <Expand className="h-3.5 w-3.5" />
-              </button>
-            )}
-            {!isMobile && isExpanded && (
-              <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Collapse">
-                <Minimize className="h-3.5 w-3.5" />
-              </button>
-            )}
             {isMobile ? (
               <div className="flex items-center gap-1.5 shrink-0">
                 <button onClick={() => setShowMassAdd(true)} className="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center">
