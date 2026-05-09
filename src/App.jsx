@@ -125,7 +125,8 @@ const AuthenticatedApp = () => {
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
         {/* BOTTOM NAV ROUTES (5 main) */}
-        <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/dashboard" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
         <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
         <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
