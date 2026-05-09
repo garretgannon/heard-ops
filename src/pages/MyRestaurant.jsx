@@ -184,19 +184,22 @@ function EquipmentModal({ onClose }) {
   const navigate = useNavigate();
   const [equipment, setEquipment] = useState([]);
   const [stations, setStations] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [expandedStation, setExpandedStation] = useState(null);
   const [addingToStation, setAddingToStation] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const emptyForm = { name: '', equipmentType: '', station: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false, isActive: true };
+  const emptyForm = { name: '', equipmentType: '', station: '', modelNumber: '', serialNumber: '', vendorId: '', vendorName: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false, isActive: true };
   const [form, setForm] = useState(emptyForm);
 
   const reload = async () => {
-    const [eq, st] = await Promise.all([
+    const [eq, st, vd] = await Promise.all([
       base44.entities.Equipment.list('-updated_date', 200),
       base44.entities.Station.list('name', 100),
+      base44.entities.Vendor.list('name', 200).catch(() => []),
     ]);
     setEquipment(eq);
     setStations(st);
+    setVendors(vd);
   };
   useEffect(() => { reload(); }, []);
 
@@ -221,7 +224,7 @@ function EquipmentModal({ onClose }) {
   const startEdit = (item) => {
     setEditingId(item.id);
     setAddingToStation(null);
-    setForm({ name: item.name, equipmentType: item.equipmentType, station: item.station || '', modelNumber: item.modelNumber || '', serialNumber: item.serialNumber || '', requiresTemperatureLog: !!item.requiresTemperatureLog, requiresCleaningChecklist: !!item.requiresCleaningChecklist, requiresMaintenanceChecklist: !!item.requiresMaintenanceChecklist, inInventory: !!item.inInventory, isActive: item.isActive !== false });
+    setForm({ name: item.name, equipmentType: item.equipmentType, station: item.station || '', modelNumber: item.modelNumber || '', serialNumber: item.serialNumber || '', vendorId: item.vendorId || '', vendorName: item.vendorName || '', requiresTemperatureLog: !!item.requiresTemperatureLog, requiresCleaningChecklist: !!item.requiresCleaningChecklist, requiresMaintenanceChecklist: !!item.requiresMaintenanceChecklist, inInventory: !!item.inInventory, isActive: item.isActive !== false });
     setExpandedStation(item.station || '__unassigned');
   };
 
@@ -260,6 +263,13 @@ function EquipmentModal({ onClose }) {
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
           className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
       </div>
+      <select value={form.vendorId} onChange={e => {
+        const vendor = vendors.find(v => v.id === e.target.value);
+        setForm(p => ({ ...p, vendorId: e.target.value, vendorName: vendor?.name || '' }));
+      }} className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground">
+        <option value="">Select Vendor (optional)</option>
+        {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+      </select>
       <div className="space-y-1.5">
         {[
           ['requiresTemperatureLog', '🌡️ Requires Temperature Log'],
@@ -353,7 +363,7 @@ function EquipmentModal({ onClose }) {
                           <div className="flex items-center gap-2">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-foreground">{item.name}</p>
-                              <p className="text-xs text-muted-foreground">{typeLabel(item.equipmentType)}{item.modelNumber ? ` · ${item.modelNumber}` : ''}</p>
+                              <p className="text-xs text-muted-foreground">{typeLabel(item.equipmentType)}{item.modelNumber ? ` · ${item.modelNumber}` : ''}{item.vendorName && <span className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-300 rounded ml-1">📞 {item.vendorName}</span>}</p>
                             </div>
                             <button onClick={() => startEdit(item)} className="text-xs font-bold text-primary px-2 py-1 rounded hover:bg-primary/10">Edit</button>
                             <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
