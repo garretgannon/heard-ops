@@ -26,6 +26,18 @@ export default function OperationalContextPanel({
   const [equipDesc, setEquipDesc] = useState('');
   const [equipSaving, setEquipSaving] = useState(false);
 
+  const [editAreaName, setEditAreaName] = useState('');
+  const [editAreaDesc, setEditAreaDesc] = useState('');
+  const [editAreaSaving, setEditAreaSaving] = useState(false);
+
+  const [editStationName, setEditStationName] = useState('');
+  const [editStationDesc, setEditStationDesc] = useState('');
+  const [editStationSaving, setEditStationSaving] = useState(false);
+
+  const [editEquipName, setEditEquipName] = useState('');
+  const [editEquipDesc, setEditEquipDesc] = useState('');
+  const [editEquipSaving, setEditEquipSaving] = useState(false);
+
   // Handlers for Area Add
   const handleAddArea = async () => {
     if (!areaName.trim()) {
@@ -105,6 +117,66 @@ export default function OperationalContextPanel({
       toast.error('Failed to create equipment');
     }
     setEquipSaving(false);
+  };
+
+  const handleEditArea = async () => {
+    if (!editAreaName.trim() || !itemId) {
+      toast.error('Area name is required');
+      return;
+    }
+    setEditAreaSaving(true);
+    try {
+      await base44.entities.Area.update(itemId, {
+        name: editAreaName.trim(),
+        description: editAreaDesc.trim(),
+      });
+      toast.success('Area updated');
+      onRefresh?.();
+      onClose?.();
+    } catch (err) {
+      toast.error('Failed to update area');
+    }
+    setEditAreaSaving(false);
+  };
+
+  const handleEditStation = async () => {
+    if (!editStationName.trim() || !itemId) {
+      toast.error('Station name is required');
+      return;
+    }
+    setEditStationSaving(true);
+    try {
+      await base44.entities.Station.update(itemId, {
+        name: editStationName.trim(),
+        description: editStationDesc.trim(),
+      });
+      toast.success('Station updated');
+      onRefresh?.();
+      onClose?.();
+    } catch (err) {
+      toast.error('Failed to update station');
+    }
+    setEditStationSaving(false);
+  };
+
+  const handleEditEquipment = async () => {
+    if (!editEquipName.trim() || !itemId) {
+      toast.error('Equipment name is required');
+      return;
+    }
+    setEditEquipSaving(true);
+    try {
+      await base44.entities.Equipment.update(itemId, {
+        name: editEquipName.trim(),
+        description: editEquipDesc.trim(),
+      });
+      toast.success('Equipment updated');
+      onRefresh?.();
+      onClose?.();
+    } catch (err) {
+      toast.error('Failed to update equipment');
+    }
+    setEditEquipSaving(false);
   };
 
   const renderEquipmentPanel = () => {
@@ -461,14 +533,158 @@ export default function OperationalContextPanel({
     );
   };
 
+  const renderAreaEditPanel = () => {
+    const area = areas.find(a => a.id === itemId);
+    if (!area) return null;
+
+    if (!editAreaName && area) {
+      setEditAreaName(area.name);
+      setEditAreaDesc(area.description || '');
+    }
+
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Edit Area</h2>
+            <p className="text-xs text-muted-foreground mt-1">Update area details</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="border-t border-border/20 pt-4 space-y-3">
+          <input
+            type="text"
+            placeholder="Area name"
+            value={editAreaName}
+            onChange={(e) => setEditAreaName(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+          />
+          <textarea
+            placeholder="Description (optional)"
+            value={editAreaDesc}
+            onChange={(e) => setEditAreaDesc(e.target.value)}
+            rows={2}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+          />
+          <button
+            onClick={handleEditArea}
+            disabled={editAreaSaving}
+            className="w-full py-2 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:brightness-110 disabled:opacity-60 transition-all"
+          >
+            {editAreaSaving ? 'Saving...' : 'Save Area'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderStationEditPanel = () => {
+    const station = stations.find(s => s.id === itemId);
+    if (!station) return null;
+
+    if (!editStationName && station) {
+      setEditStationName(station.name);
+      setEditStationDesc(station.description || '');
+    }
+
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Edit Station</h2>
+            <p className="text-xs text-muted-foreground mt-1">Update station details</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="border-t border-border/20 pt-4 space-y-3">
+          <input
+            type="text"
+            placeholder="Station name"
+            value={editStationName}
+            onChange={(e) => setEditStationName(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+          />
+          <textarea
+            placeholder="Description (optional)"
+            value={editStationDesc}
+            onChange={(e) => setEditStationDesc(e.target.value)}
+            rows={2}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+          />
+          <button
+            onClick={handleEditStation}
+            disabled={editStationSaving}
+            className="w-full py-2 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:brightness-110 disabled:opacity-60 transition-all"
+          >
+            {editStationSaving ? 'Saving...' : 'Save Station'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEquipmentEditPanel = () => {
+    const equip = equipment.find(e => e.id === itemId);
+    if (!equip) return null;
+
+    if (!editEquipName && equip) {
+      setEditEquipName(equip.name);
+      setEditEquipDesc(equip.description || '');
+    }
+
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Edit Equipment</h2>
+            <p className="text-xs text-muted-foreground mt-1">Update equipment details</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="border-t border-border/20 pt-4 space-y-3">
+          <input
+            type="text"
+            placeholder="Equipment name"
+            value={editEquipName}
+            onChange={(e) => setEditEquipName(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+          />
+          <textarea
+            placeholder="Description (optional)"
+            value={editEquipDesc}
+            onChange={(e) => setEditEquipDesc(e.target.value)}
+            rows={2}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+          />
+          <button
+            onClick={handleEditEquipment}
+            disabled={editEquipSaving}
+            className="w-full py-2 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:brightness-110 disabled:opacity-60 transition-all"
+          >
+            {editEquipSaving ? 'Saving...' : 'Save Equipment'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       {type === 'equipment' && renderEquipmentPanel()}
       {type === 'equipment-add' && renderEquipmentAddPanel()}
+      {type === 'equipment-edit' && renderEquipmentEditPanel()}
       {type === 'area' && renderAreaPanel()}
       {type === 'area-add' && renderAreaAddPanel()}
+      {type === 'area-edit' && renderAreaEditPanel()}
       {type === 'station' && renderStationPanel()}
       {type === 'station-add' && renderStationAddPanel()}
+      {type === 'station-edit' && renderStationEditPanel()}
     </>
   );
 }
