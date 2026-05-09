@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell,
   DollarSign, Clock, Users, Filter, Grid3x3, LayoutTemplate,
-  RefreshCw, X, Check, RotateCcw, RotateCw, Plus, CalendarOff, Keyboard, AlertCircle
+  RefreshCw, X, Check, RotateCcw, RotateCw, Plus, CalendarOff, Keyboard, AlertCircle, Expand, Minimize
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -58,6 +58,7 @@ export default function ScheduleCenter() {
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showGroupPanel, setShowGroupPanel] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const h = () => setIsMobile(window.innerWidth < 1024);
@@ -375,6 +376,16 @@ export default function ScheduleCenter() {
             </div>
 
             {/* RIGHT: Actions */}
+            {!isMobile && !isExpanded && (
+              <button onClick={() => setIsExpanded(true)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Expand">
+                <Expand className="h-3.5 w-3.5" />
+              </button>
+            )}
+            {!isMobile && isExpanded && (
+              <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Collapse">
+                <Minimize className="h-3.5 w-3.5" />
+              </button>
+            )}
             {isMobile ? (
               <div className="flex items-center gap-1.5 shrink-0">
                 <button onClick={() => setShowMassAdd(true)} className="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center">
@@ -408,6 +419,7 @@ export default function ScheduleCenter() {
           </div>
 
           {/* Operational Metrics Bar */}
+          {!isExpanded && (
           <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
             {[
               { label: 'Scheduled Hours', value: totalHours.toFixed(0), suffix: 'h', color: 'text-blue-400' },
@@ -423,9 +435,10 @@ export default function ScheduleCenter() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Secondary Toolbar (Desktop) */}
-          {!isMobile && (
+          {!isMobile && !isExpanded && (
             <div className="flex items-center justify-between pt-2 border-t border-border/20">
               <div className="flex items-center gap-2.5">
                 {/* Group By */}
