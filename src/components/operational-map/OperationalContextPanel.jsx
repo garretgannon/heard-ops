@@ -157,7 +157,7 @@ export default function OperationalContextPanel({
         </div>
 
         {/* Edit Button */}
-        <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+        <button onClick={() => onEdit?.(equip)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
           <Edit2 className="h-3.5 w-3.5" />
           Edit Equipment
         </button>
@@ -229,7 +229,10 @@ export default function OperationalContextPanel({
 
           {/* Vendor */}
           <div>
-            <p className="text-xs font-bold text-foreground mb-2">Vendor</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-foreground">Vendor / Service</p>
+              <button className="text-[10px] text-primary hover:underline font-bold">Edit</button>
+            </div>
             <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs">
               <p className="font-semibold text-foreground">Frymaster</p>
               <p className="text-muted-foreground">Model JB14</p>
@@ -239,7 +242,10 @@ export default function OperationalContextPanel({
 
           {/* Linked Chemicals */}
           <div>
-            <p className="text-xs font-bold text-foreground mb-2">Linked Chemicals / SDS</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-foreground">Linked Chemicals / SDS</p>
+              <button className="text-[10px] text-primary hover:underline font-bold">+ Add</button>
+            </div>
             <div className="space-y-1.5">
               <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs flex items-center justify-between">
                 <div>
