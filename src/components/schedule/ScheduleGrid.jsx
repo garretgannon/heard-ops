@@ -84,20 +84,21 @@ export default function ScheduleGrid({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="rounded-xl border border-border/40 bg-card shadow-sm overflow-hidden">
-        <div className="overflow-auto max-h-[calc(100vh-340px)]">
+        <div className="overflow-auto max-h-[calc(100vh-400px)]">
           <div className="min-w-[860px]">
-            {/* Sticky header */}
-            <div className="grid sticky top-0 z-20 border-b border-border/50" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
-              <div className="px-4 py-3 bg-card border-r border-border/30 sticky left-0 z-30">
+            {/* Premium Header */}
+            <div className="grid sticky top-0 z-20 border-b border-border/50 bg-card/95 backdrop-blur-sm" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+              <div className="px-3 py-2.5 border-r border-border/30 sticky left-0 z-30 bg-card/95">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Employee</p>
               </div>
               {weekDays.map((day, idx) => {
                 const today = isToday(day);
                 return (
-                  <div key={idx} className={cn('py-2.5 px-2 text-center border-l border-border/30', today ? 'bg-primary/10' : 'bg-card')}>
-                    <p className={cn('text-[10px] font-bold uppercase tracking-widest', today ? 'text-primary' : 'text-muted-foreground')}>{format(day, 'EEE')}</p>
-                    <p className={cn('text-sm font-bold mt-0.5', today ? 'text-primary' : 'text-foreground')}>{format(day, 'd')}</p>
-                    <p className={cn('text-[9px] mt-0.5', today ? 'text-primary/70' : 'text-muted-foreground')}>{format(day, 'MMM')}</p>
+                  <div key={idx} className={cn('py-2 px-1.5 text-center border-l border-border/30 relative', today ? 'bg-primary/8' : 'bg-card/95')}>
+                    {today && <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />}
+                    <p className={cn('text-[9px] font-bold uppercase tracking-widest', today ? 'text-primary' : 'text-muted-foreground')}>{format(day, 'EEE')}</p>
+                    <p className={cn('text-xs font-extrabold mt-0.5', today ? 'text-primary' : 'text-foreground')}>{format(day, 'd')}</p>
+                    {today && <span className="inline-block text-[8px] font-bold text-primary mt-1">TODAY</span>}
                   </div>
                 );
               })}
@@ -143,22 +144,18 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
   }, 0);
 
   return (
-    <div className={cn('grid border-t border-border/25', isEven ? 'bg-card/20' : 'bg-background/40')} style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
-      {/* Sticky employee cell */}
-      <div className="flex items-center gap-2.5 px-3 py-2.5 border-r border-border/30 sticky left-0 z-10 bg-inherit">
-        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-          <span className="text-[11px] font-extrabold text-primary">
-            {(employee.name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-          </span>
+    <div className={cn('grid border-t border-border/20', isEven ? 'bg-background/50' : 'bg-background/30')} style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+      {/* Compact Employee Cell */}
+      <div className="flex items-center gap-2 px-3 py-2 border-r border-border/30 sticky left-0 z-10 bg-inherit">
+        <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-[10px] font-extrabold text-primary">
+          {(employee.name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-foreground truncate leading-tight">{employee.name}</p>
-          <p className="text-[10px] text-muted-foreground truncate capitalize">{employee.role}</p>
-          {totalHours > 0 && (
-            <p className={cn('text-[9px] font-bold mt-0.5', totalHours > 40 ? 'text-red-400' : 'text-muted-foreground/70')}>
-              {totalHours.toFixed(1)}h
-            </p>
-          )}
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <p className="text-[9px] text-muted-foreground truncate capitalize">{employee.role}</p>
+            {totalHours > 0 && <p className={cn('text-[9px] font-bold whitespace-nowrap', totalHours > 40 ? 'text-red-400' : 'text-muted-foreground/60')}>{totalHours.toFixed(1)}h</p>}
+          </div>
         </div>
       </div>
 
@@ -185,13 +182,13 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
                   if (dayShifts.length === 0) { e.preventDefault(); onEmptyCellContextMenu?.(employee, day, e.clientX, e.clientY); }
                 }}
                 className={cn(
-                  'min-h-[68px] px-1.5 py-1.5 border-l border-border/20 relative transition-colors group/cell',
-                  today && 'bg-primary/5',
-                  snapshot.isDraggingOver && 'bg-primary/15 border-primary/40',
-                  timeOffStatus === 'approved' && 'bg-red-500/8',
-                  timeOffStatus === 'pending' && 'bg-amber-500/5',
-                  isUnavailable && 'bg-muted/20',
-                  dayShifts.length === 0 && !snapshot.isDraggingOver && 'cursor-pointer hover:bg-white/3'
+                  'min-h-[56px] px-1 py-1 border-l border-border/20 relative transition-all group/cell',
+                  today && 'bg-primary/6 border-l-primary/30',
+                  snapshot.isDraggingOver && 'bg-primary/20 border-primary/50 shadow-inner',
+                  timeOffStatus === 'approved' && 'bg-red-500/10',
+                  timeOffStatus === 'pending' && 'bg-amber-500/8',
+                  isUnavailable && 'bg-muted/15',
+                  dayShifts.length === 0 && !snapshot.isDraggingOver && 'cursor-pointer hover:bg-primary/4'
                 )}
               >
                 {/* Time-off indicator */}

@@ -4,11 +4,11 @@ import { AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell,
   DollarSign, Clock, Users, Filter, Grid3x3, LayoutTemplate,
-  RefreshCw, X, Check, RotateCcw, RotateCw, Plus, CalendarOff, Keyboard
+  RefreshCw, X, Check, RotateCcw, RotateCw, Plus, CalendarOff, Keyboard, AlertCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { addDays, startOfWeek, format, isSameDay, parseISO, isWithinInterval, getDay } from 'date-fns';
+import { addDays, startOfWeek, format, isSameDay, parseISO, isWithinInterval, getDay, differenceInDays } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 
@@ -348,144 +348,141 @@ export default function ScheduleCenter() {
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); }}>
 
-      {/* ── Sticky Header ── */}
+      {/* ── Premium Header ── */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border/20">
-        <div className="px-4 lg:px-6 py-3">
+        <div className="px-4 lg:px-6 py-4 space-y-3">
 
-          {/* Top row */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 min-w-0">
-              <h1 className="text-base font-bold text-foreground shrink-0">Schedule</h1>
-              <WeekSelector currentWeek={currentWeek} onWeekChange={setCurrentWeek} />
+          {/* Header: Title + Week Navigation + Right Actions */}
+          <div className="flex items-center justify-between">
+            {/* LEFT: Title + Week Nav */}
+            <div className="flex items-center gap-4 min-w-0">
+              <h1 className="text-lg font-extrabold text-foreground shrink-0">Schedule</h1>
+              {!isMobile && (
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => setCurrentWeek(addDays(currentWeek, -7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Previous week">
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))} className="h-8 px-2.5 rounded-lg border border-border/50 hover:bg-card text-xs font-bold text-muted-foreground transition-colors">
+                    Today
+                  </button>
+                  <button onClick={() => setCurrentWeek(addDays(currentWeek, 7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Next week">
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                  <div className="w-px h-5 bg-border/30" />
+                  <p className="text-xs font-semibold text-muted-foreground">{format(weekDays[0], 'MMM d')} – {format(weekDays[6], 'MMM d')}</p>
+                </div>
+              )}
             </div>
 
-            {/* Mobile actions */}
+            {/* RIGHT: Actions */}
             {isMobile ? (
               <div className="flex items-center gap-1.5 shrink-0">
-                <button onClick={() => setShowRequestOff(true)}
-                  className={cn('h-8 w-8 rounded-lg border flex items-center justify-center', pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border bg-card text-muted-foreground')}>
-                  <CalendarOff className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={() => setShowMassAdd(true)}
-                  className="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center">
+                <button onClick={() => setShowMassAdd(true)} className="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center">
                   <Plus className="h-3.5 w-3.5" />
                 </button>
-                <button onClick={handlePublish} disabled={publishing}
-                  className={cn('h-8 px-3 rounded-lg text-xs font-bold transition-all disabled:opacity-60',
-                    draftCount > 0 ? 'bg-primary text-white' : 'border border-border bg-card text-muted-foreground')}>
-                  {publishing ? '…' : draftCount > 0 ? `Pub ${draftCount}` : '✓ Done'}
+                <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white' : 'border border-border bg-card text-muted-foreground')}>
+                  {publishing ? '…' : draftCount > 0 ? `${draftCount}` : '✓'}
                 </button>
               </div>
             ) : (
-              /* Desktop actions */
-              <div className="flex items-center gap-2">
-                <button onClick={handleUndo} disabled={undoStack.length === 0} title="Undo (⌘Z)"
-                  className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors disabled:opacity-30">
-                  <RotateCcw className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={handleRedo} disabled={redoStack.length === 0} title="Redo (⌘⇧Z)"
-                  className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors disabled:opacity-30">
-                  <RotateCw className="h-3.5 w-3.5" />
-                </button>
-                <div className="w-px h-5 bg-border/50" />
-                <button onClick={() => setShowSearch(s => !s)}
-                  className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={() => setShowSearch(s => !s)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Search">
                   <Search className="h-3.5 w-3.5" />
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }}
-                  className={cn('h-8 px-2.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-colors',
-                    pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border hover:bg-card text-muted-foreground')}>
-                  <CalendarOff className="h-3.5 w-3.5" />
-                  {pendingTimeOff > 0 ? `${pendingTimeOff} pending` : 'Time Off'}
+                <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }} className={cn('h-8 px-2.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-colors', pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                  <Bell className="h-3.5 w-3.5" />
+                  {pendingTimeOff > 0 && pendingTimeOff}
                 </button>
                 {isAdmin && (
-                  <button onClick={() => setShowMassAdd(true)}
-                    className="h-8 px-3 rounded-lg bg-primary/15 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/25 transition-all">
-                    <Plus className="h-3.5 w-3.5" /> Mass Add
+                  <button onClick={() => setShowMassAdd(true)} className="h-8 px-3 rounded-lg bg-primary/10 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all">
+                    <Plus className="h-3.5 w-3.5" /> Add
                   </button>
                 )}
-                <button onClick={handlePublish} disabled={publishing}
-                  className={cn('h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60',
-                    draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border bg-card text-muted-foreground')}>
+                <div className="w-px h-5 bg-border/30" />
+                <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border/50 text-muted-foreground hover:bg-card')}>
                   <Download className="h-3.5 w-3.5" />
-                  {publishing ? 'Publishing…' : draftCount > 0 ? `Publish ${draftCount}` : 'Published'}
+                  {publishing ? '…' : draftCount > 0 ? `Pub ${draftCount}` : 'Done'}
                 </button>
               </div>
             )}
           </div>
 
-          {/* KPI row */}
-          <div className="flex items-center gap-2 mb-3 overflow-x-auto">
+          {/* Operational Metrics Bar */}
+          <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
             {[
-              { label: 'Hours', value: totalHours.toFixed(0) + 'h', icon: Clock, color: 'text-foreground' },
-              { label: 'Staff', value: filteredEmployees.length, icon: Users, color: 'text-foreground' },
-              { label: 'Draft', value: draftCount, icon: Calendar, color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground' },
-              { label: 'Issues', value: conflictCount, icon: Bell, color: conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground' },
-            ].map(({ label, value, icon: KpiIcon, color }) => (
-              <div key={label} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border/30 bg-card/40 shrink-0">
-                <KpiIcon className={cn('h-3 w-3', color)} />
-                <div>
-                  <p className={cn('text-xs font-bold leading-none', color)}>{value}</p>
-                  <p className="text-[9px] text-muted-foreground mt-0.5">{label}</p>
-                </div>
+              { label: 'Scheduled Hours', value: totalHours.toFixed(0), suffix: 'h', color: 'text-blue-400' },
+              { label: 'Labor Cost', value: '$0', suffix: '', color: 'text-green-400' },
+              { label: 'Staff Scheduled', value: weekShifts.length > 0 ? new Set(weekShifts.map(s => s.employee_email)).size : 0, suffix: '', color: 'text-foreground' },
+              { label: 'Draft Shifts', value: draftCount, suffix: '', color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground' },
+              { label: 'Pending Approvals', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground' },
+              { label: 'Conflicts/Issues', value: conflictCount, suffix: '', color: conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground' },
+            ].map(({ label, value, suffix, color }) => (
+              <div key={label} className="bg-card/50 border border-border/40 rounded-lg px-2.5 py-2">
+                <p className={cn('text-sm font-extrabold leading-none', color)}>{value}{suffix}</p>
+                <p className="text-[10px] text-muted-foreground mt-1 truncate">{label}</p>
               </div>
             ))}
           </div>
 
-          {/* Desktop controls */}
+          {/* Secondary Toolbar (Desktop) */}
           {!isMobile && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between pt-2 border-t border-border/20">
+              <div className="flex items-center gap-2.5">
+                {/* Group By */}
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }}
-                    className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
-                    <Grid3x3 className="h-3 w-3" /> {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Dept' : 'Role'}
+                  <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                    <Grid3x3 className="h-3 w-3" />
+                    <span>Group by {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Department' : 'Role'}</span>
                   </button>
                   {showGroupPanel && (
-                    <div className="absolute top-9 left-0 z-50 w-40 rounded-xl border border-border bg-card shadow-xl p-2 space-y-0.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border bg-card shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
                       {[['employee','Employee'],['department','Department'],['role','Role']].map(([val, label]) => (
-                        <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }}
-                          className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors', groupBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
-                          {groupBy === val && <Check className="h-3 w-3" />}{groupBy !== val && <span className="w-3" />}{label}
+                        <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }} className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors', groupBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
+                          {groupBy === val && <Check className="h-3 w-3" />}
+                          {label}
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
+
+                {/* Filter */}
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); }}
-                    className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
-                    <Filter className="h-3 w-3" /> Filter {filterDepts.length > 0 && `(${filterDepts.length})`}
+                  <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                    <Filter className="h-3 w-3" />
+                    <span>Filter {filterDepts.length > 0 && `(${filterDepts.length})`}</span>
                   </button>
                   {showFilterPanel && (
-                    <div className="absolute top-9 left-0 z-50 w-44 rounded-xl border border-border bg-card shadow-xl p-2 space-y-0.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border bg-card shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
                       {DEPARTMENTS.map(d => (
-                        <button key={d} onClick={() => setFilterDepts(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d])}
-                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-foreground hover:bg-secondary transition-colors">
+                        <button key={d} onClick={() => setFilterDepts(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d])} className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium text-foreground hover:bg-secondary transition-colors">
                           <div className={cn('h-3.5 w-3.5 rounded border flex items-center justify-center', filterDepts.includes(d) ? 'bg-primary border-primary' : 'border-border')}>
                             {filterDepts.includes(d) && <Check className="h-2 w-2 text-white" />}
                           </div>
                           {d}
                         </button>
                       ))}
-                      {filterDepts.length > 0 && <button onClick={() => setFilterDepts([])} className="w-full mt-1 text-[10px] text-primary hover:underline">Clear</button>}
+                      {filterDepts.length > 0 && <button onClick={() => setFilterDepts([])} className="w-full mt-1 text-[10px] text-primary font-medium hover:underline">Clear Filters</button>}
                     </div>
                   )}
                 </div>
-                <button onClick={() => navigate('/templates')}
-                  className="h-7 px-2.5 rounded-lg border border-border hover:bg-card text-[11px] font-bold text-muted-foreground flex items-center gap-1 transition-colors">
+
+                <div className="w-px h-4 bg-border/20" />
+
+                {/* Templates */}
+                <button onClick={() => navigate('/templates')} className="h-7 px-2.5 rounded-lg border border-border/50 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-card transition-colors">
                   <LayoutTemplate className="h-3 w-3" /> Templates
                 </button>
-                <button onClick={() => setShowShortcuts(p => !p)}
-                  className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border hover:bg-card text-muted-foreground')}>
+
+                {/* Shortcuts */}
+                <button onClick={() => setShowShortcuts(p => !p)} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                   <Keyboard className="h-3 w-3" /> Shortcuts
                 </button>
               </div>
-              <div className="flex items-center gap-2">
-                <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
-                  <RefreshCw className="h-3 w-3" />
-                </button>
-              </div>
+
+              <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border/50 hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Refresh">
+                <RefreshCw className="h-3.5 w-3.5" />
+              </button>
             </div>
           )}
         </div>
