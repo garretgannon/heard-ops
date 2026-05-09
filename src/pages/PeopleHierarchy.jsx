@@ -13,7 +13,6 @@ const TABS = [
   { id: 'ownership', label: 'Ownership',  icon: MapPin },
   { id: 'roles',     label: 'Roles',      icon: Shield },
   { id: 'job-codes', label: 'Job Codes',  icon: Shield },
-  { id: 'access',    label: 'Access',     icon: Shield },
 ];
 
 const DEFAULT_AUTHORITY = [
@@ -69,10 +68,9 @@ export default function PeopleHierarchy() {
         {tab === 'directory' && <EmployeeDirectoryTab />}
         {tab === 'org'       && <OrgChartTab />}
         {tab === 'ownership' && <OwnershipTab />}
-        {tab === 'roles'     && <RolesManagerTab />}
-        {tab === 'job-codes' && <JobCodesTab />}
-        {tab === 'access'    && (
+        {tab === 'roles'     && (
           <div className="space-y-3">
+            <RolesManagerTab />
             <div className="bg-card border border-border rounded-xl p-4">
               <p className="text-sm font-bold text-foreground mb-1">Role Permissions</p>
               <p className="text-xs text-muted-foreground mb-3">Define what each role can see and do in the app.</p>
@@ -80,7 +78,6 @@ export default function PeopleHierarchy() {
                 Open Role &amp; Access Manager
               </button>
             </div>
-            {/* Assignment Authority */}
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-sm font-bold text-foreground">Assignment Authority</p>
@@ -105,6 +102,7 @@ export default function PeopleHierarchy() {
             </div>
           </div>
         )}
+        {tab === 'job-codes' && <JobCodesTab />}
       </div>
     </div>
   );
