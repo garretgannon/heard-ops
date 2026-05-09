@@ -41,6 +41,11 @@
       "title": "Can Close Shift",
       "default": false
     },
+    "is_top_level": {
+      "type": "boolean",
+      "title": "Top Level (Does Not Report to Anyone)",
+      "default": false
+    },
     "is_active": {
       "type": "boolean",
       "title": "Active",
