@@ -41,7 +41,7 @@ function InlineEdit({ value, onSave, onCancel, placeholder, className = '' }) {
   );
 }
 
-function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCancel }) {
+function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCancel, existingEquipment = [], editingId = null }) {
   const [form, setForm] = useState({ name: '', equipmentType: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: COLD_TYPES.includes(''), requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false });
 
   const handleTypeSelect = (type) => {
@@ -50,6 +50,8 @@ function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCan
 
   const save = () => {
     if (!form.name.trim() || !form.equipmentType) return;
+    const duplicate = existingEquipment.find(e => e.id !== editingId && e.name.toLowerCase() === form.name.trim().toLowerCase());
+    if (duplicate && !confirm(`Equipment "${duplicate.name}" already exists. Continue anyway?`)) return;
     onSave({ ...form, area_id: areaId, area_name: areaName, station_id: stationId || '', station_name: stationName || '', isActive: true });
   };
 
@@ -165,12 +167,13 @@ function StationBlock({ station, equipment, onDeleteStation, onEditStation, onAd
             <EquipmentRow key={e.id} item={e} onDelete={onDeleteEquipment} onEdit={onEditEquipment} />
           ))}
           {addingEquip ? (
-            <EquipmentForm
-              areaId={station.area_id} areaName={station.area_name}
-              stationId={station.id} stationName={station.name}
-              onSave={data => { onAddEquipment(data); setAddingEquip(false); }}
-              onCancel={() => setAddingEquip(false)}
-            />
+           <EquipmentForm
+             areaId={station.area_id} areaName={station.area_name}
+             stationId={station.id} stationName={station.name}
+             existingEquipment={equipment}
+             onSave={data => { onAddEquipment(data); setAddingEquip(false); }}
+             onCancel={() => setAddingEquip(false)}
+           />
           ) : (
             <button onClick={() => setAddingEquip(true)}
               className="w-full h-7 rounded border border-dashed border-border/60 text-[10px] font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1">
@@ -277,6 +280,7 @@ function AreaBlock({ area, stations, equipment, onDeleteArea, onEditArea, onAddS
               <EquipmentForm
                 areaId={area.id} areaName={area.name}
                 stationId={null} stationName={null}
+                existingEquipment={equipment}
                 onSave={data => { onAddEquipment(data); setAddingEquip(false); }}
                 onCancel={() => setAddingEquip(false)}
               />
@@ -318,6 +322,8 @@ export default function LocationSetup() {
 
   const addArea = async () => {
     if (!newAreaName.trim()) return;
+    const duplicate = areas.find(a => a.name.toLowerCase() === newAreaName.trim().toLowerCase());
+    if (duplicate && !confirm(`Area "${duplicate.name}" already exists. Continue anyway?`)) return;
     await base44.entities.Area.create({ name: newAreaName.trim(), color: newAreaColor, isActive: true });
     setNewAreaName('');
     setAddingArea(false);
@@ -331,7 +337,12 @@ export default function LocationSetup() {
     reload();
   };
 
-  const addStation = async (data) => { await base44.entities.Station.create(data); reload(); };
+  const addStation = async (data) => {
+    const duplicate = stations.find(s => s.name.toLowerCase() === data.name.toLowerCase());
+    if (duplicate && !confirm(`Station "${duplicate.name}" already exists. Continue anyway?`)) return;
+    await base44.entities.Station.create(data);
+    reload();
+  };
   const editStation = async (id, data) => { await base44.entities.Station.update(id, data); reload(); };
   const deleteStation = async (id) => {
     if (!confirm('Delete this station? Equipment will be unlinked from it.')) return;
@@ -339,7 +350,12 @@ export default function LocationSetup() {
     reload();
   };
 
-  const addEquipment = async (data) => { await base44.entities.Equipment.create(data); reload(); };
+  const addEquipment = async (data) => {
+    const duplicate = equipment.find(e => e.name.toLowerCase() === data.name.toLowerCase());
+    if (duplicate && !confirm(`Equipment "${duplicate.name}" already exists. Continue anyway?`)) return;
+    await base44.entities.Equipment.create(data);
+    reload();
+  };
   const editEquipment = async (id, data) => { await base44.entities.Equipment.update(id, data); reload(); };
   const deleteEquipment = async (id) => { await base44.entities.Equipment.delete(id); reload(); };
 
