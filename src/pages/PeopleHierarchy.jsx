@@ -9,11 +9,12 @@ import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBui
 import { useNavigate } from 'react-router-dom';
 
 const TABS = [
-  { id: 'directory', label: 'Directory',  icon: Users },
-  { id: 'org',       label: 'Org Chart',  icon: GitBranch },
-  { id: 'ownership', label: 'Ownership',  icon: MapPin },
-  { id: 'roles',     label: 'Roles',      icon: Shield },
-  { id: 'job-codes', label: 'Job Codes',  icon: Shield },
+  { id: 'directory',  label: 'Directory',   icon: Users },
+  { id: 'org',        label: 'Org Chart',   icon: GitBranch },
+  { id: 'ownership',  label: 'Ownership',   icon: MapPin },
+  { id: 'roles',      label: 'Roles',       icon: Shield },
+  { id: 'permissions',label: 'Permissions', icon: Shield },
+  { id: 'job-codes',  label: 'Job Codes',   icon: Shield },
 ];
 
 const DEFAULT_AUTHORITY = [
@@ -69,9 +70,9 @@ export default function PeopleHierarchy() {
         {tab === 'directory' && <EmployeeDirectoryTab />}
         {tab === 'org'       && <OrgChartTab />}
         {tab === 'ownership' && <OwnershipTab />}
-        {tab === 'roles'     && (
+        {tab === 'roles'     && <RolesManagerTab />}
+        {tab === 'permissions' && (
           <div className="space-y-3">
-            <RolesManagerTab />
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-sm font-bold text-foreground">Permissions & Visibility</p>
