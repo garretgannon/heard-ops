@@ -1,0 +1,78 @@
+{
+  "name": "TriggerRule",
+  "type": "object",
+  "properties": {
+    "rule_name": {
+      "type": "string",
+      "title": "Trigger Rule Name"
+    },
+    "trigger_type": {
+      "type": "string",
+      "title": "Trigger Type",
+      "enum": [
+        "shift_start",
+        "shift_end",
+        "specific_time",
+        "recurring_interval",
+        "equipment_assigned",
+        "station_assigned",
+        "event_created",
+        "check_failed",
+        "task_missed",
+        "maintenance_issue"
+      ]
+    },
+    "shift_start_type": {
+      "type": "string",
+      "title": "Trigger on Shift Start",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "any",
+        "none"
+      ]
+    },
+    "shift_end_type": {
+      "type": "string",
+      "title": "Trigger on Shift End",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "any",
+        "none"
+      ]
+    },
+    "specific_time": {
+      "type": "string",
+      "title": "Specific Time (HH:MM)"
+    },
+    "recurring_interval_minutes": {
+      "type": "number",
+      "title": "Recurring Interval (minutes)"
+    },
+    "equipment_id": {
+      "type": "string",
+      "title": "Equipment ID (if applicable)"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID (if applicable)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "linked_template_id": {
+      "type": "string",
+      "title": "Linked Automation Template ID"
+    }
+  },
+  "required": [
+    "rule_name",
+    "trigger_type",
+    "linked_template_id"
+  ]
+}

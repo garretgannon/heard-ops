@@ -1,0 +1,76 @@
+{
+  "name": "EscalationRule",
+  "type": "object",
+  "properties": {
+    "rule_name": {
+      "type": "string",
+      "title": "Escalation Rule Name"
+    },
+    "condition": {
+      "type": "string",
+      "title": "Condition",
+      "enum": [
+        "task_overdue",
+        "task_failed",
+        "check_out_of_range",
+        "missing_proof",
+        "repeated_failure",
+        "maintenance_required"
+      ]
+    },
+    "reminder_after_minutes": {
+      "type": "number",
+      "title": "Remind Employee After (minutes)"
+    },
+    "escalate_to_lead_after_minutes": {
+      "type": "number",
+      "title": "Escalate to Lead After (minutes)"
+    },
+    "escalate_to_manager_after_minutes": {
+      "type": "number",
+      "title": "Escalate to Manager After (minutes)"
+    },
+    "notify_role": {
+      "type": "string",
+      "title": "Notify Role"
+    },
+    "notify_manager": {
+      "type": "boolean",
+      "title": "Notify Manager",
+      "default": true
+    },
+    "create_follow_up_task": {
+      "type": "boolean",
+      "title": "Create Follow-Up Task",
+      "default": false
+    },
+    "follow_up_delay_minutes": {
+      "type": "number",
+      "title": "Follow-Up Delay (minutes)"
+    },
+    "create_maintenance_issue": {
+      "type": "boolean",
+      "title": "Create Maintenance Issue",
+      "default": false
+    },
+    "require_corrective_action": {
+      "type": "boolean",
+      "title": "Require Corrective Action",
+      "default": false
+    },
+    "failure_threshold": {
+      "type": "number",
+      "title": "Failure Threshold (consecutive failures to trigger)",
+      "default": 1
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "rule_name",
+    "condition"
+  ]
+}

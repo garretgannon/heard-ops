@@ -1,0 +1,135 @@
+{
+  "name": "GeneratedTask",
+  "type": "object",
+  "properties": {
+    "task_title": {
+      "type": "string",
+      "title": "Task Title"
+    },
+    "task_type": {
+      "type": "string",
+      "title": "Task Type",
+      "enum": [
+        "temperature_check",
+        "cleaning_task",
+        "sanitizer_check",
+        "prep_verification",
+        "opening_checklist",
+        "closing_checklist",
+        "maintenance_check",
+        "compliance_log",
+        "station_readiness"
+      ]
+    },
+    "source_template_id": {
+      "type": "string",
+      "title": "Source Template ID"
+    },
+    "assigned_user_email": {
+      "type": "string",
+      "title": "Assigned User Email"
+    },
+    "assigned_role": {
+      "type": "string",
+      "title": "Assigned Role"
+    },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "equipment_id": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Due Date"
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "shift_type": {
+      "type": "string",
+      "title": "Shift Type",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "overdue",
+        "failed",
+        "escalated"
+      ],
+      "default": "pending"
+    },
+    "required_proof": {
+      "type": "array",
+      "title": "Required Proof Types",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "title": "Requires Manager Approval",
+      "default": false
+    },
+    "escalation_status": {
+      "type": "string",
+      "title": "Escalation Status",
+      "enum": [
+        "none",
+        "reminded",
+        "escalated_to_lead",
+        "escalated_to_manager"
+      ]
+    },
+    "escalated_at": {
+      "type": "string",
+      "title": "Escalated At (ISO 8601)"
+    },
+    "completed_at": {
+      "type": "string",
+      "title": "Completed At (ISO 8601)"
+    },
+    "description": {
+      "type": "string",
+      "title": "Task Description / Instructions"
+    },
+    "duplicate_prevention_key": {
+      "type": "string",
+      "title": "Duplicate Prevention Key"
+    }
+  },
+  "required": [
+    "task_title",
+    "task_type",
+    "source_template_id",
+    "due_date"
+  ]
+}

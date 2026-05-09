@@ -69,6 +69,7 @@ import JobCodes from './pages/JobCodes';
 import OperationalMap from './pages/OperationalMap';
 import PeopleHierarchy from './pages/PeopleHierarchy';
 import SetupJourney from './pages/SetupJourney';
+import AutomationRules from './pages/AutomationRules';
 
 import ShiftHandoff from './pages/ShiftHandoff';
 import AdminRoleSimulator from './pages/AdminRoleSimulator';
@@ -193,6 +194,7 @@ const AuthenticatedApp = () => {
         <Route path="/location-setup" element={<Navigate to="/operational-map" replace />} />
         <Route path="/people" element={<PeopleHierarchy />} />
         <Route path="/setup-journey" element={<SetupJourney />} />
+        <Route path="/automation-rules" element={<AutomationRules />} />
 
         <Route path="/station-readiness" element={<StationReadiness />} />
 

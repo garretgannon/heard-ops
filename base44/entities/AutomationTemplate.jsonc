@@ -1,0 +1,148 @@
+{
+  "name": "AutomationTemplate",
+  "type": "object",
+  "properties": {
+    "template_name": {
+      "type": "string",
+      "title": "Template Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "temperature_check",
+        "cleaning_task",
+        "sanitizer_check",
+        "prep_verification",
+        "opening_checklist",
+        "closing_checklist",
+        "maintenance_check",
+        "compliance_log",
+        "station_readiness",
+        "custom"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "applies_to_area": {
+      "type": "array",
+      "title": "Applies to Areas",
+      "items": {
+        "type": "string"
+      }
+    },
+    "applies_to_station": {
+      "type": "array",
+      "title": "Applies to Stations",
+      "items": {
+        "type": "string"
+      }
+    },
+    "applies_to_equipment": {
+      "type": "array",
+      "title": "Applies to Equipment",
+      "items": {
+        "type": "string"
+      }
+    },
+    "applies_to_role": {
+      "type": "array",
+      "title": "Applies to Roles",
+      "items": {
+        "type": "string"
+      }
+    },
+    "applies_to_shift_type": {
+      "type": "array",
+      "title": "Applies to Shift Types",
+      "items": {
+        "type": "string",
+        "enum": [
+          "opening",
+          "mid",
+          "closing",
+          "any"
+        ]
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "required_proof_type": {
+      "type": "array",
+      "title": "Required Proof Types",
+      "items": {
+        "type": "string",
+        "enum": [
+          "checkbox",
+          "temperature_entry",
+          "number_entry",
+          "photo",
+          "text_note",
+          "signature",
+          "manager_approval",
+          "corrective_action"
+        ]
+      }
+    },
+    "requires_manager_approval": {
+      "type": "boolean",
+      "title": "Requires Manager Approval",
+      "default": false
+    },
+    "recurrence_rule": {
+      "type": "string",
+      "title": "Recurrence",
+      "enum": [
+        "once_per_shift",
+        "daily",
+        "weekly",
+        "custom"
+      ]
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "due_window_minutes": {
+      "type": "number",
+      "title": "Due Window (minutes)"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "escalation_rule_id": {
+      "type": "string",
+      "title": "Linked Escalation Rule ID"
+    },
+    "corrective_action_instructions": {
+      "type": "string",
+      "title": "Corrective Action Instructions"
+    },
+    "duplicate_prevention_key": {
+      "type": "string",
+      "title": "Duplicate Prevention Key (auto-generated)"
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By (Email)"
+    }
+  },
+  "required": [
+    "template_name",
+    "category",
+    "applies_to_shift_type"
+  ]
+}

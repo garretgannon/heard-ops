@@ -1,0 +1,130 @@
+{
+  "name": "LogEntry",
+  "type": "object",
+  "properties": {
+    "source_task_id": {
+      "type": "string",
+      "title": "Source Task ID"
+    },
+    "log_type": {
+      "type": "string",
+      "title": "Log Type",
+      "enum": [
+        "temperature_check",
+        "cleaning_task",
+        "sanitizer_check",
+        "prep_verification",
+        "opening_checklist",
+        "closing_checklist",
+        "maintenance_check",
+        "compliance_log",
+        "station_readiness",
+        "incident",
+        "maintenance_request",
+        "custom"
+      ]
+    },
+    "completed_by_email": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completed_at": {
+      "type": "string",
+      "title": "Completed At (ISO 8601)"
+    },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "equipment_id": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "submitted_values": {
+      "type": "object",
+      "title": "Submitted Data (JSON)",
+      "properties": {
+        "temperature": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "pass_fail": {
+          "type": "boolean"
+        }
+      }
+    },
+    "photo_urls": {
+      "type": "array",
+      "title": "Photo URLs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes / Observations"
+    },
+    "pass_fail_status": {
+      "type": "string",
+      "title": "Pass/Fail Status",
+      "enum": [
+        "pass",
+        "fail",
+        "conditional",
+        "na"
+      ],
+      "default": "pass"
+    },
+    "corrective_action": {
+      "type": "string",
+      "title": "Corrective Action Taken"
+    },
+    "approved_by_email": {
+      "type": "string",
+      "title": "Approved By (Email)"
+    },
+    "approved_at": {
+      "type": "string",
+      "title": "Approved At (ISO 8601)"
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "title": "Requires Manager Approval",
+      "default": false
+    },
+    "approval_status": {
+      "type": "string",
+      "title": "Approval Status",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "audit_notes": {
+      "type": "string",
+      "title": "Audit Trail / History"
+    },
+    "shift_type": {
+      "type": "string",
+      "title": "Shift Type",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    }
+  },
+  "required": [
+    "log_type",
+    "completed_by_email",
+    "completed_at"
+  ]
+}
