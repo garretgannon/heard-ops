@@ -22,6 +22,8 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
     description: '',
     applies_to_role: [],
     applies_to_shift_type: ['any'],
+    applies_to_station: [],
+    applies_to_equipment: [],
     is_active: true,
     required_proof_type: [],
     requires_manager_approval: false,
@@ -32,10 +34,14 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
   });
 
   const [roles, setRoles] = useState([]);
+  const [stations, setStations] = useState([]);
+  const [equipment, setEquipment] = useState([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadRoles();
+    loadStations();
+    loadEquipment();
   }, []);
 
   const loadRoles = async () => {
@@ -44,6 +50,24 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
       setRoles(data);
     } catch (error) {
       console.error('Failed to load roles:', error);
+    }
+  };
+
+  const loadStations = async () => {
+    try {
+      const data = await base44.entities.Station.list();
+      setStations(data);
+    } catch (error) {
+      console.error('Failed to load stations:', error);
+    }
+  };
+
+  const loadEquipment = async () => {
+    try {
+      const data = await base44.entities.Equipment.list();
+      setEquipment(data);
+    } catch (error) {
+      console.error('Failed to load equipment:', error);
     }
   };
 
@@ -74,6 +98,24 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
       applies_to_role: prev.applies_to_role.includes(roleId)
         ? prev.applies_to_role.filter(r => r !== roleId)
         : [...prev.applies_to_role, roleId]
+    }));
+  };
+
+  const toggleStation = (stationId) => {
+    setFormData(prev => ({
+      ...prev,
+      applies_to_station: prev.applies_to_station.includes(stationId)
+        ? prev.applies_to_station.filter(s => s !== stationId)
+        : [...prev.applies_to_station, stationId]
+    }));
+  };
+
+  const toggleEquipment = (equipmentId) => {
+    setFormData(prev => ({
+      ...prev,
+      applies_to_equipment: prev.applies_to_equipment.includes(equipmentId)
+        ? prev.applies_to_equipment.filter(e => e !== equipmentId)
+        : [...prev.applies_to_equipment, equipmentId]
     }));
   };
 
@@ -179,6 +221,50 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
                 <span className="text-foreground">{role.name}</span>
               </label>
             ))}
+          </div>
+        </div>
+
+        {/* Stations */}
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-foreground">Applies to Stations</label>
+          <div className="space-y-1 max-h-32 overflow-y-auto">
+            {stations.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No stations found</p>
+            ) : (
+              stations.map(station => (
+                <label key={station.id} className="flex items-center gap-2 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.applies_to_station.includes(station.id)}
+                    onChange={() => toggleStation(station.id)}
+                    className="rounded w-4 h-4"
+                  />
+                  <span className="text-foreground">{station.name}</span>
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Equipment */}
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-foreground">Applies to Equipment</label>
+          <div className="space-y-1 max-h-32 overflow-y-auto">
+            {equipment.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No equipment found</p>
+            ) : (
+              equipment.map(eq => (
+                <label key={eq.id} className="flex items-center gap-2 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.applies_to_equipment.includes(eq.id)}
+                    onChange={() => toggleEquipment(eq.id)}
+                    className="rounded w-4 h-4"
+                  />
+                  <span className="text-foreground">{eq.name}</span>
+                </label>
+              ))
+            )}
           </div>
         </div>
 
