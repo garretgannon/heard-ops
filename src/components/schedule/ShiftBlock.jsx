@@ -50,7 +50,7 @@ export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect,
       }}
       onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e); }}
       className={cn(
-        'relative group w-full text-left rounded-md border-l-[3px] px-2 py-1.5 cursor-pointer select-none transition-all duration-100',
+        'relative group w-full text-left rounded-md border-l-[3px] px-2 py-2 cursor-pointer select-none transition-all duration-100',
         colors.bg, colors.border,
         isSelected && 'ring-1 ring-white/60 ring-offset-1 ring-offset-transparent brightness-125',
         isDragging && 'opacity-50 scale-95 rotate-1',
@@ -68,17 +68,17 @@ export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect,
         <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[shift.status] || STATUS_DOT.draft)} />
       </div>
 
+      {/* Role - Large & Color-Coded */}
+      <p className={cn('text-xs font-extrabold capitalize leading-tight pr-5', colors.text)}>
+        {shift.role || '—'}
+      </p>
+
       {/* Time */}
       {(startFmt || endFmt) && (
-        <p className="text-[11px] font-bold text-foreground leading-tight pr-5">
+        <p className="text-[10px] font-semibold text-muted-foreground leading-tight pr-5 mt-0.5">
           {startFmt}{startFmt && endFmt ? '–' : ''}{endFmt}
         </p>
       )}
-
-      {/* Role */}
-      <p className={cn('text-[10px] font-semibold mt-0.5 capitalize truncate pr-5', colors.text)}>
-        {shift.role || '—'}
-      </p>
 
       {/* Station if set */}
       {shift.station && (

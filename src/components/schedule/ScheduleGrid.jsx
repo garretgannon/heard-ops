@@ -153,10 +153,7 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-foreground truncate leading-tight">{employee.name}</p>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <p className="text-[9px] text-muted-foreground truncate capitalize">{employee.role}</p>
-            {totalHours > 0 && <p className={cn('text-[9px] font-bold whitespace-nowrap', totalHours > 40 ? 'text-red-400' : 'text-muted-foreground/60')}>{totalHours.toFixed(1)}h</p>}
-          </div>
+          {totalHours > 0 && <p className={cn('text-[9px] font-bold whitespace-nowrap mt-0.5', totalHours > 40 ? 'text-red-400' : 'text-muted-foreground/60')}>{totalHours.toFixed(1)}h</p>}
         </div>
       </div>
 
