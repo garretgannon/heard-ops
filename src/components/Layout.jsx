@@ -57,7 +57,6 @@ const DESKTOP_SECTIONS = [
 export default function Layout() {
   const location = useLocation();
   const { isAdmin, user } = useCurrentUser();
-  const [logoUrl, setLogoUrl] = useState(null);
   const [restaurantName, setRestaurantName] = useState("");
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
   const [collapsed, setCollapsed] = useState(() => {
@@ -81,9 +80,6 @@ export default function Layout() {
   useEffect(() => {
     base44.entities.Settings.filter({ key: "restaurant_name" }).then(results => {
       if (results.length > 0 && results[0].value) setRestaurantName(results[0].value);
-    });
-    base44.entities.Settings.filter({ key: "logo_url" }).then(results => {
-      if (results.length > 0 && results[0].value) setLogoUrl(results[0].value);
     });
   }, []);
 
@@ -161,14 +157,18 @@ export default function Layout() {
                       <Link
                         to={item.path}
                         className={cn(
-                          "flex items-center text-sm font-medium transition-all duration-100",
+                          "flex items-center text-sm font-medium transition-all duration-200",
                           collapsed ? "justify-center h-9 w-9 mx-auto rounded-lg" : "gap-3 px-3 py-2 rounded-xl",
                           isActive
-                            ? "bg-primary text-white shadow-sm shadow-primary/30"
+                            ? "text-white"
                             : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                         )}
+                        style={isActive ? {
+                          background: 'rgba(230, 106, 31, 0.15)',
+                          boxShadow: '0 0 16px rgba(230, 106, 31, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.08)',
+                        } : {}}
                       >
-                        <Icon className={cn("shrink-0 h-4 w-4", isActive ? "text-white" : "")} />
+                        <Icon className={cn("shrink-0 h-4 w-4", isActive ? "text-primary" : "")} />
                         {!collapsed && <span className="truncate font-semibold text-[13px]">{item.label}</span>}
                       </Link>
                       {collapsed && (
@@ -213,12 +213,10 @@ export default function Layout() {
         style={isMobile ? { paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" } : {}}
       >
         {isMobile && isTabRoute(location.pathname) ? (
-          /* Mobile swipe carousel for the 5 main tabs — pages own their own padding */
           <div style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}>
             <SwipeTabContainer />
           </div>
         ) : (
-          /* Desktop + non-tab pages: normal routed outlet */
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
