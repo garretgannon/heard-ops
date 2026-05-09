@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Activity, TrendingUp, Clock, AlertCircle, CheckSquare } from 'lucide-react';
+import { Activity, TrendingUp, Clock, AlertCircle, CheckSquare, Zap, Users } from 'lucide-react';
  import DesktopPageHeader from '@/components/DesktopPageHeader';
  import StatusBadge from '@/components/pulse/StatusBadge';
 
@@ -23,22 +23,24 @@ export default function Pulse() {
   useEffect(() => {
     const loadMetrics = async () => {
       try {
-        const [tasks, logs, approvals] = await Promise.all([
-          base44.entities.Task.list('-updated_date', 50).catch(() => []),
+        const [tasks, logs, approvals, shifts] = await Promise.all([
+          base44.entities.GeneratedTask.list('-updated_date', 50).catch(() => []),
           base44.entities.UnifiedLog.list('-created_date', 50).catch(() => []),
           base44.entities.ApprovalQueue.filter({ status: 'pending' }).catch(() => []),
+          base44.entities.StaffShift?.list?.('-created_date', 20).catch(() => []),
         ]);
 
         const overdueCount = tasks.filter((t) => t.status === 'overdue').length;
-        const completedCount = tasks.filter((t) => ['complete', 'approved'].includes(t.status)).length;
+        const completedCount = tasks.filter((t) => ['completed', 'approved'].includes(t.status)).length;
         const completionPct = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
-        const alertCount = logs.filter((l) => l.status === 'open' || l.requires_review).length;
+        const criticalAlerts = logs.filter((l) => l.priority === 'critical' || l.status === 'open').length;
+        const activeShifts = shifts?.filter((s) => s.status === 'active' || s.status === 'in_progress').length || 0;
 
         setMetrics({
-          activeAlerts: alertCount,
+          activeAlerts: criticalAlerts,
           overdueItems: overdueCount,
           completionRate: completionPct,
-          teamOnDuty: tasks.length > 0 ? Math.ceil(tasks.length / 5) : 0,
+          teamOnDuty: activeShifts,
           pendingApprovals: approvals?.length || 0,
         });
         setLoading(false);
@@ -49,6 +51,8 @@ export default function Pulse() {
     };
 
     loadMetrics();
+    const interval = setInterval(loadMetrics, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -121,6 +125,19 @@ export default function Pulse() {
             <p className="text-3xl font-bold text-foreground">{metrics.pendingApprovals}</p>
             <p className="text-xs text-muted-foreground">Pending review</p>
           </div>
+          </div>
+
+          {/* Quick Actions Row */}
+          <div className="flex gap-3 flex-wrap">
+          <button onClick={() => navigate('/')} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-bold hover:brightness-110 active:scale-95 transition-all">
+           Open Tasks
+          </button>
+          <button onClick={() => navigate('/logs')} className="px-4 py-2 rounded-lg border border-border text-foreground text-sm font-bold hover:bg-secondary transition-all">
+           View Logs
+          </button>
+          <button onClick={() => navigate('/team')} className="px-4 py-2 rounded-lg border border-border text-foreground text-sm font-bold hover:bg-secondary transition-all">
+           Team Status
+          </button>
           </div>
 
         {/* Status Insights Section */}
