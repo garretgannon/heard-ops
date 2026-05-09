@@ -162,7 +162,7 @@ export default function OperationalTree({
                               </div>
                             );
                           })}
-                          <button className="flex items-center gap-2 px-3 py-1 text-muted-foreground hover:text-primary text-xs font-semibold transition-all">
+                          <button onClick={() => onSelectItem('equipment-add', station.id)} className="flex items-center gap-2 px-3 py-1 text-muted-foreground hover:text-primary text-xs font-semibold transition-all">
                             <Plus className="h-3.5 w-3.5" />
                             Add Equipment
                           </button>
@@ -170,7 +170,7 @@ export default function OperationalTree({
                       </div>
                     );
                   })}
-                  <button className="flex items-center gap-2 px-3 py-1 text-muted-foreground hover:text-primary text-xs font-semibold transition-all">
+                  <button onClick={() => onSelectItem('station-add', area.id)} className="flex items-center gap-2 px-3 py-1 text-muted-foreground hover:text-primary text-xs font-semibold transition-all">
                     <Plus className="h-3.5 w-3.5" />
                     Add Station
                   </button>
