@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Phone, Mail, Bell, ChevronRight, Truck, Star } from 'lucide-react';
+import { Search, Plus, Phone, Mail, Bell, ChevronRight, Truck, Star, Edit2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
+import VendorForm from '@/components/VendorForm';
 
 const CAT_LABELS = { food: 'Food', beverage: 'Beverage', repairs: 'Repairs', equipment: 'Equipment', linen: 'Linen', pest: 'Pest Control', grease_trap: 'Grease Trap', plumbing: 'Plumbing', electrical: 'Electrical', pos: 'POS', hood_cleaning: 'Hood Cleaning', other: 'Other' };
 
@@ -15,17 +16,34 @@ export default function Vendors() {
   const [filterCat, setFilterCat] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [selected, setSelected] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editingVendor, setEditingVendor] = useState(null);
 
   useEffect(() => {
-    Promise.all([
-      base44.entities.Vendor.list('-updated_date', 200).catch(() => []),
-      base44.entities.Equipment.list('-updated_date', 300).catch(() => [])
-    ]).then(([vendorData, equipData]) => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [vendorData, equipData] = await Promise.all([
+        base44.entities.Vendor.list('-updated_date', 200).catch(() => []),
+        base44.entities.Equipment.list('-updated_date', 300).catch(() => [])
+      ]);
       setVendors(vendorData);
       setEquipment(equipData);
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    } finally {
       setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+    }
+  };
+
+  const handleFormSave = async () => {
+    setShowForm(false);
+    setEditingVendor(null);
+    await loadData();
+  };
 
   const filtered = vendors.filter(v => {
     if (filterCat && v.category !== filterCat) return false;
@@ -46,9 +64,9 @@ export default function Vendors() {
           <p className="text-xs text-muted-foreground mt-0.5">Manage vendor relationships and ordering</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => base44.entities.Vendor.create({ name: 'New Vendor', active: true }).then(() => base44.entities.Vendor.list('-updated_date', 200).then(setVendors))} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center gap-1.5 active:scale-95">
+           <button onClick={() => { haptics.medium(); setEditingVendor(null); setShowForm(true); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center gap-1.5 active:scale-95">
             <Plus className="h-3.5 w-3.5" /> Add Vendor
-          </button>
+           </button>
           <button className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted active:scale-95">
             <Bell className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
@@ -151,9 +169,9 @@ export default function Vendors() {
                               <Mail className="h-3 w-3 text-muted-foreground" />
                             </a>
                           )}
-                          <button onClick={() => { haptics.light(); setSelected(vendor); }} className="h-7 px-2 rounded-lg bg-muted flex items-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
-                            <Plus className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-[10px] font-bold text-muted-foreground">Order</span>
+                          <button onClick={() => { haptics.light(); setEditingVendor(vendor); setShowForm(true); }} className="h-7 px-2 rounded-lg bg-muted flex items-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
+                            <Edit2 className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-[10px] font-bold text-muted-foreground">Edit</span>
                           </button>
                         </div>
                       </td>
@@ -211,6 +229,19 @@ export default function Vendors() {
           <div className="text-center py-8 text-muted-foreground text-sm">No vendors found</div>
         )}
       </div>
+
+      {/* Vendor Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden my-8">
+            <VendorForm
+              vendor={editingVendor}
+              onClose={() => { setShowForm(false); setEditingVendor(null); }}
+              onSave={handleFormSave}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
