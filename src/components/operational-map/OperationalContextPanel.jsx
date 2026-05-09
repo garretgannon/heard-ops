@@ -24,6 +24,7 @@ export default function OperationalContextPanel({
 
   const [equipName, setEquipName] = useState('');
   const [equipDesc, setEquipDesc] = useState('');
+  const [equipVendor, setEquipVendor] = useState('');
   const [equipSaving, setEquipSaving] = useState(false);
 
   const [editAreaName, setEditAreaName] = useState('');
@@ -106,11 +107,13 @@ export default function OperationalContextPanel({
         station_name: station?.name,
         area_id: station?.area_id,
         area_name: area?.name,
+        vendorId: equipVendor.trim() || undefined,
         isActive: true,
       });
       toast.success('Equipment created');
       setEquipName('');
       setEquipDesc('');
+      setEquipVendor('');
       onRefresh?.();
       onClose?.();
     } catch (err) {
@@ -383,6 +386,13 @@ export default function OperationalContextPanel({
             onChange={(e) => setEquipDesc(e.target.value)}
             rows={2}
             className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+          />
+          <input
+            type="text"
+            placeholder="Vendor ID (optional)"
+            value={equipVendor}
+            onChange={(e) => setEquipVendor(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <button
             onClick={handleAddEquipment}
