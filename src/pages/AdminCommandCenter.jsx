@@ -1,20 +1,22 @@
 import { useState } from 'react';
-import { Settings, Eye, Shield } from 'lucide-react';
+import { Settings, Eye, Shield, Users } from 'lucide-react';
 import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
+import RolesManager from '@/components/AdminDashboard/RolesManager';
 import RolePreview from '@/components/AdminDashboard/RolePreview';
 import JobCodeManager from '@/components/AdminDashboard/JobCodeManager';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import AccessRestricted from '@/components/AccessRestricted';
 
 const SECTIONS = [
-  { id: 'permissions', label: 'Permissions', icon: Shield },
+  { id: 'roles',       label: 'Roles',          icon: Users },
+  { id: 'permissions', label: 'Permissions',    icon: Shield },
   { id: 'preview',     label: 'Preview as Role', icon: Eye },
-  { id: 'job-codes',   label: 'Job Codes',  icon: Settings },
+  { id: 'job-codes',   label: 'Job Codes',      icon: Settings },
 ];
 
 export default function AdminCommandCenter() {
   const { isAdmin } = useCurrentUser();
-  const [active, setActive] = useState('permissions');
+  const [active, setActive] = useState('roles');
 
   if (!isAdmin) return <AccessRestricted message="Only admins can access the Command Center." />;
 
@@ -48,6 +50,7 @@ export default function AdminCommandCenter() {
       </div>
 
       <div className="px-4 py-5">
+        {active === 'roles'       && <RolesManager />}
         {active === 'permissions' && <RolePermissionBuilder />}
         {active === 'preview'     && <RolePreview jobCodes={[]} />}
         {active === 'job-codes'   && <JobCodeManager jobCodes={[]} setJobCodes={() => {}} />}
