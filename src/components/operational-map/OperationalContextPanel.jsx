@@ -179,20 +179,20 @@ export default function OperationalContextPanel({
     );
   };
 
-  const renderAreaAddPanel = () => {
+  const renderEquipmentAddPanel = () => {
     return (
       <div className="p-4 space-y-4">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold text-foreground">New Area</h2>
-            <p className="text-xs text-muted-foreground mt-1">Create a new operational area</p>
+            <h2 className="text-lg font-bold text-foreground">New Equipment</h2>
+            <p className="text-xs text-muted-foreground mt-1">Add equipment to this station</p>
           </div>
           <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
-          Area form would render here
+          Equipment form would render here
         </div>
       </div>
     );
@@ -226,20 +226,20 @@ export default function OperationalContextPanel({
     );
   };
 
-  const renderStationAddPanel = () => {
+  const renderAreaAddPanel = () => {
     return (
       <div className="p-4 space-y-4">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold text-foreground">New Station</h2>
-            <p className="text-xs text-muted-foreground mt-1">Create a new work station</p>
+            <h2 className="text-lg font-bold text-foreground">New Area</h2>
+            <p className="text-xs text-muted-foreground mt-1">Create a new operational area</p>
           </div>
           <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
-          Station form would render here
+          Area form would render here
         </div>
       </div>
     );
@@ -273,20 +273,20 @@ export default function OperationalContextPanel({
     );
   };
 
-  const renderEquipmentAddPanel = () => {
+  const renderStationAddPanel = () => {
     return (
       <div className="p-4 space-y-4">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold text-foreground">New Equipment</h2>
-            <p className="text-xs text-muted-foreground mt-1">Add equipment to this station</p>
+            <h2 className="text-lg font-bold text-foreground">New Station</h2>
+            <p className="text-xs text-muted-foreground mt-1">Create a new work station</p>
           </div>
           <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
-          Equipment form would render here
+          Station form would render here
         </div>
       </div>
     );
