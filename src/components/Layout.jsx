@@ -62,7 +62,6 @@ const DESKTOP_SECTIONS = [
     items: [
       { path: "/templates",              label: "Templates",      icon: ClipboardList,  perm: 'view_templates' },
       { path: "/location-setup",         label: "Locations",      icon: MapPin,         perm: null },
-      { path: "/stations",               label: "Stations",       icon: Layers,         perm: null },
       { path: "/job-codes",              label: "Job Codes",      icon: BriefcaseBusiness, perm: null },
       { path: "/temperature-monitoring", label: "Temperature",    icon: Thermometer,    perm: null },
       { path: "/reports",                label: "Reports",        icon: BarChart3,      perm: 'view_reports' },
