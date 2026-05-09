@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
 import { Plus, Settings, Search, Wand2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 import LogsInboxHeader from '@/components/logcenter/LogsInboxHeader';
 import LogsFeedView from '@/components/logcenter/LogsFeedView';
@@ -169,11 +170,10 @@ export default function LogsCenter() {
             <button
               key={tab.id}
               onClick={() => { haptics.light?.(); setViewMode(tab.id); }}
-              className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${
-                viewMode === tab.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={cn(
+              'px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200',
+              viewMode === tab.id ? 'glow-active' : 'text-muted-foreground hover:text-foreground'
+            )}
             >
               {tab.label}
             </button>
@@ -225,11 +225,10 @@ export default function LogsCenter() {
               <button
                 key={chip.id}
                 onClick={() => { haptics.light?.(); setActiveFilter(chip.id); }}
-                className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                  activeFilter === chip.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60'
-                }`}
+                className={cn(
+                  'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
+                  activeFilter === chip.id ? 'glow-active' : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60'
+                )}
               >
                 {chip.label}
               </button>

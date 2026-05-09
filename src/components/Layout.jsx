@@ -164,8 +164,8 @@ export default function Layout() {
                             : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                         )}
                         style={isActive ? {
-                          background: 'rgba(230, 106, 31, 0.15)',
-                          boxShadow: '0 0 16px rgba(230, 106, 31, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.08)',
+                          background: 'rgba(230, 106, 31, 0.18)',
+                          boxShadow: '0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 18px rgba(230, 106, 31, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.08)',
                         } : {}}
                       >
                         <Icon className={cn("shrink-0 h-4 w-4", isActive ? "text-primary" : "")} />
