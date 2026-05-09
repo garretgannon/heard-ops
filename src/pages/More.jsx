@@ -34,11 +34,6 @@ export default function More() {
               <p className="text-xs font-bold text-foreground text-center">Shift</p>
               <p className="text-[10px] text-muted-foreground text-center">Manage shifts</p>
             </button>
-            <button onClick={() => navigate('/logs')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
-              <FileText className="h-6 w-6 text-primary" />
-              <p className="text-xs font-bold text-foreground text-center">Logs</p>
-              <p className="text-[10px] text-muted-foreground text-center">View manage</p>
-            </button>
             <button onClick={() => navigate('/logs?type=incident')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
               <AlertTriangle className="h-6 w-6 text-red-500" />
               <p className="text-xs font-bold text-foreground text-center">Issues</p>
@@ -49,28 +44,21 @@ export default function More() {
               <p className="text-xs font-bold text-foreground text-center">Temps</p>
               <p className="text-[10px] text-muted-foreground text-center">Temperature</p>
             </button>
+            <div />
           </div>
         </div>
 
-        {/* PEOPLE Section */}
+        {/* DEVELOPMENT Section */}
         <div className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">People</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Development</h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <button onClick={() => navigate('/team')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
-              <Users className="h-6 w-6 text-blue-500" />
-              <p className="text-xs font-bold text-foreground text-center">Team</p>
-              <p className="text-[10px] text-muted-foreground text-center">Your team</p>
-            </button>
-            <button onClick={() => navigate('/schedule')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
-              <CalendarDays className="h-6 w-6 text-primary" />
-              <p className="text-xs font-bold text-foreground text-center">Schedule</p>
-              <p className="text-[10px] text-muted-foreground text-center">View schedule</p>
-            </button>
             <button onClick={() => navigate('/training')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
               <BookOpen className="h-6 w-6 text-green-500" />
               <p className="text-xs font-bold text-foreground text-center">Training</p>
               <p className="text-[10px] text-muted-foreground text-center">Training center</p>
             </button>
+            <div />
+            <div />
             <div />
           </div>
         </div>
