@@ -14,6 +14,14 @@
       "type": "string",
       "title": "Color Tag"
     },
+    "owner_id": {
+      "type": "string",
+      "title": "Owner Employee ID"
+    },
+    "owner_name": {
+      "type": "string",
+      "title": "Owner Name (denormalized)"
+    },
     "isActive": {
       "type": "boolean",
       "title": "Active",

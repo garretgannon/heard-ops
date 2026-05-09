@@ -53,10 +53,69 @@
         "type": "string"
       }
     },
+    "manager_id": {
+      "type": "string",
+      "title": "Reports To (Employee ID)"
+    },
+    "manager_name": {
+      "type": "string",
+      "title": "Reports To (Name)"
+    },
+    "assigned_areas": {
+      "type": "array",
+      "title": "Assigned Areas",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assigned_stations": {
+      "type": "array",
+      "title": "Assigned Stations",
+      "items": {
+        "type": "string"
+      }
+    },
+    "managed_areas": {
+      "type": "array",
+      "title": "Managed Areas (Ownership)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "managed_stations": {
+      "type": "array",
+      "title": "Managed Stations (Ownership)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "can_assign_to_roles": {
+      "type": "array",
+      "title": "Can Assign Tasks To Roles",
+      "items": {
+        "type": "string"
+      }
+    },
     "start_date": {
       "type": "string",
       "format": "date",
       "title": "Start Date"
+    },
+    "hire_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Hire Date"
+    },
+    "certifications": {
+      "type": "array",
+      "title": "Certifications",
+      "items": {
+        "type": "string"
+      }
+    },
+    "profile_photo_url": {
+      "type": "string",
+      "title": "Profile Photo URL"
     },
     "notes": {
       "type": "string",

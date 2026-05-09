@@ -7,7 +7,7 @@ import {
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   ChevronLeft, ChevronRight as ChevronRightIcon,
   FileText, CalendarDays, Users, BarChart3, Thermometer, BookOpen, Award, ShieldCheck, MapPin,
-  CheckSquare, Wrench, Package, ScrollText, FlaskConical, ArrowLeftRight, Brush, BriefcaseBusiness, Star, Layers,
+  CheckSquare, Wrench, Package, ScrollText, FlaskConical, ArrowLeftRight, Brush, BriefcaseBusiness, Star, Layers, GitBranch,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -61,6 +61,7 @@ const DESKTOP_SECTIONS = [
     label: "SETUP",
     items: [
       { path: "/templates",              label: "Templates",      icon: ClipboardList,  perm: 'view_templates' },
+      { path: "/people",                 label: "People",         icon: GitBranch,      perm: null },
       { path: "/location-setup",         label: "Locations",      icon: MapPin,         perm: null },
       { path: "/job-codes",              label: "Job Codes",      icon: BriefcaseBusiness, perm: null },
       { path: "/temperature-monitoring", label: "Temperature",    icon: Thermometer,    perm: null },
