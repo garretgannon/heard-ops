@@ -8,11 +8,12 @@ export default function OperationalMap() {
   const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
   const [equipment, setEquipment] = useState([]);
-  const [selectedType, setSelectedType] = useState(null); // 'area', 'station', 'equipment'
+  const [selectedType, setSelectedType] = useState(null); // 'area', 'station', 'equipment', 'area-add', 'station-add', 'equipment-add'
   const [selectedId, setSelectedId] = useState(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [expandedAreas, setExpandedAreas] = useState({});
+  const [editingItem, setEditingItem] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -108,7 +109,7 @@ export default function OperationalMap() {
 
         {/* Right Context Panel */}
         <div className="w-96 border-l border-border/30 overflow-y-auto bg-background/50">
-          {selectedType && selectedId ? (
+          {selectedType && (selectedId || selectedType.includes('-add')) ? (
             <OperationalContextPanel
               type={selectedType}
               itemId={selectedId}
@@ -120,6 +121,10 @@ export default function OperationalMap() {
                 setSelectedId(null);
               }}
               onRefresh={handleRefresh}
+              onEdit={(item) => {
+                setEditingItem(item);
+                // Handle modal opening - can be expanded later
+              }}
             />
           ) : (
             <div className="p-6 text-center text-muted-foreground text-sm">

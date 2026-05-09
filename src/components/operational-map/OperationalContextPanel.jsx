@@ -8,6 +8,7 @@ export default function OperationalContextPanel({
   equipment,
   onClose,
   onRefresh,
+  onEdit,
 }) {
   const renderEquipmentPanel = () => {
     const equip = equipment.find(e => e.id === itemId);
@@ -178,6 +179,25 @@ export default function OperationalContextPanel({
     );
   };
 
+  const renderAreaAddPanel = () => {
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">New Area</h2>
+            <p className="text-xs text-muted-foreground mt-1">Create a new operational area</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
+          Area form would render here
+        </div>
+      </div>
+    );
+  };
+
   const renderAreaPanel = () => {
     const area = areas.find(a => a.id === itemId);
     if (!area) return null;
@@ -194,13 +214,32 @@ export default function OperationalContextPanel({
           </button>
         </div>
 
-        <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+        <button onClick={() => onEdit?.(area)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
           <Edit2 className="h-3.5 w-3.5" />
           Edit Area
         </button>
 
         <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
           Area details panel. Select a station or equipment for more details.
+        </div>
+      </div>
+    );
+  };
+
+  const renderStationAddPanel = () => {
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">New Station</h2>
+            <p className="text-xs text-muted-foreground mt-1">Create a new work station</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
+          Station form would render here
         </div>
       </div>
     );
@@ -222,7 +261,7 @@ export default function OperationalContextPanel({
           </button>
         </div>
 
-        <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+        <button onClick={() => onEdit?.(station)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
           <Edit2 className="h-3.5 w-3.5" />
           Edit Station
         </button>
@@ -234,11 +273,33 @@ export default function OperationalContextPanel({
     );
   };
 
+  const renderEquipmentAddPanel = () => {
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">New Equipment</h2>
+            <p className="text-xs text-muted-foreground mt-1">Add equipment to this station</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
+          Equipment form would render here
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       {type === 'equipment' && renderEquipmentPanel()}
+      {type === 'equipment-add' && renderEquipmentAddPanel()}
       {type === 'area' && renderAreaPanel()}
+      {type === 'area-add' && renderAreaAddPanel()}
       {type === 'station' && renderStationPanel()}
+      {type === 'station-add' && renderStationAddPanel()}
     </>
   );
 }
