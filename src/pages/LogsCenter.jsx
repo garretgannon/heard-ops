@@ -35,20 +35,22 @@ export default function LogsCenter() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const isMounted = useRef(true);
 
-  // Load logs
+  // Load logs with permission filtering
   useEffect(() => {
     isMounted.current = true;
     const loadLogs = async () => {
       try {
-        // Reduced to 100 to avoid rate limit
         const allLogs = await base44.entities.UnifiedLog.list('-created_date', 100).catch(() => []);
-        const visibleLogs = user?.role === 'admin'
-          ? allLogs
-          : allLogs.filter((log) => {
-              if (log.visibility === 'manager_only') return false;
-              if (log.visibility === 'private') return false;
-              return true;
-            });
+        const visibleLogs = allLogs.filter((log) => {
+          // Admin sees all logs
+          if (user?.role === 'admin') return true;
+          // Manager sees all except private
+          if (user?.role === 'manager') {
+            return log.visibility !== 'private';
+          }
+          // Staff see only public logs
+          return log.visibility === 'public' || !log.visibility;
+        });
         if (isMounted.current) {
           setLogs(visibleLogs);
           setLoading(false);
@@ -61,7 +63,11 @@ export default function LogsCenter() {
     loadLogs();
     const unsubscribe = base44.entities.UnifiedLog.subscribe((event) => {
       if (event.type === 'create' && isMounted.current) {
-        setLogs((prev) => [event.data, ...prev]);
+        // Check if this log is visible to current user
+        const isVisible = user?.role === 'admin' ? true : 
+          user?.role === 'manager' ? event.data.visibility !== 'private' :
+          event.data.visibility === 'public' || !event.data.visibility;
+        if (isVisible) setLogs((prev) => [event.data, ...prev]);
       } else if (event.type === 'update' && isMounted.current) {
         setLogs((prev) => prev.map((l) => (l.id === event.id ? event.data : l)));
         if (selectedLog?.id === event.id) setSelectedLog(event.data);
@@ -71,7 +77,7 @@ export default function LogsCenter() {
       isMounted.current = false;
       unsubscribe?.();
     };
-  }, [user]);
+  }, [user?.role, user?.email]);
 
   // Filter logs with 'needs_attention' handling
   const filteredLogs = logs.filter((log) => {

@@ -26,6 +26,7 @@ import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import Pulse from './pages/Pulse';
 import StaffTasks from './pages/StaffTasks';
 import LogsCenter from './pages/LogsCenter';
+import MyShifts from './pages/MyShifts';
 
 import More from './pages/More';
 import Onboarding from './pages/Onboarding';
@@ -137,6 +138,7 @@ const AuthenticatedApp = () => {
         <Route path="/cleaning" element={<Cleaning />} />
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
         <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
+        <Route path="/my-shifts" element={<MyShifts />} />
 
         {/* COMPLIANCE ROUTES */}
         <Route path="/temp-logs" element={<Navigate to="/logs?type=temperature" replace />} />
