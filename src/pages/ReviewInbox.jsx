@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { BACKDROP_VARIANTS } from '@/lib/modalAnimations';
 import SwipeCard from '@/components/review/SwipeCard';
 import ApprovalDetailPanel from '@/components/review/ApprovalDetailPanel';
 
@@ -164,8 +165,8 @@ export default function ReviewInbox() {
         {/* Detail Panel */}
         <AnimatePresence>
           {selectedApproval && (
-            <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end">
-              <div className="w-full max-h-[90vh] rounded-t-2xl overflow-hidden bg-card border-t border-border/30">
+            <motion.div variants={BACKDROP_VARIANTS} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end">
+              <motion.div variants={{hidden: {y: '100%'}, visible: {y: 0, transition: {duration: 0.2}}, exit: {y: '100%', transition: {duration: 0.15}}}} initial="hidden" animate="visible" exit="exit" className="w-full max-h-[90vh] rounded-t-2xl overflow-hidden bg-card border-t border-border/30">
                 <ApprovalDetailPanel
                   approval={selectedApproval}
                   onClose={() => setSelectedApproval(null)}
@@ -173,8 +174,8 @@ export default function ReviewInbox() {
                   onDeny={handleDeny}
                   isProcessing={processing}
                 />
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

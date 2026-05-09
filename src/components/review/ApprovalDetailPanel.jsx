@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { X, Check, Ban } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { DRAWER_VARIANTS } from '@/lib/modalAnimations';
 
 export default function ApprovalDetailPanel({ approval, onClose, onApprove, onDeny, isProcessing }) {
   const [showDenyNotes, setShowDenyNotes] = useState(false);
@@ -15,7 +17,7 @@ export default function ApprovalDetailPanel({ approval, onClose, onApprove, onDe
   if (!approval) return null;
 
   return (
-    <div className="h-full flex flex-col bg-card border-l border-border/30 overflow-hidden">
+    <motion.div variants={DRAWER_VARIANTS} initial="hidden" animate="visible" exit="exit" className="h-full flex flex-col bg-card border-l border-border/30 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
         <h2 className="font-bold text-foreground">{approval.submission_type?.replace('_', ' ')}</h2>
@@ -94,6 +96,6 @@ export default function ApprovalDetailPanel({ approval, onClose, onApprove, onDe
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
