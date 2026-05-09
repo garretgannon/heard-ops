@@ -37,7 +37,6 @@ const DESKTOP_SECTIONS = [
       { path: "/training",  label: "Training",  icon: Award,           perm: null },
       { path: "/standards", label: "Standards", icon: ScrollText,      perm: null },
       { path: "/msds",      label: "MSDS",      icon: FlaskConical,    perm: null },
-      { path: "/knowledge", label: "Knowledge", icon: BookOpen,        perm: null },
     ],
   },
   {
