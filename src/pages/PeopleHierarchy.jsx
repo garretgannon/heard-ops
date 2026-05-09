@@ -5,6 +5,7 @@ import OrgChartTab from '@/components/people/OrgChartTab';
 import OwnershipTab from '@/components/people/OwnershipTab';
 import RolesManagerTab from '@/components/people/RolesManagerTab';
 import JobCodesTab from '@/components/people/JobCodesTab';
+import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
 import { useNavigate } from 'react-router-dom';
 
 const TABS = [
@@ -71,12 +72,14 @@ export default function PeopleHierarchy() {
         {tab === 'roles'     && (
           <div className="space-y-3">
             <RolesManagerTab />
-            <div className="bg-card border border-border rounded-xl p-4">
-              <p className="text-sm font-bold text-foreground mb-1">Role Permissions</p>
-              <p className="text-xs text-muted-foreground mb-3">Define what each role can see and do in the app.</p>
-              <button onClick={() => navigate('/admin/command-center')} className="btn-primary text-sm w-full">
-                Open Role &amp; Access Manager
-              </button>
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-border/40">
+                <p className="text-sm font-bold text-foreground">Permissions & Visibility</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Define what each role can see and do in the app</p>
+              </div>
+              <div className="p-4">
+                <RolePermissionBuilder />
+              </div>
             </div>
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">

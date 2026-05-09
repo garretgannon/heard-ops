@@ -11,7 +11,6 @@ import AccessRestricted from '@/components/AccessRestricted';
 const SECTIONS = [
   { id: 'permissions', label: 'Permissions',    icon: Shield },
   { id: 'preview',     label: 'Preview as Role', icon: Eye },
-  { id: 'job-codes',   label: 'Job Codes',      icon: Settings },
 ];
 
 export default function AdminCommandCenter() {
@@ -57,7 +56,6 @@ export default function AdminCommandCenter() {
       <div className="px-4 py-5">
         {active === 'permissions' && <RolePermissionBuilder />}
         {active === 'preview'     && <RolePreview jobCodes={[]} />}
-        {active === 'job-codes'   && <JobCodeManager jobCodes={jobCodes} setJobCodes={setJobCodes} />}
       </div>
     </div>
   );
