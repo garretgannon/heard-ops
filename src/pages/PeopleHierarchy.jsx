@@ -3,12 +3,14 @@ import { Users, GitBranch, MapPin, Shield } from 'lucide-react';
 import EmployeeDirectoryTab from '@/components/people/EmployeeDirectoryTab';
 import OrgChartTab from '@/components/people/OrgChartTab';
 import OwnershipTab from '@/components/people/OwnershipTab';
+import RolesManagerTab from '@/components/people/RolesManagerTab';
 import { useNavigate } from 'react-router-dom';
 
 const TABS = [
   { id: 'directory', label: 'Directory',  icon: Users },
   { id: 'org',       label: 'Org Chart',  icon: GitBranch },
   { id: 'ownership', label: 'Ownership',  icon: MapPin },
+  { id: 'roles',     label: 'Roles',      icon: Shield },
   { id: 'access',    label: 'Access',     icon: Shield },
 ];
 
@@ -65,6 +67,7 @@ export default function PeopleHierarchy() {
         {tab === 'directory' && <EmployeeDirectoryTab />}
         {tab === 'org'       && <OrgChartTab />}
         {tab === 'ownership' && <OwnershipTab />}
+        {tab === 'roles'     && <RolesManagerTab />}
         {tab === 'access'    && (
           <div className="space-y-3">
             <div className="bg-card border border-border rounded-xl p-4">
