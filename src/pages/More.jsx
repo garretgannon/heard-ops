@@ -39,11 +39,7 @@ export default function More() {
               <p className="text-xs font-bold text-foreground text-center">Issues</p>
               <p className="text-[10px] text-muted-foreground text-center">Track issues</p>
             </button>
-            <button onClick={() => navigate('/temperature-monitoring')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
-              <Thermometer className="h-6 w-6 text-purple-500" />
-              <p className="text-xs font-bold text-foreground text-center">Temps</p>
-              <p className="text-[10px] text-muted-foreground text-center">Temperature</p>
-            </button>
+
             <button onClick={() => navigate('/approvals')} className="bg-card border border-border rounded-lg p-4 flex flex-col items-center gap-2 hover:border-primary/30 active:scale-95 transition-all">
               <CheckSquare className="h-6 w-6 text-amber-500" />
               <p className="text-xs font-bold text-foreground text-center">Approvals</p>
