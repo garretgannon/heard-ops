@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Activity, TrendingUp, Clock, AlertCircle } from 'lucide-react';
+import { Activity, TrendingUp, Clock, AlertCircle, CheckSquare } from 'lucide-react';
  import DesktopPageHeader from '@/components/DesktopPageHeader';
  import StatusBadge from '@/components/pulse/StatusBadge';
 
@@ -9,20 +10,23 @@ import { Activity, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 
 export default function Pulse() {
   const { user } = useCurrentUser();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
     activeAlerts: 0,
     overdueItems: 0,
     completionRate: 0,
     teamOnDuty: 0,
+    pendingApprovals: 0,
   });
 
   useEffect(() => {
     const loadMetrics = async () => {
       try {
-        const [tasks, logs] = await Promise.all([
+        const [tasks, logs, approvals] = await Promise.all([
           base44.entities.Task.list('-updated_date', 50).catch(() => []),
           base44.entities.UnifiedLog.list('-created_date', 50).catch(() => []),
+          base44.entities.ApprovalQueue.filter({ status: 'pending' }).catch(() => []),
         ]);
 
         const overdueCount = tasks.filter((t) => t.status === 'overdue').length;
@@ -35,6 +39,7 @@ export default function Pulse() {
           overdueItems: overdueCount,
           completionRate: completionPct,
           teamOnDuty: tasks.length > 0 ? Math.ceil(tasks.length / 5) : 0,
+          pendingApprovals: approvals?.length || 0,
         });
         setLoading(false);
       } catch (err) {
@@ -106,7 +111,17 @@ export default function Pulse() {
             <p className="text-3xl font-bold text-foreground">{metrics.teamOnDuty}</p>
             <p className="text-xs text-muted-foreground">Staff active</p>
           </div>
-        </div>
+
+          {/* Pending Approvals */}
+          <div onClick={() => navigate('/review-queue')} className="bg-card border border-border rounded-lg p-4 space-y-2 cursor-pointer hover:border-primary/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <CheckSquare className="h-4 w-4 text-primary" />
+              <p className="text-xs font-bold text-muted-foreground uppercase">Approvals</p>
+            </div>
+            <p className="text-3xl font-bold text-foreground">{metrics.pendingApprovals}</p>
+            <p className="text-xs text-muted-foreground">Pending review</p>
+          </div>
+          </div>
 
         {/* Status Insights Section */}
         <div className="space-y-3">
