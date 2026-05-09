@@ -109,7 +109,7 @@ export default function OperationalMap() {
 
         {/* Right Context Panel */}
         <div className="w-96 border-l border-border/30 overflow-y-auto bg-background/50">
-          {selectedType && (selectedId || selectedType.includes('-add')) ? (
+          {selectedType && (selectedId || selectedType.includes('-add') || selectedType.includes('-edit')) ? (
             <OperationalContextPanel
               type={selectedType}
               itemId={selectedId}
@@ -121,10 +121,7 @@ export default function OperationalMap() {
                 setSelectedId(null);
               }}
               onRefresh={handleRefresh}
-              onEdit={(item) => {
-                setEditingItem(item);
-                // Handle modal opening - can be expanded later
-              }}
+              onSelectItem={handleSelectItem}
             />
           ) : (
             <div className="p-6 text-center text-muted-foreground text-sm">

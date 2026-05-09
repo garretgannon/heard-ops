@@ -11,7 +11,7 @@ export default function OperationalContextPanel({
   equipment,
   onClose,
   onRefresh,
-  onEdit,
+  onSelectItem,
 }) {
   // Form states for add panels
   const [areaName, setAreaName] = useState('');
@@ -157,7 +157,7 @@ export default function OperationalContextPanel({
         </div>
 
         {/* Edit Button */}
-        <button onClick={() => onEdit?.(equip)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+        <button onClick={() => onSelectItem?.('equipment-edit', equip.id)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
           <Edit2 className="h-3.5 w-3.5" />
           Edit Equipment
         </button>
@@ -340,7 +340,7 @@ export default function OperationalContextPanel({
           </button>
         </div>
 
-        <button onClick={() => onEdit?.(area)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+        <button onClick={() => onSelectItem?.('area-edit', area.id)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
           <Edit2 className="h-3.5 w-3.5" />
           Edit Area
         </button>
@@ -407,7 +407,7 @@ export default function OperationalContextPanel({
           </button>
         </div>
 
-        <button onClick={() => onEdit?.(station)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+        <button onClick={() => onSelectItem?.('station-edit', station.id)} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
           <Edit2 className="h-3.5 w-3.5" />
           Edit Station
         </button>
