@@ -1,0 +1,104 @@
+{
+  "name": "ApprovalQueue",
+  "type": "object",
+  "properties": {
+    "submission_type": {
+      "type": "string",
+      "title": "Submission Type",
+      "enum": [
+        "temperature_log",
+        "prep_completion",
+        "maintenance_request",
+        "incident_report",
+        "waste_log",
+        "shift_handoff",
+        "task_exception"
+      ],
+      "enumNames": [
+        "Temperature Log",
+        "Prep Completion",
+        "Maintenance Request",
+        "Incident Report",
+        "Waste/86 Log",
+        "Shift Handoff",
+        "Task Exception"
+      ]
+    },
+    "source_id": {
+      "type": "string",
+      "title": "Source Record ID"
+    },
+    "submitted_by_email": {
+      "type": "string",
+      "title": "Submitted By Email"
+    },
+    "submitted_by_name": {
+      "type": "string",
+      "title": "Submitted By Name"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "location": {
+      "type": "string",
+      "title": "Location / Area"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "summary": {
+      "type": "string",
+      "title": "Summary / Details"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL (if applicable)"
+    },
+    "submitted_at": {
+      "type": "string",
+      "title": "Submitted At (ISO 8601)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "approved",
+        "denied"
+      ],
+      "default": "pending"
+    },
+    "approved_by_email": {
+      "type": "string",
+      "title": "Approved/Denied By Email"
+    },
+    "approved_at": {
+      "type": "string",
+      "title": "Decision At (ISO 8601)"
+    },
+    "denial_reason": {
+      "type": "string",
+      "title": "Denial Reason / Notes"
+    }
+  },
+  "required": [
+    "submission_type",
+    "source_id",
+    "submitted_by_email",
+    "summary",
+    "submitted_at"
+  ]
+}

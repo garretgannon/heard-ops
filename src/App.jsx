@@ -33,6 +33,7 @@ import TeamCenter from './pages/TeamCenter';
 
 import ScheduleCenter from './pages/ScheduleCenter';
 import ApprovalInbox from './pages/ApprovalInbox';
+import ReviewInbox from './pages/ReviewInbox';
 
 import Cleaning from './pages/Cleaning';
 
@@ -144,6 +145,7 @@ const AuthenticatedApp = () => {
 
         {/* ADMIN/MANAGER - Approvals */}
         <Route path="/approvals" element={<ApprovalInbox />} />
+        <Route path="/review-queue" element={<ReviewInbox />} />
 
         {/* ADMIN ONLY - Template Management */}
         <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
