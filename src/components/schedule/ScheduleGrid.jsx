@@ -83,8 +83,8 @@ export default function ScheduleGrid({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className={cn('bg-card overflow-hidden', isExpanded ? 'fixed inset-0 top-[52px] rounded-none border-none' : 'rounded-xl border border-border/40 shadow-sm')}>
-        <div className={cn('overflow-auto', isExpanded ? 'h-full' : 'max-h-[calc(100vh-300px)]')}>
+      <div className={cn('bg-card overflow-hidden', isExpanded ? 'rounded-none border-none' : 'rounded-xl border border-border/40 shadow-sm')}>
+        <div className={cn('overflow-auto', isExpanded ? 'max-h-[calc(100vh-52px)]' : 'max-h-[calc(100vh-300px)]')}>
 
           <div className="min-w-[860px]">
             {/* Premium Header */}
