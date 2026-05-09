@@ -4,6 +4,7 @@ import EmployeeDirectoryTab from '@/components/people/EmployeeDirectoryTab';
 import OrgChartTab from '@/components/people/OrgChartTab';
 import OwnershipTab from '@/components/people/OwnershipTab';
 import RolesManagerTab from '@/components/people/RolesManagerTab';
+import JobCodesTab from '@/components/people/JobCodesTab';
 import { useNavigate } from 'react-router-dom';
 
 const TABS = [
@@ -11,6 +12,7 @@ const TABS = [
   { id: 'org',       label: 'Org Chart',  icon: GitBranch },
   { id: 'ownership', label: 'Ownership',  icon: MapPin },
   { id: 'roles',     label: 'Roles',      icon: Shield },
+  { id: 'job-codes', label: 'Job Codes',  icon: Shield },
   { id: 'access',    label: 'Access',     icon: Shield },
 ];
 
@@ -68,6 +70,7 @@ export default function PeopleHierarchy() {
         {tab === 'org'       && <OrgChartTab />}
         {tab === 'ownership' && <OwnershipTab />}
         {tab === 'roles'     && <RolesManagerTab />}
+        {tab === 'job-codes' && <JobCodesTab />}
         {tab === 'access'    && (
           <div className="space-y-3">
             <div className="bg-card border border-border rounded-xl p-4">
@@ -77,14 +80,6 @@ export default function PeopleHierarchy() {
                 Open Role &amp; Access Manager
               </button>
             </div>
-            <div className="bg-card border border-border rounded-xl p-4">
-              <p className="text-sm font-bold text-foreground mb-1">Job Codes</p>
-              <p className="text-xs text-muted-foreground mb-3">Manage job codes linked to roles and stations.</p>
-              <button onClick={() => navigate('/job-codes')} className="btn-secondary text-sm w-full">
-                Manage Job Codes
-              </button>
-            </div>
-
             {/* Assignment Authority */}
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
