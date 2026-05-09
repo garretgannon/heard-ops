@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import { Settings, Eye, Shield, Users } from 'lucide-react';
 import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
 import RolesManager from '@/components/AdminDashboard/RolesManager';
@@ -17,6 +18,11 @@ const SECTIONS = [
 export default function AdminCommandCenter() {
   const { isAdmin } = useCurrentUser();
   const [active, setActive] = useState('roles');
+  const [jobCodes, setJobCodes] = useState([]);
+
+  useEffect(() => {
+    base44.entities.JobCode.list().then(setJobCodes).catch(() => {});
+  }, [active]);
 
   if (!isAdmin) return <AccessRestricted message="Only admins can access the Command Center." />;
 
@@ -53,7 +59,7 @@ export default function AdminCommandCenter() {
         {active === 'roles'       && <RolesManager />}
         {active === 'permissions' && <RolePermissionBuilder />}
         {active === 'preview'     && <RolePreview jobCodes={[]} />}
-        {active === 'job-codes'   && <JobCodeManager jobCodes={[]} setJobCodes={() => {}} />}
+        {active === 'job-codes'   && <JobCodeManager jobCodes={jobCodes} setJobCodes={setJobCodes} />}
       </div>
     </div>
   );
