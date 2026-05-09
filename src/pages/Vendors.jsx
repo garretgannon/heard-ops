@@ -9,6 +9,7 @@ const CAT_LABELS = { food: 'Food', beverage: 'Beverage', repairs: 'Repairs', equ
 
 export default function Vendors() {
   const [vendors, setVendors] = useState([]);
+  const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterCat, setFilterCat] = useState('');
@@ -16,8 +17,12 @@ export default function Vendors() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    base44.entities.Vendor.list('-updated_date', 200).then(data => {
-      setVendors(data);
+    Promise.all([
+      base44.entities.Vendor.list('-updated_date', 200).catch(() => []),
+      base44.entities.Equipment.list('-updated_date', 300).catch(() => [])
+    ]).then(([vendorData, equipData]) => {
+      setVendors(vendorData);
+      setEquipment(equipData);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -97,13 +102,15 @@ export default function Vendors() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
-                    {['Vendor','Categories','Contact','Ordering Days','Next Order','Quick Actions'].map(h => (
+                    {['Vendor','Categories','Contact','Ordering Days','Next Order','Quick Actions','Equipment'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {filtered.map(vendor => (
+                  {filtered.map(vendor => {
+                     const vendorEquip = equipment.filter(e => e.vendorId === vendor.id);
+                     return (
                     <tr key={vendor.id} className="hover:bg-muted/20 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
@@ -150,8 +157,12 @@ export default function Vendors() {
                           </button>
                         </div>
                       </td>
-                    </tr>
-                  ))}
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {equipment.filter(e => e.vendorId === vendor.id).length} items
+                      </td>
+                      </tr>
+                      );
+                      })}
                 </tbody>
               </table>
               <div className="px-4 py-3 border-t border-border/40 text-xs text-muted-foreground">
@@ -175,6 +186,7 @@ export default function Vendors() {
                   {vendor.is_preferred && <Star className="h-3 w-3 text-amber-400 fill-amber-400" />}
                 </p>
                 <p className="text-xs text-muted-foreground capitalize">{CAT_LABELS[vendor.category] || vendor.category || 'General'}</p>
+                {equipment.filter(e => e.vendorId === vendor.id).length > 0 && <p className="text-[10px] text-blue-400 mt-1">{equipment.filter(e => e.vendorId === vendor.id).length} equipment linked</p>}
               </div>
               <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', vendor.active !== false ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground')}>
                 {vendor.active !== false ? 'Active' : 'Inactive'}
