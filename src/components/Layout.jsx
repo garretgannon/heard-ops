@@ -163,7 +163,7 @@ export default function Layout() {
         </div>
 
         {/* Nav items — grouped sections */}
-        <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0">
+        <nav className="flex-1 overflow-y-auto py-1 px-2 space-y-0">
           {DESKTOP_SECTIONS.map((section, si) => {
             const visibleItems = section.items.filter(item => !item.perm || can(item.perm));
             if (visibleItems.length === 0) return null;
@@ -173,7 +173,7 @@ export default function Layout() {
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 px-3 mb-1">{section.label}</p>
               )}
               {collapsed && si > 0 && <div className="mx-2 my-2 border-t border-border/30" />}
-              <div className="space-y-0.5">
+              <div className="space-y-0">
                 {visibleItems.map(item => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path ||
@@ -184,7 +184,7 @@ export default function Layout() {
                         to={item.path}
                         className={cn(
                           "flex items-center text-sm font-medium transition-all duration-200",
-                          collapsed ? "justify-center h-9 w-9 mx-auto rounded-lg" : "gap-3 px-3 py-2 rounded-xl",
+                          collapsed ? "justify-center h-8 w-8 mx-auto rounded-lg" : "gap-2.5 px-2.5 py-1.5 rounded-lg",
                           isActive
                             ? "text-white"
                             : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
@@ -211,12 +211,7 @@ export default function Layout() {
           })}
         </nav>
 
-        {/* Bottom info card */}
-        {!collapsed && (
-          <div className="mx-2 mb-2 p-3 rounded-xl bg-white/4 border border-border/30">
-            <p className="text-[11px] font-semibold text-foreground/70 leading-relaxed">The daily operating system for restaurants.</p>
-          </div>
-        )}
+
 
         {/* Collapse toggle */}
         <div className="border-t border-border/20 p-2">
