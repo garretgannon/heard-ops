@@ -79,6 +79,7 @@ import AdminCommandCenter from './pages/AdminCommandCenter';
 import OnboardingSimulator from './pages/OnboardingSimulator';
 import Shift from './pages/Shift';
 import TemplateManager from './pages/TemplateManager';
+import SDSLibrary from './pages/SDSLibrary';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -200,6 +201,7 @@ const AuthenticatedApp = () => {
         <Route path="/people" element={<PeopleHierarchy />} />
         <Route path="/setup-journey" element={<SetupJourney />} />
         <Route path="/automation-rules" element={<AutomationRules />} />
+        <Route path="/sds-library" element={<SDSLibrary />} />
 
         <Route path="/station-readiness" element={<StationReadiness />} />
 
@@ -242,6 +244,12 @@ const AuthenticatedApp = () => {
         <Route path="/SideWorkProduction" element={<Navigate to="/?tab=sidework" replace />} />
         <Route path="/restaurant-team" element={<Navigate to="/team" replace />} />
         <Route path="/schedule-center" element={<Navigate to="/schedule" replace />} />
+
+        {/* SDS/MSDS REDIRECTS */}
+        <Route path="/MSDS" element={<Navigate to="/sds-library" replace />} />
+        <Route path="/SDS" element={<Navigate to="/sds-library" replace />} />
+        <Route path="/safety-data-sheets" element={<Navigate to="/sds-library" replace />} />
+        <Route path="/chemical-sheets" element={<Navigate to="/sds-library" replace />} />
 
         {/* 404 */}
         <Route path="*" element={<PageNotFound />} />

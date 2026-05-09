@@ -1,0 +1,122 @@
+{
+  "name": "SDS",
+  "type": "object",
+  "properties": {
+    "chemical_name": {
+      "type": "string",
+      "title": "Chemical Name"
+    },
+    "vendor_brand": {
+      "type": "string",
+      "title": "Vendor / Brand"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "degreaser",
+        "sanitizer",
+        "delimer",
+        "disinfectant",
+        "floor_cleaner",
+        "glass_cleaner",
+        "rinse_aid",
+        "detergent",
+        "lubricant",
+        "other"
+      ]
+    },
+    "label_photo_url": {
+      "type": "string",
+      "title": "Label Photo URL"
+    },
+    "sds_pdf_url": {
+      "type": "string",
+      "title": "SDS / MSDS PDF URL"
+    },
+    "ppe_required": {
+      "type": "array",
+      "title": "Required PPE",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dilution_instructions": {
+      "type": "string",
+      "title": "Dilution Instructions"
+    },
+    "storage_instructions": {
+      "type": "string",
+      "title": "Storage Instructions"
+    },
+    "first_aid_notes": {
+      "type": "string",
+      "title": "First Aid / Emergency Notes"
+    },
+    "spill_response_notes": {
+      "type": "string",
+      "title": "Spill Response Notes"
+    },
+    "hazard_warnings": {
+      "type": "string",
+      "title": "Hazard Warnings / Safety Notes"
+    },
+    "linked_equipment": {
+      "type": "array",
+      "title": "Linked Equipment (IDs)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_areas": {
+      "type": "array",
+      "title": "Linked Areas (IDs)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_stations": {
+      "type": "array",
+      "title": "Linked Stations (IDs)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_cleaning_tasks": {
+      "type": "array",
+      "title": "Linked Cleaning Tasks (IDs)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_chemicals": {
+      "type": "array",
+      "title": "Linked Chemical Inventory (IDs)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "last_reviewed_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Last Reviewed Date"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "title": "Uploaded By (Email)"
+    },
+    "admin_notes": {
+      "type": "string",
+      "title": "Admin Notes"
+    }
+  },
+  "required": [
+    "chemical_name",
+    "category"
+  ]
+}
