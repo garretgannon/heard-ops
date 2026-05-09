@@ -106,7 +106,10 @@ export default function Layout() {
           borderBottom: "1px solid #2A3441",
         }}
       >
-        <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/[WORDMARK_URL]" alt="HeardOS" className="h-6 object-contain" />
+        <div className="flex items-center gap-2 flex-1">
+          <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-6 w-6 object-contain shrink-0" />
+          <span className="font-extrabold text-[17px] tracking-tight text-foreground">Heard<span className="text-primary">OS</span></span>
+        </div>
         <div className="flex items-center gap-1.5">
           <Link to="/logs" className="relative h-9 w-9 flex items-center justify-center rounded-xl transition-colors" style={{ background: 'rgba(230,106,31,0.08)' }}>
             <Bell style={{ color: '#94A3B8', width: 18, height: 18 }} />
