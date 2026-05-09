@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Clock, Zap } from 'lucide-react';
 import { format } from 'date-fns';
+import { base44 } from '@/api/base44Client';
 
 const PRESETS = [
   { label: 'Open', start: '07:00', end: '15:00' },
@@ -16,10 +17,28 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
     start_time: '09:00',
     end_time: '17:00',
     role: employee?.role || '',
+    area: '',
     station: '',
     notes: '',
     status: 'draft',
   });
+  const [areas, setAreas] = useState([]);
+  const [stations, setStations] = useState([]);
+  const [loadingData, setLoadingData] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoadingData(true);
+      const [areasData, stationsData] = await Promise.all([
+        base44.entities.Area?.list?.().catch(() => []),
+        base44.entities.Station?.list?.().catch(() => []),
+      ]);
+      setAreas(areasData || []);
+      setStations(stationsData || []);
+      setLoadingData(false);
+    };
+    loadData();
+  }, []);
 
   const applyPreset = (p) => setForm(f => ({ ...f, start_time: p.start, end_time: p.end }));
 
@@ -96,10 +115,21 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
           </div>
 
           <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">Area (optional)</label>
+            <select value={form.area} onChange={e => setForm(f => ({...f, area: e.target.value}))}
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <option value="">Select area…</option>
+              {areas.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+          </div>
+
+          <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">Station (optional)</label>
-            <input type="text" value={form.station} onChange={e => setForm(f => ({...f, station: e.target.value}))}
-              placeholder="e.g. Bar, Line, Expo"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <select value={form.station} onChange={e => setForm(f => ({...f, station: e.target.value}))}
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <option value="">Select station…</option>
+              {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
           </div>
 
           <div>

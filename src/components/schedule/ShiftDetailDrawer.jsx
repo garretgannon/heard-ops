@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Clock, MapPin, Save, Trash2, Copy, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -19,6 +19,7 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
   const [form, setForm] = useState({
     start_time: shift.start_time || '',
     end_time: shift.end_time || '',
+    area: shift.area || '',
     station: shift.station || '',
     role: shift.role || '',
     notes: shift.notes || '',
@@ -30,6 +31,20 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [areas, setAreas] = useState([]);
+  const [stations, setStations] = useState([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const [areasData, stationsData] = await Promise.all([
+        base44.entities.Area?.list?.().catch(() => []),
+        base44.entities.Station?.list?.().catch(() => []),
+      ]);
+      setAreas(areasData || []);
+      setStations(stationsData || []);
+    };
+    loadData();
+  }, []);
 
   const hours = calcHours(form.start_time, form.end_time);
 
@@ -142,11 +157,24 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
             </select>
           </div>
 
+          {/* Area */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Area</label>
+            <select value={form.area} onChange={e => setForm(f => ({...f, area: e.target.value}))}
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <option value="">Select area…</option>
+              {areas.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+          </div>
+
           {/* Station */}
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Station</label>
-            <input type="text" value={form.station} onChange={e => setForm(f => ({...f, station: e.target.value}))}
-              placeholder="e.g. Bar, Line, Expo" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <select value={form.station} onChange={e => setForm(f => ({...f, station: e.target.value}))}
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <option value="">Select station…</option>
+              {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
           </div>
 
           {/* Status */}
