@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Plus, Zap, AlertCircle, Clock, Thermometer, TrendingDown } from 'lucide-react';
-import TemperatureComplianceCard from '@/components/temperature/TemperatureComplianceCard';
 
 export default function DesktopGridLayout({ stats, tasks, logs, onQuickAction }) {
   const overdueItems = tasks.filter((t) => t.status === 'overdue').slice(0, 5);
@@ -9,10 +8,6 @@ export default function DesktopGridLayout({ stats, tasks, logs, onQuickAction })
   const failedTemps = logs.filter((l) => l.type === 'temperature' && (l.status === 'flagged' || l.custom_metadata?.passFail === 'fail')).slice(0, 3);
 
   return (
-    <>
-    <div className="w-full">
-      <TemperatureComplianceCard />
-    </div>
     <div className="grid grid-cols-3 gap-4">
       {/* Left: Priorities */}
       <div className="rounded-xl border border-border/30 bg-card p-5 space-y-3">
@@ -91,6 +86,5 @@ export default function DesktopGridLayout({ stats, tasks, logs, onQuickAction })
         )}
       </div>
     </div>
-    </>
   );
 }
