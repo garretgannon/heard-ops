@@ -18,13 +18,13 @@ export default function TeamCommandHeader({ onSearch, onAddEmployee, searchQuery
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
         <input
           type="text"
           placeholder="Name, role, station..."
           value={searchQuery}
           onChange={(e) => onSearch?.(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 rounded-lg border border-border/30 bg-card text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border/30 bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
     </div>
