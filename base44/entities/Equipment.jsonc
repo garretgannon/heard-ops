@@ -100,6 +100,47 @@
       "type": "string",
       "title": "Notes"
     },
+    "temp_enabled": {
+      "type": "boolean",
+      "title": "Temperature Monitoring Enabled",
+      "default": false
+    },
+    "temp_min": {
+      "type": "number",
+      "title": "Minimum Safe Temperature (\u00b0F)"
+    },
+    "temp_max": {
+      "type": "number",
+      "title": "Maximum Safe Temperature (\u00b0F)"
+    },
+    "temp_check_frequency_minutes": {
+      "type": "number",
+      "title": "Check Frequency (minutes)"
+    },
+    "temp_grace_period_minutes": {
+      "type": "number",
+      "title": "Grace Period Before Alert (minutes)",
+      "default": 15
+    },
+    "temp_escalation_minutes": {
+      "type": "number",
+      "title": "Manager Escalation After (minutes)",
+      "default": 30
+    },
+    "temp_corrective_action": {
+      "type": "string",
+      "title": "Corrective Action Instructions"
+    },
+    "required_on_opening": {
+      "type": "boolean",
+      "title": "Required Opening Check",
+      "default": false
+    },
+    "required_on_closing": {
+      "type": "boolean",
+      "title": "Required Closing Check",
+      "default": false
+    },
     "requiresTemperatureLog": {
       "type": "boolean",
       "title": "Requires Temperature Log",

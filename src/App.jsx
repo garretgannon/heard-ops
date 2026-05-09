@@ -63,8 +63,7 @@ import CleaningTemplates from './pages/CleaningTemplates';
 import TemperatureLogTemplates from './pages/TemperatureLogTemplates';
 import WasteTemplates from './pages/WasteTemplates';
 import EightySixTemplates from './pages/86Templates';
-import TemperatureMonitoring from './pages/TemperatureMonitoring';
-import TemperatureDashboard from './pages/TemperatureDashboard';
+import StationReadiness from './pages/StationReadiness';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
 import LocationSetup from './pages/LocationSetup';
@@ -180,6 +179,7 @@ const AuthenticatedApp = () => {
         <Route path="/schedule" element={<PermissionGate permission={PERMISSIONS.VIEW_SCHEDULE}><ScheduleCenter /></PermissionGate>} />
         <Route path="/inventory" element={<PermissionGate permission={PERMISSIONS.VIEW_INVENTORY}><InventorySimplified /></PermissionGate>} />
         <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
+        <Route path="/station-readiness" element={<StationReadiness />} />
         <Route path="/shift-handoff" element={<ShiftHandoff />} />
 
         {/* ADMIN ROUTES (Under /more) */}
@@ -193,8 +193,7 @@ const AuthenticatedApp = () => {
         <Route path="/people" element={<PeopleHierarchy />} />
         <Route path="/setup-journey" element={<SetupJourney />} />
 
-        <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
-        <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
+        <Route path="/station-readiness" element={<StationReadiness />} />
 
         {/* SETTINGS ROUTES */}
         <Route path="/profile" element={<Profile />} />
@@ -209,7 +208,9 @@ const AuthenticatedApp = () => {
         <Route path="/Incidents" element={<Navigate to="/logs?type=incident" replace />} />
         <Route path="/IssueTracker" element={<Navigate to="/logs?type=incident" replace />} />
         <Route path="/BathroomChecks" element={<Navigate to="/logs?type=bathroom" replace />} />
-        <Route path="/TempLogs" element={<Navigate to="/logs?type=temperature" replace />} />
+        <Route path="/TempLogs" element={<Navigate to="/station-readiness" replace />} />
+        <Route path="/TemperatureMonitoring" element={<Navigate to="/station-readiness" replace />} />
+        <Route path="/TemperatureDashboard" element={<Navigate to="/station-readiness" replace />} />
         <Route path="/WasteLog" element={<Navigate to="/logs?type=waste" replace />} />
         <Route path="/WasteEntry" element={<Navigate to="/logs?type=waste" replace />} />
         <Route path="/CleaningLog" element={<Navigate to="/logs?type=cleaning" replace />} />

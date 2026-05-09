@@ -1,0 +1,208 @@
+{
+  "name": "OperationalCheck",
+  "type": "object",
+  "properties": {
+    "check_type": {
+      "type": "string",
+      "title": "Check Type",
+      "enum": [
+        "temperature",
+        "sanitizer",
+        "chemical_dilution",
+        "station_readiness",
+        "cooling_progression",
+        "opening_verification",
+        "closing_verification"
+      ],
+      "enumNames": [
+        "Temperature",
+        "Sanitizer PPM",
+        "Chemical Dilution",
+        "Station Readiness",
+        "Cooling Progression",
+        "Opening Verification",
+        "Closing Verification"
+      ]
+    },
+    "shift_phase": {
+      "type": "string",
+      "title": "Shift Phase",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ],
+      "enumNames": [
+        "Opening",
+        "Mid Shift",
+        "Closing"
+      ]
+    },
+    "equipment_id": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "equipment_name": {
+      "type": "string",
+      "title": "Equipment Name (denormalized)"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name (denormalized)"
+    },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "assigned_to_role": {
+      "type": "string",
+      "title": "Assigned to Role"
+    },
+    "assigned_to_employee": {
+      "type": "string",
+      "title": "Assigned to Employee (Email)"
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Shift Date"
+    },
+    "check_name": {
+      "type": "string",
+      "title": "Check Name / Label"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description / Instructions"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "failed",
+        "overdue",
+        "escalated"
+      ],
+      "enumNames": [
+        "Pending",
+        "In Progress",
+        "Completed",
+        "Failed",
+        "Overdue",
+        "Escalated"
+      ],
+      "default": "pending"
+    },
+    "required": {
+      "type": "boolean",
+      "title": "Required Check",
+      "default": true
+    },
+    "due_time": {
+      "type": "string",
+      "title": "Due Time (HH:MM)"
+    },
+    "frequency_minutes": {
+      "type": "number",
+      "title": "Frequency (minutes)"
+    },
+    "temperature_value": {
+      "type": "number",
+      "title": "[Temperature] Current Reading (\u00b0F)"
+    },
+    "temp_min": {
+      "type": "number",
+      "title": "[Temperature] Minimum Safe (\u00b0F)"
+    },
+    "temp_max": {
+      "type": "number",
+      "title": "[Temperature] Maximum Safe (\u00b0F)"
+    },
+    "temp_status": {
+      "type": "string",
+      "title": "[Temperature] Status",
+      "enum": [
+        "safe",
+        "warning",
+        "critical"
+      ]
+    },
+    "sanitizer_ppm": {
+      "type": "number",
+      "title": "[Sanitizer] PPM Reading"
+    },
+    "sanitizer_min_ppm": {
+      "type": "number",
+      "title": "[Sanitizer] Minimum PPM"
+    },
+    "chemical_dilution_ratio": {
+      "type": "string",
+      "title": "[Chemical] Expected Dilution Ratio"
+    },
+    "chemical_actual_ratio": {
+      "type": "string",
+      "title": "[Chemical] Actual Dilution Ratio"
+    },
+    "chemical_id": {
+      "type": "string",
+      "title": "[Chemical] Chemical ID"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Check Notes / Observations"
+    },
+    "corrective_action_taken": {
+      "type": "string",
+      "title": "Corrective Action (if needed)"
+    },
+    "completed_by": {
+      "type": "string",
+      "title": "Completed By (Email)"
+    },
+    "completed_at": {
+      "type": "string",
+      "title": "Completed At (ISO 8601)"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "title": "Manager Review (Email)"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "title": "Reviewed At (ISO 8601)"
+    },
+    "maintenance_ticket_created": {
+      "type": "boolean",
+      "title": "Maintenance Ticket Created",
+      "default": false
+    },
+    "maintenance_ticket_id": {
+      "type": "string",
+      "title": "Linked Maintenance Ticket ID"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo Verification URL"
+    },
+    "alert_escalated": {
+      "type": "boolean",
+      "title": "Alert Escalated to Manager",
+      "default": false
+    },
+    "escalated_at": {
+      "type": "string",
+      "title": "Escalated At (ISO 8601)"
+    }
+  },
+  "required": [
+    "check_type",
+    "shift_phase"
+  ]
+}
