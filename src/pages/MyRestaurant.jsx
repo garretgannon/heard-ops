@@ -182,18 +182,26 @@ function AreaModal({ onClose }) {
 
 function EquipmentModal({ onClose }) {
   const navigate = useNavigate();
-  const [items, setItems] = useState([]);
-  const [adding, setAdding] = useState(false);
+  const [equipment, setEquipment] = useState([]);
+  const [stations, setStations] = useState([]);
+  const [expandedStation, setExpandedStation] = useState(null);
+  const [addingToStation, setAddingToStation] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const [activeCategory, setActiveCategory] = useState('all');
-  const emptyForm = { name: '', equipmentType: '', department: '', station: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, isActive: true };
+  const emptyForm = { name: '', equipmentType: '', station: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false, isActive: true };
   const [form, setForm] = useState(emptyForm);
 
-  const reload = () => base44.entities.Equipment.list('-updated_date', 200).then(setItems);
+  const reload = async () => {
+    const [eq, st] = await Promise.all([
+      base44.entities.Equipment.list('-updated_date', 200),
+      base44.entities.Station.list('name', 100),
+    ]);
+    setEquipment(eq);
+    setStations(st);
+  };
   useEffect(() => { reload(); }, []);
 
   const typeLabel = (v) => ALL_EQUIPMENT_TYPES.find(t => t.value === v)?.label || v;
-  const categoryForType = (v) => EQUIPMENT_CATEGORIES.find(c => c.types.some(t => t.value === v))?.id || 'other';
+  const COLD_TYPES = ['walk-in-cooler','walk-in-freezer','reach-in-cooler','reach-in-freezer','prep-table-cooler','lowboy-cooler','beer-cooler','wine-cooler','chest-freezer'];
 
   const save = async () => {
     if (!form.name.trim() || !form.equipmentType) return;
@@ -202,32 +210,33 @@ function EquipmentModal({ onClose }) {
       setEditingId(null);
     } else {
       await base44.entities.Equipment.create(form);
-      setAdding(false);
+      setAddingToStation(null);
     }
     setForm(emptyForm);
     reload();
   };
 
+  const cancelForm = () => { setEditingId(null); setAddingToStation(null); setForm(emptyForm); };
+
   const startEdit = (item) => {
     setEditingId(item.id);
-    setAdding(false);
-    setForm({ name: item.name, equipmentType: item.equipmentType, department: item.department || '', station: item.station || '', modelNumber: item.modelNumber || '', serialNumber: item.serialNumber || '', requiresTemperatureLog: !!item.requiresTemperatureLog, requiresCleaningChecklist: !!item.requiresCleaningChecklist, requiresMaintenanceChecklist: !!item.requiresMaintenanceChecklist, isActive: item.isActive !== false });
+    setAddingToStation(null);
+    setForm({ name: item.name, equipmentType: item.equipmentType, station: item.station || '', modelNumber: item.modelNumber || '', serialNumber: item.serialNumber || '', requiresTemperatureLog: !!item.requiresTemperatureLog, requiresCleaningChecklist: !!item.requiresCleaningChecklist, requiresMaintenanceChecklist: !!item.requiresMaintenanceChecklist, inInventory: !!item.inInventory, isActive: item.isActive !== false });
+    setExpandedStation(item.station || '__unassigned');
   };
 
-  const cancelEdit = () => { setEditingId(null); setAdding(false); setForm(emptyForm); };
-  const del = async (id) => { await base44.entities.Equipment.delete(id); setItems(p => p.filter(i => i.id !== id)); };
+  const del = async (id) => {
+    if (!confirm('Delete this equipment?')) return;
+    await base44.entities.Equipment.delete(id);
+    reload();
+  };
 
-  const COLD_TYPES = ['walk-in-cooler','walk-in-freezer','reach-in-cooler','reach-in-freezer','prep-table-cooler','lowboy-cooler','beer-cooler','wine-cooler','chest-freezer'];
-  const isColdStorage = (type) => COLD_TYPES.includes(type);
-
-  const filteredItems = activeCategory === 'all' ? items : items.filter(i => categoryForType(i.equipmentType) === activeCategory);
-
-  const FormFields = () => (
-    <div className="space-y-3 mt-3 p-3 bg-background border border-border rounded-xl">
+  const EquipmentForm = ({ stationName }) => (
+    <div className="space-y-3 mt-2 p-3 bg-background border border-border rounded-xl">
       <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
         className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
       <div className="space-y-1">
-        <label className="text-[10px] font-bold text-muted-foreground uppercase">Category & Type *</label>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase">Type *</label>
         {EQUIPMENT_CATEGORIES.map(cat => (
           <div key={cat.id}>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2 mb-1">{cat.label}</p>
@@ -236,9 +245,7 @@ function EquipmentModal({ onClose }) {
                 <button key={t.value} type="button"
                   onClick={() => setForm(p => ({ ...p, equipmentType: t.value }))}
                   className={`text-xs px-2.5 py-1 rounded-full border font-semibold transition-all ${
-                    form.equipmentType === t.value
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
+                    form.equipmentType === t.value ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
                   }`}>
                   {t.label}
                 </button>
@@ -248,19 +255,18 @@ function EquipmentModal({ onClose }) {
         ))}
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <input value={form.department} onChange={e => setForm(p => ({ ...p, department: e.target.value }))} placeholder="Department"
-          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
-        <input value={form.station} onChange={e => setForm(p => ({ ...p, station: e.target.value }))} placeholder="Station"
-          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
-      </div>
-      <div className="grid grid-cols-2 gap-2">
         <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
           className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
           className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
       </div>
       <div className="space-y-1.5">
-        {[['requiresTemperatureLog','Requires Temperature Log'],['requiresCleaningChecklist','Requires Cleaning Checklist'],['requiresMaintenanceChecklist','Requires Maintenance Checklist']].map(([key, label]) => (
+        {[
+          ['requiresTemperatureLog', '🌡️ Requires Temperature Log'],
+          ['requiresCleaningChecklist', '🧹 Requires Cleaning Checklist'],
+          ['requiresMaintenanceChecklist', '🔧 Requires Maintenance Checklist'],
+          ['inInventory', '📦 Tracked in Inventory'],
+        ].map(([key, label]) => (
           <label key={key} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
             <input type="checkbox" checked={form[key]} onChange={e => setForm(p => ({ ...p, [key]: e.target.checked }))} className="rounded" />
             {label}
@@ -269,72 +275,126 @@ function EquipmentModal({ onClose }) {
       </div>
       <div className="flex gap-2">
         <button onClick={save} className="flex-1 btn-primary text-sm">Save</button>
-        <button onClick={cancelEdit} className="flex-1 btn-secondary text-sm">Cancel</button>
+        <button onClick={cancelForm} className="flex-1 btn-secondary text-sm">Cancel</button>
       </div>
     </div>
   );
 
+  // Group equipment by station
+  const stationNames = stations.map(s => s.name);
+  const equipmentByStation = {};
+  equipment.forEach(item => {
+    const key = item.station && stationNames.includes(item.station) ? item.station : '__unassigned';
+    if (!equipmentByStation[key]) equipmentByStation[key] = [];
+    equipmentByStation[key].push(item);
+  });
+
+  const stationGroups = [
+    ...stations.map(s => ({ key: s.name, label: s.name, department: s.department, items: equipmentByStation[s.name] || [] })),
+    ...(equipmentByStation['__unassigned']?.length ? [{ key: '__unassigned', label: 'Unassigned', department: null, items: equipmentByStation['__unassigned'] }] : []),
+  ];
+
+  const summaryTags = (items) => {
+    const counts = {};
+    items.forEach(i => {
+      const cat = EQUIPMENT_CATEGORIES.find(c => c.types.some(t => t.value === i.equipmentType));
+      const key = cat?.label || 'Other';
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return Object.entries(counts).map(([k, v]) => `${v}× ${k}`);
+  };
+
   return (
-    <CenteredModal title="Equipment and Assets" onClose={onClose}>
-      {/* Category filter tabs */}
-      <div className="flex gap-1.5 flex-wrap mb-4">
-        <button onClick={() => setActiveCategory('all')} className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${ activeCategory === 'all' ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border' }`}>All ({items.length})</button>
-        {EQUIPMENT_CATEGORIES.map(cat => {
-          const count = items.filter(i => categoryForType(i.equipmentType) === cat.id).length;
-          if (count === 0 && activeCategory !== cat.id) return null;
+    <CenteredModal title="Stations & Equipment" onClose={onClose}>
+      <p className="text-xs text-muted-foreground mb-4">Each station shows its assigned equipment. Equipment can require temperature logs, cleaning checklists, and be tracked in inventory.</p>
+
+      {stationGroups.length === 0 && (
+        <div className="text-center py-6">
+          <p className="text-sm text-muted-foreground">No stations yet. <button onClick={() => { onClose(); navigate('/stations'); }} className="text-primary font-bold hover:underline">Add stations first →</button></p>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {stationGroups.map(group => {
+          const isExpanded = expandedStation === group.key;
+          const hasAlerts = group.items.some(i => i.requiresTemperatureLog || i.requiresCleaningChecklist);
+          const tags = summaryTags(group.items);
           return (
-            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`text-xs px-2.5 py-1 rounded-full border font-semibold ${ activeCategory === cat.id ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border' }`}>
-              {cat.label} {count > 0 && `(${count})`}
-            </button>
+            <div key={group.key} className="border border-border rounded-xl overflow-hidden">
+              {/* Station Header */}
+              <button
+                onClick={() => setExpandedStation(isExpanded ? null : group.key)}
+                className="w-full flex items-center gap-3 px-4 py-3 bg-card hover:bg-muted/50 transition-all text-left"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-foreground">{group.label}</p>
+                    {group.department && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">{group.department}</span>}
+                    {hasAlerts && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400">⚠ Compliance</span>}
+                  </div>
+                  {tags.length > 0 ? (
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{tags.join(' · ')}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground mt-0.5">No equipment assigned</p>
+                  )}
+                </div>
+                <span className="text-muted-foreground text-lg">{isExpanded ? '▲' : '▼'}</span>
+              </button>
+
+              {/* Expanded Equipment List */}
+              {isExpanded && (
+                <div className="bg-background/60 px-3 pb-3 space-y-2">
+                  {group.items.map(item => (
+                    <div key={item.id}>
+                      {editingId === item.id ? (
+                        <EquipmentForm stationName={group.key !== '__unassigned' ? group.key : ''} />
+                      ) : (
+                        <div className="bg-card border border-border/50 rounded-lg px-3 py-2.5 mt-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-foreground">{item.name}</p>
+                              <p className="text-xs text-muted-foreground">{typeLabel(item.equipmentType)}{item.modelNumber ? ` · ${item.modelNumber}` : ''}</p>
+                            </div>
+                            <button onClick={() => startEdit(item)} className="text-xs font-bold text-primary px-2 py-1 rounded hover:bg-primary/10">Edit</button>
+                            <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
+                          </div>
+                          <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                            {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">🌡️ Temp Log</span>}
+                            {item.requiresCleaningChecklist && <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold">🧹 Cleaning</span>}
+                            {item.requiresMaintenanceChecklist && <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">🔧 Maintenance</span>}
+                            {item.inInventory && <span className="text-[9px] bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded-full font-bold">📦 Inventory</span>}
+                            {COLD_TYPES.includes(item.equipmentType) && (
+                              <button onClick={() => { onClose(); navigate('/temperature-dashboard'); }} className="text-[9px] bg-cyan-500/15 text-cyan-400 px-1.5 py-0.5 rounded-full font-bold border border-cyan-500/20">View Temp History →</button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Add equipment to this station */}
+                  {addingToStation === group.key ? (
+                    <EquipmentForm stationName={group.key !== '__unassigned' ? group.key : ''} />
+                  ) : (
+                    editingId === null && (
+                      <button
+                        onClick={() => { setAddingToStation(group.key); setForm({ ...emptyForm, station: group.key !== '__unassigned' ? group.key : '' }); }}
+                        className="mt-2 w-full h-8 rounded-lg border border-dashed border-border text-xs font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Add Equipment to {group.key !== '__unassigned' ? group.label : 'Station'}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
 
-      {filteredItems.length === 0 && !adding && (
-        <div className="text-center py-4 mb-3">
-          <p className="text-sm text-muted-foreground">No equipment in this category yet.</p>
-        </div>
-      )}
-
-      <div className="space-y-2 mb-4">
-        {filteredItems.map(item => (
-          <div key={item.id}>
-            {editingId === item.id ? (
-              <FormFields />
-            ) : (
-              <div className="bg-background border border-border rounded-lg px-3 py-2.5">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-foreground">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{typeLabel(item.equipmentType)}{item.station ? ` · ${item.station}` : ''}</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => startEdit(item)} className="text-xs font-bold text-primary px-2 py-1 rounded-lg hover:bg-primary/10 active:scale-95">Edit</button>
-                    <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
-                  </div>
-                </div>
-                <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                  {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">Temp Log</span>}
-                  {item.requiresCleaningChecklist && <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold">Cleaning</span>}
-                  {item.requiresMaintenanceChecklist && <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">Maintenance</span>}
-                </div>
-                {isColdStorage(item.equipmentType) && (
-                  <div className="flex gap-1.5 mt-2">
-                    <button onClick={() => { onClose(); navigate('/temp-logs'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 active:scale-95">View Temp History</button>
-                    <button onClick={() => { onClose(); navigate('/temp-log-templates'); }} className="flex-1 text-[10px] font-bold px-2 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 active:scale-95">Create Temp Template</button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {adding && <FormFields />}
-
-      {!adding && !editingId && (
-        <button onClick={() => setAdding(true)} className="w-full btn-primary text-sm flex items-center justify-center gap-2">
-          <Plus className="h-4 w-4" /> Add Equipment
+      {stations.length > 0 && !addingToStation && !editingId && (
+        <button onClick={() => { onClose(); navigate('/stations'); }} className="mt-4 w-full btn-secondary text-sm flex items-center justify-center gap-2">
+          <Settings className="h-4 w-4" /> Manage Stations
         </button>
       )}
     </CenteredModal>
