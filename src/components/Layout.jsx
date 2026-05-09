@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ClipboardList,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   ChevronLeft, ChevronRight as ChevronRightIcon,
-  FileText, CalendarDays, Users, BarChart3, Thermometer, BookOpen, Award,
+  FileText, CalendarDays, Users, BarChart3, Thermometer, BookOpen, Award, ShieldCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -51,6 +51,7 @@ const DESKTOP_SECTIONS = [
       { path: "/temperature-monitoring", label: "Temperature",  icon: Thermometer,  perm: null },
       { path: "/reports",               label: "Reports",      icon: BarChart3,     perm: 'view_reports' },
       { path: "/my-restaurant",         label: "My Restaurant", icon: Building2,    perm: null },
+      { path: "/admin/command-center",   label: "Roles & Access", icon: ShieldCheck,  perm: 'manage_settings' },
       { path: "/profile",               label: "Settings",     icon: Settings,     perm: null },
     ],
   },
