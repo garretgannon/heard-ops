@@ -66,7 +66,7 @@ import EightySixTemplates from './pages/86Templates';
 import StationReadiness from './pages/StationReadiness';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
-import LocationSetup from './pages/LocationSetup';
+import OperationalMap from './pages/OperationalMap';
 import PeopleHierarchy from './pages/PeopleHierarchy';
 import SetupJourney from './pages/SetupJourney';
 
@@ -189,7 +189,8 @@ const AuthenticatedApp = () => {
         <Route path="/templates" element={<TemplateManager />} />
         <Route path="/stations" element={<Stations />} />
         <Route path="/job-codes" element={<JobCodes />} />
-        <Route path="/location-setup" element={<LocationSetup />} />
+        <Route path="/operational-map" element={<OperationalMap />} />
+        <Route path="/location-setup" element={<Navigate to="/operational-map" replace />} />
         <Route path="/people" element={<PeopleHierarchy />} />
         <Route path="/setup-journey" element={<SetupJourney />} />
 

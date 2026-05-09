@@ -58,8 +58,8 @@ const DESKTOP_SECTIONS = [
     label: "SETUP",
     items: [
       { path: "/templates",              label: "Templates",      icon: ClipboardList,  perm: 'view_templates' },
-      { path: "/people",                 label: "People",         icon: GitBranch,      perm: null },
-      { path: "/location-setup",         label: "Locations",      icon: MapPin,         perm: null },
+      { path: "/people",                 label: "Team",           icon: GitBranch,      perm: null },
+      { path: "/operational-map",         label: "Operations",    icon: MapPin,         perm: null },
       { path: "/reports",                label: "Reports",        icon: BarChart3,      perm: 'view_reports' },
       { path: "/my-restaurant",          label: "My Restaurant",  icon: Building2,      perm: null },
       { path: "/admin/command-center",   label: "Roles & Access", icon: ShieldCheck,    perm: 'manage_settings' },

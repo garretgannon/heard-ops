@@ -1,0 +1,244 @@
+import { X, Edit2, Zap, AlertTriangle, TrendingUp } from 'lucide-react';
+
+export default function OperationalContextPanel({
+  type,
+  itemId,
+  areas,
+  stations,
+  equipment,
+  onClose,
+  onRefresh,
+}) {
+  const renderEquipmentPanel = () => {
+    const equip = equipment.find(e => e.id === itemId);
+    if (!equip) return null;
+
+    const station = stations.find(s => s.id === equip.station_id);
+    const area = areas.find(a => a.id === equip.area_id);
+
+    return (
+      <div className="p-4 space-y-4">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">{equip.name}</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              {equip.equipmentType} · {area?.name} / {station?.name}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Status Cards */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-background/50 border border-border/40 rounded-lg p-3">
+            <p className="text-[10px] text-muted-foreground font-semibold mb-1">Temperature</p>
+            <p className="text-lg font-bold text-green-400">350°F</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Good</p>
+          </div>
+          <div className="bg-background/50 border border-border/40 rounded-lg p-3">
+            <p className="text-[10px] text-muted-foreground font-semibold mb-1">Cleaning Due</p>
+            <p className="text-sm font-bold text-foreground">In 2 days</p>
+            <p className="text-[10px] text-muted-foreground mt-1">May 20</p>
+          </div>
+          <div className="bg-background/50 border border-border/40 rounded-lg p-3">
+            <p className="text-[10px] text-muted-foreground font-semibold mb-1">Maintenance</p>
+            <p className="text-sm font-bold text-green-400">Good</p>
+            <p className="text-[10px] text-muted-foreground mt-1">No issues</p>
+          </div>
+          <div className="bg-background/50 border border-border/40 rounded-lg p-3">
+            <p className="text-[10px] text-muted-foreground font-semibold mb-1">Utilization</p>
+            <p className="text-lg font-bold text-blue-400">68%</p>
+            <p className="text-[10px] text-muted-foreground mt-1">This week</p>
+          </div>
+        </div>
+
+        {/* Edit Button */}
+        <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+          <Edit2 className="h-3.5 w-3.5" />
+          Edit Equipment
+        </button>
+
+        {/* Sections */}
+        <div className="space-y-4 border-t border-border/20 pt-4">
+          {/* Temperature History */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-foreground">Temperature History</p>
+              <a href="#" className="text-[10px] text-primary hover:underline">View History →</a>
+            </div>
+            <div className="bg-background/50 border border-border/20 rounded-lg h-24 flex items-center justify-center text-muted-foreground text-xs">
+              [Chart would render here]
+            </div>
+          </div>
+
+          {/* Assigned Staff */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-foreground">Assigned Staff</p>
+              <a href="#" className="text-[10px] text-primary hover:underline">Edit</a>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs">
+                <div className="h-6 w-6 rounded-full bg-purple-500/30 border border-purple-400 flex items-center justify-center text-[10px] font-bold text-purple-300">
+                  MC
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Monica C.</p>
+                  <p className="text-[10px] text-muted-foreground">7:00 AM – 3:00 PM</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Cleaning Status */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-foreground">Cleaning Status</p>
+              <a href="#" className="text-[10px] text-primary hover:underline">View Tasks →</a>
+            </div>
+            <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs space-y-1">
+              <p className="font-semibold text-foreground">Daily Fryer Clean</p>
+              <p className="text-[10px] text-muted-foreground">Due in 2 days · May 20</p>
+              <div className="w-full bg-background rounded h-1.5 mt-1">
+                <div className="bg-green-400 h-full rounded" style={{ width: '75%' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Maintenance */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-foreground">Maintenance</p>
+              <a href="#" className="text-[10px] text-primary hover:underline">View History →</a>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-background/50 border border-border/20 rounded-lg p-2">
+                <p className="text-[10px] text-muted-foreground font-semibold">Last Service</p>
+                <p className="text-xs font-bold text-foreground mt-1">Apr 28, 2025</p>
+              </div>
+              <div className="bg-background/50 border border-border/20 rounded-lg p-2">
+                <p className="text-[10px] text-muted-foreground font-semibold">Next PM Due</p>
+                <p className="text-xs font-bold text-green-400 mt-1">May 28, 2025</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Vendor */}
+          <div>
+            <p className="text-xs font-bold text-foreground mb-2">Vendor</p>
+            <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs">
+              <p className="font-semibold text-foreground">Frymaster</p>
+              <p className="text-muted-foreground">Model JB14</p>
+              <p className="text-muted-foreground">Serial FM1814-00421</p>
+            </div>
+          </div>
+
+          {/* Linked Chemicals */}
+          <div>
+            <p className="text-xs font-bold text-foreground mb-2">Linked Chemicals / SDS</p>
+            <div className="space-y-1.5">
+              <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-foreground">Fry Oil (Canola Blend)</p>
+                  <a href="#" className="text-[10px] text-primary hover:underline">SDS →</a>
+                </div>
+                <button className="p-1 text-muted-foreground hover:text-foreground">
+                  {/* menu icon */}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Operational Alerts */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-foreground">Operational Alerts</p>
+              <a href="#" className="text-[10px] text-primary hover:underline">View All (2) →</a>
+            </div>
+            <div className="space-y-1.5">
+              <div className="px-2.5 py-1.5 bg-orange-500/10 border border-orange-500/30 rounded text-xs cursor-pointer hover:bg-orange-500/20 transition-all">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-3.5 w-3.5 text-orange-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-orange-300">Low Oil Level</p>
+                    <p className="text-[10px] text-orange-200 mt-0.5">Detected 2 days ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderAreaPanel = () => {
+    const area = areas.find(a => a.id === itemId);
+    if (!area) return null;
+
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">{area.name}</h2>
+            <p className="text-xs text-muted-foreground mt-1">{area.description || 'No description'}</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+          <Edit2 className="h-3.5 w-3.5" />
+          Edit Area
+        </button>
+
+        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
+          Area details panel. Select a station or equipment for more details.
+        </div>
+      </div>
+    );
+  };
+
+  const renderStationPanel = () => {
+    const station = stations.find(s => s.id === itemId);
+    if (!station) return null;
+
+    return (
+      <div className="p-4 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">{station.name}</h2>
+            <p className="text-xs text-muted-foreground mt-1">{station.description || 'No description'}</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-card rounded transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-primary font-semibold text-xs transition-all">
+          <Edit2 className="h-3.5 w-3.5" />
+          Edit Station
+        </button>
+
+        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
+          Station details panel. Select an equipment item for full details.
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {type === 'equipment' && renderEquipmentPanel()}
+      {type === 'area' && renderAreaPanel()}
+      {type === 'station' && renderStationPanel()}
+    </>
+  );
+}
