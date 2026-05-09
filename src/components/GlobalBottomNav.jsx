@@ -17,12 +17,11 @@ const ALL_NAV = [
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
   const { user } = useCurrentUser();
   const { can } = usePermissions();
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
-  if (!isMobile) return null;
-  if (!user) return null;
+  if (!isMobile || !user) return null;
 
   const navConfig = ALL_NAV.filter(item => !item.perm || can(item.perm)).slice(0, 5);
 
