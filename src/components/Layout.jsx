@@ -7,6 +7,7 @@ import {
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   ChevronLeft, ChevronRight as ChevronRightIcon,
   FileText, CalendarDays, Users, BarChart3, Thermometer, BookOpen, Award, ShieldCheck, MapPin,
+  CheckSquare, Wrench, Package, ScrollText, FlaskConical, ArrowLeftRight, Brush, BriefcaseBusiness, Star, Layers,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -22,38 +23,52 @@ const DESKTOP_SECTIONS = [
   {
     label: "WORK",
     items: [
-      { path: "/",    label: "Overview", icon: LayoutDashboard, perm: null },
-      { path: "/logs", label: "Logs",    icon: FileText,        perm: 'view_logs' },
-      { path: "/team", label: "Team",    icon: Users,           perm: 'view_team' },
+      { path: "/",          label: "Overview",  icon: LayoutDashboard, perm: null },
+      { path: "/logs",      label: "Logs",      icon: FileText,        perm: 'view_logs' },
+      { path: "/approvals", label: "Approvals", icon: CheckSquare,     perm: null },
+      { path: "/team",      label: "Team",      icon: Users,           perm: 'view_team' },
+    ],
+  },
+  {
+    label: "KNOWLEDGE",
+    items: [
+      { path: "/recipes",   label: "Recipes",   icon: ChefHat,         perm: 'view_recipes' },
+      { path: "/build-cards", label: "Build Cards", icon: Star,         perm: 'view_recipes' },
+      { path: "/training",  label: "Training",  icon: Award,           perm: null },
+      { path: "/standards", label: "Standards", icon: ScrollText,      perm: null },
+      { path: "/msds",      label: "MSDS",      icon: FlaskConical,    perm: null },
+      { path: "/knowledge", label: "Knowledge", icon: BookOpen,        perm: null },
     ],
   },
   {
     label: "RESOURCES",
     items: [
-      { path: "/recipes",   label: "Recipes",   icon: ChefHat,   perm: 'view_recipes' },
-      { path: "/training",  label: "Training",  icon: Award,     perm: 'view_training' },
-      { path: "/inventory", label: "Inventory", icon: Warehouse, perm: 'view_inventory' },
-      { path: "/vendors",   label: "Vendors",   icon: Truck,     perm: 'view_vendors' },
+      { path: "/inventory",       label: "Inventory",       icon: Warehouse,  perm: 'view_inventory' },
+      { path: "/purchased-items", label: "Purchased Items", icon: Package,    perm: null },
+      { path: "/vendors",         label: "Vendors",         icon: Truck,      perm: 'view_vendors' },
     ],
   },
   {
     label: "PLANNING",
     items: [
-      { path: "/prep-planning",  label: "Prep Planning", icon: ClipboardList,  perm: 'edit_prep_lists' },
-      { path: "/schedule",       label: "Schedule",      icon: CalendarDays,   perm: 'view_schedule' },
-      { path: "/reservations",   label: "BEOs / Events", icon: LayoutTemplate, perm: 'view_beos' },
+      { path: "/prep-planning",  label: "Prep Planning",  icon: ClipboardList,   perm: 'edit_prep_lists' },
+      { path: "/schedule",       label: "Schedule",       icon: CalendarDays,    perm: 'view_schedule' },
+      { path: "/reservations",   label: "BEOs / Events",  icon: LayoutTemplate,  perm: 'view_beos' },
+      { path: "/shift-handoff",  label: "Shift Handoff",  icon: ArrowLeftRight,  perm: null },
     ],
   },
   {
     label: "SETUP",
     items: [
-      { path: "/templates",             label: "Templates",    icon: ClipboardList, perm: 'view_templates' },
-      { path: "/location-setup",          label: "Locations",    icon: MapPin,        perm: null },
-      { path: "/temperature-monitoring", label: "Temperature",  icon: Thermometer,  perm: null },
-      { path: "/reports",               label: "Reports",      icon: BarChart3,     perm: 'view_reports' },
-      { path: "/my-restaurant",         label: "My Restaurant", icon: Building2,    perm: null },
-      { path: "/admin/command-center",   label: "Roles & Access", icon: ShieldCheck,  perm: 'manage_settings' },
-      { path: "/profile",               label: "Settings",     icon: Settings,     perm: null },
+      { path: "/templates",              label: "Templates",      icon: ClipboardList,  perm: 'view_templates' },
+      { path: "/location-setup",         label: "Locations",      icon: MapPin,         perm: null },
+      { path: "/stations",               label: "Stations",       icon: Layers,         perm: null },
+      { path: "/job-codes",              label: "Job Codes",      icon: BriefcaseBusiness, perm: null },
+      { path: "/temperature-monitoring", label: "Temperature",    icon: Thermometer,    perm: null },
+      { path: "/reports",                label: "Reports",        icon: BarChart3,      perm: 'view_reports' },
+      { path: "/my-restaurant",          label: "My Restaurant",  icon: Building2,      perm: null },
+      { path: "/admin/command-center",   label: "Roles & Access", icon: ShieldCheck,    perm: 'manage_settings' },
+      { path: "/profile",                label: "Settings",       icon: Settings,       perm: null },
     ],
   },
 ];
