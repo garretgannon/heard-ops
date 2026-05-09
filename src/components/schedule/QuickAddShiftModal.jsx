@@ -3,7 +3,7 @@ import { X, Clock, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 
-const PRESETS = [
+const DEFAULT_PRESETS = [
   { label: 'Open', start: '07:00', end: '15:00' },
   { label: 'Mid', start: '11:00', end: '19:00' },
   { label: 'Close', start: '15:00', end: '23:00' },
@@ -24,6 +24,7 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
   });
   const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
+  const [presets, setPresets] = useState(DEFAULT_PRESETS);
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
@@ -39,6 +40,26 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    const loadPresets = async () => {
+      if (!form.role) {
+        setPresets(DEFAULT_PRESETS);
+        return;
+      }
+      try {
+        const rolePresets = await base44.entities.RoleShiftPreset?.filter?.({ role_name: form.role }).catch(() => []);
+        if (rolePresets?.length > 0) {
+          setPresets(rolePresets[0].presets || DEFAULT_PRESETS);
+        } else {
+          setPresets(DEFAULT_PRESETS);
+        }
+      } catch {
+        setPresets(DEFAULT_PRESETS);
+      }
+    };
+    loadPresets();
+  }, [form.role]);
 
   const applyPreset = (p) => setForm(f => ({ ...f, start_time: p.start, end_time: p.end }));
 
@@ -81,7 +102,7 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
         <div className="px-5 mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1"><Zap className="h-3 w-3" /> Quick Presets</p>
           <div className="flex gap-2">
-            {PRESETS.map(p => (
+            {presets.map(p => (
               <button key={p.label} onClick={() => applyPreset(p)}
                 className="flex-1 py-1.5 rounded-lg bg-secondary hover:bg-primary/15 border border-border/50 text-xs font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary">
                 {p.label}

@@ -1,0 +1,42 @@
+{
+  "name": "RoleShiftPreset",
+  "type": "object",
+  "properties": {
+    "role_name": {
+      "type": "string",
+      "title": "Role Name",
+      "description": "The role this preset applies to"
+    },
+    "presets": {
+      "type": "array",
+      "title": "Shift Presets",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Preset Label",
+            "description": "e.g. Open, Mid, Close"
+          },
+          "start": {
+            "type": "string",
+            "title": "Start Time (HH:MM)"
+          },
+          "end": {
+            "type": "string",
+            "title": "End Time (HH:MM)"
+          }
+        },
+        "required": [
+          "label",
+          "start",
+          "end"
+        ]
+      }
+    }
+  },
+  "required": [
+    "role_name",
+    "presets"
+  ]
+}
