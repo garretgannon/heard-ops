@@ -13,6 +13,7 @@
         "dish-machine",
         "3-compartment-sink",
         "hand-sink",
+        "prep-sink",
         "walk-in-cooler",
         "walk-in-freezer",
         "reach-in-cooler",
@@ -21,6 +22,7 @@
         "lowboy-cooler",
         "beer-cooler",
         "wine-cooler",
+        "chest-freezer",
         "ice-machine",
         "fryer",
         "flat-top",
@@ -40,6 +42,7 @@
         "Dish Machine",
         "3-Compartment Sink",
         "Hand Sink",
+        "Prep Sink",
         "Walk-in Cooler",
         "Walk-in Freezer",
         "Reach-in Cooler",
@@ -48,6 +51,7 @@
         "Lowboy Cooler",
         "Beer Cooler",
         "Wine Cooler",
+        "Chest Freezer",
         "Ice Machine",
         "Fryer",
         "Flat Top",
@@ -64,21 +68,25 @@
         "Other"
       ]
     },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "area_name": {
+      "type": "string",
+      "title": "Area Name (denormalized)"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name (denormalized)"
+    },
     "department": {
       "type": "string",
       "title": "Department"
-    },
-    "area": {
-      "type": "string",
-      "title": "Area"
-    },
-    "station": {
-      "type": "string",
-      "title": "Station"
-    },
-    "vendorId": {
-      "type": "string",
-      "title": "Vendor / Repair Contact ID"
     },
     "modelNumber": {
       "type": "string",
@@ -107,6 +115,11 @@
       "title": "Requires Maintenance Checklist",
       "default": false
     },
+    "inInventory": {
+      "type": "boolean",
+      "title": "Tracked in Inventory",
+      "default": false
+    },
     "hasQRCode": {
       "type": "boolean",
       "title": "Has QR Code",
@@ -116,6 +129,10 @@
       "type": "boolean",
       "title": "Active",
       "default": true
+    },
+    "vendorId": {
+      "type": "string",
+      "title": "Vendor / Repair Contact ID"
     }
   },
   "required": [

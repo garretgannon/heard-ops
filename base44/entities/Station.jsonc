@@ -6,6 +6,14 @@
       "type": "string",
       "title": "Station Name"
     },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "area_name": {
+      "type": "string",
+      "title": "Area Name (denormalized)"
+    },
     "department": {
       "type": "string",
       "title": "Department",
@@ -30,10 +38,14 @@
       "type": "boolean",
       "title": "Active",
       "default": true
+    },
+    "sortOrder": {
+      "type": "number",
+      "title": "Sort Order",
+      "default": 0
     }
   },
   "required": [
-    "name",
-    "department"
+    "name"
   ]
 }

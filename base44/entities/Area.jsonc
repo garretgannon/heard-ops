@@ -6,13 +6,13 @@
       "type": "string",
       "title": "Area Name"
     },
-    "department": {
-      "type": "string",
-      "title": "Department"
-    },
     "description": {
       "type": "string",
       "title": "Description"
+    },
+    "color": {
+      "type": "string",
+      "title": "Color Tag"
     },
     "isActive": {
       "type": "boolean",

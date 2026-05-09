@@ -985,6 +985,7 @@ export default function MyRestaurant() {
             <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
             <SectionCard icon={MapPin} title="Areas" description="Line, prep area, dining room, bar..." count={counts.areas} complete={counts.areas > 0} needsSetup={!counts.areas} onClick={() => setModal('areas')} />
             <SectionCard icon={Building2} title="Stations" description="Grill, fry, expo, server alley..." count={counts.stations} complete={counts.stations > 0} needsSetup={!counts.stations} onClick={() => setModal('stations')} />
+            <SectionCard icon={MapPin} title="Location Map" description="Area → Station → Equipment hierarchy" complete={counts.stations > 0} onClick={() => navigate('/location-setup')} />
             <SectionCard icon={Users} title="Job Codes" description="Cook, server, bartender, manager..." count={counts.jobCodes} complete={counts.jobCodes > 0} needsSetup={!counts.jobCodes} onClick={() => setModal('jobCodes')} />
           </div>
         </div>
