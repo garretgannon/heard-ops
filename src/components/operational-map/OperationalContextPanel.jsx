@@ -168,7 +168,7 @@ export default function OperationalContextPanel({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-foreground">Temperature History</p>
-              <a href="#" className="text-[10px] text-primary hover:underline">View History →</a>
+              <button onClick={() => toast('Temperature history viewer coming soon')} className="text-[10px] text-primary hover:underline font-bold cursor-pointer">View History →</button>
             </div>
             <div className="bg-background/50 border border-border/20 rounded-lg h-24 flex items-center justify-center text-muted-foreground text-xs">
               [Chart would render here]
@@ -179,7 +179,7 @@ export default function OperationalContextPanel({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-foreground">Assigned Staff</p>
-              <a href="#" className="text-[10px] text-primary hover:underline">Edit</a>
+              <button onClick={() => toast('Staff assignment coming soon')} className="text-[10px] text-primary hover:underline font-bold cursor-pointer">Edit</button>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs">
@@ -198,7 +198,7 @@ export default function OperationalContextPanel({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-foreground">Cleaning Status</p>
-              <a href="#" className="text-[10px] text-primary hover:underline">View Tasks →</a>
+              <button onClick={() => toast('Cleaning tasks viewer coming soon')} className="text-[10px] text-primary hover:underline font-bold cursor-pointer">View Tasks →</button>
             </div>
             <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs space-y-1">
               <p className="font-semibold text-foreground">Daily Fryer Clean</p>
@@ -213,7 +213,7 @@ export default function OperationalContextPanel({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-foreground">Maintenance</p>
-              <a href="#" className="text-[10px] text-primary hover:underline">View History →</a>
+              <button onClick={() => toast('Maintenance history viewer coming soon')} className="text-[10px] text-primary hover:underline font-bold cursor-pointer">View History →</button>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-background/50 border border-border/20 rounded-lg p-2">
