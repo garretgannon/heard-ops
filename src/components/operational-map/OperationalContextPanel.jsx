@@ -1,4 +1,7 @@
 import { X, Edit2, Zap, AlertTriangle, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 
 export default function OperationalContextPanel({
   type,
@@ -10,6 +13,100 @@ export default function OperationalContextPanel({
   onRefresh,
   onEdit,
 }) {
+  // Form states for add panels
+  const [areaName, setAreaName] = useState('');
+  const [areaDesc, setAreaDesc] = useState('');
+  const [areaSaving, setAreaSaving] = useState(false);
+
+  const [stationName, setStationName] = useState('');
+  const [stationDesc, setStationDesc] = useState('');
+  const [stationSaving, setStationSaving] = useState(false);
+
+  const [equipName, setEquipName] = useState('');
+  const [equipDesc, setEquipDesc] = useState('');
+  const [equipSaving, setEquipSaving] = useState(false);
+
+  // Handlers for Area Add
+  const handleAddArea = async () => {
+    if (!areaName.trim()) {
+      toast.error('Area name is required');
+      return;
+    }
+    setAreaSaving(true);
+    try {
+      await base44.entities.Area.create({
+        name: areaName.trim(),
+        description: areaDesc.trim(),
+        isActive: true,
+      });
+      toast.success('Area created');
+      setAreaName('');
+      setAreaDesc('');
+      onRefresh?.();
+      onClose?.();
+    } catch (err) {
+      toast.error('Failed to create area');
+    }
+    setAreaSaving(false);
+  };
+
+  // Handlers for Station Add
+  const handleAddStation = async () => {
+    if (!stationName.trim() || !itemId) {
+      toast.error('Station name is required');
+      return;
+    }
+    setStationSaving(true);
+    try {
+      const area = areas.find(a => a.id === itemId);
+      await base44.entities.Station.create({
+        name: stationName.trim(),
+        area_id: itemId,
+        area_name: area?.name,
+        description: stationDesc.trim(),
+        isActive: true,
+      });
+      toast.success('Station created');
+      setStationName('');
+      setStationDesc('');
+      onRefresh?.();
+      onClose?.();
+    } catch (err) {
+      toast.error('Failed to create station');
+    }
+    setStationSaving(false);
+  };
+
+  // Handlers for Equipment Add
+  const handleAddEquipment = async () => {
+    if (!equipName.trim() || !itemId) {
+      toast.error('Equipment name is required');
+      return;
+    }
+    setEquipSaving(true);
+    try {
+      const station = stations.find(s => s.id === itemId);
+      const area = areas.find(a => a.id === station?.area_id);
+      await base44.entities.Equipment.create({
+        name: equipName.trim(),
+        equipmentType: 'other',
+        station_id: itemId,
+        station_name: station?.name,
+        area_id: station?.area_id,
+        area_name: area?.name,
+        isActive: true,
+      });
+      toast.success('Equipment created');
+      setEquipName('');
+      setEquipDesc('');
+      onRefresh?.();
+      onClose?.();
+    } catch (err) {
+      toast.error('Failed to create equipment');
+    }
+    setEquipSaving(false);
+  };
+
   const renderEquipmentPanel = () => {
     const equip = equipment.find(e => e.id === itemId);
     if (!equip) return null;
@@ -180,6 +277,8 @@ export default function OperationalContextPanel({
   };
 
   const renderEquipmentAddPanel = () => {
+    const station = stations.find(s => s.id === itemId);
+
     return (
       <div className="p-4 space-y-4">
         <div className="flex items-start justify-between">
@@ -191,8 +290,29 @@ export default function OperationalContextPanel({
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
-          Equipment form would render here
+        <div className="border-t border-border/20 pt-4 space-y-3">
+          <p className="text-xs text-muted-foreground font-bold">Station: {station?.name}</p>
+          <input
+            type="text"
+            placeholder="Equipment name"
+            value={equipName}
+            onChange={(e) => setEquipName(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+          />
+          <textarea
+            placeholder="Description (optional)"
+            value={equipDesc}
+            onChange={(e) => setEquipDesc(e.target.value)}
+            rows={2}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+          />
+          <button
+            onClick={handleAddEquipment}
+            disabled={equipSaving}
+            className="w-full py-2 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:brightness-110 disabled:opacity-60 transition-all"
+          >
+            {equipSaving ? 'Creating...' : 'Create Equipment'}
+          </button>
         </div>
       </div>
     );
@@ -238,8 +358,28 @@ export default function OperationalContextPanel({
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
-          Area form would render here
+        <div className="border-t border-border/20 pt-4 space-y-3">
+          <input
+            type="text"
+            placeholder="Area name"
+            value={areaName}
+            onChange={(e) => setAreaName(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+          />
+          <textarea
+            placeholder="Description (optional)"
+            value={areaDesc}
+            onChange={(e) => setAreaDesc(e.target.value)}
+            rows={2}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+          />
+          <button
+            onClick={handleAddArea}
+            disabled={areaSaving}
+            className="w-full py-2 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:brightness-110 disabled:opacity-60 transition-all"
+          >
+            {areaSaving ? 'Creating...' : 'Create Area'}
+          </button>
         </div>
       </div>
     );
@@ -274,6 +414,8 @@ export default function OperationalContextPanel({
   };
 
   const renderStationAddPanel = () => {
+    const area = areas.find(a => a.id === itemId);
+
     return (
       <div className="p-4 space-y-4">
         <div className="flex items-start justify-between">
@@ -285,8 +427,29 @@ export default function OperationalContextPanel({
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="border-t border-border/20 pt-4 text-xs text-muted-foreground">
-          Station form would render here
+        <div className="border-t border-border/20 pt-4 space-y-3">
+          <p className="text-xs text-muted-foreground font-bold">Area: {area?.name}</p>
+          <input
+            type="text"
+            placeholder="Station name"
+            value={stationName}
+            onChange={(e) => setStationName(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+          />
+          <textarea
+            placeholder="Description (optional)"
+            value={stationDesc}
+            onChange={(e) => setStationDesc(e.target.value)}
+            rows={2}
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+          />
+          <button
+            onClick={handleAddStation}
+            disabled={stationSaving}
+            className="w-full py-2 bg-primary text-primary-foreground font-bold text-sm rounded-lg hover:brightness-110 disabled:opacity-60 transition-all"
+          >
+            {stationSaving ? 'Creating...' : 'Create Station'}
+          </button>
         </div>
       </div>
     );
