@@ -351,7 +351,7 @@ export default function ScheduleCenter() {
 
       {/* ── Premium Header ── */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border/20">
-        <div className="px-4 lg:px-6 py-4 space-y-3">
+        <div className={cn('px-4 lg:px-6 space-y-3', isExpanded ? 'py-2' : 'py-4')}>
 
           {/* Header: Title + Week Navigation + Right Actions */}
           <div className="flex items-center justify-between">
@@ -526,7 +526,7 @@ export default function ScheduleCenter() {
       </div>
 
       {/* ── Main Content ── */}
-      <div className="px-3 lg:px-6 py-3">
+      <div className={cn('py-3', isExpanded ? 'px-0' : 'px-3 lg:px-6')}>
         {loading && (
           <div className="flex items-center justify-center py-16">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -549,6 +549,7 @@ export default function ScheduleCenter() {
           onEmptyCellContextMenu={(emp, day, x, y) => setContextMenu({ shift: null, employee: emp, day, x, y })}
           isMobile={isMobile}
           groupBy={groupBy}
+          isExpanded={isExpanded}
         />}
       </div>
 

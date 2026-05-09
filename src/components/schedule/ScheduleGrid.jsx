@@ -9,7 +9,7 @@ export default function ScheduleGrid({
   selectedShiftIds, onSelectShift, onSelectShifts,
   shiftConflicts, timeOffRequests, availability,
   onDragEnd, onAddShift, onShiftContextMenu, onEmptyCellContextMenu,
-  isMobile, groupBy = 'employee',
+  isMobile, groupBy = 'employee', isExpanded = false,
 }) {
   if (isMobile) {
     return (
@@ -83,8 +83,8 @@ export default function ScheduleGrid({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="rounded-xl border border-border/40 bg-card shadow-sm overflow-hidden">
-        <div className="overflow-auto max-h-[calc(100vh-300px)]">
+      <div className={cn('bg-card overflow-hidden', isExpanded ? 'fixed inset-0 top-[52px] rounded-none border-none' : 'rounded-xl border border-border/40 shadow-sm')}>
+        <div className={cn('overflow-auto', isExpanded ? 'h-full' : 'max-h-[calc(100vh-300px)]')}>
 
           <div className="min-w-[860px]">
             {/* Premium Header */}
