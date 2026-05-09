@@ -84,7 +84,8 @@ export default function ScheduleGrid({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="rounded-xl border border-border/40 bg-card shadow-sm overflow-hidden">
-        <div className="overflow-auto max-h-[calc(100vh-400px)]">
+        <div className="overflow-auto max-h-[calc(100vh-300px)]">
+
           <div className="min-w-[860px]">
             {/* Premium Header */}
             <div className="grid sticky top-0 z-20 border-b border-border/50 bg-card/95 backdrop-blur-sm" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
