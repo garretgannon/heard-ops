@@ -1,124 +1,56 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
-import { haptics } from '@/utils/haptics';
 import OnboardingWelcome from '@/components/onboarding/OnboardingWelcome';
-import OnboardingRestaurantType from '@/components/onboarding/OnboardingRestaurantType';
-import OnboardingRoleSelection from '@/components/onboarding/OnboardingRoleSelection';
-import OnboardingTeamSize from '@/components/onboarding/OnboardingTeamSize';
+import OnboardingQuickStart from '@/components/onboarding/OnboardingQuickStart';
 import OnboardingBuildAnimation from '@/components/onboarding/OnboardingBuildAnimation';
 import OnboardingSuccess from '@/components/onboarding/OnboardingSuccess';
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [restaurantType, setRestaurantType] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const [teamSize, setTeamSize] = useState(null);
+  const [config, setConfig] = useState(null);
 
-  const handleStartSetup = () => {
-    setStep(2);
-  };
+  const handleBegin = () => setStep(2);
 
-  const handleExploreDemo = () => {
-    navigate('/');
-  };
-
-  const handleRestaurantTypeSelect = async (type) => {
-    setRestaurantType(type);
-    // Auto-generate basic setup for selected type
-    try {
-      await base44.entities.Settings.create({
-        key: 'onboarding_restaurant_type',
-        value: type.id,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+  const handleQuickStartComplete = async (data) => {
+    setConfig(data);
     setStep(3);
   };
 
-  const handleRoleSelect = async (role) => {
-    setUserRole(role);
-    try {
-      await base44.auth.updateMe({ role: role.id });
-    } catch (e) {
-      console.error(e);
-    }
-    setStep(4);
-  };
+  const handleBuildComplete = () => setStep(4);
 
-  const handleTeamSizeSelect = (size) => {
-    setTeamSize(size);
-    setStep(5);
-  };
-
-  const handleBuildComplete = () => {
-    setStep(6);
-  };
-
-  const handleSuccessLaunch = () => {
-    navigate('/');
-  };
-
-  const handleSuccessCustomize = () => {
-    navigate('/my-restaurant');
-  };
-
-  const handleBack = () => {
-    if (step > 1) setStep(step - 1);
+  const handleLaunch = async () => {
+    await base44.entities.Settings.create({ key: 'onboarding_complete', value: 'true' }).catch(() => {});
+    navigate('/setup-journey');
   };
 
   return (
-    <AnimatePresence mode="wait">
-      {step === 1 && (
-        <OnboardingWelcome
-          key="welcome"
-          onStartSetup={handleStartSetup}
-          onExploreDemo={handleExploreDemo}
-        />
-      )}
-
-      {step === 2 && (
-        <OnboardingRestaurantType
-          key="restaurant-type"
-          onBack={handleBack}
-          onSelect={handleRestaurantTypeSelect}
-        />
-      )}
-
-      {step === 3 && (
-        <OnboardingRoleSelection
-          key="role-selection"
-          onBack={handleBack}
-          onSelect={handleRoleSelect}
-        />
-      )}
-
-      {step === 4 && (
-        <OnboardingTeamSize
-          key="team-size"
-          onBack={handleBack}
-          onSelect={handleTeamSizeSelect}
-        />
-      )}
-
-      {step === 5 && (
-        <OnboardingBuildAnimation
-          key="build-animation"
-          onComplete={handleBuildComplete}
-        />
-      )}
-
-      {step === 6 && (
-        <OnboardingSuccess
-          key="success"
-          onLaunchApp={handleSuccessLaunch}
-          onCustomize={handleSuccessCustomize}
-        />
-      )}
-    </AnimatePresence>
+    <div className="fixed inset-0 bg-background overflow-hidden">
+      <AnimatePresence mode="wait">
+        {step === 1 && (
+          <motion.div key="welcome" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.3 }} className="h-full">
+            <OnboardingWelcome onBegin={handleBegin} />
+          </motion.div>
+        )}
+        {step === 2 && (
+          <motion.div key="quickstart" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.3 }} className="h-full">
+            <OnboardingQuickStart onBack={() => setStep(1)} onComplete={handleQuickStartComplete} />
+          </motion.div>
+        )}
+        {step === 3 && (
+          <motion.div key="build" initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} transition={{ duration: 0.3 }} className="h-full">
+            <OnboardingBuildAnimation config={config} onComplete={handleBuildComplete} />
+          </motion.div>
+        )}
+        {step === 4 && (
+          <motion.div key="success" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="h-full">
+            <OnboardingSuccess config={config} onLaunch={handleLaunch} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 

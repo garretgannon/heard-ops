@@ -69,6 +69,7 @@ import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
 import LocationSetup from './pages/LocationSetup';
 import PeopleHierarchy from './pages/PeopleHierarchy';
+import SetupJourney from './pages/SetupJourney';
 
 import ShiftHandoff from './pages/ShiftHandoff';
 import AdminRoleSimulator from './pages/AdminRoleSimulator';
@@ -190,6 +191,7 @@ const AuthenticatedApp = () => {
         <Route path="/job-codes" element={<JobCodes />} />
         <Route path="/location-setup" element={<LocationSetup />} />
         <Route path="/people" element={<PeopleHierarchy />} />
+        <Route path="/setup-journey" element={<SetupJourney />} />
 
         <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
         <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
