@@ -133,8 +133,8 @@ export default function Stations() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden">
-            <div className="bg-card border-b border-border p-4 flex items-center justify-between">
+          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="bg-card border-b border-border p-4 flex items-center justify-between shrink-0">
               <h2 className="font-bold text-foreground">
                 {editingStation ? 'Edit Station' : 'Create Station'}
               </h2>
@@ -145,7 +145,7 @@ export default function Stations() {
                 ✕
               </button>
             </div>
-            <div className="p-4">
+            <div className="p-4 overflow-y-auto">
               <StationForm
                 station={editingStation}
                 onSave={handleSave}
