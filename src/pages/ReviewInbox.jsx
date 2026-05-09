@@ -45,6 +45,11 @@ export default function ReviewInbox() {
         approved_by_email: user?.email,
         approved_at: new Date().toISOString(),
       });
+      // Sync to audit trail
+      await base44.functions.invoke('syncApprovalsToLogs', {
+        approval_id: currentApproval.id,
+        status: 'approved',
+      }).catch(() => null);
       setApprovals(p => p.filter(a => a.id !== currentApproval.id));
       setCurrentIndex(0);
       setSelectedApproval(null);
@@ -65,6 +70,11 @@ export default function ReviewInbox() {
         approved_at: new Date().toISOString(),
         denial_reason: notes,
       });
+      // Sync to audit trail
+      await base44.functions.invoke('syncApprovalsToLogs', {
+        approval_id: currentApproval.id,
+        status: 'denied',
+      }).catch(() => null);
       setApprovals(p => p.filter(a => a.id !== currentApproval.id));
       setCurrentIndex(0);
       setSelectedApproval(null);
