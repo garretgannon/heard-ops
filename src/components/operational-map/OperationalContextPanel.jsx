@@ -231,7 +231,7 @@ export default function OperationalContextPanel({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-foreground">Vendor / Service</p>
-              <button className="text-[10px] text-primary hover:underline font-bold">Edit</button>
+              <button onClick={() => toast('Vendor management coming soon')} className="text-[10px] text-primary hover:underline font-bold">Edit</button>
             </div>
             <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs">
               <p className="font-semibold text-foreground">Frymaster</p>
@@ -244,7 +244,7 @@ export default function OperationalContextPanel({
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-foreground">Linked Chemicals / SDS</p>
-              <button className="text-[10px] text-primary hover:underline font-bold">+ Add</button>
+              <button onClick={() => toast('Add chemicals coming soon')} className="text-[10px] text-primary hover:underline font-bold">+ Add</button>
             </div>
             <div className="space-y-1.5">
               <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs flex items-center justify-between">
