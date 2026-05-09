@@ -1,0 +1,171 @@
+{
+  "name": "Chemical",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Chemical Name"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "degreaser",
+        "sanitizer",
+        "delimer",
+        "disinfectant",
+        "floor_cleaner",
+        "glass_cleaner",
+        "rinse_aid",
+        "detergent",
+        "lubricant",
+        "other"
+      ],
+      "enumNames": [
+        "Degreaser",
+        "Sanitizer",
+        "Delimer",
+        "Disinfectant",
+        "Floor Cleaner",
+        "Glass Cleaner",
+        "Rinse Aid",
+        "Detergent",
+        "Lubricant",
+        "Other"
+      ]
+    },
+    "vendor": {
+      "type": "string",
+      "title": "Vendor Name"
+    },
+    "vendor_id": {
+      "type": "string",
+      "title": "Vendor ID"
+    },
+    "vendor_contact": {
+      "type": "string",
+      "title": "Vendor Contact Info"
+    },
+    "vendor_phone": {
+      "type": "string",
+      "title": "Vendor Phone"
+    },
+    "sds_url": {
+      "type": "string",
+      "title": "SDS/MSDS PDF URL"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description / Usage"
+    },
+    "dilution_ratio": {
+      "type": "string",
+      "title": "Dilution Ratio (e.g., 1:10)"
+    },
+    "dilution_instructions": {
+      "type": "string",
+      "title": "Detailed Dilution Instructions"
+    },
+    "ppe_required": {
+      "type": "array",
+      "title": "Required PPE",
+      "items": {
+        "type": "string"
+      },
+      "enumNames": [
+        "Gloves",
+        "Apron",
+        "Goggles",
+        "Respirator",
+        "Face Shield",
+        "Boots"
+      ]
+    },
+    "hazard_warnings": {
+      "type": "string",
+      "title": "Hazard Warnings / Health Effects"
+    },
+    "emergency_procedures": {
+      "type": "string",
+      "title": "Emergency / Spill Procedures"
+    },
+    "first_aid": {
+      "type": "string",
+      "title": "First Aid Instructions"
+    },
+    "storage_requirements": {
+      "type": "string",
+      "title": "Storage Requirements"
+    },
+    "storage_location": {
+      "type": "string",
+      "title": "Current Storage Location"
+    },
+    "expiration_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Expiration Date"
+    },
+    "batch_number": {
+      "type": "string",
+      "title": "Batch / Lot Number"
+    },
+    "container_size": {
+      "type": "string",
+      "title": "Container Size (e.g., 5L)"
+    },
+    "assigned_areas": {
+      "type": "array",
+      "title": "Assigned Areas",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assigned_stations": {
+      "type": "array",
+      "title": "Assigned Stations",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assigned_equipment": {
+      "type": "array",
+      "title": "Assigned Equipment",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_tasks": {
+      "type": "array",
+      "title": "Linked Cleaning/Maintenance Tasks",
+      "items": {
+        "type": "string"
+      }
+    },
+    "image_url": {
+      "type": "string",
+      "title": "Chemical Product Image URL"
+    },
+    "qr_code": {
+      "type": "string",
+      "title": "QR Code Data"
+    },
+    "barcode": {
+      "type": "string",
+      "title": "Barcode"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "notes": {
+      "type": "string",
+      "title": "Additional Notes"
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}

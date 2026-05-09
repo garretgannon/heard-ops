@@ -50,7 +50,7 @@ import Recipes from './pages/Recipes';
 
 
 import Training from './pages/Training';
-import MSDS from './pages/MSDS';
+import ChemicalLibrary from './pages/ChemicalLibrary';
 
 import PrepTemplatesManager from './pages/PrepTemplatesManager';
 import PrepPlanning from './pages/PrepPlanning';
@@ -156,7 +156,7 @@ const AuthenticatedApp = () => {
         <Route path="/reservations" element={<ReservationsAndBEOs />} />
         <Route path="/purchased-items" element={<PurchasedItems />} />
 
-        <Route path="/msds" element={<MSDS />} />
+        <Route path="/chemical-library" element={<ChemicalLibrary />} />
         <Route path="/training" element={<Training />} />
         <Route path="/vendors" element={<PermissionGate permission={PERMISSIONS.VIEW_VENDORS}><Vendors /></PermissionGate>} />
 
