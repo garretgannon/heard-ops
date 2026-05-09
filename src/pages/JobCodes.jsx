@@ -40,6 +40,8 @@ function JobCodeCard({ jobCode, onEdit, onDelete }) {
 export default function JobCodes() {
   const [jobCodes, setJobCodes] = useState([]);
   const [search, setSearch] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingJobCode, setEditingJobCode] = useState(null);
@@ -59,7 +61,12 @@ export default function JobCodes() {
     setLoading(false);
   };
 
-  const filtered = jobCodes.filter(j => (j.name || '').toLowerCase().includes(search.toLowerCase()));
+  const filtered = jobCodes.filter(j => {
+    const matchesSearch = (j.name || '').toLowerCase().includes(search.toLowerCase());
+    const matchesDept = departmentFilter === 'all' || j.department === departmentFilter;
+    const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? j.isActive : !j.isActive);
+    return matchesSearch && matchesDept && matchesStatus;
+  });
 
   const handleDelete = async (id) => {
     haptics.light();
@@ -85,15 +92,39 @@ export default function JobCodes() {
     <div className="pb-24">
       <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-lg font-bold text-foreground mb-3">Job Codes</h1>
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-text" />
-          <input
-            type="text"
-            placeholder="Search job codes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-secondary-text"
-          />
+        <div className="space-y-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-text" />
+            <input
+              type="text"
+              placeholder="Search job codes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-secondary-text"
+            />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            <select
+              value={departmentFilter}
+              onChange={(e) => setDepartmentFilter(e.target.value)}
+              className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+            >
+              <option value="all">All Departments</option>
+              <option value="BOH">BOH</option>
+              <option value="FOH">FOH</option>
+              <option value="Bar">Bar</option>
+              <option value="Management">Management</option>
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -102,17 +133,22 @@ export default function JobCodes() {
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-8 text-secondary-text text-sm">
-            {jobCodes.length === 0 ? 'No job codes yet' : 'No job codes match your search'}
+            {jobCodes.length === 0 ? 'No job codes yet' : 'No job codes match your filters'}
           </div>
         ) : (
-          filtered.map(jobCode => (
-            <JobCodeCard
-              key={jobCode.id}
-              jobCode={jobCode}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))
+          <>
+            <p className="text-xs text-secondary-text mb-2">
+              Showing {filtered.length} of {jobCodes.length}
+            </p>
+            {filtered.map(jobCode => (
+              <JobCodeCard
+                key={jobCode.id}
+                jobCode={jobCode}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </>
         )}
       </div>
 
