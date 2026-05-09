@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -80,13 +80,14 @@ import OnboardingSimulator from './pages/OnboardingSimulator';
 import Shift from './pages/Shift';
 import TemplateManager from './pages/TemplateManager';
 import SDSLibrary from './pages/SDSLibrary';
+import AppOverview from './pages/AppOverview';
 
 const AuthenticatedApp = () => {
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const { user, isAdmin, isFOH, loading: userLoading } = useCurrentUser();
   const isBusser = user?.role === 'busser';
-  const [onboardingChecked, setOnboardingChecked] = useState(false);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) { setOnboardingChecked(true); return; }
@@ -111,8 +112,7 @@ const AuthenticatedApp = () => {
   }
 
   if (!user) {
-    // If not logged in, redirect to Landing only on root
-    // All other routes redirect to login
+    // If not logged in, show Landing page
     return (
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -121,13 +121,20 @@ const AuthenticatedApp = () => {
     );
   }
 
+  // Logged-in users: redirect / to /app/overview
+  if (window.location.pathname === '/') {
+    return <Navigate to="/app/overview" replace />;
+  }
+
   return (
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
+        {/* OVERVIEW - Logged-in dashboard */}
+        <Route path="/app/overview" element={<AppOverview />} />
+        
         {/* BOTTOM NAV ROUTES (5 main) */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/dashboard" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
+        <Route path="/dashboard" element={<AppOverview />} />
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
         <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
         <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
@@ -252,6 +259,7 @@ const AuthenticatedApp = () => {
         <Route path="/chemical-sheets" element={<Navigate to="/sds-library" replace />} />
 
         {/* 404 */}
+        <Route path="/" element={<Navigate to="/app/overview" replace />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

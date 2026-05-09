@@ -23,8 +23,8 @@ const DESKTOP_SECTIONS = [
   {
     label: "WORK",
     items: [
-      { path: "/",          label: "Overview",  icon: LayoutDashboard, perm: null },
-      { path: "/logs",      label: "Logs",      icon: FileText,        perm: 'view_logs' },
+      { path: "/app/overview", label: "Overview",  icon: LayoutDashboard, perm: null },
+      { path: "/logs",       label: "Logs",      icon: FileText,        perm: 'view_logs' },
       { path: "/approvals", label: "Approvals", icon: CheckSquare,     perm: null },
       { path: "/team",      label: "Team",      icon: Users,           perm: 'view_team' },
     ],
