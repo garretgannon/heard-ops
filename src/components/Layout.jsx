@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ClipboardList,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   ChevronLeft, ChevronRight as ChevronRightIcon,
-  FileText, CalendarDays, Users, BarChart3, Thermometer, BookOpen, Award, ShieldCheck, MapPin,
+  FileText, CalendarDays, Users, BarChart3, BookOpen, Award, ShieldCheck, MapPin,
   CheckSquare, Wrench, Package, ScrollText, FlaskConical, ArrowLeftRight, Brush, BriefcaseBusiness, Star, Layers, GitBranch,
 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -61,7 +61,6 @@ const DESKTOP_SECTIONS = [
       { path: "/people",                 label: "People",         icon: GitBranch,      perm: null },
       { path: "/location-setup",         label: "Locations",      icon: MapPin,         perm: null },
       { path: "/job-codes",              label: "Job Codes",      icon: BriefcaseBusiness, perm: null },
-      { path: "/temperature-monitoring", label: "Temperature",    icon: Thermometer,    perm: null },
       { path: "/reports",                label: "Reports",        icon: BarChart3,      perm: 'view_reports' },
       { path: "/my-restaurant",          label: "My Restaurant",  icon: Building2,      perm: null },
       { path: "/admin/command-center",   label: "Roles & Access", icon: ShieldCheck,    perm: 'manage_settings' },
