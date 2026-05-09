@@ -21,7 +21,8 @@ export default function GlobalBottomNav() {
   const { can } = usePermissions();
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
-  if (!isMobile || !user) return null;
+  if (!isMobile) return null;
+  if (!user) return null;
 
   const navConfig = ALL_NAV.filter(item => !item.perm || can(item.perm)).slice(0, 5);
 
