@@ -26,7 +26,7 @@ import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import Pulse from './pages/Pulse';
 import StaffTasks from './pages/StaffTasks';
 import LogsCenter from './pages/LogsCenter';
-import Knowledge from './pages/Knowledge';
+
 import More from './pages/More';
 import Onboarding from './pages/Onboarding';
 import TeamCenter from './pages/TeamCenter';
@@ -127,7 +127,7 @@ const AuthenticatedApp = () => {
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
         <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
         <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
-        <Route path="/knowledge" element={<Knowledge />} />
+
         <Route path="/more" element={<More />} />
 
         {/* TASK ROUTES - Redirected to Today with filters */}
