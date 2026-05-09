@@ -33,7 +33,6 @@ const DESKTOP_SECTIONS = [
     label: "KNOWLEDGE",
     items: [
       { path: "/recipes",   label: "Recipes",   icon: ChefHat,         perm: 'view_recipes' },
-      { path: "/build-cards", label: "Build Cards", icon: Star,         perm: 'view_recipes' },
       { path: "/training",  label: "Training",  icon: Award,           perm: null },
       { path: "/msds",      label: "MSDS",      icon: FlaskConical,    perm: null },
     ],

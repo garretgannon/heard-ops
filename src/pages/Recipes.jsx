@@ -5,8 +5,9 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import {
-  BookOpen, Search, Plus, ChevronRight, Clock, Package, Archive,
-  AlertTriangle, Link2, Camera, Edit2, Copy, X, CheckCircle2, Utensils
+  ChefHat, Search, Plus, ChevronRight, Clock, Package, Archive,
+  AlertTriangle, Link2, Camera, Edit2, Copy, X, CheckCircle2, Utensils,
+  Flame, BookOpen, DollarSign, Shield, Users, MapPin
 } from 'lucide-react';
 import RecipeCosting from '@/components/recipes/RecipeCosting';
 
@@ -22,6 +23,17 @@ const STATUS_STYLE = {
   archived: 'bg-muted text-muted-foreground',
 };
 
+// Tabs configuration for multi-view system
+const RECIPE_TABS = [
+  { id: 'overview', label: 'Overview', icon: BookOpen },
+  { id: 'build', label: 'Build', icon: Flame },
+  { id: 'prep', label: 'Prep', icon: ChefHat },
+  { id: 'costing', label: 'Costing', icon: DollarSign },
+  { id: 'allergens', label: 'Allergens', icon: Shield },
+  { id: 'training', label: 'Training', icon: Users },
+  { id: 'station', label: 'Station', icon: MapPin },
+];
+
 function RecipeCard({ recipe, onClick }) {
   const getCostStatus = () => {
     if (recipe.costStatus === 'complete') return { label: 'Costed', color: 'bg-green-500/15 text-green-400' };
@@ -31,7 +43,6 @@ function RecipeCard({ recipe, onClick }) {
   };
 
   const costStatus = getCostStatus();
-  const typeLabel = recipe.recipeType === 'menu_item' ? 'Menu Item' : recipe.recipeType === 'build_card' ? 'Build Card' : recipe.recipeType === 'sauce' ? 'Sauce' : 'Recipe';
 
   return (
     <button onClick={onClick} className="w-full text-left bg-card/50 border border-border rounded-lg overflow-hidden hover:border-border/60 hover:bg-card/70 transition-all active:scale-[0.98]">
@@ -41,13 +52,13 @@ function RecipeCard({ recipe, onClick }) {
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-foreground truncate">{recipe.name}</h3>
             <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">{typeLabel}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">Recipe</span>
               {recipe.station && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">📍 {recipe.station}</span>}
             </div>
           </div>
         </div>
 
-        {/* Yield + Cost + Approval */}
+        {/* Yield + Cost + Status */}
         <div className="grid grid-cols-3 gap-2 text-[10px] mb-1.5">
           {recipe.yieldAmount && (
             <div className="flex justify-between">
@@ -102,11 +113,11 @@ function SpecChip({ label, value }) {
   );
 }
 
+// Multi-view Detail component
 function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin }) {
+  const [activeTab, setActiveTab] = useState('overview');
   const [ingredients, setIngredients] = useState([]);
   const [steps, setSteps] = useState([]);
-  const [linkedBuildCards, setLinkedBuildCards] = useState([]);
-  const [linkedPrepTemplates, setLinkedPrepTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -118,23 +129,10 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
       setSteps(stps.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)));
       setLoading(false);
     });
-    if (recipe.linkedBuildCards?.length) {
-      Promise.all(recipe.linkedBuildCards.map(id => base44.entities.BuildCard.get(id).catch(() => null)))
-        .then(cards => setLinkedBuildCards(cards.filter(Boolean)));
-    }
-    if (recipe.linkedPrepTemplates?.length) {
-      Promise.all(recipe.linkedPrepTemplates.map(id => base44.entities.TemperatureLogTemplate.get(id).catch(() => null)))
-        .then(ts => setLinkedPrepTemplates(ts.filter(Boolean)));
-    } else {
-      // also search by name match
-      base44.entities.PrepTemplate?.list('-updated_date', 100).catch(() => []).then(templates => {
-        setLinkedPrepTemplates(templates.filter(t => t.name));
-      });
-    }
   }, [recipe.id]);
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <div className="fixed inset-0 bg-background z-50 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0 sticky top-0 z-10">
         <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
@@ -149,134 +147,292 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
         </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-28 px-4 py-4 space-y-1">
-        {/* Quick Specs */}
-        <SectionBlock title="Quick Specs">
-          <div className="grid grid-cols-3 gap-2">
-            <SpecChip label="Yield" value={recipe.yieldAmount ? `${recipe.yieldAmount} ${recipe.yieldUnit || ''}` : null} />
-            <SpecChip label="Portion" value={recipe.portionSize} />
-            <SpecChip label="Prep Time" value={recipe.prepTime} />
-            <SpecChip label="Cook Time" value={recipe.cookTime} />
-            <SpecChip label="Shelf Life" value={recipe.shelfLife} />
-            <SpecChip label="Storage" value={recipe.storageLocation} />
-          </div>
-        </SectionBlock>
+      {/* Multi-View Tabs */}
+      <div className="bg-card border-b border-border px-4 py-2 flex items-center gap-2 overflow-x-auto sticky top-[60px] z-10">
+        {RECIPE_TABS.map(tab => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all shrink-0',
+                activeTab === tab.id
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Allergens */}
-        {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 && (
-          <SectionBlock title="Allergens & Dietary">
-            <div className="flex flex-wrap gap-1.5">
-              {recipe.allergens.map(a => (
-                <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" />{a}
-                </span>
-              ))}
-              {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.map(f => (
-                <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
-              ))}
-            </div>
-          </SectionBlock>
-        )}
-
-        {/* Ingredients */}
-        {!loading && (
-          <SectionBlock title={`Ingredients${ingredients.length ? ` (${ingredients.length})` : ''}`}>
-            {ingredients.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic">No ingredients added.</p>
-            ) : (
-              <div className="border border-border rounded-xl overflow-hidden">
-                <div className="grid grid-cols-[1fr_auto_auto] bg-muted/40 px-3 py-1.5 gap-2">
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase">Ingredient</span>
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase text-right w-14">Qty / Unit</span>
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase w-20">Prep</span>
-                </div>
-                {ingredients.map((ing, i) => (
-                  <div key={ing.id} className={`grid grid-cols-[1fr_auto_auto] px-3 py-2 gap-2 items-center ${i % 2 === 0 ? '' : 'bg-muted/20'} border-t border-border/50`}>
-                    <span className="text-xs font-semibold text-foreground">{ing.ingredientName}</span>
-                    <span className="text-xs text-muted-foreground text-right w-14">{ing.quantity} {ing.unit}</span>
-                    <span className="text-[10px] text-muted-foreground w-20 truncate">{ing.prepNote || '—'}</span>
-                  </div>
-                ))}
+      {/* Tab Content */}
+      <div className="flex-1 overflow-y-auto pb-24 px-4 py-4">
+        {/* OVERVIEW TAB */}
+        {activeTab === 'overview' && (
+          <div className="space-y-4">
+            <SectionBlock title="Quick Specs">
+              <div className="grid grid-cols-3 gap-2">
+                <SpecChip label="Yield" value={recipe.yieldAmount ? `${recipe.yieldAmount} ${recipe.yieldUnit || ''}` : null} />
+                <SpecChip label="Portion" value={recipe.portionSize} />
+                <SpecChip label="Prep Time" value={recipe.prepTime} />
+                <SpecChip label="Cook Time" value={recipe.cookTime} />
+                <SpecChip label="Shelf Life" value={recipe.shelfLife} />
+                <SpecChip label="Storage" value={recipe.storageLocation} />
               </div>
-            )}
-          </SectionBlock>
-        )}
+            </SectionBlock>
 
-        {/* Method */}
-        {!loading && (
-          <SectionBlock title="Method / Procedure">
-            {steps.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic">No steps added.</p>
-            ) : (
-              <div className="space-y-2">
-                {steps.map((step, i) => (
-                  <div key={step.id} className="flex gap-3">
-                    <div className="h-6 w-6 rounded-full bg-primary/20 text-primary text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">
-                      {step.stepNumber || i + 1}
+            {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 && (
+              <SectionBlock title="Allergens & Dietary">
+                <div className="flex flex-wrap gap-1.5">
+                  {recipe.allergens.map(a => (
+                    <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />{a}
+                    </span>
+                  ))}
+                  {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.map(f => (
+                    <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
+                  ))}
+                </div>
+              </SectionBlock>
+            )}
+
+            {!loading && (
+              <SectionBlock title={`Ingredients (${ingredients.length})`}>
+                {ingredients.length === 0 ? (
+                  <p className="text-xs text-muted-foreground italic">No ingredients added.</p>
+                ) : (
+                  <div className="border border-border rounded-xl overflow-hidden">
+                    <div className="grid grid-cols-[1fr_auto_auto] bg-muted/40 px-3 py-1.5 gap-2">
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase">Ingredient</span>
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase text-right w-14">Qty / Unit</span>
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase w-20">Prep</span>
                     </div>
-                    <p className="text-sm text-foreground leading-snug flex-1">{step.instruction}</p>
+                    {ingredients.map((ing, i) => (
+                      <div key={ing.id} className={`grid grid-cols-[1fr_auto_auto] px-3 py-2 gap-2 items-center ${i % 2 === 0 ? '' : 'bg-muted/20'} border-t border-border/50`}>
+                        <span className="text-xs font-semibold text-foreground">{ing.ingredientName}</span>
+                        <span className="text-xs text-muted-foreground text-right w-14">{ing.quantity} {ing.unit}</span>
+                        <span className="text-[10px] text-muted-foreground w-20 truncate">{ing.prepNote || '—'}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+              </SectionBlock>
+            )}
+
+            {recipe.notes && (
+              <SectionBlock title="Notes">
+                <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-xl p-3">{recipe.notes}</p>
+              </SectionBlock>
+            )}
+          </div>
+        )}
+
+        {/* BUILD TAB (Service Mode) */}
+        {activeTab === 'build' && (
+          <div className="space-y-4">
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
+              <p className="text-xs text-primary font-bold">🔥 Service Mode</p>
+              <p className="text-[10px] text-primary/80 mt-0.5">Fast execution view optimized for line during service</p>
+            </div>
+
+            {!loading && (
+              <>
+                {steps.length > 0 && (
+                  <SectionBlock title="Assembly Steps">
+                    <div className="space-y-2">
+                      {steps.map((step, i) => (
+                        <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-lg">
+                          <div className="h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-extrabold flex items-center justify-center shrink-0">{i + 1}</div>
+                          <p className="text-sm text-foreground flex-1">{step.instruction}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </SectionBlock>
+                )}
+
+                {recipe.platingNotes && (
+                  <SectionBlock title="Plating Instructions">
+                    <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.platingNotes}</p>
+                  </SectionBlock>
+                )}
+
+                {recipe.buildCardNotes && (
+                  <SectionBlock title="Assembly Notes">
+                    <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.buildCardNotes}</p>
+                  </SectionBlock>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* PREP TAB (Production Mode) */}
+        {activeTab === 'prep' && (
+          <div className="space-y-4">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+              <p className="text-xs text-amber-400 font-bold">🔪 Prep Mode</p>
+              <p className="text-[10px] text-amber-400/80 mt-0.5">Production workflow for kitchen prep and batch preparation</p>
+            </div>
+
+            <SectionBlock title="Batch Prep Info">
+              <div className="grid grid-cols-2 gap-2">
+                <SpecChip label="Yield" value={recipe.yieldAmount ? `${recipe.yieldAmount} ${recipe.yieldUnit || ''}` : 'Not set'} />
+                <SpecChip label="Prep Time" value={recipe.prepTime || 'Not set'} />
+                <SpecChip label="Storage" value={recipe.storageLocation || 'Not set'} />
+                <SpecChip label="Container" value={recipe.storageContainer || 'Not set'} />
+              </div>
+            </SectionBlock>
+
+            {!loading && ingredients.length > 0 && (
+              <SectionBlock title="Ingredients">
+                <div className="border border-border rounded-xl overflow-hidden">
+                  {ingredients.map((ing, i) => (
+                    <div key={ing.id} className={`grid grid-cols-[1fr_auto_auto] px-3 py-2 gap-2 items-center ${i % 2 === 0 ? '' : 'bg-muted/20'}`}>
+                      <span className="text-sm font-semibold text-foreground">{ing.ingredientName}</span>
+                      <span className="text-xs text-muted-foreground">{ing.quantity} {ing.unit}</span>
+                      <span className="text-xs text-muted-foreground text-right">{ing.prepNote || '—'}</span>
+                    </div>
+                  ))}
+                </div>
+              </SectionBlock>
+            )}
+
+            {recipe.shelfLife && (
+              <SectionBlock title="Storage & Labeling">
+                <div className="bg-muted/30 border border-border rounded-xl p-3 space-y-1.5 text-sm">
+                  <p><span className="font-bold text-foreground">Shelf Life:</span> <span className="text-muted-foreground">{recipe.shelfLife}</span></p>
+                  {recipe.labelingInstructions && <p><span className="font-bold text-foreground">Label:</span> <span className="text-muted-foreground">{recipe.labelingInstructions}</span></p>}
+                </div>
+              </SectionBlock>
+            )}
+          </div>
+        )}
+
+        {/* COSTING TAB (Management Mode) */}
+        {activeTab === 'costing' && (
+          <div className="space-y-4">
+            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
+              <p className="text-xs text-green-400 font-bold">💰 Management Mode</p>
+              <p className="text-[10px] text-green-400/80 mt-0.5">Food cost analysis and inventory linkage</p>
+            </div>
+
+            {isAdmin && ingredients.length > 0 && (
+              <RecipeCosting recipe={recipe} ingredients={ingredients} />
+            )}
+
+            {!isAdmin && (
+              <div className="text-center py-6 text-muted-foreground text-sm">
+                <p>Costing data available to managers and admin only</p>
               </div>
             )}
-          </SectionBlock>
+          </div>
         )}
 
-        {/* Storage */}
-        {(recipe.storageContainer || recipe.storageLocation || recipe.shelfLife || recipe.labelingInstructions) && (
-          <SectionBlock title="Storage & Labeling">
-            <div className="bg-muted/30 border border-border rounded-xl p-3 space-y-1.5 text-sm">
-              {recipe.storageContainer && <p><span className="font-bold text-foreground">Container:</span> <span className="text-muted-foreground">{recipe.storageContainer}</span></p>}
-              {recipe.storageLocation && <p><span className="font-bold text-foreground">Location:</span> <span className="text-muted-foreground">{recipe.storageLocation}</span></p>}
-              {recipe.shelfLife && <p><span className="font-bold text-foreground">Shelf Life:</span> <span className="text-muted-foreground">{recipe.shelfLife}</span></p>}
-              {recipe.labelingInstructions && <p><span className="font-bold text-foreground">Label:</span> <span className="text-muted-foreground">{recipe.labelingInstructions}</span></p>}
+        {/* ALLERGENS TAB */}
+        {activeTab === 'allergens' && (
+          <div className="space-y-4">
+            {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 ? (
+              <>
+                <SectionBlock title="Allergens">
+                  <div className="flex flex-wrap gap-2">
+                    {recipe.allergens.map(a => (
+                      <span key={a} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1.5">
+                        <AlertTriangle className="h-4 w-4" /> {a}
+                      </span>
+                    ))}
+                  </div>
+                </SectionBlock>
+
+                {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.length > 0 && (
+                  <SectionBlock title="Dietary Indicators">
+                    <div className="flex flex-wrap gap-2">
+                      {recipe.dietaryFlags.map(f => (
+                        <span key={f} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
+                      ))}
+                    </div>
+                  </SectionBlock>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <p>No allergens or dietary flags marked for this recipe</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TRAINING TAB */}
+        {activeTab === 'training' && (
+          <div className="space-y-4">
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
+              <p className="text-xs text-blue-400 font-bold">📚 Training Materials</p>
+              <p className="text-[10px] text-blue-400/80 mt-0.5">SOPs, quality standards, and learning resources</p>
             </div>
-          </SectionBlock>
-        )}
 
-        {/* Linked Prep Templates */}
-        {linkedPrepTemplates.length > 0 && (
-          <SectionBlock title="Used In Prep Templates">
-            <div className="space-y-1.5">
-              {linkedPrepTemplates.slice(0,5).map(t => (
-                <div key={t.id} className="flex items-center gap-2 bg-muted/30 border border-border rounded-lg px-3 py-2">
-                  <Link2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span className="text-xs font-bold text-foreground">{t.name}</span>
+            <SectionBlock title="Execution Steps">
+              {!loading && steps.length > 0 ? (
+                <div className="space-y-2">
+                  {steps.map((step, i) => (
+                    <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-lg">
+                      <div className="h-6 w-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-extrabold flex items-center justify-center shrink-0">{i + 1}</div>
+                      <p className="text-sm text-foreground flex-1">{step.instruction}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </SectionBlock>
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No execution steps defined</p>
+              )}
+            </SectionBlock>
+
+            <SectionBlock title="Quality Standards">
+              <p className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-lg">
+                {recipe.notes || 'No quality standards documented'}
+              </p>
+            </SectionBlock>
+          </div>
         )}
 
-        {/* Linked Build Cards */}
-        {linkedBuildCards.length > 0 && (
-          <SectionBlock title="Used In Build Cards">
-            <div className="space-y-1.5">
-              {linkedBuildCards.map(bc => (
-                <div key={bc.id} className="flex items-center gap-2 bg-muted/30 border border-border rounded-lg px-3 py-2">
-                  <Link2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span className="text-xs font-bold text-foreground">{bc.name}</span>
-                  <span className="ml-auto text-[10px] text-muted-foreground capitalize">{bc.station}</span>
+        {/* STATION TAB */}
+        {activeTab === 'station' && (
+          <div className="space-y-4">
+            <SectionBlock title="Station Assignment">
+              {recipe.station ? (
+                <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
+                  <p className="text-sm font-bold text-primary">📍 {recipe.station}</p>
+                  <p className="text-xs text-primary/70 mt-1">This recipe is assigned to the {recipe.station} station</p>
                 </div>
-              ))}
-            </div>
-          </SectionBlock>
-        )}
+              ) : (
+                <p className="text-xs text-muted-foreground italic">No station assigned</p>
+              )}
+            </SectionBlock>
 
-        {/* Recipe Costing (managers/admins only) */}
-        {isAdmin && ingredients.length > 0 && (
-          <RecipeCosting recipe={recipe} ingredients={ingredients} />
+            <SectionBlock title="Recipe Metadata">
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Category:</span>
+                  <span className="font-bold text-foreground capitalize">{recipe.category || 'Uncategorized'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className={cn('font-bold capitalize', STATUS_STYLE[recipe.status])}>{recipe.status}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last Updated:</span>
+                  <span className="font-bold text-foreground">
+                    {recipe.updated_date ? new Date(recipe.updated_date).toLocaleDateString() : 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </SectionBlock>
+          </div>
         )}
+      </div>
 
-        {/* Notes */}
-        {recipe.notes && (
-          <SectionBlock title="Notes">
-            <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-xl p-3">{recipe.notes}</p>
-          </SectionBlock>
-        )}
-        </div>
-
-        {/* Manager Actions */}
+      {/* Manager Actions */}
       {isAdmin && (
         <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex gap-2">
           <button onClick={() => onEdit(recipe)} className="flex-1 btn-primary text-xs flex items-center justify-center gap-1 h-10">
@@ -318,15 +474,6 @@ function RecipeForm({ recipe, onSave, onClose }) {
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const toggleArr = (k, v) => setForm(p => ({ ...p, [k]: p[k]?.includes(v) ? p[k].filter(x => x !== v) : [...(p[k] || []), v] }));
-
-  const RECIPE_TYPES = [
-    { id: 'menu', label: 'Menu Item', icon: '🍽️' },
-    { id: 'prep', label: 'Prep Recipe', icon: '🔪' },
-    { id: 'build_card', label: 'Build Card', icon: '📋' },
-    { id: 'sauce', label: 'Sauce/Batch', icon: '🥘' },
-    { id: 'bar', label: 'Bar Recipe', icon: '🍹' },
-    { id: 'bakery', label: 'Bakery', icon: '🥐' },
-  ];
 
   const tabs = ['basics', 'yield', 'ingredients', 'method', 'build', 'allergens', 'review'];
 
@@ -403,19 +550,6 @@ function RecipeForm({ recipe, onSave, onClose }) {
             {saving ? '...' : 'Draft'}
           </button>
           <button onClick={save} disabled={saving} className="btn-primary text-[10px] px-2.5 h-7">{saving ? '...' : 'Approve'}</button>
-        </div>
-      </div>
-
-      {/* Recipe Type Selector */}
-      <div className="bg-card/50 border-b border-border px-3 py-2">
-        <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Type</p>
-        <div className="grid grid-cols-6 gap-1">
-          {RECIPE_TYPES.map(t => (
-            <button key={t.id} onClick={() => set('recipeType', t.id)} className={cn('py-1.5 px-1 rounded text-[9px] font-bold transition-all text-center', form.recipeType === t.id ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground hover:bg-muted/60')}>
-              <div className="text-sm">{t.icon}</div>
-              <div className="leading-tight text-[7px]">{t.label}</div>
-            </button>
-          ))}
         </div>
       </div>
 
@@ -615,10 +749,6 @@ function RecipeForm({ recipe, onSave, onClose }) {
                 <span className={cn('font-bold', form.name ? 'text-green-400' : 'text-red-400')}>{form.name ? '✓' : '✗'}</span>
               </div>
               <div className="flex items-center justify-between text-[9px]">
-                <span className="text-muted-foreground">Type</span>
-                <span className={cn('font-bold', form.recipeType ? 'text-green-400' : 'text-red-400')}>{form.recipeType ? '✓' : '✗'}</span>
-              </div>
-              <div className="flex items-center justify-between text-[9px]">
                 <span className="text-muted-foreground">Yield</span>
                 <span className={cn('font-bold', form.yieldAmount ? 'text-green-400' : 'text-amber-400')}>{form.yieldAmount || '○'}</span>
               </div>
@@ -695,21 +825,15 @@ export default function Recipes() {
     setSelected(null);
   };
 
-  // On desktop, RecipeDetail shows in right panel — only go fullscreen on mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
   if (selected && isMobile) return <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />;
   if (showForm) return <RecipeForm recipe={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />;
-
-  const categoryCounts = CATEGORIES.reduce((acc, c) => {
-    acc[c] = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.category === c && r.status !== 'archived').length;
-    return acc;
-  }, {});
 
   return (
     <div className="pb-28">
       <DesktopPageHeader
         title="Recipes"
-        subtitle="Recipe library and build management"
+        subtitle="Unified recipe system with operational views"
         actions={
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -729,15 +853,15 @@ export default function Recipes() {
       <div className="hidden lg:grid lg:grid-cols-[180px_1fr_340px] lg:gap-0" style={{ height: 'calc(100vh - 120px)' }}>
         {/* LEFT: Filters */}
         <div className="border-r border-border/30 overflow-y-auto p-3 space-y-3">
-          {/* TYPE */}
+          {/* CATEGORY */}
           <div>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">TYPE</p>
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">CATEGORY</p>
             <div className="space-y-0.5">
-              {['all', 'menu', 'prep', 'build_card', 'sauce'].map(c => {
-                const count = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => (r.recipeType || 'prep') === c && r.status !== 'archived').length;
+              {['all', 'prep', 'sauce', 'protein', 'pantry'].map(c => {
+                const count = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.category === c && r.status !== 'archived').length;
                 return (
                   <button key={c} onClick={() => setFilterCat(c)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === c ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
-                    <span className="capitalize">{c === 'menu' ? 'Menu Items' : c === 'build_card' ? 'Build Cards' : c === 'sauce' ? 'Sauces' : 'All'}</span>
+                    <span className="capitalize">{c}</span>
                     <span className={`text-[9px] font-bold ${filterCat === c ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>
                   </button>
                 );
@@ -765,15 +889,10 @@ export default function Recipes() {
           <div>
             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">STATUS</p>
             <div className="space-y-0.5">
-              {['all_active', 'draft', 'approved'].map(s => {
-                const count = s === 'all_active' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.status === s).length;
-                return (
-                  <button key={s} onClick={() => setFilterCat(s)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === s ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
-                    <span className="capitalize">{s === 'all_active' ? 'Active' : s}</span>
-                    <span className={`text-[9px] font-bold ${filterCat === s ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>
-                  </button>
-                );
-              })}
+              <button onClick={() => setFilterCat('all')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'all' ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                <span>Active</span>
+                <span className={`text-[9px] font-bold ${filterCat === 'all' ? 'text-white/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status !== 'archived').length}</span>
+              </button>
               <button onClick={() => setFilterCat('archived')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'archived' ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                 <span>Archived</span>
                 <span className={`text-[9px] font-bold ${filterCat === 'archived' ? 'text-white/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status === 'archived').length}</span>
@@ -788,7 +907,7 @@ export default function Recipes() {
             <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-12">
-              <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+              <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm text-muted-foreground">No recipes found</p>
             </div>
           ) : (
@@ -796,15 +915,15 @@ export default function Recipes() {
           )}
         </div>
 
-        {/* RIGHT: Recipe detail panel */}
+        {/* RIGHT: Recipe detail panel with tabs */}
         <div className="overflow-y-auto bg-card/30">
           {selected ? (
             <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center px-6 py-8">
-              <BookOpen className="h-12 w-12 text-muted-foreground/30 mb-4" />
-              <p className="text-sm font-semibold text-foreground mb-1">Select a recipe to view details</p>
-              <p className="text-xs text-muted-foreground mb-6">Or create and manage your recipe library</p>
+              <ChefHat className="h-12 w-12 text-muted-foreground/30 mb-4" />
+              <p className="text-sm font-semibold text-foreground mb-1">Select a recipe to view</p>
+              <p className="text-xs text-muted-foreground mb-6">Overview, Build, Prep, Costing, Allergens, Training, Station</p>
               {isAdmin && (
                 <div className="flex flex-col gap-2 w-full">
                   <button onClick={() => { setEditing(null); setShowForm(true); }} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95">
@@ -822,7 +941,7 @@ export default function Recipes() {
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-primary" />
+              <ChefHat className="h-4 w-4 text-primary" />
               <h1 className="text-lg font-extrabold text-foreground">Recipes</h1>
             </div>
             {isAdmin && (
@@ -831,7 +950,7 @@ export default function Recipes() {
               </button>
             )}
           </div>
-          <p className="text-[11px] text-muted-foreground mb-3">Kitchen production, prep methods, and batch instructions.</p>
+          <p className="text-[11px] text-muted-foreground mb-3">Multi-view operational recipe system</p>
           <div className="relative mb-2.5">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
@@ -856,7 +975,7 @@ export default function Recipes() {
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12 bg-card border border-border rounded-xl">
-            <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+            <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
             <p className="text-sm text-muted-foreground">No recipes found</p>
             {isAdmin && <button onClick={() => { setEditing(null); setShowForm(true); }} className="mt-3 btn-primary text-xs px-4 py-2 flex items-center gap-1 mx-auto"><Plus className="h-3.5 w-3.5" />Create Recipe</button>}
           </div>

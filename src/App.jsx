@@ -47,7 +47,7 @@ import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
 import ReservationsAndBEOs from './pages/ReservationsAndBEOs';
 import PurchasedItems from './pages/PurchasedItems';
 import Recipes from './pages/Recipes';
-import BuildCards from './pages/BuildCards';
+
 
 import Training from './pages/Training';
 import MSDS from './pages/MSDS';
@@ -151,7 +151,7 @@ const AuthenticatedApp = () => {
 
         {/* KNOWLEDGE ROUTES */}
         <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
-        <Route path="/build-cards" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><BuildCards /></PermissionGate>} />
+
         <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
         <Route path="/reservations" element={<ReservationsAndBEOs />} />
         <Route path="/purchased-items" element={<PurchasedItems />} />
