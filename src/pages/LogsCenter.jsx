@@ -160,7 +160,7 @@ export default function LogsCenter() {
         />
 
         {/* View Tabs */}
-        <div className="border-b border-border/20 px-4 py-2.5 flex gap-2">
+        <div className="border-b border-border/20 px-4 py-2.5 flex items-center gap-1 overflow-x-auto scrollbar-hide">
           {[
             { id: 'feed', label: 'Feed' },
             { id: 'review', label: 'Review' },
@@ -171,7 +171,7 @@ export default function LogsCenter() {
               key={tab.id}
               onClick={() => { haptics.light?.(); setViewMode(tab.id); }}
               className={cn(
-              'px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200',
+              'flex-shrink-0 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200',
               viewMode === tab.id ? 'glow-active' : 'text-muted-foreground hover:text-foreground'
             )}
             >
@@ -181,7 +181,7 @@ export default function LogsCenter() {
           <div className="flex-1" />
           <button
             onClick={generateDummyLogs}
-            className="h-8 px-3 rounded-lg bg-slate-600 text-white font-bold text-xs hover:bg-slate-700 active:scale-95 transition-all flex items-center gap-1"
+            className="hidden lg:flex h-8 px-3 rounded-lg bg-slate-600 text-white font-bold text-xs hover:bg-slate-700 active:scale-95 transition-all items-center gap-1 flex-shrink-0"
             title="Generate test logs"
           >
             <Wand2 className="h-3.5 w-3.5" />
@@ -189,10 +189,11 @@ export default function LogsCenter() {
           </button>
           <button
             onClick={() => setShowTypeSelector(true)}
-            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:brightness-110 active:scale-95 transition-all flex items-center gap-1"
+            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:brightness-110 active:scale-95 transition-all flex items-center gap-1 flex-shrink-0"
           >
             <Plus className="h-3.5 w-3.5" />
-            New
+            <span className="hidden sm:inline">New</span>
+            <span className="sm:hidden">+</span>
           </button>
         </div>
 
