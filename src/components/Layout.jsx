@@ -14,42 +14,44 @@ import { cn } from "@/lib/utils";
 import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PERMISSIONS } from '@/lib/permissions';
 
 // Grouped desktop nav — organized by user intent
 const DESKTOP_SECTIONS = [
   {
     label: "WORK",
     items: [
-      { path: "/", label: "Overview", icon: LayoutDashboard },
-      { path: "/logs", label: "Logs", icon: FileText },
-      { path: "/team", label: "Team", icon: Users },
+      { path: "/",    label: "Overview", icon: LayoutDashboard, perm: null },
+      { path: "/logs", label: "Logs",    icon: FileText,        perm: 'view_logs' },
+      { path: "/team", label: "Team",    icon: Users,           perm: 'view_team' },
     ],
   },
   {
     label: "RESOURCES",
     items: [
-      { path: "/recipes", label: "Recipes", icon: ChefHat },
-      { path: "/training", label: "Training", icon: Award },
-      { path: "/inventory", label: "Inventory", icon: Warehouse },
-      { path: "/vendors", label: "Vendors", icon: Truck },
+      { path: "/recipes",   label: "Recipes",   icon: ChefHat,   perm: 'view_recipes' },
+      { path: "/training",  label: "Training",  icon: Award,     perm: 'view_training' },
+      { path: "/inventory", label: "Inventory", icon: Warehouse, perm: 'view_inventory' },
+      { path: "/vendors",   label: "Vendors",   icon: Truck,     perm: 'view_vendors' },
     ],
   },
   {
     label: "PLANNING",
     items: [
-      { path: "/prep-planning", label: "Prep Planning", icon: ClipboardList },
-      { path: "/schedule", label: "Schedule", icon: CalendarDays },
-      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate },
+      { path: "/prep-planning",  label: "Prep Planning", icon: ClipboardList,  perm: 'edit_prep_lists' },
+      { path: "/schedule",       label: "Schedule",      icon: CalendarDays,   perm: 'view_schedule' },
+      { path: "/reservations",   label: "BEOs / Events", icon: LayoutTemplate, perm: 'view_beos' },
     ],
   },
   {
     label: "SETUP",
     items: [
-      { path: "/templates", label: "Templates", icon: ClipboardList },
-      { path: "/temperature-monitoring", label: "Temperature", icon: Thermometer },
-      { path: "/reports", label: "Reports", icon: BarChart3 },
-      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-      { path: "/profile", label: "Settings", icon: Settings },
+      { path: "/templates",             label: "Templates",    icon: ClipboardList, perm: 'view_templates' },
+      { path: "/temperature-monitoring", label: "Temperature",  icon: Thermometer,  perm: null },
+      { path: "/reports",               label: "Reports",      icon: BarChart3,     perm: 'view_reports' },
+      { path: "/my-restaurant",         label: "My Restaurant", icon: Building2,    perm: null },
+      { path: "/profile",               label: "Settings",     icon: Settings,     perm: null },
     ],
   },
 ];
@@ -57,6 +59,7 @@ const DESKTOP_SECTIONS = [
 export default function Layout() {
   const location = useLocation();
   const { isAdmin, user } = useCurrentUser();
+  const { can } = usePermissions();
   const [restaurantName, setRestaurantName] = useState("");
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
   const [collapsed, setCollapsed] = useState(() => {
@@ -144,14 +147,17 @@ export default function Layout() {
 
         {/* Nav items — grouped sections */}
         <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-0">
-          {DESKTOP_SECTIONS.map((section, si) => (
+          {DESKTOP_SECTIONS.map((section, si) => {
+            const visibleItems = section.items.filter(item => !item.perm || can(item.perm));
+            if (visibleItems.length === 0) return null;
+            return (
             <div key={section.label} className={cn(si > 0 && !collapsed ? "mt-3" : si > 0 ? "mt-2" : "")}>
               {!collapsed && (
                 <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 px-3 mb-1">{section.label}</p>
               )}
               {collapsed && si > 0 && <div className="mx-2 my-2 border-t border-border/30" />}
               <div className="space-y-0.5">
-                {section.items.map(item => {
+                {visibleItems.map(item => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path ||
                     (item.path !== '/' && location.pathname.startsWith(item.path));
@@ -184,7 +190,8 @@ export default function Layout() {
                 })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         {/* Bottom info card */}

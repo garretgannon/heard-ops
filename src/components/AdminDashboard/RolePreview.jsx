@@ -1,84 +1,67 @@
-import { useState } from 'react';
 import { useRoleSimulation } from '@/lib/RoleSimulationContext';
-import { Eye, RotateCcw, Edit2 } from 'lucide-react';
+import { Eye, EyeOff, RotateCcw } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
+import { ALL_ROLES } from '@/lib/permissions';
+import { toast } from 'sonner';
 
-export default function RolePreview({ jobCodes }) {
-  const { simulatedRole, enterSimulation, exitSimulation } = useRoleSimulation();
-  const [selectedRole, setSelectedRole] = useState(jobCodes[0]?.id || null);
+export default function RolePreview() {
+  const { previewRole, setPreview, exitPreview } = useRoleSimulation();
 
-  const handlePreview = (roleId) => {
+  const handleSelect = (roleId) => {
     haptics.medium?.();
-    enterSimulation(roleId);
+    if (previewRole === roleId) {
+      exitPreview();
+      toast.success('Preview disabled');
+    } else {
+      setPreview(roleId);
+      const role = ALL_ROLES.find(r => r.id === roleId);
+      toast.success(`Now previewing as ${role.label}`);
+    }
   };
-
-  const handleExit = () => {
-    haptics.light?.();
-    exitSimulation();
-  };
-
-  const selectedJobCode = jobCodes.find(j => j.id === selectedRole);
 
   return (
     <div className="space-y-4">
-      {simulatedRole && (
-        <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl p-4">
-          <p className="text-sm font-bold text-amber-300">
-            Currently previewing as: <span className="text-amber-200">{jobCodes.find(j => j.id === simulatedRole)?.name}</span>
-          </p>
+      {previewRole && (
+        <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4 text-amber-400" />
+            <span className="text-sm font-bold text-amber-300">
+              Previewing as {ALL_ROLES.find(r => r.id === previewRole)?.label}
+            </span>
+          </div>
           <button
-            onClick={handleExit}
-            className="mt-3 w-full h-9 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold text-sm active:scale-95"
+            onClick={() => { exitPreview(); toast.success('Preview disabled'); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-bold active:scale-95 transition-all"
           >
-            <RotateCcw className="h-4 w-4 inline mr-2" />
-            Exit Preview
+            <RotateCcw className="h-3.5 w-3.5" />
+            Exit
           </button>
         </div>
       )}
 
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-secondary-text uppercase block">Select Role to Preview</label>
-        <div className="grid grid-cols-1 gap-2">
-          {jobCodes.filter(j => j.isActive).map(jobCode => (
-            <div
-              key={jobCode.id}
-              className="bg-card border border-border rounded-xl p-4 space-y-3"
-            >
-              <div>
-                <h3 className="font-bold text-foreground">{jobCode.name}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{jobCode.description}</p>
-              </div>
+      <p className="text-xs text-muted-foreground">
+        Select a role to preview the app exactly as that role would see it. Your actual permissions are unchanged.
+      </p>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handlePreview(jobCode.id)}
-                  disabled={simulatedRole === jobCode.id}
-                  className="flex-1 h-9 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95"
-                >
-                  <Eye className="h-4 w-4" />
-                  {simulatedRole === jobCode.id ? 'Current Preview' : 'Preview'}
-                </button>
-                <button
-                  className="flex-1 h-9 rounded-lg border border-border bg-muted text-secondary-text font-bold text-sm flex items-center justify-center gap-2 active:scale-95"
-                  title="Edit this role's permissions"
-                >
-                  <Edit2 className="h-4 w-4" />
-                  Edit
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="bg-muted/40 border border-border rounded-lg p-4 space-y-2">
-        <h4 className="text-sm font-bold text-foreground">How to Use</h4>
-        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-          <li>Select a role and click Preview to see the app as that job code</li>
-          <li>You'll see the exact dashboard, navigation, and permissions</li>
-          <li>Quick actions will reflect role-specific workflows</li>
-          <li>Use this to verify role configuration before deployment</li>
-        </ul>
+      <div className="grid grid-cols-2 gap-2">
+        {ALL_ROLES.filter(r => r.id !== 'admin').map(role => (
+          <button
+            key={role.id}
+            onClick={() => handleSelect(role.id)}
+            className={cn(
+              'flex items-center gap-3 px-4 py-3.5 rounded-xl border text-left transition-all active:scale-95',
+              previewRole === role.id
+                ? 'bg-primary/15 border-primary/30 text-primary'
+                : 'bg-card border-border/40 text-foreground hover:border-border/70'
+            )}
+          >
+            {previewRole === role.id
+              ? <Eye className="h-4 w-4 flex-shrink-0 text-primary" />
+              : <EyeOff className="h-4 w-4 flex-shrink-0 text-muted-foreground" />}
+            <span className={cn('text-sm font-semibold', role.color)}>{role.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );

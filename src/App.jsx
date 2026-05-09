@@ -13,6 +13,8 @@ import { RoleSimulationProvider } from '@/lib/RoleSimulationContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import PermissionGate from '@/components/PermissionGate';
+import { PERMISSIONS } from '@/lib/permissions';
 import { legacyRedirects } from '@/lib/routeConfig';
 import Layout from './components/Layout';
 import GlobalBottomNav from './components/GlobalBottomNav';
@@ -119,12 +121,9 @@ const AuthenticatedApp = () => {
       <Route element={<Layout />}>
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/" element={needsOnboarding && isAdmin ? <Onboarding /> : <TodaysCommandCenter />} />
-        <Route path="/pulse" element={<Pulse />} />
-        <Route path="/shift" element={<Shift />} />
-        <Route path="/analytics" element={<Reports />} />
-        <Route path="/tasks" element={<StaffTasks />} />
-        <Route path="/logs" element={<LogsCenter />} />
-        <Route path="/team" element={<TeamCenter />} />
+        <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
+        <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
+        <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/more" element={<More />} />
 
@@ -148,15 +147,15 @@ const AuthenticatedApp = () => {
         <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
 
         {/* KNOWLEDGE ROUTES */}
-        <Route path="/recipes" element={<Recipes />} />
-        <Route path="/build-cards" element={<BuildCards />} />
+        <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
+        <Route path="/build-cards" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><BuildCards /></PermissionGate>} />
         <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
         <Route path="/reservations" element={<ReservationsAndBEOs />} />
         <Route path="/purchased-items" element={<PurchasedItems />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/msds" element={<MSDS />} />
         <Route path="/training" element={<Training />} />
-        <Route path="/vendors" element={<Vendors />} />
+        <Route path="/vendors" element={<PermissionGate permission={PERMISSIONS.VIEW_VENDORS}><Vendors /></PermissionGate>} />
 
         {/* TEMPLATE ROUTES (Admin) */}
         <Route path="/prep-templates" element={<PrepTemplatesManager />} />
@@ -175,9 +174,9 @@ const AuthenticatedApp = () => {
         <Route path="/prep-count/:id" element={<PrepInventoryCounter />} />
         <Route path="/prep-plan/:id" element={<PrepPlanReview />} />
         <Route path="/issues" element={<Navigate to="/logs?type=incident" replace />} />
-        <Route path="/schedule" element={<ScheduleCenter />} />
-        <Route path="/inventory" element={<InventorySimplified />} />
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/schedule" element={<PermissionGate permission={PERMISSIONS.VIEW_SCHEDULE}><ScheduleCenter /></PermissionGate>} />
+        <Route path="/inventory" element={<PermissionGate permission={PERMISSIONS.VIEW_INVENTORY}><InventorySimplified /></PermissionGate>} />
+        <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
         <Route path="/shift-handoff" element={<ShiftHandoff />} />
 
         {/* ADMIN ROUTES (Under /more) */}

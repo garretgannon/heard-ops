@@ -3,52 +3,27 @@ import { useState, useEffect } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Home, Activity, FileText, Users, MoreHorizontal, Zap } from 'lucide-react';
 import NavItem from '@/components/nav/NavItem';
+import { usePermissions } from '@/hooks/usePermissions';
+import { PERMISSIONS } from '@/lib/permissions';
 
-const NAV_CONFIG = {
-  admin: [
-    { label: 'Today', path: '/', icon: Home, id: 'today' },
-    { label: 'Pulse', path: '/pulse', icon: Activity, id: 'pulse' },
-    { label: 'Logs', path: '/logs', icon: FileText, id: 'logs' },
-    { label: 'Team', path: '/team', icon: Users, id: 'team' },
-    { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
-  ],
-  manager: [
-    { label: 'Today', path: '/', icon: Home, id: 'today' },
-    { label: 'Pulse', path: '/pulse', icon: Activity, id: 'pulse' },
-    { label: 'Logs', path: '/logs', icon: FileText, id: 'logs' },
-    { label: 'Team', path: '/team', icon: Users, id: 'team' },
-    { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
-  ],
-  cook: [
-    { label: 'Today', path: '/', icon: Home, id: 'today' },
-    { label: 'Shift', path: '/shift', icon: Zap, id: 'shift' },
-    { label: 'Prep', path: '/?tab=prep', icon: FileText, id: 'prep' },
-    { label: 'Logs', path: '/logs', icon: Activity, id: 'logs' },
-    { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more' },
-  ],
-};
+const ALL_NAV = [
+  { label: 'Today',    path: '/',      icon: Home,            id: 'today',    perm: PERMISSIONS.VIEW_DASHBOARD },
+  { label: 'Pulse',    path: '/pulse', icon: Activity,        id: 'pulse',    perm: PERMISSIONS.VIEW_PULSE },
+  { label: 'Logs',     path: '/logs',  icon: FileText,        id: 'logs',     perm: PERMISSIONS.VIEW_LOGS },
+  { label: 'Team',     path: '/team',  icon: Users,           id: 'team',     perm: PERMISSIONS.VIEW_TEAM },
+  { label: 'More',     path: '/more',  icon: MoreHorizontal,  id: 'more',     perm: null },
+];
 
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { user, isAdmin } = useCurrentUser();
+  const { user } = useCurrentUser();
+  const { can } = usePermissions();
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
-
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener('resize', handler);
-    return () => window.removeEventListener('resize', handler);
-  }, []);
 
   if (!isMobile || !user) return null;
 
-  // Determine role-based navigation
-  let navConfig = NAV_CONFIG.cook; // default
-  if (isAdmin) {
-    navConfig = NAV_CONFIG.admin;
-  } else if (['manager', 'lead', 'supervisor'].includes(user?.role)) {
-    navConfig = NAV_CONFIG.manager;
-  }
+  const navConfig = ALL_NAV.filter(item => !item.perm || can(item.perm)).slice(0, 5);
 
   // Determine active route
   const getActiveId = () => {
