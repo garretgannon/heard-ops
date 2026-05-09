@@ -41,8 +41,8 @@ function InlineEdit({ value, onSave, onCancel, placeholder, className = '' }) {
   );
 }
 
-function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCancel, existingEquipment = [], editingId = null }) {
-  const [form, setForm] = useState({ name: '', equipmentType: '', modelNumber: '', serialNumber: '', requiresTemperatureLog: COLD_TYPES.includes(''), requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false });
+function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCancel, existingEquipment = [], editingId = null, vendors = [] }) {
+  const [form, setForm] = useState({ name: '', equipmentType: '', modelNumber: '', serialNumber: '', vendorId: '', vendorName: '', requiresTemperatureLog: COLD_TYPES.includes(''), requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false });
 
   const handleTypeSelect = (type) => {
     setForm(p => ({ ...p, equipmentType: type, requiresTemperatureLog: COLD_TYPES.includes(type) }));
@@ -82,6 +82,13 @@ function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCan
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
           className="px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
       </div>
+      <select value={form.vendorId} onChange={e => {
+        const vendor = vendors.find(v => v.id === e.target.value);
+        setForm(p => ({ ...p, vendorId: e.target.value, vendorName: vendor?.name || '' }));
+      }} className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground">
+        <option value="">Select Vendor (optional)</option>
+        {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+      </select>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
         {[['requiresTemperatureLog','🌡️ Temp Log'],['requiresCleaningChecklist','🧹 Cleaning'],['requiresMaintenanceChecklist','🔧 Maintenance'],['inInventory','📦 Inventory']].map(([key, lbl]) => (
           <label key={key} className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer">
@@ -103,7 +110,7 @@ function EquipmentRow({ item, onDelete, onEdit }) {
   const isCold = COLD_TYPES.includes(item.equipmentType);
 
   return (
-    <div className="flex items-center gap-2 px-3 py-2 bg-background/60 border border-border/50 rounded-lg group">
+    <div className="flex items-center gap-2 px-3 py-2 bg-background/60 border border-border/50 rounded-lg group flex-wrap">
       <div className="h-6 w-6 rounded bg-muted flex items-center justify-center shrink-0">
         <Wrench className="h-3 w-3 text-muted-foreground" />
       </div>
@@ -113,7 +120,7 @@ function EquipmentRow({ item, onDelete, onEdit }) {
         ) : (
           <>
             <p className="text-xs font-semibold text-foreground">{item.name}</p>
-            <p className="text-[10px] text-muted-foreground">{typeLabel(item.equipmentType)}</p>
+            <p className="text-[10px] text-muted-foreground">{typeLabel(item.equipmentType)} {item.vendorName && <span className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-300 rounded ml-1">📞 {item.vendorName}</span>}</p>
           </>
         )}
       </div>
@@ -124,6 +131,13 @@ function EquipmentRow({ item, onDelete, onEdit }) {
         {item.inInventory && <span className="text-[8px] bg-green-500/20 text-green-300 px-1 py-0.5 rounded-full font-bold">📦</span>}
         {isCold && <span className="text-[8px] bg-cyan-500/20 text-cyan-300 px-1 py-0.5 rounded-full font-bold">❄️</span>}
       </div>
+      {item.vendorId && (
+        <div className="flex gap-1">
+          <button onClick={() => confirm('Maintenance request recorded for ' + item.name)} title="Request Maintenance" className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 rounded hover:bg-amber-500/30 transition-all">🔧 Maint</button>
+          <button onClick={() => confirm('Order placed for ' + item.name)} title="Place Order" className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/20 text-green-300 rounded hover:bg-green-500/30 transition-all">📦 Order</button>
+          <button onClick={() => confirm('Call initiated for ' + item.vendorName)} title="Call Vendor" className="px-1.5 py-0.5 text-[10px] font-bold bg-blue-500/20 text-blue-300 rounded hover:bg-blue-500/30 transition-all">📞 Call</button>
+        </div>
+      )}
       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <button onClick={() => setEditing(true)} className="p-1 text-muted-foreground hover:text-foreground"><Edit2 className="h-3 w-3" /></button>
         <button onClick={() => onDelete(item.id)} className="p-1 text-red-400 hover:text-red-300"><Trash2 className="h-3 w-3" /></button>
@@ -132,7 +146,7 @@ function EquipmentRow({ item, onDelete, onEdit }) {
   );
 }
 
-function StationBlock({ station, equipment, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
+function StationBlock({ station, equipment, vendors, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
   const [expanded, setExpanded] = useState(true);
   const [addingEquip, setAddingEquip] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -171,6 +185,7 @@ function StationBlock({ station, equipment, onDeleteStation, onEditStation, onAd
              areaId={station.area_id} areaName={station.area_name}
              stationId={station.id} stationName={station.name}
              existingEquipment={equipment}
+             vendors={vendors}
              onSave={data => { onAddEquipment(data); setAddingEquip(false); }}
              onCancel={() => setAddingEquip(false)}
            />
@@ -186,7 +201,7 @@ function StationBlock({ station, equipment, onDeleteStation, onEditStation, onAd
   );
 }
 
-function AreaBlock({ area, stations, equipment, onDeleteArea, onEditArea, onAddStation, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
+function AreaBlock({ area, stations, equipment, vendors, onDeleteArea, onEditArea, onAddStation, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
   const [expanded, setExpanded] = useState(true);
   const [addingStation, setAddingStation] = useState(false);
   const [addingEquip, setAddingEquip] = useState(false);
@@ -235,6 +250,7 @@ function AreaBlock({ area, stations, equipment, onDeleteArea, onEditArea, onAddS
               key={station.id}
               station={station}
               equipment={equipment}
+              vendors={vendors}
               onDeleteStation={onDeleteStation}
               onEditStation={onEditStation}
               onAddEquipment={onAddEquipment}
@@ -281,6 +297,7 @@ function AreaBlock({ area, stations, equipment, onDeleteArea, onEditArea, onAddS
                 areaId={area.id} areaName={area.name}
                 stationId={null} stationName={null}
                 existingEquipment={equipment}
+                vendors={vendors}
                 onSave={data => { onAddEquipment(data); setAddingEquip(false); }}
                 onCancel={() => setAddingEquip(false)}
               />
@@ -301,20 +318,23 @@ export default function LocationSetup() {
   const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
   const [equipment, setEquipment] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addingArea, setAddingArea] = useState(false);
   const [newAreaName, setNewAreaName] = useState('');
   const [newAreaColor, setNewAreaColor] = useState('orange');
 
   const reload = async () => {
-    const [a, s, e] = await Promise.all([
+    const [a, s, e, v] = await Promise.all([
       base44.entities.Area.list('sortOrder', 100),
       base44.entities.Station.list('sortOrder', 200),
       base44.entities.Equipment.list('-updated_date', 300),
+      base44.entities.Vendor.list('name', 200).catch(() => []),
     ]);
     setAreas(a);
     setStations(s);
     setEquipment(e);
+    setVendors(v);
     setLoading(false);
   };
 
@@ -434,6 +454,7 @@ export default function LocationSetup() {
                 area={area}
                 stations={stations}
                 equipment={equipment}
+                vendors={vendors}
                 onDeleteArea={deleteArea}
                 onEditArea={editArea}
                 onAddStation={addStation}
