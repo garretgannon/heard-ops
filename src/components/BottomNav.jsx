@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, ChefHat, UtensilsCrossed, AlertCircle, ClipboardList, MoreHorizontal } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { label: "Today",       path: "/",              icon: Home },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Upload, AlertCircle, CheckCircle2, X, FileText, Loader2 } from 'lucide-react';
+import { Upload, CheckCircle2, X, FileText, Loader2 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import * as XLSX from 'xlsx';
 

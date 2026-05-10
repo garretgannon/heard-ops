@@ -1,6 +1,5 @@
 import { Bell } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { cn } from "@/lib/utils";
 
 export default function PageHeader({ title, subtitle, icon: Icon, notificationCount = 0 }) {
   const { user } = useCurrentUser();

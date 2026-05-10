@@ -6,8 +6,8 @@ import {
   LayoutDashboard, ClipboardList,
   Warehouse, Truck, LayoutTemplate, Building2, Settings,
   ChevronLeft, ChevronRight as ChevronRightIcon,
-  FileText, CalendarDays, Users, BarChart3, BookOpen, Award, ShieldCheck, MapPin,
-  CheckSquare, Wrench, Package, ScrollText, FlaskConical, ArrowLeftRight, Brush, BriefcaseBusiness, Star, Layers, GitBranch, Zap,
+  FileText, CalendarDays, Users, BarChart3, Award, ShieldCheck, MapPin,
+  CheckSquare, Package, FlaskConical, ArrowLeftRight, GitBranch, Zap,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -16,7 +16,6 @@ import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
 import { usePermissions } from '@/hooks/usePermissions';
-import { PERMISSIONS } from '@/lib/permissions';
 
 // Grouped desktop nav — organized by user intent
 const DESKTOP_SECTIONS = [

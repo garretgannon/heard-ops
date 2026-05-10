@@ -1,4 +1,4 @@
-import { X, ArrowRight, Settings } from 'lucide-react';
+import { X, Settings } from 'lucide-react';
 import { useRoleSimulation } from '@/lib/RoleSimulationContext';
 import { getRoleDefinition } from '@/lib/roleDefinitions';
 import { cn } from '@/lib/utils';

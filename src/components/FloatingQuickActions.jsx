@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, X, ClipboardList, Wrench, Truck, AlertTriangle, TrendingUp, Camera, Thermometer } from "lucide-react";
+import { Plus, ClipboardList, Wrench, Truck, AlertTriangle, TrendingUp, Camera, Thermometer } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 
 const actions = [
   { label: "Add Task", icon: ClipboardList, path: "/prep-lists" },

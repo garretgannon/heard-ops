@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X } from 'lucide-react';
 
 const departments = ['BOH', 'FOH', 'Bar', 'Management'];
 

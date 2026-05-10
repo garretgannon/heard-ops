@@ -1,16 +1,14 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { bottomNavRoutes } from '@/lib/routeConfig';
 import { haptics } from '@/utils/haptics';
 import TodaysCommandCenter from '@/pages/TodaysCommandCenter';
 import Pulse from '@/pages/Pulse';
 import LogsCenter from '@/pages/LogsCenter';
 import TeamCenter from '@/pages/TeamCenter';
-import Knowledge from '@/pages/Knowledge';
 import More from '@/pages/More';
 
 const TAB_PAGES = [
-  { path: '/', component: TodaysCommandCenter },
+  { path: '/app/overview', component: TodaysCommandCenter },
   { path: '/pulse', component: Pulse },
   { path: '/logs', component: LogsCenter },
   { path: '/team', component: TeamCenter },

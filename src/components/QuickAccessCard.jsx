@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
 import { haptics } from "@/utils/haptics";
 
 export default function QuickAccessCard({ icon: Icon, title, count, color = "blue", onClick, indicator }) {

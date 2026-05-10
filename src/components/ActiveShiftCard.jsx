@@ -1,4 +1,4 @@
-import { Clock, ChevronRight, Zap, AlertTriangle } from "lucide-react";
+import { Clock, ChevronRight, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
 
