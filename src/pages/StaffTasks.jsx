@@ -3,7 +3,10 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ClipboardList, Flame, CheckCircle2, ArrowRight } from "lucide-react";
+import { ClipboardList, Flame, CheckCircle2, ArrowRight, Play } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import ActivePrepStep from "@/components/prep-flow/ActivePrepStep";
+import PrepCompletionScreen from "@/components/prep-flow/PrepCompletionScreen";
 import { haptics } from "@/utils/haptics";
 import { useToast } from "@/hooks/useToast";
 import { useUnifiedState } from "@/lib/UnifiedStateContext";
@@ -88,7 +91,7 @@ const statusStyles = {
 };
 
 /* ── Prep Task Card ─────────────────────────────────────── */
-function PrepTaskCard({ task, onUpdateQty, navigate }) {
+function PrepTaskCard({ task, onUpdateQty, onStart, navigate }) {
   const pct = Math.min(Math.round((task.qty_done / task.qty_needed) * 100), 100);
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
@@ -127,10 +130,10 @@ function PrepTaskCard({ task, onUpdateQty, navigate }) {
         </button>
         <div className="w-px bg-border" />
         <button
-          onClick={() => navigate("/prep-lists")}
-          className="px-4 h-10 text-xs font-bold text-muted-foreground flex items-center gap-1 active:bg-muted/50 transition-all"
+          onClick={() => onStart?.(task)}
+          className="px-4 h-10 text-xs font-bold text-primary flex items-center gap-1.5 active:bg-primary/10 transition-all"
         >
-          Open <ArrowRight className="h-3 w-3" />
+          <Play className="h-3 w-3" /> Start
         </button>
       </div>
     </div>
@@ -217,6 +220,9 @@ export default function StaffTasks() {
   const [filter, setFilter] = useState("all");
   const [completingTask, setCompletingTask] = useState({});
   const [selectedPrepTask, setSelectedPrepTask] = useState(null);
+  const [activePrepFlow, setActivePrepFlow] = useState(null);   // { item, steps }
+  const [prepFlowPhase, setPrepFlowPhase] = useState(null);      // 'active' | 'complete'
+  const [prepFlowCompletion, setPrepFlowCompletion] = useState(null);
   const [pullRefresh, setPullRefresh] = useState(0);
   const scrollRef = useRef(null);
   const todayStr = new Date().toISOString().split("T")[0];
@@ -269,6 +275,29 @@ export default function StaffTasks() {
     });
     return () => { unsub?.(); clearTimeout(debounce); };
   }, [user?.email]);
+
+  const launchPrepFlow = async (task) => {
+    haptics.medium();
+    const itemSteps = await base44.entities.PrepStep.filter({ prep_item_id: task.id }, "step_number").catch(() => []);
+    setActivePrepFlow({ item: task._raw, steps: itemSteps });
+    setPrepFlowPhase("active");
+    setPrepFlowCompletion({ startedAt: Date.now(), photos: [] });
+  };
+
+  const handlePrepFlowComplete = async (data) => {
+    const item = activePrepFlow?.item;
+    if (!item) return;
+    const updates = {
+      status: "completed",
+      completed_by: user?.full_name || user?.email,
+      completed_at: new Date().toISOString(),
+      photo_url: data?.photos?.[0] || "",
+    };
+    await base44.entities.PrepItem.update(item.id, updates).catch(() => {});
+    setPrepFlowCompletion(prev => ({ ...prev, ...data }));
+    setPrepFlowPhase("complete");
+    setTimeout(() => load(), 400);
+  };
 
   const handleCompleteTask = async (task) => {
     haptics.medium();
@@ -374,6 +403,7 @@ export default function StaffTasks() {
                         key={task.id}
                         task={task}
                         onUpdateQty={t => { haptics.medium(); setSelectedPrepTask(t); }}
+                        onStart={launchPrepFlow}
                         navigate={navigate}
                       />
                     ) : (
@@ -412,6 +442,27 @@ export default function StaffTasks() {
           }}
         />
       )}
+
+      {/* Prep Flow Engine */}
+      <AnimatePresence>
+        {prepFlowPhase === "active" && activePrepFlow && (
+          <ActivePrepStep
+            item={activePrepFlow.item}
+            steps={activePrepFlow.steps}
+            ingredients={[]}
+            requiresPhoto={activePrepFlow.item?.requires_photo || false}
+            onComplete={handlePrepFlowComplete}
+            onClose={() => { setPrepFlowPhase(null); setActivePrepFlow(null); }}
+          />
+        )}
+        {prepFlowPhase === "complete" && activePrepFlow && (
+          <PrepCompletionScreen
+            item={activePrepFlow.item}
+            completionData={prepFlowCompletion}
+            onDone={() => { setPrepFlowPhase(null); setActivePrepFlow(null); }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
