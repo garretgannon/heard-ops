@@ -1,4 +1,3 @@
-import { AlertCircle, Clock, CheckCircle2, AlertTriangle, Eye } from "lucide-react";
 
 export default function ActiveLogsSummary({ stats }) {
   return (

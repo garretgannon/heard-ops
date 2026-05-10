@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Home, Activity, FileText, Users, MoreHorizontal, Zap } from 'lucide-react';
+import { Home, Activity, FileText, Users, MoreHorizontal } from 'lucide-react';
 import NavItem from '@/components/nav/NavItem';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PERMISSIONS } from '@/lib/permissions';
 
 const ALL_NAV = [
-  { label: 'Today',    path: '/',      icon: Home,            id: 'today',    perm: PERMISSIONS.VIEW_DASHBOARD },
+  { label: 'Today',    path: '/app/overview', icon: Home,            id: 'today',    perm: PERMISSIONS.VIEW_DASHBOARD },
   { label: 'Pulse',    path: '/pulse', icon: Activity,        id: 'pulse',    perm: PERMISSIONS.VIEW_PULSE },
   { label: 'Logs',     path: '/logs',  icon: FileText,        id: 'logs',     perm: PERMISSIONS.VIEW_LOGS },
   { label: 'Team',     path: '/team',  icon: Users,           id: 'team',     perm: PERMISSIONS.VIEW_TEAM },
@@ -21,13 +21,19 @@ export default function GlobalBottomNav() {
   const { user } = useCurrentUser();
   const { can } = usePermissions();
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!isMobile || !user) return null;
 
   const navConfig = ALL_NAV.filter(item => !item.perm || can(item.perm)).slice(0, 5);
 
   // Determine active route
   const getActiveId = () => {
-    if (pathname === '/' || pathname.startsWith('/?')) return 'today';
+    if (pathname === '/' || pathname === '/app/overview' || pathname === '/dashboard') return 'today';
     if (pathname.startsWith('/pulse')) return 'pulse';
     if (pathname.startsWith('/logs')) return 'logs';
     if (pathname.startsWith('/team')) return 'team';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, X, AlertCircle } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';

@@ -1,5 +1,4 @@
 import { FileText, ListTodo, Thermometer, UtensilsCrossed, AlertCircle } from 'lucide-react';
-import { getRoleDefinition } from '@/lib/roleDefinitions';
 import { useRoleSimulation } from '@/lib/RoleSimulationContext';
 import { haptics } from '@/utils/haptics';
 

@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { ClipboardList, Eye, Trash2 } from "lucide-react";
-import StatusBadge from "./StatusBadge";
 
 export default function PrepListCard({ pl, items, i, onSelect, onDelete }) {
   const done = items.filter(pi => pi.status === "completed").length;
