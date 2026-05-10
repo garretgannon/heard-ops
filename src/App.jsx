@@ -122,11 +122,6 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Logged-in users: redirect / to /app/overview
-  if (window.location.pathname === '/') {
-    return <Navigate to="/app/overview" replace />;
-  }
-
   return (
     <Routes>
       <Route path="/onboarding" element={<Onboarding />} />
