@@ -15,11 +15,9 @@ import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import PermissionGate from '@/components/PermissionGate';
 import { PERMISSIONS } from '@/lib/permissions';
-import { legacyRedirects } from '@/lib/routeConfig';
 import Layout from './components/Layout';
 import GlobalBottomNav from './components/GlobalBottomNav';
 import ToastContainer from './components/ToastContainer';
-import AdminSimulationBar from './components/AdminSimulationBar';
 import { TabHistoryProvider } from '@/lib/TabHistoryContext';
 import Landing from './pages/Landing';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
@@ -33,6 +31,7 @@ import Onboarding from './pages/Onboarding';
 import TeamCenter from './pages/TeamCenter';
 
 import ScheduleCenter from './pages/ScheduleCenter';
+import ScheduleImport from './pages/ScheduleImport';
 import ApprovalInbox from './pages/ApprovalInbox';
 import ReviewInbox from './pages/ReviewInbox';
 
@@ -46,6 +45,7 @@ import Profile from './pages/Profile';
 import MyRestaurant from './pages/MyRestaurant';
 import NotificationSettings from './pages/NotificationSettings';
 import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
+import BuildCards from './pages/BuildCards';
 import ReservationsAndBEOs from './pages/ReservationsAndBEOs';
 import PurchasedItems from './pages/PurchasedItems';
 import Recipes from './pages/Recipes';
@@ -53,6 +53,7 @@ import Recipes from './pages/Recipes';
 
 import Training from './pages/Training';
 import ChemicalLibrary from './pages/ChemicalLibrary';
+import Knowledge from './pages/Knowledge';
 
 import PrepTemplatesManager from './pages/PrepTemplatesManager';
 import PrepPlanning from './pages/PrepPlanning';
@@ -63,6 +64,8 @@ import PrepTemplateBuilder from './pages/PrepTemplateBuilder';
 import SideWorkTemplates from './pages/SideWorkTemplates';
 import CleaningTemplates from './pages/CleaningTemplates';
 import TemperatureLogTemplates from './pages/TemperatureLogTemplates';
+import TemperatureDashboard from './pages/TemperatureDashboard';
+import TemperatureMonitoring from './pages/TemperatureMonitoring';
 import WasteTemplates from './pages/WasteTemplates';
 import EightySixTemplates from './pages/86Templates';
 import StationReadiness from './pages/StationReadiness';
@@ -80,19 +83,17 @@ import OnboardingSimulator from './pages/OnboardingSimulator';
 import Shift from './pages/Shift';
 import TemplateManager from './pages/TemplateManager';
 import SDSLibrary from './pages/SDSLibrary';
+import Standards from './pages/Standards';
 import AppOverview from './pages/AppOverview';
 
 const AuthenticatedApp = () => {
   const [onboardingChecked, setOnboardingChecked] = useState(false);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false);
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const { user, isAdmin, isFOH, loading: userLoading } = useCurrentUser();
-  const isBusser = user?.role === 'busser';
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
+  const { user, isAdmin, loading: userLoading } = useCurrentUser();
 
   useEffect(() => {
     if (!user || !isAdmin) { setOnboardingChecked(true); return; }
     base44.entities.Settings.filter({ key: 'onboarding_complete' }).then(results => {
-      setNeedsOnboarding(results.length === 0);
       setOnboardingChecked(true);
     }).catch(() => {
       setOnboardingChecked(true);
@@ -135,6 +136,7 @@ const AuthenticatedApp = () => {
         
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/dashboard" element={<AppOverview />} />
+        <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
         <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
         <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
@@ -142,8 +144,8 @@ const AuthenticatedApp = () => {
         <Route path="/more" element={<More />} />
 
         {/* TASK ROUTES - Redirected to Today with filters */}
-        <Route path="/prep-lists" element={<Navigate to="/?tab=prep" replace />} />
-        <Route path="/side-work" element={<Navigate to="/?tab=sidework" replace />} />
+        <Route path="/prep-lists" element={<Navigate to="/tasks?tab=prep" replace />} />
+        <Route path="/side-work" element={<Navigate to="/tasks?tab=sidework" replace />} />
         <Route path="/cleaning" element={<Cleaning />} />
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
         <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
@@ -163,6 +165,7 @@ const AuthenticatedApp = () => {
         <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
 
         {/* KNOWLEDGE ROUTES */}
+        <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
 
         <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
@@ -210,8 +213,6 @@ const AuthenticatedApp = () => {
         <Route path="/automation-rules" element={<AutomationRules />} />
         <Route path="/sds-library" element={<SDSLibrary />} />
 
-        <Route path="/station-readiness" element={<StationReadiness />} />
-
         {/* SETTINGS ROUTES */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/my-restaurant" element={<MyRestaurant />} />
@@ -245,10 +246,10 @@ const AuthenticatedApp = () => {
         <Route path="/EmployeeCalendar" element={<Navigate to="/schedule" replace />} />
         <Route path="/ScheduleImport" element={<Navigate to="/schedule" replace />} />
         <Route path="/R365ScheduleImport" element={<Navigate to="/schedule" replace />} />
-        <Route path="/SideWork" element={<Navigate to="/?tab=sidework" replace />} />
-        <Route path="/SideWorkManager" element={<Navigate to="/?tab=sidework" replace />} />
-        <Route path="/SideWorkStaff" element={<Navigate to="/?tab=sidework" replace />} />
-        <Route path="/SideWorkProduction" element={<Navigate to="/?tab=sidework" replace />} />
+        <Route path="/SideWork" element={<Navigate to="/tasks?tab=sidework" replace />} />
+        <Route path="/SideWorkManager" element={<Navigate to="/tasks?tab=sidework" replace />} />
+        <Route path="/SideWorkStaff" element={<Navigate to="/tasks?tab=sidework" replace />} />
+        <Route path="/SideWorkProduction" element={<Navigate to="/tasks?tab=sidework" replace />} />
         <Route path="/restaurant-team" element={<Navigate to="/team" replace />} />
         <Route path="/schedule-center" element={<Navigate to="/schedule" replace />} />
 
@@ -257,6 +258,24 @@ const AuthenticatedApp = () => {
         <Route path="/SDS" element={<Navigate to="/sds-library" replace />} />
         <Route path="/safety-data-sheets" element={<Navigate to="/sds-library" replace />} />
         <Route path="/chemical-sheets" element={<Navigate to="/sds-library" replace />} />
+
+        {/* ROUTE ALIASES - keep older buttons and quick actions from dead-ending */}
+        <Route path="/today" element={<Navigate to="/app/overview" replace />} />
+        <Route path="/build-cards" element={<BuildCards />} />
+        <Route path="/standards" element={<Standards />} />
+        <Route path="/schedule-import" element={<ScheduleImport />} />
+        <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
+        <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
+        <Route path="/86-templates/new" element={<EightySixTemplates />} />
+        <Route path="/waste-templates/new" element={<WasteTemplates />} />
+        <Route path="/templates/new" element={<TemplateManager />} />
+        <Route path="/kitchen-prep" element={<Navigate to="/tasks?tab=prep" replace />} />
+        <Route path="/side-work-production" element={<Navigate to="/tasks?tab=sidework" replace />} />
+        <Route path="/manager-log" element={<Navigate to="/logs?type=manager" replace />} />
+        <Route path="/maintenance" element={<Navigate to="/logs?type=maintenance" replace />} />
+        <Route path="/incidents" element={<Navigate to="/logs?type=incident" replace />} />
+        <Route path="/photo-review" element={<Navigate to="/logs?action=photo" replace />} />
+        <Route path="/pre-shift" element={<Navigate to="/shift-handoff" replace />} />
 
         {/* 404 */}
         <Route path="/" element={<Navigate to="/app/overview" replace />} />
@@ -277,7 +296,6 @@ function App() {
           <QueryClientProvider client={queryClientInstance}>
             <TabHistoryProvider>
               <Router>
-                <AdminSimulationBar />
                 <AuthenticatedApp />
                 <GlobalBottomNav />
                 <ToastContainer />
