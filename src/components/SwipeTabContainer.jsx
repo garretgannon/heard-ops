@@ -166,7 +166,9 @@ export default function SwipeTabContainer() {
             style={{ minWidth: '100%' }}
             aria-hidden={i !== safeIndex}
           >
-            <Page />
+            <div className="mobile-tab-viewport">
+              <Page />
+            </div>
           </div>
         ))}
       </div>

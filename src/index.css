@@ -539,6 +539,30 @@
     @apply w-full max-w-5xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-8 lg:pb-10;
   }
 
+  .mobile-tab-viewport {
+    @apply w-full mx-auto;
+  }
+
+  @media (max-width: 1023px) {
+    .mobile-tab-viewport {
+      max-width: 430px;
+    }
+
+    .mobile-tab-viewport > .app-screen {
+      width: 100%;
+      min-height: calc(100vh - 52px - env(safe-area-inset-top, 0px));
+    }
+
+    .mobile-tab-viewport .app-page,
+    .mobile-tab-viewport .app-page-narrow {
+      max-width: 430px !important;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
   .app-header-band {
     @apply border-b border-border/40 bg-card/40 px-4 py-5 lg:px-8 lg:py-6;
   }

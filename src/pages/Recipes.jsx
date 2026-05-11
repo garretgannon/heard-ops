@@ -455,7 +455,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
     name: '', category: '', station: '', status: 'draft', recipeType: 'prep',
     yieldAmount: '', yieldUnit: '', portionSize: '', prepTime: '', cookTime: '',
     shelfLife: '', storageLocation: '', storageContainer: '', labelingInstructions: '',
-    allergens: [], dietaryFlags: [], notes: '', buildCardNotes: '', platingNotes: '',
+    notes: '', buildCardNotes: '', platingNotes: '',
     ...recipe,
     allergens: Array.isArray(recipe?.allergens) ? recipe.allergens : [],
     dietaryFlags: Array.isArray(recipe?.dietaryFlags) ? recipe.dietaryFlags : [],
