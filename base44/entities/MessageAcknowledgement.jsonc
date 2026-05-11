@@ -1,0 +1,27 @@
+{
+  "name": "MessageAcknowledgement",
+  "type": "object",
+  "properties": {
+    "thread_id": {
+      "type": "string",
+      "title": "Thread ID"
+    },
+    "user_email": {
+      "type": "string",
+      "title": "User Email"
+    },
+    "user_name": {
+      "type": "string",
+      "title": "User Name"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Acknowledged At"
+    }
+  },
+  "required": [
+    "thread_id",
+    "user_email"
+  ]
+}

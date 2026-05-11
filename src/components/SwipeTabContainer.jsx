@@ -2,16 +2,16 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { haptics } from '@/utils/haptics';
 import AppOverview from '@/pages/AppOverview';
-import Pulse from '@/pages/Pulse';
+import ScheduleCenter from '@/pages/ScheduleCenter';
 import LogsCenter from '@/pages/LogsCenter';
-import TeamCenter from '@/pages/TeamCenter';
+import OperationalMap from '@/pages/OperationalMap';
 import More from '@/pages/More';
 
 const TAB_PAGES = [
   { path: '/app/overview', component: AppOverview },
-  { path: '/pulse', component: Pulse },
+  { path: '/schedule', component: ScheduleCenter },
   { path: '/logs', component: LogsCenter },
-  { path: '/team', component: TeamCenter },
+  { path: '/operational-map', component: OperationalMap },
   { path: '/more', component: More },
 ];
 

@@ -334,7 +334,7 @@ export default function AppOverview() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Today</p>
               </div>
             </div>
-            <div className="min-h-[650px]">
+            <div className="min-h-[650px] overflow-hidden">
               <ApprovalCard
                 approval={currentApproval}
                 index={processedApprovals + 1}

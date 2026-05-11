@@ -1,0 +1,40 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "thread_id": {
+      "type": "string",
+      "title": "Thread ID"
+    },
+    "body": {
+      "type": "string",
+      "title": "Message Body"
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By Email"
+    },
+    "created_by_name": {
+      "type": "string",
+      "title": "Created By Name"
+    },
+    "photo_urls": {
+      "type": "array",
+      "title": "Photo URLs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attachment_urls": {
+      "type": "array",
+      "title": "Attachment URLs",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "thread_id",
+    "body"
+  ]
+}

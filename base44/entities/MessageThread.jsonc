@@ -1,0 +1,114 @@
+{
+  "name": "MessageThread",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Thread Title"
+    },
+    "type": {
+      "type": "string",
+      "title": "Thread Type",
+      "enum": [
+        "announcement",
+        "station_note",
+        "task_comment"
+      ],
+      "enumNames": [
+        "Announcement",
+        "Station Note",
+        "Task / Issue Comment"
+      ],
+      "default": "announcement"
+    },
+    "body": {
+      "type": "string",
+      "title": "Initial Message"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "default": "normal"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "open",
+        "resolved",
+        "archived"
+      ],
+      "default": "open"
+    },
+    "requires_acknowledgement": {
+      "type": "boolean",
+      "title": "Requires Acknowledgement",
+      "default": false
+    },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "area_name": {
+      "type": "string",
+      "title": "Area Name"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "linked_entity_type": {
+      "type": "string",
+      "title": "Linked Entity Type"
+    },
+    "linked_entity_id": {
+      "type": "string",
+      "title": "Linked Entity ID"
+    },
+    "audience_roles": {
+      "type": "array",
+      "title": "Audience Roles",
+      "items": {
+        "type": "string"
+      }
+    },
+    "audience_station_ids": {
+      "type": "array",
+      "title": "Audience Station IDs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By Email"
+    },
+    "created_by_name": {
+      "type": "string",
+      "title": "Created By Name"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Message At"
+    }
+  },
+  "required": [
+    "title",
+    "type"
+  ]
+}

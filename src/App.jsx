@@ -25,6 +25,7 @@ import Pulse from './pages/Pulse';
 import StaffTasks from './pages/StaffTasks';
 import StationShift from './pages/StationShift';
 import LogsCenter from './pages/LogsCenter';
+import CommsCenter from './pages/CommsCenter';
 import MyShifts from './pages/MyShifts';
 
 import More from './pages/More';
@@ -147,6 +148,7 @@ const AuthenticatedApp = () => {
         <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
         <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
+        <Route path="/comms" element={<CommsCenter />} />
         <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
 
         <Route path="/more" element={<More />} />

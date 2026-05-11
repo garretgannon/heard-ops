@@ -12,6 +12,7 @@ import {
   FlaskConical,
   GitBranch,
   LayoutTemplate,
+  MessageSquare,
   Package,
   ShieldCheck,
   Sparkles,
@@ -34,6 +35,7 @@ const SECTIONS = [
     items: [
       { label: 'Prep Planning', detail: 'Plan production', path: '/prep-planning', icon: ClipboardList, status: 'status-info' },
       { label: 'Shift Handoff', detail: 'Manager transition', path: '/shift-handoff', icon: Sparkles, status: 'status-neutral' },
+      { label: 'Comms', detail: 'Announcements and station notes', path: '/comms', icon: MessageSquare, status: 'status-warning' },
       { label: 'BEOs / Events', detail: 'Reservations and events', path: '/reservations', icon: CalendarDays, status: 'status-info' },
       { label: 'Reports', detail: 'Operational trends', path: '/reports', icon: BarChart3, status: 'status-neutral' },
     ],

@@ -134,13 +134,15 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
     <motion.div
       ref={cardRef}
       drag="x"
-      dragElastic={0.2}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.16}
       dragMomentum={false}
       onDragStart={() => setIsDragging(true)}
       onDrag={(_, info) => setDrag(info.offset.x)}
       onDragEnd={handleDragEnd}
-      style={{ x: drag }}
-      className={cn('relative flex flex-1 flex-col', isDragging && 'cursor-grabbing')}
+      animate={{ x: 0 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+      className={cn('relative flex flex-1 touch-pan-y flex-col', isDragging && 'cursor-grabbing')}
     >
       <div className="app-card flex flex-1 flex-col overflow-hidden p-0 shadow-[0_24px_70px_rgba(0,0,0,0.38)]">
         <div className="relative h-56 overflow-hidden">
@@ -199,6 +201,7 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
 
           <div className="mt-auto grid grid-cols-2 gap-3 pt-6">
             <button
+              onPointerDown={(event) => event.stopPropagation()}
               onClick={onDeny}
               className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-red-500/35 bg-red-500/10 text-sm font-black text-red-300 transition-all active:scale-[0.98]"
               aria-label="Send back approval"
@@ -207,6 +210,7 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
               Send Back
             </button>
             <button
+              onPointerDown={(event) => event.stopPropagation()}
               onClick={onApprove}
               className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-green-500/35 bg-green-500/15 text-sm font-black text-green-300 transition-all active:scale-[0.98]"
               aria-label="Approve approval"
