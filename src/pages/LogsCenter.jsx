@@ -121,15 +121,15 @@ export default function LogsCenter() {
 
   const QUICK_FILTER_CHIPS = [
     { id: 'all', label: 'All' },
-    { id: 'needs_attention', label: '⚠️ Needs Attention' },
+    { id: 'needs_attention', label: 'Needs Attention' },
     { id: 'open', label: 'Open' },
-    { id: 'temperature', label: '🌡️ Temps' },
-    { id: 'maintenance', label: '🔧 Maintenance' },
-    { id: 'incident', label: '🚨 Incidents' },
-    { id: 'cleaning', label: '🧹 Cleaning' },
-    { id: 'waste', label: '♻️ Waste/86' },
-    { id: 'manager_note', label: '📝 Manager' },
-    { id: 'bathroom', label: '🚽 Bathroom' },
+    { id: 'temperature', label: 'Temps' },
+    { id: 'maintenance', label: 'Maintenance' },
+    { id: 'incident', label: 'Incidents' },
+    { id: 'cleaning', label: 'Cleaning' },
+    { id: 'waste', label: 'Waste/86' },
+    { id: 'manager_note', label: 'Manager' },
+    { id: 'bathroom', label: 'Bathroom' },
   ];
 
   const handleLogUpdate = async (logId, updates) => {

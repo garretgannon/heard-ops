@@ -1,20 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Home, CalendarDays, Plus, Map, MoreHorizontal } from 'lucide-react';
 import NavItem from '@/components/nav/NavItem';
 import QuickAddSheet from '@/components/QuickAddSheet';
 import QuickActionModal from '@/components/quickactions/QuickActionModal';
 import { usePermissions } from '@/hooks/usePermissions';
-import { PERMISSIONS } from '@/lib/permissions';
-
-const ALL_NAV = [
-  { label: 'Dashboard', path: '/app/overview', icon: Home, id: 'today', perm: PERMISSIONS.VIEW_DASHBOARD },
-  { label: 'Schedule', path: '/schedule', icon: CalendarDays, id: 'schedule', perm: PERMISSIONS.VIEW_SCHEDULE },
-  { label: 'Add', path: '/logs', icon: Plus, id: 'add', perm: PERMISSIONS.VIEW_LOGS, isAdd: true },
-  { label: 'Stations', path: '/operational-map', icon: Map, id: 'stations', perm: null },
-  { label: 'More', path: '/more', icon: MoreHorizontal, id: 'more', perm: null },
-];
+import { bottomNavRoutes } from '@/lib/routeConfig';
 
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
@@ -33,22 +24,24 @@ export default function GlobalBottomNav() {
 
   if (!isMobile || !user) return null;
 
-  const navConfig = ALL_NAV
+  const navConfig = bottomNavRoutes
     .map(item => (
       item.id === 'today' && !isAdmin
-        ? { ...item, label: 'Shift', path: '/station-shift' }
+        ? { ...item, label: item.staffLabel || item.label, path: item.staffPath || item.path }
         : item
     ))
+    .filter(item => !item.adminOnly || isAdmin)
     .filter(item => !item.perm || can(item.perm))
     .slice(0, 5);
 
   // Determine active route
   const getActiveId = () => {
-    if (pathname === '/' || pathname === '/app/overview' || pathname === '/dashboard' || pathname.startsWith('/station-shift')) return 'today';
-    if (pathname.startsWith('/schedule') || pathname.startsWith('/my-shifts')) return 'schedule';
-    if (pathname.startsWith('/operational-map') || pathname.startsWith('/stations')) return 'stations';
-    if (pathname.startsWith('/more')) return 'more';
-    if (pathname.startsWith('/logs')) return 'add';
+    const active = navConfig.find(item => (
+      item.activePaths?.some(activePath => (
+        activePath === '/' ? pathname === '/' : pathname.startsWith(activePath)
+      ))
+    ));
+    if (active) return active.id;
 
     return 'today';
   };

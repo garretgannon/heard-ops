@@ -1,21 +1,28 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { lazy, Suspense, useRef, useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { haptics } from '@/utils/haptics';
-import AppOverview from '@/pages/AppOverview';
-import ScheduleCenter from '@/pages/ScheduleCenter';
-import LogsCenter from '@/pages/LogsCenter';
-import OperationalMap from '@/pages/OperationalMap';
-import More from '@/pages/More';
+
+const AppOverview = lazy(() => import('@/pages/AppOverview'));
+const ManagerShift = lazy(() => import('@/pages/ManagerShift'));
+const OperationalMap = lazy(() => import('@/pages/OperationalMap'));
+const More = lazy(() => import('@/pages/More'));
 
 const TAB_PAGES = [
   { path: '/app/overview', component: AppOverview },
-  { path: '/schedule', component: ScheduleCenter },
-  { path: '/logs', component: LogsCenter },
   { path: '/operational-map', component: OperationalMap },
+  { path: '/shift', component: ManagerShift },
   { path: '/more', component: More },
 ];
 
 const TAB_PATHS = TAB_PAGES.map(t => t.path);
+
+function TabFallback() {
+  return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+    </div>
+  );
+}
 
 // Selectors where swipe should be suppressed
 const NO_SWIPE_SELECTORS = [
@@ -167,7 +174,9 @@ export default function SwipeTabContainer() {
             aria-hidden={i !== safeIndex}
           >
             <div className="mobile-tab-viewport">
-              <Page />
+              <Suspense fallback={<TabFallback />}>
+                <Page />
+              </Suspense>
             </div>
           </div>
         ))}

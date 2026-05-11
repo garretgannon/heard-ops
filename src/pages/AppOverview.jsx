@@ -315,7 +315,7 @@ export default function AppOverview() {
 
   return (
     <div className="app-screen">
-      <div className="app-page max-w-[560px] space-y-7">
+      <div className="app-page max-w-[560px] space-y-7 lg:max-w-6xl">
         <header className="pt-1">
           <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Dinner prep is moving. Pantry needs attention.</p>
@@ -347,12 +347,14 @@ export default function AppOverview() {
           </section>
         )}
 
+        <div className="space-y-7 lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-6 lg:space-y-0">
+          <div className="space-y-7">
         <section className={cn('relative overflow-hidden rounded-[28px] border border-border/60 bg-card/70 px-5 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]', hasApprovalQueue && 'mt-2')}>
           <div className="absolute inset-x-10 top-0 h-24 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative flex flex-col items-center text-center">
             <PulseRing value={readiness} />
             <div className="mt-1 space-y-1">
-              <p className="text-lg font-black tracking-tight text-foreground">Operational pulse is steady</p>
+              <p className="text-lg font-black tracking-tight text-foreground">Readiness</p>
               <p className="mx-auto max-w-[280px] text-sm leading-5 text-muted-foreground">
                 Pantry is tracking behind, but service readiness is still recoverable.
               </p>
@@ -380,17 +382,19 @@ export default function AppOverview() {
               <Radio className="h-4 w-4" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Best Action</p>
-              <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Open Pantry station</h2>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Action</p>
+              <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Check Pantry station</h2>
               <p className="mt-1 text-sm leading-5 text-muted-foreground">Ranch is in progress and pico has not started. Both are due before lunch setup.</p>
             </div>
             <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary" />
           </div>
         </a>
 
+          </div>
+          <div className="space-y-7">
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-black tracking-tight text-foreground">What Needs Me</h2>
+            <h2 className="text-base font-black tracking-tight text-foreground">Needs Attention</h2>
             <span className="text-xs font-bold text-muted-foreground">Today</span>
           </div>
           <div className="space-y-2">
@@ -426,7 +430,7 @@ export default function AppOverview() {
 
         <section className="space-y-3 pb-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-black tracking-tight text-foreground">Activity Pulse</h2>
+            <h2 className="text-base font-black tracking-tight text-foreground">Recent Activity</h2>
             <a href="/logs" className="text-xs font-black text-primary">Logs</a>
           </div>
           <div className="app-card space-y-3">
@@ -441,6 +445,8 @@ export default function AppOverview() {
             ))}
           </div>
         </section>
+          </div>
+        </div>
 
         {denialDrawer && (
           <DenialReasonDrawer

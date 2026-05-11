@@ -2,12 +2,10 @@ import { useLocation, Link, Outlet } from "react-router-dom";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bell, UserCircle, ChefHat,
-  LayoutDashboard, ClipboardList,
-  Warehouse, Truck, LayoutTemplate, Building2, Settings,
-  ChevronLeft, ChevronRight as ChevronRightIcon,
-  FileText, CalendarDays, Users, BarChart3, Award, ShieldCheck, MapPin,
-  CheckSquare, Package, FlaskConical, ArrowLeftRight, GitBranch, Zap,
+  Bell,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  UserCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
@@ -16,57 +14,7 @@ import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
 import { usePermissions } from '@/hooks/usePermissions';
-
-// Grouped desktop nav — organized by user intent
-const DESKTOP_SECTIONS = [
-  {
-    label: "WORK",
-    items: [
-      { path: "/app/overview", label: "Overview",  icon: LayoutDashboard, perm: null },
-      { path: "/logs",       label: "Logs",      icon: FileText,        perm: 'view_logs' },
-      { path: "/approvals", label: "Approvals", icon: CheckSquare,     perm: null },
-      { path: "/team",      label: "Team",      icon: Users,           perm: 'view_team' },
-    ],
-  },
-  {
-    label: "KNOWLEDGE",
-    items: [
-      { path: "/recipes",   label: "Recipes",   icon: ChefHat,         perm: 'view_recipes' },
-      { path: "/training",  label: "Training",  icon: Award,           perm: null },
-      { path: "/chemical-library", label: "Chemicals", icon: FlaskConical,    perm: null },
-    ],
-  },
-  {
-    label: "RESOURCES",
-    items: [
-      { path: "/inventory",       label: "Inventory",       icon: Warehouse,  perm: 'view_inventory' },
-      { path: "/purchased-items", label: "Purchased Items", icon: Package,    perm: null },
-      { path: "/vendors",         label: "Vendors",         icon: Truck,      perm: 'view_vendors' },
-    ],
-  },
-  {
-    label: "PLANNING",
-    items: [
-      { path: "/prep-planning",  label: "Prep Planning",  icon: ClipboardList,   perm: 'edit_prep_lists' },
-      { path: "/schedule",       label: "Schedule",       icon: CalendarDays,    perm: 'view_schedule' },
-      { path: "/reservations",   label: "BEOs / Events",  icon: LayoutTemplate,  perm: 'view_beos' },
-      { path: "/shift-handoff",  label: "Shift Handoff",  icon: ArrowLeftRight,  perm: null },
-    ],
-  },
-  {
-    label: "SETUP",
-    items: [
-      { path: "/templates",              label: "Templates",      icon: ClipboardList,  perm: 'view_templates' },
-      { path: "/people",                 label: "Team",           icon: GitBranch,      perm: null },
-      { path: "/operational-map",         label: "Operations",    icon: MapPin,         perm: null },
-      { path: "/automation-rules",       label: "Automation",     icon: Zap,            perm: null },
-      { path: "/reports",                label: "Reports",        icon: BarChart3,      perm: 'view_reports' },
-      { path: "/my-restaurant",          label: "My Restaurant",  icon: Building2,      perm: null },
-      { path: "/admin/command-center",   label: "Roles & Access", icon: ShieldCheck,    perm: 'manage_settings' },
-      { path: "/profile",                label: "Settings",       icon: Settings,       perm: null },
-    ],
-  },
-];
+import { desktopNavSections } from '@/lib/routeConfig';
 
 export default function Layout() {
   const location = useLocation();
@@ -159,7 +107,7 @@ export default function Layout() {
 
         {/* Nav items — grouped sections */}
         <nav className="flex-1 overflow-y-auto py-1 px-2 space-y-0">
-          {DESKTOP_SECTIONS.map((section, si) => {
+          {desktopNavSections.map((section, si) => {
             const visibleItems = section.items.filter(item => !item.perm || can(item.perm));
             if (visibleItems.length === 0) return null;
             return (

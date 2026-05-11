@@ -1,15 +1,121 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardCheck,
+  FileText,
+  Thermometer,
+  Users,
+  Wrench,
+} from 'lucide-react';
 
-const fadeUp = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } } };
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
+};
+
 const stagger = { show: { transition: { staggerChildren: 0.09 } } };
+
+const operations = [
+  { title: 'Missed tasks', desc: 'Prep, side work, and cleaning fall through when service gets busy.', icon: ClipboardCheck },
+  { title: 'Scattered logs', desc: 'Temps, incidents, waste, and maintenance live in too many places.', icon: FileText },
+  { title: 'Weak handoffs', desc: 'Incoming managers need the real state of the shift, not a memory dump.', icon: Users },
+];
+
+const modules = [
+  { title: 'Shift work', desc: 'Role-based tasks and station readiness.', icon: ClipboardCheck },
+  { title: 'Logs', desc: 'Temps, incidents, maintenance, waste, and 86s.', icon: Thermometer },
+  { title: 'Approvals', desc: 'Manager review for exceptions and submitted work.', icon: CheckCircle2 },
+  { title: 'Planning', desc: 'Schedule, events, prep, and handoff context.', icon: CalendarDays },
+];
 
 function useScrollInView(threshold = 0.15) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: threshold });
   return [ref, inView];
+}
+
+function ProductPreview() {
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-[#243041] bg-[#070D12] shadow-[0_28px_90px_rgba(0,0,0,0.55)]">
+      <div className="flex items-center justify-between border-b border-[#243041]/80 px-4 py-3">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#94A3B8]">Dashboard</p>
+          <p className="mt-1 text-sm font-black text-white">Morning readiness</p>
+        </div>
+        <div className="rounded-full border border-[#E66A1F]/40 bg-[#E66A1F]/10 px-3 py-1 text-xs font-black text-[#E66A1F]">82%</div>
+      </div>
+
+      <div className="grid gap-px bg-[#243041]/70 md:grid-cols-[1.1fr_0.9fr]">
+        <div className="bg-[#0A1116] p-4">
+          <div className="rounded-xl border border-[#243041]/80 bg-black/20 p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#E66A1F]">Next Action</p>
+                <p className="mt-1 text-lg font-black text-white">Check Pantry station</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-[#E66A1F]" />
+            </div>
+            <p className="text-sm leading-5 text-slate-400">Ranch is in progress and pico has not started. Both are due before lunch setup.</p>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {[
+              { label: 'Overdue', value: '4', tone: 'text-[#E66A1F]' },
+              { label: 'Approvals', value: '7', tone: 'text-white' },
+              { label: 'Issues', value: '2', tone: 'text-white' },
+            ].map((item) => (
+              <div key={item.label} className="rounded-lg border border-[#243041]/70 bg-black/25 p-3 text-center">
+                <p className={`text-lg font-black ${item.tone}`}>{item.value}</p>
+                <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-[#0A1116] p-4">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Needs Attention</p>
+          <div className="space-y-2">
+            {[
+              { label: 'Finish Pantry prep', detail: 'Ranch and pico due before 11:00 AM', icon: ClipboardCheck, tone: 'border-[#E66A1F]/50 text-[#E66A1F]' },
+              { label: 'Check Lowboy 1 temp', detail: 'Last log is close to service window', icon: Thermometer, tone: 'border-amber-500/50 text-amber-400' },
+              { label: 'Resolve maintenance issue', detail: '2 open operational issues', icon: Wrench, tone: 'border-red-500/50 text-red-400' },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className="flex items-center gap-3 rounded-lg border border-[#243041]/70 bg-black/20 px-3 py-3">
+                  <span className={`flex h-9 w-9 items-center justify-center rounded-full border ${item.tone}`}>
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-black text-white">{item.label}</span>
+                    <span className="block truncate text-xs text-slate-500">{item.detail}</span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModuleCard({ item }) {
+  const Icon = item.icon;
+  return (
+    <motion.div variants={fadeUp} className="rounded-lg border border-[#243041] bg-[#0D141D] p-5 transition-colors hover:border-[#E66A1F]/35">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full border border-[#243041] bg-black/20 text-[#E66A1F]">
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="mb-1 text-sm font-bold text-white">{item.title}</p>
+      <p className="text-xs leading-5 text-slate-400">{item.desc}</p>
+    </motion.div>
+  );
 }
 
 export default function Landing() {
@@ -19,219 +125,118 @@ export default function Landing() {
   const [whoRef, whoIn] = useScrollInView();
   const [ctaRef, ctaIn] = useScrollInView();
 
-  const PAIN_POINTS = [
-    'Run full service', 'Oversee prep quality', 'Manage labor in real-time',
-    'Verify cleaning happened', 'Track food safety logs', 'Solve guest incidents',
-    'Coach underperforming staff', 'Handle equipment failures', 'Communicate between shifts',
-    'Complete daily reports', 'Manage vendors', 'Handle POS issues',
-  ];
+  const login = () => base44.auth.redirectToLogin(window.location.href);
 
   return (
-    <div className="min-h-screen bg-[#050A0F] text-white overflow-x-hidden">
-
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#243041]/60" style={{ background: 'rgba(5,10,15,0.9)', backdropFilter: 'blur(20px)' }}>
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen overflow-x-hidden bg-[#050A0F] text-white">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#243041]/60 bg-[#050A0F]/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-7 w-7" />
-            <span className="font-extrabold text-[17px] tracking-tight">Heard<span className="text-[#FF7A1A]">OS</span></span>
+            <span className="text-[17px] font-extrabold tracking-tight">Heard<span className="text-[#E66A1F]">OS</span></span>
           </div>
-          <div className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-400">
-            <a href="#pain" className="hover:text-white transition-colors">The Problem</a>
-            <a href="#solution" className="hover:text-white transition-colors">Solution</a>
+          <div className="hidden items-center gap-6 text-sm font-semibold text-slate-400 md:flex">
+            <a href="#pain" className="transition-colors hover:text-white">Problem</a>
+            <a href="#solution" className="transition-colors hover:text-white">Product</a>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => base44.auth.redirectToLogin(window.location.href)} className="text-sm font-bold text-slate-300 hover:text-white px-3 py-1.5 transition-colors">Sign In</button>
-            <button onClick={() => base44.auth.redirectToLogin(window.location.href)} className="text-sm font-bold bg-[#FF7A1A] text-white px-4 py-1.5 rounded-lg hover:brightness-110 transition-all active:scale-95" style={{ boxShadow: '0 0 16px rgba(255,122,26,0.35)' }}>
+            <button onClick={login} className="px-3 py-1.5 text-sm font-bold text-slate-300 transition-colors hover:text-white">Sign In</button>
+            <button onClick={login} className="rounded-lg bg-[#E66A1F] px-4 py-1.5 text-sm font-bold text-white transition-all active:scale-95">
               Start Free
             </button>
           </div>
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-12 overflow-hidden">
-        {/* BG glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-20" style={{ background: 'radial-gradient(ellipse, #FF7A1A44 0%, transparent 70%)' }} />
-          <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-10" style={{ background: 'radial-gradient(ellipse, #3B82F655 0%, transparent 70%)' }} />
-        </div>
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pb-12 pt-24">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(230,106,31,0.16),transparent_34rem)]" />
 
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#FF7A1A]/30 bg-[#FF7A1A]/10 mb-8"
-        >
-          <div className="h-1.5 w-1.5 rounded-full bg-[#FF7A1A] animate-pulse" />
-          <span className="text-xs font-bold text-[#FF7A1A] tracking-wide">OPERATIONAL PLATFORM</span>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-8 flex items-center gap-2 rounded-full border border-[#E66A1F]/30 bg-[#E66A1F]/10 px-3 py-1.5">
+          <div className="h-1.5 w-1.5 rounded-full bg-[#E66A1F]" />
+          <span className="text-xs font-bold tracking-wide text-[#E66A1F]">RESTAURANT OPERATIONS</span>
         </motion.div>
 
-        <motion.h1 ref={heroRef}
-          initial={{ opacity: 0, y: 30 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-5xl md:text-6xl font-extrabold text-center leading-[1.1] tracking-tight max-w-3xl mb-6"
-        >
+        <motion.h1 ref={heroRef} initial={{ opacity: 0, y: 30 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="mb-6 max-w-3xl text-center text-5xl font-extrabold leading-[1.1] tracking-tight md:text-6xl">
           Run every restaurant shift with clarity.
         </motion.h1>
 
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.15 }}
-          className="text-lg text-slate-400 max-w-2xl text-center leading-relaxed mb-8"
-        >
-          HeardOS turns handoffs, tasks, logs, prep, temps, and approvals into one clean shift command center.
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.15 }} className="mb-8 max-w-2xl text-center text-lg leading-relaxed text-slate-400">
+          HeardOS turns handoffs, tasks, logs, prep, temps, and approvals into one shift command center.
         </motion.p>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-3 mb-12"
-        >
-          <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
-            className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-white transition-all active:scale-95 hover:brightness-110"
-            style={{ background: 'linear-gradient(135deg, #FF7A1A, #C94D0A)', boxShadow: '0 0 20px rgba(255,122,26,0.4)' }}
-          >
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.3 }} className="mb-12 flex flex-col gap-3 sm:flex-row">
+          <button onClick={login} className="flex items-center justify-center gap-2 rounded-lg bg-[#E66A1F] px-7 py-3.5 text-base font-bold text-white transition-all active:scale-95">
             Start Free
           </button>
-          <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
-            className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-slate-300 border border-[#243041] hover:border-slate-500 hover:text-white transition-all active:scale-95"
-            style={{ background: 'rgba(13,20,29,0.8)' }}
-          >
+          <button onClick={login} className="flex items-center justify-center gap-2 rounded-lg border border-[#243041] bg-[#0D141D]/80 px-7 py-3.5 text-base font-bold text-slate-300 transition-all hover:border-slate-500 hover:text-white active:scale-95">
             View Demo
           </button>
         </motion.div>
 
-        {/* DASHBOARD PREVIEW */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.4 }}
-          className="w-full max-w-2xl"
-        >
-          <div className="relative rounded-xl border border-[#243041] overflow-hidden" style={{ background: 'rgba(13,20,29,0.8)', boxShadow: '0 0 40px rgba(0,0,0,0.5)' }}>
-            <div className="grid grid-cols-4 gap-px bg-[#243041]">
-              {[
-                { label: 'Active', val: '47', color: '#FF7A1A' },
-                { label: 'Approvals', val: '5', color: '#F59E0B' },
-                { label: 'Alerts', val: '2', color: '#EF4444' },
-                { label: 'Progress', val: '78%', color: '#22C55E' },
-              ].map(m => (
-                <div key={m.label} className="bg-[#0D141D] px-3 py-4 text-center">
-                  <p className="text-xl font-extrabold" style={{ color: m.color }}>{m.val}</p>
-                  <p className="text-[8px] text-slate-600 font-bold mt-1">{m.label}</p>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-px bg-[#243041]">
-              {[
-                { station: 'Grill', pct: 88, icon: '🔥' },
-                { station: 'Pantry', pct: 100, icon: '🥗' },
-                { station: 'Fry', pct: 54, icon: '🍟' },
-              ].map(s => (
-                <div key={s.station} className="bg-[#0D141D] px-2.5 py-3 text-center">
-                  <p className="text-sm mb-1.5">{s.icon}</p>
-                  <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-1.5">
-                    <div style={{ width: `${s.pct}%`, height: '100%', background: '#FF7A1A' }} />
-                  </div>
-                  <p className="text-[9px] font-bold text-slate-400">{s.pct}%</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.4 }} className="relative w-full max-w-4xl">
+          <ProductPreview />
         </motion.div>
       </section>
 
-      {/* PAIN SECTION */}
-      <section id="pain" ref={painRef} className="py-20 px-4 border-t border-[#243041]">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2 variants={fadeUp} initial="hidden" animate={painIn ? "show" : "hidden"}
-            className="text-3xl md:text-4xl font-extrabold text-center mb-12"
-          >
+      <section id="pain" ref={painRef} className="border-t border-[#243041] px-4 py-20">
+        <div className="mx-auto max-w-5xl">
+          <motion.h2 variants={fadeUp} initial="hidden" animate={painIn ? 'show' : 'hidden'} className="mb-12 text-center text-3xl font-extrabold md:text-4xl">
             Restaurant operations get messy fast.
           </motion.h2>
-
-          <motion.div variants={stagger} initial="hidden" animate={painIn ? "show" : "hidden"}
-            className="grid md:grid-cols-3 gap-6"
-          >
-            {[
-              { icon: '⚠️', title: 'Missed Tasks', desc: 'Work doesn\'t get done. Staff forget. Things slip.' },
-              { icon: '📋', title: 'Scattered Logs', desc: 'Temps, incidents, and maintenance spread everywhere.' },
-              { icon: '🤝', title: 'Weak Handoffs', desc: 'Incoming shifts don\'t know what happened last shift.' },
-            ].map((item, i) => (
-              <motion.div key={i} variants={fadeUp}
-                className="bg-[#0D141D] border border-[#243041] rounded-xl p-6 text-center hover:border-red-500/40 transition-colors"
-              >
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <p className="font-bold text-white mb-2">{item.title}</p>
-                <p className="text-sm text-slate-400">{item.desc}</p>
-              </motion.div>
-            ))}
+          <motion.div variants={stagger} initial="hidden" animate={painIn ? 'show' : 'hidden'} className="grid gap-6 md:grid-cols-3">
+            {operations.map((item) => <ModuleCard key={item.title} item={item} />)}
           </motion.div>
         </div>
       </section>
 
-      {/* SOLUTION SECTION */}
-      <section id="solution" ref={solutionRef} className="py-20 px-4 border-t border-[#243041]">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2 variants={fadeUp} initial="hidden" animate={solutionIn ? "show" : "hidden"}
-            className="text-3xl md:text-4xl font-extrabold text-center mb-12"
-          >
+      <section id="solution" ref={solutionRef} className="border-t border-[#243041] px-4 py-20">
+        <div className="mx-auto max-w-5xl">
+          <motion.h2 variants={fadeUp} initial="hidden" animate={solutionIn ? 'show' : 'hidden'} className="mb-12 text-center text-3xl font-extrabold md:text-4xl">
             One operating system for the shift.
           </motion.h2>
-
-          <motion.div variants={stagger} initial="hidden" animate={solutionIn ? "show" : "hidden"}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
-          >
-            {[
-              { icon: '📋', title: 'Today', desc: 'Role-based shift tasks' },
-              { icon: '📊', title: 'Pulse', desc: 'Live operational command center' },
-              { icon: '📝', title: 'Logs', desc: 'Temps, incidents, maintenance, waste, 86s' },
-              { icon: '✅', title: 'Templates', desc: 'Reusable checklists, prep lists, side work' },
-            ].map((item, i) => (
-              <motion.div key={i} variants={fadeUp}
-                className="bg-[#0D141D] border border-[#243041] rounded-xl p-5 hover:border-[#FF7A1A]/40 transition-colors"
-              >
-                <div className="text-3xl mb-3">{item.icon}</div>
-                <p className="font-bold text-white mb-1 text-sm">{item.title}</p>
-                <p className="text-xs text-slate-400">{item.desc}</p>
-              </motion.div>
-            ))}
+          <motion.div variants={stagger} initial="hidden" animate={solutionIn ? 'show' : 'hidden'} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {modules.map((item) => <ModuleCard key={item.title} item={item} />)}
           </motion.div>
         </div>
       </section>
 
-      {/* VISUAL PROOF SECTION */}
-      <section className="py-20 px-4 border-t border-[#243041]">
-        <div className="max-w-4xl mx-auto">
-          <motion.h2 variants={fadeUp} initial="hidden" animate={solutionIn ? "show" : "hidden"}
-            className="text-3xl md:text-4xl font-extrabold text-center mb-12"
-          >
-            See it in action.
+      <section className="border-t border-[#243041] px-4 py-20">
+        <div className="mx-auto max-w-5xl">
+          <motion.h2 variants={fadeUp} initial="hidden" animate={solutionIn ? 'show' : 'hidden'} className="mb-12 text-center text-3xl font-extrabold md:text-4xl">
+            Built around real shift decisions.
           </motion.h2>
-          <motion.div variants={fadeUp} initial="hidden" animate={solutionIn ? "show" : "hidden"}
-            className="grid md:grid-cols-2 gap-6"
-          >
-            <div className="relative rounded-lg border border-[#243041] overflow-hidden bg-[#0D141D] p-4" style={{ boxShadow: '0 0 30px rgba(0,0,0,0.4)' }}>
-              <p className="text-xs font-bold text-slate-500 mb-3 uppercase">Dashboard</p>
-              <div className="space-y-2">
-                {[1,2,3].map(i => <div key={i} className="h-10 bg-slate-800/30 rounded" />)}
-              </div>
+          <motion.div variants={fadeUp} initial="hidden" animate={solutionIn ? 'show' : 'hidden'} className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-xl border border-[#243041] bg-[#0D141D] p-5">
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Manager view</p>
+              <ProductPreview />
             </div>
-            <div className="relative rounded-lg border border-[#243041] overflow-hidden bg-[#0D141D] p-4" style={{ boxShadow: '0 0 30px rgba(0,0,0,0.4)' }}>
-              <p className="text-xs font-bold text-slate-500 mb-3 uppercase">Mobile App</p>
-              <div className="space-y-2">
-                {[1,2,3].map(i => <div key={i} className="h-10 bg-slate-800/30 rounded" />)}
+            <div className="rounded-xl border border-[#243041] bg-[#0D141D] p-5">
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Staff flow</p>
+              <div className="space-y-3">
+                {[
+                  { label: 'Station brief', detail: 'Lineup, 86s, events, and station assignment' },
+                  { label: 'Task execution', detail: 'Prep, cleaning, checks, and required proof' },
+                  { label: 'Shift handoff', detail: 'Clean context for the next manager' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-lg border border-[#243041]/70 bg-black/20 p-4">
+                    <p className="text-sm font-black text-white">{item.label}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">{item.detail}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* WHO IT'S FOR */}
-      <section ref={whoRef} className="py-20 px-4 border-t border-[#243041]">
-        <div className="max-w-4xl mx-auto">
-          <motion.h2 variants={fadeUp} initial="hidden" animate={whoIn ? "show" : "hidden"}
-            className="text-3xl md:text-4xl font-extrabold text-center mb-12"
-          >
+      <section ref={whoRef} className="border-t border-[#243041] px-4 py-20">
+        <div className="mx-auto max-w-4xl">
+          <motion.h2 variants={fadeUp} initial="hidden" animate={whoIn ? 'show' : 'hidden'} className="mb-12 text-center text-3xl font-extrabold md:text-4xl">
             Built for every operation.
           </motion.h2>
-          <motion.div variants={stagger} initial="hidden" animate={whoIn ? "show" : "hidden"}
-            className="flex flex-wrap gap-3 justify-center"
-          >
-            {['Restaurants', 'Bars', 'Cafes', 'Hotels', 'Catering', 'Multi-Unit Operators'].map((item, i) => (
-              <motion.div key={i} variants={fadeUp}
-                className="px-4 py-2.5 bg-[#0D141D] border border-[#243041] rounded-lg text-sm font-semibold text-slate-300 hover:border-[#FF7A1A]/40 transition-colors"
-              >
+          <motion.div variants={stagger} initial="hidden" animate={whoIn ? 'show' : 'hidden'} className="flex flex-wrap justify-center gap-3">
+            {['Restaurants', 'Bars', 'Cafes', 'Hotels', 'Catering', 'Multi-Unit Operators'].map((item) => (
+              <motion.div key={item} variants={fadeUp} className="rounded-lg border border-[#243041] bg-[#0D141D] px-4 py-2.5 text-sm font-semibold text-slate-300 transition-colors hover:border-[#E66A1F]/40">
                 {item}
               </motion.div>
             ))}
@@ -239,27 +244,16 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section ref={ctaRef} className="py-20 px-4 border-t border-[#243041] relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 opacity-30" style={{ background: 'radial-gradient(ellipse at center, #FF7A1A22 0%, transparent 60%)' }} />
-        </div>
-        <div className="max-w-3xl mx-auto text-center relative">
+      <section ref={ctaRef} className="relative overflow-hidden border-t border-[#243041] px-4 py-20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(230,106,31,0.12),transparent_60%)]" />
+        <div className="relative mx-auto max-w-3xl text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={ctaIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-8 leading-tight">
-              Make every shift easier to run.
-            </h2>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
-                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-white transition-all active:scale-95 hover:brightness-110"
-                style={{ background: 'linear-gradient(135deg, #FF7A1A, #C94D0A)', boxShadow: '0 0 20px rgba(255,122,26,0.4)' }}
-              >
+            <h2 className="mb-8 text-4xl font-extrabold leading-tight md:text-5xl">Make every shift easier to run.</h2>
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
+              <button onClick={login} className="flex items-center justify-center gap-2 rounded-lg bg-[#E66A1F] px-7 py-3.5 text-base font-bold text-white transition-all active:scale-95">
                 Start Free
               </button>
-              <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
-                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-slate-300 border border-[#243041] hover:border-slate-500 hover:text-white transition-all active:scale-95"
-                style={{ background: 'rgba(13,20,29,0.8)' }}
-              >
+              <button onClick={login} className="flex items-center justify-center gap-2 rounded-lg border border-[#243041] bg-[#0D141D]/80 px-7 py-3.5 text-base font-bold text-slate-300 transition-all hover:border-slate-500 hover:text-white active:scale-95">
                 View Demo
               </button>
             </div>
@@ -267,15 +261,14 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-[#243041] py-8 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="border-t border-[#243041] px-4 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
           <div className="flex items-center gap-2">
             <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-6 w-6" />
-            <span className="font-extrabold text-sm">Heard<span className="text-[#FF7A1A]">OS</span></span>
-            <span className="text-slate-600 text-xs ml-2">The Operational Nervous System for Restaurants</span>
+            <span className="text-sm font-extrabold">Heard<span className="text-[#E66A1F]">OS</span></span>
+            <span className="ml-2 text-xs text-slate-600">Restaurant shift operations</span>
           </div>
-          <p className="text-xs text-slate-600">© 2026 HeardOS. All rights reserved.</p>
+          <p className="text-xs text-slate-600">(c) 2026 HeardOS. All rights reserved.</p>
         </div>
       </footer>
     </div>

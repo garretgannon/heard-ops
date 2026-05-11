@@ -38,6 +38,11 @@ import {
   MoreVertical,
   Map,
   Plus,
+  MessageSquare,
+  ShieldCheck,
+  Sparkles,
+  GitBranch,
+  Zap,
 } from "lucide-react";
 
 /**
@@ -51,22 +56,10 @@ export const bottomNavRoutes = [
     icon: LayoutDashboard,
     description: "Manager command center",
     module: "dailyOps",
-  },
-  {
-    id: "schedule",
-    label: "Schedule",
-    path: "/schedule",
-    icon: Calendar,
-    description: "Shifts and coverage",
-    module: "management",
-  },
-  {
-    id: "add",
-    label: "Add",
-    path: "/logs",
-    icon: Plus,
-    description: "Quick add logs and issues",
-    module: "compliance",
+    perm: "view_dashboard",
+    staffLabel: "Shift",
+    staffPath: "/station-shift",
+    activePaths: ["/", "/app/overview", "/dashboard", "/station-shift"],
   },
   {
     id: "stations",
@@ -75,6 +68,27 @@ export const bottomNavRoutes = [
     icon: Map,
     description: "Station work and setup",
     module: "management",
+    activePaths: ["/operational-map", "/stations"],
+  },
+  {
+    id: "add",
+    label: "Add",
+    path: "/logs",
+    icon: Plus,
+    description: "Quick add logs and issues",
+    module: "compliance",
+    perm: "view_logs",
+    isAdd: true,
+  },
+  {
+    id: "shift",
+    label: "Shift",
+    path: "/shift",
+    icon: Sparkles,
+    description: "Manager briefing, duties, and handoff",
+    module: "dailyOps",
+    adminOnly: true,
+    activePaths: ["/shift", "/shift-handoff"],
   },
   {
     id: "more",
@@ -83,7 +97,103 @@ export const bottomNavRoutes = [
     icon: MoreHorizontal,
     description: "All features and settings",
     module: "management",
+    activePaths: ["/more"],
   },
+];
+
+export const desktopNavSections = [
+  {
+    label: "WORK",
+    items: [
+      { path: "/app/overview", label: "Overview", icon: LayoutDashboard },
+      { path: "/shift", label: "Shift", icon: Sparkles },
+      { path: "/logs", label: "Logs", icon: FileText, perm: "view_logs" },
+      { path: "/approvals", label: "Approvals", icon: CheckSquare },
+      { path: "/team", label: "Team", icon: Users, perm: "view_team" },
+    ],
+  },
+  {
+    label: "KNOWLEDGE",
+    items: [
+      { path: "/recipes", label: "Recipes", icon: ChefHat, perm: "view_recipes" },
+      { path: "/training", label: "Training", icon: BookOpen },
+      { path: "/chemical-library", label: "Chemicals", icon: AlertTriangle },
+    ],
+  },
+  {
+    label: "RESOURCES",
+    items: [
+      { path: "/inventory", label: "Inventory", icon: Warehouse, perm: "view_inventory" },
+      { path: "/purchased-items", label: "Purchased Items", icon: Package },
+      { path: "/vendors", label: "Vendors", icon: Truck, perm: "view_vendors" },
+    ],
+  },
+  {
+    label: "PLANNING",
+    items: [
+      { path: "/prep-planning", label: "Prep Planning", icon: ClipboardList, perm: "edit_prep_lists" },
+      { path: "/schedule", label: "Schedule", icon: Calendar, perm: "view_schedule" },
+      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate, perm: "view_beos" },
+      { path: "/shift-handoff", label: "Shift Handoff", icon: TrendingUp },
+    ],
+  },
+  {
+    label: "SETUP",
+    items: [
+      { path: "/templates", label: "Templates", icon: ClipboardList, perm: "view_templates" },
+      { path: "/people", label: "Team", icon: GitBranch },
+      { path: "/operational-map", label: "Operations", icon: Map },
+      { path: "/automation-rules", label: "Automation", icon: Zap },
+      { path: "/reports", label: "Reports", icon: BarChart2, perm: "view_reports" },
+      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
+      { path: "/admin/command-center", label: "Roles & Access", icon: ShieldCheck, perm: "manage_settings" },
+      { path: "/profile", label: "Settings", icon: Settings },
+    ],
+  },
+];
+
+export const moreNavSections = [
+  {
+    title: "Operations",
+    items: [
+      { label: "Prep Planning", detail: "Plan production", path: "/prep-planning", icon: ClipboardList, status: "status-info" },
+      { label: "Shift Handoff", detail: "Manager transition", path: "/shift-handoff", icon: Sparkles, status: "status-neutral" },
+      { label: "Logs", detail: "History and records", path: "/logs", icon: FileText, status: "status-neutral" },
+      { label: "Comms", detail: "Announcements and station notes", path: "/comms", icon: MessageSquare, status: "status-warning" },
+      { label: "BEOs / Events", detail: "Reservations and events", path: "/reservations", icon: Calendar, status: "status-info" },
+      { label: "Reports", detail: "Operational trends", path: "/reports", icon: BarChart2, status: "status-neutral" },
+    ],
+  },
+  {
+    title: "Food & Inventory",
+    items: [
+      { label: "Recipes", detail: "Recipes and build cards", path: "/recipes", icon: ChefHat, status: "status-info" },
+      { label: "Inventory", detail: "Stock and counts", path: "/inventory", icon: Warehouse, status: "status-neutral" },
+      { label: "Purchased Items", detail: "Goods and prices", path: "/purchased-items", icon: Package, status: "status-neutral" },
+      { label: "Vendors", detail: "Contacts and ordering", path: "/vendors", icon: Truck, status: "status-neutral" },
+    ],
+  },
+  {
+    title: "Knowledge",
+    items: [
+      { label: "Training", detail: "Team learning", path: "/training", icon: BookOpen, status: "status-success" },
+      { label: "Chemicals / SDS", detail: "Safety data sheets", path: "/chemical-library", icon: AlertTriangle, status: "status-info" },
+    ],
+  },
+  {
+    title: "Restaurant Setup",
+    items: [
+      { label: "Team Structure", detail: "People hierarchy", path: "/people", icon: GitBranch, status: "status-neutral" },
+      { label: "Restaurant", detail: "Location settings", path: "/my-restaurant", icon: Building2, status: "status-neutral" },
+      { label: "Profile & Settings", detail: "Account preferences", path: "/profile", icon: Settings, status: "status-neutral" },
+    ],
+  },
+];
+
+export const morePrimaryActions = [
+  { label: "Templates", detail: "Task, prep, cleaning", path: "/templates", icon: LayoutTemplate, status: "status-info" },
+  { label: "Roles", detail: "Access and permissions", path: "/admin/command-center", icon: ShieldCheck, status: "status-neutral" },
+  { label: "Automation", detail: "Rules and escalations", path: "/automation-rules", icon: Zap, status: "status-warning" },
 ];
 
 /**

@@ -1,9 +1,8 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
-import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { OperationalProvider } from '@/lib/OperationalContext';
 import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
@@ -19,75 +18,75 @@ import Layout from './components/Layout';
 import GlobalBottomNav from './components/GlobalBottomNav';
 import ToastContainer from './components/ToastContainer';
 import { TabHistoryProvider } from '@/lib/TabHistoryContext';
-import Landing from './pages/Landing';
-import TodaysCommandCenter from './pages/TodaysCommandCenter';
-import Pulse from './pages/Pulse';
-import StaffTasks from './pages/StaffTasks';
-import StationShift from './pages/StationShift';
-import LogsCenter from './pages/LogsCenter';
-import CommsCenter from './pages/CommsCenter';
-import MyShifts from './pages/MyShifts';
+const PageNotFound = lazy(() => import('./lib/PageNotFound'));
+const Landing = lazy(() => import('./pages/Landing'));
+const Pulse = lazy(() => import('./pages/Pulse'));
+const StaffTasks = lazy(() => import('./pages/StaffTasks'));
+const StationShift = lazy(() => import('./pages/StationShift'));
+const LogsCenter = lazy(() => import('./pages/LogsCenter'));
+const CommsCenter = lazy(() => import('./pages/CommsCenter'));
+const MyShifts = lazy(() => import('./pages/MyShifts'));
+const More = lazy(() => import('./pages/More'));
+const Onboarding = lazy(() => import('./pages/Onboarding'));
+const TeamCenter = lazy(() => import('./pages/TeamCenter'));
+const ScheduleCenter = lazy(() => import('./pages/ScheduleCenter'));
+const ScheduleImport = lazy(() => import('./pages/ScheduleImport'));
+const ApprovalInbox = lazy(() => import('./pages/ApprovalInbox'));
+const ReviewInbox = lazy(() => import('./pages/ReviewInbox'));
+const Cleaning = lazy(() => import('./pages/Cleaning'));
+const InventorySimplified = lazy(() => import('./pages/InventorySimplified'));
+const Vendors = lazy(() => import('./pages/Vendors'));
+const Reports = lazy(() => import('./pages/Reports'));
+const Profile = lazy(() => import('./pages/Profile'));
+const MyRestaurant = lazy(() => import('./pages/MyRestaurant'));
+const NotificationSettings = lazy(() => import('./pages/NotificationSettings'));
+const RecipesAndBuildCards = lazy(() => import('./pages/RecipesAndBuildCards'));
+const BuildCards = lazy(() => import('./pages/BuildCards'));
+const ReservationsAndBEOs = lazy(() => import('./pages/ReservationsAndBEOs'));
+const PurchasedItems = lazy(() => import('./pages/PurchasedItems'));
+const Recipes = lazy(() => import('./pages/Recipes'));
+const Training = lazy(() => import('./pages/Training'));
+const ChemicalLibrary = lazy(() => import('./pages/ChemicalLibrary'));
+const Knowledge = lazy(() => import('./pages/Knowledge'));
+const PrepTemplatesManager = lazy(() => import('./pages/PrepTemplatesManager'));
+const PrepPlanning = lazy(() => import('./pages/PrepPlanning'));
+const PrepInventoryCounter = lazy(() => import('./pages/PrepInventoryCounter'));
+const PrepPlanReview = lazy(() => import('./pages/PrepPlanReview'));
+const PrepPlanTemplatesManager = lazy(() => import('./pages/PrepPlanTemplatesManager'));
+const PrepTemplateBuilder = lazy(() => import('./pages/PrepTemplateBuilder'));
+const SideWorkTemplates = lazy(() => import('./pages/SideWorkTemplates'));
+const CleaningTemplates = lazy(() => import('./pages/CleaningTemplates'));
+const TemperatureLogTemplates = lazy(() => import('./pages/TemperatureLogTemplates'));
+const TemperatureDashboard = lazy(() => import('./pages/TemperatureDashboard'));
+const TemperatureMonitoring = lazy(() => import('./pages/TemperatureMonitoring'));
+const WasteTemplates = lazy(() => import('./pages/WasteTemplates'));
+const EightySixTemplates = lazy(() => import('./pages/86Templates'));
+const StationReadiness = lazy(() => import('./pages/StationReadiness'));
+const Stations = lazy(() => import('./pages/Stations'));
+const JobCodes = lazy(() => import('./pages/JobCodes'));
+const OperationalMap = lazy(() => import('./pages/OperationalMap'));
+const LocationSetup = lazy(() => import('./pages/LocationSetup'));
+const PeopleHierarchy = lazy(() => import('./pages/PeopleHierarchy'));
+const SetupJourney = lazy(() => import('./pages/SetupJourney'));
+const AutomationRules = lazy(() => import('./pages/AutomationRules'));
+const ShiftHandoff = lazy(() => import('./pages/ShiftHandoff'));
+const ManagerShift = lazy(() => import('./pages/ManagerShift'));
+const AdminRoleSimulator = lazy(() => import('./pages/AdminRoleSimulator'));
+const AdminCommandCenter = lazy(() => import('./pages/AdminCommandCenter'));
+const OnboardingSimulator = lazy(() => import('./pages/OnboardingSimulator'));
+const Shift = lazy(() => import('./pages/Shift'));
+const TemplateManager = lazy(() => import('./pages/TemplateManager'));
+const SDSLibrary = lazy(() => import('./pages/SDSLibrary'));
+const Standards = lazy(() => import('./pages/Standards'));
+const AppOverview = lazy(() => import('./pages/AppOverview'));
 
-import More from './pages/More';
-import Onboarding from './pages/Onboarding';
-import TeamCenter from './pages/TeamCenter';
-
-import ScheduleCenter from './pages/ScheduleCenter';
-import ScheduleImport from './pages/ScheduleImport';
-import ApprovalInbox from './pages/ApprovalInbox';
-import ReviewInbox from './pages/ReviewInbox';
-
-import Cleaning from './pages/Cleaning';
-
-
-import InventorySimplified from './pages/InventorySimplified';
-import Vendors from './pages/Vendors';
-import Reports from './pages/Reports';
-import Profile from './pages/Profile';
-import MyRestaurant from './pages/MyRestaurant';
-import NotificationSettings from './pages/NotificationSettings';
-import RecipesAndBuildCards from './pages/RecipesAndBuildCards';
-import BuildCards from './pages/BuildCards';
-import ReservationsAndBEOs from './pages/ReservationsAndBEOs';
-import PurchasedItems from './pages/PurchasedItems';
-import Recipes from './pages/Recipes';
-
-
-import Training from './pages/Training';
-import ChemicalLibrary from './pages/ChemicalLibrary';
-import Knowledge from './pages/Knowledge';
-
-import PrepTemplatesManager from './pages/PrepTemplatesManager';
-import PrepPlanning from './pages/PrepPlanning';
-import PrepInventoryCounter from './pages/PrepInventoryCounter';
-import PrepPlanReview from './pages/PrepPlanReview';
-import PrepPlanTemplatesManager from './pages/PrepPlanTemplatesManager';
-import PrepTemplateBuilder from './pages/PrepTemplateBuilder';
-import SideWorkTemplates from './pages/SideWorkTemplates';
-import CleaningTemplates from './pages/CleaningTemplates';
-import TemperatureLogTemplates from './pages/TemperatureLogTemplates';
-import TemperatureDashboard from './pages/TemperatureDashboard';
-import TemperatureMonitoring from './pages/TemperatureMonitoring';
-import WasteTemplates from './pages/WasteTemplates';
-import EightySixTemplates from './pages/86Templates';
-import StationReadiness from './pages/StationReadiness';
-import Stations from './pages/Stations';
-import JobCodes from './pages/JobCodes';
-import OperationalMap from './pages/OperationalMap';
-import LocationSetup from './pages/LocationSetup';
-import PeopleHierarchy from './pages/PeopleHierarchy';
-import SetupJourney from './pages/SetupJourney';
-import AutomationRules from './pages/AutomationRules';
-
-import ShiftHandoff from './pages/ShiftHandoff';
-import AdminRoleSimulator from './pages/AdminRoleSimulator';
-import AdminCommandCenter from './pages/AdminCommandCenter';
-import OnboardingSimulator from './pages/OnboardingSimulator';
-import Shift from './pages/Shift';
-import TemplateManager from './pages/TemplateManager';
-import SDSLibrary from './pages/SDSLibrary';
-import Standards from './pages/Standards';
-import AppOverview from './pages/AppOverview';
+function RouteFallback() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+    </div>
+  );
+}
 
 const AuthenticatedApp = () => {
   const [onboardingChecked, setOnboardingChecked] = useState(false);
@@ -123,10 +122,12 @@ const AuthenticatedApp = () => {
   if (!user) {
     // If not logged in, show Landing page
     return (
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     );
   }
 
@@ -136,9 +137,10 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route element={<Layout />}>
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route element={<Layout />}>
         {/* OVERVIEW - Logged-in dashboard */}
         <Route path="/app/overview" element={<AppOverview />} />
         
@@ -160,6 +162,7 @@ const AuthenticatedApp = () => {
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
         <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
         <Route path="/my-shifts" element={<MyShifts />} />
+        <Route path="/shift" element={<ManagerShift />} />
         <Route path="/shift/:id" element={<Shift />} />
 
         {/* COMPLIANCE ROUTES */}
@@ -291,13 +294,14 @@ const AuthenticatedApp = () => {
         <Route path="/maintenance" element={<Navigate to="/logs?type=maintenance" replace />} />
         <Route path="/incidents" element={<Navigate to="/logs?type=incident" replace />} />
         <Route path="/photo-review" element={<Navigate to="/logs?action=photo" replace />} />
-        <Route path="/pre-shift" element={<Navigate to="/shift-handoff" replace />} />
+        <Route path="/pre-shift" element={<Navigate to="/shift" replace />} />
 
         {/* 404 */}
         <Route path="/" element={<Navigate to="/app/overview" replace />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Route>
-    </Routes>
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 };
 
