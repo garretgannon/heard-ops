@@ -170,11 +170,13 @@ export default function AppOverview() {
   const loadMetrics = async () => {
     setLoading(true);
     try {
-      const [tasks, approvals, prepItems, tempLogs, maintenanceReqs, timeOffReqs, alerts, equipment] = await Promise.all([
+      const [tasks, approvals, prepItems, tempLogs] = await Promise.all([
         safeFilter(base44.entities.GeneratedTask, { status: { $in: ['completed', 'pending', 'in_progress'] } }, '-updated_date', 100),
         safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 50),
         safeFilter(base44.entities.PrepItem, { status: 'pending_review' }, '-updated_date', 50),
         safeFilter(base44.entities.TemperatureLog, { requires_review: true }, '-updated_date', 50),
+      ]);
+      const [maintenanceReqs, timeOffReqs, alerts, equipment] = await Promise.all([
         safeFilter(base44.entities.MaintenanceRequest, { status: 'pending' }, '-updated_date', 50),
         safeFilter(base44.entities.TimeOffRequest, { status: 'pending' }, '-updated_date', 50),
         safeFilter(base44.entities.OperationalCheck, { status: { $in: ['failed', 'overdue'] } }, '-updated_date', 50),
