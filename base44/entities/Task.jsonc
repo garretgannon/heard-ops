@@ -22,9 +22,29 @@
       "type": "string",
       "title": "Station Name"
     },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "area_name": {
+      "type": "string",
+      "title": "Area Name"
+    },
     "location_id": {
       "type": "string",
       "title": "Location ID"
+    },
+    "location_name": {
+      "type": "string",
+      "title": "Location Name"
+    },
+    "equipment_id": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "equipment_name": {
+      "type": "string",
+      "title": "Equipment Name"
     },
     "assigned_to_email": {
       "type": "string",

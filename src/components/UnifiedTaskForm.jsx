@@ -30,7 +30,15 @@ const STATUSES = [
 
 const PRIORITIES = ['low', 'medium', 'high', 'critical'];
 
-export default function UnifiedTaskForm({ initialType, onClose, onSuccess }) {
+export default function UnifiedTaskForm({
+  initialType,
+  title = 'New Task',
+  submitLabel = 'Create Task',
+  successLabel,
+  hideTypeSelector = false,
+  onClose,
+  onSuccess,
+}) {
   const { user } = useCurrentUser();
   const [taskType, setTaskType] = useState(initialType || 'prep');
   const [formData, setFormData] = useState({
@@ -63,7 +71,8 @@ export default function UnifiedTaskForm({ initialType, onClose, onSuccess }) {
         created_by_user: user?.email,
         type: taskType,
       });
-      toast.success(`${TASK_TYPES.find(t => t.id === taskType)?.label || 'Task'} created`);
+      const taskLabel = successLabel || TASK_TYPES.find(t => t.id === taskType)?.label || 'Task';
+      toast.success(`${taskLabel} created`);
       onSuccess?.();
       onClose?.();
     } catch (err) {
@@ -85,7 +94,7 @@ export default function UnifiedTaskForm({ initialType, onClose, onSuccess }) {
         className="flex-1 h-11 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:brightness-110 disabled:opacity-50 active:scale-95 transition-all flex items-center justify-center gap-2"
       >
         <Save className="h-4 w-4" />
-        {saving ? 'Saving...' : 'Create Task'}
+        {saving ? 'Saving...' : submitLabel}
       </button>
     </>
   );
@@ -94,29 +103,31 @@ export default function UnifiedTaskForm({ initialType, onClose, onSuccess }) {
     <MobileModalWrapper
       isOpen={true}
       onClose={onClose}
-      title="New Task"
+      title={title}
       footer={footer}
     >
       {/* Type Selection */}
-      <div>
-        <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Task Type</label>
-        <div className="grid grid-cols-2 gap-2">
-          {TASK_TYPES.map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setTaskType(t.id); setFormData({ ...formData, type: t.id }); }}
-              className={cn(
-                'p-2 rounded-lg border text-xs font-bold whitespace-nowrap transition-all active:scale-95',
-                taskType === t.id
-                  ? 'bg-primary/15 text-primary border-primary/30'
-                  : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
+      {!hideTypeSelector && (
+        <div>
+          <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Task Type</label>
+          <div className="grid grid-cols-2 gap-2">
+            {TASK_TYPES.map(t => (
+              <button
+                key={t.id}
+                onClick={() => { setTaskType(t.id); setFormData({ ...formData, type: t.id }); }}
+                className={cn(
+                  'p-2 rounded-lg border text-xs font-bold whitespace-nowrap transition-all active:scale-95',
+                  taskType === t.id
+                    ? 'bg-primary/15 text-primary border-primary/30'
+                    : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Title */}
       <div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import UnifiedLogForm from '@/components/UnifiedLogForm';
-import UnifiedTaskForm from '@/components/UnifiedTaskForm';
 import QuickActionLogSelector from '@/components/quickactions/QuickActionLogSelector';
+import TemplateCreateModal from '@/components/templates/TemplateCreateModal';
+import { TEMPLATE_BY_ACTION } from '@/lib/createTemplates';
 
 /**
  * Central quick action modal router
@@ -9,6 +9,8 @@ import QuickActionLogSelector from '@/components/quickactions/QuickActionLogSele
  */
 export default function QuickActionModal({ actionType, onClose, onSuccess }) {
   const [selectedLogType, setSelectedLogType] = useState(null);
+  const resolvedActionType = selectedLogType || actionType;
+  const templateId = TEMPLATE_BY_ACTION[resolvedActionType];
 
   // Log-related actions
   if (actionType === 'add_log') {
@@ -20,99 +22,12 @@ export default function QuickActionModal({ actionType, onClose, onSuccess }) {
         />
       );
     }
-    return (
-      <UnifiedLogForm
-        initialType={selectedLogType}
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
   }
 
-  if (actionType === 'log_temperature') {
+  if (templateId) {
     return (
-      <UnifiedLogForm
-        initialType="temperature"
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  if (actionType === 'report_maintenance') {
-    return (
-      <UnifiedLogForm
-        initialType="maintenance"
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  if (actionType === 'report_incident') {
-    return (
-      <UnifiedLogForm
-        initialType="incident"
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  if (actionType === 'add_waste') {
-    return (
-      <UnifiedLogForm
-        initialType="waste"
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  if (actionType === 'add_employee_note') {
-    return (
-      <UnifiedLogForm
-        initialType="employee_note"
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  if (actionType === 'add_manager_note') {
-    return (
-      <UnifiedLogForm
-        initialType="manager_note"
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  // Task-related actions
-  if (actionType === 'add_task') {
-    return (
-      <UnifiedTaskForm
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  if (actionType === 'add_prep_item') {
-    return (
-      <UnifiedTaskForm
-        initialType="prep"
-        onClose={onClose}
-        onSuccess={onSuccess}
-      />
-    );
-  }
-
-  if (actionType === 'add_side_work') {
-    return (
-      <UnifiedTaskForm
-        initialType="sidework"
+      <TemplateCreateModal
+        templateId={templateId}
         onClose={onClose}
         onSuccess={onSuccess}
       />

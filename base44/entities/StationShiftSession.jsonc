@@ -1,0 +1,159 @@
+{
+  "name": "StationShiftSession",
+  "type": "object",
+  "properties": {
+    "session_key": {
+      "type": "string",
+      "title": "Duplicate Prevention Key"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "title": "Date"
+    },
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "area_name": {
+      "type": "string",
+      "title": "Area Name"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "brief_pending",
+        "brief_acknowledged",
+        "in_progress",
+        "closing",
+        "submitted"
+      ],
+      "default": "brief_pending"
+    },
+    "brief_acknowledged_at": {
+      "type": "string",
+      "title": "Brief Acknowledged At (ISO)"
+    },
+    "started_at": {
+      "type": "string",
+      "title": "Started At (ISO)"
+    },
+    "closing_started_at": {
+      "type": "string",
+      "title": "Closing Started At (ISO)"
+    },
+    "submitted_at": {
+      "type": "string",
+      "title": "Submitted At (ISO)"
+    },
+    "opening_photo_url": {
+      "type": "string",
+      "title": "Opening Photo URL"
+    },
+    "opening_photo_name": {
+      "type": "string",
+      "title": "Opening Photo File Name"
+    },
+    "closing_photo_url": {
+      "type": "string",
+      "title": "Closing Photo URL"
+    },
+    "closing_photo_name": {
+      "type": "string",
+      "title": "Closing Photo File Name"
+    },
+    "tasks": {
+      "type": "array",
+      "title": "Shift Tasks",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "task_type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "completed_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "closing_tasks": {
+      "type": "array",
+      "title": "Closing Tasks",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "completed_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "completion_summary": {
+      "type": "object",
+      "title": "Completion Summary",
+      "properties": {
+        "work_total": {
+          "type": "number"
+        },
+        "work_completed": {
+          "type": "number"
+        },
+        "close_total": {
+          "type": "number"
+        },
+        "close_completed": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "required": [
+    "session_key",
+    "date",
+    "employee_email",
+    "station_id",
+    "status"
+  ]
+}

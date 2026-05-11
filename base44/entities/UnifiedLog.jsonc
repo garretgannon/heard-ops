@@ -30,6 +30,26 @@
       "type": "string",
       "title": "Location / Equipment / Area"
     },
+    "location_id": {
+      "type": "string",
+      "title": "Location ID"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name"
+    },
+    "equipment_id": {
+      "type": "string",
+      "title": "Equipment ID"
+    },
+    "equipment_name": {
+      "type": "string",
+      "title": "Equipment Name"
+    },
     "employee_id": {
       "type": "string",
       "title": "Employee ID"

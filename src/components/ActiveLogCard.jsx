@@ -31,7 +31,7 @@ export default function ActiveLogCard({ log, onAction }) {
             <p className="text-xs font-bold text-foreground truncate">{log.type}</p>
             <p className="text-[9px] text-muted-foreground truncate">{log.department} • {log.location}</p>
           </div>
-          <span className={cn("text-[9px] font-bold px-2 py-1 rounded-full border whitespace-nowrap", config.bg, config.text, config.border)}>
+          <span className={cn("status-pill whitespace-nowrap", config.text, config.border)}>
             {config.label}
           </span>
         </div>

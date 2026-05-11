@@ -4,24 +4,45 @@ import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Copy, Archive, Search } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
+const isTemplateActive = (template) => template.is_active ?? template.isActive ?? true;
+const assignedStation = (template) => template.assigned_station || template.assignedStations?.join(', ') || 'All Stations';
+const assignedRole = (template) => template.assigned_role || template.assignedJobCodes?.join(', ') || 'All Roles';
+const itemCount = (template) => template.itemCount || template.items_count || 0;
+
+const recurrenceLabel = (template) => {
+  const recurrence = template.recurrence_type || template.repeatType || 'on_demand';
+  const days = template.recurrence_days || template.repeatDays || [];
+  if (recurrence === 'daily') return 'Daily';
+  if (recurrence === 'weekly' && days.length) return days.join(', ');
+  if (recurrence === 'every_shift') return 'Every shift';
+  return 'On demand';
+};
+
+const isWasteTemplate = (template) => {
+  if (template.type === 'waste_log') return true;
+  return template.template_type === 'waste_86' && ['waste', 'both', undefined, null, ''].includes(template.waste_86_subtype);
+};
+
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
+  const active = isTemplateActive(template);
+
   return (
     <div className="bg-card border border-border rounded-lg p-3.5 space-y-2.5">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex-1">
-          <p className="font-bold text-sm text-foreground">{template.name}</p>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-sm text-foreground truncate">{template.name}</p>
           <p className="text-xs text-secondary-text mt-0.5">
-            {template.assignedStations?.join(', ') || 'All Stations'} · {template.assignedJobCodes?.join(', ') || 'All Roles'}
+            {assignedStation(template)} · {assignedRole(template)}
           </p>
         </div>
-        <div className={`text-[10px] font-bold px-2 py-1 rounded-md ${template.isActive ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>
-          {template.isActive ? 'Active' : 'Archived'}
+        <div className={`text-[10px] font-bold px-2 py-1 rounded-md ${active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}>
+          {active ? 'Active' : 'Archived'}
         </div>
       </div>
 
       <div className="text-xs text-muted-foreground space-y-0.5">
-        <p>{template.repeatType === 'daily' ? 'Daily' : template.repeatDays?.length ? `${template.repeatDays.join(', ')}` : 'One-time'}</p>
-        <p>{template.itemCount || 0} items</p>
+        <p>{recurrenceLabel(template)}</p>
+        <p>{itemCount(template)} items</p>
       </div>
 
       <div className="flex gap-2 pt-2">
@@ -33,7 +54,7 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
           <Copy className="h-3 w-3 inline mr-1" />
           Duplicate
         </button>
-        <button onClick={() => onArchive(template.id)} className="btn-secondary text-xs h-8 px-2">
+        <button onClick={() => onArchive(template.id)} className="btn-secondary text-xs h-8 px-2" title={active ? 'Archive' : 'Restore'}>
           <Archive className="h-3 w-3" />
         </button>
       </div>
@@ -55,22 +76,24 @@ export default function WasteTemplates() {
   const loadTemplates = async () => {
     setLoading(true);
     try {
-      const data = await base44.entities.Template.filter({ type: 'waste_log' });
-      setTemplates(data);
+      const data = await base44.entities.Template.list('-updated_date', 200);
+      setTemplates(data.filter(isWasteTemplate));
     } catch (error) {
       console.error('Failed to load templates:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const filtered = templates.filter(t => {
-    if (showArchived && t.isActive) return false;
-    if (!showArchived && !t.isActive) return false;
-    return t.name.toLowerCase().includes(search.toLowerCase());
+    const active = isTemplateActive(t);
+    if (showArchived && active) return false;
+    if (!showArchived && !active) return false;
+    return (t.name || '').toLowerCase().includes(search.toLowerCase());
   });
 
   const handleEdit = (id) => {
-    navigate(`/waste-templates/${id}/edit`);
+    navigate(`/templates/${id}`);
   };
 
   const handleDuplicate = async (id) => {
@@ -78,15 +101,28 @@ export default function WasteTemplates() {
     const template = templates.find(t => t.id === id);
     if (!template) return;
 
-    const { id: _, ...templateData } = template;
+    const templateData = { ...template };
+    delete templateData.id;
+    delete templateData.created_date;
+    delete templateData.updated_date;
+    delete templateData.type;
+    delete templateData.isActive;
+
     const newTemplate = await base44.entities.Template.create({
       ...templateData,
       name: `${template.name} (Copy)`,
+      template_type: 'waste_86',
+      waste_86_subtype: 'waste',
+      is_active: false,
     });
 
     const items = await base44.entities.TemplateItem.filter({ templateId: id });
     for (const item of items) {
-      const { id: __, ...itemData } = item;
+      const itemData = { ...item };
+      delete itemData.id;
+      delete itemData.created_date;
+      delete itemData.updated_date;
+
       await base44.entities.TemplateItem.create({
         ...itemData,
         templateId: newTemplate.id,
@@ -99,7 +135,8 @@ export default function WasteTemplates() {
   const handleArchive = async (id) => {
     haptics.light();
     const template = templates.find(t => t.id === id);
-    await base44.entities.Template.update(id, { isActive: !template.isActive });
+    if (!template) return;
+    await base44.entities.Template.update(id, { is_active: !isTemplateActive(template) });
     loadTemplates();
   };
 
@@ -150,7 +187,7 @@ export default function WasteTemplates() {
       </div>
 
       <button
-        onClick={() => navigate('/waste-templates/new')}
+        onClick={() => navigate('/templates/new', { state: { template_type: 'waste_86', waste_86_subtype: 'waste' } })}
         className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
       >
         <Plus className="h-5 w-5" />

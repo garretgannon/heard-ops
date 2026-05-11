@@ -21,24 +21,27 @@ export default function ReservationForm({ reservation, onSave, onClose }) {
   const save = async () => {
     if (!form.name.trim()) return;
     setSaving(true);
-    if (reservation?.id) {
-      await base44.entities.Reservation.update(reservation.id, form);
-    } else {
-      await base44.entities.Reservation.create(form);
+    try {
+      if (reservation?.id) {
+        await base44.entities.Reservation.update(reservation.id, form);
+      } else {
+        await base44.entities.Reservation.create(form);
+      }
+      haptics.success();
+      onSave();
+    } finally {
+      setSaving(false);
     }
-    haptics.success();
-    setSaving(false);
-    onSave();
   };
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <div className="fixed inset-0 bg-background z-[1100] flex flex-col">
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+        <button type="button" onClick={onClose} disabled={saving} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center disabled:opacity-50">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <h2 className="flex-1 text-sm font-extrabold text-foreground">{reservation ? 'Edit Reservation' : 'New Reservation'}</h2>
-        <button onClick={save} disabled={saving} className="btn-primary text-xs px-4 h-8">{saving ? 'Saving…' : 'Save'}</button>
+        <button type="button" onClick={save} disabled={saving || !form.name.trim()} className="btn-primary text-xs px-4 h-8 disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-10">

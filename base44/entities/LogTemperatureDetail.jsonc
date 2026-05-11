@@ -10,17 +10,28 @@
       "type": "string",
       "title": "Category",
       "enum": [
+        "equipment_check",
+        "cooling_check",
+        "hot_holding",
+        "cold_holding",
         "walk_in_cooler",
         "walk_in_freezer",
         "reach_in_cooler",
         "reach_in_freezer",
         "prep_table_cooler",
         "lowboy_cooler",
-        "hot_holding",
         "ice_machine",
         "dish_machine",
         "other"
       ]
+    },
+    "linkedPrepItemId": {
+      "type": "string",
+      "title": "Linked Prep Item ID"
+    },
+    "linkedEquipmentId": {
+      "type": "string",
+      "title": "Linked Equipment ID"
     },
     "temperatureValue": {
       "type": "number",
@@ -43,13 +54,26 @@
       "type": "number",
       "title": "Safe Maximum"
     },
+    "coolingStage": {
+      "type": "string",
+      "title": "Cooling Stage",
+      "enum": [
+        "start",
+        "two_hour",
+        "six_hour",
+        "ad_hoc"
+      ],
+      "default": "ad_hoc"
+    },
     "passFail": {
       "type": "string",
       "title": "Pass/Fail",
       "enum": [
         "pass",
-        "fail"
-      ]
+        "fail",
+        "pending"
+      ],
+      "default": "pending"
     },
     "correctiveAction": {
       "type": "string",

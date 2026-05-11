@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Cut romaine prep bin">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="76%">
+      <stop offset="0" stop-color="#17291d"/>
+      <stop offset="1" stop-color="#030504"/>
+    </radialGradient>
+    <linearGradient id="bin" x1="25%" x2="75%" y1="10%" y2="100%">
+      <stop offset="0" stop-color="#343b3a"/>
+      <stop offset="1" stop-color="#111515"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="26" stdDeviation="22" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+  <rect width="900" height="600" fill="url(#bg)"/>
+  <ellipse cx="450" cy="494" rx="300" ry="52" fill="#000" opacity="0.48"/>
+  <g filter="url(#shadow)">
+    <path d="M230 225h440l-42 224c-11 58-345 58-356 0z" fill="url(#bin)"/>
+    <ellipse cx="450" cy="225" rx="222" ry="58" fill="#49504e"/>
+    <ellipse cx="450" cy="219" rx="185" ry="38" fill="#111513"/>
+    <g fill="#89b64d">
+      <ellipse cx="345" cy="214" rx="64" ry="22" transform="rotate(-10 345 214)"/>
+      <ellipse cx="418" cy="199" rx="74" ry="24" transform="rotate(13 418 199)"/>
+      <ellipse cx="502" cy="217" rx="78" ry="24" transform="rotate(-9 502 217)"/>
+      <ellipse cx="566" cy="203" rx="59" ry="19" transform="rotate(18 566 203)"/>
+    </g>
+    <g fill="#c1dc72" opacity="0.82">
+      <path d="M300 256c90 36 214 40 306 0"/>
+      <path d="M285 293c106 43 230 44 333 0"/>
+    </g>
+    <rect x="344" y="354" width="212" height="82" rx="14" fill="#070908" opacity="0.74"/>
+    <text x="450" y="390" text-anchor="middle" fill="#fff7ed" font-family="Inter, Arial, sans-serif" font-size="35" font-weight="850">Cut Romaine</text>
+    <text x="450" y="419" text-anchor="middle" fill="#c8beb0" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">6 bins</text>
+  </g>
+  <path d="M0 0h900v600H0z" fill="none" stroke="#e66a1f" stroke-opacity="0.16" stroke-width="2"/>
+</svg>

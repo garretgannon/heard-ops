@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Guacamole prep container">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="78%">
+      <stop offset="0" stop-color="#243321"/>
+      <stop offset="1" stop-color="#040504"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="26" stdDeviation="22" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+  <rect width="900" height="600" fill="url(#bg)"/>
+  <ellipse cx="450" cy="494" rx="285" ry="50" fill="#000" opacity="0.48"/>
+  <g filter="url(#shadow)">
+    <path d="M250 228h400l-34 218c-9 57-323 57-332 0z" fill="#2b302e"/>
+    <ellipse cx="450" cy="227" rx="202" ry="58" fill="#3d4541"/>
+    <ellipse cx="450" cy="222" rx="168" ry="38" fill="#25321f"/>
+    <ellipse cx="450" cy="218" rx="142" ry="28" fill="#8fac4d"/>
+    <g opacity="0.95">
+      <circle cx="386" cy="208" r="10" fill="#d6e283"/>
+      <circle cx="426" cy="229" r="8" fill="#536f34"/>
+      <circle cx="472" cy="206" r="10" fill="#e8d479"/>
+      <circle cx="517" cy="225" r="9" fill="#44622d"/>
+      <path d="M548 185c32 18 36 43 12 62-35-14-45-38-12-62z" fill="#99bf56"/>
+      <path d="M553 199c12 6 14 17 4 25-12-6-15-18-4-25z" fill="#e7dd9a"/>
+    </g>
+    <path d="M310 280c72 39 207 43 281 0l-19 116c-60 40-186 40-245 0z" fill="#95b85a" opacity="0.75"/>
+    <rect x="337" y="354" width="226" height="84" rx="14" fill="#070908" opacity="0.76"/>
+    <text x="450" y="390" text-anchor="middle" fill="#fff7ed" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="850">Guacamole</text>
+    <text x="450" y="419" text-anchor="middle" fill="#c8beb0" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">1 hotel pan</text>
+  </g>
+  <path d="M0 0h900v600H0z" fill="none" stroke="#e66a1f" stroke-opacity="0.16" stroke-width="2"/>
+</svg>

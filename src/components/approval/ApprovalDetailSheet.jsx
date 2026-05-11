@@ -18,6 +18,19 @@ const APPROVAL_TYPES = {
   vendor: 'Vendor/Item Cost Change',
 };
 
+const collectImages = (...values) => {
+  const images = [];
+  values.forEach((value) => {
+    if (typeof value === 'string' && value.trim()) images.push(value);
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (typeof item === 'string' && item.trim()) images.push(item);
+      });
+    }
+  });
+  return [...new Set(images)];
+};
+
 export default function ApprovalDetailSheet({ approval, onApprove, onDeny, onClose }) {
   const [approving, setApproving] = useState(false);
   const [denying, setDenying] = useState(false);
@@ -36,6 +49,17 @@ export default function ApprovalDetailSheet({ approval, onApprove, onDeny, onClo
 
   const submittedAt = approval.created_date ? format(parseISO(approval.created_date), 'MMM d, h:mm a') : 'N/A';
   const submittedBy = approval.created_by || 'Unknown';
+  const images = collectImages(
+    approval.photo_url,
+    approval.photo_urls,
+    approval.completion_photo_url,
+    approval.completion_photo_urls,
+    approval.manager_attachment_urls,
+    approval.completion_attachment_urls,
+    approval.attachment_urls,
+    approval.master_photo_url,
+    approval.image_url
+  );
 
   return (
     <motion.div
@@ -102,12 +126,6 @@ export default function ApprovalDetailSheet({ approval, onApprove, onDeny, onClo
                   <p className="text-sm text-foreground">{approval.completion_notes}</p>
                 </div>
               )}
-              {approval.photo_url && (
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Photo</p>
-                  <img src={approval.photo_url} alt="Prep item" className="w-full rounded-lg" />
-                </div>
-              )}
             </>
           )}
 
@@ -156,6 +174,17 @@ export default function ApprovalDetailSheet({ approval, onApprove, onDeny, onClo
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Summary</p>
               <p className="text-sm text-foreground">{approval.description || approval.title || 'No additional details available'}</p>
+            </div>
+          )}
+
+          {images.length > 0 && (
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Photos</p>
+              <div className="grid grid-cols-2 gap-2">
+                {images.map((src) => (
+                  <img key={src} src={src} alt="Approval attachment" className="aspect-square w-full rounded-lg object-cover" />
+                ))}
+              </div>
             </div>
           )}
         </div>

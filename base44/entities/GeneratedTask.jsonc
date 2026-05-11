@@ -121,6 +121,20 @@
       "type": "string",
       "title": "Task Description / Instructions"
     },
+    "manager_attachment_urls": {
+      "type": "array",
+      "title": "Manager Attachment URLs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "completion_attachment_urls": {
+      "type": "array",
+      "title": "Completion Attachment URLs",
+      "items": {
+        "type": "string"
+      }
+    },
     "duplicate_prevention_key": {
       "type": "string",
       "title": "Duplicate Prevention Key"

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { CheckCircle2, Camera, AlertCircle } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import TaskVisual from '@/components/TaskVisual';
 
 export default function PrepTaskCard({ task, onStatusChange }) {
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,14 @@ export default function PrepTaskCard({ task, onStatusChange }) {
       isCompleted ? 'border-l-green-500 opacity-70' : 'border-l-amber-500'
     }`}>
       <div className="flex items-start justify-between gap-2">
-        <div className="flex-1">
+        <TaskVisual
+          type="prep"
+          name={task.itemName}
+          imageUrl={task.photoUrl || task.masterPhotoUrl || task.imageUrl}
+          compact
+          className="h-12 w-12 shrink-0 rounded-lg border border-border/60"
+        />
+        <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-foreground">{task.itemName}</p>
           <div className="flex items-center gap-2 mt-1 text-[10px] text-secondary-text">
             {task.quantity && <span>{task.quantity} {task.unit}</span>}

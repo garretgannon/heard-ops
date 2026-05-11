@@ -42,6 +42,7 @@ const EMPTY_FORM = {
   photo_required: false,
   manager_review_required: false,
   is_active: true,
+  waste_86_subtype: 'both',
   // temp-specific
   temp_category: 'refrigerator',
   temp_min: '',
@@ -197,6 +198,26 @@ export default function TemplateFormModal({ template, isNew, onClose, onSuccess 
         <input type="text" value={form.assigned_employee || ''} onChange={e => set('assigned_employee', e.target.value)}
           placeholder="Email address" className="input-base" />
       </Section>
+
+      {type === 'waste_86' && (
+        <Section label="Waste / 86 View">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              ['waste', 'Waste'],
+              ['eighty_six', '86'],
+              ['both', 'Both'],
+            ].map(([value, label]) => (
+              <button key={value} type="button"
+                onClick={() => set('waste_86_subtype', value)}
+                className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all ${
+                  form.waste_86_subtype === value ? 'bg-primary/15 text-primary border-primary/30' : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'
+                }`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* ── RECURRENCE ── */}
       <Section label="Recurrence">

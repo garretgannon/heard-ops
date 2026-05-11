@@ -2,11 +2,12 @@ import { useState } from "react";
 import { haptics } from "@/utils/haptics";
 import SwipeableCard from "../SwipeableCard";
 import { base44 } from "@/api/base44Client";
-import { CheckCircle2, Circle, Camera, Clock, AlertCircle, ThumbsUp, ThumbsDown, Loader2, XCircle, ImageIcon } from "lucide-react";
+import { CheckCircle2, Circle, Camera, Clock, ThumbsUp, ThumbsDown, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import TaskVisual from "@/components/TaskVisual";
 
 const priorityStyles = {
   high: "text-red-400 bg-red-400/10 border-red-400/20",
@@ -149,10 +150,18 @@ export default function SideWorkTaskCard({ assignment, currentUser, isManager, o
         </div>
 
         {/* Photo thumbnail */}
-        {assignment.photo_url && (
+        {assignment.photo_url ? (
           <button onClick={() => setPhotoModal(assignment.photo_url)} className="flex-shrink-0">
             <img src={assignment.photo_url} alt="Proof" className="h-12 w-12 rounded-lg object-cover border border-border hover:border-primary transition-colors" />
           </button>
+        ) : (
+          <TaskVisual
+            type="sidework"
+            name={assignment.task_name}
+            step={assignment.description || assignment.role}
+            compact
+            className="h-12 w-12 flex-shrink-0 rounded-lg border border-border/60"
+          />
         )}
       </div>
 

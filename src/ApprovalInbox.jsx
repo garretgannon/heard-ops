@@ -4,23 +4,8 @@ import { toast } from 'sonner';
 import ApprovalCard from '@/components/approval/ApprovalCard';
 import DenialReasonDrawer from '@/components/approval/DenialReasonDrawer';
 import ApprovalDetailSheet from '@/components/approval/ApprovalDetailSheet';
-import ApprovalMetrics from '@/components/approval/ApprovalMetrics';
 import ApprovalFilters from '@/components/approval/ApprovalFilters';
 import InboxZeroState from '@/components/approval/InboxZeroState';
-
-const APPROVAL_TYPES = {
-  prep: { label: 'Prep Review', icon: '🔪', color: 'text-orange-400' },
-  temperature: { label: 'Temperature Alert', icon: '🌡️', color: 'text-blue-400' },
-  maintenance: { label: 'Maintenance', icon: '🔧', color: 'text-yellow-400' },
-  employee: { label: 'Employee Log', icon: '👤', color: 'text-purple-400' },
-  waste: { label: 'Waste/86', icon: '⚠️', color: 'text-red-400' },
-  schedule: { label: 'Schedule Request', icon: '📅', color: 'text-teal-400' },
-  timeoff: { label: 'Request Off', icon: '🏖️', color: 'text-green-400' },
-  trade: { label: 'Shift Trade', icon: '🔄', color: 'text-pink-400' },
-  beo: { label: 'BEO Prep', icon: '🎉', color: 'text-indigo-400' },
-  recipe: { label: 'Recipe Change', icon: '📖', color: 'text-amber-400' },
-  vendor: { label: 'Vendor Update', icon: '💰', color: 'text-cyan-400' },
-};
 
 export default function ApprovalInbox() {
   const [approvals, setApprovals] = useState([]);
@@ -32,7 +17,6 @@ export default function ApprovalInbox() {
   const [detailSheet, setDetailSheet] = useState(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
-  // Fetch approvals from all sources
   useEffect(() => {
     loadApprovals();
   }, []);
@@ -40,12 +24,11 @@ export default function ApprovalInbox() {
   const loadApprovals = async () => {
     setLoading(true);
     try {
-      const [prepItems, tempLogs, maintenanceReqs, timeOffReqs, scheduleReqs] = await Promise.all([
+      const [prepItems, tempLogs, maintenanceReqs, timeOffReqs] = await Promise.all([
         base44.entities.PrepItem.filter({ status: 'pending_review' }).catch(() => []),
         base44.entities.TemperatureLog.filter({ requires_review: true }).catch(() => []),
         base44.entities.MaintenanceRequest.filter({ status: 'pending' }).catch(() => []),
         base44.entities.TimeOffRequest.filter({ status: 'pending' }).catch(() => []),
-        // Add schedule requests, waste logs, shift trades, etc. as needed
       ]);
 
       const all = [
@@ -66,29 +49,31 @@ export default function ApprovalInbox() {
 
   const filteredApprovals = useMemo(() => {
     let result = [...approvals];
-    if (filter !== 'all') result = result.filter(a => a.approval_type === filter || (filter === 'urgent' && a.priority === 'high'));
+    if (filter !== 'all') {
+      result = result.filter(a => a.approval_type === filter || (filter === 'urgent' && a.priority === 'high'));
+    }
     return result;
   }, [approvals, filter]);
 
   const remaining = filteredApprovals.slice(currentIndex);
   const currentApproval = remaining[0];
   const isComplete = remaining.length === 0;
+  const currentPosition = filteredApprovals.length === 0 ? 0 : currentIndex + 1;
 
   const handleApprove = async () => {
     if (!currentApproval) return;
     try {
-      // Update original record
       const updateData = {
         approval_status: 'approved',
-        approved_by: 'current_user', // Replace with actual user
+        approved_by: 'current_user',
         approved_at: new Date().toISOString(),
       };
       await base44.entities[currentApproval.sourceModule].update(currentApproval.sourceId, updateData);
-      
-      setApprovals(a => a.filter((_, i) => i !== currentIndex));
+
+      setApprovals(a => a.filter(item => item.id !== currentApproval.id));
       setProcessedToday(p => p + 1);
       toast.success('Approved');
-      
+
       if (filteredApprovals.slice(currentIndex + 1).length === 0) {
         setShowCelebration(true);
       }
@@ -112,12 +97,12 @@ export default function ApprovalInbox() {
         denial_notes: notes,
       };
       await base44.entities[currentApproval.sourceModule].update(currentApproval.sourceId, updateData);
-      
-      setApprovals(a => a.filter((_, i) => i !== currentIndex));
+
+      setApprovals(a => a.filter(item => item.id !== currentApproval.id));
       setProcessedToday(p => p + 1);
       setDenialDrawer(null);
       toast.success('Denied');
-      
+
       if (filteredApprovals.slice(currentIndex + 1).length === 0) {
         setShowCelebration(true);
       }
@@ -128,8 +113,8 @@ export default function ApprovalInbox() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="app-screen flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent shadow-[0_0_24px_hsl(var(--primary)/0.45)]" />
       </div>
     );
   }
@@ -139,36 +124,44 @@ export default function ApprovalInbox() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Metrics */}
-      <ApprovalMetrics
-        total={filteredApprovals.length}
-        remaining={remaining.length}
-        processedToday={processedToday}
-        urgent={filteredApprovals.filter(a => a.priority === 'high').length}
-        oldest={filteredApprovals.length > 0 ? filteredApprovals[0].created_date : null}
-      />
+    <div className="app-screen">
+      <main className="app-page mx-auto flex min-h-[calc(100vh-150px)] max-w-[520px] flex-col space-y-5">
+        <header className="flex items-end justify-between gap-4 pt-1">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Approvals</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {remaining.length} waiting
+            </p>
+          </div>
+          {filteredApprovals.length > 0 && (
+            <div className="text-right">
+              <p className="text-xs font-black text-foreground">{currentPosition} of {filteredApprovals.length}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Swipe</p>
+            </div>
+          )}
+        </header>
 
-      {/* Filters */}
-      <ApprovalFilters currentFilter={filter} onFilterChange={setFilter} />
+        <ApprovalFilters currentFilter={filter} onFilterChange={setFilter} />
 
-      {/* Main card stack */}
-      <div className="px-4 py-4">
         {remaining.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-sm">No approvals to review</p>
+          <div className="app-card flex-1 py-12 text-center">
+            <div className="status-marker status-marker-lg status-success mx-auto mb-4">0</div>
+            <p className="text-sm font-semibold text-muted-foreground">No approvals to review</p>
           </div>
         ) : (
-          <ApprovalCard
-            approval={currentApproval}
-            onApprove={handleApprove}
-            onDeny={handleDeny}
-            onViewDetails={() => setDetailSheet(currentApproval)}
-          />
+          <div className="flex flex-1 flex-col">
+            <ApprovalCard
+              approval={currentApproval}
+              index={currentPosition}
+              total={filteredApprovals.length}
+              onApprove={handleApprove}
+              onDeny={handleDeny}
+              onViewDetails={() => setDetailSheet(currentApproval)}
+            />
+          </div>
         )}
-      </div>
+      </main>
 
-      {/* Denial Drawer */}
       {denialDrawer && (
         <DenialReasonDrawer
           approval={denialDrawer.approval}
@@ -177,7 +170,6 @@ export default function ApprovalInbox() {
         />
       )}
 
-      {/* Detail Sheet */}
       {detailSheet && (
         <ApprovalDetailSheet
           approval={detailSheet}

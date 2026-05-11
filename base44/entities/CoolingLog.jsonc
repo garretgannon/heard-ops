@@ -2,17 +2,25 @@
   "name": "CoolingLog",
   "type": "object",
   "properties": {
+    "prepItemId": {
+      "type": "string",
+      "title": "Linked Prep Item ID"
+    },
     "foodItem": {
       "type": "string",
-      "title": "Food Item"
+      "title": "Food Item (denormalized)"
     },
     "batchId": {
       "type": "string",
       "title": "Batch / Prep Date"
     },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
     "station": {
       "type": "string",
-      "title": "Station"
+      "title": "Station Name (denormalized)"
     },
     "jobCode": {
       "type": "string",
@@ -39,7 +47,7 @@
     },
     "startTemperature": {
       "type": "number",
-      "title": "Start Temperature (\u00b0F)"
+      "title": "Start Temperature (F)"
     },
     "twoHourCheckTime": {
       "type": "string",
@@ -47,7 +55,7 @@
     },
     "twoHourTemperature": {
       "type": "number",
-      "title": "2-Hour Temperature (\u00b0F)"
+      "title": "2-Hour Temperature (F)"
     },
     "sixHourCheckTime": {
       "type": "string",
@@ -55,7 +63,7 @@
     },
     "sixHourTemperature": {
       "type": "number",
-      "title": "6-Hour Temperature (\u00b0F)"
+      "title": "6-Hour Temperature (F)"
     },
     "status": {
       "type": "string",
@@ -68,15 +76,6 @@
         "failed",
         "corrective_action_required",
         "manager_review_required"
-      ],
-      "enumNames": [
-        "In Progress",
-        "Needs 2-Hour Check",
-        "Needs 6-Hour Check",
-        "Passed",
-        "Failed",
-        "Corrective Action Required",
-        "Manager Review Required"
       ],
       "default": "in_progress"
     },
@@ -100,12 +99,20 @@
       "type": "string",
       "title": "Manager Reviewed At (ISO)"
     },
+    "photo_urls": {
+      "type": "array",
+      "title": "Photo URLs",
+      "items": {
+        "type": "string"
+      }
+    },
     "notes": {
       "type": "string",
       "title": "Notes"
     }
   },
   "required": [
+    "prepItemId",
     "foodItem",
     "date",
     "startTemperature"

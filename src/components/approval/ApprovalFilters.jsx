@@ -14,18 +14,18 @@ const FILTERS = [
 
 export default function ApprovalFilters({ currentFilter, onFilterChange }) {
   return (
-    <div className="px-4 py-3 border-b border-border/20 overflow-x-auto">
-      <div className="flex gap-1.5 pb-1 no-scrollbar">
+    <div className="overflow-x-auto pb-1">
+      <div className="flex gap-2 no-scrollbar">
         {FILTERS.map(filter => (
           <motion.button
             key={filter.id}
             onClick={() => onFilterChange(filter.id)}
             layout
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0',
+              'flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all',
               currentFilter === filter.id
-                ? 'bg-primary text-white'
-                : 'bg-muted border border-border/30 text-muted-foreground hover:bg-secondary'
+                ? 'glow-active'
+                : 'border border-border/40 bg-black/25 text-muted-foreground glow-interactive'
             )}
           >
             <span className="text-sm">{filter.icon}</span>

@@ -14,13 +14,29 @@
       "type": "string",
       "title": "Task Description"
     },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "area_name": {
+      "type": "string",
+      "title": "Area Name (denormalized)"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
     "station": {
       "type": "string",
-      "title": "Station"
+      "title": "Station Name (denormalized)"
+    },
+    "job_code_id": {
+      "type": "string",
+      "title": "Job Code ID"
     },
     "jobCode": {
       "type": "string",
-      "title": "Job Code"
+      "title": "Job Code Name (denormalized)"
     },
     "dueTime": {
       "type": "string",

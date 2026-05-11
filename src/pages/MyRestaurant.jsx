@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import {
-  Building2, MapPin, Users, Wrench, QrCode, LayoutTemplate,
-  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Package, Calendar, Upload, Bell
+  Building2, MapPin, Users, Wrench,
+  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Bell
 } from 'lucide-react';
 import SetupProgressCard from '@/components/myrestaurant/SetupProgressCard';
 import SectionCard from '@/components/myrestaurant/SectionCard';
@@ -989,45 +989,29 @@ export default function MyRestaurant() {
         <SetupProgressCard sections={setupSections} onContinue={s => setModal(s.id)} />
 
         <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Restaurant Setup</p>
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Restaurant Basics</p>
           <div className="space-y-2">
             <SectionCard icon={Building2} title="Restaurant Profile" description="Name, address, concept type, locations" complete={counts.profile > 0} needsSetup={!counts.profile} onClick={() => setModal('profile')} />
+            <SectionCard icon={Building2} title="Operating Info" description="Hours, capacity, licenses, permits, health inspection" onClick={() => setModal('operatingInfo')} />
+            <SectionCard icon={Shield} title="Emergency Contacts" description="Primary, health dept, fire, utilities, plumber" onClick={() => setModal('emergencyContacts')} />
+          </div>
+        </div>
+
+        <div className="mb-5">
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Organization</p>
+          <div className="space-y-2">
             <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
             <SectionCard icon={MapPin} title="Areas" description="Line, prep area, dining room, bar..." count={counts.areas} complete={counts.areas > 0} needsSetup={!counts.areas} onClick={() => setModal('areas')} />
-            <SectionCard icon={Building2} title="Stations" description="Grill, fry, expo, server alley..." count={counts.stations} complete={counts.stations > 0} needsSetup={!counts.stations} onClick={() => setModal('stations')} />
-            <SectionCard icon={MapPin} title="Location Map" description="Area → Station → Equipment hierarchy" complete={counts.stations > 0} onClick={() => navigate('/location-setup')} />
             <SectionCard icon={Users} title="Job Codes" description="Cook, server, bartender, manager..." count={counts.jobCodes} complete={counts.jobCodes > 0} needsSetup={!counts.jobCodes} onClick={() => setModal('jobCodes')} />
+            <SectionCard icon={Users} title="Team Structure" description="People hierarchy and role ownership" onClick={() => navigate('/people')} />
           </div>
         </div>
 
         <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Equipment and Compliance</p>
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Station Systems</p>
           <div className="space-y-2">
-            <SectionCard icon={Wrench} title="Equipment and Assets" description="Dish machine, coolers, fryers, ovens..." count={counts.equipment} complete={counts.equipment > 0} needsSetup={!counts.equipment} onClick={() => setModal('equipment')} />
+            <SectionCard icon={Wrench} title="Stations and Equipment" description="Area → station → equipment setup" count={counts.stations} complete={counts.stations > 0} needsSetup={!counts.stations} onClick={() => navigate('/operational-map')} />
             <SectionCard icon={Thermometer} title="Food Safety Settings" description="Temp targets, PPM ranges, corrective actions" complete={counts.foodSafety > 0} needsSetup={!counts.foodSafety} onClick={() => setModal('foodSafety')} />
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">People</p>
-          <div className="space-y-2">
-            <SectionCard icon={Users} title="Team Directory" description="View and manage your team members" onClick={() => navigate('/team')} />
-            <SectionCard icon={Shield} title="Job Code Assignments" description="Assign job codes to stations" onClick={() => navigate('/job-codes')} />
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Operations</p>
-          <div className="space-y-2">
-            <SectionCard icon={Calendar} title="Schedule Center" description="View and manage employee shifts" onClick={() => navigate('/schedule')} />
-            <SectionCard icon={Upload} title="Schedule Import" description="Bulk import shifts from CSV, Excel, or PDF" onClick={() => navigate('/schedule-import')} />
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Inventory Setup</p>
-          <div className="space-y-2">
-            <SectionCard icon={Package} title="Purchased Items" description="Item master for recipe costing, inventory, vendors, and waste" onClick={() => navigate('/purchased-items')} />
           </div>
         </div>
 
@@ -1035,33 +1019,6 @@ export default function MyRestaurant() {
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Contacts</p>
           <div className="space-y-2">
             <SectionCard icon={Truck} title="Vendor Directory" description="Food vendors, repair contacts, service numbers" count={counts.vendors} complete={counts.vendors > 0} needsSetup={!counts.vendors} onClick={() => setModal('vendors')} />
-            <SectionCard icon={Shield} title="Emergency Contacts" description="Primary, health dept, fire, utilities, plumber" onClick={() => setModal('emergencyContacts')} />
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Operating Information</p>
-          <div className="space-y-2">
-            <SectionCard icon={Building2} title="Operating Info" description="Hours, capacity, licenses, permits, health inspection" onClick={() => setModal('operatingInfo')} />
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">QR Codes</p>
-          <div className="space-y-2">
-            <SectionCard icon={QrCode} title="QR Code Setup" description="Link QR codes to equipment, stations, and logs" count={counts.qrcodes} complete={counts.qrcodes > 0} onClick={() => setModal('qrcodes')} />
-          </div>
-        </div>
-
-        <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Template Setup</p>
-          <div className="space-y-2">
-            <SectionCard icon={LayoutTemplate} title="Prep Templates" description="Create and manage prep list templates" onClick={() => navigate('/prep-templates')} />
-            <SectionCard icon={LayoutTemplate} title="Side Work Templates" description="Create and manage side work templates" onClick={() => navigate('/side-work-templates')} />
-            <SectionCard icon={LayoutTemplate} title="Cleaning Templates" description="Create and manage cleaning checklists" onClick={() => navigate('/cleaning-templates')} />
-            <SectionCard icon={LayoutTemplate} title="Temperature Log Templates" description="Create and manage temp log templates" onClick={() => navigate('/temp-log-templates')} />
-            <SectionCard icon={LayoutTemplate} title="Waste Templates" description="Create and manage waste log templates" onClick={() => navigate('/waste-templates')} />
-            <SectionCard icon={LayoutTemplate} title="86 Templates" description="Create and manage 86 log templates" onClick={() => navigate('/86-templates')} />
           </div>
         </div>
       </div>

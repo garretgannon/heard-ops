@@ -36,7 +36,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/70"
+            className="fixed inset-0 z-[1000] bg-black/70"
             style={{ backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
             onClick={onClose}
           />
@@ -49,7 +49,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 380, mass: 0.9 }}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-50 flex flex-col",
+              "fixed bottom-0 left-0 right-0 z-[1001] flex flex-col",
               "bg-[#0E1520] border-t border-white/[0.07] rounded-t-[24px]",
               "max-h-[90vh]",
               className

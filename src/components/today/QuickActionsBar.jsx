@@ -32,7 +32,7 @@ export default function QuickActionsBar({ role, onAction }) {
             <button
               key={action.id}
               onClick={() => handleTap(action.id)}
-              className="flex flex-col items-center gap-2 p-3 rounded-xl border border-border/40 bg-card hover:border-border/60 transition-all active:scale-95"
+              className="glow-interactive flex flex-col items-center gap-2 p-3 rounded-xl border border-border/40 bg-card transition-all active:scale-95"
             >
               <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
                 <Icon className={cn('h-4 w-4', action.color)} />

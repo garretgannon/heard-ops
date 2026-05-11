@@ -41,8 +41,8 @@ export default function Landing() {
             <a href="#solution" className="hover:text-white transition-colors">Solution</a>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => base44.auth.redirectToLogin()} className="text-sm font-bold text-slate-300 hover:text-white px-3 py-1.5 transition-colors">Sign In</button>
-            <button onClick={() => base44.auth.redirectToLogin()} className="text-sm font-bold bg-[#FF7A1A] text-white px-4 py-1.5 rounded-lg hover:brightness-110 transition-all active:scale-95" style={{ boxShadow: '0 0 16px rgba(255,122,26,0.35)' }}>
+            <button onClick={() => base44.auth.redirectToLogin(window.location.href)} className="text-sm font-bold text-slate-300 hover:text-white px-3 py-1.5 transition-colors">Sign In</button>
+            <button onClick={() => base44.auth.redirectToLogin(window.location.href)} className="text-sm font-bold bg-[#FF7A1A] text-white px-4 py-1.5 rounded-lg hover:brightness-110 transition-all active:scale-95" style={{ boxShadow: '0 0 16px rgba(255,122,26,0.35)' }}>
               Start Free
             </button>
           </div>
@@ -80,13 +80,13 @@ export default function Landing() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-3 mb-12"
         >
-          <button onClick={() => base44.auth.redirectToLogin()}
+          <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
             className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-white transition-all active:scale-95 hover:brightness-110"
             style={{ background: 'linear-gradient(135deg, #FF7A1A, #C94D0A)', boxShadow: '0 0 20px rgba(255,122,26,0.4)' }}
           >
             Start Free
           </button>
-          <button onClick={() => base44.auth.redirectToLogin()}
+          <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
             className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-slate-300 border border-[#243041] hover:border-slate-500 hover:text-white transition-all active:scale-95"
             style={{ background: 'rgba(13,20,29,0.8)' }}
           >
@@ -250,13 +250,13 @@ export default function Landing() {
               Make every shift easier to run.
             </h2>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button onClick={() => base44.auth.redirectToLogin()}
+              <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
                 className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-white transition-all active:scale-95 hover:brightness-110"
                 style={{ background: 'linear-gradient(135deg, #FF7A1A, #C94D0A)', boxShadow: '0 0 20px rgba(255,122,26,0.4)' }}
               >
                 Start Free
               </button>
-              <button onClick={() => base44.auth.redirectToLogin()}
+              <button onClick={() => base44.auth.redirectToLogin(window.location.href)}
                 className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-bold text-base text-slate-300 border border-[#243041] hover:border-slate-500 hover:text-white transition-all active:scale-95"
                 style={{ background: 'rgba(13,20,29,0.8)' }}
               >

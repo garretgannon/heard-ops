@@ -22,10 +22,10 @@ export default function TeamTabNav({ activeTab, onTabChange, canManageRoles }) {
               key={id}
               onClick={() => { haptics.light?.(); onTabChange?.(id); }}
               className={cn(
-                'flex items-center gap-2 px-4 py-3 border-b-2 font-semibold text-sm transition-all whitespace-nowrap',
+                'flex items-center gap-2 px-3 py-2 my-2 rounded-lg border font-semibold text-sm transition-all whitespace-nowrap',
                 isActive
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  ? 'glow-active'
+                  : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
               )}
             >
               <IconComponent className="h-4 w-4" />

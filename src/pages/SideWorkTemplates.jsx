@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Plus, Edit2, Copy, Archive, MoreVertical, Search, Filter } from 'lucide-react';
@@ -80,6 +80,7 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
 
 export default function SideWorkTemplates() {
   const { id: templateIdFromUrl } = useParams();
+  const [searchParams] = useSearchParams();
   const { isAdmin } = useCurrentUser();
   const [templates, setTemplates] = useState([]);
   const [search, setSearch] = useState('');
@@ -98,6 +99,14 @@ export default function SideWorkTemplates() {
     const unsub = base44.entities.SideWorkTemplate.subscribe(() => loadTemplates());
     return () => unsub?.();
   }, []);
+
+  useEffect(() => {
+    const stationFromUrl = searchParams.get('station');
+    if (stationFromUrl) {
+      const station = stations.find(s => s.id === stationFromUrl || s.name === stationFromUrl);
+      setFilterStation(station?.id || stationFromUrl);
+    }
+  }, [searchParams, stations]);
 
   useEffect(() => {
     if (templateIdFromUrl) {
@@ -135,11 +144,12 @@ export default function SideWorkTemplates() {
 
   const filtered = templates.filter(t => {
     const matchDept = !filterDept || t.department === filterDept;
-    const matchStation = !filterStation || t.station === filterStation;
-    const matchJobCode = !filterJobCode || t.jobCode === filterJobCode;
+    const matchStation = !filterStation || t.station_id === filterStation || t.station === filterStation;
+    const matchJobCode = !filterJobCode || t.job_code_id === filterJobCode || t.jobCode === filterJobCode;
     const matchSearch = !search || 
       t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.station.toLowerCase().includes(search.toLowerCase());
+      (t.station || '').toLowerCase().includes(search.toLowerCase()) ||
+      (t.area_name || '').toLowerCase().includes(search.toLowerCase());
     return matchDept && matchStation && matchJobCode && matchSearch;
   });
 
@@ -156,6 +166,7 @@ export default function SideWorkTemplates() {
     delete newTemplate.id;
     delete newTemplate.created_date;
     delete newTemplate.updated_date;
+    delete newTemplate.automation_template_id;
     newTemplate.name = `${template.name} (Copy)`;
     
     const created = await base44.entities.SideWorkTemplate.create(newTemplate);
@@ -222,7 +233,7 @@ export default function SideWorkTemplates() {
             className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
           >
             <option value="">All Stations</option>
-            {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+            {stations.map(s => <option key={s.id} value={s.id}>{s.area_name ? `${s.area_name} / ${s.name}` : s.name}</option>)}
           </select>
           <select
             value={filterJobCode}
@@ -230,7 +241,7 @@ export default function SideWorkTemplates() {
             className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
           >
             <option value="">All Job Codes</option>
-            {jobCodes.map(j => <option key={j.id} value={j.name}>{j.name}</option>)}
+            {jobCodes.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
           </select>
         </div>
       </div>

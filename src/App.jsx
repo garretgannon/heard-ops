@@ -23,6 +23,7 @@ import Landing from './pages/Landing';
 import TodaysCommandCenter from './pages/TodaysCommandCenter';
 import Pulse from './pages/Pulse';
 import StaffTasks from './pages/StaffTasks';
+import StationShift from './pages/StationShift';
 import LogsCenter from './pages/LogsCenter';
 import MyShifts from './pages/MyShifts';
 
@@ -72,6 +73,7 @@ import StationReadiness from './pages/StationReadiness';
 import Stations from './pages/Stations';
 import JobCodes from './pages/JobCodes';
 import OperationalMap from './pages/OperationalMap';
+import LocationSetup from './pages/LocationSetup';
 import PeopleHierarchy from './pages/PeopleHierarchy';
 import SetupJourney from './pages/SetupJourney';
 import AutomationRules from './pages/AutomationRules';
@@ -122,9 +124,9 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Logged-in users: redirect / to /app/overview
+  // Logged-in users: managers land on overview, staff land on station shift.
   if (window.location.pathname === '/') {
-    return <Navigate to="/app/overview" replace />;
+    return <Navigate to={isAdmin ? "/app/overview" : "/station-shift"} replace />;
   }
 
   return (
@@ -136,6 +138,7 @@ const AuthenticatedApp = () => {
         
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/dashboard" element={<AppOverview />} />
+        <Route path="/station-shift" element={<StationShift />} />
         <Route path="/tasks" element={<StaffTasks />} />
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
         <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
@@ -150,11 +153,13 @@ const AuthenticatedApp = () => {
         <Route path="/cleaning-templates" element={<CleaningTemplates />} />
         <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
         <Route path="/my-shifts" element={<MyShifts />} />
+        <Route path="/shift/:id" element={<Shift />} />
 
         {/* COMPLIANCE ROUTES */}
         <Route path="/temp-logs" element={<Navigate to="/logs?type=temperature" replace />} />
         <Route path="/waste-86" element={<Navigate to="/logs?type=waste" replace />} />
         <Route path="/waste-log" element={<Navigate to="/logs?type=waste" replace />} />
+        <Route path="/bathroom-checks" element={<Navigate to="/logs?type=bathroom" replace />} />
 
         {/* ADMIN/MANAGER - Approvals */}
         <Route path="/approvals" element={<ApprovalInbox />} />
@@ -166,6 +171,7 @@ const AuthenticatedApp = () => {
 
         {/* KNOWLEDGE ROUTES */}
         <Route path="/knowledge" element={<Knowledge />} />
+        <Route path="/search" element={<Knowledge />} />
         <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
 
         <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
@@ -185,7 +191,9 @@ const AuthenticatedApp = () => {
         <Route path="/side-work-templates" element={<SideWorkTemplates />} />
         <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
         <Route path="/waste-templates" element={<WasteTemplates />} />
+        <Route path="/waste-templates/:id/edit" element={<WasteTemplates />} />
         <Route path="/86-templates" element={<EightySixTemplates />} />
+        <Route path="/86-templates/:id/edit" element={<EightySixTemplates />} />
 
         {/* OPERATIONS (Secondary) */}
         <Route path="/prep-planning" element={<PrepPlanning />} />
@@ -204,10 +212,12 @@ const AuthenticatedApp = () => {
         <Route path="/admin/command-center" element={<AdminCommandCenter />} />
         <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
         <Route path="/templates" element={<TemplateManager />} />
+        <Route path="/templates/new" element={<TemplateManager />} />
+        <Route path="/templates/:id" element={<TemplateManager />} />
         <Route path="/stations" element={<Stations />} />
         <Route path="/job-codes" element={<JobCodes />} />
         <Route path="/operational-map" element={<OperationalMap />} />
-        <Route path="/location-setup" element={<Navigate to="/operational-map" replace />} />
+        <Route path="/location-setup" element={<LocationSetup />} />
         <Route path="/people" element={<PeopleHierarchy />} />
         <Route path="/setup-journey" element={<SetupJourney />} />
         <Route path="/automation-rules" element={<AutomationRules />} />
@@ -268,7 +278,6 @@ const AuthenticatedApp = () => {
         <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
         <Route path="/86-templates/new" element={<EightySixTemplates />} />
         <Route path="/waste-templates/new" element={<WasteTemplates />} />
-        <Route path="/templates/new" element={<TemplateManager />} />
         <Route path="/kitchen-prep" element={<Navigate to="/tasks?tab=prep" replace />} />
         <Route path="/side-work-production" element={<Navigate to="/tasks?tab=sidework" replace />} />
         <Route path="/manager-log" element={<Navigate to="/logs?type=manager" replace />} />

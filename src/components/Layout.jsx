@@ -104,7 +104,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="app-screen">
       {/* Admin Tools */}
       <AdminSimulationBar />
       <AdminRolePreview />

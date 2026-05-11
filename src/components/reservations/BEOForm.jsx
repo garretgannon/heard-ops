@@ -48,41 +48,44 @@ export default function BEOForm({ beo, onSave, onClose }) {
   const save = async () => {
     if (!form.eventName.trim()) return;
     setSaving(true);
-    let beoId = beo?.id;
-    if (beoId) {
-      await base44.entities.BEO.update(beoId, form);
-    } else {
-      const created = await base44.entities.BEO.create(form);
-      beoId = created.id;
+    try {
+      let beoId = beo?.id;
+      if (beoId) {
+        await base44.entities.BEO.update(beoId, form);
+      } else {
+        const created = await base44.entities.BEO.create(form);
+        beoId = created.id;
+      }
+      // Save sub-entities
+      for (const item of menuItems) {
+        if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOMenuItem.create({ ...d, beoId }); }
+        else if (item._deleted && item.id) { await base44.entities.BEOMenuItem.delete(item.id); }
+        else if (item.id && item._dirty) { const { _dirty, _beo, ...d } = item; await base44.entities.BEOMenuItem.update(item.id, d); }
+      }
+      for (const item of prepItems) {
+        if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOPrepItem.create({ ...d, beoId }); }
+        else if (item._deleted && item.id) { await base44.entities.BEOPrepItem.delete(item.id); }
+        else if (item.id && item._dirty) { const { _dirty, _beo, ...d } = item; await base44.entities.BEOPrepItem.update(item.id, d); }
+      }
+      for (const item of timeline) {
+        if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOTimelineItem.create({ ...d, beoId }); }
+        else if (item._deleted && item.id) { await base44.entities.BEOTimelineItem.delete(item.id); }
+        else if (item.id && item._dirty) { const { _dirty, ...d } = item; await base44.entities.BEOTimelineItem.update(item.id, d); }
+      }
+      for (const item of dietary) {
+        if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEODietaryRestriction.create({ ...d, beoId }); }
+        else if (item._deleted && item.id) { await base44.entities.BEODietaryRestriction.delete(item.id); }
+      }
+      for (const item of equipment) {
+        if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOEquipmentNeed.create({ ...d, beoId }); }
+        else if (item._deleted && item.id) { await base44.entities.BEOEquipmentNeed.delete(item.id); }
+        else if (item.id && item._dirty) { const { _dirty, ...d } = item; await base44.entities.BEOEquipmentNeed.update(item.id, d); }
+      }
+      haptics.success();
+      onSave();
+    } finally {
+      setSaving(false);
     }
-    // Save sub-entities
-    for (const item of menuItems) {
-      if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOMenuItem.create({ ...d, beoId }); }
-      else if (item._deleted && item.id) { await base44.entities.BEOMenuItem.delete(item.id); }
-      else if (item.id && item._dirty) { const { _dirty, _beo, ...d } = item; await base44.entities.BEOMenuItem.update(item.id, d); }
-    }
-    for (const item of prepItems) {
-      if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOPrepItem.create({ ...d, beoId }); }
-      else if (item._deleted && item.id) { await base44.entities.BEOPrepItem.delete(item.id); }
-      else if (item.id && item._dirty) { const { _dirty, _beo, ...d } = item; await base44.entities.BEOPrepItem.update(item.id, d); }
-    }
-    for (const item of timeline) {
-      if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOTimelineItem.create({ ...d, beoId }); }
-      else if (item._deleted && item.id) { await base44.entities.BEOTimelineItem.delete(item.id); }
-      else if (item.id && item._dirty) { const { _dirty, ...d } = item; await base44.entities.BEOTimelineItem.update(item.id, d); }
-    }
-    for (const item of dietary) {
-      if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEODietaryRestriction.create({ ...d, beoId }); }
-      else if (item._deleted && item.id) { await base44.entities.BEODietaryRestriction.delete(item.id); }
-    }
-    for (const item of equipment) {
-      if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOEquipmentNeed.create({ ...d, beoId }); }
-      else if (item._deleted && item.id) { await base44.entities.BEOEquipmentNeed.delete(item.id); }
-      else if (item.id && item._dirty) { const { _dirty, ...d } = item; await base44.entities.BEOEquipmentNeed.update(item.id, d); }
-    }
-    haptics.success();
-    setSaving(false);
-    onSave();
   };
 
   const Input = ({ field, placeholder, type = 'text', half }) => (
@@ -106,13 +109,13 @@ export default function BEOForm({ beo, onSave, onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <div className="fixed inset-0 bg-background z-[1100] flex flex-col">
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+        <button type="button" onClick={onClose} disabled={saving} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center disabled:opacity-50">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <h2 className="flex-1 text-sm font-extrabold text-foreground">{beo ? 'Edit BEO' : 'New BEO'}</h2>
-        <button onClick={save} disabled={saving} className="btn-primary text-xs px-4 h-8">{saving ? 'Saving…' : 'Save'}</button>
+        <button type="button" onClick={save} disabled={saving || !form.eventName.trim()} className="btn-primary text-xs px-4 h-8 disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
       </div>
 
       {/* Sub-tabs */}

@@ -52,7 +52,14 @@
     },
     "photo_url": {
       "type": "string",
-      "title": "Photo URL"
+      "title": "Primary Photo URL"
+    },
+    "photo_urls": {
+      "type": "array",
+      "title": "Photo/File URLs",
+      "items": {
+        "type": "string"
+      }
     },
     "notes": {
       "type": "string",

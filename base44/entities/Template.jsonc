@@ -165,6 +165,21 @@
       "title": "[Temp] Manager Review on Failure",
       "default": false
     },
+    "waste_86_subtype": {
+      "type": "string",
+      "title": "[Waste / 86] Subtype",
+      "enum": [
+        "waste",
+        "eighty_six",
+        "both"
+      ],
+      "enumNames": [
+        "Waste",
+        "86",
+        "Waste / 86"
+      ],
+      "default": "both"
+    },
     "handoff_shift_type": {
       "type": "string",
       "title": "[Handoff] Shift Type"

@@ -6,7 +6,7 @@ export default function DesktopPageHeader({ title, subtitle, actions }) {
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
+    <div className="hidden lg:flex items-center justify-between app-header-band">
       <div>
         <h1 className="text-xl font-extrabold text-foreground">{title}</h1>
         <p className="text-xs text-muted-foreground mt-0.5">{subtitle || dateStr}</p>

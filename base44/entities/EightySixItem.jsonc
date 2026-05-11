@@ -32,13 +32,33 @@
       "type": "string",
       "title": "Expected Return Time"
     },
+    "quantity": {
+      "type": "number",
+      "title": "Quantity"
+    },
+    "unit": {
+      "type": "string",
+      "title": "Unit"
+    },
     "linked_inventory_item_id": {
       "type": "string",
-      "title": "Linked Inventory Item ID"
+      "title": "Legacy Linked Inventory Item ID"
     },
     "linked_recipe_id": {
       "type": "string",
       "title": "Linked Recipe/Menu Item ID"
+    },
+    "linked_recipe_ingredient_id": {
+      "type": "string",
+      "title": "Linked Recipe Ingredient ID"
+    },
+    "linked_prep_item_id": {
+      "type": "string",
+      "title": "Linked Prep Item ID"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
     },
     "notify_roles": {
       "type": "array",
@@ -79,7 +99,14 @@
     },
     "photo_url": {
       "type": "string",
-      "title": "Photo URL"
+      "title": "Primary Photo URL"
+    },
+    "photo_urls": {
+      "type": "array",
+      "title": "Photo URLs",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

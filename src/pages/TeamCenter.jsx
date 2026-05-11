@@ -73,7 +73,7 @@ export default function TeamCenter() {
   }
 
   return (
-    <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
+    <div className="app-screen lg:flex lg:flex-col">
       {/* Header */}
       <TeamCommandHeader
         searchQuery={searchQuery}
@@ -90,7 +90,7 @@ export default function TeamCenter() {
       />
 
       {/* Content */}
-      <div className="flex-1 px-4 py-6 lg:px-8 max-w-4xl mx-auto w-full">
+      <div className="app-page-narrow flex-1">
         {activeTab === 'directory' && (
           <DirectoryView
             employees={filteredEmployees}

@@ -25,16 +25,23 @@
     "allowJs": true
   },
   "include": [
-    "src/components/**/*.js",
+    "src/App.jsx",
+    "src/main.jsx",
+    "src/api/**/*.js",
+    "src/hooks/**/*.js",
+    "src/hooks/**/*.jsx",
+    "src/lib/**/*.js",
+    "src/lib/**/*.jsx",
     "src/pages/**/*.jsx",
-    "src/Layout.jsx"
+    "src/components/**/*.js",
+    "src/components/**/*.jsx",
+    "src/utils/**/*.js",
+    "src/utils/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "src/vite-plugins",
-    "src/components/ui",
-    "src/api",
-    "src/lib"
+    "src/components/ui"
   ]
 }

@@ -1,5 +1,6 @@
-import { ChevronRight, Camera, AlertCircle, Check } from "lucide-react";
+import { Camera, AlertCircle, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import TaskVisual from "@/components/TaskVisual";
 
 export default function SideWorkCard({
   task,
@@ -22,6 +23,14 @@ export default function SideWorkCard({
     <div className={cn("bg-card border border-border rounded-xl p-3 space-y-2")}>
       {/* HEADER ROW */}
       <div className="flex items-start justify-between gap-2">
+        <TaskVisual
+          type="sidework"
+          name={task.task_name}
+          step={task.description || task.role_assignment}
+          imageUrl={task.photo_url}
+          compact
+          className="h-12 w-12 shrink-0 rounded-lg border border-border/60"
+        />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-foreground truncate">{task.task_name}</p>
           <div className="flex flex-wrap items-center gap-1 mt-0.5 text-[10px] text-muted-foreground">

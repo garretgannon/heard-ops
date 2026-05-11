@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Search, Copy, Eye, AlertCircle } from 'lucide-react';
@@ -35,6 +36,9 @@ const TYPE_COLORS = {
 
 export default function TemplateManager() {
   const { isAdmin } = useCurrentUser();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id: routeTemplateId } = useParams();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
@@ -46,6 +50,32 @@ export default function TemplateManager() {
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
   useEffect(() => { loadTemplates(); }, []);
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (location.pathname === '/templates/new') {
+      setSelectedTemplate(location.state || null);
+      setActiveModal('create');
+      return;
+    }
+
+    if (routeTemplateId) {
+      const template = templates.find(t => t.id === routeTemplateId);
+      if (template) {
+        setSelectedTemplate(template);
+        setActiveModal('edit');
+      }
+    }
+  }, [loading, location.pathname, location.state, routeTemplateId, templates]);
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setSelectedTemplate(null);
+    if (location.pathname.startsWith('/templates/')) {
+      navigate('/templates', { replace: true });
+    }
+  };
 
   const loadTemplates = async () => {
     try {
@@ -311,8 +341,8 @@ export default function TemplateManager() {
         <TemplateFormModal
           template={selectedTemplate}
           isNew={activeModal === 'create'}
-          onClose={() => { setActiveModal(null); setSelectedTemplate(null); }}
-          onSuccess={() => { setActiveModal(null); setSelectedTemplate(null); loadTemplates(); }}
+          onClose={closeModal}
+          onSuccess={() => { closeModal(); loadTemplates(); }}
         />
       )}
 

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Temperature approval visual">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="78%">
+      <stop offset="0" stop-color="#143044"/>
+      <stop offset="1" stop-color="#030505"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="28" stdDeviation="24" flood-color="#000" flood-opacity="0.58"/>
+    </filter>
+  </defs>
+  <rect width="900" height="600" fill="url(#bg)"/>
+  <ellipse cx="450" cy="492" rx="250" ry="46" fill="#000" opacity="0.45"/>
+  <g filter="url(#shadow)">
+    <rect x="397" y="126" width="106" height="276" rx="53" fill="#101414" stroke="#ffffff" stroke-opacity="0.1"/>
+    <rect x="431" y="170" width="38" height="178" rx="19" fill="#e66a1f" opacity="0.28"/>
+    <rect x="431" y="256" width="38" height="92" rx="19" fill="#e66a1f"/>
+    <circle cx="450" cy="398" r="70" fill="#101414" stroke="#e66a1f" stroke-opacity="0.45" stroke-width="8"/>
+    <circle cx="450" cy="398" r="42" fill="#e66a1f" opacity="0.82"/>
+    <path d="M535 180h62M535 236h44M535 292h62" stroke="#fff7ed" stroke-opacity="0.35" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <text x="450" y="535" text-anchor="middle" fill="#fff7ed" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="850">Temperature</text>
+</svg>

@@ -1,0 +1,89 @@
+{
+  "name": "ShiftAssignment",
+  "type": "object",
+  "properties": {
+    "shift_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Shift Date"
+    },
+    "shift_type": {
+      "type": "string",
+      "title": "Shift Type",
+      "enum": [
+        "opening",
+        "mid",
+        "closing",
+        "all"
+      ],
+      "default": "all"
+    },
+    "employee_id": {
+      "type": "string",
+      "title": "Employee ID"
+    },
+    "employee_name": {
+      "type": "string",
+      "title": "Employee Name (denormalized)"
+    },
+    "employee_email": {
+      "type": "string",
+      "title": "Employee Email (denormalized)"
+    },
+    "area_id": {
+      "type": "string",
+      "title": "Area ID"
+    },
+    "area_name": {
+      "type": "string",
+      "title": "Area Name (denormalized)"
+    },
+    "station_id": {
+      "type": "string",
+      "title": "Station ID"
+    },
+    "station_name": {
+      "type": "string",
+      "title": "Station Name (denormalized)"
+    },
+    "assignment_type": {
+      "type": "string",
+      "title": "Assignment Type",
+      "enum": [
+        "primary",
+        "support",
+        "coverage",
+        "manager"
+      ],
+      "default": "primary"
+    },
+    "job_code_id": {
+      "type": "string",
+      "title": "Job Code ID"
+    },
+    "job_code_name": {
+      "type": "string",
+      "title": "Job Code Name (denormalized)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "scheduled",
+        "active",
+        "completed",
+        "removed"
+      ],
+      "default": "scheduled"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "shift_date",
+    "employee_id",
+    "assignment_type"
+  ]
+}

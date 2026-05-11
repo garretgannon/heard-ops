@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { X } from 'lucide-react';
+import TaskVisual from '@/components/TaskVisual';
 
 export default function PrepDetailModal({ item, employee, onClose }) {
   return (
@@ -63,9 +63,14 @@ export default function PrepDetailModal({ item, employee, onClose }) {
                   <div key={idx} className="bg-muted/30 rounded border border-border p-2">
                     <p className="text-[10px] font-bold text-primary">Step {step.step_number || idx + 1}</p>
                     <p className="text-xs text-foreground mt-1 leading-relaxed">{step.instruction}</p>
-                    {step.image_url && (
-                      <img src={step.image_url} alt={`step ${idx + 1}`} className="w-full h-20 object-cover rounded mt-2" />
-                    )}
+                    <TaskVisual
+                      type="prep-step"
+                      name={step.instruction}
+                      step={step.instruction}
+                      imageUrl={step.image_url}
+                      compact
+                      className="mt-2 h-20 w-full rounded border border-border/60"
+                    />
                   </div>
                 ))}
               </div>

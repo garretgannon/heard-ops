@@ -132,6 +132,13 @@
       "type": "boolean",
       "title": "Blocks Shift Close",
       "default": false
+    },
+    "photo_urls": {
+      "type": "array",
+      "title": "Photo/File URLs",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

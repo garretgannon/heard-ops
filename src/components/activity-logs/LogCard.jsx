@@ -28,7 +28,7 @@ export default function LogCard({ log, onClick, compact = false }) {
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-bold text-foreground leading-tight truncate">{log.title}</p>
-            <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 leading-none whitespace-nowrap", statusMeta.cls)}>
+            <span className={cn("status-pill shrink-0 whitespace-nowrap", statusMeta.cls)}>
               {statusMeta.label}
             </span>
           </div>
@@ -38,7 +38,7 @@ export default function LogCard({ log, onClick, compact = false }) {
           )}
 
           <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-0.5">
-            <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border leading-none", cfg.badge)}>{cfg.label}</span>
+            <span className={cn("status-pill", cfg.badge)}>{cfg.label}</span>
 
             {(log.priority === "critical" || log.priority === "high") && (
               <span className={cn("text-[10px] font-bold uppercase",

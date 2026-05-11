@@ -5,6 +5,7 @@ import { Plus, Trash2, Camera, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import TaskVisual from "@/components/TaskVisual";
 
 export default function PrepStepsPanel({ itemId, isAdmin }) {
   const [steps, setSteps] = useState([]);
@@ -80,15 +81,25 @@ export default function PrepStepsPanel({ itemId, isAdmin }) {
           {/* Instruction + photo */}
           <div className="flex-1 min-w-0">
             <p className="text-sm leading-relaxed">{step.instruction}</p>
-            {step.photo_url && (
-              <button onClick={() => setPhotoModal(step.photo_url)} className="mt-2 block">
-                <img
-                  src={step.photo_url}
-                  alt={`Step ${idx + 1}`}
-                  className="h-28 w-auto rounded-xl object-cover border border-border hover:border-primary transition-colors"
+            <div className="mt-2">
+              {step.photo_url ? (
+                <button onClick={() => setPhotoModal(step.photo_url)} className="block">
+                  <img
+                    src={step.photo_url}
+                    alt={`Step ${idx + 1}`}
+                    className="h-28 w-auto rounded-xl object-cover border border-border hover:border-primary transition-colors"
+                  />
+                </button>
+              ) : (
+                <TaskVisual
+                  type="prep-step"
+                  name={step.instruction}
+                  step={step.instruction}
+                  compact
+                  className="h-20 w-28 rounded-xl border border-border/60"
                 />
-              </button>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Admin controls */}

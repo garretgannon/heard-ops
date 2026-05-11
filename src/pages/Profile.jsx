@@ -3,6 +3,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Zap, Shield, LogOut, Settings, Trash2, ChevronLeft, ChevronRight, Bell, Users, Lock, Link, Palette, Sliders, Info } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +59,18 @@ export default function Profile() {
     setDeleting(true);
     setShowDeleteConfirm(false);
     await base44.auth.logout();
+  };
+
+  const handleSystemInfoAction = (item) => {
+    haptics.light();
+    if (item === 'Audit Logs') {
+      navigate('/logs');
+    } else if (item === 'Data Export' || item === 'System Status') {
+      navigate('/reports');
+    } else if (item === 'Clear Cache') {
+      sessionStorage.clear();
+      toast.success('Session cache cleared');
+    }
   };
 
   return (
@@ -117,7 +130,7 @@ export default function Profile() {
           </div>
           <div className="grid grid-cols-4 divide-x divide-border/40">
             {['Audit Logs', 'Data Export', 'System Status', 'Clear Cache'].map(item => (
-              <button key={item} onClick={() => {}} className="flex items-center justify-between px-4 py-2 text-xs font-semibold text-foreground hover:text-primary transition-colors active:scale-[0.98]">
+              <button key={item} onClick={() => handleSystemInfoAction(item)} className="flex items-center justify-between px-4 py-2 text-xs font-semibold text-foreground hover:text-primary transition-colors active:scale-[0.98]">
                 <span>{item}</span>
                 <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
               </button>

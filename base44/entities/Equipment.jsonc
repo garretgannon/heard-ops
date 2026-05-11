@@ -151,15 +151,39 @@
       "title": "Requires Cleaning Checklist",
       "default": false
     },
+    "cleaning_template_id": {
+      "type": "string",
+      "title": "Linked Cleaning Template ID"
+    },
+    "cleaning_template_name": {
+      "type": "string",
+      "title": "Linked Cleaning Template Name"
+    },
     "requiresMaintenanceChecklist": {
       "type": "boolean",
       "title": "Requires Maintenance Checklist",
       "default": false
     },
+    "maintenance_template_id": {
+      "type": "string",
+      "title": "Linked Maintenance Template ID"
+    },
+    "maintenance_template_name": {
+      "type": "string",
+      "title": "Linked Maintenance Template Name"
+    },
     "inInventory": {
       "type": "boolean",
       "title": "Tracked in Inventory",
       "default": false
+    },
+    "inventory_item_id": {
+      "type": "string",
+      "title": "Linked Inventory Item ID"
+    },
+    "inventory_item_name": {
+      "type": "string",
+      "title": "Linked Inventory Item Name"
     },
     "hasQRCode": {
       "type": "boolean",

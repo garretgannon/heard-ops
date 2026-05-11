@@ -1,23 +1,35 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Check, ChevronUp, Eye, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import TaskVisual from '@/components/TaskVisual';
 
 const APPROVAL_TYPES = {
-  prep: { label: 'Prep', icon: '🔪', color: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400' },
-  temperature: { label: 'Temp', icon: '🌡️', color: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400' },
-  maintenance: { label: 'Maint', icon: '🔧', color: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400' },
-  employee: { label: 'Staff', icon: '👤', color: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400' },
-  waste: { label: '86', icon: '⚠️', color: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400' },
-  schedule: { label: 'Sched', icon: '📅', color: 'bg-teal-500/10', border: 'border-teal-500/30', text: 'text-teal-400' },
-  timeoff: { label: 'Off', icon: '🏖️', color: 'bg-green-500/10', border: 'border-green-500/30', text: 'text-green-400' },
-  trade: { label: 'Trade', icon: '🔄', color: 'bg-pink-500/10', border: 'border-pink-500/30', text: 'text-pink-400' },
-  beo: { label: 'BEO', icon: '🎉', color: 'bg-indigo-500/10', border: 'border-indigo-500/30', text: 'text-indigo-400' },
-  recipe: { label: 'Recipe', icon: '📖', color: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400' },
-  vendor: { label: 'Vendor', icon: '💰', color: 'bg-cyan-500/10', border: 'border-cyan-500/30', text: 'text-cyan-400' },
+  prep: { label: 'Prep Change', status: 'status-warning', visual: 'prep' },
+  temperature: { label: 'Temperature Alert', status: 'status-info', visual: 'task' },
+  maintenance: { label: 'Maintenance', status: 'status-warning', visual: 'task' },
+  employee: { label: 'Employee Log', status: 'status-info', visual: 'task' },
+  waste: { label: 'Waste / 86', status: 'status-critical', visual: 'task' },
+  schedule: { label: 'Schedule', status: 'status-info', visual: 'task' },
+  timeoff: { label: 'Time Off', status: 'status-success', visual: 'task' },
+  trade: { label: 'Shift Trade', status: 'status-info', visual: 'task' },
+  beo: { label: 'BEO Prep', status: 'status-info', visual: 'prep' },
+  recipe: { label: 'Recipe Change', status: 'status-warning', visual: 'prep' },
+  vendor: { label: 'Vendor Update', status: 'status-info', visual: 'task' },
 };
 
-export default function ApprovalCard({ approval, onApprove, onDeny }) {
+const firstImage = (...values) => {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) return value;
+    if (Array.isArray(value)) {
+      const image = value.find((item) => typeof item === 'string' && item.trim());
+      if (image) return image;
+    }
+  }
+  return '';
+};
+
+export default function ApprovalCard({ approval, index, total, onApprove, onDeny, onViewDetails }) {
   const cardRef = useRef(null);
   const [drag, setDrag] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -39,23 +51,24 @@ export default function ApprovalCard({ approval, onApprove, onDeny }) {
     setIsDragging(false);
   };
 
-  // Generate detail rows based on approval type
   const getDetailRows = () => {
     switch (approval.approval_type) {
       case 'prep':
         return [
           { label: 'Requested by', value: approval.completed_by || 'Unknown' },
-          { label: 'Item', value: approval.name || 'Prep Item' },
+          { label: 'Station', value: approval.station_name || approval.station_id || 'Prep' },
+          { label: 'Quantity', value: `${approval.quantity || 0} ${approval.unit || ''}`.trim() },
         ];
       case 'maintenance':
         return [
           { label: 'Reported by', value: approval.reported_by || 'Unknown' },
           { label: 'Priority', value: approval.priority || 'Medium' },
+          { label: 'Location', value: approval.location || 'Unknown' },
         ];
       case 'timeoff':
         return [
           { label: 'Employee', value: approval.employee_name || 'Unknown' },
-          { label: 'Dates', value: `${approval.start_date} to ${approval.end_date}` },
+          { label: 'Dates', value: `${approval.start_date || 'Start'} to ${approval.end_date || 'End'}` },
         ];
       default:
         return [
@@ -69,40 +82,53 @@ export default function ApprovalCard({ approval, onApprove, onDeny }) {
     switch (approval.approval_type) {
       case 'prep':
         return {
-          icon: '🔪',
           title: approval.name || 'Prep Item',
-          subtitle: approval.station_id || 'Station',
-          amount: `${approval.quantity || 0} ${approval.unit || ''}`,
+          subtitle: 'Prep par or completion review',
+          amount: `${approval.quantity || 0} ${approval.unit || ''}`.trim(),
           badge: approval.priority?.toUpperCase() || 'STANDARD',
+          impact: approval.station_name || approval.station_id || 'Prep station',
         };
       case 'maintenance':
         return {
-          icon: '🔧',
-          title: approval.title || 'Maintenance',
-          subtitle: approval.location || 'Location',
+          title: approval.title || 'Maintenance Request',
+          subtitle: approval.description || 'Maintenance request needs manager decision',
           amount: approval.priority?.toUpperCase() || 'STANDARD',
           badge: 'REQUEST',
+          impact: approval.location || 'Operations',
         };
       case 'timeoff':
         return {
-          icon: '🏖️',
           title: approval.employee_name || 'Time Off',
           subtitle: approval.reason || 'Request',
-          amount: `${approval.start_date}`,
+          amount: approval.start_date || 'Pending dates',
           badge: 'PENDING',
+          impact: 'Schedule coverage',
         };
       default:
         return {
-          icon: type.icon,
           title: type.label,
           subtitle: 'Review needed',
           amount: requestId,
           badge: 'NOW',
+          impact: 'Manager approval',
         };
     }
   };
 
   const content = getMainContent();
+  const statusClass = approval.priority === 'high' ? 'status-critical' : type.status;
+  const imageUrl = firstImage(
+    approval.photo_url,
+    approval.photo_urls,
+    approval.completion_photo_url,
+    approval.completion_photo_urls,
+    approval.manager_attachment_urls,
+    approval.completion_attachment_urls,
+    approval.attachment_urls,
+    approval.master_photo_url,
+    approval.image_url
+  );
+  const visualType = type.visual || 'task';
 
   return (
     <motion.div
@@ -114,83 +140,91 @@ export default function ApprovalCard({ approval, onApprove, onDeny }) {
       onDrag={(_, info) => setDrag(info.offset.x)}
       onDragEnd={handleDragEnd}
       style={{ x: drag }}
-      className="relative"
+      className={cn('relative flex flex-1 flex-col', isDragging && 'cursor-grabbing')}
     >
-      {/* Card */}
-      <div className={cn(
-        'relative bg-gradient-to-b from-card to-card/80 border border-border/50 rounded-3xl shadow-2xl overflow-hidden',
-        isDragging && 'cursor-grabbing'
-      )}>
-        {/* Badge + ID */}
-        <div className="absolute top-4 left-4 flex items-center gap-2">
-          <span className={cn('px-2.5 py-1 rounded-full text-xs font-bold', content.badge === 'NOW' ? 'bg-primary text-white' : 'bg-primary/20 text-primary')}>● {content.badge}</span>
-        </div>
-        <div className="absolute top-4 right-4 text-xs font-bold text-muted-foreground">#{requestId}</div>
-
-        {/* Icon circle (centered) */}
-        <div className="flex justify-center py-8">
-          <div className="h-24 w-24 rounded-full border-2 border-border/30 flex items-center justify-center text-4xl">
-            {content.icon}
-          </div>
-        </div>
-
-        {/* Title & Subtitle */}
-        <div className="text-center px-6 mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-2">{content.subtitle}</h2>
-          <p className="text-2xl font-black text-foreground mb-2">{content.amount}</p>
-          <p className="text-sm text-muted-foreground">{content.title}</p>
-        </div>
-
-        {/* Detail rows */}
-        <div className="px-6 py-4 space-y-3 border-t border-border/20">
-          {getDetailRows().map((row, i) => (
-            <div key={i} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground flex items-center gap-2">
-                <span className="text-base">👤</span>
-                {row.label}
-              </span>
-              <span className="text-foreground font-semibold">{row.value}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Budget status (if applicable) */}
-        {approval.approval_type === 'maintenance' && approval.priority === 'high' && (
-          <div className="px-6 py-3 border-t border-border/20 flex items-center justify-between text-sm">
-            <span className="text-muted-foreground flex items-center gap-2">
-              <span className="text-base">⏱️</span>
-              Budget
+      <div className="app-card flex flex-1 flex-col overflow-hidden p-0 shadow-[0_24px_70px_rgba(0,0,0,0.38)]">
+        <div className="relative h-56 overflow-hidden">
+          <TaskVisual
+            type={visualType}
+            name={content.title}
+            category={type.label}
+            step={`${content.subtitle} ${content.impact}`}
+            imageUrl={imageUrl}
+            className="h-full w-full"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/5" />
+          <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
+            <span className={cn('status-pill bg-black/45 backdrop-blur-sm', statusClass)}>{type.label}</span>
+            <span className="rounded-full bg-black/45 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/80 backdrop-blur-sm">
+              {index} of {total}
             </span>
-            <span className="text-green-400 font-semibold">Within Budget</span>
           </div>
-        )}
-
-        {/* Buttons */}
-        <div className="grid grid-cols-2 gap-3 p-6">
-          <button
-            onClick={onDeny}
-            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-border bg-card/50 text-foreground font-bold text-sm hover:bg-card transition-all active:scale-95"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            REJECT
-          </button>
-          <button
-            onClick={onApprove}
-            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white font-bold text-sm hover:brightness-110 transition-all active:scale-95"
-          >
-            APPROVE
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          <div className="absolute bottom-4 left-4 right-4">
+            <h2 className="text-3xl font-black tracking-tight text-white">{content.title}</h2>
+            <p className="mt-1 text-sm font-semibold text-white/70">{content.subtitle}</p>
+          </div>
         </div>
 
-        {/* Swipe hint */}
-        <div className="text-center py-3 px-4 border-t border-border/20">
-          <p className="text-xs text-muted-foreground tracking-widest uppercase">Swipe left to reject</p>
-          <div className="flex justify-center gap-1.5 mt-2">
-            <div className={cn('h-1.5 w-1.5 rounded-full', drag < -20 ? 'bg-primary' : 'bg-border/40')} />
-            <div className={cn('h-1.5 w-1.5 rounded-full', Math.abs(drag) < 20 ? 'bg-primary' : 'bg-border/40')} />
-            <div className={cn('h-1.5 w-1.5 rounded-full', drag > 20 ? 'bg-primary' : 'bg-border/40')} />
+        <div className="flex flex-1 flex-col p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">Impact</p>
+              <p className="mt-1 text-lg font-black text-foreground">{content.impact}</p>
+            </div>
+            <div className="text-right">
+              <div className={cn('status-marker status-marker-lg ml-auto', statusClass)}>
+                {approval.priority === 'high' ? '!' : 'OK'}
+              </div>
+              <p className="mt-1 max-w-[96px] truncate text-xs font-black text-foreground">{content.amount || content.badge}</p>
+            </div>
           </div>
+
+          <div className="mt-5 space-y-2 rounded-2xl border border-border/40 bg-black/20 p-4">
+            {getDetailRows().map((row) => (
+              <div key={row.label} className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className="truncate font-bold text-foreground">{row.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={onViewDetails}
+            className="mt-4 flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Detail sheet
+            <ChevronUp className="h-3.5 w-3.5" />
+          </button>
+
+          <div className="mt-auto grid grid-cols-2 gap-3 pt-6">
+            <button
+              onClick={onDeny}
+              className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-red-500/35 bg-red-500/10 text-sm font-black text-red-300 transition-all active:scale-[0.98]"
+              aria-label="Send back approval"
+            >
+              <X className="h-4 w-4" />
+              Send Back
+            </button>
+            <button
+              onClick={onApprove}
+              className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-green-500/35 bg-green-500/15 text-sm font-black text-green-300 transition-all active:scale-[0.98]"
+              aria-label="Approve approval"
+            >
+              <Check className="h-4 w-4" />
+              Approve
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-center gap-3">
+        <div className={cn('rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]', drag < -20 ? 'bg-red-500/20 text-red-300' : 'bg-card text-muted-foreground')}>
+          Swipe left
+        </div>
+        <div className={cn('h-2 w-2 rounded-full', Math.abs(drag) < 20 ? 'bg-primary' : 'bg-border/60')} />
+        <div className={cn('rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]', drag > 20 ? 'bg-green-500/20 text-green-300' : 'bg-card text-muted-foreground')}>
+          Swipe right
         </div>
       </div>
     </motion.div>

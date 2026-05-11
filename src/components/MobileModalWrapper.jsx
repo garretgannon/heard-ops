@@ -32,7 +32,7 @@ export default function MobileModalWrapper({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[1100] flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm">
       {/* Click overlay to close */}
       <div
         className="absolute inset-0 lg:hidden"

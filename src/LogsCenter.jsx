@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
@@ -20,6 +21,8 @@ import UnifiedLogForm from '@/components/UnifiedLogForm';
  * Single system for all log types: temperature, maintenance, incidents, waste, cleaning, manager notes, etc.
  */
 export default function LogsCenter() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAdmin } = useCurrentUser();
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState([]);
@@ -34,6 +37,16 @@ export default function LogsCenter() {
   const [showLogDetail, setShowLogDetail] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const isMounted = useRef(true);
+
+  useEffect(() => {
+    const quickAddType = location.state?.quickAddType;
+    if (!quickAddType) return;
+
+    setSelectedLogType(quickAddType);
+    setShowTypeSelector(false);
+    setShowAddModal(true);
+    navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
+  }, [location.pathname, location.search, location.state, navigate]);
 
   // Load logs with permission filtering
   useEffect(() => {
@@ -187,7 +200,7 @@ export default function LogsCenter() {
           <div className="flex-1" />
           <button
             onClick={generateDummyLogs}
-            className="hidden lg:flex h-8 px-3 rounded-lg bg-slate-600 text-white font-bold text-xs hover:bg-slate-700 active:scale-95 transition-all items-center gap-1 flex-shrink-0"
+            className="glow-interactive hidden lg:flex h-8 px-3 rounded-lg border border-border/60 bg-card text-foreground font-bold text-xs active:scale-95 transition-all items-center gap-1 flex-shrink-0"
             title="Generate test logs"
           >
             <Wand2 className="h-3.5 w-3.5" />
@@ -195,7 +208,7 @@ export default function LogsCenter() {
           </button>
           <button
             onClick={() => setShowTypeSelector(true)}
-            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:brightness-110 active:scale-95 transition-all flex items-center gap-1 flex-shrink-0"
+            className="btn-primary h-8 px-3 text-xs flex items-center gap-1 flex-shrink-0"
           >
             <Plus className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">New</span>
@@ -220,8 +233,8 @@ export default function LogsCenter() {
               onClick={() => setShowAdvancedFilters(true)}
               className={`h-8 px-2 rounded-lg border transition-all flex items-center gap-1 text-xs font-semibold ${
                 Object.keys(advancedFilters).length > 0
-                  ? 'bg-primary/15 border-primary/30 text-primary'
-                  : 'bg-card border-border/40 text-muted-foreground hover:border-border/60'
+                  ? 'glow-active'
+                  : 'bg-card border-border/40 text-muted-foreground glow-interactive'
               }`}
             >
               <Settings className="h-3.5 w-3.5" />
@@ -234,7 +247,7 @@ export default function LogsCenter() {
                 onClick={() => { haptics.light?.(); setActiveFilter(chip.id); }}
                 className={cn(
                   'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
-                  activeFilter === chip.id ? 'glow-active' : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60'
+                  activeFilter === chip.id ? 'glow-active' : 'bg-card border border-border/40 text-muted-foreground glow-interactive'
                 )}
               >
                 {chip.label}

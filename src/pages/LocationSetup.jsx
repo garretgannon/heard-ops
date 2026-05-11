@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Plus, Trash2, Edit2, ChevronDown, ChevronRight, MapPin, Layers, Wrench, Check, X } from 'lucide-react';
 
@@ -146,7 +147,7 @@ function EquipmentRow({ item, onDelete, onEdit }) {
   );
 }
 
-function StationBlock({ station, equipment, vendors, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
+function StationBlock({ station, equipment, vendors, highlighted = false, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
   const [expanded, setExpanded] = useState(true);
   const [addingEquip, setAddingEquip] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -154,7 +155,10 @@ function StationBlock({ station, equipment, vendors, onDeleteStation, onEditStat
   const stationEquip = equipment.filter(e => e.station_id === station.id);
 
   return (
-    <div className="ml-6 border-l-2 border-border/40 pl-3 mb-2">
+    <div
+      id={`station-setup-${station.id}`}
+      className={`ml-6 border-l-2 pl-3 mb-2 rounded-r-xl transition-all ${highlighted ? 'border-primary bg-primary/10 py-2 pr-2 ring-1 ring-primary/30' : 'border-border/40'}`}
+    >
       <div className="flex items-center gap-2 group mb-1">
         <button onClick={() => setExpanded(!expanded)} className="text-muted-foreground">
           {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
@@ -201,7 +205,7 @@ function StationBlock({ station, equipment, vendors, onDeleteStation, onEditStat
   );
 }
 
-function AreaBlock({ area, stations, equipment, vendors, onDeleteArea, onEditArea, onAddStation, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
+function AreaBlock({ area, stations, equipment, vendors, selectedStationId, onDeleteArea, onEditArea, onAddStation, onDeleteStation, onEditStation, onAddEquipment, onDeleteEquipment, onEditEquipment }) {
   const [expanded, setExpanded] = useState(true);
   const [addingStation, setAddingStation] = useState(false);
   const [addingEquip, setAddingEquip] = useState(false);
@@ -251,6 +255,7 @@ function AreaBlock({ area, stations, equipment, vendors, onDeleteArea, onEditAre
               station={station}
               equipment={equipment}
               vendors={vendors}
+              highlighted={station.id === selectedStationId}
               onDeleteStation={onDeleteStation}
               onEditStation={onEditStation}
               onAddEquipment={onAddEquipment}
@@ -315,6 +320,8 @@ function AreaBlock({ area, stations, equipment, vendors, onDeleteArea, onEditAre
 }
 
 export default function LocationSetup() {
+  const [searchParams] = useSearchParams();
+  const selectedStationId = searchParams.get('stationId');
   const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
   const [equipment, setEquipment] = useState([]);
@@ -380,6 +387,14 @@ export default function LocationSetup() {
   const deleteEquipment = async (id) => { await base44.entities.Equipment.delete(id); reload(); };
 
   const unassignedEquip = equipment.filter(e => !e.area_id);
+  const selectedStation = selectedStationId ? stations.find(station => station.id === selectedStationId) : null;
+
+  useEffect(() => {
+    if (loading || !selectedStationId) return;
+    requestAnimationFrame(() => {
+      document.getElementById(`station-setup-${selectedStationId}`)?.scrollIntoView({ block: 'center' });
+    });
+  }, [loading, selectedStationId, stations]);
 
   return (
     <div className="pb-28 lg:pb-8">
@@ -387,9 +402,9 @@ export default function LocationSetup() {
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-extrabold text-foreground">Location Setup</h1>
+            <h1 className="text-xl font-extrabold text-foreground">{selectedStation ? `${selectedStation.name} Setup` : 'Location Setup'}</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {areas.length} areas · {stations.length} stations · {equipment.length} equipment
+              {selectedStation ? 'Station, equipment, and checklist setup' : `${areas.length} areas · ${stations.length} stations · ${equipment.length} equipment`}
             </p>
           </div>
           <button onClick={() => setAddingArea(true)} className="btn-primary text-sm flex items-center gap-1.5 px-3 py-2">
@@ -455,6 +470,7 @@ export default function LocationSetup() {
                 stations={stations}
                 equipment={equipment}
                 vendors={vendors}
+                selectedStationId={selectedStationId}
                 onDeleteArea={deleteArea}
                 onEditArea={editArea}
                 onAddStation={addStation}

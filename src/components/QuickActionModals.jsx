@@ -60,15 +60,18 @@ function ManagerLogModal({ isOpen, onClose, onSuccess }) {
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    await base44.entities.ManagerLog.create({
+    await base44.entities.UnifiedLog.create({
+      type: 'manager_note',
       title: title.trim(),
-      shift,
-      category,
-      notes: notes.trim(),
-      logged_by: user?.email,
-      logged_by_name: user?.full_name,
+      description: notes.trim(),
       status: "open",
       priority: "medium",
+      created_by: user?.email,
+      custom_metadata: {
+        shift,
+        category,
+        logged_by_name: user?.full_name,
+      },
     });
     toast("Manager log saved");
     onSuccess?.();

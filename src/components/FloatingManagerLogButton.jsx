@@ -49,15 +49,18 @@ export default function FloatingManagerLogButton() {
     
     setSaving(true);
     try {
-      await base44.entities.ManagerLog.create({
+      await base44.entities.UnifiedLog.create({
+        type: 'manager_note',
         title: form.title,
-        category: form.category,
-        shift: form.shift,
-        notes: form.notes,
+        description: form.notes,
         priority: form.priority,
-        logged_by: user?.email,
-        logged_by_name: user?.full_name,
         status: 'open',
+        created_by: user?.email,
+        custom_metadata: {
+          category: form.category,
+          shift: form.shift,
+          logged_by_name: user?.full_name,
+        },
       });
       toast.success('Log entry added');
       setIsOpen(false);

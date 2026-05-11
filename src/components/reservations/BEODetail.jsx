@@ -86,10 +86,10 @@ export default function BEODetail({ beo, isAdmin, user, onClose, onEdit, onSave 
   };
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <div className="fixed inset-0 bg-background z-[1100] flex flex-col">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0 sticky top-0 z-10">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+        <button type="button" onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="flex-1 min-w-0">

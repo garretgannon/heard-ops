@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Pico de gallo prep pan">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="32%" r="78%">
+      <stop offset="0" stop-color="#2b1b16"/>
+      <stop offset="1" stop-color="#050504"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="26" stdDeviation="20" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+  <rect width="900" height="600" fill="url(#bg)"/>
+  <ellipse cx="450" cy="492" rx="310" ry="52" fill="#000" opacity="0.5"/>
+  <g filter="url(#shadow)">
+    <path d="M180 230h540l-44 215c-10 50-442 50-452 0z" fill="#2b3030"/>
+    <path d="M205 245h490l-31 167c-88 52-337 52-428 0z" fill="#111515"/>
+    <ellipse cx="450" cy="240" rx="270" ry="64" fill="#3b4240"/>
+    <ellipse cx="450" cy="236" rx="238" ry="43" fill="#141817"/>
+    <g>
+      <circle cx="340" cy="218" r="23" fill="#c92c22"/>
+      <circle cx="386" cy="245" r="21" fill="#e04a2c"/>
+      <circle cx="440" cy="217" r="25" fill="#cc3725"/>
+      <circle cx="493" cy="246" r="22" fill="#f05a35"/>
+      <circle cx="548" cy="218" r="25" fill="#c93624"/>
+      <rect x="365" y="202" width="30" height="28" rx="6" fill="#f1eee2"/>
+      <rect x="470" y="205" width="32" height="30" rx="6" fill="#f7f1e6"/>
+      <rect x="528" y="245" width="34" height="24" rx="6" fill="#f4eee2"/>
+      <path d="M317 250c60-50 195-55 266 0" fill="none" stroke="#4b9e4c" stroke-width="16" stroke-linecap="round" stroke-dasharray="18 28"/>
+    </g>
+    <text x="450" y="390" text-anchor="middle" fill="#fff7ed" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="850">Pico de Gallo</text>
+    <text x="450" y="423" text-anchor="middle" fill="#c8beb0" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">2 hotel pans</text>
+  </g>
+  <path d="M0 0h900v600H0z" fill="none" stroke="#e66a1f" stroke-opacity="0.16" stroke-width="2"/>
+</svg>

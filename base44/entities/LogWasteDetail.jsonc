@@ -8,7 +8,7 @@
     },
     "itemName": {
       "type": "string",
-      "title": "Item Name"
+      "title": "Item Name (denormalized)"
     },
     "quantity": {
       "type": "number",
@@ -24,9 +24,13 @@
       "enum": [
         "spoiled",
         "overproduced",
+        "overproduction",
         "burned",
         "dropped",
         "expired",
+        "contaminated",
+        "trimming_prep",
+        "temperature_abuse",
         "guest_return",
         "other"
       ]
@@ -35,13 +39,21 @@
       "type": "number",
       "title": "Estimated Cost ($)"
     },
+    "linkedPrepItemId": {
+      "type": "string",
+      "title": "Linked Prep Item ID"
+    },
+    "linkedPurchasedItemId": {
+      "type": "string",
+      "title": "Linked Purchased Item ID"
+    },
     "linkedInventoryItemId": {
       "type": "string",
-      "title": "Linked Inventory Item ID"
+      "title": "Legacy Linked Inventory Item ID"
     },
     "linkedRecipeId": {
       "type": "string",
-      "title": "Linked Recipe ID"
+      "title": "Legacy Linked Recipe ID"
     }
   },
   "required": [

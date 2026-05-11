@@ -107,8 +107,13 @@ export default function SideWorkTemplateForm({ template, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
     department: 'FOH',
+    area_id: '',
+    area_name: '',
+    station_id: '',
     station: '',
+    job_code_id: '',
     jobCode: '',
+    automation_template_id: '',
     shift: 'all',
     repeatType: 'weekly',
     repeatDays: [1, 2, 3, 4, 5],
@@ -128,8 +133,13 @@ export default function SideWorkTemplateForm({ template, onSave }) {
       setFormData({
         name: template.name,
         department: template.department,
-        station: template.station,
-        jobCode: template.jobCode,
+        area_id: template.area_id || '',
+        area_name: template.area_name || '',
+        station_id: template.station_id || '',
+        station: template.station || '',
+        job_code_id: template.job_code_id || '',
+        jobCode: template.jobCode || '',
+        automation_template_id: template.automation_template_id || '',
         shift: template.shift,
         repeatType: template.repeatType,
         repeatDays: template.repeatDays || [],
@@ -142,6 +152,34 @@ export default function SideWorkTemplateForm({ template, onSave }) {
     }
     loadStationsAndCodes();
   }, [template]);
+
+  useEffect(() => {
+    if (formData.station && !formData.station_id && stations.length) {
+      const station = stations.find(s => s.name === formData.station);
+      if (station) {
+        setFormData(data => ({
+          ...data,
+          area_id: station.area_id || '',
+          area_name: station.area_name || '',
+          station_id: station.id,
+          station: station.name
+        }));
+      }
+    }
+  }, [formData.station, formData.station_id, stations]);
+
+  useEffect(() => {
+    if (formData.jobCode && !formData.job_code_id && jobCodes.length) {
+      const jobCode = jobCodes.find(j => j.name === formData.jobCode);
+      if (jobCode) {
+        setFormData(data => ({
+          ...data,
+          job_code_id: jobCode.id,
+          jobCode: jobCode.name
+        }));
+      }
+    }
+  }, [formData.jobCode, formData.job_code_id, jobCodes]);
 
   const BLANK_ITEM = () => ({ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' });
 
@@ -169,10 +207,44 @@ export default function SideWorkTemplateForm({ template, onSave }) {
     }
   };
 
+  const upsertAutomationForTemplate = async (templateRecord, validItems) => {
+    const proof = ['checkbox'];
+    if (templateRecord.requiresPhoto) proof.push('photo');
+    if (templateRecord.requiresManagerReview) proof.push('manager_approval');
 
+    const automationPayload = {
+      template_name: templateRecord.name,
+      category: templateRecord.shift === 'closing' ? 'closing_checklist' : templateRecord.shift === 'opening' ? 'opening_checklist' : 'station_readiness',
+      description: templateRecord.notes || `${templateRecord.name} sidework automation`,
+      applies_to_area: templateRecord.area_id ? [templateRecord.area_id] : [],
+      applies_to_station: templateRecord.station_id ? [templateRecord.station_id] : [],
+      applies_to_role: templateRecord.job_code_id ? [templateRecord.job_code_id] : [],
+      applies_to_shift_type: templateRecord.shift === 'all' ? ['any'] : [templateRecord.shift],
+      is_active: templateRecord.isActive,
+      required_proof_type: proof,
+      requires_manager_approval: Boolean(templateRecord.requiresManagerReview),
+      recurrence_rule: templateRecord.repeatType === 'once' ? 'once_per_shift' : templateRecord.repeatType,
+      priority: validItems.some((item) => item.priority === 'critical') ? 'critical' : validItems.some((item) => item.priority === 'high') ? 'high' : 'medium',
+      duplicate_prevention_key: `sidework-template:${templateRecord.id}`,
+    };
+
+    if (templateRecord.automation_template_id) {
+      await base44.entities.AutomationTemplate.update(templateRecord.automation_template_id, automationPayload);
+      return templateRecord.automation_template_id;
+    }
+
+    const existing = await base44.entities.AutomationTemplate.filter({ duplicate_prevention_key: automationPayload.duplicate_prevention_key }).catch(() => []);
+    if (existing[0]?.id) {
+      await base44.entities.AutomationTemplate.update(existing[0].id, automationPayload);
+      return existing[0].id;
+    }
+
+    const created = await base44.entities.AutomationTemplate.create(automationPayload);
+    return created.id;
+  };
 
   const handleSaveTemplate = async () => {
-    if (!formData.name.trim() || !formData.station || !formData.jobCode) {
+    if (!formData.name.trim() || !formData.station_id || !formData.job_code_id) {
       alert('Please fill in all required fields');
       return;
     }
@@ -190,36 +262,41 @@ export default function SideWorkTemplateForm({ template, onSave }) {
         itemCount: validItems.length
       };
 
-      if (template) {
-        // Update existing
-        await base44.entities.SideWorkTemplate.update(template.id, payload);
-        
-        // Delete old items and add new ones
+      const saveItems = async (templateId) => {
         const oldItems = await base44.entities.SideWorkTemplateItem.filter({
-          sideWorkTemplateId: template.id
+          sideWorkTemplateId: templateId
         });
         for (const item of oldItems) {
           if (item.id) {
             await base44.entities.SideWorkTemplateItem.delete(item.id);
           }
         }
-        
+
         for (let i = 0; i < validItems.length; i++) {
           await base44.entities.SideWorkTemplateItem.create({
-            sideWorkTemplateId: template.id,
+            sideWorkTemplateId: templateId,
+            area_id: payload.area_id,
+            area_name: payload.area_name,
+            station_id: payload.station_id,
+            station: payload.station,
+            job_code_id: payload.job_code_id,
+            jobCode: payload.jobCode,
             ...validItems[i],
             sortOrder: i
           });
         }
+      };
+
+      if (template) {
+        await base44.entities.SideWorkTemplate.update(template.id, payload);
+        await saveItems(template.id);
+        const automationTemplateId = await upsertAutomationForTemplate({ ...payload, id: template.id }, validItems);
+        await base44.entities.SideWorkTemplate.update(template.id, { automation_template_id: automationTemplateId });
       } else {
         const created = await base44.entities.SideWorkTemplate.create(payload);
-        for (let i = 0; i < validItems.length; i++) {
-          await base44.entities.SideWorkTemplateItem.create({
-            sideWorkTemplateId: created.id,
-            ...validItems[i],
-            sortOrder: i
-          });
-        }
+        await saveItems(created.id);
+        const automationTemplateId = await upsertAutomationForTemplate({ ...payload, id: created.id }, validItems);
+        await base44.entities.SideWorkTemplate.update(created.id, { automation_template_id: automationTemplateId });
       }
 
       haptics.success();
@@ -253,21 +330,37 @@ export default function SideWorkTemplateForm({ template, onSave }) {
         </select>
 
         <select
-          value={formData.station}
-          onChange={(e) => setFormData({ ...formData, station: e.target.value })}
+          value={formData.station_id}
+          onChange={(e) => {
+            const station = stations.find(s => s.id === e.target.value);
+            setFormData({
+              ...formData,
+              area_id: station?.area_id || '',
+              area_name: station?.area_name || '',
+              station_id: station?.id || '',
+              station: station?.name || ''
+            });
+          }}
           className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
         >
           <option value="">Select Station</option>
-          {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+          {stations.map(s => <option key={s.id} value={s.id}>{s.area_name ? `${s.area_name} / ${s.name}` : s.name}</option>)}
         </select>
 
         <select
-          value={formData.jobCode}
-          onChange={(e) => setFormData({ ...formData, jobCode: e.target.value })}
+          value={formData.job_code_id}
+          onChange={(e) => {
+            const jobCode = jobCodes.find(j => j.id === e.target.value);
+            setFormData({
+              ...formData,
+              job_code_id: jobCode?.id || '',
+              jobCode: jobCode?.name || ''
+            });
+          }}
           className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
         >
           <option value="">Select Job Code</option>
-          {jobCodes.map(j => <option key={j.id} value={j.name}>{j.name}</option>)}
+          {jobCodes.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
         </select>
 
         <select

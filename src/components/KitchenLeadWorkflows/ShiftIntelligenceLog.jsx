@@ -18,6 +18,12 @@ const SEVERITY = [
   { label: 'Critical', value: 'critical' },
 ];
 
+const severityToPriority = {
+  info: 'low',
+  warning: 'high',
+  critical: 'critical',
+};
+
 export default function ShiftIntelligenceLog({ isOpen, onClose, onSuccess }) {
   const [issueType, setIssueType] = useState('station');
   const [severity, setSeverity] = useState('warning');
@@ -32,14 +38,22 @@ export default function ShiftIntelligenceLog({ isOpen, onClose, onSuccess }) {
     haptics.medium?.();
     
     try {
-      await base44.entities.ManagerLog.create({
-        type: issueType,
-        severity,
-        note,
-        station,
-        shift_date: new Date().toISOString().split('T')[0],
-        logged_by: 'Kitchen Lead',
-        is_critical: severity === 'critical',
+      const issueLabel = ISSUE_TYPES.find(issue => issue.value === issueType)?.label || 'Shift Issue';
+      await base44.entities.UnifiedLog.create({
+        type: 'incident',
+        title: station ? `${issueLabel} - ${station}` : issueLabel,
+        description: note,
+        location: station,
+        status: 'open',
+        priority: severityToPriority[severity] || 'medium',
+        requires_review: true,
+        created_by: 'Kitchen Lead',
+        custom_metadata: {
+          issue_type: issueType,
+          severity,
+          shift_date: new Date().toISOString().split('T')[0],
+          is_critical: severity === 'critical',
+        },
       });
 
       setNote('');

@@ -11,10 +11,10 @@
     /* HeardOS Pulse Color Palette */
 
     /* Backgrounds */
-    --background: 211 100% 3%;       /* #050A0F Dark */
-    --card: 211 46% 7%;              /* #111821 Card */
-    --surface-raised: 218 33% 9%;    /* #0D141D Navy */
-    --tertiary-bg: 218 33% 9%;
+    --background: 210 100% 1%;       /* #000306 Near black */
+    --card: 210 43% 5%;              /* #070D12 Glass card */
+    --surface-raised: 210 35% 7%;    /* #0B1218 Raised panel */
+    --tertiary-bg: 210 35% 7%;
 
     --card-foreground: 210 40% 98%;  /* #F8FAFC White */
     --popover: 211 46% 7%;
@@ -26,9 +26,9 @@
     --muted-foreground: 215 16% 65%; /* #94A3B8 Muted */
 
     /* Brand Primary — HeardOS Orange */
-    --primary: 25 100% 50%;          /* #FF7A1A Orange */
-    --primary-dark: 19 100% 40%;     /* #C94D0A Orange Deep */
-    --primary-soft: 25 100% 20%;     /* Darker orange */
+    --primary: 22 76% 47%;           /* #D9681D Pulse orange */
+    --primary-dark: 20 78% 35%;      /* Deep pulse orange */
+    --primary-soft: 22 72% 18%;      /* Darker pulse orange */
     --primary-foreground: 0 0% 100%;
 
     /* Secondary / Surface */
@@ -39,13 +39,13 @@
     --muted: 218 33% 9%;
 
     /* Accent */
-    --accent: 25 100% 50%;
+    --accent: 22 76% 47%;
     --accent-foreground: 0 0% 100%;
 
     /* Status Colors */
     --status-success: 142 71% 45%;   /* #22C55E Green */
     --status-warning: 45 97% 55%;    /* #F59E0B Yellow */
-    --status-behind: 25 100% 50%;    /* #FF7A1A Orange */
+    --status-behind: 22 76% 47%;     /* Pulse orange */
     --status-critical: 0 100% 50%;   /* #FF4D4D Red */
     --status-review: 280 85% 65%;    /* #A855F7 Purple */
     --status-info: 217 100% 60%;     /* #3B82F6 Blue */
@@ -54,27 +54,27 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Borders */
-    --border: 218 29% 17%;           /* #243041 Stroke */
-    --input: 218 29% 17%;
-    --ring: 25 100% 50%;             /* Orange focus ring */
+    --border: 207 22% 15%;           /* #1D2830 Fine stroke */
+    --input: 207 22% 15%;
+    --ring: 22 76% 47%;              /* Pulse focus ring */
 
-    --chart-1: 25 100% 50%;
+    --chart-1: 22 76% 47%;
     --chart-2: 142 71% 45%;
     --chart-3: 45 97% 55%;
     --chart-4: 280 85% 65%;
     --chart-5: 217 100% 60%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
     /* Sidebar */
-    --sidebar-background: 211 100% 3%;
+    --sidebar-background: 210 100% 1%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 25 100% 50%;
+    --sidebar-primary: 22 76% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 211 46% 7%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 218 29% 17%;
-    --sidebar-ring: 25 100% 50%;
+    --sidebar-ring: 22 76% 47%;
   }
 
   .dark {
@@ -84,32 +84,32 @@
     --card-foreground: 210 40% 98%;
     --popover: 216 24% 10%;
     --popover-foreground: 210 40% 98%;
-    --primary: 24 78% 51%;
+    --primary: 22 76% 47%;
     --primary-foreground: 0 0% 100%;
     --secondary: 215 22% 14%;
     --secondary-foreground: 210 40% 98%;
     --muted: 215 22% 14%;
     --muted-foreground: 215 16% 65%;
-    --accent: 24 78% 51%;
+    --accent: 22 76% 47%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 21% 20%;
     --input: 214 21% 20%;
-    --ring: 24 78% 51%;
-    --chart-1: 24 78% 51%;
+    --ring: 22 76% 47%;
+    --chart-1: 22 76% 47%;
     --chart-2: 142 71% 45%;
     --chart-3: 48 96% 56%;
     --chart-4: 258 90% 74%;
     --chart-5: 199 89% 60%;
     --sidebar-background: 216 24% 8%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 24 78% 51%;
+    --sidebar-primary: 22 76% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 215 22% 14%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 214 21% 20%;
-    --sidebar-ring: 24 78% 51%;
+    --sidebar-ring: 22 76% 47%;
   }
 }
 
@@ -123,7 +123,9 @@
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: hsl(var(--background));
+    background:
+      radial-gradient(circle at 50% -10%, rgba(230, 106, 31, 0.055), transparent 32rem),
+      hsl(var(--background));
     overscroll-behavior: none;
   }
   body.modal-open {
@@ -224,15 +226,22 @@
 
   /* Buttons - Unified Hierarchy */
   .btn-primary {
-    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:brightness-110;
+    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-150;
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.24), 0 0 14px rgba(230, 106, 31, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+  }
+
+  .btn-primary:hover,
+  .btn-primary:focus-visible {
+    background: rgba(230, 106, 31, 0.16);
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.34), 0 0 18px rgba(230, 106, 31, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
   }
 
   .btn-secondary {
-    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:bg-secondary;
+    @apply rounded-lg border border-border bg-card text-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-150;
   }
 
   .btn-muted {
-    @apply rounded-lg bg-muted text-muted-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-100 hover:bg-muted-foreground/20;
+    @apply rounded-lg border border-border/60 bg-muted text-muted-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-150;
   }
 
   /* Section Spacing */
@@ -262,11 +271,37 @@
     @apply animate-bounce-press cursor-pointer;
   }
 
-  /* ── Orange Glow Active State — use on selected filters, buttons, nav items ── */
-  .glow-active {
-    background: rgba(230, 106, 31, 0.18) !important;
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 18px rgba(230, 106, 31, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
-    color: #FF7A1A !important;
+  /* ── Orange Glow Active State — mirrors the selected desktop nav item ── */
+  .glow-active,
+  [data-state="active"],
+  [data-selected="true"],
+  button[aria-pressed="true"] {
+    background: rgba(230, 106, 31, 0.14) !important;
+    border-color: rgba(230, 106, 31, 0.28) !important;
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.24), 0 0 14px rgba(230, 106, 31, 0.26), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
+    color: #E66A1F !important;
+  }
+
+  .glow-interactive:hover,
+  .glow-interactive:focus-visible,
+  .btn-secondary:hover,
+  .btn-secondary:focus-visible,
+  .btn-muted:hover,
+  .btn-muted:focus-visible {
+    background: rgba(230, 106, 31, 0.075) !important;
+    border-color: rgba(230, 106, 31, 0.22) !important;
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.14), 0 0 10px rgba(230, 106, 31, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.06) !important;
+    color: #E66A1F !important;
+    outline: none;
+  }
+
+  .app-screen button:not(:disabled):hover,
+  .app-screen button:not(:disabled):focus-visible,
+  .app-screen [role="button"]:hover,
+  .app-screen [role="button"]:focus-visible {
+    border-color: rgba(230, 106, 31, 0.22);
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.12), 0 0 10px rgba(230, 106, 31, 0.14), inset 0 1px 2px rgba(255, 255, 255, 0.04);
+    outline: none;
   }
 
   /* Task Completion Animation */
@@ -315,6 +350,145 @@
 
   .animate-pulse-subtle {
     animation: pulse-subtle 2.5s ease-in-out infinite;
+  }
+
+  /* HeardOS screen system */
+  .app-screen {
+    @apply min-h-screen bg-background text-foreground;
+  }
+
+  .app-page {
+    @apply w-full max-w-7xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-8 lg:pb-10;
+  }
+
+  .app-page-narrow {
+    @apply w-full max-w-5xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-8 lg:pb-10;
+  }
+
+  .app-header-band {
+    @apply border-b border-border/40 bg-card/40 px-4 py-5 lg:px-8 lg:py-6;
+  }
+
+  .app-card {
+    @apply rounded-lg border border-border/70 bg-card/90 p-4 shadow-card;
+    background: linear-gradient(180deg, rgba(10, 17, 22, 0.96), rgba(5, 9, 12, 0.96));
+  }
+
+  .app-card-lg {
+    @apply rounded-lg border border-border/70 bg-card/90 p-5 lg:p-6 shadow-card;
+    background: linear-gradient(180deg, rgba(10, 17, 22, 0.96), rgba(5, 9, 12, 0.96));
+  }
+
+  .app-section-title {
+    @apply text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground;
+  }
+
+  .metric-card {
+    @apply rounded-lg border border-border/70 bg-card/90 p-5 shadow-card;
+    background: linear-gradient(180deg, rgba(10, 17, 22, 0.96), rgba(5, 9, 12, 0.96));
+  }
+
+  .metric-label {
+    @apply text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground;
+  }
+
+  .metric-value {
+    @apply text-3xl font-extrabold tracking-tight text-foreground lg:text-4xl;
+  }
+
+  .status-marker {
+    @apply inline-flex shrink-0 items-center justify-center rounded-full border font-extrabold leading-none tabular-nums;
+    background: rgba(255, 255, 255, 0.03);
+    font-size: clamp(0.52rem, 28%, 0.72rem);
+    letter-spacing: -0.01em;
+  }
+
+  .status-marker-sm {
+    @apply inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[8px] font-extrabold leading-none tabular-nums;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .status-marker-md {
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-[9px] font-extrabold leading-none tabular-nums;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .status-marker-lg {
+    @apply inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-[10px] font-extrabold leading-none tabular-nums;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .status-success {
+    @apply border-green-500/50 text-green-400;
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+  }
+
+  .status-warning {
+    @apply border-amber-500/55 text-amber-400;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.24), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+  }
+
+  .status-critical {
+    @apply border-red-500/55 text-red-400;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.24), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+  }
+
+  .status-info {
+    @apply border-primary/55 text-primary;
+    box-shadow: 0 0 14px rgba(230, 106, 31, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+  }
+
+  .status-neutral {
+    @apply border-border text-muted-foreground;
+  }
+
+  .status-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-2 py-1 text-[10px] font-extrabold leading-none text-muted-foreground;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .status-pill::before {
+    content: '';
+    @apply h-2 w-2 rounded-full bg-current;
+  }
+
+  .action-tile {
+    @apply min-h-[92px] rounded-lg border border-border/70 bg-card p-4 flex flex-col items-center justify-center gap-2 text-center transition-all duration-150 active:scale-[0.98];
+  }
+
+  .action-tile:hover,
+  .action-tile:focus-visible {
+    background: rgba(230, 106, 31, 0.075);
+    border-color: rgba(230, 106, 31, 0.22);
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.14), 0 0 10px rgba(230, 106, 31, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+    color: #E66A1F;
+    outline: none;
+  }
+
+  .quick-link {
+    @apply flex items-center justify-center rounded-lg border border-border/70 bg-card px-4 py-2.5 text-xs font-extrabold text-foreground transition-all duration-150 active:scale-[0.98];
+  }
+
+  .quick-link:hover,
+  .quick-link:focus-visible {
+    background: rgba(230, 106, 31, 0.075);
+    border-color: rgba(230, 106, 31, 0.22);
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.14), 0 0 10px rgba(230, 106, 31, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+    color: #E66A1F;
+    outline: none;
+  }
+
+  .quick-link-primary {
+    @apply flex items-center justify-center rounded-lg border border-primary/35 bg-primary/15 px-4 py-2.5 text-xs font-extrabold text-primary transition-all duration-150 active:scale-[0.98];
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.24), 0 0 14px rgba(230, 106, 31, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+  }
+
+  .quick-link-primary:hover,
+  .quick-link-primary:focus-visible {
+    background: rgba(230, 106, 31, 0.16);
+    border-color: rgba(230, 106, 31, 0.34);
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.34), 0 0 18px rgba(230, 106, 31, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    outline: none;
   }
 
   @keyframes accent-line-slide {
