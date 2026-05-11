@@ -95,7 +95,12 @@ const AuthenticatedApp = () => {
 
   useEffect(() => {
     if (!user || !isAdmin) { setOnboardingChecked(true); return; }
-    base44.entities.Settings.filter({ key: 'onboarding_complete' }).then(results => {
+    const settingsEntity = base44.entities?.Settings;
+    if (!settingsEntity?.filter) {
+      setOnboardingChecked(true);
+      return;
+    }
+    settingsEntity.filter({ key: 'onboarding_complete' }).then(results => {
       setOnboardingChecked(true);
     }).catch(() => {
       setOnboardingChecked(true);
