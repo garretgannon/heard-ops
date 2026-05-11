@@ -18,6 +18,23 @@
     "photo_url": {
       "type": "string",
       "title": "Step Photo URL"
+    },
+    "video_url": {
+      "type": "string",
+      "title": "Step Video URL"
+    },
+    "ai_illustration_url": {
+      "type": "string",
+      "title": "AI-Generated Illustration URL"
+    },
+    "annotation_url": {
+      "type": "string",
+      "title": "Annotated Image URL"
+    },
+    "visual_generating": {
+      "type": "boolean",
+      "title": "AI Illustration Generating",
+      "default": false
     }
   },
   "required": [
