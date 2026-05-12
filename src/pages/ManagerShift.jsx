@@ -872,8 +872,56 @@ export default function ManagerShift() {
         </div>
       </div>
 
+      {/* Desktop stage nav — replaces the hidden mobile HUD tabs */}
+      <div className="hidden lg:flex items-center gap-2 px-8 py-3 border-b border-border/20 bg-card/30">
+        <div className="flex gap-1">
+          {STAGE_CONFIG.map(stage => {
+            const Icon = stage.icon;
+            const isActive = activeStage === stage.id;
+            const activeIdx = STAGE_CONFIG.findIndex(s => s.id === activeStage);
+            const isDone = STAGE_CONFIG.findIndex(s => s.id === stage.id) < activeIdx;
+            return (
+              <button
+                key={stage.id}
+                type="button"
+                onClick={() => { haptics.light(); setActiveStage(stage.id); }}
+                className={cn(
+                  'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : isDone
+                      ? 'text-green-400 hover:bg-muted'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                )}
+              >
+                {isDone ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
+                {stage.label}
+              </button>
+            );
+          })}
+        </div>
+        <div className="ml-auto flex items-center gap-3">
+          <span className={cn('text-xs font-bold', totals.critical > 0 ? 'text-red-400' : 'text-muted-foreground')}>
+            {totals.critical} critical
+          </span>
+          <span className={cn('text-xs font-bold', checkedDuties.length === DUTIES.length ? 'text-green-400' : 'text-muted-foreground')}>
+            {checkedDuties.length}/{DUTIES.length} duties
+          </span>
+          <span className={cn('text-xs font-bold', shiftXp > 0 ? 'text-primary' : 'text-muted-foreground')}>
+            {shiftXp} XP
+          </span>
+          <button
+            type="button"
+            onClick={() => load({ quiet: true })}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 hover:bg-muted transition-all"
+          >
+            <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
+          </button>
+        </div>
+      </div>
+
       {/* Stage content */}
-      <div className="mx-auto max-w-3xl px-4 pt-4">
+      <div className="mx-auto max-w-3xl px-4 pt-4 lg:px-8">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
