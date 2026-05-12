@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { base44 } from '@/api/base44Client';
+import { redirectToLogin } from '@/lib/auth-urls';
 import {
   AlertTriangle,
   ArrowRight,
@@ -125,7 +125,7 @@ export default function Landing() {
   const [whoRef, whoIn] = useScrollInView();
   const [ctaRef, ctaIn] = useScrollInView();
 
-  const login = () => base44.auth.redirectToLogin(window.location.href);
+  const login = () => redirectToLogin(window.location.href);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#050A0F] text-white">
