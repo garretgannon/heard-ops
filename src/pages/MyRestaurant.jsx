@@ -992,10 +992,8 @@ export default function MyRestaurant() {
   const setupSections = [
     { id: 'profile', label: 'Restaurant Profile', complete: counts.profile > 0 },
     { id: 'departments', label: 'Departments', complete: counts.depts > 0 },
-    { id: 'areas', label: 'Areas', complete: counts.areas > 0 },
-    { id: 'stations', label: 'Stations', complete: counts.stations > 0 },
     { id: 'jobCodes', label: 'Job Codes', complete: counts.jobCodes > 0 },
-    { id: 'equipment', label: 'Equipment', complete: counts.equipment > 0 },
+    { id: 'layout', label: 'Restaurant Layout', complete: counts.areas > 0 && counts.stations > 0 },
     { id: 'foodSafety', label: 'Food Safety', complete: counts.foodSafety > 0 },
     { id: 'vendors', label: 'Vendors', complete: counts.vendors > 0 },
   ];
@@ -1004,20 +1002,16 @@ export default function MyRestaurant() {
     switch (modal) {
       case 'profile': return <ProfileModal onClose={() => setModal(null)} onSaved={loadCounts} />;
       case 'departments': return <DepartmentModal onClose={() => { setModal(null); loadCounts(); }} />;
-      case 'areas': return <AreaModal onClose={() => { setModal(null); loadCounts(); }} />;
-      case 'stations': return (
-        <CenteredModal title="Stations" onClose={() => setModal(null)}>
-          <p className="text-xs text-muted-foreground mb-3">Manage stations on the dedicated Stations page.</p>
-          <button onClick={() => { setModal(null); navigate('/stations'); }} className="w-full btn-primary text-sm">Go to Stations</button>
-        </CenteredModal>
-      );
+      case 'areas':
+      case 'layout': navigate('/restaurant-layout'); setModal(null); return null;
+      case 'stations': navigate('/restaurant-layout'); setModal(null); return null;
       case 'jobCodes': return (
         <CenteredModal title="Job Codes" onClose={() => setModal(null)}>
           <p className="text-xs text-muted-foreground mb-3">Manage job codes on the dedicated Job Codes page.</p>
           <button onClick={() => { setModal(null); navigate('/job-codes'); }} className="w-full btn-primary text-sm">Go to Job Codes</button>
         </CenteredModal>
       );
-      case 'equipment': return <EquipmentModal onClose={() => { setModal(null); loadCounts(); }} />;
+      case 'equipment': navigate('/restaurant-layout'); setModal(null); return null;
       case 'foodSafety': return <FoodSafetyModal onClose={() => { setModal(null); loadCounts(); }} />;
       case 'vendors': return <VendorModal onClose={() => { setModal(null); loadCounts(); }} />;
       case 'qrcodes': return <QRCodeModal onClose={() => { setModal(null); loadCounts(); }} />;
@@ -1070,30 +1064,20 @@ export default function MyRestaurant() {
           </div>
         </div>
 
-        {/* Locations */}
+        {/* Restaurant Layout */}
         <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Locations</p>
-            <button onClick={() => setModal('areas')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
-          </div>
-          <p className="text-2xl font-extrabold text-foreground">{counts.areas || 0}</p>
-          <p className="text-xs text-muted-foreground">Areas configured</p>
-        </div>
-
-        {/* Equipment */}
-        <div className="card-glass border border-border/60 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Equipment</p>
-            <button onClick={() => setModal('equipment')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Restaurant Layout</p>
+            <button onClick={() => navigate('/restaurant-layout')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
           </div>
           <div className="space-y-1.5">
-            {[{label:'Total Equipment',count:counts.equipment||0},{label:'Stations',count:counts.stations||0}].map(i=>(
+            {[{label:'Areas',count:counts.areas||0},{label:'Stations',count:counts.stations||0},{label:'Equipment',count:counts.equipment||0}].map(i=>(
               <div key={i.label} className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">{i.label}</span><span className="font-bold text-foreground">{i.count}</span>
               </div>
             ))}
           </div>
-          <button onClick={() => setModal('equipment')} className="mt-3 text-[10px] font-bold text-primary hover:underline">View All Equipment →</button>
+          <button onClick={() => navigate('/restaurant-layout')} className="mt-3 text-[10px] font-bold text-primary hover:underline">Open Layout →</button>
         </div>
 
         {/* Food Safety */}
@@ -1161,16 +1145,15 @@ export default function MyRestaurant() {
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Organization</p>
           <div className="space-y-2">
             <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
-            <SectionCard icon={MapPin} title="Areas" description="Line, prep area, dining room, bar..." count={counts.areas} complete={counts.areas > 0} needsSetup={!counts.areas} onClick={() => setModal('areas')} />
             <SectionCard icon={Users} title="Job Codes" description="Cook, server, bartender, manager..." count={counts.jobCodes} complete={counts.jobCodes > 0} needsSetup={!counts.jobCodes} onClick={() => setModal('jobCodes')} />
             <SectionCard icon={Users} title="Team Structure" description="People hierarchy and role ownership" onClick={() => navigate('/people')} />
           </div>
         </div>
 
         <div className="mb-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Station Systems</p>
+          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Physical Layout</p>
           <div className="space-y-2">
-            <SectionCard icon={Wrench} title="Stations and Equipment" description="Area → station → equipment setup" count={counts.stations} complete={counts.stations > 0} needsSetup={!counts.stations} onClick={() => navigate('/operational-map')} />
+            <SectionCard icon={MapPin} title="Restaurant Layout" description="Areas, stations, and equipment hierarchy" count={counts.areas} complete={counts.areas > 0 && counts.stations > 0} needsSetup={!counts.areas} onClick={() => navigate('/restaurant-layout')} />
             <SectionCard icon={Thermometer} title="Food Safety Settings" description="Temp targets, PPM ranges, corrective actions" complete={counts.foodSafety > 0} needsSetup={!counts.foodSafety} onClick={() => setModal('foodSafety')} />
           </div>
         </div>

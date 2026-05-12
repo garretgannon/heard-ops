@@ -71,28 +71,49 @@ export default function ScheduleCenter() {
   // ── Data Loading ──────────────────────────────────────────────────────────
   const loadScheduleData = useCallback(async () => {
     setLoading(true);
-    const [shiftsData, rawEmployees, timeOff, avail] = await Promise.all([
-      base44.entities.StaffShift.list('-created_date', 500).catch(() => []),
-      base44.entities.Employee?.list?.('-created_date', 200).catch(() => []),
-      base44.entities.TimeOffRequest?.list?.('-created_date', 200).catch(() => []),
-      base44.entities.EmployeeAvailability?.list?.().catch(() => []),
-    ]);
-    setShifts(shiftsData);
-    setTimeOffRequests(timeOff);
-    setAvailability(avail);
-    const normalized = (rawEmployees || []).map(e => ({
-      id: e.id,
-      name: e.data?.full_name || e.full_name || e.name || 'Unknown',
-      email: e.data?.email || e.email || '',
-      role: e.data?.primary_role || e.data?.job_code || e.role || '',
-    }));
-    const shiftNames = [...new Set(shiftsData.map(s => s.employee_name).filter(Boolean))];
-    const extra = shiftNames
-      .filter(name => !normalized.find(e => e.name === name))
-      .map((name, i) => ({ id: `shift-emp-${i}`, name, email: shiftsData.find(s => s.employee_name === name)?.employee_email || '', role: shiftsData.find(s => s.employee_name === name)?.role || '' }));
-    const merged = normalized.length > 0 ? [...normalized, ...extra] : [...extra, ...FAKE_EMPLOYEES];
-    setEmployees(merged.slice(0, Math.max(merged.length, extra.length)));
-    setLoading(false);
+    const safeList = (entityName, sortBy, limit) => {
+      const entity = base44.entities[entityName];
+      if (!entity?.list) return Promise.resolve([]);
+      return entity.list(sortBy, limit).catch(() => []);
+    };
+
+    try {
+      const [shiftsData, rawEmployees, timeOff, avail] = await Promise.all([
+        safeList('StaffShift', '-created_date', 500),
+        safeList('Employee', '-created_date', 200),
+        safeList('TimeOffRequest', '-created_date', 200),
+        safeList('EmployeeAvailability'),
+      ]);
+      const safeShifts = Array.isArray(shiftsData) ? shiftsData : [];
+      const safeEmployees = Array.isArray(rawEmployees) ? rawEmployees : [];
+      setShifts(safeShifts);
+      setTimeOffRequests(Array.isArray(timeOff) ? timeOff : []);
+      setAvailability(Array.isArray(avail) ? avail : []);
+      const normalized = safeEmployees.map(e => ({
+        id: e.id,
+        name: e.data?.full_name || e.full_name || e.name || 'Unknown',
+        email: e.data?.email || e.email || '',
+        role: e.data?.primary_role || e.data?.job_code || e.primary_role || e.job_code || e.role || '',
+      }));
+      const shiftNames = [...new Set(safeShifts.map(s => s.employee_name).filter(Boolean))];
+      const extra = shiftNames
+        .filter(name => !normalized.find(e => e.name === name))
+        .map((name, i) => {
+          const matchingShift = safeShifts.find(s => s.employee_name === name);
+          return { id: `shift-emp-${i}`, name, email: matchingShift?.employee_email || '', role: matchingShift?.role || '' };
+        });
+      const merged = normalized.length > 0 ? [...normalized, ...extra] : [...extra, ...FAKE_EMPLOYEES];
+      setEmployees(merged);
+    } catch (error) {
+      console.error('Failed to load schedule data:', error);
+      toast.error('Failed to load schedule');
+      setShifts([]);
+      setEmployees(FAKE_EMPLOYEES);
+      setTimeOffRequests([]);
+      setAvailability([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { loadScheduleData(); }, [currentWeek, loadScheduleData]);

@@ -5,14 +5,13 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-const CATEGORIES = [
-  { id: 'shift_note', label: 'Shift Note', icon: '📝' },
-  { id: 'incident', label: 'Incident', icon: '⚠️' },
-  { id: 'guest_issue', label: 'Guest Issue', icon: '👥' },
-  { id: 'team_note', label: 'Team Note', icon: '👨‍💼' },
-  { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
-  { id: 'waste', label: '86 / Waste', icon: '🗑️' },
-  { id: 'prep_issue', label: 'Prep Issue', icon: '🍳' },
+const MANAGER_LOG_TYPES = [
+  { id: 'sales_notes', label: 'Sales Notes' },
+  { id: 'guest_notes', label: 'Guest Notes' },
+  { id: 'cash_log', label: 'Cash Log' },
+  { id: 'employee_calendar', label: 'Employee Calendar' },
+  { id: 'incident_report', label: 'Incident Report' },
+  { id: 'other', label: 'Other' },
 ];
 
 const SHIFTS = [
@@ -35,13 +34,17 @@ export default function FloatingManagerLogButton() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     title: '',
-    category: 'shift_note',
+    manager_log_type: '',
     shift: 'evening',
     notes: '',
     priority: 'medium',
   });
 
   const handleSubmit = async () => {
+    if (!form.manager_log_type) {
+      toast.error('Select a log type');
+      return;
+    }
     if (!form.title.trim()) {
       toast.error('Enter a title');
       return;
@@ -57,14 +60,14 @@ export default function FloatingManagerLogButton() {
         status: 'open',
         created_by: user?.email,
         custom_metadata: {
-          category: form.category,
+          manager_log_type: form.manager_log_type,
           shift: form.shift,
           logged_by_name: user?.full_name,
         },
       });
       toast.success('Log entry added');
       setIsOpen(false);
-      setForm({ title: '', category: 'shift_note', shift: 'evening', notes: '', priority: 'medium' });
+      setForm({ title: '', manager_log_type: '', shift: 'evening', notes: '', priority: 'medium' });
     } catch (err) {
       toast.error('Failed to save');
     } finally {
@@ -104,6 +107,32 @@ export default function FloatingManagerLogButton() {
 
             {/* Form */}
             <div className="p-4 space-y-4 pb-8">
+              {/* Manager Log Type */}
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase">Log Type *</label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {MANAGER_LOG_TYPES.map(type => (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => setForm({
+                        ...form,
+                        manager_log_type: type.id,
+                        title: form.title || type.label,
+                      })}
+                      className={cn(
+                        'px-3 py-2 rounded-lg border text-xs font-semibold text-left transition-all',
+                        form.manager_log_type === type.id
+                          ? 'bg-primary/15 border-primary text-primary'
+                          : 'bg-background border-border text-muted-foreground hover:border-border/80'
+                      )}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Title */}
               <div>
                 <label className="text-xs font-bold text-muted-foreground uppercase">Title *</label>
@@ -114,28 +143,6 @@ export default function FloatingManagerLogButton() {
                   placeholder="What happened?"
                   className="w-full h-10 px-3 mt-1 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 />
-              </div>
-
-              {/* Category */}
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase">Category *</label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {CATEGORIES.map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setForm({ ...form, category: cat.id })}
-                      className={cn(
-                        'flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-semibold transition-all',
-                        form.category === cat.id
-                          ? 'bg-primary/15 border-primary text-primary'
-                          : 'bg-background border-border text-muted-foreground hover:border-border/80'
-                      )}
-                    >
-                      <span>{cat.icon}</span>
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Shift & Priority Row */}

@@ -64,13 +64,13 @@ const WasteTemplates = lazy(() => import('./pages/WasteTemplates'));
 const EightySixTemplates = lazy(() => import('./pages/86Templates'));
 const StationReadiness = lazy(() => import('./pages/StationReadiness'));
 const Stations = lazy(() => import('./pages/Stations'));
+const RestaurantLayout = lazy(() => import('./pages/RestaurantLayout'));
 const JobCodes = lazy(() => import('./pages/JobCodes'));
 const OperationalMap = lazy(() => import('./pages/OperationalMap'));
 const LocationSetup = lazy(() => import('./pages/LocationSetup'));
 const PeopleHierarchy = lazy(() => import('./pages/PeopleHierarchy'));
 const SetupJourney = lazy(() => import('./pages/SetupJourney'));
 const AutomationRules = lazy(() => import('./pages/AutomationRules'));
-const ShiftHandoff = lazy(() => import('./pages/ShiftHandoff'));
 const ManagerShift = lazy(() => import('./pages/ManagerShift'));
 const AdminRoleSimulator = lazy(() => import('./pages/AdminRoleSimulator'));
 const AdminCommandCenter = lazy(() => import('./pages/AdminCommandCenter'));
@@ -217,7 +217,7 @@ const AuthenticatedApp = () => {
         <Route path="/inventory" element={<PermissionGate permission={PERMISSIONS.VIEW_INVENTORY}><InventorySimplified /></PermissionGate>} />
         <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
         <Route path="/station-readiness" element={<StationReadiness />} />
-        <Route path="/shift-handoff" element={<ShiftHandoff />} />
+        <Route path="/shift-handoff" element={<ManagerShift />} />
 
         {/* ADMIN ROUTES (Under /more) */}
         <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
@@ -227,6 +227,7 @@ const AuthenticatedApp = () => {
         <Route path="/templates/new" element={<TemplateManager />} />
         <Route path="/templates/:id" element={<TemplateManager />} />
         <Route path="/stations" element={<Stations />} />
+        <Route path="/restaurant-layout" element={<RestaurantLayout />} />
         <Route path="/job-codes" element={<JobCodes />} />
         <Route path="/operational-map" element={<OperationalMap />} />
         <Route path="/location-setup" element={<LocationSetup />} />

@@ -19,12 +19,24 @@ const LOG_TYPES = [
   { id: 'custom', label: 'Custom Log' },
 ];
 
+const MANAGER_LOG_TYPES = [
+  { id: 'sales_notes', label: 'Sales Notes' },
+  { id: 'guest_notes', label: 'Guest Notes' },
+  { id: 'cash_log', label: 'Cash Log' },
+  { id: 'employee_calendar', label: 'Employee Calendar' },
+  { id: 'incident_report', label: 'Incident Report' },
+  { id: 'other', label: 'Other' },
+];
+
 const STATUSES = ['open', 'in_progress', 'resolved', 'closed', 'flagged', 'needs_review'];
 const PRIORITIES = ['low', 'medium', 'high', 'critical'];
 
 export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
   const { user } = useCurrentUser();
   const [logType, setLogType] = useState(initialType || 'temperature');
+  const isManagerLog = logType === 'manager_note';
+  const [managerLogType, setManagerLogType] = useState('');
+  const [titleEdited, setTitleEdited] = useState(false);
   const [formData, setFormData] = useState({
     type: initialType || 'temperature',
     title: '',
@@ -40,6 +52,10 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async () => {
+    if (isManagerLog && !managerLogType) {
+      toast.error('Manager log type is required');
+      return;
+    }
     if (!formData.title.trim()) {
       toast.error('Log title is required');
       return;
@@ -51,6 +67,8 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
         ...formData,
         created_by: user?.email,
         type: logType,
+        location: isManagerLog ? '' : formData.location,
+        custom_metadata: isManagerLog ? { manager_log_type: managerLogType } : formData.custom_metadata,
       });
       toast.success(`${LOG_TYPES.find(t => t.id === logType)?.label || 'Log'} recorded`);
       onSuccess?.();
@@ -100,26 +118,58 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
       title={getFormTitle()}
       footer={footer}
     >
-      {/* Type Selection */}
-      <div>
-        <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Log Type</label>
-        <div className="grid grid-cols-2 gap-2">
-          {LOG_TYPES.filter(t => !initialType || t.id === initialType).map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setLogType(t.id); setFormData({ ...formData, type: t.id }); }}
-              className={cn(
-                'p-2 rounded-lg border text-xs font-bold whitespace-nowrap transition-all active:scale-95',
-                logType === t.id
-                  ? 'bg-primary/15 text-primary border-primary/30'
-                  : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
+      {!initialType && (
+        <div>
+          <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Log Type</label>
+          <div className="grid grid-cols-2 gap-2">
+            {LOG_TYPES.map(t => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => { setLogType(t.id); setFormData({ ...formData, type: t.id }); }}
+                className={cn(
+                  'p-2 rounded-lg border text-xs font-bold whitespace-nowrap transition-all active:scale-95',
+                  logType === t.id
+                    ? 'bg-primary/15 text-primary border-primary/30'
+                    : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {isManagerLog && (
+        <div>
+          <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">
+            Manager Log Type <span className="text-red-500">*</span>
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {MANAGER_LOG_TYPES.map(t => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  setManagerLogType(t.id);
+                  if (!titleEdited || !formData.title.trim()) {
+                    setFormData({ ...formData, title: t.label });
+                  }
+                }}
+                className={cn(
+                  'p-2 rounded-lg border text-xs font-bold whitespace-nowrap transition-all active:scale-95',
+                  managerLogType === t.id
+                    ? 'bg-primary/15 text-primary border-primary/30'
+                    : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Title */}
       <div>
@@ -129,7 +179,10 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
         <input
           type="text"
           value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          onChange={(e) => {
+            setTitleEdited(true);
+            setFormData({ ...formData, title: e.target.value });
+          }}
           placeholder="Log entry title"
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary"
         />
@@ -148,17 +201,19 @@ export default function UnifiedLogForm({ initialType, onClose, onSuccess }) {
       </div>
 
       {/* Location & Employee */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Location</label>
-          <input
-            type="text"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            placeholder="e.g., Walk-in cooler"
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+      <div className={cn("grid gap-3", isManagerLog ? "grid-cols-1" : "grid-cols-2")}>
+        {!isManagerLog && (
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Location</label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              placeholder="e.g., Walk-in cooler"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        )}
         <div>
           <label className="text-xs font-bold text-muted-foreground uppercase mb-2 block">Employee</label>
           <input

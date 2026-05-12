@@ -139,6 +139,7 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
         ...payloadValues,
         created_by: user?.email,
         custom_metadata: {
+          manager_log_type: payloadValues.manager_log_type,
           location_id: payloadValues.location_id,
           station_id: payloadValues.station_id,
           station_name: payloadValues.station_name,

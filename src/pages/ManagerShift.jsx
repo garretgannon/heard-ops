@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -60,6 +60,15 @@ const STAGE_CONFIG = [
   { id: "close", label: "Debrief", num: "03", icon: Trophy  },
 ];
 
+function stageFromLocation(location) {
+  if (location.pathname === "/shift-handoff") return "close";
+
+  const stage = new URLSearchParams(location.search).get("stage");
+  if (stage === "debrief" || stage === "handoff" || stage === "close") return "close";
+  if (stage === "ops" || stage === "run") return "run";
+  return "start";
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function todayKey() { return new Date().toISOString().slice(0, 10); }
@@ -82,6 +91,37 @@ function titleFor(item, fallback) {
 
 function safeEntityCall(call) {
   return call?.catch?.(() => []) || Promise.resolve([]);
+}
+
+const DEFAULT_HANDOFF_PROMPTS = [
+  "All sidework and required checklist items are complete or have a documented follow-up.",
+  "All open issues from this shift have a resolution or next action.",
+  "All 86'd items and waste/log notes from this shift have been reviewed.",
+];
+
+function recordDateKey(item) {
+  const value = item?.date || item?.created_date || item?.createdAt || item?.created_at || item?.dateTime || item?.completed_at || item?.completedAt || "";
+  return typeof value === "string" ? value.slice(0, 10) : "";
+}
+
+function isForDate(item, date) {
+  const key = recordDateKey(item);
+  return !key || key === date;
+}
+
+function reviewKey(prefix, item, index) {
+  return `${prefix}:${item?.id || item?.source_entity_id || item?.source_task_id || index}`;
+}
+
+function fieldText(item, fields, fallback = "") {
+  for (const field of fields) {
+    if (item?.[field]) return item[field];
+  }
+  return fallback;
+}
+
+function statusText(item) {
+  return [item?.status, item?.priority, item?.area || item?.station || item?.location].filter(Boolean).join(" • ");
 }
 
 // ─── XP Float ─────────────────────────────────────────────────────────────────
@@ -381,13 +421,15 @@ function ShiftComplete({ shiftXp, checkedDuties, shift, onDismiss }) {
 
 export default function ManagerShift() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useCurrentUser();
   const [loading, setLoading]       = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeStage, setActiveStage] = useState("start");
+  const [activeStage, setActiveStage] = useState(() => stageFromLocation(location));
   const [briefing, setBriefing] = useState({
     handoffs: [], managerLogs: [], eightySix: [],
     waste: [], events: [], issues: [], tasks: [], staff: [],
+    shiftLogs: [], checklists: [], handoffPrompts: [],
   });
   const [preShiftSaved, setPreShiftSaved] = useState(false);
   const [preShiftId, setPreShiftId]       = useState(null);
@@ -397,6 +439,7 @@ export default function ManagerShift() {
   const [acknowledged, setAcknowledged]   = useState(false);
   const [checkedDuties, setCheckedDuties] = useState([]);
   const [handoffNotes, setHandoffNotes]   = useState("");
+  const [debriefReviews, setDebriefReviews] = useState({});
   const [submitting, setSubmitting]       = useState(false);
   const [shiftComplete, setShiftComplete] = useState(false);
 
@@ -413,7 +456,7 @@ export default function ManagerShift() {
   const load = async ({ quiet = false } = {}) => {
     if (quiet) setRefreshing(true); else setLoading(true);
     try {
-      const [handoffs, managerLogs, eightySix, waste, events, issues, tasks, staff, preShifts] = await Promise.all([
+      const [handoffs, managerLogs, eightySix, waste, events, issues, tasks, staff, preShifts, unifiedLogs, logEntries, sideWork, closing, opening, handoffTemplates, templateItems] = await Promise.all([
         safeEntityCall(base44.entities.ShiftHandoff?.list?.("-created_date", 8)),
         safeEntityCall(base44.entities.ManagerLog?.list?.("-created_date", 12)),
         safeEntityCall(base44.entities.EightySixItem?.filter?.({ is_active: true })),
@@ -423,11 +466,35 @@ export default function ManagerShift() {
         safeEntityCall(base44.entities.Task?.list?.("-updated_date", 20)),
         safeEntityCall(base44.entities.StaffShift?.filter?.({ date })),
         safeEntityCall(base44.entities.PreShift?.filter?.({ date, shift: preShiftEntityShift })),
+        safeEntityCall(base44.entities.UnifiedLog?.list?.("-created_date", 80)),
+        safeEntityCall(base44.entities.LogEntry?.list?.("-completed_at", 80)),
+        safeEntityCall(base44.entities.DailySideWorkTask?.filter?.({ date })),
+        safeEntityCall(base44.entities.ClosingChecklist?.filter?.({ date })),
+        safeEntityCall(base44.entities.OpeningChecklist?.filter?.({ date })),
+        safeEntityCall(base44.entities.Template?.filter?.({ template_type: "handoff", is_active: true })),
+        safeEntityCall(base44.entities.TemplateItem?.list?.("sort_order", 120)),
       ]);
 
       const upcomingEvents = events.filter(e => !e.eventDate || e.eventDate >= date).slice(0, 4);
       const activeEightySix = eightySix.slice(0, 4);
       const currentPreShift = preShifts?.[0];
+      const templateIds = new Set(handoffTemplates.map(t => t.id));
+      const customPrompts = templateItems
+        .filter(item => templateIds.has(item.templateId))
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+        .map(item => item.handoff_question || item.title)
+        .filter(Boolean);
+      const incompleteStatuses = new Set(["pending", "in_progress", "pending_review", "overdue", "missed", "blocked"]);
+      const requiredChecklistItems = [
+        ...sideWork.filter(item => incompleteStatuses.has(item.status)),
+        ...closing.filter(item => incompleteStatuses.has(item.status) || item.flagged_for_handoff),
+        ...opening.filter(item => incompleteStatuses.has(item.status)),
+        ...tasks.filter(item => item.is_required_for_close && !["completed", "approved"].includes(item.status)),
+      ];
+      const shiftLogs = [
+        ...unifiedLogs.filter(log => isForDate(log, date) && log.type !== "shift_handoff"),
+        ...logEntries.filter(log => isForDate(log, date)),
+      ].slice(0, 20);
 
       setBriefing({
         handoffs: handoffs.slice(0, 3),
@@ -438,6 +505,9 @@ export default function ManagerShift() {
         issues: issues.slice(0, 4),
         tasks: tasks.filter(t => !["complete", "approved"].includes(t.status)).slice(0, 6),
         staff: staff.slice(0, 60),
+        shiftLogs,
+        checklists: requiredChecklistItems.slice(0, 20),
+        handoffPrompts: customPrompts.length ? customPrompts : DEFAULT_HANDOFF_PROMPTS,
       });
       setPreShiftSaved(Boolean(currentPreShift));
       setPreShiftId(currentPreShift?.id || null);
@@ -460,12 +530,77 @@ export default function ManagerShift() {
   };
 
   useEffect(() => { load(); }, [ackKey]);
+  useEffect(() => {
+    setActiveStage(stageFromLocation(location));
+  }, [location.pathname, location.search]);
 
   const totals = useMemo(() => {
     const critical = briefing.issues.length + briefing.eightySix.length;
-    const followUps = briefing.managerLogs.length + briefing.tasks.length;
+    const followUps = briefing.managerLogs.length + briefing.tasks.length + briefing.checklists.length;
     return { critical, followUps };
   }, [briefing]);
+
+  const debriefItems = useMemo(() => {
+    const items = [];
+
+    briefing.checklists.forEach((item, index) => {
+      items.push({
+        key: reviewKey("checklist", item, index),
+        group: "Sidework / Checklist",
+        title: fieldText(item, ["taskName", "task_name", "title"], "Checklist item"),
+        meta: statusText(item) || "Required before shift close",
+        requiresNote: true,
+      });
+    });
+
+    briefing.issues.forEach((item, index) => {
+      items.push({
+        key: reviewKey("issue", item, index),
+        group: "Issues",
+        title: fieldText(item, ["title", "description"], "Open issue"),
+        meta: statusText(item),
+        requiresNote: true,
+      });
+    });
+
+    briefing.eightySix.forEach((item, index) => {
+      items.push({
+        key: reviewKey("86", item, index),
+        group: "86'd Items",
+        title: fieldText(item, ["item_name", "title", "name"], "86'd item"),
+        meta: fieldText(item, ["category", "notes", "reason"], "Active 86 item"),
+        requiresNote: false,
+      });
+    });
+
+    briefing.shiftLogs.forEach((item, index) => {
+      items.push({
+        key: reviewKey("log", item, index),
+        group: "Logs Created This Shift",
+        title: fieldText(item, ["title", "log_type", "type"], "Shift log"),
+        meta: fieldText(item, ["description", "notes", "corrective_action"], statusText(item)),
+        requiresNote: item.status === "open" || item.status === "flagged" || item.pass_fail_status === "fail",
+      });
+    });
+
+    return items;
+  }, [briefing]);
+
+  const debriefCompleteCount = debriefItems.filter(item => {
+    const review = debriefReviews[item.key];
+    return review?.status && (!review.requiresNote || review.note?.trim());
+  }).length;
+
+  const updateDebriefReview = (key, updates) => {
+    setDebriefReviews(prev => ({
+      ...prev,
+      [key]: {
+        requiresNote: prev[key]?.requiresNote || updates.requiresNote || false,
+        ...prev[key],
+        ...updates,
+      },
+    }));
+  };
 
   const addXp = (amount) => {
     setShiftXp(prev => prev + amount);
@@ -564,20 +699,49 @@ export default function ManagerShift() {
       toast.error("Add handoff notes for the next manager");
       return;
     }
+    const incompleteReview = debriefItems.find(item => {
+      const review = debriefReviews[item.key];
+      return !review?.status || ((item.requiresNote || review.status !== "no_follow_up") && !review.note?.trim());
+    });
+    if (incompleteReview) {
+      haptics.warning();
+      toast.error(`Resolve or clear follow-up for: ${incompleteReview.title}`);
+      return;
+    }
     haptics.medium();
     setSubmitting(true);
     try {
+      const reviewSummary = debriefItems.map(item => {
+        const review = debriefReviews[item.key];
+        const status = review?.status === "follow_up" ? "Follow-up needed" : "No follow-up needed";
+        return `${item.group}: ${item.title} — ${status}${review?.note ? ` (${review.note})` : ""}`;
+      });
+      const followUpItems = debriefItems.filter(item => debriefReviews[item.key]?.status === "follow_up");
+
       await base44.entities.ShiftHandoff?.create?.({
         date, shift,
         logged_by: user?.email || user?.full_name || "Manager",
         department: "All",
         urgency: totals.critical > 0 ? "high" : "medium",
-        notes_for_next_manager: handoffNotes,
+        notes_for_next_manager: [handoffNotes, reviewSummary.join("\n")].filter(Boolean).join("\n\nDebrief review:\n"),
         items_86d: briefing.eightySix.map(i => i.item_name).join(", "),
-        maintenance_problems: briefing.issues.map(i => i.title).join("; "),
+        maintenance_problems: followUpItems.map(i => i.title).join("; "),
+        prep_concerns: briefing.checklists.map(i => fieldText(i, ["taskName", "task_name", "title"], "Checklist item")).join("; "),
         reservations_to_watch: briefing.events.map(e => e.eventName).join("; "),
         tags: ["FOH", "BOH", "Prep"],
+        resolved_items: debriefItems.filter(item => debriefReviews[item.key]?.status === "no_follow_up").map(item => item.key),
       });
+      await base44.entities.UnifiedLog?.create?.({
+        type: "shift_handoff",
+        title: `${meta.label} handoff`,
+        description: handoffNotes,
+        status: followUpItems.length ? "open" : "resolved",
+        priority: followUpItems.length ? "high" : "medium",
+        visibility: "team_log",
+        follow_up_required: followUpItems.length > 0,
+        created_by: user?.email,
+        custom_metadata: { shift, date, reviewSummary },
+      }).catch(() => null);
       addXp(50);
       haptics.strong();
       setShiftComplete(true);
@@ -591,6 +755,7 @@ export default function ManagerShift() {
   const handleDismissComplete = () => {
     setShiftComplete(false);
     setHandoffNotes("");
+    setDebriefReviews({});
     setActiveStage("start");
     setShiftXp(0);
     setCheckedDuties([]);
@@ -973,15 +1138,109 @@ export default function ManagerShift() {
                   style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
                 >
                   {[
-                    { label: "XP Earned", value: shiftXp,                  color: shiftXp > 0 ? "text-primary" : "text-muted-foreground" },
-                    { label: "Duties",    value: `${checkedDuties.length}/${DUTIES.length}`, color: dutiesPct === 100 ? "text-green-400" : "text-foreground" },
-                    { label: "Critical",  value: totals.critical,           color: totals.critical > 0 ? "text-red-400" : "text-green-400" },
+                    { label: "Required", value: debriefItems.length, color: debriefItems.length > 0 ? "text-primary" : "text-green-400" },
+                    { label: "Reviewed", value: `${debriefCompleteCount}/${debriefItems.length}`, color: debriefCompleteCount === debriefItems.length ? "text-green-400" : "text-foreground" },
+                    { label: "Follow-Ups", value: debriefItems.filter(item => debriefReviews[item.key]?.status === "follow_up").length, color: "text-amber-400" },
                   ].map(({ label, value, color }) => (
                     <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-3 text-center">
                       <p className={cn("text-2xl font-black", color)}>{value}</p>
                       <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
                     </div>
                   ))}
+                </div>
+
+                {/* Required confirmations */}
+                <div
+                  className="overflow-hidden rounded-2xl border border-border/40"
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
+                    <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-black text-foreground">Required Close Review</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">Every checklist, sidework item, issue, 86 item, and shift log needs a resolution or no-follow-up confirmation.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 border-t border-border/30 px-4 py-4">
+                    {debriefItems.length === 0 ? (
+                      <div className="rounded-xl border border-green-500/25 bg-green-500/6 px-3 py-3">
+                        <p className="text-sm font-black text-green-400">No required follow-up items found.</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">Add closing notes below before completing the shift.</p>
+                      </div>
+                    ) : (
+                      debriefItems.map(item => {
+                        const review = debriefReviews[item.key] || {};
+                        const needsNote = item.requiresNote || review.status === "follow_up";
+                        return (
+                          <div key={item.key} className="rounded-xl border border-border/40 bg-black/20 p-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">{item.group}</p>
+                                <p className="mt-1 text-sm font-black text-foreground">{item.title}</p>
+                                {item.meta && <p className="mt-0.5 text-xs text-muted-foreground">{item.meta}</p>}
+                              </div>
+                              {review.status && (
+                                <CheckCircle2 className={cn("h-4 w-4 shrink-0", review.status === "follow_up" ? "text-amber-400" : "text-green-400")} />
+                              )}
+                            </div>
+                            <div className="mt-3 grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => updateDebriefReview(item.key, { status: "no_follow_up", requiresNote: item.requiresNote })}
+                                className={cn(
+                                  "rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                                  review.status === "no_follow_up" ? "border-green-500/40 bg-green-500/12 text-green-400" : "border-border/40 text-muted-foreground"
+                                )}
+                              >
+                                No Follow-Up
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateDebriefReview(item.key, { status: "follow_up", requiresNote: true })}
+                                className={cn(
+                                  "rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                                  review.status === "follow_up" ? "border-amber-500/40 bg-amber-500/12 text-amber-400" : "border-border/40 text-muted-foreground"
+                                )}
+                              >
+                                Follow-Up Needed
+                              </button>
+                            </div>
+                            {(review.status || item.requiresNote) && (
+                              <textarea
+                                value={review.note || ""}
+                                onChange={e => updateDebriefReview(item.key, { note: e.target.value, requiresNote: needsNote })}
+                                rows={2}
+                                placeholder={needsNote ? "Resolution or next action required" : "Optional note"}
+                                className="mt-2 w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                              />
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Custom handoff prompts */}
+                <div
+                  className="overflow-hidden rounded-2xl border border-border/40"
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  <div className="flex items-start gap-2.5 px-4 py-4">
+                    <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-black text-foreground">Handoff Requirements</p>
+                      <div className="mt-2 space-y-1.5">
+                        {briefing.handoffPrompts.map(prompt => (
+                          <div key={prompt} className="flex items-start gap-2 text-xs text-muted-foreground">
+                            <Check className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+                            <span>{prompt}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Handoff notes */}
@@ -1025,7 +1284,7 @@ export default function ManagerShift() {
                 {/* Handoff history link */}
                 <button
                   type="button"
-                  onClick={() => navigate("/shift-handoff")}
+                  onClick={() => navigate("/logs?type=shift_handoff")}
                   className="flex w-full items-center justify-between gap-3 rounded-2xl border border-border/40 px-4 py-3.5 text-left transition-all hover:border-border/60 active:scale-[0.99]"
                   style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
                 >

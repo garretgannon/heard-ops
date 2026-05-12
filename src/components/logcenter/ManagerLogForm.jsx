@@ -4,12 +4,22 @@ import { Loader2 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
 
+const MANAGER_LOG_TYPES = [
+  { id: 'sales_notes', label: 'Sales Notes' },
+  { id: 'guest_notes', label: 'Guest Notes' },
+  { id: 'cash_log', label: 'Cash Log' },
+  { id: 'employee_calendar', label: 'Employee Calendar' },
+  { id: 'incident_report', label: 'Incident Report' },
+  { id: 'other', label: 'Other' },
+];
+
 const DEPARTMENTS = ['FOH', 'BOH', 'Bar', 'Dish', 'Management', 'Whole restaurant'];
 const SHIFTS = ['Opening', 'Mid', 'Closing', 'Other'];
 
 export default function ManagerLogForm({ onSave, loading }) {
   const { user } = useCurrentUser();
   const [form, setForm] = useState({
+    manager_log_type: '',
     shift: 'Opening',
     manager_on_duty: user?.full_name || user?.email || '',
     date_time: format(new Date(), 'yyyy-MM-dd\'T\'HH:mm'),
@@ -24,6 +34,10 @@ export default function ManagerLogForm({ onSave, loading }) {
   });
 
   const validate = () => {
+    if (!form.manager_log_type) {
+      alert('Manager log type is required');
+      return false;
+    }
     if (!form.summary.trim()) {
       alert('Summary is required');
       return false;
@@ -33,6 +47,7 @@ export default function ManagerLogForm({ onSave, loading }) {
 
   const handleSave = async () => {
     if (!validate()) return;
+    const selectedType = MANAGER_LOG_TYPES.find(type => type.id === form.manager_log_type);
     base44.entities.UnifiedLog.create({
       type: 'manager_note',
       title: form.summary,
@@ -48,6 +63,14 @@ export default function ManagerLogForm({ onSave, loading }) {
       status: 'open',
       priority: 'medium',
       visibility: 'team_log',
+      custom_metadata: {
+        manager_log_type: form.manager_log_type,
+        manager_log_type_label: selectedType?.label,
+        shift: form.shift,
+        department: form.department,
+        manager_on_duty: form.manager_on_duty,
+        date_time: form.date_time,
+      },
     }).then(onSave).catch(err => {
       console.error('Failed to save manager log:', err);
       alert('Failed to save manager log');
@@ -56,6 +79,30 @@ export default function ManagerLogForm({ onSave, loading }) {
 
   return (
     <div className="space-y-3">
+      <div>
+        <label className="text-xs font-bold text-secondary-text block mb-1">Log Type *</label>
+        <div className="grid grid-cols-2 gap-2">
+          {MANAGER_LOG_TYPES.map(type => (
+            <button
+              key={type.id}
+              type="button"
+              onClick={() => setForm({
+                ...form,
+                manager_log_type: type.id,
+                summary: form.summary || type.label,
+              })}
+              className={`rounded-lg border px-3 py-2 text-left text-xs font-bold transition-all ${
+                form.manager_log_type === type.id
+                  ? 'border-primary bg-primary/15 text-primary'
+                  : 'border-border bg-background text-muted-foreground'
+              }`}
+            >
+              {type.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Shift *</label>

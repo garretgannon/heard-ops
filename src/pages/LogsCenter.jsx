@@ -27,7 +27,7 @@ export default function LogsCenter() {
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState(() => new URLSearchParams(location.search).get('type') || 'all');
   const [viewMode, setViewMode] = useState('feed');
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const [selectedLogType, setSelectedLogType] = useState(null);
@@ -47,6 +47,10 @@ export default function LogsCenter() {
     setShowAddModal(true);
     navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
   }, [location.pathname, location.search, location.state, navigate]);
+
+  useEffect(() => {
+    setActiveFilter(new URLSearchParams(location.search).get('type') || 'all');
+  }, [location.search]);
 
   // Load logs with permission filtering
   useEffect(() => {
@@ -128,6 +132,7 @@ export default function LogsCenter() {
     { id: 'incident', label: 'Incidents' },
     { id: 'cleaning', label: 'Cleaning' },
     { id: 'waste', label: 'Waste/86' },
+    { id: 'shift_handoff', label: 'Handoffs' },
     { id: 'manager_note', label: 'Manager' },
     { id: 'bathroom', label: 'Bathroom' },
   ];

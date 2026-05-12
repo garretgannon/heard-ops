@@ -32,6 +32,10 @@ const ALL_NAV_ITEMS = [
   { path: '/admin/role-simulator', label: 'Role Simulator' },
 ];
 
+const BACK_FALLBACKS = {
+  '/reservations': '/more',
+};
+
 function getPageTitle(pathname) {
   const match = ALL_NAV_ITEMS.find(i =>
     i.path === pathname || (i.path.length > 1 && pathname.startsWith(i.path + '/'))
@@ -55,6 +59,19 @@ export default function Layout() {
 
   const isSecondary = !isTabRoute(location.pathname);
   const swipeRef = useRef(null);
+
+  const goBack = useCallback(() => {
+    haptics.light();
+    const fallbackPath = BACK_FALLBACKS[location.pathname] || '/app/overview';
+    const historyIndex = window.history.state?.idx;
+
+    if (typeof historyIndex === 'number' && historyIndex > 0) {
+      navigate(-1);
+      return;
+    }
+
+    navigate(fallbackPath, { replace: true });
+  }, [location.pathname, navigate]);
 
   const toggleCollapsed = () => {
     setCollapsed(prev => {
@@ -91,10 +108,9 @@ export default function Layout() {
     const dy = Math.abs(touch.clientY - swipeRef.current.startY);
     swipeRef.current = null;
     if (dx > 55 && dy < 100) {
-      haptics.light();
-      navigate(-1);
+      goBack();
     }
-  }, [navigate]);
+  }, [goBack]);
 
   const isStationView = location.pathname.startsWith("/station/");
   if (isStationView) {
@@ -126,7 +142,7 @@ export default function Layout() {
           /* Secondary page header: Back | Title | Actions */
           <>
             <button
-              onClick={() => { haptics.light(); navigate(-1); }}
+              onClick={goBack}
               className="flex items-center gap-0.5 h-10 pl-1 pr-3 rounded-xl active:scale-95 transition-all shrink-0"
               style={{ background: 'rgba(255,255,255,0.06)' }}
               aria-label="Go back"

@@ -13,8 +13,18 @@ const LOG_TYPES = [
   { id: 'maintenance', label: 'Maintenance', color: 'bg-purple-500', desc: 'Equipment repair or maintenance request' },
 ];
 
+const MANAGER_LOG_TYPES = [
+  { id: 'sales_notes', label: 'Sales Notes' },
+  { id: 'guest_notes', label: 'Guest Notes' },
+  { id: 'cash_log', label: 'Cash Log' },
+  { id: 'employee_calendar', label: 'Employee Calendar' },
+  { id: 'incident_report', label: 'Incident Report' },
+  { id: 'other', label: 'Other' },
+];
+
 const INITIAL_FORM = {
   title: '',
+  manager_log_type: '',
   notes: '',
   priority: 'medium',
   department: 'BOH',
@@ -112,6 +122,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
     const linkedRequired = ['waste', 'eighty_six', 'cooling_temp'].includes(type);
     if (!type) return;
     if (linkedRequired && !linkedItem) return;
+    if (type === 'manager' && !form.manager_log_type) return;
     if (type === 'cooling_temp' && !form.temperature) return;
     if (!linkedRequired && !form.title.trim()) return;
 
@@ -136,6 +147,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
           attachment_urls: photoUrls,
           custom_metadata: {
             department: form.department,
+            manager_log_type: form.manager_log_type,
             logged_by_name: user?.full_name || user?.email,
             photo_urls: photoUrls,
           },
@@ -339,6 +351,32 @@ export default function LogCreateModal({ onClose, onCreated }) {
                   <p className="text-sm font-bold text-foreground">{selectedType?.label}</p>
                   <button onClick={() => setType(null)} className="ml-auto text-xs text-primary font-bold">Change</button>
                 </div>
+
+                {type === 'manager' && (
+                  <div>
+                    <label className="text-xs font-bold text-muted-foreground block mb-1">Log Type *</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {MANAGER_LOG_TYPES.map(logType => (
+                        <button
+                          key={logType.id}
+                          type="button"
+                          onClick={() => setForm(prev => ({
+                            ...prev,
+                            manager_log_type: logType.id,
+                            title: prev.title || logType.label,
+                          }))}
+                          className={`rounded-lg border px-3 py-2 text-left text-xs font-bold transition-all ${
+                            form.manager_log_type === logType.id
+                              ? 'border-primary bg-primary/15 text-primary'
+                              : 'border-border bg-background text-muted-foreground'
+                          }`}
+                        >
+                          {logType.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {!showLinkedItem && (
                   <div>

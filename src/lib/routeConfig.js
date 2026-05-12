@@ -164,7 +164,7 @@ export const moreNavSections = [
   {
     title: "Activity",
     items: [
-      { label: "Shift Handoff", detail: "Document and pass the shift",    path: "/shift-handoff", icon: TrendingUp,    status: "status-warning" },
+      { label: "Shift Handoff", detail: "Document and pass the shift",    path: "/shift?stage=debrief", icon: TrendingUp,    status: "status-warning" },
       { label: "Logs",          detail: "History and records",            path: "/logs",          icon: FileText,      status: "status-warning" },
       { label: "Comms",         detail: "Announcements and station notes", path: "/comms",         icon: MessageSquare, status: "status-warning" },
     ],
@@ -189,7 +189,6 @@ export const moreNavSections = [
     title: "Team & Settings",
     items: [
       { label: "Team",               detail: "Staff directory and certs",  path: "/team",          icon: Users,     status: "status-neutral" },
-      { label: "Team Structure",     detail: "People hierarchy",           path: "/people",        icon: GitBranch, status: "status-neutral" },
       { label: "Restaurant",         detail: "Location settings",          path: "/my-restaurant", icon: Building2, status: "status-neutral" },
       { label: "Profile & Settings", detail: "Account preferences",       path: "/profile",       icon: Settings,  status: "status-neutral" },
     ],
@@ -230,10 +229,10 @@ export const allRoutes = {
       description: "Manager briefing, duties, and handoff",
     },
     shiftHandoff: {
-      path: "/shift-handoff",
+      path: "/shift?stage=debrief",
       label: "Shift Handoff",
       icon: TrendingUp,
-      component: "ShiftHandoff",
+      component: "ManagerShift",
       roles: ["admin"],
       module: "dailyOps",
     },
@@ -375,6 +374,15 @@ export const allRoutes = {
 
   // MANAGEMENT
   management: {
+    restaurantLayout: {
+      path: "/restaurant-layout",
+      label: "Restaurant Layout",
+      icon: Building2,
+      component: "RestaurantLayout",
+      roles: ["admin"],
+      module: "management",
+      description: "Area → Station → Equipment hierarchy",
+    },
     stations: {
       path: "/stations",
       label: "Stations",
@@ -671,7 +679,7 @@ export const morePageStructure = {
     title: "Management",
     description: "Admin tools and settings",
     items: [
-      "stations",
+      "restaurantLayout",
       "jobCodes",
       "templates",
     ],

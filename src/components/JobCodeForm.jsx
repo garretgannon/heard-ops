@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { SYSTEM_ROLES } from '@/lib/roleVisibilityConfig';
 
 const departments = ['BOH', 'FOH', 'Bar', 'Management'];
 
@@ -8,6 +9,7 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
     name: jobCode?.name || '',
     department: jobCode?.department || 'BOH',
     description: jobCode?.description || '',
+    maps_to_role: jobCode?.maps_to_role || '',
     isActive: jobCode?.isActive !== false,
   });
   const [saving, setSaving] = useState(false);
@@ -67,6 +69,22 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
         >
           {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
+      </div>
+
+      <div>
+        <label className="block text-xs font-bold uppercase text-secondary-text mb-2">Maps to System Role</label>
+        <select
+          name="maps_to_role"
+          value={formData.maps_to_role}
+          onChange={handleChange}
+          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+        >
+          <option value="">— None —</option>
+          {SYSTEM_ROLES.map(r => (
+            <option key={r.value} value={r.value}>{r.label}</option>
+          ))}
+        </select>
+        <p className="text-xs text-muted-foreground mt-1">Determines what the app shows/hides for employees with this job code.</p>
       </div>
 
       <div>

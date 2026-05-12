@@ -3,10 +3,58 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { SYSTEM_ROLES } from '@/lib/roleVisibilityConfig';
 
-export default function EmployeeEditModal({ employee, onClose, onSave }) {
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function matchesEmployee(record, employee) {
+  const keys = [
+    employee.id,
+    employee.employee_id,
+    employee.email,
+    employee.full_name,
+  ].filter(Boolean).map(value => String(value).toLowerCase());
+
+  return [
+    record.employeeId,
+    record.employee_id,
+    record.employee_email,
+    record.employee_name,
+    record.employeeName,
+    record.tagged_employee,
+  ].some(value => value && keys.includes(String(value).toLowerCase()));
+}
+
+function statusClass(status) {
+  if (['active', 'approved', 'acknowledged', 'resolved'].includes(status)) return 'text-green-300 bg-green-500/10 border-green-500/25';
+  if (['pending', 'expiring_soon', 'open'].includes(status)) return 'text-amber-300 bg-amber-500/10 border-amber-500/25';
+  if (['expired', 'denied', 'flagged'].includes(status)) return 'text-red-300 bg-red-500/10 border-red-500/25';
+  return 'text-muted-foreground bg-secondary border-border/40';
+}
+
+export default function EmployeeEditModal({ employee, linkedRecords = {}, isAdmin, onClose, onSave }) {
   const [formData, setFormData] = useState(employee || {});
   const [saving, setSaving] = useState(false);
+  const [jobCodes, setJobCodes] = useState([]);
+
+  useEffect(() => {
+    base44.entities.JobCode.list('-updated_date', 100).then(list =>
+      setJobCodes(list.filter(j => j.isActive !== false))
+    ).catch(() => {});
+  }, []);
+
+  const handleJobCodeChange = (name) => {
+    const match = jobCodes.find(j => j.name === name);
+    setFormData(prev => ({
+      ...prev,
+      job_code: name,
+      ...(match?.maps_to_role ? { primary_role: match.maps_to_role } : {}),
+    }));
+  };
+  const certifications = (linkedRecords.certifications || []).filter(record => matchesEmployee(record, employee));
+  const availability = (linkedRecords.availability || []).filter(record => matchesEmployee(record, employee));
+  const timeOff = (linkedRecords.timeOff || []).filter(record => matchesEmployee(record, employee));
+  const managerLogs = (linkedRecords.managerLogs || []).filter(record => matchesEmployee(record, employee));
 
   const handleClose = () => {
     document.body.classList.remove('modal-open');
@@ -38,21 +86,20 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
 
     setSaving(true);
     try {
-      await base44.entities.User.update(employee.id, {
+      await base44.entities.Employee.update(employee.id, {
         full_name: formData.full_name,
+        email: formData.email,
         phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        birthday: formData.birthday,
         department: formData.department,
+        primary_role: formData.primary_role || formData.role,
+        job_code: formData.job_code,
         rate_of_pay: formData.rate_of_pay,
         start_date: formData.start_date,
-        emergency_contact_name: formData.emergency_contact_name,
-        emergency_contact_phone: formData.emergency_contact_phone,
-        emergency_contact_relationship: formData.emergency_contact_relationship,
-        role: formData.role,
+        manager_id: formData.manager_id,
+        manager_name: formData.manager_name,
         certifications: formData.certifications,
+        notes: formData.notes,
+        status: formData.status,
       });
       toast.success('Employee updated');
       onSave?.();
@@ -119,8 +166,8 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
                 <input
                   type="email"
                   value={formData.email || ''}
-                  disabled
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-secondary text-muted-foreground text-sm opacity-60"
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -140,6 +187,20 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
                   <option value="FOH">FOH</option>
                   <option value="BOH">BOH</option>
                   <option value="Bar">Bar</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Job Code</label>
+                <select
+                  value={formData.job_code || ''}
+                  onChange={(e) => handleJobCodeChange(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">Select job code...</option>
+                  {jobCodes.map(j => (
+                    <option key={j.id} value={j.name}>{j.name}{j.department ? ` (${j.department})` : ''}</option>
+                  ))}
                 </select>
               </div>
 
@@ -166,22 +227,49 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Role</label>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">System Role</label>
                 <select
-                  value={formData.role || 'user'}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  value={formData.primary_role || ''}
+                  onChange={(e) => setFormData({ ...formData, primary_role: e.target.value })}
                   className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="user">Staff</option>
-                  <option value="admin">Manager</option>
-                  <option value="busser">Busser</option>
+                  <option value="">Select system role...</option>
+                  {SYSTEM_ROLES.map(r => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
                 </select>
+                <p className="text-xs text-muted-foreground mt-1">Auto-set when a job code is selected. Controls what this employee sees in the app.</p>
+              </div>
+            </div>
+
+            {/* Manager Link */}
+            <div className="space-y-3 pt-3 border-t border-border/20">
+              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Reporting</h3>
+              
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Manager Name</label>
+                <input
+                  type="text"
+                  value={formData.manager_name || ''}
+                  onChange={(e) => setFormData({ ...formData, manager_name: e.target.value })}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Manager Employee ID</label>
+                <input
+                  type="text"
+                  value={formData.manager_id || ''}
+                  onChange={(e) => setFormData({ ...formData, manager_id: e.target.value })}
+                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
               </div>
             </div>
 
             {/* Personal Information */}
             <div className="space-y-3 pt-3 border-t border-border/20">
-              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Personal Information</h3>
+              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Contact</h3>
               
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground mb-2">Phone</label>
@@ -193,86 +281,6 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
                   className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Birthday</label>
-                <input
-                  type="date"
-                  value={formData.birthday || ''}
-                  onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Street Address</label>
-                <input
-                  type="text"
-                  value={formData.address || ''}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="123 Main St"
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-2">City</label>
-                  <input
-                    type="text"
-                    value={formData.city || ''}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-2">State</label>
-                  <input
-                    type="text"
-                    value={formData.state || ''}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    maxLength="2"
-                    className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Emergency Contact */}
-            <div className="space-y-3 pt-3 border-t border-border/20">
-              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Emergency Contact</h3>
-              
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Name</label>
-                <input
-                  type="text"
-                  value={formData.emergency_contact_name || ''}
-                  onChange={(e) => setFormData({ ...formData, emergency_contact_name: e.target.value })}
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Phone</label>
-                <input
-                  type="tel"
-                  value={formData.emergency_contact_phone || ''}
-                  onChange={(e) => setFormData({ ...formData, emergency_contact_phone: e.target.value })}
-                  placeholder="(555) 123-4567"
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Relationship</label>
-                <input
-                  type="text"
-                  value={formData.emergency_contact_relationship || ''}
-                  onChange={(e) => setFormData({ ...formData, emergency_contact_relationship: e.target.value })}
-                  placeholder="e.g., Parent, Spouse"
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
             </div>
 
             {/* Certifications */}
@@ -280,16 +288,75 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
               <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Certifications</h3>
               
               <div>
-                <label className="block text-xs font-semibold text-muted-foreground mb-2">Current Certifications</label>
+                <label className="block text-xs font-semibold text-muted-foreground mb-2">Manual Certifications</label>
                 <input
                   type="text"
-                  value={formData.certifications || ''}
-                  onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
+                  value={Array.isArray(formData.certifications) ? formData.certifications.join(', ') : formData.certifications || ''}
+                  onChange={(e) => setFormData({ ...formData, certifications: e.target.value.split(',').map(item => item.trim()).filter(Boolean) })}
                   placeholder="e.g., Food Handler, Alcohol Server"
                   className="w-full h-10 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
+
+              <LinkedList
+                empty="No certification records linked."
+                items={certifications}
+                renderItem={(cert) => (
+                  <LinkedItem
+                    title={cert.certificationName}
+                    meta={[cert.issueDate, cert.expirationDate && `Expires ${cert.expirationDate}`].filter(Boolean).join(' • ')}
+                    status={cert.status}
+                  />
+                )}
+              />
             </div>
+
+            <div className="space-y-3 pt-3 border-t border-border/20">
+              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Availability</h3>
+              <LinkedList
+                empty="No availability records linked."
+                items={availability}
+                renderItem={(slot) => (
+                  <LinkedItem
+                    title={`${DAYS[slot.day_of_week] || 'Day'} ${slot.is_available === false ? 'Unavailable' : `${slot.start_time || 'Open'} - ${slot.end_time || 'Close'}`}`}
+                    meta={[slot.preferred && 'Preferred', slot.max_hours_per_week && `${slot.max_hours_per_week} max hrs/wk`, slot.notes].filter(Boolean).join(' • ')}
+                    status={slot.is_available === false ? 'unavailable' : 'active'}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="space-y-3 pt-3 border-t border-border/20">
+              <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Requested Time Off</h3>
+              <LinkedList
+                empty="No time off requests linked."
+                items={timeOff}
+                renderItem={(request) => (
+                  <LinkedItem
+                    title={`${request.start_date || 'Start'} to ${request.end_date || 'End'}`}
+                    meta={[request.reason, request.manager_notes && `Manager: ${request.manager_notes}`].filter(Boolean).join(' • ')}
+                    status={request.status}
+                  />
+                )}
+              />
+            </div>
+
+            {isAdmin && (
+              <div className="space-y-3 pt-3 border-t border-border/20">
+                <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Linked Manager Logs</h3>
+                <LinkedList
+                  empty="No manager-only employee logs linked."
+                  items={managerLogs}
+                  renderItem={(log) => (
+                    <LinkedItem
+                      title={log.title}
+                      meta={[log.description, log.created_date && new Date(log.created_date).toLocaleDateString()].filter(Boolean).join(' • ')}
+                      status={log.status}
+                    />
+                  )}
+                />
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -312,5 +379,35 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
         </motion.div>
       </div>
     </AnimatePresence>
+  );
+}
+
+function LinkedList({ items, empty, renderItem }) {
+  if (!items.length) {
+    return <p className="text-xs text-muted-foreground">{empty}</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <React.Fragment key={item.id || index}>{renderItem(item)}</React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+function LinkedItem({ title, meta, status }) {
+  return (
+    <div className="rounded-lg border border-border/40 bg-secondary/30 px-3 py-2">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-bold text-foreground">{title || 'Untitled'}</p>
+        {status && (
+          <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold capitalize ${statusClass(status)}`}>
+            {String(status).replace(/_/g, ' ')}
+          </span>
+        )}
+      </div>
+      {meta && <p className="mt-1 text-xs text-muted-foreground line-clamp-3">{meta}</p>}
+    </div>
   );
 }

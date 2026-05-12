@@ -81,6 +81,24 @@ export default function PrepPlanTemplatesManager() {
       />
 
       <div className="px-4 lg:px-8 py-6 max-w-6xl mx-auto">
+        <div className="lg:hidden mb-4 rounded-xl border border-border bg-card p-3">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Prep Plan Templates</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              onClick={() => navigate('/prep-plan-templates/new')}
+              className="btn-primary h-10 text-xs flex items-center justify-center gap-1"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Template
+            </button>
+            <button
+              onClick={() => setShowQuickAdd(true)}
+              className="btn-secondary h-10 text-xs"
+            >
+              Quick Add Item
+            </button>
+          </div>
+        </div>
+
         {loading ? (
           <div className="text-center py-10 text-muted-foreground">Loading…</div>
         ) : templates.length === 0 ? (

@@ -274,6 +274,12 @@ export const ROLE_DEFINITIONS = {
   },
 };
 
+export const SYSTEM_ROLES = Object.entries(ROLE_DEFINITIONS).map(([value, config]) => ({
+  value,
+  label: config.label,
+  color: config.color,
+}));
+
 export const ROLE_CATEGORIES = {
   kitchen: ['kitchen_lead', 'line_cook', 'prep_cook', 'expo', 'dishwasher'],
   foh: ['server', 'bartender', 'host', 'busser'],

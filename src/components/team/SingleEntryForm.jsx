@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-const JOB_CODES = ['Manager', 'Server', 'Bartender', 'Host', 'Line Cook', 'Prep Cook', 'Dishwasher', 'Sous Chef', 'Chef', 'Support'];
 const DEPARTMENTS = ['FOH', 'BOH', 'Bar', 'Management', 'Support'];
 const PAY_TYPES = ['/ hr', 'salary'];
 
@@ -27,6 +26,23 @@ export default function SingleEntryForm({ onSuccess }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [jobCodes, setJobCodes] = useState([]);
+
+  useEffect(() => {
+    base44.entities.JobCode.list('-updated_date', 100).then(list =>
+      setJobCodes(list.filter(j => j.isActive !== false))
+    ).catch(() => {});
+  }, []);
+
+  const handleJobCodeChange = (name) => {
+    const match = jobCodes.find(j => j.name === name);
+    setFormData(prev => ({
+      ...prev,
+      jobCode: name,
+      ...(match?.maps_to_role ? { primaryRole: match.maps_to_role } : {}),
+      ...(match?.department && !prev.department ? { department: match.department } : {}),
+    }));
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -186,15 +202,15 @@ export default function SingleEntryForm({ onSuccess }) {
             <label className="block text-sm font-semibold text-foreground mb-1.5">Job Code</label>
             <select
               value={formData.jobCode}
-              onChange={(e) => setFormData({ ...formData, jobCode: e.target.value })}
+              onChange={(e) => handleJobCodeChange(e.target.value)}
               onFocus={() => setErrors({ ...errors, jobCode: '' })}
               className={`w-full px-3 py-2 rounded-lg border bg-background text-foreground text-sm transition-colors ${
                 errors.jobCode ? 'border-red-500/50' : 'border-border focus:border-primary'
               }`}
             >
               <option value="">Select a job code...</option>
-              {JOB_CODES.map(code => (
-                <option key={code} value={code}>{code}</option>
+              {jobCodes.map(j => (
+                <option key={j.id} value={j.name}>{j.name}{j.department ? ` (${j.department})` : ''}</option>
               ))}
             </select>
             {errors.jobCode && <p className="text-xs text-red-400 mt-1">{errors.jobCode}</p>}

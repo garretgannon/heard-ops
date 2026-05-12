@@ -11,6 +11,7 @@ import PrepImpactTab from '@/components/reservations/PrepImpactTab';
 import BEODetail from '@/components/reservations/BEODetail';
 import ReservationForm from '@/components/reservations/ReservationForm';
 import BEOForm from '@/components/reservations/BEOForm';
+import QuickActionModal from '@/components/quickactions/QuickActionModal';
 
 const TABS = ['Today', 'Reservations', 'BEOs', 'Calendar', 'Prep Impact'];
 
@@ -70,6 +71,7 @@ export default function ReservationsAndBEOs() {
   const [editingReservation, setEditingReservation] = useState(null);
   const [showBEOForm, setShowBEOForm] = useState(false);
   const [editingBEO, setEditingBEO] = useState(null);
+  const [showEventCreate, setShowEventCreate] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -90,6 +92,7 @@ export default function ReservationsAndBEOs() {
     setEditingReservation(null);
     setShowBEOForm(false);
     setEditingBEO(null);
+    setShowEventCreate(false);
     setSelectedBEO(null);
   };
 
@@ -137,20 +140,12 @@ export default function ReservationsAndBEOs() {
               <h1 className="text-lg font-extrabold text-foreground">Reservations &amp; BEOs</h1>
             </div>
             {isAdmin && (
-              <div className="flex gap-1.5">
-                <button
-                  onClick={() => { setEditingReservation(null); setShowReservationForm(true); haptics.medium(); }}
-                  className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 flex items-center gap-1"
-                >
-                  <Plus className="h-3 w-3" /> Res
-                </button>
-                <button
-                  onClick={() => { setEditingBEO(null); setShowBEOForm(true); haptics.medium(); }}
-                  className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/20 flex items-center gap-1"
-                >
-                  <Plus className="h-3 w-3" /> BEO
-                </button>
-              </div>
+              <button
+                onClick={() => { setShowEventCreate(true); haptics.medium(); }}
+                className="text-[10px] font-bold px-3 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20 flex items-center gap-1"
+              >
+                <Plus className="h-3 w-3" /> Add Event
+              </button>
             )}
           </div>
         </div>
@@ -226,6 +221,14 @@ export default function ReservationsAndBEOs() {
           </>
         )}
       </div>
+
+      {showEventCreate && (
+        <QuickActionModal
+          actionType="add_beo"
+          onClose={() => setShowEventCreate(false)}
+          onSuccess={handleSave}
+        />
+      )}
     </div>
   );
 }

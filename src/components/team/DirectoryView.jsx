@@ -1,6 +1,33 @@
 import EmployeeCard from './EmployeeCard';
 
-export default function DirectoryView({ employees, isAdmin, isFOH, onEmployeeSelect }) {
+function matchesEmployee(record, employee) {
+  const keys = [
+    employee.id,
+    employee.employee_id,
+    employee.email,
+    employee.full_name,
+  ].filter(Boolean).map(value => String(value).toLowerCase());
+
+  return [
+    record.employeeId,
+    record.employee_id,
+    record.employee_email,
+    record.employee_name,
+    record.employeeName,
+    record.tagged_employee,
+  ].some(value => value && keys.includes(String(value).toLowerCase()));
+}
+
+function linkedForEmployee(employee, linkedRecords = {}) {
+  return {
+    certifications: (linkedRecords.certifications || []).filter(record => matchesEmployee(record, employee)),
+    availability: (linkedRecords.availability || []).filter(record => matchesEmployee(record, employee)),
+    timeOff: (linkedRecords.timeOff || []).filter(record => matchesEmployee(record, employee)),
+    managerLogs: (linkedRecords.managerLogs || []).filter(record => matchesEmployee(record, employee)),
+  };
+}
+
+export default function DirectoryView({ employees, linkedRecords, isAdmin, isFOH, onEmployeeSelect }) {
   const canContact = isFOH || isAdmin;
   const canManage = isAdmin;
 
@@ -18,9 +45,11 @@ export default function DirectoryView({ employees, isAdmin, isFOH, onEmployeeSel
         <EmployeeCard
           key={employee.id}
           employee={employee}
+          linkedRecords={linkedForEmployee(employee, linkedRecords)}
           onSelect={onEmployeeSelect}
           canContact={canContact}
           canManage={canManage}
+          showManagerDetails={isAdmin}
         />
       ))}
     </div>

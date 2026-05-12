@@ -1,4 +1,4 @@
-import { Phone, Mail, Clock } from 'lucide-react';
+import { Phone, Mail, ShieldCheck, CalendarDays, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
@@ -9,7 +9,7 @@ const SHIFT_STATUS_CONFIG = {
   'scheduled_later': { label: 'Scheduled Later', color: 'bg-blue-500/15 text-blue-400', icon: '🔵' },
 };
 
-export default function EmployeeCard({ employee, onSelect, canContact, canManage }) {
+export default function EmployeeCard({ employee, linkedRecords = {}, onSelect, canContact, canManage, showManagerDetails }) {
   const initials = employee.full_name
     ?.split(' ')
     .map((n) => n[0])
@@ -17,7 +17,11 @@ export default function EmployeeCard({ employee, onSelect, canContact, canManage
     .toUpperCase() || '?';
 
   const shiftStatus = employee.shiftStatus || 'off_shift';
-  const statusConfig = SHIFT_STATUS_CONFIG[shiftStatus];
+  const statusConfig = SHIFT_STATUS_CONFIG[shiftStatus] || SHIFT_STATUS_CONFIG.off_shift;
+  const activeCerts = (linkedRecords.certifications || []).filter(cert => cert.status !== 'expired');
+  const pendingTimeOff = (linkedRecords.timeOff || []).filter(request => request.status === 'pending');
+  const openLogs = (linkedRecords.managerLogs || []).filter(log => log.status !== 'resolved' && log.status !== 'archived');
+  const availabilityCount = (linkedRecords.availability || []).filter(slot => slot.is_available !== false).length;
 
   return (
     <div
@@ -31,9 +35,17 @@ export default function EmployeeCard({ employee, onSelect, canContact, canManage
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           {/* Avatar */}
-          <div className="h-12 w-12 rounded-lg bg-primary/20 text-primary font-bold text-sm flex items-center justify-center flex-shrink-0">
-            {initials}
-          </div>
+          {employee.profile_photo_url ? (
+            <img
+              src={employee.profile_photo_url}
+              alt={employee.full_name || 'Employee'}
+              className="h-12 w-12 rounded-lg object-cover border border-border/40 flex-shrink-0"
+            />
+          ) : (
+            <div className="h-12 w-12 rounded-lg bg-primary/20 text-primary font-bold text-sm flex items-center justify-center flex-shrink-0">
+              {initials}
+            </div>
+          )}
 
           {/* Info */}
           <div className="flex-1 min-w-0">
@@ -56,7 +68,42 @@ export default function EmployeeCard({ employee, onSelect, canContact, canManage
               <span>{employee.department}</span>
             </>
           )}
+          {employee.manager_name && (
+            <>
+              <span>•</span>
+              <span>Mgr: {employee.manager_name}</span>
+            </>
+          )}
         </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-lg bg-secondary/40 border border-border/30 px-2 py-2">
+            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase">
+              <ShieldCheck className="h-3 w-3" /> Certs
+            </div>
+            <p className="mt-1 text-sm font-black text-foreground">{activeCerts.length}</p>
+          </div>
+          <div className="rounded-lg bg-secondary/40 border border-border/30 px-2 py-2">
+            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase">
+              <Clock className="h-3 w-3" /> Avail
+            </div>
+            <p className="mt-1 text-sm font-black text-foreground">{availabilityCount || '—'}</p>
+          </div>
+          <div className="rounded-lg bg-secondary/40 border border-border/30 px-2 py-2">
+            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase">
+              <CalendarDays className="h-3 w-3" /> PTO
+            </div>
+            <p className={`mt-1 text-sm font-black ${pendingTimeOff.length ? 'text-amber-400' : 'text-foreground'}`}>{pendingTimeOff.length}</p>
+          </div>
+        </div>
+
+        {showManagerDetails && openLogs.length > 0 && (
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2">
+            <p className="text-[10px] font-black uppercase tracking-wider text-amber-300">
+              {openLogs.length} linked manager log{openLogs.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+        )}
 
         {/* Action Buttons */}
         {(canContact || canManage) && (

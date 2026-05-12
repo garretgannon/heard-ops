@@ -133,6 +133,13 @@ export const CREATE_TEMPLATES = {
       follow_up_required: false,
     },
     fields: [
+      {
+        name: 'manager_log_type',
+        label: 'Log Type',
+        type: 'select',
+        required: true,
+        options: ['Sales Notes', 'Guest Notes', 'Cash Log', 'Employee Calendar', 'Incident Report', 'Other'],
+      },
       { name: 'title', label: 'Subject', type: 'text', required: true, placeholder: 'Shift note, follow-up, or handoff' },
       {
         name: 'employee_id',
@@ -146,32 +153,6 @@ export const CREATE_TEMPLATES = {
         map: {
           employee_id: 'id',
           employee_name: 'full_name',
-        },
-      },
-      {
-        name: 'location_id',
-        label: 'Location',
-        type: 'record-search',
-        entity: 'Location',
-        placeholder: 'Search locations',
-        searchFields: ['name', 'type'],
-        displayFields: ['name', 'type'],
-        map: {
-          location_id: 'id',
-          location: 'name',
-        },
-      },
-      {
-        name: 'station_id',
-        label: 'Station',
-        type: 'record-search',
-        entity: 'Station',
-        placeholder: 'Search stations',
-        searchFields: ['name', 'area_name', 'department'],
-        displayFields: ['name', 'area_name'],
-        map: {
-          station_id: 'id',
-          station_name: 'name',
         },
       },
       { name: 'description', label: 'Details', type: 'textarea', placeholder: 'What should the next manager know?' },

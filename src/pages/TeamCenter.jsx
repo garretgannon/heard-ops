@@ -1,16 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
 import TeamCommandHeader from '@/components/team/TeamCommandHeader';
 import TeamTabNav from '@/components/team/TeamTabNav';
 import DirectoryView from '@/components/team/DirectoryView';
-import ScheduleView from '@/components/team/ScheduleView';
-import MessagesView from '@/components/team/MessagesView';
-import RolesView from '@/components/team/RolesView';
+import TeamProgressView from '@/components/team/TeamProgressView';
 import AddEmployeeModal from '@/components/team/AddEmployeeModal';
 import EmployeeEditModal from '@/components/team/EmployeeEditModal';
+import { buildEmployeeProgress } from '@/lib/employeeProgress';
 
 export default function TeamCenter() {
   const { user, isAdmin, isFOH } = useCurrentUser();
@@ -18,23 +16,70 @@ export default function TeamCenter() {
   const [activeTab, setActiveTab] = useState('directory');
   const [searchQuery, setSearchQuery] = useState('');
   const [employees, setEmployees] = useState([]);
-  const [schedules, setSchedules] = useState([]);
-  const [roles, setRoles] = useState([]);
-  const [announcements, setAnnouncements] = useState([]);
+  const [linkedRecords, setLinkedRecords] = useState({
+    certifications: [],
+    availability: [],
+    timeOff: [],
+    managerLogs: [],
+    generatedTasks: [],
+    sideworkTasks: [],
+    prepTasks: [],
+    cleaningTasks: [],
+    tempTasks: [],
+  });
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const navigate = useNavigate();
-  const isMounted = useRef(true);
+const isMounted = useRef(true);
 
   const loadData = async () => {
+    setLoading(true);
     try {
-      const [empData, rolesData] = await Promise.all([
-        base44.entities.Employee.list('full_name', 100).catch(() => []),
-        base44.entities.Role?.list?.() || [],
+      const safeList = (entityName, sortBy = '-updated_date', limit = 300) => Promise.race([
+        base44.entities[entityName]?.list?.(sortBy, limit).catch(() => []) || Promise.resolve([]),
+        new Promise(resolve => setTimeout(() => resolve([]), 10000)),
+      ]);
+
+      const [
+        empData,
+        certData,
+        availabilityData,
+        timeOffData,
+        logData,
+        generatedTaskData,
+        sideworkTaskData,
+        prepTaskData,
+        cleaningTaskData,
+        tempTaskData,
+      ] = await Promise.all([
+        Promise.race([
+          base44.entities.Employee.list('full_name', 100).catch(() => []),
+          new Promise(resolve => setTimeout(() => resolve([]), 10000)),
+        ]),
+        safeList('CertificationRecord'),
+        safeList('EmployeeAvailability', 'day_of_week'),
+        safeList('TimeOffRequest'),
+        safeList('UnifiedLog'),
+        safeList('GeneratedTask'),
+        safeList('DailySideWorkTask'),
+        safeList('DailyPrepTask'),
+        safeList('DailyCleaningTask'),
+        safeList('DailyTemperatureLogTask'),
       ]);
       if (isMounted.current) {
-        setEmployees(empData);
-        setRoles(rolesData || []);
+        setEmployees(Array.isArray(empData) ? empData : []);
+        setLinkedRecords({
+          certifications: Array.isArray(certData) ? certData : [],
+          availability: Array.isArray(availabilityData) ? availabilityData : [],
+          timeOff: Array.isArray(timeOffData) ? timeOffData : [],
+          managerLogs: Array.isArray(logData)
+            ? logData.filter(log => ['employee', 'employee_note', 'manager_note'].includes(log.type))
+            : [],
+          generatedTasks: Array.isArray(generatedTaskData) ? generatedTaskData : [],
+          sideworkTasks: Array.isArray(sideworkTaskData) ? sideworkTaskData : [],
+          prepTasks: Array.isArray(prepTaskData) ? prepTaskData : [],
+          cleaningTasks: Array.isArray(cleaningTaskData) ? cleaningTaskData : [],
+          tempTasks: Array.isArray(tempTaskData) ? tempTaskData : [],
+        });
         setLoading(false);
       }
     } catch (err) {
@@ -64,6 +109,11 @@ export default function TeamCenter() {
     );
   });
 
+  const progress = useMemo(
+    () => buildEmployeeProgress(employees, linkedRecords),
+    [employees, linkedRecords]
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -86,7 +136,6 @@ export default function TeamCenter() {
       <TeamTabNav
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        canManageRoles={isAdmin}
       />
 
       {/* Content */}
@@ -94,36 +143,21 @@ export default function TeamCenter() {
         {activeTab === 'directory' && (
           <DirectoryView
             employees={filteredEmployees}
+            linkedRecords={linkedRecords}
             isAdmin={isAdmin}
             isFOH={isFOH}
             onEmployeeSelect={(empId) => setSelectedEmployee(employees.find(e => e.id === empId) || null)}
           />
         )}
 
-        {activeTab === 'schedule' && (
-          <ScheduleView
-            schedules={schedules}
-            openShifts={[]}
-            callOuts={[]}
+        {activeTab === 'progress' && (
+          <TeamProgressView
+            progress={progress}
+            isAdmin={isAdmin}
+            currentUser={user}
           />
         )}
 
-        {activeTab === 'messages' && (
-          <MessagesView
-            announcements={announcements}
-            shiftNotes={[]}
-            managerMessages={[]}
-          />
-        )}
-
-        {activeTab === 'roles' && isAdmin && (
-          <RolesView
-            roles={roles}
-            employees={employees}
-            onPreviewRole={() => navigate('/admin/role-simulator')}
-            onManageRole={() => navigate('/admin/role-simulator')}
-          />
-        )}
       </div>
 
       {showAddEmployee && (
@@ -136,6 +170,8 @@ export default function TeamCenter() {
       {selectedEmployee && (
         <EmployeeEditModal
           employee={selectedEmployee}
+          linkedRecords={linkedRecords}
+          isAdmin={isAdmin}
           onClose={() => setSelectedEmployee(null)}
           onSave={() => { setSelectedEmployee(null); loadData(); }}
         />
