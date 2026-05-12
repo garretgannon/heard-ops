@@ -83,7 +83,7 @@ export default function Standards() {
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[620px] space-y-6 pb-28">
+      <main className="app-page mx-auto max-w-[620px] space-y-6 pb-28 lg:max-w-7xl">
         <header className="pt-1">
           <p className="metric-label">Knowledge</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">SOPs & Standards</h1>

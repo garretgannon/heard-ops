@@ -142,13 +142,30 @@ function StationForm({ station, areaId, areas, onSave, onCancel }) {
 function EquipmentForm({ equipment, stationId, onSave, onCancel }) {
   const [name, setName] = useState(equipment?.name || '');
   const [type, setType] = useState(equipment?.equipmentType || '');
+  const [photoUrl, setPhotoUrl] = useState(equipment?.photo_url || '');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const handlePhotoSelect = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setPhotoUrl(file_url);
+      toast.success('Photo uploaded');
+    } catch {
+      toast.error('Failed to upload photo');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!name.trim() || !type) return;
     setSaving(true);
     try {
-      const payload = { name, equipmentType: type, station_id: stationId, isActive: true };
+      const payload = { name, equipmentType: type, photo_url: photoUrl || null, station_id: stationId, isActive: true };
       if (equipment?.id) {
         await base44.entities.Equipment.update(equipment.id, payload);
       } else {
@@ -163,36 +180,47 @@ function EquipmentForm({ equipment, stationId, onSave, onCancel }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 items-center">
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(240px,1.4fr)_minmax(250px,1fr)_auto_auto] gap-2 items-start">
       <input
         autoFocus
         value={name}
         onChange={e => setName(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && handleSave()}
         placeholder="e.g. Fryer 1, Walk-in #2"
-        className="flex-1 min-w-[140px] h-9 px-3 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
       />
       <select
         value={type}
         onChange={e => setType(e.target.value)}
-        className="h-9 px-2 rounded-lg border border-border bg-background text-sm text-foreground"
+        className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
       >
-        <option value="">Type…</option>
+        <option value="">Select equipment type…</option>
         {EQUIPMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
       </select>
-      <button
-        onClick={handleSave}
-        disabled={saving || !name.trim() || !type}
-        className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
-      >
-        {saving ? '…' : equipment ? 'Save' : 'Add'}
-      </button>
-      <button
-        onClick={onCancel}
-        className="h-9 w-9 rounded-lg border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
-      >
-        <X className="h-4 w-4" />
-      </button>
+      <label className="h-10 px-3 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-secondary flex items-center justify-center cursor-pointer whitespace-nowrap">
+        {uploadingPhoto ? 'Uploading…' : photoUrl ? 'Change Photo' : 'Add Photo'}
+        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
+      </label>
+      <div className="flex gap-2">
+        <button
+          onClick={handleSave}
+          disabled={saving || uploadingPhoto || !name.trim() || !type}
+          className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 whitespace-nowrap"
+        >
+          {saving ? '…' : equipment ? 'Save' : 'Add'}
+        </button>
+        <button
+          onClick={onCancel}
+          className="h-10 w-10 rounded-lg border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      {photoUrl && (
+        <div className="lg:col-span-4 rounded-lg border border-border/60 bg-background/40 p-2 max-w-[220px]">
+          <img src={photoUrl} alt="Equipment" className="h-24 w-full rounded-md object-cover" />
+        </div>
+      )}
     </div>
   );
 }
@@ -414,8 +442,11 @@ export default function RestaurantLayout() {
                                 ) : (
                                   <div className="flex items-center gap-2.5 pl-16 pr-4 py-2">
                                     <Wrench className="h-3 w-3 text-muted-foreground shrink-0" />
-                                    <span className="text-sm text-foreground flex-1">{eq.name}</span>
-                                    <span className="text-xs text-muted-foreground">{eq.equipmentType}</span>
+                                    <span className="text-sm text-foreground flex-1 min-w-0 break-words">{eq.name}</span>
+                                    <span className="text-xs text-muted-foreground max-w-[220px] text-right leading-tight break-words">{eq.equipmentType}</span>
+                                    {eq.photo_url && (
+                                      <img src={eq.photo_url} alt={eq.name} className="h-10 w-10 rounded-md object-cover border border-border/60 shrink-0" />
+                                    )}
                                     <button
                                       onClick={() => setEditingEquipment(eq)}
                                       className="h-6 w-6 rounded hover:bg-muted flex items-center justify-center text-muted-foreground ml-1"
