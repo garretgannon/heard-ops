@@ -4,6 +4,9 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+      screens: {
+        lg: '900px',
+      },
       fontFamily: {
         sans: ['var(--font-sans)'],
         mono: ['JetBrains Mono', 'monospace'],
