@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Plus, ChevronDown, ChevronRight, Edit2, Trash2, Wrench, MapPin, Layers, X, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { getEquipmentAiPhoto } from '@/lib/equipmentAiLibrary';
 
 const DEPARTMENTS = ['BOH', 'FOH', 'Bar', 'Management'];
 
@@ -165,7 +166,7 @@ function EquipmentForm({ equipment, stationId, onSave, onCancel }) {
     if (!name.trim() || !type) return;
     setSaving(true);
     try {
-      const payload = { name, equipmentType: type, photo_url: photoUrl || null, station_id: stationId, isActive: true };
+      const payload = { name, equipmentType: type, photo_url: photoUrl || getEquipmentAiPhoto(type), station_id: stationId, isActive: true };
       if (equipment?.id) {
         await base44.entities.Equipment.update(equipment.id, payload);
       } else {
@@ -189,14 +190,23 @@ function EquipmentForm({ equipment, stationId, onSave, onCancel }) {
         placeholder="e.g. Fryer 1, Walk-in #2"
         className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
       />
-      <select
-        value={type}
-        onChange={e => setType(e.target.value)}
-        className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
-      >
-        <option value="">Select equipment type…</option>
-        {EQUIPMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-      </select>
+      <div className="space-y-1">
+        <input
+          list="equipment-type-options"
+          value={type}
+          onChange={e => {
+            const nextType = e.target.value;
+            setType(nextType);
+            if (!photoUrl) setPhotoUrl(getEquipmentAiPhoto(nextType));
+          }}
+          placeholder="Select or type equipment type…"
+          className="w-full h-11 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
+        />
+        <datalist id="equipment-type-options">
+          {EQUIPMENT_TYPES.map(t => <option key={t} value={t} />)}
+        </datalist>
+        <p className="text-[11px] text-muted-foreground">Tip: start typing (e.g. “walk-in”, “prep”, “fryer”).</p>
+      </div>
       <label className="h-10 px-3 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-secondary flex items-center justify-center cursor-pointer whitespace-nowrap">
         {uploadingPhoto ? 'Uploading…' : photoUrl ? 'Change Photo' : 'Add Photo'}
         <input type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
@@ -431,7 +441,7 @@ export default function RestaurantLayout() {
                             {stationEquip.map(eq => (
                               <div key={eq.id} className="border-b border-border/10 last:border-0">
                                 {editingEquipment?.id === eq.id ? (
-                                  <div className="px-4 py-2 pl-16">
+                                  <div className="px-4 py-2 pl-4 lg:pl-16">
                                     <EquipmentForm
                                       equipment={eq}
                                       stationId={station.id}
@@ -465,7 +475,7 @@ export default function RestaurantLayout() {
                             ))}
 
                             {addingEquipmentForStation === station.id ? (
-                              <div className="px-4 py-2 pl-16">
+                              <div className="px-4 py-2 pl-4 lg:pl-16">
                                 <EquipmentForm
                                   stationId={station.id}
                                   onSave={() => { setAddingEquipmentForStation(null); load(); }}
@@ -475,7 +485,7 @@ export default function RestaurantLayout() {
                             ) : (
                               <button
                                 onClick={() => setAddingEquipmentForStation(station.id)}
-                                className="flex items-center gap-1.5 pl-16 pr-4 py-2 text-xs text-muted-foreground hover:text-primary w-full text-left"
+                                className="flex items-center gap-1.5 pl-4 lg:pl-16 pr-4 py-2 text-xs text-muted-foreground hover:text-primary w-full text-left"
                               >
                                 <Plus className="h-3 w-3" /> Add Equipment
                               </button>
