@@ -70,7 +70,7 @@ export default function Pulse() {
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[640px] space-y-5">
+      <main className="app-page mx-auto max-w-[640px] lg:max-w-6xl space-y-5">
 
         {/* Header */}
         <header className="flex items-start justify-between gap-4 pt-1">

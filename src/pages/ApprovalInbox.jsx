@@ -366,7 +366,7 @@ export default function ApprovalInbox() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Approvals" />
-      <main className="app-page mx-auto flex min-h-[calc(100vh-150px)] max-w-[520px] flex-col gap-4">
+      <main className="app-page mx-auto flex min-h-[calc(100vh-150px)] max-w-[520px] lg:max-w-6xl flex-col gap-4">
 
         {/* HUD */}
         <div

@@ -300,7 +300,7 @@ export default function CommsCenter() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Communications" />
-      <main className="app-page mx-auto max-w-[980px] space-y-5">
+      <main className="app-page mx-auto max-w-[980px] lg:max-w-7xl space-y-5">
         <header className="pt-1 lg:hidden">
           <p className="metric-label">Comms</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Communication center</h1>
