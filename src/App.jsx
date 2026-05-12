@@ -1,8 +1,8 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { OperationalProvider } from '@/lib/OperationalContext';
 import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
@@ -11,7 +11,6 @@ import { ShiftModeProvider } from '@/lib/ShiftModeContext';
 import { RoleSimulationProvider } from '@/lib/RoleSimulationContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { usePushAlerts } from './hooks/usePushAlerts';
-import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import PermissionGate from '@/components/PermissionGate';
 import { PERMISSIONS } from '@/lib/permissions';
@@ -90,26 +89,11 @@ function RouteFallback() {
 }
 
 const AuthenticatedApp = () => {
-  const [onboardingChecked, setOnboardingChecked] = useState(false);
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
   const { user, isAdmin, loading: userLoading } = useCurrentUser();
   usePushAlerts();
 
-  useEffect(() => {
-    if (!user || !isAdmin) { setOnboardingChecked(true); return; }
-    const settingsEntity = base44.entities?.Settings;
-    if (!settingsEntity?.filter) {
-      setOnboardingChecked(true);
-      return;
-    }
-    settingsEntity.filter({ key: 'onboarding_complete' }).then(results => {
-      setOnboardingChecked(true);
-    }).catch(() => {
-      setOnboardingChecked(true);
-    });
-  }, [user, isAdmin]);
-
-  if (isLoadingPublicSettings || isLoadingAuth || userLoading || !onboardingChecked) {
+  if (isLoadingPublicSettings || isLoadingAuth || userLoading) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center gap-4">
         <div className="heard-spinner" />
