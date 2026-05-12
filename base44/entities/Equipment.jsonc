@@ -198,6 +198,10 @@
     "vendorId": {
       "type": "string",
       "title": "Vendor / Repair Contact ID"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Equipment Photo URL"
     }
   },
   "required": [
