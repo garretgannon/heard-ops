@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 import { Bell, CheckCircle2, MapPin, MessageSquare, Plus, Reply, Send, ShieldCheck } from 'lucide-react';
@@ -298,8 +299,9 @@ export default function CommsCenter() {
 
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="Communications" />
       <main className="app-page mx-auto max-w-[980px] space-y-5">
-        <header className="pt-1">
+        <header className="pt-1 lg:hidden">
           <p className="metric-label">Comms</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Communication center</h1>
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">Announcements, station notes, and comments tied to actual work.</p>

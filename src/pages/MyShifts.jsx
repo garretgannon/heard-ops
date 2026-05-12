@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Clock, AlertCircle, CheckCircle2, ChevronRight, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -84,9 +85,10 @@ export default function MyShifts() {
 
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="My Shifts" />
       <main className="app-page mx-auto max-w-[520px] space-y-5">
 
-        <header className="flex items-start justify-between gap-4 pt-1">
+        <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
           <div>
             <p className="metric-label">Schedule</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">My Shifts</h1>

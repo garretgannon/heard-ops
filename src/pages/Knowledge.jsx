@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
+import DesktopPageHeader from "@/components/DesktopPageHeader";
 import { useNavigate } from "react-router-dom";
 import { Search, ChefHat, BookOpen, Users, Wrench, ClipboardList, CalendarDays, AlertTriangle, FileText, Utensils } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -63,7 +64,10 @@ export default function Knowledge() {
 
   return (
     <div className="pb-24 max-w-[1100px] mx-auto" onScroll={handleScroll}>
-      <KnowledgeHeader onNotifications={() => navigate("/app/overview")} />
+      <DesktopPageHeader title="Knowledge Base" />
+      <div className="lg:hidden">
+        <KnowledgeHeader onNotifications={() => navigate("/app/overview")} />
+      </div>
 
       <div className="px-4 py-3 space-y-4">
         {/* Premium Search Bar - Sticky */}

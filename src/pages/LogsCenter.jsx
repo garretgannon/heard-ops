@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
@@ -169,6 +170,7 @@ export default function LogsCenter() {
     <div className="flex h-screen bg-background overflow-hidden pb-40 lg:pb-0">
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
+        <DesktopPageHeader title="Logs" />
         {/* Inbox Header with Stats */}
         <LogsInboxHeader
           logs={logs}

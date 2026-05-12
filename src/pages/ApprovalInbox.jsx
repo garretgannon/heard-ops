@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -364,6 +365,7 @@ export default function ApprovalInbox() {
   // ── Main ────────────────────────────────────────────────────────────────────
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="Approvals" />
       <main className="app-page mx-auto flex min-h-[calc(100vh-150px)] max-w-[520px] flex-col gap-4">
 
         {/* HUD */}

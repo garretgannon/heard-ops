@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
@@ -65,8 +66,9 @@ export default function Cleaning() {
 
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="Cleaning" />
       <main className="app-page mx-auto max-w-[620px] space-y-5 pb-28">
-        <header className="pt-1 flex items-start justify-between gap-4">
+        <header className="pt-1 flex items-start justify-between gap-4 lg:hidden">
           <div>
             <p className="metric-label">Operations</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Cleaning</h1>

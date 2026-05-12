@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Edit2, AlertTriangle, Package, Bell, CalendarDays, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -46,8 +47,9 @@ export default function InventorySimplified() {
 
   return (
     <div className="pb-24 lg:pb-0">
-      {/* Desktop Header */}
-      <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
+      <DesktopPageHeader title="Inventory" />
+      {/* Desktop Header - legacy, hidden in favor of DesktopPageHeader */}
+      <div className="hidden items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-foreground">Inventory</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Track stock levels and manage counts</p>
