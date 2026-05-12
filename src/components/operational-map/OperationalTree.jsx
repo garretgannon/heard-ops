@@ -1,17 +1,6 @@
-import { ChevronDown, ChevronRight, MapPin, Layers, Zap, Plus, MoreVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight, MapPin, Layers, Plus, MoreVertical } from 'lucide-react';
 import { useState } from 'react';
-
-const EQUIPMENT_ICONS = {
-  'dish-machine': Layers,
-  'fryer': Zap,
-  'grill': Zap,
-  'oven': Zap,
-  'walk-in-cooler': Zap,
-  'walk-in-freezer': Zap,
-  'reach-in-cooler': Zap,
-  'reach-in-freezer': Zap,
-  'default': Layers,
-};
+import { getEquipmentMeta } from '@/lib/equipmentConfig';
 
 export default function OperationalTree({
   areas,
@@ -148,7 +137,7 @@ export default function OperationalTree({
                                     : 'hover:bg-card border border-transparent'
                                 }`}
                               >
-                                <Zap className="h-3.5 w-3.5 text-secondary-text shrink-0" />
+                                {(() => { const m = getEquipmentMeta(equip.equipmentType); const I = m.icon; return <I className={`h-3.5 w-3.5 shrink-0 ${m.iconColor}`} />; })()}
                                 <div className="flex-1 min-w-0">
                                   <p className="font-semibold text-foreground">{equip.name}</p>
                                   <p className="text-[9px] text-muted-foreground">

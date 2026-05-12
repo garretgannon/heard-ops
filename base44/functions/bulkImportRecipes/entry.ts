@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 import Anthropic from 'npm:@anthropic-ai/sdk';
 
-const SYSTEM_PROMPT = `You are a professional recipe parser for a restaurant operations system. Parse the user's raw text and extract all recipes into structured JSON.
+const SYSTEM_PROMPT = `You are a professional recipe parser for a restaurant operations system. Parse all recipes from the provided content — which may include plain text, images of recipe cards, or PDF documents.
 
 For each recipe, extract:
 - name (string, required)
@@ -22,10 +22,17 @@ For each recipe, extract:
 
 Rules:
 - Only include fields you can confidently extract; omit others
-- If multiple recipes are present, parse all of them
+- If multiple recipes are present across text and files, parse all of them
 - Normalize units (tbsp, tsp, oz, lb, qt, gal, each, bunch, etc.)
+- For images, carefully read all text visible in the photo
 - Return ONLY valid JSON with no markdown, no explanation, no extra text
 - Format: { "recipes": [ { ...recipe fields... }, ... ] }`;
+
+type FileAttachment = {
+  name: string;
+  type: string;
+  data: string; // base64
+};
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -42,9 +49,13 @@ Deno.serve(async (req: Request) => {
     const base44 = createClientFromRequest(req);
     await base44.auth.me();
 
-    const { rawText } = await req.json();
-    if (!rawText?.trim()) {
-      return Response.json({ error: 'rawText is required' }, { status: 400 });
+    const { rawText = '', files = [] }: { rawText: string; files: FileAttachment[] } = await req.json();
+
+    const hasText = rawText.trim().length > 0;
+    const hasFiles = Array.isArray(files) && files.length > 0;
+
+    if (!hasText && !hasFiles) {
+      return Response.json({ error: 'Provide text or upload files to parse' }, { status: 400 });
     }
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
@@ -53,6 +64,40 @@ Deno.serve(async (req: Request) => {
     }
 
     const anthropic = new Anthropic({ apiKey });
+
+    // Build the user message content array
+    const userContent: Anthropic.MessageParam['content'] = [];
+
+    if (hasText) {
+      userContent.push({ type: 'text', text: rawText.trim() });
+    }
+
+    for (const file of files) {
+      const isImage = file.type.startsWith('image/');
+      const isPDF = file.type === 'application/pdf' || file.name?.endsWith('.pdf');
+
+      if (isImage) {
+        const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const mediaType = allowedImageTypes.includes(file.type) ? file.type : 'image/jpeg';
+        userContent.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
+            data: file.data,
+          },
+        });
+      } else if (isPDF) {
+        userContent.push({
+          type: 'document',
+          source: {
+            type: 'base64',
+            media_type: 'application/pdf',
+            data: file.data,
+          },
+        } as Anthropic.DocumentBlockParam);
+      }
+    }
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -67,7 +112,7 @@ Deno.serve(async (req: Request) => {
       messages: [
         {
           role: 'user',
-          content: rawText,
+          content: userContent,
         },
       ],
     });

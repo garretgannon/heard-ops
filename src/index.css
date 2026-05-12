@@ -945,10 +945,13 @@
 
   /* ── Desktop header/page header polish ── */
   .app-header-band {
-    @apply border-b border-border/40 px-4 py-5 lg:px-8 lg:py-6;
-    background: linear-gradient(180deg, rgba(13, 20, 27, 0.6) 0%, transparent 100%);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    @apply px-8 py-[18px] sticky top-0 z-20;
+    background: linear-gradient(180deg, rgba(6,10,17,0.97) 0%, rgba(5,8,14,0.95) 100%);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(255,255,255,0.055);
+    border-top: 1px solid rgba(230,106,31,0.25);
+    box-shadow: 0 1px 0 rgba(230,106,31,0.07), 0 8px 40px rgba(0,0,0,0.55);
   }
 
   /* ── Active/selected highlight ring for cards ── */

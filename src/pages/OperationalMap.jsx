@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BottomSheet from '@/components/BottomSheet';
+import { getEquipmentMeta } from '@/lib/equipmentConfig';
 
 // ─── Workflows ───────────────────────────────────────────────────────────────
 
@@ -283,9 +284,15 @@ function EquipmentRow({ item, station, area, cleaningTemplates, maintenanceTempl
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center gap-3 px-3 py-3 text-left transition-all hover:bg-white/[0.03]"
       >
-        <span className="status-marker status-marker-sm status-neutral shrink-0">
-          <Wrench className="h-3 w-3" />
-        </span>
+        {(() => {
+          const meta = getEquipmentMeta(item.equipmentType);
+          const Icon = meta.icon;
+          return (
+            <span className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center" style={{ background: meta.bg }}>
+              <Icon className={cn('h-3.5 w-3.5', meta.iconColor)} />
+            </span>
+          );
+        })()}
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-foreground">{item.name}</p>
           <p className="mt-0.5 text-[10px] text-muted-foreground">
@@ -474,12 +481,15 @@ function AddEquipmentForm({ station, area, onSave, onCancel }) {
         value={name} onChange={(e) => setName(e.target.value)} placeholder="Equipment name"
         className="h-9 w-full rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
       />
-      <select
-        value={type} onChange={(e) => setType(e.target.value)}
-        className="h-9 w-full rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none"
-      >
-        {EQUIPMENT_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-      </select>
+      <div className="flex items-center gap-2">
+        {(() => { const m = getEquipmentMeta(type); const I = m.icon; return <span className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center" style={{ background: m.bg }}><I className={cn('h-4 w-4', m.iconColor)} /></span>; })()}
+        <select
+          value={type} onChange={(e) => setType(e.target.value)}
+          className="h-9 flex-1 rounded-lg border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none"
+        >
+          {EQUIPMENT_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+      </div>
       <div className="flex gap-2">
         <button type="button" onClick={save} disabled={saving || !name.trim()}
           className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-black text-primary-foreground disabled:opacity-50"

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Plus, Trash2, Edit2, ChevronDown, ChevronRight, MapPin, Layers, Wrench, Check, X } from 'lucide-react';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { getEquipmentMeta } from '@/lib/equipmentConfig';
 
 const DEPARTMENTS = ['BOH', 'FOH', 'Bar', 'Management'];
 const EQUIPMENT_CATEGORIES = [
@@ -67,13 +68,19 @@ function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCan
         {EQUIPMENT_CATEGORIES.map(cat => (
           <div key={cat.label} className="mb-2">
             <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest mb-1">{cat.label}</p>
-            <div className="flex flex-wrap gap-1">
-              {cat.types.map(([val, lbl]) => (
-                <button key={val} type="button" onClick={() => handleTypeSelect(val)}
-                  className={`text-xs px-2 py-0.5 rounded-full border font-semibold transition-all ${form.equipmentType === val ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'}`}>
-                  {lbl}
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-1.5">
+              {cat.types.map(([val, lbl]) => {
+                const meta = getEquipmentMeta(val);
+                const Icon = meta.icon;
+                const isSelected = form.equipmentType === val;
+                return (
+                  <button key={val} type="button" onClick={() => handleTypeSelect(val)}
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-semibold transition-all ${isSelected ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'}`}>
+                    <Icon className={`h-3 w-3 ${isSelected ? 'text-white' : meta.iconColor}`} />
+                    {lbl}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}

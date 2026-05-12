@@ -5,6 +5,7 @@ import {
   Building2, MapPin, Users, Wrench,
   Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Bell, X, ChevronDown, ChevronUp
 } from 'lucide-react';
+import { getEquipmentMeta } from '@/lib/equipmentConfig';
 import SetupProgressCard from '@/components/myrestaurant/SetupProgressCard';
 import SectionCard from '@/components/myrestaurant/SectionCard';
 import CenteredModal from '@/components/myrestaurant/CenteredModal';
@@ -269,15 +270,19 @@ function EquipmentModal({ onClose }) {
           <div key={cat.id}>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2 mb-1">{cat.label}</p>
             <div className="flex flex-wrap gap-1.5">
-              {cat.types.map(t => (
-                <button key={t.value} type="button"
-                  onClick={() => setForm(p => ({ ...p, equipmentType: t.value }))}
-                  className={`text-xs px-2.5 py-1 rounded-full border font-semibold transition-all ${
-                    form.equipmentType === t.value ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'
-                  }`}>
-                  {t.label}
-                </button>
-              ))}
+              {cat.types.map(t => {
+                const meta = getEquipmentMeta(t.value);
+                const Icon = meta.icon;
+                const isSelected = form.equipmentType === t.value;
+                return (
+                  <button key={t.value} type="button"
+                    onClick={() => setForm(p => ({ ...p, equipmentType: t.value }))}
+                    className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-semibold transition-all ${isSelected ? 'bg-primary text-white border-primary' : 'bg-muted text-muted-foreground border-border hover:border-primary/50'}`}>
+                    <Icon className={`h-3 w-3 ${isSelected ? 'text-white' : meta.iconColor}`} />
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
