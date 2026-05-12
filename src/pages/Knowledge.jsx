@@ -63,7 +63,7 @@ export default function Knowledge() {
 
   return (
     <div className="pb-24 max-w-[1100px] mx-auto" onScroll={handleScroll}>
-      <KnowledgeHeader onNotifications={() => navigate("/today")} />
+      <KnowledgeHeader onNotifications={() => navigate("/app/overview")} />
 
       <div className="px-4 py-3 space-y-4">
         {/* Premium Search Bar - Sticky */}
@@ -123,7 +123,7 @@ export default function Knowledge() {
               count={0}
               color="amber"
               indicator
-              onClick={() => navigate("/today")}
+              onClick={() => navigate("/operational-map")}
             />
           </div>
         </div>

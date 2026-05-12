@@ -17,10 +17,10 @@ export const LOG_TYPES = {
   eighty_six:     { label: "86'd",           icon: Utensils,             color: "text-orange-500",  bg: "bg-orange-600/15",  border: "border-l-orange-600",  dot: "bg-orange-600",  badge: "bg-orange-600/20 text-orange-400 border-orange-600/30", routePath: "/waste-86" },
   equipment:      { label: "Equipment",      icon: Wrench,               color: "text-sky-400",     bg: "bg-sky-500/15",     border: "border-l-sky-500",     dot: "bg-sky-500",     badge: "bg-sky-500/20 text-sky-300 border-sky-500/30",        routePath: "/issues" },
   guest_complaint:{ label: "Guest Complaint",icon: MessageSquareWarning, color: "text-rose-400",    bg: "bg-rose-500/15",    border: "border-l-rose-500",    dot: "bg-rose-500",    badge: "bg-rose-500/20 text-rose-300 border-rose-500/30",     routePath: "/issues" },
-  shift_handoff:  { label: "Shift Handoff",  icon: ArrowRightLeft,       color: "text-indigo-400",  bg: "bg-indigo-500/15",  border: "border-l-indigo-500",  dot: "bg-indigo-500",  badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30", routePath: "/shift-handoff" },
+  shift_handoff:  { label: "Shift Handoff",  icon: ArrowRightLeft,       color: "text-indigo-400",  bg: "bg-indigo-500/15",  border: "border-l-indigo-500",  dot: "bg-indigo-500",  badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30", routePath: "/shift" },
   issue:          { label: "Issue",          icon: AlertTriangle,        color: "text-red-400",     bg: "bg-red-500/15",     border: "border-l-red-500",     dot: "bg-red-500",     badge: "bg-red-500/20 text-red-300 border-red-500/30",        routePath: "/issues" },
-  prep:           { label: "Prep",           icon: ClipboardList,        color: "text-violet-400",  bg: "bg-violet-500/15",  border: "border-l-violet-500",  dot: "bg-violet-500",  badge: "bg-violet-500/20 text-violet-300 border-violet-500/30", routePath: "/prep-lists" },
-  side_work:      { label: "Side Work",      icon: ListFilter,           color: "text-pink-400",    bg: "bg-pink-400/15",    border: "border-l-pink-400",    dot: "bg-pink-400",    badge: "bg-pink-400/20 text-pink-300 border-pink-400/30",     routePath: "/side-work" },
+  prep:           { label: "Prep",           icon: ClipboardList,        color: "text-violet-400",  bg: "bg-violet-500/15",  border: "border-l-violet-500",  dot: "bg-violet-500",  badge: "bg-violet-500/20 text-violet-300 border-violet-500/30", routePath: "/tasks?tab=prep" },
+  side_work:      { label: "Side Work",      icon: ListFilter,           color: "text-pink-400",    bg: "bg-pink-400/15",    border: "border-l-pink-400",    dot: "bg-pink-400",    badge: "bg-pink-400/20 text-pink-300 border-pink-400/30",     routePath: "/tasks?tab=sidework" },
 };
 
 export const STATUS_META = {

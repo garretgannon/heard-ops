@@ -17,8 +17,8 @@ export default function DesktopOverviewDashboard({
   const navigate = useNavigate();
 
   const handleMetricClick = (metricKey) => {
-    if (metricKey === 'prep') navigate('/?tab=prep');
-    else if (metricKey === 'sidework') navigate('/?tab=sidework');
+    if (metricKey === 'prep') navigate('/tasks?tab=prep');
+    else if (metricKey === 'sidework') navigate('/tasks?tab=sidework');
     else if (metricKey === 'temperature') navigate('/logs?type=temperature');
     else if (metricKey === 'review') navigate('/logs?view=review');
     else if (metricKey === 'incidents') navigate('/logs?type=incident');

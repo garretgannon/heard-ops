@@ -18,7 +18,7 @@ export const ROLE_DEFINITIONS = {
     },
     visibleModules: ['dashboard', 'logs', 'schedule', 'team', 'issues', 'reports', 'knowledge', 'handoffs'],
     quickActions: ['manager_log', 'view_handoff', 'approve_tasks', 'staffing'],
-    defaultView: '/today',
+    defaultView: '/shift',
   },
   kitchen_lead: {
     label: 'Kitchen Lead',
@@ -37,7 +37,7 @@ export const ROLE_DEFINITIONS = {
     },
     visibleModules: ['dashboard', 'prep', 'sidework', 'logs', 'knowledge', 'cleaning'],
     quickActions: ['add_prep', 'add_sidework', 'temp_log', 'issue'],
-    defaultView: '/today',
+    defaultView: '/operational-map',
   },
   server: {
     label: 'Server',
@@ -52,7 +52,7 @@ export const ROLE_DEFINITIONS = {
     },
     visibleModules: ['dashboard', 'tasks', 'logs', 'knowledge'],
     quickActions: ['add_task', 'manager_log', 'issue'],
-    defaultView: '/today',
+    defaultView: '/station-shift',
   },
   prep_cook: {
     label: 'Prep Cook',
@@ -68,7 +68,7 @@ export const ROLE_DEFINITIONS = {
     },
     visibleModules: ['dashboard', 'prep', 'logs', 'knowledge'],
     quickActions: ['view_prep', 'temp_log', 'manager_log'],
-    defaultView: '/today',
+    defaultView: '/station-shift',
   },
   cook: {
     label: 'Cook',
@@ -84,7 +84,7 @@ export const ROLE_DEFINITIONS = {
     },
     visibleModules: ['dashboard', 'tasks', 'logs', 'knowledge'],
     quickActions: ['temp_log', 'manager_log', 'issue'],
-    defaultView: '/today',
+    defaultView: '/station-shift',
   },
   bartender: {
     label: 'Bartender',
@@ -101,7 +101,7 @@ export const ROLE_DEFINITIONS = {
     },
     visibleModules: ['dashboard', 'tasks', 'logs', 'knowledge'],
     quickActions: ['view_sidework', 'manager_log', 'issue'],
-    defaultView: '/today',
+    defaultView: '/station-shift',
   },
 };
 

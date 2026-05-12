@@ -56,7 +56,7 @@ export default function AlertsSection({ alerts }) {
       pending_review: '/tasks?status=needs_review',
       incidents: '/logs?filter=incident',
       maintenance: '/logs?filter=maintenance',
-      handoff_pending: '/shift-handoff',
+      handoff_pending: '/shift',
     };
     navigate(routes[type] || '/tasks');
   };

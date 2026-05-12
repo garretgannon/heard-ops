@@ -38,7 +38,7 @@ export default function ShiftHandoffCard({ handoff }) {
   const filledSections = sections.filter(s => s.value).length;
 
   return (
-    <Link to="/shift-handoff">
+    <Link to="/shift">
       <div
         className={cn(
           "bg-card border-2 rounded-xl p-6 hover:bg-secondary/20 transition-colors cursor-pointer",

@@ -101,7 +101,7 @@ const MODULES = [
     desc: 'Build shift notes, accountability trails, and follow-up systems.',
     why: 'Shift handoffs are how managers communicate across shifts without meetings.',
     color: 'yellow',
-    link: '/shift-handoff',
+    link: '/shift',
     checks: async () => {
       const handoffs = await base44.entities.ShiftHandoff.list().catch(() => []);
       return { count: handoffs.length, done: handoffs.length >= 1 };

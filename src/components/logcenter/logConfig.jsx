@@ -133,7 +133,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-indigo-400",
     badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
     dot: "bg-indigo-500",
-    routePath: "/shift-handoff",
+    routePath: "/shift",
   },
   issue: {
     label: "Issue",

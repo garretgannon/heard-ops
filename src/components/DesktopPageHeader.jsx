@@ -14,11 +14,11 @@ export default function DesktopPageHeader({ title, subtitle, actions }) {
       <div className="flex items-center gap-2">
         {actions}
         <button
-          onClick={() => navigate('/shift-handoff')}
+          onClick={() => navigate('/shift')}
           className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted transition-all active:scale-95"
         >
           <CalendarDays className="h-3.5 w-3.5 text-primary" />
-          Today's Plan
+          Shift
         </button>
         <button
           onClick={() => navigate('/logs')}

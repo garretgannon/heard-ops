@@ -1,11 +1,11 @@
 /**
- * INTERACTION MAP - Complete Action Registry
- * Centralized source of truth for all clickable elements in HeardOS
- * Every button must have an assigned behavior from these categories
+ * Current interaction registry for the active HeardOS app.
+ * Keep this aligned with routeConfig.js, GlobalBottomNav, More, and QuickAddSheet.
  */
 
 export const INTERACTION_TYPES = {
   OPEN_MODAL: 'open_modal',
+  OPEN_SHEET: 'open_sheet',
   NAVIGATE: 'navigate',
   SUBMIT_FORM: 'submit_form',
   FILTER_LIST: 'filter_list',
@@ -17,293 +17,28 @@ export const INTERACTION_TYPES = {
   NO_ACTION: 'no_action',
 };
 
-/**
- * PAGE: Today's Command Center
- */
-export const todayCommandCenterMap = {
-  startShiftButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'StartShiftModal',
-    label: 'Start Shift',
-  },
-  endShiftButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'CloseShiftModal',
-    label: 'End Shift',
-  },
-  quickLogButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'QuickLogModal',
-    label: 'Quick Log',
-  },
-  addTaskButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'AddTaskModal',
-    label: 'Add Task',
-  },
-  add86Button: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'Add86Modal',
-    label: 'Add 86',
-  },
-  addPrepButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'AddPrepModal',
-    label: 'Add Prep',
-  },
-  maintenanceButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'MaintenanceModal',
-    label: 'Maintenance',
-  },
-  overdueFix: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/today',
-    label: 'Fix Overdue Item',
-  },
-  dueSoonViewDetail: {
-    type: INTERACTION_TYPES.OPEN_DETAIL,
-    target: 'TaskDetailDrawer',
-    label: 'View Due Soon Item',
-  },
-  completedViewMore: {
-    type: INTERACTION_TYPES.NO_ACTION,
-    label: 'Recently Completed (Info Only)',
-  },
-  shiftNotesViewHandoff: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/shift-handoff',
-    label: 'View Handoff',
-  },
-  notificationsButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/logs',
-    label: 'View Notifications',
-  },
-  viewDayButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/calendar',
-    label: 'View Calendar',
-  },
-};
-
-/**
- * PAGE: Staff Tasks (/today)
- */
-export const staffTasksMap = {
-  taskCard: {
-    type: INTERACTION_TYPES.MARK_COMPLETE,
-    target: 'PrepItem | SideWorkAssignment',
-    label: 'Mark Task Complete',
-  },
-  taskSwipeSnooze: {
-    type: INTERACTION_TYPES.TOGGLE_STATUS,
-    target: 'Task Snooze',
-    label: 'Snooze Task',
-  },
-  taskSwipeReassign: {
-    type: INTERACTION_TYPES.EDIT_RECORD,
-    target: 'Task Reassignment',
-    label: 'Reassign Task',
-  },
-  taskSwipeView: {
-    type: INTERACTION_TYPES.OPEN_DETAIL,
-    target: 'TaskDetailDrawer',
-    label: 'View Task Details',
-  },
-  filterChip: {
-    type: INTERACTION_TYPES.FILTER_LIST,
-    target: 'TaskList',
-    label: 'Filter Tasks',
-  },
-};
-
-/**
- * PAGE: Logs (/logs)
- */
-export const logsMap = {
-  logFilterTab: {
-    type: INTERACTION_TYPES.FILTER_LIST,
-    target: 'LogList',
-    label: 'Filter Logs by Type',
-  },
-  logCard: {
-    type: INTERACTION_TYPES.OPEN_DETAIL,
-    target: 'LogDetailDrawer',
-    label: 'View Log Details',
-  },
-  quickLogFAB: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'QuickLogModal',
-    label: 'Create Quick Log',
-  },
-};
-
-/**
- * PAGE: Knowledge (/knowledge)
- */
-export const knowledgeMap = {
-  searchBar: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/search',
-    label: 'Search Knowledge',
-  },
-  recipesCard: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/recipes',
-    label: 'View Recipes',
-  },
-  buildCardsCard: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/recipes',
-    label: 'View Build Cards',
-  },
-  vendorsCard: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/vendors',
-    label: 'View Vendors',
-  },
-  equipmentCard: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/equipment',
-    label: 'View Equipment Guides',
-  },
-  sopsCard: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/guides',
-    label: 'View SOPs & Guides',
-  },
-  formsCard: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/forms',
-    label: 'View Forms & Checklists',
-  },
-};
-
-/**
- * PAGE: More Menu (/more)
- */
-export const moreMenuMap = {
-  templatesButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/templates',
-    label: 'Manage Templates',
-  },
-  teamButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/restaurant-team',
-    label: 'Manage Team',
-  },
-  scheduleButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/schedule-center',
-    label: 'Manage Schedule',
-  },
-  timeClockButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/time-clock',
-    label: 'Time Clock',
-  },
-  restaurantSettingsButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/my-restaurant',
-    label: 'Restaurant Settings',
-  },
-  tagsButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/standards',
-    label: 'Tags & Categories',
-  },
-  integrationsButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/integrations',
-    label: 'Integrations',
-  },
-  accountButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/profile',
-    label: 'My Account',
-  },
-  helpButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/knowledge',
-    label: 'Help & Support',
-  },
-};
-
-/**
- * PAGE: Restaurant Team (/restaurant-team)
- */
-export const restaurantTeamMap = {
-  backButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: -1,
-    label: 'Go Back',
-  },
-  notificationsButton: {
-    type: INTERACTION_TYPES.NO_ACTION,
-    label: 'Notifications Bell (Placeholder)',
-  },
-  filterChip: {
-    type: INTERACTION_TYPES.FILTER_LIST,
-    target: 'EmployeeList',
-    label: 'Filter Employees by Role',
-  },
-  certificationsButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/certifications',
-    label: 'Review Certifications',
-  },
-  availabilityButton: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/availability-requests',
-    label: 'Open Availability Requests',
-  },
-  messageButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'SendMessageModal',
-    label: 'Message Employee',
-  },
-  taskAssignButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'AssignTaskModal',
-    label: 'Assign Task',
-  },
-  employeeProfileButton: {
-    type: INTERACTION_TYPES.OPEN_DETAIL,
-    target: 'EmployeeDetailDrawer',
-    label: 'View Employee Profile',
-  },
-  addTeamMemberButton: {
-    type: INTERACTION_TYPES.OPEN_MODAL,
-    target: 'InviteTeamMemberModal',
-    label: 'Add Team Member',
-  },
-};
-
-/**
- * COMPONENT: Global Bottom Navigation
- */
 export const bottomNavMap = {
-  todayTab: {
+  dashboardTab: {
     type: INTERACTION_TYPES.NAVIGATE,
-    target: '/',
-    label: 'Today Command Center',
+    target: '/app/overview',
+    staffTarget: '/station-shift',
+    label: 'Dashboard / Shift',
   },
-  tasksTab: {
+  stationsTab: {
     type: INTERACTION_TYPES.NAVIGATE,
-    target: '/today',
-    label: 'Staff Tasks',
+    target: '/operational-map',
+    label: 'Stations',
   },
-  logsTab: {
-    type: INTERACTION_TYPES.NAVIGATE,
-    target: '/logs',
-    label: 'Logs',
+  addButton: {
+    type: INTERACTION_TYPES.OPEN_SHEET,
+    target: 'QuickAddSheet',
+    label: 'Add',
   },
-  knowledgeTab: {
+  shiftTab: {
     type: INTERACTION_TYPES.NAVIGATE,
-    target: '/knowledge',
-    label: 'Knowledge',
+    target: '/shift',
+    adminOnly: true,
+    label: 'Manager Shift',
   },
   moreTab: {
     type: INTERACTION_TYPES.NAVIGATE,
@@ -312,17 +47,390 @@ export const bottomNavMap = {
   },
 };
 
-/**
- * COMPONENT: Layout Header
- */
-export const layoutHeaderMap = {
-  notificationsBell: {
+export const quickAddMap = {
+  task: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'TemplateCreateModal:add_task',
+    label: 'Task',
+  },
+  managerLog: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'TemplateCreateModal:add_manager_note',
+    label: 'Manager Log',
+  },
+  reservationBeo: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'TemplateCreateModal:add_beo',
+    label: 'Reservation / BEO',
+  },
+  waste: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'TemplateCreateModal:add_waste',
+    label: 'Waste',
+  },
+  maintenance: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'TemplateCreateModal:report_maintenance',
+    label: 'Maintenance Issue',
+  },
+  temperature: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'TemplateCreateModal:log_temperature',
+    label: 'Temp Log',
+  },
+  incident: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'TemplateCreateModal:report_incident',
+    label: 'Incident',
+  },
+};
+
+export const appOverviewMap = {
+  readinessMetric: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/operational-map',
+    label: 'Open station readiness',
+  },
+  prepMetric: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/tasks?tab=prep',
+    label: 'Open prep tasks',
+  },
+  sideworkMetric: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/tasks?tab=sidework',
+    label: 'Open side work tasks',
+  },
+  temperatureMetric: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/logs?type=temperature',
+    label: 'Open temperature logs',
+  },
+  incidentsMetric: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/logs?type=incident',
+    label: 'Open incident logs',
+  },
+  reviewMetric: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/logs?view=review',
+    label: 'Open review queue',
+  },
+};
+
+export const managerShiftMap = {
+  startBriefingReview: {
+    type: INTERACTION_TYPES.SUBMIT_FORM,
+    target: 'ManagerLog:create',
+    label: 'Acknowledge incoming briefing',
+  },
+  preShiftBriefingSave: {
+    type: INTERACTION_TYPES.SUBMIT_FORM,
+    target: 'PreShift:createOrUpdate',
+    label: 'Save pre-shift briefing',
+  },
+  dutyToggle: {
+    type: INTERACTION_TYPES.TOGGLE_STATUS,
+    target: 'ManagerShift:duties',
+    label: 'Toggle manager duty',
+  },
+  openStations: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/operational-map',
+    label: 'Open stations',
+  },
+  openApprovals: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/approvals',
+    label: 'Open approvals',
+  },
+  closeShiftHandoff: {
+    type: INTERACTION_TYPES.SUBMIT_FORM,
+    target: 'ShiftHandoff:create',
+    label: 'Complete closing handoff',
+  },
+};
+
+export const stationsMap = {
+  areaFilter: {
+    type: INTERACTION_TYPES.FILTER_LIST,
+    target: 'OperationalMap:areas',
+    label: 'Filter stations by area',
+  },
+  stationCard: {
+    type: INTERACTION_TYPES.OPEN_DETAIL,
+    target: 'OperationalMap:selectedStation',
+    label: 'Open station detail',
+  },
+  stationWorkflowPrep: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/tasks?tab=prep',
+    label: 'Open prep workflow',
+  },
+  stationWorkflowSidework: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/tasks?tab=sidework',
+    label: 'Open side work workflow',
+  },
+  stationRefresh: {
     type: INTERACTION_TYPES.NO_ACTION,
-    label: 'Notifications (Placeholder)',
+    target: 'OperationalMap:reload',
+    label: 'Refresh station data',
+  },
+};
+
+export const staffShiftMap = {
+  stationHandoffCapture: {
+    type: INTERACTION_TYPES.SUBMIT_FORM,
+    target: 'StationShift:handoff',
+    label: 'Capture station handoff',
+  },
+  taskComplete: {
+    type: INTERACTION_TYPES.MARK_COMPLETE,
+    target: 'GeneratedTask | PrepItem | SideWorkAssignment',
+    label: 'Complete assigned station task',
+  },
+  closeStation: {
+    type: INTERACTION_TYPES.SUBMIT_FORM,
+    target: 'StationShift:session',
+    label: 'Close station shift',
+  },
+};
+
+export const staffTasksMap = {
+  filterChip: {
+    type: INTERACTION_TYPES.FILTER_LIST,
+    target: 'StaffTasks:filter',
+    label: 'Filter task list',
+  },
+  prepTaskStart: {
+    type: INTERACTION_TYPES.EDIT_RECORD,
+    target: 'PrepItem:start',
+    label: 'Start prep task',
+  },
+  sideWorkComplete: {
+    type: INTERACTION_TYPES.MARK_COMPLETE,
+    target: 'SideWorkAssignment:complete',
+    label: 'Complete side work',
+  },
+  taskOpenSource: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/station-shift',
+    fallbackTarget: '/tasks?tab=sidework',
+    label: 'Open task source workflow',
+  },
+};
+
+export const logsMap = {
+  logViewToggle: {
+    type: INTERACTION_TYPES.FILTER_LIST,
+    target: 'LogsCenter:viewMode',
+    label: 'Switch log view',
+  },
+  quickFilterChip: {
+    type: INTERACTION_TYPES.FILTER_LIST,
+    target: 'LogsCenter:activeFilter',
+    label: 'Filter logs',
+  },
+  createLogButton: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'LogCreateModal',
+    label: 'Create log',
+  },
+  advancedFiltersButton: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'AdvancedFilters',
+    label: 'Open advanced filters',
+  },
+  logCard: {
+    type: INTERACTION_TYPES.OPEN_DETAIL,
+    target: 'LogsDetailDrawer',
+    label: 'View log detail',
+  },
+};
+
+export const knowledgeMap = {
+  searchBar: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/search',
+    label: 'Search knowledge',
+  },
+  recipesCard: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/recipes',
+    label: 'Open recipes',
+  },
+  buildCardsCard: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/build-cards',
+    label: 'Open build cards',
+  },
+  activeBeosCard: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/reservations',
+    label: 'Open BEOs / events',
+  },
+  standardsCard: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/standards',
+    label: 'Open standards',
+  },
+  alertsCard: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/operational-map',
+    label: 'Open operational alerts',
+  },
+};
+
+export const moreMenuMap = {
+  prepPlanning: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/prep-planning',
+    label: 'Prep Planning',
+  },
+  shift: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/shift',
+    label: 'Shift',
+  },
+  logs: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/logs',
+    label: 'Logs',
+  },
+  comms: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/comms',
+    label: 'Comms',
+  },
+  reservations: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/reservations',
+    label: 'BEOs / Events',
+  },
+  reports: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/reports',
+    label: 'Reports',
+  },
+  recipes: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/recipes',
+    label: 'Recipes',
+  },
+  inventory: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/inventory',
+    label: 'Inventory',
+  },
+  purchasedItems: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/purchased-items',
+    label: 'Purchased Items',
+  },
+  vendors: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/vendors',
+    label: 'Vendors',
+  },
+  training: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/training',
+    label: 'Training',
+  },
+  chemicalLibrary: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/chemical-library',
+    label: 'Chemicals / SDS',
+  },
+  people: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/people',
+    label: 'Team Structure',
+  },
+  restaurant: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/my-restaurant',
+    label: 'Restaurant',
+  },
+  profile: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/profile',
+    label: 'Profile & Settings',
+  },
+  templates: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/templates',
+    label: 'Templates',
+  },
+  roles: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/admin/command-center',
+    label: 'Roles',
+  },
+  automation: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/automation-rules',
+    label: 'Automation',
+  },
+};
+
+export const teamMap = {
+  employeeCard: {
+    type: INTERACTION_TYPES.OPEN_DETAIL,
+    target: 'EmployeeEditDrawer',
+    label: 'Open employee detail',
+  },
+  addEmployee: {
+    type: INTERACTION_TYPES.OPEN_MODAL,
+    target: 'EmployeeEditDrawer:create',
+    label: 'Add employee',
+  },
+  rolesTab: {
+    type: INTERACTION_TYPES.FILTER_LIST,
+    target: 'TeamCenter:tab',
+    label: 'Open roles tab',
+  },
+  jobCodesTab: {
+    type: INTERACTION_TYPES.FILTER_LIST,
+    target: 'TeamCenter:tab',
+    label: 'Open job codes tab',
+  },
+};
+
+export const layoutHeaderMap = {
+  shiftButton: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/shift',
+    label: 'Open Shift',
+  },
+  logsButton: {
+    type: INTERACTION_TYPES.NAVIGATE,
+    target: '/logs',
+    label: 'Open Logs',
   },
   profileLink: {
     type: INTERACTION_TYPES.NAVIGATE,
     target: '/profile',
-    label: 'Go to Profile',
+    label: 'Open Profile',
   },
+};
+
+// Backward-compatible export name for older docs/tests.
+export const todayCommandCenterMap = appOverviewMap;
+export const restaurantTeamMap = teamMap;
+
+export const currentInteractionMap = {
+  appOverview: appOverviewMap,
+  bottomNav: bottomNavMap,
+  knowledge: knowledgeMap,
+  layoutHeader: layoutHeaderMap,
+  logs: logsMap,
+  managerShift: managerShiftMap,
+  moreMenu: moreMenuMap,
+  quickAdd: quickAddMap,
+  staffShift: staffShiftMap,
+  staffTasks: staffTasksMap,
+  stations: stationsMap,
+  team: teamMap,
 };

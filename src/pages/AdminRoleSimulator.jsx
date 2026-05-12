@@ -26,7 +26,7 @@ export default function AdminRoleSimulator() {
     const dummyData = generateRoleSimulationData(roleKey);
     enterSimulation(roleKey, dummyData);
     const roleDef = getRoleDefinition(roleKey);
-    navigate(roleDef?.defaultView || '/today');
+    navigate(roleDef?.defaultView || '/app/overview');
   };
 
   const handleExit = () => {

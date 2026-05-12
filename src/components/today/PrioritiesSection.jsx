@@ -18,11 +18,11 @@ export default function PrioritiesSection({ priorities }) {
   const navigate = useNavigate();
 
   const ROUTE_MAP = {
-    prep: '/?tab=prep',
-    sidework: '/?tab=sidework',
+    prep: '/tasks?tab=prep',
+    sidework: '/tasks?tab=sidework',
     incident: '/logs?type=incident',
     maintenance: '/logs?type=maintenance',
-    cleaning: '/cleaning',
+    cleaning: '/logs?type=cleaning',
     temperature: '/logs?type=temperature',
   };
 
