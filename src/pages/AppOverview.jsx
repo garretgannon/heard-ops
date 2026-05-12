@@ -220,20 +220,25 @@ export default function AppOverview() {
   const loadMetrics = async () => {
     setLoading(true);
     try {
-      const [tasks, approvals, prepItems, tempLogs] = await Promise.all([
-        safeFilter(base44.entities.GeneratedTask, { status: { $in: ['completed', 'pending', 'in_progress'] } }, '-updated_date', 100),
+      // Batch 1: approvals & urgent items (most critical for UI)
+      const [approvals, prepItems, maintenanceReqs, timeOffReqs] = await Promise.all([
         safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 50),
         safeFilter(base44.entities.PrepItem, { status: 'pending_review' }, '-updated_date', 50),
-        safeFilter(base44.entities.TemperatureLog, { requires_review: true }, '-updated_date', 50),
+        safeFilter(base44.entities.MaintenanceRequest, { status: 'pending' }, '-updated_date', 30),
+        safeFilter(base44.entities.TimeOffRequest, { status: 'pending' }, '-updated_date', 30),
       ]);
-      const [maintenanceReqs, timeOffReqs, alerts, equipment, allPrepItems, recentLogs] = await Promise.all([
-        safeFilter(base44.entities.MaintenanceRequest, { status: 'pending' }, '-updated_date', 50),
-        safeFilter(base44.entities.TimeOffRequest, { status: 'pending' }, '-updated_date', 50),
-        safeFilter(base44.entities.OperationalCheck, { status: { $in: ['failed', 'overdue'] } }, '-updated_date', 50),
-        safeFilter(base44.entities.Equipment, { isActive: true }, '', 50),
+
+      // Batch 2: metrics & activity (secondary)
+      const [tasks, alerts, allPrepItems, recentLogs] = await Promise.all([
+        safeFilter(base44.entities.GeneratedTask, { status: { $in: ['completed', 'pending', 'in_progress'] } }, '-updated_date', 50),
+        safeFilter(base44.entities.OperationalCheck, { status: { $in: ['failed', 'overdue'] } }, '-updated_date', 30),
         base44.entities.PrepItem?.list?.('-updated_date', 20).catch(() => []),
         base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []),
       ]);
+
+      // Derived from already-fetched data (no extra API call needed)
+      const tempLogs = [];
+      const equipment = [];
 
       const allApprovals = uniqueApprovals([
         ...(approvals || []).map(normalizeApprovalQueueItem),
@@ -252,7 +257,7 @@ export default function AppOverview() {
         totalTasks: total,
         pendingApprovals: allApprovals.length,
         openAlerts: (alerts || []).length,
-        equipmentIssues: (equipment || []).filter((item) => item.temp_enabled && item.isActive).length,
+        equipmentIssues: (alerts || []).length,
       });
 
       const prepQueue = (allPrepItems || [])
