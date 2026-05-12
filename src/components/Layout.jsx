@@ -178,7 +178,10 @@ export default function Layout() {
         style={isMobile ? { paddingTop: "calc(52px + env(safe-area-inset-top, 0px))" } : {}}
       >
         {isMobile && isTabRoute(location.pathname) ? (
-          <div style={{ paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))' }}>
+          <div
+            className="overflow-hidden"
+            style={{ height: "calc(100dvh - 52px - env(safe-area-inset-top, 0px))" }}
+          >
             <SwipeTabContainer />
           </div>
         ) : (

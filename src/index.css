@@ -546,11 +546,12 @@
   @media (max-width: 1023px) {
     .mobile-tab-viewport {
       max-width: 430px;
+      min-height: 100%;
     }
 
     .mobile-tab-viewport > .app-screen {
       width: 100%;
-      min-height: calc(100vh - 52px - env(safe-area-inset-top, 0px));
+      min-height: 100%;
     }
 
     .mobile-tab-viewport .app-page,

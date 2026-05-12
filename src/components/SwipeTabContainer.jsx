@@ -151,13 +151,13 @@ export default function SwipeTabContainer() {
   return (
     <div
       ref={containerRef}
-      className="overflow-hidden w-full"
+      className="h-full overflow-hidden w-full"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Horizontal strip of all 5 tab pages */}
       <div
-        className="flex"
+        className="flex h-full"
         style={{
           transform: `translateX(${translateX})`,
           // 250ms ease-out snap when finger lifts; no transition while dragging
@@ -169,8 +169,8 @@ export default function SwipeTabContainer() {
           <div
             key={path}
             ref={el => pageRefs.current[i] = el}
-            className="w-full shrink-0 overflow-y-auto"
-            style={{ minWidth: '100%' }}
+            className="w-full h-full shrink-0 overflow-y-auto overscroll-contain"
+            style={{ minWidth: '100%', WebkitOverflowScrolling: 'touch' }}
             aria-hidden={i !== safeIndex}
           >
             <div className="mobile-tab-viewport">
