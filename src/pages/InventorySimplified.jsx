@@ -49,7 +49,7 @@ export default function InventorySimplified() {
       {/* Desktop Header */}
       <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
         <div>
-          <h1 className="text-xl font-extrabold text-foreground">Inventory</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Inventory</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Track stock levels and manage counts</p>
         </div>
         <div className="flex items-center gap-2">
@@ -68,7 +68,7 @@ export default function InventorySimplified() {
       {/* Mobile Header */}
       <div className="lg:hidden bg-card border-b border-border px-4 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-foreground">Inventory</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Inventory</h1>
           <button onClick={() => navigate('/purchased-items')} className="btn-primary text-xs h-8 px-3 flex items-center gap-1">
             <Plus className="h-3.5 w-3.5" /> Add
           </button>

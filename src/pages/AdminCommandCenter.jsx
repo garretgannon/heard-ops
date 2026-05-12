@@ -28,7 +28,7 @@ export default function AdminCommandCenter() {
     <div className="pb-32 min-h-screen">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4">
-        <h1 className="text-xl font-extrabold text-foreground">Admin Command Center</h1>
+        <h1 className="text-2xl font-black tracking-tight text-foreground">Admin Command Center</h1>
         <p className="text-xs text-muted-foreground mt-0.5">Roles, permissions, and access control</p>
       </div>
 

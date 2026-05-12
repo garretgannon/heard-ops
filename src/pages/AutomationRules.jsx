@@ -67,7 +67,7 @@ export default function AutomationRules() {
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border/30 px-6 py-4">
         <div className="mb-4">
-          <h1 className="text-2xl font-extrabold text-foreground">Automation Rules</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Automation Rules</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Create templates to auto-generate operational tasks</p>
         </div>
 

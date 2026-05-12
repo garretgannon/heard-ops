@@ -156,7 +156,7 @@ export default function TemplateManager() {
       <div className="sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border px-4 py-4">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div>
-            <h1 className="text-2xl font-bold">Template Builder</h1>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Template Builder</h1>
             <p className="text-xs text-muted-foreground mt-0.5">{templates.length} templates · unified operational system</p>
           </div>
           {isAdmin && (

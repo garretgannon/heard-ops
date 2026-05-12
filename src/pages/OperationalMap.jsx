@@ -794,7 +794,7 @@ export default function OperationalMap() {
         <header className="flex items-start justify-between gap-4 pt-1">
           <div>
             <p className="metric-label">Operations</p>
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Operational Map</h1>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Operational Map</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {allActiveStations.length} station{allActiveStations.length !== 1 ? 's' : ''} · {activeAreas.length} area{activeAreas.length !== 1 ? 's' : ''}
               {attentionCount > 0 && <span className="text-amber-400"> · {attentionCount} need attention</span>}

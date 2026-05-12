@@ -171,7 +171,7 @@ export default function Profile() {
             <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all active:scale-95" style={{ background: 'rgba(255,255,255,0.04)' }}>
               <ChevronLeft className="h-5 w-5 text-foreground" />
             </button>
-            <h1 className="text-xl font-black tracking-tight text-foreground">Profile</h1>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Profile</h1>
           </div>
         </div>
 

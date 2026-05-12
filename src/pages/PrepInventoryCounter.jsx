@@ -129,7 +129,7 @@ export default function PrepInventoryCounter() {
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-bold text-foreground">Prep Inventory Count</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Prep Inventory Count</h1>
           <p className="text-xs text-muted-foreground">{format(parseISO(today), 'MMM d, yyyy')} • {shift} shift</p>
         </div>
       </div>

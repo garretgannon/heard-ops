@@ -367,7 +367,7 @@ function ShiftComplete({ shiftXp, checkedDuties, shift, onDismiss }) {
 
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">Shift Complete</p>
-          <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">{meta.label}</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">{meta.label}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Handoff saved. Next manager is briefed.</p>
         </div>
 
@@ -797,7 +797,7 @@ export default function ManagerShift() {
             <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", meta.color)}>
               Manager Shift
             </p>
-            <h1 className="mt-0.5 text-xl font-black tracking-tight text-foreground">{meta.label}</h1>
+            <h1 className="mt-0.5 text-2xl font-black tracking-tight text-foreground">{meta.label}</h1>
           </div>
           <button
             type="button"

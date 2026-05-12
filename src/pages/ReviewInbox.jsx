@@ -108,7 +108,7 @@ export default function ReviewInbox() {
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-          <h1 className="text-2xl font-bold text-foreground">Inbox Zero</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Inbox Zero</h1>
           <p className="text-muted-foreground">You're caught up. All approvals are complete.</p>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function ReviewInbox() {
         {/* Header */}
         <div className="sticky top-0 z-40 px-4 py-4 border-b border-border/20 bg-background/95 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-lg font-bold text-foreground">Review Queue</h1>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Review Queue</h1>
             <button onClick={loadApprovals} className="text-primary font-bold text-sm">↻ Refresh</button>
           </div>
           <p className="text-xs text-muted-foreground">{currentIndex + 1} of {approvals.length} reviewed</p>

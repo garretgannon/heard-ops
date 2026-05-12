@@ -42,7 +42,7 @@ export default function AdminRoleSimulator() {
         <div className="px-4 py-4 space-y-2">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Role Simulation</h1>
+              <h1 className="text-2xl font-black tracking-tight text-foreground">Role Simulation</h1>
               <p className="text-sm text-secondary-text mt-1">Preview the app exactly as each role experiences it</p>
             </div>
             {isSimulating && (

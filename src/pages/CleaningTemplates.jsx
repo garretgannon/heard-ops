@@ -178,7 +178,7 @@ export default function CleaningTemplates() {
   return (
     <div className="pb-24">
       <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
-        <h1 className="text-lg font-bold text-foreground mb-3">Cleaning Templates</h1>
+        <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Cleaning Templates</h1>
         
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-text" />

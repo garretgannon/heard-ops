@@ -108,7 +108,7 @@ export default function Reports() {
       <main className="app-page mx-auto max-w-[720px] space-y-6 pb-28">
         <header className="pt-1">
           <p className="metric-label">Operations</p>
-          <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Reports</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Reports</h1>
           <p className="mt-1 text-sm text-muted-foreground">Today's operational summary.</p>
         </header>
 

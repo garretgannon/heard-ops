@@ -45,6 +45,7 @@ const BuildCards = lazy(() => import('./pages/BuildCards'));
 const ReservationsAndBEOs = lazy(() => import('./pages/ReservationsAndBEOs'));
 const PurchasedItems = lazy(() => import('./pages/PurchasedItems'));
 const Recipes = lazy(() => import('./pages/Recipes'));
+const RecipeBulkImport = lazy(() => import('./pages/RecipeBulkImport'));
 const Training = lazy(() => import('./pages/Training'));
 const ChemicalLibrary = lazy(() => import('./pages/ChemicalLibrary'));
 const Knowledge = lazy(() => import('./pages/Knowledge'));
@@ -169,6 +170,7 @@ const AuthenticatedApp = () => {
         <Route path="/knowledge" element={<Knowledge />} />
         <Route path="/search" element={<Knowledge />} />
         <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
+        <Route path="/recipe-bulk-import" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><RecipeBulkImport /></PermissionGate>} />
 
         <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
         <Route path="/reservations" element={<ReservationsAndBEOs />} />

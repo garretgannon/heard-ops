@@ -89,7 +89,7 @@ export default function MyShifts() {
         <header className="flex items-start justify-between gap-4 pt-1">
           <div>
             <p className="metric-label">Schedule</p>
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">My Shifts</h1>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">My Shifts</h1>
           </div>
           <div
             className="rounded-xl border border-border/40 px-3 py-2 text-right"

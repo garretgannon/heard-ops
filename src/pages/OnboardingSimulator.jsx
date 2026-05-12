@@ -70,7 +70,7 @@ export default function OnboardingSimulator() {
       <div className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-foreground">Onboarding Simulator</h1>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Onboarding Simulator</h1>
             <p className="text-xs text-muted-foreground">Admin testing — No live data affected</p>
           </div>
           <div className="flex items-center gap-2">

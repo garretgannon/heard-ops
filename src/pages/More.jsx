@@ -71,7 +71,7 @@ export default function More() {
         <main className="app-page mx-auto max-w-[620px] space-y-5 pb-28">
           <header className="pt-1">
             <p className="metric-label">More</p>
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Resources</h1>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Resources</h1>
             <p className="mt-1 text-sm text-muted-foreground">Tools and references for your shift.</p>
           </header>
 
@@ -99,7 +99,7 @@ export default function More() {
       <main className="app-page mx-auto max-w-[720px] space-y-6">
         <header className="pt-1">
           <p className="metric-label">More</p>
-          <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Admin Tools</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Admin Tools</h1>
           <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">Setup, resources, and admin tools for the restaurant.</p>
         </header>
 

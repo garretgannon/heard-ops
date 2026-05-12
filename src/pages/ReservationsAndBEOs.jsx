@@ -137,7 +137,7 @@ export default function ReservationsAndBEOs() {
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
-              <h1 className="text-lg font-extrabold text-foreground">Reservations &amp; BEOs</h1>
+              <h1 className="text-2xl font-black tracking-tight text-foreground">Reservations &amp; BEOs</h1>
             </div>
             {isAdmin && (
               <button

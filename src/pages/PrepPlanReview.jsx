@@ -86,7 +86,7 @@ export default function PrepPlanReview() {
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-bold text-foreground">Review Prep Plan</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Review Prep Plan</h1>
           <p className="text-xs text-muted-foreground">{format(parseISO(plan.date), 'MMM d')} • {plan.shift} • {plan.station}</p>
         </div>
       </div>

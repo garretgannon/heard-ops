@@ -114,7 +114,7 @@ export default function PrepPlanning() {
             <ChefHat className="h-5 w-5 text-primary" />
             <div>
               <p className="metric-label">Kitchen</p>
-              <h1 className="text-xl font-black tracking-tight text-foreground">Prep Planning</h1>
+              <h1 className="text-2xl font-black tracking-tight text-foreground">Prep Planning</h1>
             </div>
           </div>
           <div

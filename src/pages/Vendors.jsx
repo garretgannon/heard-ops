@@ -60,7 +60,7 @@ export default function Vendors() {
       {/* Desktop Header */}
       <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
         <div>
-          <h1 className="text-xl font-extrabold text-foreground">Vendors</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Vendors</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Manage vendor relationships and ordering</p>
         </div>
         <button onClick={() => { haptics.medium(); setEditingVendor(null); setShowForm(true); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center gap-1.5 active:scale-95">
@@ -70,7 +70,7 @@ export default function Vendors() {
 
       {/* Mobile Header */}
       <div className="lg:hidden bg-card border-b border-border px-4 py-4">
-        <h1 className="text-lg font-bold text-foreground">Vendors</h1>
+        <h1 className="text-2xl font-black tracking-tight text-foreground">Vendors</h1>
       </div>
 
       {/* Filters */}

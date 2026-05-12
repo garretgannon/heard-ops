@@ -379,7 +379,7 @@ export default function ScheduleCenter() {
             {/* LEFT: Title + Week Nav + Expand */}
             <div className="flex items-center gap-4 min-w-0">
               <div className="flex items-center gap-2.5">
-                <h1 className="text-lg font-extrabold text-foreground shrink-0">Schedule</h1>
+                <h1 className="text-2xl font-black tracking-tight text-foreground shrink-0">Schedule</h1>
                 {!isMobile && (
                   isExpanded ? (
                     <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Collapse">

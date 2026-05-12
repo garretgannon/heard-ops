@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
@@ -7,7 +8,7 @@ import { cn } from '@/lib/utils';
 import {
   ChefHat, Search, Plus, ChevronRight, Clock, Package, Archive,
   AlertTriangle, Link2, Camera, Edit2, Copy, X, CheckCircle2, Utensils,
-  Flame, BookOpen, DollarSign, Shield, Users, MapPin
+  Flame, BookOpen, DollarSign, Shield, Users, MapPin, Sparkles
 } from 'lucide-react';
 import RecipeCosting from '@/components/recipes/RecipeCosting';
 
@@ -773,6 +774,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
 
 export default function Recipes() {
   const { isAdmin } = useCurrentUser();
+  const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -841,9 +843,14 @@ export default function Recipes() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-52 pl-9 pr-3 py-2 card-glass border border-border rounded-lg text-xs text-foreground" />
             </div>
             {isAdmin && (
-              <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
-                <Plus className="h-3.5 w-3.5" /> New Recipe
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-8 px-3 rounded-lg bg-muted text-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
+                  <Sparkles className="h-3.5 w-3.5" /> Bulk Import
+                </button>
+                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
+                  <Plus className="h-3.5 w-3.5" /> New Recipe
+                </button>
+              </div>
             )}
           </div>
         }
@@ -929,6 +936,9 @@ export default function Recipes() {
                   <button onClick={() => { setEditing(null); setShowForm(true); }} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95">
                     <Plus className="h-3.5 w-3.5" /> New Recipe
                   </button>
+                  <button onClick={() => navigate('/recipe-bulk-import')} className="px-3 py-2 rounded-lg bg-muted text-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95">
+                    <Sparkles className="h-3.5 w-3.5" /> Bulk Import
+                  </button>
                 </div>
               )}
             </div>
@@ -942,12 +952,17 @@ export default function Recipes() {
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <ChefHat className="h-4 w-4 text-primary" />
-              <h1 className="text-lg font-extrabold text-foreground">Recipes</h1>
+              <h1 className="text-2xl font-black tracking-tight text-foreground">Recipes</h1>
             </div>
             {isAdmin && (
-              <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                <Plus className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-8 w-8 rounded-full bg-muted text-foreground flex items-center justify-center">
+                  <Sparkles className="h-4 w-4" />
+                </button>
+                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
             )}
           </div>
           <p className="text-[11px] text-muted-foreground mb-3">Multi-view operational recipe system</p>

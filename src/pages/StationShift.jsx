@@ -599,7 +599,7 @@ export default function StationShift() {
         <main className="app-page mx-auto max-w-[620px] space-y-4 pb-28">
           <header className="pt-1 space-y-1">
             <p className="metric-label">My Shift</p>
-            <h1 className="text-3xl font-black tracking-tight text-foreground">
+            <h1 className="text-2xl font-black tracking-tight text-foreground">
               {firstName ? `Hey, ${firstName}.` : 'Welcome.'}
             </h1>
             <p className="text-sm text-muted-foreground">You're not assigned to a station yet.</p>
@@ -660,7 +660,7 @@ export default function StationShift() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="metric-label">{area?.name || 'Station'}</p>
-              <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">{station.name}</h1>
+              <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">{station.name}</h1>
               <p className="mt-1 text-sm text-muted-foreground">{employee?.full_name || user?.full_name || user?.email}</p>
             </div>
             <span className={cn(

@@ -1026,7 +1026,7 @@ export default function MyRestaurant() {
       {/* Desktop Header */}
       <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
         <div>
-          <h1 className="text-xl font-extrabold text-foreground">My Restaurant</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">My Restaurant</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Manage your restaurant profile, locations, equipment and key information.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -1041,7 +1041,7 @@ export default function MyRestaurant() {
 
       {/* Mobile Header */}
       <div className="lg:hidden mb-4">
-        <h1 className="text-2xl font-extrabold text-foreground">My Restaurant</h1>
+        <h1 className="text-2xl font-black tracking-tight text-foreground">My Restaurant</h1>
         <p className="text-xs text-muted-foreground mt-0.5">Setup and configuration center</p>
       </div>
 

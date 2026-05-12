@@ -70,7 +70,7 @@ export default function SDSLibrary() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">SDS / MSDS Library</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground mb-2">SDS / MSDS Library</h1>
           <p className="text-sm text-muted-foreground">Searchable chemical safety data sheets and emergency information.</p>
         </div>
 

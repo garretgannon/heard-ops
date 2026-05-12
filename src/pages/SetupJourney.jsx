@@ -235,7 +235,7 @@ export default function SetupJourney() {
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 pt-4 pb-4">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-xl font-extrabold text-foreground">
+            <h1 className="text-2xl font-black tracking-tight text-foreground">
               {restaurantName ? `${restaurantName} Setup` : 'Setup Journey'}
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">Build your operating system</p>

@@ -47,7 +47,7 @@ export default function ScheduleImport() {
   return (
     <div className="pb-28">
       <div className="bg-card border-b border-border sticky top-0 z-10 px-4 py-3">
-        <h1 className="text-lg font-extrabold text-foreground flex items-center gap-2">
+        <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" /> Schedule Import
         </h1>
         <p className="text-[11px] text-muted-foreground mt-1">Bulk upload weekly staff schedules from CSV, Excel, or R365.</p>

@@ -114,7 +114,7 @@ export default function TemperatureLogTemplates() {
   return (
     <div className="pb-24">
       <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
-        <h1 className="text-lg font-bold text-foreground mb-3">Temperature Log Templates</h1>
+        <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Temperature Log Templates</h1>
 
         {/* Category filter tabs */}
         <div className="flex gap-2 mb-3 overflow-x-auto pb-1">

@@ -534,7 +534,7 @@ export default function StaffTasks() {
       )}
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
-        <h1 className="text-lg font-bold text-foreground">My Tasks</h1>
+        <h1 className="text-2xl font-black tracking-tight text-foreground">My Tasks</h1>
         <p className="text-[11px] text-muted-foreground">Your shift mission list</p>
       </div>
 

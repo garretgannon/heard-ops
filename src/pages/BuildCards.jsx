@@ -547,7 +547,7 @@ export default function BuildCards() {
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <Utensils className="h-4 w-4 text-primary" />
-              <h1 className="text-lg font-extrabold text-foreground">Build Cards</h1>
+              <h1 className="text-2xl font-black tracking-tight text-foreground">Build Cards</h1>
             </div>
             {isAdmin && (
               <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">

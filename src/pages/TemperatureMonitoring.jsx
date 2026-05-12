@@ -85,7 +85,7 @@ export default function TemperatureMonitoring() {
       <div className="border-b border-border/20 px-6 py-4">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Temperature Monitoring</h1>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Temperature Monitoring</h1>
             <p className="text-sm text-muted-foreground mt-1">Manage recurring temperature checks</p>
           </div>
           <button

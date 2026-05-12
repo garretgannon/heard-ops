@@ -301,7 +301,7 @@ export default function CommsCenter() {
       <main className="app-page mx-auto max-w-[980px] space-y-5">
         <header className="pt-1">
           <p className="metric-label">Comms</p>
-          <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Communication center</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Communication center</h1>
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">Announcements, station notes, and comments tied to actual work.</p>
         </header>
 

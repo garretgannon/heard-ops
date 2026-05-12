@@ -86,7 +86,7 @@ export default function Standards() {
       <main className="app-page mx-auto max-w-[620px] space-y-6 pb-28">
         <header className="pt-1">
           <p className="metric-label">Knowledge</p>
-          <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">SOPs & Standards</h1>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">SOPs & Standards</h1>
           <p className="mt-1 text-sm text-muted-foreground">Procedures, training, and reference materials.</p>
         </header>
 

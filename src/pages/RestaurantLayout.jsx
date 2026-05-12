@@ -279,7 +279,7 @@ export default function RestaurantLayout() {
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-extrabold text-foreground">Restaurant Layout</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Restaurant Layout</h1>
           <p className="text-xs text-muted-foreground">Area → Station → Equipment</p>
         </div>
         <button

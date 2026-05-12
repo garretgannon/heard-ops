@@ -69,7 +69,7 @@ export default function Cleaning() {
         <header className="pt-1 flex items-start justify-between gap-4">
           <div>
             <p className="metric-label">Operations</p>
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Cleaning</h1>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Cleaning</h1>
             {hasAnyTasks && (
               <p className="mt-1 text-sm text-muted-foreground">{doneCount} of {tasks.length} complete today</p>
             )}

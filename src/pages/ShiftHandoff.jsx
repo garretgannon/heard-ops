@@ -149,7 +149,7 @@ export default function ShiftHandoff() {
             <ArrowLeftRight className="h-5 w-5 text-primary" />
             <div>
               <p className="metric-label">Close of Shift</p>
-              <h1 className="text-xl font-black tracking-tight text-foreground">Shift Handoff</h1>
+              <h1 className="text-2xl font-black tracking-tight text-foreground">Shift Handoff</h1>
             </div>
           </div>
         </div>

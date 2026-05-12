@@ -402,7 +402,7 @@ export default function LocationSetup() {
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-extrabold text-foreground">{selectedStation ? `${selectedStation.name} Setup` : 'Location Setup'}</h1>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">{selectedStation ? `${selectedStation.name} Setup` : 'Location Setup'}</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               {selectedStation ? 'Station, equipment, and checklist setup' : `${areas.length} areas · ${stations.length} stations · ${equipment.length} equipment`}
             </p>

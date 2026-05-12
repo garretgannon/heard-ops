@@ -166,7 +166,7 @@ export default function NotificationSettings() {
           >
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
-          <h1 className="text-xl font-black tracking-tight text-foreground">Notifications</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Notifications</h1>
         </div>
       </div>
 

@@ -410,7 +410,7 @@ export default function PrepTemplatesManager() {
           <button onClick={() => navigate(-1)} className="btn-secondary text-xs h-8 px-2">
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <h1 className="text-lg font-bold text-foreground">Prep Templates</h1>
+          <h1 className="text-2xl font-black tracking-tight text-foreground">Prep Templates</h1>
         </div>
 
         {!editingTemplate && !isCreating && (

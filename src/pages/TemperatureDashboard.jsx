@@ -23,7 +23,7 @@ export default function TemperatureDashboard() {
       <div className="border-b border-border/20 px-4 py-6 lg:px-8">
         <div className="max-w-6xl mx-auto flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Temperature Monitoring</h1>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Temperature Monitoring</h1>
             <p className="text-sm text-muted-foreground mt-1">Compliance tracking and temperature logs</p>
           </div>
           <button onClick={() => navigate('/reports')} className="h-11 px-4 rounded-lg border border-border/40 card-glass text-muted-foreground flex items-center gap-2 hover:border-border/60 active:scale-95 transition-all">
