@@ -5,6 +5,8 @@ import {
   Bell,
   ChevronLeft,
   ChevronRight as ChevronRightIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
   UserCircle,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -390,9 +392,50 @@ export default function Layout() {
         </div>
       </aside>
 
+      {/* Desktop top rail */}
+      <header
+        className={cn(
+          "hidden lg:flex fixed top-0 right-0 z-20 h-[72px] items-center justify-between px-8",
+          collapsed ? "left-[60px]" : "left-[220px]"
+        )}
+        style={{
+          background: 'linear-gradient(180deg, rgba(5,8,14,0.94) 0%, rgba(5,8,14,0.78) 100%)',
+          backdropFilter: 'blur(12px) saturate(140%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70">HeardOS</p>
+          <h2 className="text-[24px] leading-tight font-black text-foreground truncate">{pageTitle}</h2>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={toggleCollapsed}
+            className="h-10 w-10 rounded-xl border border-white/10 bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] transition"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <PanelLeftOpen className="h-4 w-4 mx-auto" /> : <PanelLeftClose className="h-4 w-4 mx-auto" />}
+          </button>
+          <Link
+            to="/logs"
+            className="relative h-10 w-10 flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] transition"
+          >
+            <Bell className="h-4 w-4" />
+          </Link>
+          <Link
+            to="/profile"
+            className="h-10 px-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] transition"
+          >
+            <UserCircle className="h-4 w-4" />
+            <span className="text-[12px] font-semibold">Profile</span>
+          </Link>
+        </div>
+      </header>
+
       {/* Main content area */}
       <main
-        className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[60px]" : "lg:pl-[220px]")}
+        className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[60px] lg:pt-[72px]" : "lg:pl-[220px] lg:pt-[72px]")}
         style={isMobile ? { paddingTop: "calc(56px + env(safe-area-inset-top, 0px))" } : {}}
         onTouchStart={onSwipeStart}
         onTouchEnd={onSwipeEnd}
@@ -412,7 +455,7 @@ export default function Layout() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-0 lg:pt-0 lg:pb-8"
+              className="w-full max-w-[430px] mx-auto lg:max-w-[1500px] lg:mx-auto px-4 pt-3 lg:px-8 lg:pt-7 lg:pb-10"
             >
               <Outlet />
             </motion.div>
