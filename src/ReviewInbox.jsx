@@ -16,10 +16,10 @@ export default function ReviewInbox() {
   const [selectedApproval, setSelectedApproval] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
 
   useEffect(() => {
-    const h = () => setIsMobile(window.innerWidth < 1024);
+    const h = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener('resize', h);
     return () => window.removeEventListener('resize', h);
   }, []);

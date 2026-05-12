@@ -68,7 +68,7 @@ export default function More() {
   if (!isAdmin) {
     return (
       <div className="app-screen">
-        <main className="app-page mx-auto max-w-[620px] space-y-5 pb-28">
+        <main className="app-page mx-auto max-w-[620px] lg:max-w-6xl space-y-5 pb-28">
           <header className="pt-1">
             <p className="metric-label">More</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Resources</h1>
@@ -96,7 +96,7 @@ export default function More() {
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[720px] space-y-6">
+      <main className="app-page mx-auto max-w-[720px] lg:max-w-6xl space-y-6">
         <header className="pt-1">
           <p className="metric-label">More</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Admin Tools</h1>

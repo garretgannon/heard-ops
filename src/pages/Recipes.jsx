@@ -827,7 +827,7 @@ export default function Recipes() {
     setSelected(null);
   };
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 900;
   if (selected && isMobile) return <RecipeDetail recipe={selected} isAdmin={isAdmin} onClose={() => setSelected(null)} onEdit={r => { setSelected(null); setEditing(r); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />;
   if (showForm) return <RecipeForm recipe={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />;
 
