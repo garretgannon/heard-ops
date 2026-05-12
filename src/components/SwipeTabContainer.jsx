@@ -33,13 +33,18 @@ const NO_SWIPE_SELECTORS = [
   '[data-radix-select-content]',
 ];
 
-// Tags that cancel swipe — buttons are allowed to be tapped through swipe,
-// but we cancel tracking so they still fire normally.
+// Tags that cancel swipe. Touch targets are often child icons/text inside buttons,
+// so isInteractiveTarget also checks the closest interactive ancestor.
 const CANCEL_TAGS = new Set(['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT', 'LABEL']);
 
 function isInteractiveTarget(el) {
   if (!el) return false;
   if (CANCEL_TAGS.has(el.tagName)) return true;
+  try {
+    if (el.closest('button, a, input, textarea, select, label, [role="button"], [role="link"]')) {
+      return true;
+    }
+  } catch (_) {}
   for (const sel of NO_SWIPE_SELECTORS) {
     try { if (el.closest(sel)) return true; } catch (_) {}
   }
