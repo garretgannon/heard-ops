@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 import BulkParEditorModal from '@/components/prep/BulkParEditorModal';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const ALLOWED_ROLES = ['admin', 'manager', 'chef', 'kitchen_lead'];
 
@@ -98,10 +99,11 @@ export default function PrepPlanning() {
 
   return (
     <div className="min-h-screen pb-40 lg:pb-12">
+      <DesktopPageHeader title="Prep Planning" subtitle="Plan production and set par levels" />
 
       {/* Sticky header */}
       <div
-        className="sticky top-0 z-30 px-4 pt-4 pb-3"
+        className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-3"
         style={{
           background: "linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)",
           backdropFilter: "blur(20px)",

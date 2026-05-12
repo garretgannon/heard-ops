@@ -12,6 +12,7 @@ import BEODetail from '@/components/reservations/BEODetail';
 import ReservationForm from '@/components/reservations/ReservationForm';
 import BEOForm from '@/components/reservations/BEOForm';
 import QuickActionModal from '@/components/quickactions/QuickActionModal';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const TABS = ['Today', 'Reservations', 'BEOs', 'Calendar', 'Prep Impact'];
 
@@ -132,8 +133,9 @@ export default function ReservationsAndBEOs() {
   return (
     <div className="pb-28">
       {/* Header */}
+      <DesktopPageHeader title="Reservations & BEOs" subtitle="Events, reservations, and prep impact planning" />
       <div className="bg-card border-b border-border sticky top-0 z-10">
-        <div className="px-4 pt-4 pb-2">
+        <div className="px-4 pt-4 pb-2 lg:hidden">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />

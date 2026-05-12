@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useSimulator } from '@/lib/SimulatorContext';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { RotateCcw, PlayCircle, Settings2, Users } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import SimulatorLanding from '@/components/simulator/SimulatorLanding';
@@ -66,8 +67,9 @@ export default function OnboardingSimulator() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DesktopPageHeader title="Onboarding Simulator" subtitle="Admin testing — No live data affected" />
       {/* Top admin bar */}
-      <div className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
+      <div className="lg:hidden sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Onboarding Simulator</h1>

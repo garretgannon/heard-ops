@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, Check, X, Edit2 } from 'lucide-react';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 
@@ -80,8 +81,9 @@ export default function PrepPlanReview() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DesktopPageHeader title="Review Prep Plan" subtitle="Review and approve prep plan details" />
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
+      <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate('/prep-planning')} className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted">
           <ChevronLeft className="h-4 w-4" />
         </button>

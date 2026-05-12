@@ -108,7 +108,6 @@ export const desktopNavSections = [
       { path: "/app/overview", label: "Overview", icon: LayoutDashboard },
       { path: "/shift", label: "Shift", icon: Sparkles },
       { path: "/logs", label: "Logs", icon: FileText, perm: "view_logs" },
-      { path: "/approvals", label: "Approvals", icon: CheckSquare },
       { path: "/team", label: "Team", icon: Users, perm: "view_team" },
     ],
   },
@@ -140,7 +139,7 @@ export const desktopNavSections = [
     label: "SETUP",
     items: [
       { path: "/templates", label: "Templates", icon: ClipboardList, perm: "view_templates" },
-      { path: "/people", label: "Team", icon: GitBranch },
+      { path: "/people", label: "People", icon: GitBranch },
       { path: "/operational-map", label: "Operations", icon: Map },
       { path: "/automation-rules", label: "Automation", icon: Zap },
       { path: "/reports", label: "Reports", icon: BarChart2, perm: "view_reports" },

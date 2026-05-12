@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { haptics } from "@/utils/haptics";
+import DesktopPageHeader from "@/components/DesktopPageHeader";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -780,10 +781,11 @@ export default function ManagerShift() {
 
   return (
     <div className="min-h-screen pb-36 lg:pb-12">
+      <DesktopPageHeader title="Shift" subtitle="Manager briefing, duties, and handoff" />
 
       {/* Sticky HUD header */}
       <div
-        className="sticky top-0 z-30 px-4 pt-4 pb-3"
+        className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-3"
         style={{
           background: "linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)",
           backdropFilter: "blur(20px)",

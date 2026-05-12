@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Plus, Edit2, Copy, Archive, MoreVertical, Search } from 'lucide-react';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { haptics } from '@/utils/haptics';
 import CleaningTemplateForm from '@/components/CleaningTemplateForm';
 
@@ -177,7 +178,8 @@ export default function CleaningTemplates() {
 
   return (
     <div className="pb-24">
-      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
+      <DesktopPageHeader title="Cleaning Templates" subtitle="Create reusable cleaning checklists" />
+      <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Cleaning Templates</h1>
         
         <div className="relative mb-3">

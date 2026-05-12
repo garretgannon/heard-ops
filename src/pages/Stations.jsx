@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Trash2, Search, Layers } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import StationForm from '@/components/StationForm';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 function StationCard({ station, onEdit, onDelete }) {
   const deptColors = {
@@ -105,7 +106,8 @@ export default function Stations() {
 
   return (
     <div className="pb-24">
-      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
+      <DesktopPageHeader title="Stations" subtitle="Manage kitchen and service stations" />
+      <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Stations</h1>
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-text" />

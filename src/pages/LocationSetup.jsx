@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Plus, Trash2, Edit2, ChevronDown, ChevronRight, MapPin, Layers, Wrench, Check, X } from 'lucide-react';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const DEPARTMENTS = ['BOH', 'FOH', 'Bar', 'Management'];
 const EQUIPMENT_CATEGORIES = [
@@ -398,8 +399,9 @@ export default function LocationSetup() {
 
   return (
     <div className="pb-28 lg:pb-8">
+      <DesktopPageHeader title="Location Setup" subtitle="Areas, stations, and equipment hierarchy" />
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4 lg:px-8">
+      <div className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4 lg:px-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">{selectedStation ? `${selectedStation.name} Setup` : 'Location Setup'}</h1>

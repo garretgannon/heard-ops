@@ -8,6 +8,7 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/haptics";
+import DesktopPageHeader from "@/components/DesktopPageHeader";
 
 const SHIFTS = {
   morning:   { label: "Breakfast",  time: "6:00 AM – 12:00 PM" },
@@ -134,9 +135,10 @@ export default function ShiftHandoff() {
 
   return (
     <div className="min-h-screen pb-40 lg:pb-12">
+      <DesktopPageHeader title="Shift Handoff" subtitle="Document and pass the shift" />
       {/* Sticky header */}
       <div
-        className="sticky top-0 z-30 px-4 pt-4 pb-3"
+        className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-3"
         style={{
           background: "linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)",
           backdropFilter: "blur(20px)",

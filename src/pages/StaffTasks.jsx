@@ -4,6 +4,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ClipboardList, CheckCircle2, ArrowRight, Camera, UserRound, Play } from "lucide-react";
+import DesktopPageHeader from "@/components/DesktopPageHeader";
 import { AnimatePresence } from "framer-motion";
 import ActivePrepStep from "@/components/prep-flow/ActivePrepStep";
 import PrepCompletionScreen from "@/components/prep-flow/PrepCompletionScreen";
@@ -532,8 +533,9 @@ export default function StaffTasks() {
           />
         </div>
       )}
+      <DesktopPageHeader title="My Tasks" subtitle="Your shift mission list" />
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
+      <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
         <h1 className="text-2xl font-black tracking-tight text-foreground">My Tasks</h1>
         <p className="text-[11px] text-muted-foreground">Your shift mission list</p>
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRoleSimulation } from '@/lib/RoleSimulationContext';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { ROLE_DEFINITIONS, getRoleDefinition } from '@/lib/roleDefinitions';
 import { generateRoleSimulationData } from '@/utils/generateRoleSimulationData';
 import { ArrowRight, LogOut, ChefHat, Users, Flame, Wine, Utensils, Shield } from 'lucide-react';
@@ -37,8 +38,9 @@ export default function AdminRoleSimulator() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <DesktopPageHeader title="Role Simulator" subtitle="Preview the app exactly as each role experiences it" />
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-card border-b border-border backdrop-blur-sm">
+      <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border backdrop-blur-sm">
         <div className="px-4 py-4 space-y-2">
           <div className="flex items-center justify-between">
             <div>

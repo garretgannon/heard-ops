@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { ChevronLeft, Plus, Trash2, Check } from 'lucide-react';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 
@@ -123,8 +124,9 @@ export default function PrepInventoryCounter() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DesktopPageHeader title="Prep Inventory Count" subtitle="Count and record prep quantities" />
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
+      <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate('/prep-planning')} className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted">
           <ChevronLeft className="h-4 w-4" />
         </button>

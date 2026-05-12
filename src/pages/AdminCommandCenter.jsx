@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Settings, Eye, Shield, Users } from 'lucide-react';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
 import RolesManager from '@/components/AdminDashboard/RolesManager';
 import RolePreview from '@/components/AdminDashboard/RolePreview';
@@ -26,14 +27,15 @@ export default function AdminCommandCenter() {
 
   return (
     <div className="pb-32 min-h-screen">
+      <DesktopPageHeader title="Roles & Access" subtitle="Roles, permissions, and access control" />
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4">
+      <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4">
         <h1 className="text-2xl font-black tracking-tight text-foreground">Admin Command Center</h1>
         <p className="text-xs text-muted-foreground mt-0.5">Roles, permissions, and access control</p>
       </div>
 
       {/* Tabs */}
-      <div className="sticky top-[69px] z-30 bg-background/90 backdrop-blur border-b border-border/20 px-4 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
+      <div className="sticky top-0 lg:top-[73px] z-30 bg-background/90 backdrop-blur border-b border-border/20 px-4 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
         {SECTIONS.map(s => {
           const Icon = s.icon;
           return (

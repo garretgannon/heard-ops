@@ -4,6 +4,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Plus, Edit2, Copy, Archive, MoreVertical, Search, Wind, Snowflake, Flame } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import TemperatureLogTemplateForm from '@/components/TemperatureLogTemplateForm';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const CATEGORY_CONFIG = {
   'cooling-log': { label: 'Cooling Log', icon: Wind, color: 'blue' },
@@ -113,7 +114,8 @@ export default function TemperatureLogTemplates() {
 
   return (
     <div className="pb-24">
-      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
+      <DesktopPageHeader title="Temperature Log Templates" subtitle="Create reusable temperature log templates" />
+      <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Temperature Log Templates</h1>
 
         {/* Category filter tabs */}

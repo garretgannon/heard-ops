@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload, Download } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import PrepListImportFlow from '@/components/PrepListImportFlow';
 
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
@@ -405,7 +406,8 @@ export default function PrepTemplatesManager() {
 
   return (
     <div className="pb-24">
-      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
+      <DesktopPageHeader title="Prep Templates" subtitle="Create reusable prep list templates" />
+      <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="flex items-center gap-3 mb-3">
           <button onClick={() => navigate(-1)} className="btn-secondary text-xs h-8 px-2">
             <ChevronLeft className="h-4 w-4" />

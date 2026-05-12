@@ -38,6 +38,7 @@ function LiveClock() {
 }
 import { cn } from '@/lib/utils';
 import TaskVisual from '@/components/TaskVisual';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import ApprovalCard from '@/components/approval/ApprovalCard';
 import ApprovalDetailSheet from '@/components/approval/ApprovalDetailSheet';
 import DenialReasonDrawer from '@/components/approval/DenialReasonDrawer';
@@ -281,18 +282,19 @@ export default function AppOverview() {
 
   const currentApproval = approvalQueue[0];
 
-  const handleApprove = async () => {
-    if (!currentApproval) return;
+  const handleApprove = async (specificApproval) => {
+    const approval = specificApproval || currentApproval;
+    if (!approval) return;
 
     try {
       const now = new Date().toISOString();
-      const moduleName = currentApproval.sourceModule;
+      const moduleName = approval.sourceModule;
       const updateData = moduleName === 'ApprovalQueue'
         ? { status: 'approved', approved_by_email: user?.email || user?.created_by || 'current_user', approved_at: now }
         : { approval_status: 'approved', approved_by: user?.email || 'current_user', approved_at: now };
 
-      await base44.entities[moduleName]?.update?.(currentApproval.sourceId, updateData);
-      const remaining = approvalQueue.filter((item) => item.id !== currentApproval.id);
+      await base44.entities[moduleName]?.update?.(approval.sourceId, updateData);
+      const remaining = approvalQueue.filter((item) => `${item.sourceModule}:${item.sourceId}` !== `${approval.sourceModule}:${approval.sourceId}`);
       setApprovalQueue(remaining);
       setProcessedApprovals((count) => count + 1);
       setMetrics((current) => ({ ...current, pendingApprovals: Math.max(current.pendingApprovals - 1, 0) }));
@@ -310,17 +312,18 @@ export default function AppOverview() {
   };
 
   const handleDenialSubmit = async (reason, notes) => {
-    if (!currentApproval) return;
+    const approval = denialDrawer?.approval || currentApproval;
+    if (!approval) return;
 
     try {
       const now = new Date().toISOString();
-      const moduleName = currentApproval.sourceModule;
+      const moduleName = approval.sourceModule;
       const updateData = moduleName === 'ApprovalQueue'
         ? { status: 'denied', approved_by_email: user?.email || user?.created_by || 'current_user', approved_at: now, denial_reason: [reason, notes].filter(Boolean).join(': ') }
         : { approval_status: 'denied', denied_by: user?.email || 'current_user', denied_at: now, denial_reason: reason, denial_notes: notes };
 
-      await base44.entities[moduleName]?.update?.(currentApproval.sourceId, updateData);
-      const remaining = approvalQueue.filter((item) => item.id !== currentApproval.id);
+      await base44.entities[moduleName]?.update?.(approval.sourceId, updateData);
+      const remaining = approvalQueue.filter((item) => `${item.sourceModule}:${item.sourceId}` !== `${approval.sourceModule}:${approval.sourceId}`);
       setApprovalQueue(remaining);
       setProcessedApprovals((count) => count + 1);
       setMetrics((current) => ({ ...current, pendingApprovals: Math.max(current.pendingApprovals - 1, 0) }));
@@ -392,8 +395,9 @@ export default function AppOverview() {
 
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="Overview" />
       <div className="app-page max-w-[560px] space-y-7 lg:max-w-6xl">
-        <header className="flex items-start justify-between gap-4 pt-1">
+        <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -405,8 +409,9 @@ export default function AppOverview() {
           <LiveClock />
         </header>
 
+        {/* Mobile approval swipe stack */}
         {hasApprovalQueue && (
-          <section className="space-y-3">
+          <section className="space-y-3 lg:hidden">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Priority</p>
@@ -427,6 +432,53 @@ export default function AppOverview() {
                 onDeny={() => setDenialDrawer({ approval: currentApproval })}
                 onViewDetails={() => setDetailSheet(currentApproval)}
               />
+            </div>
+          </section>
+        )}
+
+        {/* Desktop approval list — compact rows, shown only on lg+ */}
+        {hasApprovalQueue && (
+          <section className="hidden lg:block space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Priority</p>
+                <h2 className="mt-1 text-xl font-black tracking-tight text-foreground">Approvals</h2>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-black text-foreground">{processedApprovals} cleared today</p>
+                <p className="text-[10px] font-bold text-muted-foreground">{approvalQueue.length} waiting</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {approvalQueue.slice(0, 8).map((approval) => (
+                <div key={`${approval.sourceModule}:${approval.sourceId || approval.id}`} className="flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
+                  <span className={cn('status-marker status-marker-md shrink-0',
+                    approval.approval_type === 'temperature' ? 'status-warning' :
+                    approval.approval_type === 'prep' ? 'status-info' :
+                    approval.approval_type === 'maintenance' ? 'status-critical' : 'status-neutral'
+                  )}>
+                    <CheckCircle2 className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-foreground">{approval.title || approval.name || 'Approval request'}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{(approval.approval_type || '').replace(/_/g, ' ')}{approval.created_by ? ` · ${approval.created_by}` : ''}</p>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => handleApprove(approval)}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => { setDenialDrawer({ approval }); setDetailSheet(null); }}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                    >
+                      Deny
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         )}

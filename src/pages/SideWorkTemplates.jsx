@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Plus, Edit2, Copy, Archive, MoreVertical, Search, Filter } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import SideWorkTemplateForm from '@/components/SideWorkTemplateForm';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -203,8 +204,9 @@ export default function SideWorkTemplates() {
 
   return (
     <div className="pb-24">
+      <DesktopPageHeader title="Side Work Templates" subtitle="Create reusable side work templates" />
       {/* Header */}
-      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
+      <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Side Work Templates</h1>
         
         <div className="relative mb-3">

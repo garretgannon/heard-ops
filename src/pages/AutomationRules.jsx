@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Trash2, Power, Search } from 'lucide-react';
 import AutomationTemplateBuilder from '@/components/automation/AutomationTemplateBuilder';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 export default function AutomationRules() {
   const [templates, setTemplates] = useState([]);
@@ -64,8 +65,9 @@ export default function AutomationRules() {
 
   return (
     <div className="pb-24">
+      <DesktopPageHeader title="Automation Rules" subtitle="Create templates to auto-generate operational tasks" />
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border/30 px-6 py-4">
+      <div className="lg:hidden sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border/30 px-6 py-4">
         <div className="mb-4">
           <h1 className="text-2xl font-black tracking-tight text-foreground">Automation Rules</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Create templates to auto-generate operational tasks</p>

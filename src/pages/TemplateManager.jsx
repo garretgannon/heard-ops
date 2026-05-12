@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import TemplateFormModal from '@/components/templates/TemplateFormModal';
 import TemplatePreviewModal from '@/components/templates/TemplatePreviewModal';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const TEMPLATE_TYPES = [
   { id: 'prep',        label: 'Prep' },
@@ -152,8 +153,9 @@ export default function TemplateManager() {
 
   return (
     <div className="pb-20 bg-background min-h-screen">
+      <DesktopPageHeader title="Templates" subtitle="Unified operational task templates" />
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border px-4 py-4">
+      <div className="lg:hidden sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border px-4 py-4">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Template Builder</h1>

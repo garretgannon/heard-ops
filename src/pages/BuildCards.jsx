@@ -7,6 +7,7 @@ import {
   Link2, Edit2, X, Package, Clock, AlertCircle, Copy, Archive
 } from 'lucide-react';
 import BuildCardCosting from '@/components/buildcards/BuildCardCosting';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const CATEGORIES = ['all','appetizer','entree','sandwich','salad','dessert','cocktail','na-drink','archived'];
 const CATEGORY_LABELS = { 'na-drink': 'NA Drink', appetizer: 'Appetizer', entree: 'Entree', sandwich: 'Sandwich', salad: 'Salad', dessert: 'Dessert', cocktail: 'Cocktail' };
@@ -542,7 +543,8 @@ export default function BuildCards() {
 
   return (
     <div className="pb-28">
-      <div className="bg-card border-b border-border sticky top-0 z-10">
+      <DesktopPageHeader title="Build Cards" subtitle="Menu specs, plating guides, modifiers, and service execution" />
+      <div className="lg:hidden bg-card border-b border-border sticky top-0 z-10">
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">

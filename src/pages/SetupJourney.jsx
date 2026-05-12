@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, MapPin, Shield, ClipboardList, Thermometer, ArrowLeftRight,
@@ -231,8 +232,9 @@ export default function SetupJourney() {
 
   return (
     <div className="min-h-screen pb-32 lg:pb-16">
+      <DesktopPageHeader title="Setup Journey" subtitle="Build your operating system" />
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 pt-4 pb-4">
+      <div className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 pt-4 pb-4">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">

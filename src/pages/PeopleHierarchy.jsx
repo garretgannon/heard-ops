@@ -8,6 +8,7 @@ import JobCodesTab from '@/components/people/JobCodesTab';
 import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
 import AssignmentAuthorityEditor from '@/components/people/AssignmentAuthorityEditor';
 import { useNavigate } from 'react-router-dom';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const TABS = [
   { id: 'directory',  label: 'Directory',   icon: Users },
@@ -36,9 +37,10 @@ export default function PeopleHierarchy() {
 
   return (
     <div className="pb-28 lg:pb-8 min-h-screen">
+      <DesktopPageHeader title="People" subtitle="Team hierarchy, ownership & access" />
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 pt-4 pb-0">
-        <div className="flex items-start justify-between mb-3">
+        <div className="lg:hidden flex items-start justify-between mb-3">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">People</h1>
             <p className="text-xs text-muted-foreground mt-0.5">Team hierarchy, ownership &amp; access</p>

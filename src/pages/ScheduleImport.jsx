@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { Upload, Calendar, History, ChevronRight } from 'lucide-react';
 import ScheduleImportFlow from '@/components/schedule/ScheduleImportFlow';
 import R365StagedImporter from '@/components/schedule/R365StagedImporter';
@@ -46,7 +47,8 @@ export default function ScheduleImport() {
 
   return (
     <div className="pb-28">
-      <div className="bg-card border-b border-border sticky top-0 z-10 px-4 py-3">
+      <DesktopPageHeader title="Schedule Import" subtitle="Bulk upload weekly staff schedules from CSV, Excel, or R365" />
+      <div className="lg:hidden bg-card border-b border-border sticky top-0 z-10 px-4 py-3">
         <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" /> Schedule Import
         </h1>

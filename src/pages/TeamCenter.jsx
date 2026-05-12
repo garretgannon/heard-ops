@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
+import { Search, Plus } from 'lucide-react';
 import TeamCommandHeader from '@/components/team/TeamCommandHeader';
 import TeamTabNav from '@/components/team/TeamTabNav';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import DirectoryView from '@/components/team/DirectoryView';
 import TeamProgressView from '@/components/team/TeamProgressView';
 import AddEmployeeModal from '@/components/team/AddEmployeeModal';
@@ -124,13 +126,41 @@ const isMounted = useRef(true);
 
   return (
     <div className="app-screen lg:flex lg:flex-col">
-      {/* Header */}
-      <TeamCommandHeader
-        searchQuery={searchQuery}
-        onSearch={setSearchQuery}
-        onAddEmployee={() => setShowAddEmployee(true)}
-        canAdd={isAdmin}
+      <DesktopPageHeader
+        title="Team"
+        subtitle="Staff directory and certifications"
+        actions={
+          <>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search team..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 rounded-lg border border-border/30 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary w-56"
+              />
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => setShowAddEmployee(true)}
+                className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
+              >
+                <Plus className="h-4 w-4" /> Add Employee
+              </button>
+            )}
+          </>
+        }
       />
+      {/* Mobile header */}
+      <div className="lg:hidden">
+        <TeamCommandHeader
+          searchQuery={searchQuery}
+          onSearch={setSearchQuery}
+          onAddEmployee={() => setShowAddEmployee(true)}
+          canAdd={isAdmin}
+        />
+      </div>
 
       {/* Tab Navigation */}
       <TeamTabNav

@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { BookOpen, CheckCircle2 } from 'lucide-react';
 import TrainingHeader from '@/components/training/TrainingHeader';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import ModulesTab from '@/components/training/ModulesTab';
 import AssignmentsTab from '@/components/training/AssignmentsTab';
 import CompletionsTab from '@/components/training/CompletionsTab';
@@ -137,7 +138,8 @@ export default function Training() {
 
   return (
     <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
-      <TrainingHeader />
+      <DesktopPageHeader title="Training" subtitle="Create modules, assign training, track completions" />
+      <div className="lg:hidden"><TrainingHeader /></div>
 
       {/* Tab Navigation */}
       <div className="sticky top-0 z-20 border-b border-border/30 bg-background/95 backdrop-blur-sm">

@@ -9,6 +9,7 @@ import {
 import PurchasedItemDetail from '@/components/purchased-items/PurchasedItemDetail';
 import PurchasedItemForm from '@/components/purchased-items/PurchasedItemForm';
 import VendorImportFlow from '@/components/purchased-items/VendorImportFlow';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const CATEGORY_LABELS = {
   protein: 'Protein', produce: 'Produce', dairy: 'Dairy',
@@ -206,8 +207,9 @@ export default function PurchasedItems() {
 
   return (
     <div className="pb-28">
+      <DesktopPageHeader title="Purchased Items" subtitle="Item master for recipe costing, inventory, vendors, and waste" />
       {/* Header */}
-      <div className="bg-card border-b border-border sticky top-0 z-10">
+      <div className="lg:hidden bg-card border-b border-border sticky top-0 z-10">
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">

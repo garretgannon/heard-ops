@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Plus, Edit2, Copy, Archive, Search } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const isTemplateActive = (template) => template.is_active ?? template.isActive ?? true;
 const assignedStation = (template) => template.assigned_station || template.assignedStations?.join(', ') || 'All Stations';
@@ -142,7 +143,8 @@ export default function WasteTemplates() {
 
   return (
     <div className="pb-24">
-      <div className="bg-card border-b border-border p-4 sticky top-0 z-10">
+      <DesktopPageHeader title="Waste Templates" subtitle="Create reusable waste log templates" />
+      <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Waste Templates</h1>
         <div className="flex gap-2 mb-3">
           <div className="flex-1 relative">
