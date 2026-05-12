@@ -54,7 +54,7 @@ export default function Layout() {
   const { isAdmin, user } = useCurrentUser();
   const { can } = usePermissions();
   const [restaurantName, setRestaurantName] = useState("");
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 900);
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem('sidebar_collapsed') === 'true'; } catch { return false; }
   });
@@ -84,7 +84,7 @@ export default function Layout() {
   };
 
   useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 1024);
+    const handler = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);

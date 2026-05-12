@@ -10,14 +10,14 @@ import { bottomNavRoutes } from '@/lib/routeConfig';
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 900);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [activeQuickAction, setActiveQuickAction] = useState(null);
   const { user, isAdmin } = useCurrentUser();
   const { can } = usePermissions();
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);

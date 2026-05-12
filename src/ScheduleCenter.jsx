@@ -54,11 +54,11 @@ export default function ScheduleCenter() {
   const [filterDepts, setFilterDepts] = useState([]);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showGroupPanel, setShowGroupPanel] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900);
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    const h = () => setIsMobile(window.innerWidth < 1024);
+    const h = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener('resize', h);
     return () => window.removeEventListener('resize', h);
   }, []);

@@ -20,7 +20,7 @@ export default function Shift() {
   const [currentTask, setCurrentTask] = useState(null);
   const [stats, setStats] = useState({ completedCount: 0, totalCount: 0, completionPct: 0 });
   const [activeModal, setActiveModal] = useState(null);
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 900);
   const isMounted = useRef(true);
 
   // Load shift tasks
@@ -66,7 +66,7 @@ export default function Shift() {
 
   // Track mobile/desktop on resize
   useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 1024);
+    const handler = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);

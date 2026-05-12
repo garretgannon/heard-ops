@@ -145,7 +145,7 @@
     color: #fff;
   }
 
-  @media (max-width: 1023px) {
+  @media (max-width: 899px) {
     input, textarea, select {
       font-size: 16px !important;
       -webkit-user-zoom: 1;
@@ -204,7 +204,7 @@
 }
 
 @supports (padding: max(0px)) {
-  @media (max-width: 1023px) {
+  @media (max-width: 899px) {
     body.modal-open {
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -570,7 +570,7 @@
     @apply w-full mx-auto;
   }
 
-  @media (max-width: 1023px) {
+  @media (max-width: 899px) {
     .mobile-tab-viewport {
       max-width: 430px;
       min-height: 100%;
