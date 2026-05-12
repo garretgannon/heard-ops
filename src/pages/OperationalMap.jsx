@@ -798,7 +798,7 @@ export default function OperationalMap() {
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[640px] space-y-4">
+      <main className="app-page mx-auto max-w-[640px] lg:max-w-7xl space-y-4">
 
         {/* Header */}
         <header className="flex items-start justify-between gap-4 pt-1">

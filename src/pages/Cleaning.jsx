@@ -67,7 +67,7 @@ export default function Cleaning() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Cleaning" />
-      <main className="app-page mx-auto max-w-[620px] space-y-5 pb-28">
+      <main className="app-page mx-auto max-w-[620px] lg:max-w-6xl space-y-5 pb-28">
         <header className="pt-1 flex items-start justify-between gap-4 lg:hidden">
           <div>
             <p className="metric-label">Operations</p>

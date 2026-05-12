@@ -86,7 +86,7 @@ export default function MyShifts() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="My Shifts" />
-      <main className="app-page mx-auto max-w-[520px] space-y-5">
+      <main className="app-page mx-auto max-w-[520px] lg:max-w-5xl space-y-5">
 
         <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
           <div>
