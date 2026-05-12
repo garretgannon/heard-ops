@@ -16,7 +16,7 @@ const TABS = [
 ];
 
 export default function Training() {
-  const { isAdmin } = useCurrentUser();
+  const { isAdmin, user } = useCurrentUser();
   const [activeTab, setActiveTab] = useState('modules');
   const [modules, setModules] = useState([]);
   const [assignments, setAssignments] = useState([]);

@@ -4,13 +4,22 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
-    // Check for completed GeneratedTasks requiring approval
-    const pendingTasks = await base44.entities.GeneratedTask?.filter?.({ status: 'completed', requires_approval: true }, '-completed_at', 100).catch(() => []);
+
+    // Fetch all data in parallel
+    const [pendingTasks, failedChecks, existingApprovals] = await Promise.all([
+      base44.entities.GeneratedTask?.filter?.({ status: 'completed', requires_approval: true }, '-completed_at', 50).catch(() => []),
+      base44.entities.OperationalCheck?.filter?.({ status: 'failed' }, '-completed_at', 50).catch(() => []),
+      base44.entities.ApprovalQueue?.filter?.({ status: 'pending' }, '-submitted_at', 200).catch(() => []),
+    ]);
+
+    // Build a set of already-queued source IDs to avoid duplicates without extra API calls
+    const queuedSourceIds = new Set((existingApprovals || []).map(a => a.source_id));
+
+    const toCreate = [];
+
     for (const task of pendingTasks || []) {
-      const existing = await base44.entities.ApprovalQueue?.filter?.({ source_id: task.id, submission_type: 'prep_completion' }).catch(() => []);
-      if (existing?.length === 0) {
-        await base44.entities.ApprovalQueue?.create?.({
+      if (!queuedSourceIds.has(task.id)) {
+        toCreate.push({
           submission_type: 'prep_completion',
           source_id: task.id,
           submitted_by_email: task.completed_by || 'system@heardos.local',
@@ -23,12 +32,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Check for failed OperationalChecks requiring approval
-    const failedChecks = await base44.entities.OperationalCheck?.filter?.({ status: 'failed' }, '-completed_at', 100).catch(() => []);
     for (const check of failedChecks || []) {
-      const existing = await base44.entities.ApprovalQueue?.filter?.({ source_id: check.id, submission_type: 'temperature_log' }).catch(() => []);
-      if (existing?.length === 0) {
-        await base44.entities.ApprovalQueue?.create?.({
+      if (!queuedSourceIds.has(check.id)) {
+        toCreate.push({
           submission_type: 'temperature_log',
           source_id: check.id,
           submitted_by_email: check.completed_by || 'system@heardos.local',
@@ -43,7 +49,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    return Response.json({ success: true, processed: (pendingTasks?.length || 0) + (failedChecks?.length || 0) });
+    // Create all new entries in parallel (batched)
+    if (toCreate.length > 0) {
+      await Promise.all(
+        toCreate.map(entry => base44.entities.ApprovalQueue?.create?.(entry).catch(() => null))
+      );
+    }
+
+    return Response.json({ success: true, created: toCreate.length });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
