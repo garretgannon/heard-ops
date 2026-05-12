@@ -220,48 +220,36 @@ export default function AppOverview() {
   const loadMetrics = async () => {
     setLoading(true);
     try {
-      // Batch 1: approvals & urgent items (most critical for UI)
-      const [approvals, prepItems, maintenanceReqs, timeOffReqs] = await Promise.all([
-        safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 50),
-        safeFilter(base44.entities.PrepItem, { status: 'pending_review' }, '-updated_date', 50),
-        safeFilter(base44.entities.MaintenanceRequest, { status: 'pending' }, '-updated_date', 30),
-        safeFilter(base44.entities.TimeOffRequest, { status: 'pending' }, '-updated_date', 30),
-      ]);
-
-      // Batch 2: metrics & activity (secondary)
-      const [tasks, alerts, allPrepItems, recentLogs] = await Promise.all([
-        safeFilter(base44.entities.GeneratedTask, { status: { $in: ['completed', 'pending', 'in_progress'] } }, '-updated_date', 50),
-        safeFilter(base44.entities.OperationalCheck, { status: { $in: ['failed', 'overdue'] } }, '-updated_date', 30),
-        base44.entities.PrepItem?.list?.('-updated_date', 20).catch(() => []),
+      // Single batch — keep to ≤4 calls to stay under rate limits
+      const [approvals, prepItems, tasks, recentLogs] = await Promise.all([
+        safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 30),
+        safeFilter(base44.entities.PrepItem, {}, '-updated_date', 20),
+        safeFilter(base44.entities.GeneratedTask, { status: { $in: ['completed', 'pending', 'in_progress'] } }, '-updated_date', 30),
         base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []),
       ]);
 
-      // Derived from already-fetched data (no extra API call needed)
-      const tempLogs = [];
-      const equipment = [];
+      const pendingPrep = (prepItems || []).filter(p => p.status === 'pending_review');
 
       const allApprovals = uniqueApprovals([
         ...(approvals || []).map(normalizeApprovalQueueItem),
-        ...(prepItems || []).map(p => ({ ...p, approval_type: 'prep', sourceModule: 'PrepItem', sourceId: p.id, photo_url: p.photo_url || demoPhotoFor(p.name) })),
-        ...(tempLogs || []).map(t => ({ ...t, approval_type: 'temperature', sourceModule: 'TemperatureLog', sourceId: t.id })),
-        ...(maintenanceReqs || []).map(m => ({ ...m, approval_type: 'maintenance', sourceModule: 'MaintenanceRequest', sourceId: m.id })),
-        ...(timeOffReqs || []).map(t => ({ ...t, approval_type: 'timeoff', sourceModule: 'TimeOffRequest', sourceId: t.id })),
+        ...(pendingPrep).map(p => ({ ...p, approval_type: 'prep', sourceModule: 'PrepItem', sourceId: p.id, photo_url: p.photo_url || demoPhotoFor(p.name) })),
       ]);
 
       const completed = (tasks || []).filter((task) => task.status === 'completed').length;
       const total = (tasks || []).length;
+      const overdue = (tasks || []).filter(t => t.status === 'overdue').length;
 
       setApprovalQueue(allApprovals);
       setMetrics({
         completedTasks: completed,
         totalTasks: total,
         pendingApprovals: allApprovals.length,
-        openAlerts: (alerts || []).length,
-        equipmentIssues: (alerts || []).length,
+        openAlerts: overdue,
+        equipmentIssues: overdue,
       });
 
-      const prepQueue = (allPrepItems || [])
-        .filter(p => p.status !== 'completed')
+      const prepQueue = (prepItems || [])
+        .filter(p => p.status !== 'completed' && p.status !== 'approved')
         .slice(0, 5)
         .map(p => ({
           name: p.name || 'Prep item',
