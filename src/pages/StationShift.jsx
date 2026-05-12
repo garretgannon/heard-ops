@@ -596,7 +596,7 @@ export default function StationShift() {
     const firstName = (employee?.full_name || user?.full_name || '').split(' ')[0];
     return (
       <div className="app-screen">
-        <main className="app-page mx-auto max-w-[620px] space-y-4 pb-28">
+        <main className="app-page mx-auto max-w-[620px] lg:max-w-6xl space-y-4 pb-28">
           <header className="pt-1 space-y-1">
             <p className="metric-label">My Shift</p>
             <h1 className="text-2xl font-black tracking-tight text-foreground">
@@ -655,7 +655,7 @@ export default function StationShift() {
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[620px] space-y-4 pb-28">
+      <main className="app-page mx-auto max-w-[620px] lg:max-w-6xl space-y-4 pb-28">
         <header className="space-y-3 pt-1">
           <div className="flex items-start justify-between gap-4">
             <div>

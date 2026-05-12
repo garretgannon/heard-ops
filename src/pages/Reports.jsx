@@ -105,7 +105,7 @@ export default function Reports() {
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[720px] space-y-6 pb-28">
+      <main className="app-page mx-auto max-w-[720px] lg:max-w-6xl space-y-6 pb-28">
         <header className="pt-1">
           <p className="metric-label">Operations</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Reports</h1>
