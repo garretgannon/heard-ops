@@ -117,16 +117,14 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Logged-in users: managers land on overview, staff land on station shift.
-  if (window.location.pathname === '/') {
-    return <Navigate to={isAdmin ? "/app/overview" : "/station-shift"} replace />;
-  }
-
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<Layout />}>
+        {/* Root redirect for logged-in users */}
+        <Route path="/" element={<Navigate to={isAdmin ? "/app/overview" : "/station-shift"} replace />} />
+
         {/* OVERVIEW - Logged-in dashboard */}
         <Route path="/app/overview" element={<AppOverview />} />
         
