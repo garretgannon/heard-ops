@@ -39,7 +39,7 @@ export default function LogsPageHeader({ onCreateClick, onViewChange, activeView
             <ChevronDown className="h-3.5 w-3.5 opacity-60" />
           </button>
           {showCreateMenu && (
-            <div className="absolute right-0 top-full mt-1 w-56 bg-card border border-border rounded-lg shadow-lg z-50 py-1">
+            <div className="absolute right-0 top-full mt-1 w-56 card-glass border border-border rounded-lg shadow-lg z-50 py-1">
               {LOG_CREATE_TYPES.map(type => (
                 <button
                   key={type.id}

@@ -83,13 +83,13 @@ export default function SDSLibrary() {
               placeholder="Search by chemical name or vendor..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-lg text-foreground text-sm"
+              className="w-full pl-10 pr-4 py-2 card-glass border border-border rounded-lg text-foreground text-sm"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 bg-card border border-border rounded-lg text-foreground text-sm"
+            className="px-4 py-2 card-glass border border-border rounded-lg text-foreground text-sm"
           >
             <option value="">All Categories</option>
             {CATEGORIES.map(cat => (
@@ -113,7 +113,7 @@ export default function SDSLibrary() {
             </div>
           ) : (
             filteredSds.map(record => (
-              <div key={record.id} className="bg-card border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+              <div key={record.id} className="card-glass border border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -189,7 +189,7 @@ export default function SDSLibrary() {
       {/* Detail Modal */}
       {selectedSDS && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+          <div className="card-glass border border-border rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-foreground">{selectedSDS.chemical_name}</h2>
               <button onClick={() => setSelectedSDS(null)} className="text-muted-foreground hover:text-foreground text-2xl">×</button>

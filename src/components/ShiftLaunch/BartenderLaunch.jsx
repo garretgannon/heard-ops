@@ -18,7 +18,7 @@ export default function BartenderLaunch({ isOpen, onClose, onComplete, roleLabel
         <h2 className="text-sm font-bold text-foreground">Bar Station Check</h2>
         
         <div className="space-y-2">
-          <div className="bg-card border border-border rounded-lg p-2.5">
+          <div className="card-glass border border-border rounded-lg p-2.5">
             <div className="flex items-center gap-2">
               <Wine className="h-4 w-4 text-primary" />
               <p className="text-xs font-bold text-foreground">Stock levels</p>

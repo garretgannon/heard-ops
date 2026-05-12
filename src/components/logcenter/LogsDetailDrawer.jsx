@@ -92,7 +92,7 @@ export default function LogsDetailDrawer({ log, isOpen, onClose, onUpdate }) {
                   className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                     log.status === s
                       ? 'bg-primary text-primary-foreground'
-                      : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60'
+                      : 'card-glass border border-border/40 text-muted-foreground hover:border-border/60'
                   } disabled:opacity-50`}
                 >
                   {s.replace(/_/g, ' ')}

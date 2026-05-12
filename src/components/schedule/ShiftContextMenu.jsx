@@ -39,7 +39,7 @@ export default function ShiftContextMenu({ x, y, shift, hasClipboard, onEdit, on
   return (
     <div
       ref={ref}
-      className="fixed z-[9999] w-48 rounded-xl border border-border/60 bg-card shadow-2xl py-1 overflow-hidden"
+      className="fixed z-[9999] w-48 rounded-xl border border-border/60 card-glass shadow-2xl py-1 overflow-hidden"
       style={{ left, top }}
     >
       {filtered.map((item, i) => {

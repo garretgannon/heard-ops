@@ -73,7 +73,7 @@ export default function RolePermissionBuilder() {
               'px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95',
               selectedRole === role.id
                 ? 'bg-primary/20 border border-primary/40 text-primary'
-                : 'bg-card border border-border text-muted-foreground hover:border-border/60'
+                : 'card-glass border border-border text-muted-foreground hover:border-border/60'
             )}
           >
             {role.label}
@@ -83,7 +83,7 @@ export default function RolePermissionBuilder() {
 
       {/* Permission Groups */}
       {PERMISSION_GROUPS.map(group => (
-        <div key={group.label} className="bg-card border border-border/40 rounded-xl overflow-hidden">
+        <div key={group.label} className="card-glass border border-border/40 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-border/30 bg-card/50">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{group.label}</p>
           </div>

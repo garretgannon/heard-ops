@@ -10,7 +10,7 @@ export default function MoreRow({ icon: Icon, label, description, badge, onClick
         haptics.light();
         onClick?.();
       }}
-      className="w-full text-left p-4 rounded-lg border border-border/40 bg-card hover:bg-secondary/30 transition-all active:scale-[0.98] group flex items-center gap-3"
+      className="w-full text-left p-4 rounded-lg border border-border/40 card-glass hover:bg-secondary/30 transition-all active:scale-[0.98] group flex items-center gap-3"
     >
       {/* Icon */}
       <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 group-hover:bg-muted/80 transition-colors">

@@ -54,7 +54,7 @@ export default function BulkParEditorModal({ station, shift, onClose, onSave }) 
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end lg:items-center lg:justify-center">
-      <div className="w-full lg:w-[600px] bg-card border border-border rounded-t-2xl lg:rounded-2xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full lg:w-[600px] card-glass border border-border rounded-t-2xl lg:rounded-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
           <div>

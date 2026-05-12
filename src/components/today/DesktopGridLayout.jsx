@@ -15,7 +15,7 @@ export default function DesktopGridLayout({ stats, tasks, logs, onQuickAction })
     </div>
     <div className="grid grid-cols-3 gap-4">
       {/* Left: Priorities */}
-      <div className="rounded-xl border border-border/30 bg-card p-5 space-y-3">
+      <div className="rounded-xl border border-border/30 card-glass p-5 space-y-3">
         <h3 className="font-bold text-foreground text-sm">Today's Priorities</h3>
         {overdueItems.length > 0 ? (
           <div className="space-y-2">
@@ -35,7 +35,7 @@ export default function DesktopGridLayout({ stats, tasks, logs, onQuickAction })
       </div>
 
       {/* Middle: Shift Progress */}
-      <div className="rounded-xl border border-border/30 bg-card p-5 space-y-3">
+      <div className="rounded-xl border border-border/30 card-glass p-5 space-y-3">
         <h3 className="font-bold text-foreground text-sm">Shift Progress</h3>
         <div className="space-y-3">
           {/* Overall */}
@@ -73,7 +73,7 @@ export default function DesktopGridLayout({ stats, tasks, logs, onQuickAction })
       </div>
 
       {/* Right: Manager Review */}
-      <div className="rounded-xl border border-border/30 bg-card p-5 space-y-3">
+      <div className="rounded-xl border border-border/30 card-glass p-5 space-y-3">
         <h3 className="font-bold text-foreground text-sm">Needs Review</h3>
         {reviewItems.length > 0 ? (
           <div className="space-y-2">

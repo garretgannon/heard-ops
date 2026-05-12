@@ -61,7 +61,7 @@ export default function ChecklistView({
       {metrics.length > 0 && (
         <div className="px-4 py-3 border-b border-border grid grid-cols-4 gap-1.5">
           {metrics.map((metric, idx) => (
-            <div key={idx} className="bg-card border border-border rounded-lg p-2 text-center">
+            <div key={idx} className="card-glass border border-border rounded-lg p-2 text-center">
               <p className={cn("text-lg font-bold", metric.color || "text-foreground")}>
                 {metric.value}
               </p>
@@ -123,7 +123,7 @@ export default function ChecklistView({
               transition={{ delay: idx * 0.02 }}
               onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
               className={cn(
-                "w-full text-left bg-card border border-border rounded-xl p-3 transition-all hover:border-primary/30 active:scale-[0.98]",
+                "w-full text-left card-glass border border-border rounded-xl p-3 transition-all hover:border-primary/30 active:scale-[0.98]",
                 item.status === "completed" && "opacity-60"
               )}
             >

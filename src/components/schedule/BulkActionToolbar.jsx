@@ -13,7 +13,7 @@ export default function BulkActionToolbar({ selectedCount, onClear, onCopy, onDu
       exit={{ opacity: 0, y: 24 }}
       className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
     >
-      <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-card border border-border/60 shadow-2xl backdrop-blur-sm">
+      <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl card-glass border border-border/60 shadow-2xl backdrop-blur-sm">
         {/* Count badge */}
         <div className="px-3 py-1 rounded-lg bg-primary/20 border border-primary/30">
           <p className="text-sm font-bold text-primary">{selectedCount} selected</p>

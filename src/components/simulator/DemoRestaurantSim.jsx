@@ -62,7 +62,7 @@ export default function DemoRestaurantSim({ onBack }) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-2xl border border-border bg-card p-6"
+        className="rounded-2xl border border-border card-glass p-6"
       >
         <h3 className="text-lg font-bold text-foreground mb-4">Test All Roles</h3>
         <p className="text-sm text-muted-foreground mb-4">
@@ -131,7 +131,7 @@ export default function DemoRestaurantSim({ onBack }) {
       <div className="flex gap-2">
         <button
           onClick={onBack}
-          className="flex-1 px-4 py-3 rounded-lg border border-border bg-card text-foreground font-bold"
+          className="flex-1 px-4 py-3 rounded-lg border border-border card-glass text-foreground font-bold"
         >
           Back
         </button>

@@ -144,7 +144,7 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
             </div>
 
             {/* Shift Score Slider */}
-            <div className="bg-card border border-border rounded-lg p-3 space-y-2">
+            <div className="card-glass border border-border rounded-lg p-3 space-y-2">
               <label className="block">
                 <span className="text-xs font-semibold text-foreground">Shift Score</span>
                 <div className="flex items-center gap-2 mt-2">
@@ -167,7 +167,7 @@ export default function ShiftCloseModal({ shiftSession, onClose, isLoading }) {
             </div>
 
             {/* Metrics Summary */}
-            <div className="bg-card border border-border rounded-lg p-3 grid grid-cols-2 gap-2">
+            <div className="card-glass border border-border rounded-lg p-3 grid grid-cols-2 gap-2">
               <div className="text-center">
                 <p className="text-lg font-bold text-blue-400">{shiftSession.prep_completion_pct || 0}%</p>
                 <p className="text-[9px] text-muted-foreground font-bold uppercase">Prep Done</p>

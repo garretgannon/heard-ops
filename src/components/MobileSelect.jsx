@@ -42,7 +42,7 @@ export default function MobileSelect({ label, value, options, onChange, placehol
           />
 
           {/* BottomSheet for mobile, modal for desktop */}
-          <div className="relative z-50 w-full lg:w-96 bg-card border border-border rounded-t-2xl lg:rounded-2xl shadow-2xl lg:shadow-xl">
+          <div className="relative z-50 w-full lg:w-96 card-glass border border-border rounded-t-2xl lg:rounded-2xl shadow-2xl lg:shadow-xl">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/30 sticky top-0">
               <h3 className="font-bold text-foreground">{label || 'Select option'}</h3>

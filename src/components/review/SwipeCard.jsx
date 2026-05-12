@@ -42,7 +42,7 @@ export default function SwipeCard({ approval, index, onApprove, onDeny, onExpand
     >
       <div
         className={cn(
-          'relative mx-auto rounded-2xl border border-border/30 bg-card shadow-xl overflow-hidden transition-all',
+          'relative mx-auto rounded-2xl border border-border/30 card-glass shadow-xl overflow-hidden transition-all',
           isDragging && 'shadow-2xl',
           swipePercentage > 0.5 && 'border-green-500/50',
           swipePercentage > 0.5 && isSwipingRight && 'bg-green-500/10',

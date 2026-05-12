@@ -27,7 +27,7 @@ export default function ManagerLaunch({ isOpen, onClose, onComplete, roleLabel }
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-3 text-xs space-y-2 text-secondary-text">
+        <div className="card-glass border border-border rounded-lg p-3 text-xs space-y-2 text-secondary-text">
           <p>Staffing: Full (0 call-outs)</p>
           <p>Projected covers: 120</p>
           <p>Prep status: 85% complete</p>

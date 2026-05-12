@@ -37,7 +37,7 @@ export default function ShiftTeamPanel({ tasks, selectedEmployee, onSelectEmploy
   });
 
   return (
-    <div className="rounded-xl border border-border/30 bg-card p-4">
+    <div className="rounded-xl border border-border/30 card-glass p-4">
       <h3 className="font-bold text-foreground text-sm mb-3">Shift Team</h3>
       <div className="space-y-2">
         {employeeList.length === 0 ? (

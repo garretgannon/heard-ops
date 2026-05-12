@@ -123,7 +123,7 @@ export default function ShiftHandoff() {
       <div className="px-4 pt-4 space-y-5">
 
         {/* INFO ROW */}
-        <div className="bg-card border border-border rounded-xl p-3 grid grid-cols-3 gap-3">
+        <div className="card-glass border border-border rounded-xl p-3 grid grid-cols-3 gap-3">
           <div className="flex flex-col items-center text-center gap-1.5">
             <div className="h-9 w-9 rounded-lg bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center">
               <Calendar className="h-4 w-4 text-yellow-400" />
@@ -151,25 +151,25 @@ export default function ShiftHandoff() {
         <section>
           <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Shift Snapshot</h2>
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-card border border-border rounded-xl p-3 flex flex-col items-center text-center">
+            <div className="card-glass border border-border rounded-xl p-3 flex flex-col items-center text-center">
               <AlertTriangle className="h-4 w-4 text-red-400 mb-1.5" />
               <p className="text-2xl font-extrabold text-red-400">{issues.length}</p>
               <p className="text-xs font-semibold text-foreground mt-0.5">Open Issues</p>
               <p className="text-[10px] text-muted-foreground">needs attention</p>
             </div>
-            <div className="bg-card border border-border rounded-xl p-3 flex flex-col items-center text-center">
+            <div className="card-glass border border-border rounded-xl p-3 flex flex-col items-center text-center">
               <Flame className="h-4 w-4 text-red-400 mb-1.5" />
               <p className="text-2xl font-extrabold text-red-400">{eightySixItems.length}</p>
               <p className="text-xs font-semibold text-foreground mt-0.5">86'd Items</p>
               <p className="text-[10px] text-muted-foreground">today</p>
             </div>
-            <div className="bg-card border border-border rounded-xl p-3 flex flex-col items-center text-center">
+            <div className="card-glass border border-border rounded-xl p-3 flex flex-col items-center text-center">
               <MessageSquare className="h-4 w-4 text-blue-400 mb-1.5" />
               <p className="text-2xl font-extrabold text-blue-400">{tasks.length}</p>
               <p className="text-xs font-semibold text-foreground mt-0.5">Carryover Tasks</p>
               <p className="text-[10px] text-muted-foreground">next shift</p>
             </div>
-            <div className="bg-card border border-border rounded-xl p-3 flex flex-col items-center text-center">
+            <div className="card-glass border border-border rounded-xl p-3 flex flex-col items-center text-center">
               <CheckCircle2 className="h-4 w-4 text-yellow-400 mb-1.5" />
               <p className="text-2xl font-extrabold text-yellow-400">{followUpCount}</p>
               <p className="text-xs font-semibold text-foreground mt-0.5">Follow-Ups</p>
@@ -229,14 +229,14 @@ export default function ShiftHandoff() {
             ))}
           </div>
           <div className="space-y-2">
-            <div className="bg-card border border-border rounded-xl p-3 flex items-start gap-2.5">
+            <div className="card-glass border border-border rounded-xl p-3 flex items-start gap-2.5">
               <div className="h-2 w-2 rounded-full bg-green-400 mt-1.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-foreground">Patio waitlist was long early. Shifted 2 servers to support FOH flow.</p>
                 <p className="text-xs text-muted-foreground mt-1.5">J. Rivera • 1h ago</p>
               </div>
             </div>
-            <div className="bg-card border border-border rounded-xl p-3 flex items-start gap-2.5">
+            <div className="card-glass border border-border rounded-xl p-3 flex items-start gap-2.5">
               <div className="h-2 w-2 rounded-full bg-blue-400 mt-1.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-foreground">Table 12 birthday celebration. Reserved preferred window seat.</p>
@@ -254,7 +254,7 @@ export default function ShiftHandoff() {
             onChange={e => setNotes(e.target.value)}
             placeholder="Add any notes for the incoming manager..."
             rows={4}
-            className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full card-glass border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </section>
 
@@ -264,7 +264,7 @@ export default function ShiftHandoff() {
             <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Linked Items</h2>
             <div className="space-y-2">
               {issues.length > 0 && (
-                <div className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
+                <div className="card-glass border border-border rounded-xl p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <AlertTriangle className="h-4 w-4 text-red-400" />
                     <span className="text-sm font-semibold text-foreground">Open Issues</span>
@@ -273,7 +273,7 @@ export default function ShiftHandoff() {
                 </div>
               )}
               {eightySixItems.length > 0 && (
-                <div className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
+                <div className="card-glass border border-border rounded-xl p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <Flame className="h-4 w-4 text-red-400" />
                     <span className="text-sm font-semibold text-foreground">86 Log</span>
@@ -282,7 +282,7 @@ export default function ShiftHandoff() {
                 </div>
               )}
               {prepItems.length > 0 && (
-                <div className="bg-card border border-border rounded-xl p-3 flex items-center justify-between">
+                <div className="card-glass border border-border rounded-xl p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="h-4 w-4 text-blue-400" />
                     <span className="text-sm font-semibold text-foreground">Prep Items Needing Review</span>

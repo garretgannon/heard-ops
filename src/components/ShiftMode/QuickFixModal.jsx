@@ -91,7 +91,7 @@ export default function QuickFixModal({
             <button
               key={item.id}
               onClick={() => handleQuickComplete(item.id)}
-              className="w-full flex items-start gap-3 p-2.5 rounded-lg bg-card border border-border hover:border-border/60 transition-colors text-left active:scale-95"
+              className="w-full flex items-start gap-3 p-2.5 rounded-lg card-glass border border-border hover:border-border/60 transition-colors text-left active:scale-95"
             >
               <div className="h-5 w-5 rounded-full border-2 border-border flex items-center justify-center shrink-0 mt-0.5 hover:border-primary transition-colors">
                 <div className="h-2 w-2 rounded-full bg-muted-foreground" />

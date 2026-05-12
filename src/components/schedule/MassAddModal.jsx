@@ -37,7 +37,7 @@ export default function MassAddModal({ employees, weekDays, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-lg bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-lg card-glass border border-border/50 rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border/30">
           <div>
             <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Plus className="h-4 w-4 text-primary" /> Mass Add Shifts</h2>

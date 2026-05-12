@@ -19,7 +19,7 @@ export default function ListCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "bg-card border border-border rounded-lg p-2.5 flex items-start gap-2.5 transition-all active:scale-[0.98]",
+        "card-glass border border-border rounded-lg p-2.5 flex items-start gap-2.5 transition-all active:scale-[0.98]",
         isSelected && "border-primary/50 bg-primary/5"
       )}
     >

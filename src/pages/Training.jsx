@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { BookOpen, CheckCircle2 } from 'lucide-react';
 import TrainingHeader from '@/components/training/TrainingHeader';
 import ModulesTab from '@/components/training/ModulesTab';
 import AssignmentsTab from '@/components/training/AssignmentsTab';
@@ -52,12 +53,73 @@ export default function Training() {
   };
 
   if (!isAdmin) {
+    const myAssignments = assignments.filter(a => a.assignee_email === user?.email || a.assigned_to_email === user?.email);
+    const myCompletions = completions.filter(c => c.completedBy === user?.email || c.employee_email === user?.email);
+    const completedIds = new Set(myCompletions.map(c => c.moduleId || c.module_id));
+
     return (
       <div className="pb-32 bg-background min-h-screen">
         <TrainingHeader />
-        <div className="px-4 py-12 lg:px-8 text-center">
-          <p className="text-muted-foreground">Admin access required</p>
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center h-48">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="px-4 py-6 lg:px-8 max-w-2xl mx-auto space-y-6">
+            {myAssignments.length > 0 && (
+              <section className="space-y-3">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">My Assignments</h2>
+                <div className="space-y-2">
+                  {myAssignments.map(a => {
+                    const mod = modules.find(m => m.id === (a.moduleId || a.module_id));
+                    const done = completedIds.has(a.moduleId || a.module_id);
+                    return (
+                      <div key={a.id} className="flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
+                        <span className={`status-marker status-marker-md ${done ? 'status-success' : 'status-warning'}`}>
+                          {done ? <CheckCircle2 className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black text-foreground">{mod?.title || a.module_title || 'Training module'}</p>
+                          <p className="text-xs text-muted-foreground">{done ? 'Completed' : a.dueDate ? `Due ${a.dueDate}` : 'Assigned'}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {modules.length > 0 && (
+              <section className="space-y-3">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">All Modules</h2>
+                <div className="space-y-2">
+                  {modules.map(mod => {
+                    const done = completedIds.has(mod.id);
+                    return (
+                      <div key={mod.id} className="flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
+                        <span className={`status-marker status-marker-md ${done ? 'status-success' : 'status-neutral'}`}>
+                          {done ? <CheckCircle2 className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black text-foreground">{mod.title}</p>
+                          <p className="text-xs text-muted-foreground">{mod.category || mod.moduleType || ''}{mod.estimatedMinutes ? ` · ${mod.estimatedMinutes} min` : ''}</p>
+                        </div>
+                        {done && <span className="text-[10px] font-black text-green-400 shrink-0">Done</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {modules.length === 0 && myAssignments.length === 0 && (
+              <div className="py-16 text-center space-y-2">
+                <p className="text-sm font-semibold text-muted-foreground">No training materials available yet.</p>
+                <p className="text-xs text-muted-foreground">Check back once your manager has added modules.</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }

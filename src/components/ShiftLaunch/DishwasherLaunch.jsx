@@ -18,7 +18,7 @@ export default function DishwasherLaunch({ isOpen, onClose, onComplete, roleLabe
         <h2 className="text-sm font-bold text-foreground">Station Setup</h2>
         
         <div className="space-y-2">
-          <div className="bg-card border border-border rounded-lg p-2.5">
+          <div className="card-glass border border-border rounded-lg p-2.5">
             <div className="flex items-center gap-2">
               <Droplets className="h-4 w-4 text-blue-400" />
               <p className="text-xs font-bold text-foreground">Machine sanitizer</p>

@@ -65,7 +65,7 @@ export default function QuickAddPrepItemModal({ onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-card border border-border rounded-2xl max-w-md w-full p-6 space-y-4">
+      <div className="card-glass border border-border rounded-2xl max-w-md w-full p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-foreground">Quick Add Prep Item</h2>
           <button onClick={onClose} className="h-8 w-8 rounded hover:bg-secondary flex items-center justify-center text-muted-foreground">

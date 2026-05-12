@@ -28,7 +28,7 @@ function ChemicalCard({ chemical, onView, onEdit, onDelete }) {
   const isExpired = chemical.expiration_date && new Date(chemical.expiration_date) < new Date();
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all">
+    <div className="card-glass border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all">
       <div className="p-3">
         <div className="flex items-start gap-3">
           <div className={cn('text-2xl p-2 rounded-lg', catInfo.color)}>{catInfo.icon}</div>
@@ -320,7 +320,7 @@ export default function ChemicalLibrary() {
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search chemicals…" className="w-52 pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-xs" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search chemicals…" className="w-52 pl-9 pr-3 py-2 card-glass border border-border rounded-lg text-xs" />
             </div>
             {isAdmin && (
               <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5">
@@ -348,7 +348,7 @@ export default function ChemicalLibrary() {
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading chemicals…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <div className="text-center py-12 card-glass border border-border rounded-xl">
             <Beaker className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
             <p className="text-sm text-muted-foreground">No chemicals found</p>
             {isAdmin && <button onClick={() => { setEditing(null); setShowForm(true); }} className="mt-3 btn-primary text-xs px-4 py-2"><Plus className="h-3 w-3 inline mr-1" />Add Chemical</button>}

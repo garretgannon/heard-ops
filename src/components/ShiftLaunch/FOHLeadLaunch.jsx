@@ -18,7 +18,7 @@ export default function FOHLeadLaunch({ isOpen, onClose, onComplete, roleLabel }
         <h2 className="text-sm font-bold text-foreground">Service Brief</h2>
         
         <div className="space-y-2">
-          <div className="bg-card border border-border rounded-lg p-2.5">
+          <div className="card-glass border border-border rounded-lg p-2.5">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
               <div className="flex-1 text-xs">
@@ -29,7 +29,7 @@ export default function FOHLeadLaunch({ isOpen, onClose, onComplete, roleLabel }
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-3 text-xs space-y-2 text-secondary-text">
+        <div className="card-glass border border-border rounded-lg p-3 text-xs space-y-2 text-secondary-text">
           <p>Today's specials: Halibut, Steak Frites</p>
           <p>Projected covers: 120</p>
           <p>VIP: 2 tables reserved</p>

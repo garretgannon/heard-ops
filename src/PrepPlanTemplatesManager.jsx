@@ -84,7 +84,7 @@ export default function PrepPlanTemplatesManager() {
         {loading ? (
           <div className="text-center py-10 text-muted-foreground">Loading…</div>
         ) : templates.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <div className="text-center py-12 card-glass border border-border rounded-xl">
             <p className="text-foreground font-bold mb-3">No prep templates yet</p>
             <button
               onClick={() => navigate('/prep-plan-templates/new')}
@@ -96,7 +96,7 @@ export default function PrepPlanTemplatesManager() {
         ) : (
           <div className="space-y-2">
             {templates.map(t => (
-              <div key={t.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between hover:border-primary/30 transition-colors">
+              <div key={t.id} className="card-glass border border-border rounded-xl p-4 flex items-center justify-between hover:border-primary/30 transition-colors">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-bold text-foreground truncate">{t.template_name}</p>

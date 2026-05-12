@@ -388,10 +388,10 @@ export default function ScheduleCenter() {
             {/* RIGHT: Actions */}
             {isMobile ? (
               <div className="flex items-center gap-1.5 shrink-0">
-                <button onClick={() => setShowMassAdd(true)} className="h-8 w-8 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center">
+                <button onClick={() => setShowMassAdd(true)} className="h-8 w-8 rounded-lg border border-border card-glass text-muted-foreground flex items-center justify-center">
                   <Plus className="h-3.5 w-3.5" />
                 </button>
-                <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white' : 'border border-border bg-card text-muted-foreground')}>
+                <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white' : 'border border-border card-glass text-muted-foreground')}>
                   {publishing ? '…' : draftCount > 0 ? `${draftCount}` : '✓'}
                 </button>
               </div>
@@ -448,7 +448,7 @@ export default function ScheduleCenter() {
                     <span>Group by {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Department' : 'Role'}</span>
                   </button>
                   {showGroupPanel && (
-                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border bg-card shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
                       {[['employee','Employee'],['department','Department'],['role','Role']].map(([val, label]) => (
                         <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }} className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors', groupBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
                           {groupBy === val && <Check className="h-3 w-3" />}
@@ -466,7 +466,7 @@ export default function ScheduleCenter() {
                     <span>Filter {filterDepts.length > 0 && `(${filterDepts.length})`}</span>
                   </button>
                   {showFilterPanel && (
-                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border bg-card shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
                       {DEPARTMENTS.map(d => (
                         <button key={d} onClick={() => setFilterDepts(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d])} className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium text-foreground hover:bg-secondary transition-colors">
                           <div className={cn('h-3.5 w-3.5 rounded border flex items-center justify-center', filterDepts.includes(d) ? 'bg-primary border-primary' : 'border-border')}>

@@ -75,7 +75,7 @@ export default function ScheduleUpload({ onComplete }) {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="bg-card border border-border rounded-xl p-8">
+      <div className="card-glass border border-border rounded-xl p-8">
         <div className="text-center space-y-4">
           <div className="h-16 w-16 bg-primary/10 rounded-lg flex items-center justify-center mx-auto">
             <Upload className="h-8 w-8 text-primary" />
@@ -137,7 +137,7 @@ export default function ScheduleUpload({ onComplete }) {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+      <div className="card-glass border border-border rounded-xl p-6 space-y-4">
         <h4 className="font-semibold">What we will detect:</h4>
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li>✓ Employee names</li>

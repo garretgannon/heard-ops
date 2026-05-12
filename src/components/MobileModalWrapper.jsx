@@ -43,7 +43,7 @@ export default function MobileModalWrapper({
       {/* Modal */}
       <div
         className={cn(
-          'w-full lg:max-w-lg max-h-[90vh] bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden relative',
+          'w-full lg:max-w-lg max-h-[90vh] card-glass border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden relative',
           className
         )}
       >

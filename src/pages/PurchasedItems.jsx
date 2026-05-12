@@ -35,7 +35,7 @@ function SummaryCard({ items, isAdmin }) {
   const missingConversion = active.filter(i => !i.recipeUnit || !i.conversionFactor);
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 mb-3">
+    <div className="card-glass border border-border rounded-xl p-4 mb-3">
       <div className="flex items-start justify-between mb-3">
         <div>
           <h2 className="text-sm font-extrabold text-foreground">Purchased Items</h2>
@@ -263,7 +263,7 @@ export default function PurchasedItems() {
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <div className="text-center py-12 card-glass border border-border rounded-xl">
             <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
             <p className="text-sm text-muted-foreground font-semibold">No items found</p>
             {isAdmin && items.length === 0 && (

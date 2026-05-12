@@ -583,7 +583,7 @@ export default function BuildCards() {
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <div className="text-center py-12 card-glass border border-border rounded-xl">
             <Utensils className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
             <p className="text-sm text-muted-foreground">No build cards found</p>
             {isAdmin && <button onClick={() => { setEditing(null); setShowForm(true); }} className="mt-3 btn-primary text-xs px-4 py-2 flex items-center gap-1 mx-auto"><Plus className="h-3.5 w-3.5" />Create Build Card</button>}

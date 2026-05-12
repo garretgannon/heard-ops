@@ -186,7 +186,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
 
             <div className="space-y-2 max-h-80 overflow-y-auto">
               {shifts.map((shift, idx) => (
-                <div key={idx} className="bg-card border border-border rounded-lg p-3 space-y-2">
+                <div key={idx} className="card-glass border border-border rounded-lg p-3 space-y-2">
                   {editingIdx === idx ? (
                     <div className="space-y-2">
                       <input type="text" value={shift.raw_employee_name} onChange={e => { const ns = [...shifts]; ns[idx].raw_employee_name = e.target.value; setShifts(ns); }} placeholder="Employee" className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
@@ -303,7 +303,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
               <CheckCircle2 className="h-10 w-10 text-green-400 mx-auto mb-2" />
               <p className="font-bold">Import Complete!</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-3 space-y-2 text-sm">
+            <div className="card-glass border border-border rounded-lg p-3 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Shifts Created</span><span className="font-bold text-green-400">{result.created}</span></div>
               {result.skipped > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Skipped</span><span className="font-bold text-amber-400">{result.skipped}</span></div>}
             </div>

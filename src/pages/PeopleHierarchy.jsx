@@ -74,7 +74,7 @@ export default function PeopleHierarchy() {
         {tab === 'roles'     && <RolesManagerTab />}
         {tab === 'permissions' && (
           <div className="space-y-3">
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="card-glass border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-sm font-bold text-foreground">Permissions & Visibility</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Define what each role can see and do in the app</p>
@@ -83,7 +83,7 @@ export default function PeopleHierarchy() {
                 <RolePermissionBuilder />
               </div>
             </div>
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="card-glass border border-border rounded-xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-sm font-bold text-foreground">Assignment Authority</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Who can assign tasks to whom</p>

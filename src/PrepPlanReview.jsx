@@ -95,7 +95,7 @@ export default function PrepPlanReview() {
       <div className="px-4 py-4 max-w-3xl mx-auto space-y-3">
         {plan.items && plan.items.length > 0 ? (
           plan.items.map((item, idx) => (
-            <div key={idx} className="bg-card border border-border rounded-lg p-4">
+            <div key={idx} className="card-glass border border-border rounded-lg p-4">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
                   <p className="font-bold text-foreground text-sm">{item.item_name}</p>
@@ -172,7 +172,7 @@ export default function PrepPlanReview() {
 
         {/* Notes */}
         {plan.notes && (
-          <div className="bg-card border border-border rounded-lg p-3">
+          <div className="card-glass border border-border rounded-lg p-3">
             <p className="text-xs font-bold text-muted-foreground mb-1">Notes</p>
             <p className="text-sm text-foreground">{plan.notes}</p>
           </div>

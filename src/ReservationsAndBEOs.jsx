@@ -37,7 +37,7 @@ function OverviewCard({ reservations, beos }) {
   const impactColor = (v) => v === 'High' ? 'text-red-400 bg-red-500/10' : v === 'Medium' ? 'text-amber-400 bg-amber-500/10' : 'text-green-400 bg-green-500/10';
 
   return (
-    <div className="bg-card border border-border rounded-xl p-3 mb-3">
+    <div className="card-glass border border-border rounded-xl p-3 mb-3">
       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{"Today's Overview"}</p>
       <div className="flex gap-2 overflow-x-auto pb-1">
         <OverviewChip label="Reservations" value={todayRes.length} />

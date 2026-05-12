@@ -131,7 +131,7 @@ export default function OrgChartTab() {
         </div>
       )}
 
-      <div className="bg-card border border-border/40 rounded-xl p-3">
+      <div className="card-glass border border-border/40 rounded-xl p-3">
         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">How This Works</p>
         <p className="text-xs text-muted-foreground leading-relaxed">
           The org chart is built from "Reports To" assignments. Go to Directory → Edit Employee → Reports To to set up the chain of command.

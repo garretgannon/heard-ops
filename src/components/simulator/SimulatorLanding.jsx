@@ -80,7 +80,7 @@ export default function SimulatorLanding({ onQuickStart, onAdvanced, onDemo, onR
         transition={{ delay: 0.3 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8"
       >
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border card-glass p-4">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Simulator Status</p>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
@@ -98,7 +98,7 @@ export default function SimulatorLanding({ onQuickStart, onAdvanced, onDemo, onR
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border card-glass p-4">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Data Safety</p>
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2">

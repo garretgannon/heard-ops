@@ -86,7 +86,7 @@ export default function KitchenLeadLaunch({ isOpen, onClose, onComplete, roleLab
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {prepItems.slice(0, 8).map(prep => (
-                  <div key={prep.id} className="bg-card border border-border rounded-lg p-2.5">
+                  <div key={prep.id} className="card-glass border border-border rounded-lg p-2.5">
                     <div className="flex items-start gap-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-foreground truncate">{prep.name}</p>
@@ -145,7 +145,7 @@ export default function KitchenLeadLaunch({ isOpen, onClose, onComplete, roleLab
             <p className="text-xs text-secondary-text">Distribute work across kitchen stations</p>
             <div className="space-y-2">
               {stations.slice(0, 4).map(station => (
-                <div key={station.id} className="bg-card border border-border rounded-lg p-2.5">
+                <div key={station.id} className="card-glass border border-border rounded-lg p-2.5">
                   <div className="flex items-center gap-2">
                     <Flame className="h-4 w-4 text-primary" />
                     <p className="text-xs font-bold text-foreground">{station.name}</p>
@@ -178,7 +178,7 @@ export default function KitchenLeadLaunch({ isOpen, onClose, onComplete, roleLab
                   </div>
                 </div>
               </div>
-              <div className="bg-card border border-border rounded-lg p-2.5">
+              <div className="card-glass border border-border rounded-lg p-2.5">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-primary" />
                   <div className="flex-1 text-xs">
@@ -255,7 +255,7 @@ export default function KitchenLeadLaunch({ isOpen, onClose, onComplete, roleLab
                   disabled={!isCompleted && !isCurrent}
                   className={cn(
                     'flex-shrink-0 h-8 px-2.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 whitespace-nowrap',
-                    isCompleted ? 'bg-primary/20 border border-primary/30 text-primary' : 'bg-card border border-border text-secondary-text',
+                    isCompleted ? 'bg-primary/20 border border-primary/30 text-primary' : 'card-glass border border-border text-secondary-text',
                     isCurrent && !isCompleted && 'ring-2 ring-primary/50 border-primary/30',
                     !isCompleted && !isCurrent && 'opacity-50 cursor-not-allowed'
                   )}

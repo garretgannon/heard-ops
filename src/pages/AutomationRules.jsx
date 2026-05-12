@@ -79,7 +79,7 @@ export default function AutomationRules() {
               placeholder="Search templates..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 bg-card border border-border/40 rounded-lg text-xs text-foreground placeholder:text-muted-foreground/50"
+              className="w-full pl-10 pr-3 py-2 card-glass border border-border/40 rounded-lg text-xs text-foreground placeholder:text-muted-foreground/50"
             />
           </div>
           <button
@@ -104,7 +104,7 @@ export default function AutomationRules() {
           filtered.map(template => (
             <div
               key={template.id}
-              className="bg-card border border-border/40 rounded-lg p-4 flex items-center justify-between group hover:border-border/60 transition-all"
+              className="card-glass border border-border/40 rounded-lg p-4 flex items-center justify-between group hover:border-border/60 transition-all"
             >
               <div className="flex-1">
                 <p className="font-bold text-sm text-foreground">{template.template_name}</p>

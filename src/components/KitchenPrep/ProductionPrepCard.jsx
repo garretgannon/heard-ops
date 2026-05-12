@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Upload, X, Check, ChevronRight, AlertCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import TaskVisual from "@/components/TaskVisual";
 
 export default function ProductionPrepCard({
   item,
@@ -26,26 +27,41 @@ export default function ProductionPrepCard({
 
   return (
     <div className={cn(
-      "bg-card border rounded-lg p-3 space-y-2.5",
-      status === "overdue" ? "border-red-500/30 bg-red-500/5" :
-      status === "behind" ? "border-orange-500/30 bg-orange-500/5" :
-      status === "due_soon" ? "border-yellow-500/30 bg-yellow-500/5" :
-      status === "needs_review" ? "border-purple-500/30 bg-purple-500/5" :
-      status === "cant_complete" ? "border-gray-500/30 bg-gray-500/5" :
+      "bg-card border rounded-lg overflow-hidden",
+      status === "overdue" ? "border-red-500/30" :
+      status === "behind" ? "border-orange-500/30" :
+      status === "due_soon" ? "border-yellow-500/30" :
+      status === "needs_review" ? "border-purple-500/30" :
+      status === "cant_complete" ? "border-gray-500/30" :
       "border-border"
     )}>
-      {/* Header: Name + Status Badge */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground truncate">{item.name}</p>
-          <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground mt-0.5">
-            <span className="font-semibold">{item.station_name}</span>
-            {item.due_time && <span>• {item.due_time}</span>}
-          </div>
+      {/* Visual header — AI image or real photo */}
+      <div className="relative h-24 overflow-hidden">
+        {item.photo_url ? (
+          <img src={item.photo_url} alt="completion" className="w-full h-full object-cover" />
+        ) : (
+          <TaskVisual
+            type="prep"
+            name={item.name}
+            category={item.station_name}
+            compact
+            className="h-full w-full"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute bottom-2 left-3 right-3 flex items-end justify-between gap-2">
+          <p className="text-sm font-black text-white truncate leading-tight">{item.name}</p>
+          <span className={cn("text-[9px] font-bold px-2 py-0.5 rounded border shrink-0 whitespace-nowrap bg-black/50 backdrop-blur-sm", statusColor)}>
+            {statusLabel}
+          </span>
         </div>
-        <span className={cn("text-[9px] font-bold px-2 py-1 rounded border shrink-0 whitespace-nowrap", statusColor)}>
-          {statusLabel}
-        </span>
+      </div>
+
+      <div className="p-3 space-y-2.5">
+      {/* Station + due time row */}
+      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+        <span className="font-semibold">{item.station_name}</span>
+        {item.due_time && <span>• {item.due_time}</span>}
       </div>
 
       {/* Progress Bar + Quantity */}
@@ -84,11 +100,6 @@ export default function ProductionPrepCard({
         <div className="flex items-center gap-1.5 text-[10px] px-2 py-1.5 bg-amber-500/15 border border-amber-500/30 rounded text-amber-400 font-semibold">
           <AlertCircle className="h-3 w-3" /> Photo required for completion
         </div>
-      )}
-
-      {/* Photo Thumbnail (if exists) */}
-      {item.photo_url && (
-        <img src={item.photo_url} alt="completion" className="w-full h-20 object-cover rounded" />
       )}
 
       {/* Action Buttons */}
@@ -142,6 +153,8 @@ export default function ProductionPrepCard({
         >
           Details <ChevronRight className="h-3 w-3" />
         </button>
+      </div>
+
       </div>
 
       {/* Reject Notes Modal */}

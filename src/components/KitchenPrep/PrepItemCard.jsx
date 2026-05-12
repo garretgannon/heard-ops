@@ -15,7 +15,7 @@ export default function PrepItemCard({
   const completionPercent = Math.round(completion * 100);
 
   return (
-    <div className={cn("bg-card border border-border rounded-xl p-3 space-y-2")}>
+    <div className={cn("card-glass border border-border rounded-xl p-3 space-y-2")}>
       {/* HEADER ROW */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">

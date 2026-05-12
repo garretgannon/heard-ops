@@ -16,7 +16,7 @@ export default function MessagesView({ announcements, shiftNotes, managerMessage
         </div>
       ) : (
         allMessages.map((msg) => (
-          <div key={msg.id} className="p-4 rounded-lg bg-card border border-border/40">
+          <div key={msg.id} className="p-4 rounded-lg card-glass border border-border/40">
             <div className="flex items-start gap-3">
               <span className="text-lg flex-shrink-0">{msg.icon}</span>
               <div className="flex-1 min-w-0">

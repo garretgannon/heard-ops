@@ -197,7 +197,7 @@ export default function StationReadiness() {
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading checks…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <div className="text-center py-12 card-glass border border-border rounded-xl">
             <CheckCircle2 className="h-8 w-8 text-green-400 mx-auto mb-2" />
             <p className="text-sm text-foreground font-semibold">All done!</p>
             <p className="text-xs text-muted-foreground mt-1">No pending checks for right now</p>

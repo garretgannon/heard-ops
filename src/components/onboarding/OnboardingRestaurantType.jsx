@@ -54,7 +54,7 @@ export default function OnboardingRestaurantType({ onBack, onSelect }) {
                 className={`w-full rounded-2xl p-4 text-left transition-all relative overflow-hidden ${
                   isSelected
                     ? 'bg-primary text-primary-foreground ring-2 ring-primary/50'
-                    : 'bg-card border border-border hover:border-border/50'
+                    : 'card-glass border border-border hover:border-border/50'
                 }`}
               >
                 {/* Loading animation */}

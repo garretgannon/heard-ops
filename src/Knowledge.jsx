@@ -65,7 +65,7 @@ export default function Knowledge() {
 
       <div className="px-4 py-3 space-y-4">
         {/* Premium Search Bar - Sticky */}
-        <div className="flex items-center gap-2 bg-card border border-border rounded-xl p-2.5 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all">
+        <div className="flex items-center gap-2 card-glass border border-border rounded-xl p-2.5 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all">
           <Search className="h-4 w-4 text-secondary-text shrink-0" />
           <input
             ref={searchRef}

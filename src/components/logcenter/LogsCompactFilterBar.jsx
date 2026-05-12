@@ -25,12 +25,12 @@ export default function LogsCompactFilterBar({ search, onSearch, activeFilter, o
             placeholder="Search logs..."
             value={search}
             onChange={(e) => onSearch(e.target.value)}
-            className="w-full h-11 pl-10 pr-3 rounded-lg bg-card border border-border/40 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 box-border"
+            className="w-full h-11 pl-10 pr-3 rounded-lg card-glass border border-border/40 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 box-border"
           />
         </div>
         <button
           onClick={() => { haptics.light?.(); onShowAdvanced(); }}
-          className="h-11 w-11 flex-shrink-0 rounded-lg bg-card border border-border/40 text-muted-foreground flex items-center justify-center active:scale-95 transition-all hover:bg-muted/20 hover:border-border/60"
+          className="h-11 w-11 flex-shrink-0 rounded-lg card-glass border border-border/40 text-muted-foreground flex items-center justify-center active:scale-95 transition-all hover:bg-muted/20 hover:border-border/60"
         >
           <SlidersHorizontal className="h-5 w-5" />
         </button>
@@ -47,7 +47,7 @@ export default function LogsCompactFilterBar({ search, onSearch, activeFilter, o
                 'flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
                 activeFilter === filter.id
                   ? 'glow-active'
-                  : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
+                  : 'card-glass border border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
               )}
             >
               {filter.label}

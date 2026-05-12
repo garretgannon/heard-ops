@@ -35,7 +35,7 @@ export default function LogsAttentionQueue({ logs, onFilterClick, isAdmin }) {
 
   if (totalAttention === 0) {
     return (
-      <div className="bg-card border border-border/40 rounded-xl p-4 text-center">
+      <div className="card-glass border border-border/40 rounded-xl p-4 text-center">
         <CheckCircle2 className="h-6 w-6 text-green-400 mx-auto mb-2" />
         <p className="text-xs font-bold text-foreground">All Clear</p>
         <p className="text-[10px] text-muted-foreground mt-1">No urgent items</p>

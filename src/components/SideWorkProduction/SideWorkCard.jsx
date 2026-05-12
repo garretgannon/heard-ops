@@ -20,7 +20,7 @@ export default function SideWorkCard({
   }[task.priority] || "Med";
 
   return (
-    <div className={cn("bg-card border border-border rounded-xl p-3 space-y-2")}>
+    <div className={cn("card-glass border border-border rounded-xl p-3 space-y-2")}>
       {/* HEADER ROW */}
       <div className="flex items-start justify-between gap-2">
         <TaskVisual

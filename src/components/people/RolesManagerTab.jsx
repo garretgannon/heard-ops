@@ -128,7 +128,7 @@ export default function RolesManagerTab() {
       )}
 
       {/* Roles List */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden divide-y divide-border/30">
+      <div className="card-glass border border-border rounded-xl overflow-hidden divide-y divide-border/30">
         {roles.length === 0 && (
           <p className="text-center py-8 text-muted-foreground text-sm">No roles yet. Create one above.</p>
         )}

@@ -10,6 +10,7 @@ import { SimulatorProvider } from '@/lib/SimulatorContext';
 import { ShiftModeProvider } from '@/lib/ShiftModeContext';
 import { RoleSimulationProvider } from '@/lib/RoleSimulationContext';
 import { useCurrentUser } from './hooks/useCurrentUser';
+import { usePushAlerts } from './hooks/usePushAlerts';
 import { base44 } from '@/api/base44Client';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import PermissionGate from '@/components/PermissionGate';
@@ -83,7 +84,7 @@ const AppOverview = lazy(() => import('./pages/AppOverview'));
 function RouteFallback() {
   return (
     <div className="fixed inset-0 flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+      <div className="heard-spinner" />
     </div>
   );
 }
@@ -92,6 +93,7 @@ const AuthenticatedApp = () => {
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
   const { user, isAdmin, loading: userLoading } = useCurrentUser();
+  usePushAlerts();
 
   useEffect(() => {
     if (!user || !isAdmin) { setOnboardingChecked(true); return; }
@@ -109,8 +111,8 @@ const AuthenticatedApp = () => {
 
   if (isLoadingPublicSettings || isLoadingAuth || userLoading || !onboardingChecked) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4">
+        <div className="heard-spinner" />
       </div>
     );
   }

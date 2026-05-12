@@ -13,7 +13,7 @@ function JobCodeCard({ jobCode, onEdit, onDelete }) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg p-3.5 flex items-center justify-between">
+    <div className="card-glass border border-border rounded-lg p-3.5 flex items-center justify-between">
       <div>
         <p className="font-bold text-sm text-foreground">{jobCode.name}</p>
         <div className="flex gap-2 mt-1.5">

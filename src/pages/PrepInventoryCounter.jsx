@@ -138,7 +138,7 @@ export default function PrepInventoryCounter() {
       <div className="px-4 py-4 max-w-2xl mx-auto space-y-4">
         {/* Station Select */}
         {!station && (
-          <div className="bg-card border border-border rounded-lg p-4 mb-4">
+          <div className="card-glass border border-border rounded-lg p-4 mb-4">
             <label className="block text-xs font-bold text-foreground mb-2">Select Station</label>
             <select
               value={station}
@@ -159,7 +159,7 @@ export default function PrepInventoryCounter() {
             {counts.map((count, idx) => {
               const template = templates.find(t => t.id === count.template_id);
               return (
-                <div key={idx} className="bg-card border border-border rounded-lg p-3">
+                <div key={idx} className="card-glass border border-border rounded-lg p-3">
                   <div className="mb-2">
                     <p className="font-semibold text-sm text-foreground">{count.item_name}</p>
                     <p className="text-xs text-muted-foreground">Par: {template?.default_par} {count.unit}</p>
@@ -194,7 +194,7 @@ export default function PrepInventoryCounter() {
 
         {/* Session Notes */}
         {station && (
-          <div className="bg-card border border-border rounded-lg p-3">
+          <div className="card-glass border border-border rounded-lg p-3">
             <label className="text-[10px] font-bold text-muted-foreground block mb-1">Session Notes</label>
             <textarea
               value={sessionNotes}

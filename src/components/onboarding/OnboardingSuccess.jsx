@@ -50,7 +50,7 @@ export default function OnboardingSuccess({ config, onLaunch }) {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="w-full bg-card border border-border rounded-2xl p-4 mb-6"
+        className="w-full card-glass border border-border rounded-2xl p-4 mb-6"
       >
         <div className="flex items-center gap-2 mb-3">
           <Zap className="h-4 w-4 text-primary" />

@@ -134,7 +134,6 @@ export const desktopNavSections = [
       { path: "/prep-planning", label: "Prep Planning", icon: ClipboardList, perm: "edit_prep_lists" },
       { path: "/schedule", label: "Schedule", icon: Calendar, perm: "view_schedule" },
       { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate, perm: "view_beos" },
-      { path: "/shift", label: "Shift", icon: TrendingUp },
     ],
   },
   {
@@ -154,46 +153,54 @@ export const desktopNavSections = [
 
 export const moreNavSections = [
   {
-    title: "Operations",
+    title: "Planning",
     items: [
-      { label: "Prep Planning", detail: "Plan production", path: "/prep-planning", icon: ClipboardList, status: "status-info" },
-      { label: "Shift", detail: "Briefing, duties, handoff", path: "/shift", icon: Sparkles, status: "status-neutral" },
-      { label: "Logs", detail: "History and records", path: "/logs", icon: FileText, status: "status-neutral" },
-      { label: "Comms", detail: "Announcements and station notes", path: "/comms", icon: MessageSquare, status: "status-warning" },
-      { label: "BEOs / Events", detail: "Reservations and events", path: "/reservations", icon: Calendar, status: "status-info" },
-      { label: "Reports", detail: "Operational trends", path: "/reports", icon: BarChart2, status: "status-neutral" },
+      { label: "Prep Planning",  detail: "Plan production",              path: "/prep-planning", icon: ClipboardList, status: "status-info" },
+      { label: "Schedule",       detail: "Staff schedules and shifts",   path: "/schedule",      icon: Calendar,      status: "status-info" },
+      { label: "BEOs / Events",  detail: "Reservations and events",      path: "/reservations",  icon: LayoutTemplate, status: "status-info" },
+      { label: "Approvals",      detail: "Review pending requests",      path: "/approvals",     icon: CheckSquare,   status: "status-info" },
     ],
   },
   {
-    title: "Food & Inventory",
+    title: "Activity",
     items: [
-      { label: "Recipes", detail: "Recipes and build cards", path: "/recipes", icon: ChefHat, status: "status-info" },
-      { label: "Inventory", detail: "Stock and counts", path: "/inventory", icon: Warehouse, status: "status-neutral" },
-      { label: "Purchased Items", detail: "Goods and prices", path: "/purchased-items", icon: Package, status: "status-neutral" },
-      { label: "Vendors", detail: "Contacts and ordering", path: "/vendors", icon: Truck, status: "status-neutral" },
+      { label: "Shift Handoff", detail: "Document and pass the shift",    path: "/shift-handoff", icon: TrendingUp,    status: "status-warning" },
+      { label: "Logs",          detail: "History and records",            path: "/logs",          icon: FileText,      status: "status-warning" },
+      { label: "Comms",         detail: "Announcements and station notes", path: "/comms",         icon: MessageSquare, status: "status-warning" },
     ],
   },
   {
-    title: "Knowledge",
+    title: "Supply Chain",
     items: [
-      { label: "Training", detail: "Team learning", path: "/training", icon: BookOpen, status: "status-success" },
-      { label: "Chemicals / SDS", detail: "Safety data sheets", path: "/chemical-library", icon: AlertTriangle, status: "status-info" },
+      { label: "Inventory",       detail: "Stock and counts",      path: "/inventory",       icon: Warehouse, status: "status-success" },
+      { label: "Purchased Items", detail: "Goods and prices",      path: "/purchased-items", icon: Package,   status: "status-success" },
+      { label: "Vendors",         detail: "Contacts and ordering", path: "/vendors",         icon: Truck,     status: "status-success" },
     ],
   },
   {
-    title: "Restaurant Setup",
+    title: "Reference",
     items: [
-      { label: "Team Structure", detail: "People hierarchy", path: "/people", icon: GitBranch, status: "status-neutral" },
-      { label: "Restaurant", detail: "Location settings", path: "/my-restaurant", icon: Building2, status: "status-neutral" },
-      { label: "Profile & Settings", detail: "Account preferences", path: "/profile", icon: Settings, status: "status-neutral" },
+      { label: "Recipes",         detail: "Recipes and build cards",  path: "/recipes",           icon: ChefHat,       status: "status-review" },
+      { label: "Training",        detail: "Team learning",             path: "/training",          icon: BookOpen,      status: "status-review" },
+      { label: "Chemicals / SDS", detail: "Safety data sheets",       path: "/chemical-library",  icon: AlertTriangle, status: "status-review" },
+    ],
+  },
+  {
+    title: "Team & Settings",
+    items: [
+      { label: "Team",               detail: "Staff directory and certs",  path: "/team",          icon: Users,     status: "status-neutral" },
+      { label: "Team Structure",     detail: "People hierarchy",           path: "/people",        icon: GitBranch, status: "status-neutral" },
+      { label: "Restaurant",         detail: "Location settings",          path: "/my-restaurant", icon: Building2, status: "status-neutral" },
+      { label: "Profile & Settings", detail: "Account preferences",       path: "/profile",       icon: Settings,  status: "status-neutral" },
     ],
   },
 ];
 
 export const morePrimaryActions = [
-  { label: "Templates", detail: "Task, prep, cleaning", path: "/templates", icon: LayoutTemplate, status: "status-info" },
-  { label: "Roles", detail: "Access and permissions", path: "/admin/command-center", icon: ShieldCheck, status: "status-neutral" },
-  { label: "Automation", detail: "Rules and escalations", path: "/automation-rules", icon: Zap, status: "status-warning" },
+  { label: "Templates",  detail: "Task, prep, cleaning",    path: "/templates",              icon: LayoutTemplate, status: "status-info" },
+  { label: "Roles",      detail: "Access and permissions",  path: "/admin/command-center",   icon: ShieldCheck,    status: "status-neutral" },
+  { label: "Automation", detail: "Rules and escalations",   path: "/automation-rules",       icon: Zap,            status: "status-warning" },
+  { label: "Reports",    detail: "Operational trends",      path: "/reports",                icon: BarChart2,      status: "status-neutral" },
 ];
 
 /**

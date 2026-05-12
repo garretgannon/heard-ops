@@ -28,7 +28,7 @@ export default function RolesView({ roles, employees, onPreviewRole, onManageRol
           return (
             <div
               key={role.id}
-              className="p-4 rounded-lg bg-card border border-border/40 space-y-3"
+              className="p-4 rounded-lg card-glass border border-border/40 space-y-3"
             >
               {/* Role Header */}
               <div className="flex items-start justify-between gap-3">

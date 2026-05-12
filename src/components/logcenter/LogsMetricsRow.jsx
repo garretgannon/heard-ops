@@ -25,7 +25,7 @@ export default function LogsMetricsRow({ logs, onMetricClick }) {
         <button
           key={card.key}
           onClick={() => onMetricClick?.(card.key)}
-          className="p-4 rounded-lg bg-card border border-border/40 hover:border-border/60 hover:bg-card/80 transition-all active:scale-95"
+          className="p-4 rounded-lg card-glass border border-border/40 hover:border-border/60 hover:bg-card/80 transition-all active:scale-95"
         >
           <div className="text-2xl font-bold text-primary">{card.value}</div>
           <div className="text-xs text-muted-foreground mt-1">{card.label}</div>

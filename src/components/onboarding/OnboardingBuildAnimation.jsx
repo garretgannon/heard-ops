@@ -166,7 +166,7 @@ export default function OnboardingBuildAnimation({ config, onComplete }) {
       </p>
 
       {/* Progress bar */}
-      <div className="w-full bg-card border border-border rounded-full h-2 mb-6 overflow-hidden">
+      <div className="w-full card-glass border border-border rounded-full h-2 mb-6 overflow-hidden">
         <motion.div
           className="h-full bg-primary rounded-full"
           animate={{ width: `${progress}%` }}

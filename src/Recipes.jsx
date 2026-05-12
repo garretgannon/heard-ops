@@ -838,7 +838,7 @@ export default function Recipes() {
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-52 pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-xs text-foreground" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-52 pl-9 pr-3 py-2 card-glass border border-border rounded-lg text-xs text-foreground" />
             </div>
             {isAdmin && (
               <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
@@ -974,7 +974,7 @@ export default function Recipes() {
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <div className="text-center py-12 card-glass border border-border rounded-xl">
             <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
             <p className="text-sm text-muted-foreground">No recipes found</p>
             {isAdmin && <button onClick={() => { setEditing(null); setShowForm(true); }} className="mt-3 btn-primary text-xs px-4 py-2 flex items-center gap-1 mx-auto"><Plus className="h-3.5 w-3.5" />Create Recipe</button>}

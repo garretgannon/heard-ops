@@ -4,184 +4,163 @@ import { base44 } from '@/api/base44Client';
 import {
   AlertTriangle,
   Beaker,
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
   Droplets,
   ListChecks,
   MapPin,
+  Package,
   Plus,
   RefreshCw,
+  Search,
   Sparkles,
   Thermometer,
   UserRound,
   Wrench,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BottomSheet from '@/components/BottomSheet';
 
+// ─── Workflows ───────────────────────────────────────────────────────────────
+
 const WORKFLOWS = [
-  { id: 'breakdown', label: 'Closing Sidework', icon: Droplets, status: 'status-neutral', route: '/side-work-templates' },
-  { id: 'prep', label: 'Prep Queue', icon: ClipboardCheck, status: 'status-info', route: '/tasks?tab=prep' },
-  { id: 'sidework', label: 'Sidework', icon: ListChecks, status: 'status-neutral', route: '/side-work-templates' },
-  { id: 'temps', label: 'Temps', icon: Thermometer, status: 'status-info', route: '/temperature-dashboard' },
-  { id: 'cleaning', label: 'Cleaning', icon: Sparkles, status: 'status-success', route: '/cleaning' },
-  { id: 'chemicals', label: 'Chemicals / SDS', icon: Beaker, status: 'status-neutral', route: '/chemical-library' },
+  { id: 'prep',      label: 'Prep',      icon: ClipboardCheck, route: '/tasks?tab=prep' },
+  { id: 'sidework',  label: 'Sidework',  icon: ListChecks,     route: '/tasks?tab=sidework' },
+  { id: 'breakdown', label: 'Closing',   icon: Droplets,       route: '/tasks?tab=sidework' },
+  { id: 'temps',     label: 'Temps',     icon: Thermometer,    route: '/temperature-dashboard' },
+  { id: 'cleaning',  label: 'Cleaning',  icon: Sparkles,       route: '/cleaning' },
+  { id: 'chemicals', label: 'Chemicals', icon: Beaker,         route: '/chemical-library' },
 ];
 
 const EQUIPMENT_TYPES = [
-  ['dish-machine', 'Dish Machine'],
-  ['3-compartment-sink', '3-Comp Sink'],
-  ['hand-sink', 'Hand Sink'],
-  ['prep-sink', 'Prep Sink'],
-  ['walk-in-cooler', 'Walk-in Cooler'],
-  ['walk-in-freezer', 'Walk-in Freezer'],
-  ['reach-in-cooler', 'Reach-in Cooler'],
-  ['reach-in-freezer', 'Reach-in Freezer'],
-  ['prep-table-cooler', 'Prep Table Cooler'],
-  ['lowboy-cooler', 'Lowboy Cooler'],
-  ['beer-cooler', 'Beer Cooler'],
-  ['wine-cooler', 'Wine Cooler'],
-  ['chest-freezer', 'Chest Freezer'],
-  ['ice-machine', 'Ice Machine'],
-  ['fryer', 'Fryer'],
-  ['flat-top', 'Flat Top'],
-  ['grill', 'Grill'],
-  ['oven', 'Oven'],
-  ['steam-table', 'Steam Table'],
-  ['hot-holding-cabinet', 'Hot Holding'],
-  ['soda-gun', 'Soda Gun'],
-  ['glass-washer', 'Glass Washer'],
-  ['hood-system', 'Hood System'],
-  ['grease-trap', 'Grease Trap'],
-  ['hvac', 'HVAC'],
-  ['water-heater', 'Water Heater'],
-  ['other', 'Other'],
+  ['dish-machine', 'Dish Machine'], ['3-compartment-sink', '3-Comp Sink'],
+  ['hand-sink', 'Hand Sink'], ['prep-sink', 'Prep Sink'],
+  ['walk-in-cooler', 'Walk-in Cooler'], ['walk-in-freezer', 'Walk-in Freezer'],
+  ['reach-in-cooler', 'Reach-in Cooler'], ['reach-in-freezer', 'Reach-in Freezer'],
+  ['prep-table-cooler', 'Prep Table Cooler'], ['lowboy-cooler', 'Lowboy Cooler'],
+  ['beer-cooler', 'Beer Cooler'], ['wine-cooler', 'Wine Cooler'],
+  ['chest-freezer', 'Chest Freezer'], ['ice-machine', 'Ice Machine'],
+  ['fryer', 'Fryer'], ['flat-top', 'Flat Top'], ['grill', 'Grill'],
+  ['oven', 'Oven'], ['steam-table', 'Steam Table'],
+  ['hot-holding-cabinet', 'Hot Holding'], ['soda-gun', 'Soda Gun'],
+  ['glass-washer', 'Glass Washer'], ['hood-system', 'Hood System'],
+  ['grease-trap', 'Grease Trap'], ['hvac', 'HVAC'],
+  ['water-heater', 'Water Heater'], ['other', 'Other'],
 ];
+
+// ─── Pure helpers ─────────────────────────────────────────────────────────────
 
 const isActive = (item) => item?.isActive !== false;
 
-const DEMO_STATION_ASSIGNMENTS = {
-  pantry: [
-    { name: 'Maya Chen', role: 'Prep Lead', shift: '9a-4p' },
-    { name: 'Andre Ruiz', role: 'Line Prep', shift: '10a-5p' },
-  ],
-  salad: [
-    { name: 'Jess Morgan', role: 'Station', shift: '9a-3p' },
-  ],
-  line: [
-    { name: 'Taylor Kim', role: 'Expo', shift: '11a-7p' },
-    { name: 'Chris Patel', role: 'Cook', shift: '11a-7p' },
-  ],
-  bar: [
-    { name: 'Nina Brooks', role: 'Bar Lead', shift: '3p-close' },
-  ],
-  kitchen: [
-    { name: 'Maya Chen', role: 'Prep Lead', shift: '9a-4p' },
-    { name: 'Taylor Kim', role: 'Expo', shift: '11a-7p' },
-  ],
-};
+function normalizeText(v) { return String(v || '').trim().toLowerCase(); }
 
-function initials(name) {
-  return name
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+function hasTempSchedule(item) {
+  return Boolean(item.required_on_opening || item.required_on_closing || item.temp_check_frequency_minutes);
 }
 
-function stationAssignments(station, area) {
-  const key = `${station?.name || ''} ${area?.name || ''}`.toLowerCase();
-  const match = Object.entries(DEMO_STATION_ASSIGNMENTS).find(([name]) => key.includes(name));
-  return match?.[1] || [
-    { name: 'Maya Chen', role: 'Station', shift: '10a-4p' },
-    { name: 'Andre Ruiz', role: 'Support', shift: '11a-5p' },
-  ];
-}
-
-function sideworkTaskName(task) {
-  return task.taskName || task.task_name || task.name || 'Station task';
-}
-
-function sideworkTaskDue(task) {
-  return task.dueTime || task.due_time || '';
-}
-
-function sideworkTaskPhase(task) {
-  return task.shiftPhase || task.shift_phase || task.shift || 'anytime';
-}
-
-function OperationalRing({ value }) {
-  const radius = 42;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (value / 100) * circumference;
-
-  return (
-    <div className="relative h-28 w-28 shrink-0">
-      <svg className="h-28 w-28 -rotate-90" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
-        <circle
-          cx="50"
-          cy="50"
-          r={radius}
-          fill="none"
-          stroke="hsl(var(--primary))"
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="transition-all duration-500"
-          style={{ filter: 'drop-shadow(0 0 10px rgba(230, 106, 31, 0.28))' }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-black tracking-tight text-foreground">{value}%</span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Ready</span>
-      </div>
-    </div>
+function isEquipmentConfigured(item) {
+  return Boolean(
+    item.requiresTemperatureLog || item.temp_enabled ||
+    item.requiresCleaningChecklist || item.requiresMaintenanceChecklist ||
+    item.parInventoryItemId || item.modelNumber || item.serialNumber
   );
 }
 
-function StationRow({ station, equipment, selected, onClick }) {
-  const tempCount = equipment.filter((item) => item.temp_enabled || item.requiresTemperatureLog).length;
-  const issueCount = equipment.filter((item) => item.requiresMaintenanceChecklist).length;
-  const readiness = isActive(station) ? 88 : 0;
+function stationReadinessPct(station, stationEquipment) {
+  if (!isActive(station)) return 0;
+  if (stationEquipment.length === 0) return 0;
+  return Math.round((stationEquipment.filter(isEquipmentConfigured).length / stationEquipment.length) * 100);
+}
+
+function stationNeedsSetup(station, stationEquipment) {
+  return stationReadinessPct(station, stationEquipment) < 100;
+}
+
+function stationNeedsAttention(station, stationEquipment) {
+  const tempEquipment = stationEquipment.filter((item) => item.temp_enabled || item.requiresTemperatureLog);
+  return stationNeedsSetup(station, stationEquipment) ||
+    tempEquipment.some((item) => !hasTempSchedule(item));
+}
+
+function stationHealth(station, equipment) {
+  if (!isActive(station)) return { status: 'inactive', color: 'neutral', pct: 0 };
+  const pct = stationReadinessPct(station, equipment);
+  if (pct === 100) return { status: 'ready', color: 'success', pct: 100 };
+  if (pct === 0) return { status: 'setup', color: 'critical', pct: 0 };
+  return { status: 'setup', color: 'warning', pct };
+}
+
+function matchesSearch(station, stationEquipment, query) {
+  if (!query) return true;
+  return [station.name, station.department, station.area_name, ...stationEquipment.map((e) => e.name)]
+    .some((v) => normalizeText(v).includes(query));
+}
+
+function stationAssignments(station) {
+  const assignments = station?.assignments || station?.assignedEmployees || station?.assigned_employees || [];
+  if (Array.isArray(assignments) && assignments.length > 0) {
+    return assignments.map((e, i) => ({
+      name: e.name || e.employeeName || e.employee_name || `Assignment ${i + 1}`,
+      role: e.role || e.jobCode || station.department || 'Station',
+      shift: e.shift || e.shiftTime || '',
+    }));
+  }
+  const assignedName = station?.assignedEmployeeName || station?.assigned_employee_name || station?.assigned_to;
+  if (assignedName) return [{ name: assignedName, role: station?.assignedRole || station?.department || 'Station', shift: station?.assignedShift || '' }];
+  return [];
+}
+
+// ─── Station mini card (inside area grid) ─────────────────────────────────────
+
+function StationMiniCard({ station, equipment, selected, onClick }) {
+  const { status, color, pct } = stationHealth(station, equipment);
+  const issueCount = equipment.filter((e) => e.requiresMaintenanceChecklist).length;
+  const tempCount = equipment.filter((e) => e.temp_enabled || e.requiresTemperatureLog).length;
+
+  const borderColor = color === 'success' ? 'border-green-500/40' : color === 'warning' ? 'border-amber-500/40' : color === 'critical' ? 'border-red-500/50' : 'border-border/40';
+  const accentBar  = color === 'success' ? 'bg-green-500' : color === 'warning' ? 'bg-amber-500' : color === 'critical' ? 'bg-red-500' : 'bg-slate-600';
+  const iconColor  = color === 'success' ? 'text-green-400' : color === 'warning' ? 'text-amber-400' : color === 'critical' ? 'text-red-400' : 'text-muted-foreground/50';
+  const StatusIcon = status === 'ready' ? CheckCircle2 : status === 'issues' ? AlertTriangle : status === 'setup' ? Wrench : X;
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'w-full rounded-xl border p-4 text-left transition-all duration-200 active:scale-[0.99]',
-        selected ? 'glow-active' : 'border-border/60 bg-card/70 glow-interactive'
+        'group relative flex flex-col gap-2 overflow-hidden rounded-xl border p-3 text-left transition-all duration-150 active:scale-[0.97]',
+        selected
+          ? 'border-primary/40 bg-primary/8'
+          : cn('border-border/40 bg-black/25 hover:border-border/60', borderColor.replace('border-', 'hover:border-'))
       )}
+      style={selected ? { boxShadow: '0 0 0 1px rgba(230,106,31,0.25), 0 0 16px rgba(230,106,31,0.12)' } : undefined}
     >
-      <div className="flex items-center gap-3">
-        <div className={cn('status-marker status-marker-lg', isActive(station) ? 'status-success' : 'status-neutral')}>
-          {readiness}%
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="truncate text-base font-black tracking-tight text-foreground">{station.name}</p>
-            <span className="status-pill status-neutral shrink-0">{station.department || 'Ops'}</span>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {equipment.length} equipment · {tempCount} temp checks · {issueCount} open issue{issueCount === 1 ? '' : 's'}
-          </p>
-        </div>
-        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+      <div className="flex items-start justify-between gap-1">
+        <p className="truncate text-xs font-black text-foreground leading-tight">{station.name}</p>
+        <StatusIcon className={cn('h-3.5 w-3.5 shrink-0 mt-px', iconColor)} />
       </div>
 
-      {equipment.length > 0 && (
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          {equipment.slice(0, 4).map((item) => (
-            <span key={item.id} className="shrink-0 rounded-full border border-border/50 bg-black/25 px-2.5 py-1 text-[10px] font-bold text-muted-foreground">
-              {item.name}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-black tabular-nums text-foreground">{pct}%</span>
+          <span className="text-[10px] font-bold text-muted-foreground">{equipment.length} equip</span>
+        </div>
+        <div className="h-1 w-full overflow-hidden rounded-full bg-black/40">
+          <div className={cn('h-full rounded-full transition-all duration-700', accentBar)} style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+
+      {(tempCount > 0 || issueCount > 0) && (
+        <div className="flex items-center gap-1.5">
+          {tempCount > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] font-bold text-blue-400/80">
+              <Thermometer className="h-2.5 w-2.5" />{tempCount}
             </span>
-          ))}
-          {equipment.length > 4 && (
-            <span className="shrink-0 rounded-full border border-border/50 bg-black/25 px-2.5 py-1 text-[10px] font-bold text-muted-foreground">
-              +{equipment.length - 4}
+          )}
+          {issueCount > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-400">
+              <AlertTriangle className="h-2.5 w-2.5" />{issueCount}
             </span>
           )}
         </div>
@@ -190,111 +169,66 @@ function StationRow({ station, equipment, selected, onClick }) {
   );
 }
 
-function SetupToggle({ label, description, checked, onChange }) {
+// ─── Area card ────────────────────────────────────────────────────────────────
+
+function AreaCard({ area, stations, stationEquipmentFor, selectedStationId, onSelectStation }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const needsAttentionCount = stations.filter((s) => stationNeedsAttention(s, stationEquipmentFor(s))).length;
+  const allReady = needsAttentionCount === 0;
+
   return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      className="flex w-full items-center justify-between gap-3 rounded-lg border border-border/50 bg-black/20 px-3 py-2 text-left transition-all active:scale-[0.99]"
+    <div
+      className="overflow-hidden rounded-2xl border border-border/50"
+      style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
     >
-      <span className="min-w-0">
-        <span className="block text-xs font-bold text-foreground">{label}</span>
-        <span className="block text-[10px] text-muted-foreground">{description}</span>
-      </span>
-      <span className={cn('h-5 w-9 rounded-full border p-0.5 transition-all', checked ? 'border-primary bg-primary/30' : 'border-border bg-muted/40')}>
-        <span className={cn('block h-3.5 w-3.5 rounded-full bg-foreground transition-transform', checked && 'translate-x-4 bg-primary')} />
-      </span>
-    </button>
-  );
-}
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3.5"
+      >
+        <div className="flex items-center gap-2.5">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+          <span className="text-sm font-black tracking-tight text-foreground">{area.name}</span>
+          <span className="text-[10px] font-bold text-muted-foreground">{stations.length} station{stations.length === 1 ? '' : 's'}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {needsAttentionCount > 0 ? (
+            <span className="flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-black text-amber-400">
+              <AlertTriangle className="h-2.5 w-2.5" />
+              {needsAttentionCount} need attention
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 rounded-full border border-green-500/25 bg-green-500/8 px-2 py-0.5 text-[10px] font-black text-green-400">
+              <CheckCircle2 className="h-2.5 w-2.5" />
+              All ready
+            </span>
+          )}
+          <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', collapsed && '-rotate-90')} />
+        </div>
+      </button>
 
-function EquipmentSetupForm({ initialEquipment, station, area, saving, onCancel, onSubmit }) {
-  const [form, setForm] = useState({
-    name: initialEquipment?.name || '',
-    equipmentType: initialEquipment?.equipmentType || 'other',
-    modelNumber: initialEquipment?.modelNumber || '',
-    serialNumber: initialEquipment?.serialNumber || '',
-    notes: initialEquipment?.notes || '',
-  });
-
-  const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
-
-  const submit = () => {
-    if (!form.name.trim()) return;
-    onSubmit({
-      ...form,
-      name: form.name.trim(),
-      area_id: area?.id || station.area_id || '',
-      area_name: area?.name || station.area_name || '',
-      station_id: station.id,
-      station_name: station.name,
-      department: station.department || '',
-      isActive: true,
-    });
-  };
-
-  return (
-    <div className="space-y-2 rounded-xl border border-border/50 bg-black/20 p-3">
-      <div className="grid grid-cols-2 gap-2">
-        <input
-          value={form.name}
-          onChange={(event) => update('name', event.target.value)}
-          placeholder="Equipment name"
-          className="col-span-2 h-9 rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-        />
-        <select
-          value={form.equipmentType}
-          onChange={(event) => update('equipmentType', event.target.value)}
-          className="col-span-2 h-9 rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-        >
-          {EQUIPMENT_TYPES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select>
-        <input
-          value={form.modelNumber}
-          onChange={(event) => update('modelNumber', event.target.value)}
-          placeholder="Model #"
-          className="h-9 rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-        />
-        <input
-          value={form.serialNumber}
-          onChange={(event) => update('serialNumber', event.target.value)}
-          placeholder="Serial #"
-          className="h-9 rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-        />
-      </div>
-      <textarea
-        value={form.notes}
-        onChange={(event) => update('notes', event.target.value)}
-        placeholder="Notes"
-        rows={2}
-        className="w-full resize-none rounded-lg border border-border/60 bg-background px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-      />
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={submit}
-          disabled={saving || !form.name.trim()}
-          className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-black text-primary-foreground transition-all disabled:opacity-50"
-        >
-          {saving ? 'Saving...' : initialEquipment ? 'Save Equipment' : 'Add Equipment'}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 rounded-lg border border-border/60 px-3 py-2 text-xs font-black text-muted-foreground transition-all hover:bg-muted/40"
-        >
-          Cancel
-        </button>
-      </div>
+      {!collapsed && (
+        <div className="grid grid-cols-2 gap-2 border-t border-border/30 px-3 pb-3 pt-3 sm:grid-cols-3">
+          {stations.map((station) => (
+            <StationMiniCard
+              key={station.id}
+              station={station}
+              equipment={stationEquipmentFor(station)}
+              selected={station.id === selectedStationId}
+              onClick={() => onSelectStation(station.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function EquipmentSetupCard({ item, station, area, cleaningTemplates = [], maintenanceTemplates = [], inventoryItems = [], onRefresh }) {
-  const [expanded, setExpanded] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [activeConfig, setActiveConfig] = useState(null);
+// ─── Equipment config row (inside detail sheet) ───────────────────────────────
+
+function EquipmentRow({ item, station, area, cleaningTemplates, maintenanceTemplates, inventoryItems, onRefresh }) {
+  const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [itemSearch, setItemSearch] = useState('');
 
   const updateField = async (field, value) => {
     setSaving(true);
@@ -310,846 +244,477 @@ function EquipmentSetupCard({ item, station, area, cleaningTemplates = [], maint
     setSaving(false);
   };
 
-  const saveEquipment = async (data) => {
+  const addItem = async (itemId) => {
+    const existing = item.item_ids || [];
+    if (existing.includes(itemId)) return;
     setSaving(true);
-    await base44.entities.Equipment.update(item.id, data);
+    await base44.entities.Equipment.update(item.id, { item_ids: [...existing, itemId] });
+    setItemSearch('');
     await onRefresh?.();
-    setEditing(false);
     setSaving(false);
   };
 
-  const configStatus = {
-    temps: (item.requiresTemperatureLog || item.temp_enabled)
-      ? hasTempSchedule(item) ? 'scheduled' : 'missing'
-      : 'off',
-    cleaning: item.requiresCleaningChecklist
-      ? item.cleaning_template_id ? 'linked' : 'missing'
-      : 'off',
-    maintenance: item.requiresMaintenanceChecklist
-      ? item.maintenance_template_id ? 'linked' : 'missing'
-      : 'off',
-    stock: item.inInventory
-      ? item.inventory_item_id ? 'linked' : 'missing'
-      : 'off',
+  const removeItem = async (itemId) => {
+    setSaving(true);
+    await base44.entities.Equipment.update(item.id, { item_ids: (item.item_ids || []).filter((id) => id !== itemId) });
+    await onRefresh?.();
+    setSaving(false);
   };
-  const summaryPills = [
-    configStatus.temps !== 'off' && <EquipmentStatusPill key="temps" label="Temps" status={configStatus.temps} />,
-    configStatus.cleaning !== 'off' && <EquipmentStatusPill key="cleaning" label="Clean" status={configStatus.cleaning} />,
-    configStatus.maintenance !== 'off' && <EquipmentStatusPill key="maintenance" label="Maint" status={configStatus.maintenance} />,
-    configStatus.stock !== 'off' && <EquipmentStatusPill key="stock" label="Stock" status={configStatus.stock} />,
-  ].filter(Boolean);
+
+  const hasTemp = item.temp_enabled || item.requiresTemperatureLog;
+  const hasCleaning = item.requiresCleaningChecklist;
+  const hasMaint = item.requiresMaintenanceChecklist;
+  const hasInventory = !!item.inInventory;
+
+  const linkedItems = (item.item_ids || [])
+    .map((id) => (inventoryItems || []).find((p) => p.id === id))
+    .filter(Boolean);
+
+  const searchResults = itemSearch.trim()
+    ? (inventoryItems || [])
+        .filter((p) => p.itemName?.toLowerCase().includes(itemSearch.toLowerCase()) && !(item.item_ids || []).includes(p.id))
+        .slice(0, 8)
+    : [];
 
   return (
-    <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+    <div className="overflow-hidden rounded-xl border border-border/40 bg-black/20">
       <button
         type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-3 px-3 py-3 text-left transition-all hover:bg-muted/20"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-3 px-3 py-3 text-left transition-all hover:bg-white/[0.03]"
       >
-        <div className="status-marker status-marker-sm status-neutral">
+        <span className="status-marker status-marker-sm status-neutral shrink-0">
           <Wrench className="h-3 w-3" />
-        </div>
+        </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-black text-foreground">{item.name}</p>
-          <div className="mt-1 flex items-center gap-1.5 overflow-hidden">
-            <p className="shrink-0 text-[10px] text-muted-foreground">{item.equipmentType?.replace(/-/g, ' ') || 'Equipment'}</p>
-            {summaryPills.length > 0 ? summaryPills.slice(0, 3) : <span className="status-pill status-neutral">No setup</span>}
-            {summaryPills.length > 3 && <span className="status-pill status-neutral">+{summaryPills.length - 3}</span>}
-          </div>
+          <p className="mt-0.5 text-[10px] text-muted-foreground">
+            {item.equipmentType?.replace(/-/g, ' ') || 'Equipment'}
+            {linkedItems.length > 0 && <span className="ml-1.5 text-green-400/70">{linkedItems.length} item{linkedItems.length !== 1 ? 's' : ''}</span>}
+          </p>
         </div>
-        {expanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+        <div className="flex shrink-0 items-center gap-1">
+          {hasInventory && <Package className="h-3.5 w-3.5 text-green-400" />}
+          {hasTemp && <Thermometer className={cn('h-3.5 w-3.5', hasTempSchedule(item) ? 'text-blue-400' : 'text-blue-400/40')} />}
+          {hasCleaning && <Sparkles className={cn('h-3.5 w-3.5', item.cleaning_template_id ? 'text-green-400' : 'text-green-400/40')} />}
+          {hasMaint && <Wrench className="h-3.5 w-3.5 text-amber-400" />}
+        </div>
+        {open ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
       </button>
 
-      {expanded && (
-        <div className="space-y-2 border-t border-border/40 px-3 py-3">
-          {editing ? (
-            <EquipmentSetupForm
-              initialEquipment={item}
-              station={station}
-              area={area}
-              saving={saving}
-              onCancel={() => setEditing(false)}
-              onSubmit={saveEquipment}
-            />
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-2 text-[10px]">
-                <div className="rounded-lg bg-black/20 px-2.5 py-2">
-                  <p className="font-bold uppercase tracking-[0.12em] text-muted-foreground">Model</p>
-                  <p className="mt-1 truncate text-xs font-bold text-foreground">{item.modelNumber || 'Not set'}</p>
-                </div>
-                <div className="rounded-lg bg-black/20 px-2.5 py-2">
-                  <p className="font-bold uppercase tracking-[0.12em] text-muted-foreground">Serial</p>
-                  <p className="mt-1 truncate text-xs font-bold text-foreground">{item.serialNumber || 'Not set'}</p>
-                </div>
-              </div>
+      {open && (
+        <div className="space-y-3 border-t border-border/30 px-3 py-3">
 
+          {/* Inventory toggle */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                <Package className="h-3.5 w-3.5 text-green-400" />Inventory
+              </span>
               <button
                 type="button"
-                onClick={() => setEditing(true)}
-                className="w-full rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-xs font-black text-foreground transition-all hover:bg-muted/50"
+                onClick={() => updateField('inInventory', !hasInventory)}
+                className={cn('h-5 w-9 rounded-full border p-0.5 transition-all', hasInventory ? 'border-green-500/50 bg-green-500/20' : 'border-border bg-muted/40')}
               >
-                Edit equipment details
+                <span className={cn('block h-3.5 w-3.5 rounded-full bg-foreground transition-transform', hasInventory && 'translate-x-4 bg-green-400')} />
               </button>
-
-              <div className="space-y-2">
-                <EquipmentConfigRow
-                  icon={Thermometer}
-                  title="Temps"
-                  detail={(item.requiresTemperatureLog || item.temp_enabled) ? (hasTempSchedule(item) ? 'Schedule active' : 'Needs schedule') : 'Not tracked'}
-                  status={configStatus.temps}
-                  open={activeConfig === 'temps'}
-                  onClick={() => setActiveConfig(activeConfig === 'temps' ? null : 'temps')}
-                />
-                {activeConfig === 'temps' && (
-                  <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 p-2">
-                    <SetupToggle label="Enabled" description="Show this equipment in temp workflows" checked={Boolean(item.requiresTemperatureLog || item.temp_enabled)} onChange={(value) => updateField('requiresTemperatureLog', value)} />
-                    <div className="grid grid-cols-2 gap-2">
-                      <label className="space-y-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Frequency</span>
-                        <select
-                          value={item.temp_check_frequency_minutes || ''}
-                          onChange={(event) => updateField('temp_check_frequency_minutes', event.target.value ? Number(event.target.value) : null)}
-                          className="h-9 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-                        >
-                          <option value="">Manual</option>
-                          <option value="30">Every 30 min</option>
-                          <option value="60">Every hour</option>
-                          <option value="120">Every 2 hours</option>
-                          <option value="240">Every 4 hours</option>
-                        </select>
-                      </label>
-                      <label className="space-y-1">
-                        <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Grace</span>
-                        <select
-                          value={item.temp_grace_period_minutes || 15}
-                          onChange={(event) => updateField('temp_grace_period_minutes', Number(event.target.value))}
-                          className="h-9 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-                        >
-                          <option value="10">10 min</option>
-                          <option value="15">15 min</option>
-                          <option value="30">30 min</option>
-                        </select>
-                      </label>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <SetupToggle label="Opening check" description="Create opening temp task" checked={Boolean(item.required_on_opening)} onChange={(value) => updateField('required_on_opening', value)} />
-                      <SetupToggle label="Closing check" description="Create closing temp task" checked={Boolean(item.required_on_closing)} onChange={(value) => updateField('required_on_closing', value)} />
-                    </div>
-                    <TempScheduleSummary item={item} />
-                  </div>
-                )}
-
-                <EquipmentConfigRow
-                  icon={Sparkles}
-                  title="Cleaning"
-                  detail={item.requiresCleaningChecklist ? (item.cleaning_template_name || 'Needs template') : 'Not tracked'}
-                  status={configStatus.cleaning}
-                  open={activeConfig === 'cleaning'}
-                  onClick={() => setActiveConfig(activeConfig === 'cleaning' ? null : 'cleaning')}
-                />
-                {activeConfig === 'cleaning' && (
-                  <div className="space-y-2 rounded-lg border border-border/50 bg-black/20 p-2">
-                    <SetupToggle label="Enabled" description="Create recurring cleaning work" checked={Boolean(item.requiresCleaningChecklist)} onChange={(value) => updateField('requiresCleaningChecklist', value)} />
-                    <label className="block space-y-1">
-                      <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Template</span>
-                      <select
-                        value={item.cleaning_template_id || ''}
-                        onChange={(event) => {
-                          const template = cleaningTemplates.find((option) => option.id === event.target.value);
-                          updateFields({
-                            cleaning_template_id: template?.id || '',
-                            cleaning_template_name: template?.name || '',
-                          });
-                        }}
-                        className="h-9 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-                      >
-                        <option value="">No template linked</option>
-                        {cleaningTemplates.map((template) => (
-                          <option key={template.id} value={template.id}>{template.name}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                )}
-
-                <EquipmentConfigRow
-                  icon={Wrench}
-                  title="Maintenance"
-                  detail={item.requiresMaintenanceChecklist ? (item.maintenance_template_name || 'Needs automation') : 'Not tracked'}
-                  status={configStatus.maintenance}
-                  open={activeConfig === 'maintenance'}
-                  onClick={() => setActiveConfig(activeConfig === 'maintenance' ? null : 'maintenance')}
-                />
-                {activeConfig === 'maintenance' && (
-                  <div className="space-y-2 rounded-lg border border-border/50 bg-black/20 p-2">
-                    <SetupToggle label="Enabled" description="Create service checks and review tasks" checked={Boolean(item.requiresMaintenanceChecklist)} onChange={(value) => updateField('requiresMaintenanceChecklist', value)} />
-                    <label className="block space-y-1">
-                      <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Automation</span>
-                      <select
-                        value={item.maintenance_template_id || ''}
-                        onChange={(event) => {
-                          const template = maintenanceTemplates.find((option) => option.id === event.target.value);
-                          if (template) {
-                            const appliesToEquipment = Array.isArray(template.applies_to_equipment) ? template.applies_to_equipment : [];
-                            if (!appliesToEquipment.includes(item.id)) {
-                              base44.entities.AutomationTemplate.update(template.id, {
-                                applies_to_equipment: [...appliesToEquipment, item.id],
-                              }).catch((error) => console.error('Failed to link automation to equipment:', error));
-                            }
-                          }
-                          updateFields({
-                            maintenance_template_id: template?.id || '',
-                            maintenance_template_name: template?.template_name || '',
-                          });
-                        }}
-                        className="h-9 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-                      >
-                        <option value="">No automation linked</option>
-                        {maintenanceTemplates.map((template) => (
-                          <option key={template.id} value={template.id}>{template.template_name}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                )}
-
-                <EquipmentConfigRow
-                  icon={ClipboardCheck}
-                  title="Stock"
-                  detail={item.inInventory ? (item.inventory_item_name || 'Needs inventory item') : 'Not tracked'}
-                  status={configStatus.stock}
-                  open={activeConfig === 'stock'}
-                  onClick={() => setActiveConfig(activeConfig === 'stock' ? null : 'stock')}
-                />
-                {activeConfig === 'stock' && (
-                  <div className="space-y-2 rounded-lg border border-border/50 bg-black/20 p-2">
-                    <SetupToggle label="Enabled" description="Create station readiness stocking work" checked={Boolean(item.inInventory)} onChange={(value) => updateField('inInventory', value)} />
-                    <label className="block space-y-1">
-                      <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Inventory Item</span>
-                      <select
-                        value={item.inventory_item_id || ''}
-                        onChange={(event) => {
-                          const inventoryItem = inventoryItems.find((option) => option.id === event.target.value);
-                          updateFields({
-                            inventory_item_id: inventoryItem?.id || '',
-                            inventory_item_name: inventoryItem?.name || '',
-                          });
-                        }}
-                        className="h-9 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-                      >
-                        <option value="">No inventory item linked</option>
-                        {inventoryItems.map((inventoryItem) => (
-                          <option key={inventoryItem.id} value={inventoryItem.id}>{inventoryItem.name}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                )}
-              </div>
-
-              {saving && <p className="text-[10px] font-bold text-primary">Saving...</p>}
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-const isEquipmentConfigured = (item) => Boolean(
-  item.requiresTemperatureLog ||
-  item.temp_enabled ||
-  item.requiresCleaningChecklist ||
-  item.requiresMaintenanceChecklist ||
-  item.inInventory
-);
-
-const hasTempSchedule = (item) => Boolean(
-  item.temp_check_frequency_minutes ||
-  item.required_on_opening ||
-  item.required_on_closing
-);
-
-function TempScheduleSummary({ item }) {
-  const schedule = [];
-  if (item.required_on_opening) schedule.push('Opening');
-  if (item.required_on_closing) schedule.push('Closing');
-  if (item.temp_check_frequency_minutes) schedule.push(`Every ${item.temp_check_frequency_minutes} min`);
-
-  return (
-    <div className="rounded-lg border border-border/50 bg-black/20 px-3 py-2">
-      <p className="font-bold uppercase tracking-[0.12em] text-muted-foreground">Temp Schedule</p>
-      <p className="mt-1 text-xs font-bold text-foreground">{schedule.length ? schedule.join(' + ') : 'Not scheduled'}</p>
-    </div>
-  );
-}
-
-function EquipmentStatusPill({ label, status }) {
-  const statusClass = status === 'linked' || status === 'scheduled'
-    ? 'status-success'
-    : status === 'missing'
-      ? 'status-info'
-      : 'status-neutral';
-
-  return <span className={cn('status-pill shrink-0', statusClass)}>{label}</span>;
-}
-
-function EquipmentConfigRow({ icon: Icon, title, detail, status, open, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition-all active:scale-[0.99]',
-        open ? 'border-primary/40 bg-primary/10' : 'border-border/50 bg-black/20'
-      )}
-    >
-      <div className={cn('status-marker status-marker-sm', status === 'off' ? 'status-neutral' : status === 'missing' ? 'status-info' : 'status-success')}>
-        <Icon className="h-3.5 w-3.5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-black text-foreground">{title}</p>
-        <p className="truncate text-[10px] text-muted-foreground">{detail}</p>
-      </div>
-      <EquipmentStatusPill label={status === 'off' ? 'Off' : status === 'missing' ? 'Missing' : status === 'scheduled' ? 'Scheduled' : 'Linked'} status={status} />
-      {open ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-    </button>
-  );
-}
-
-function StationSetupPanel({ station, area, equipment, cleaningTemplates = [], maintenanceTemplates = [], inventoryItems = [], onRefresh }) {
-  const [savingStation, setSavingStation] = useState(false);
-  const [addingEquipment, setAddingEquipment] = useState(false);
-  const [savingEquipment, setSavingEquipment] = useState(false);
-
-  const toggleStationActive = async () => {
-    setSavingStation(true);
-    await base44.entities.Station.update(station.id, { isActive: !isActive(station) });
-    await onRefresh?.();
-    setSavingStation(false);
-  };
-
-  const addEquipment = async (data) => {
-    setSavingEquipment(true);
-    await base44.entities.Equipment.create(data);
-    await onRefresh?.();
-    setAddingEquipment(false);
-    setSavingEquipment(false);
-  };
-
-  return (
-    <div className="space-y-3 rounded-2xl border border-primary/25 bg-primary/5 p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="metric-label">Station Setup</p>
-          <h3 className="mt-1 text-lg font-black text-foreground">{station.name}</h3>
-          <p className="mt-1 text-xs text-muted-foreground">{area?.name || 'No area'} · {station.department || 'Operations'} · {equipment.length} equipment</p>
-        </div>
-        <button
-          type="button"
-          onClick={toggleStationActive}
-          disabled={savingStation}
-          className={cn('status-pill shrink-0', isActive(station) ? 'status-success' : 'status-neutral')}
-        >
-          {savingStation ? 'Saving' : isActive(station) ? 'Active' : 'Inactive'}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 text-[10px]">
-        <div className="rounded-lg border border-border/50 bg-black/20 px-3 py-2">
-          <p className="font-bold uppercase tracking-[0.12em] text-muted-foreground">Area</p>
-          <p className="mt-1 truncate text-xs font-bold text-foreground">{area?.name || 'Unassigned'}</p>
-        </div>
-        <div className="rounded-lg border border-border/50 bg-black/20 px-3 py-2">
-          <p className="font-bold uppercase tracking-[0.12em] text-muted-foreground">Role Group</p>
-          <p className="mt-1 truncate text-xs font-bold text-foreground">{station.department || 'Operations'}</p>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between gap-3">
-          <p className="metric-label">Equipment Setup</p>
-          {!addingEquipment && (
-            <button
-              type="button"
-              onClick={() => setAddingEquipment(true)}
-              className="rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-black text-primary transition-all hover:bg-primary/15"
-            >
-              Add Equipment
-            </button>
-          )}
-        </div>
-
-        {addingEquipment && (
-          <EquipmentSetupForm
-            station={station}
-            area={area}
-            saving={savingEquipment}
-            onCancel={() => setAddingEquipment(false)}
-            onSubmit={addEquipment}
-          />
-        )}
-
-        {equipment.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/60 bg-black/10 px-3 py-4 text-center text-xs font-semibold text-muted-foreground">
-            No equipment is attached to this station yet.
-          </div>
-        ) : (
-          equipment.map((item) => (
-            <EquipmentSetupCard
-              key={item.id}
-              item={item}
-              station={station}
-              area={area}
-              cleaningTemplates={cleaningTemplates}
-              maintenanceTemplates={maintenanceTemplates}
-              inventoryItems={inventoryItems}
-              onRefresh={onRefresh}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function StationWorkflowPanel({ workflow, station, area, equipment, onOpenFull }) {
-  const workflowId = workflow?.id;
-  const isSideworkWorkflow = workflowId === 'sidework' || workflowId === 'breakdown';
-  const [stationSidework, setStationSidework] = useState([]);
-  const [loadingSidework, setLoadingSidework] = useState(false);
-  const [savingTaskId, setSavingTaskId] = useState(null);
-
-  const loadStationSidework = async () => {
-    if (!station?.name || !isSideworkWorkflow) return;
-    setLoadingSidework(true);
-    try {
-      const tasks = await base44.entities.DailySideWorkTask.list('-updated_date', 200).catch(() => []);
-      const normalizedStation = station.name.toLowerCase();
-      const phase = workflow.id === 'breakdown' ? 'end' : null;
-      setStationSidework(tasks.filter((task) => {
-        const taskStation = (task.station || task.role || '').toLowerCase();
-        const stationMatch = task.station_id === station.id || taskStation === normalizedStation || taskStation.includes(normalizedStation);
-        const phaseMatch = !phase || sideworkTaskPhase(task) === phase || task.shift === 'closing';
-        return stationMatch && phaseMatch;
-      }));
-    } finally {
-      setLoadingSidework(false);
-    }
-  };
-
-  useEffect(() => {
-    loadStationSidework();
-  }, [station?.id, workflowId]);
-
-  if (!workflow) return null;
-
-  const tempEquipment = equipment.filter((item) => item.temp_enabled || item.requiresTemperatureLog);
-  const cleaningEquipment = equipment.filter((item) => item.requiresCleaningChecklist);
-  const configuredEquipment = equipment.filter(isEquipmentConfigured);
-
-  const updateSideworkTask = async (task, data) => {
-    setSavingTaskId(task.id);
-    await base44.entities.DailySideWorkTask.update(task.id, data);
-    await loadStationSidework();
-    setSavingTaskId(null);
-  };
-
-  const addStationSideworkTask = async () => {
-    const now = new Date();
-    const date = now.toISOString().slice(0, 10);
-    const phase = workflow.id === 'breakdown' ? 'end' : 'anytime';
-    setSavingTaskId('new');
-    await base44.entities.DailySideWorkTask.create({
-      sideWorkTemplateId: `manual-${station.id}`,
-      sideWorkTemplateItemId: `manual-${station.id}-${now.getTime()}`,
-      date,
-      shift: workflow.id === 'breakdown' ? 'closing' : 'all',
-      department: station.department === 'FOH' ? 'FOH' : 'BOH',
-      area_id: area?.id || station.area_id || '',
-      area_name: area?.name || station.area_name || '',
-      station_id: station.id,
-      station: station.name,
-      role: station.name,
-      taskName: workflow.id === 'breakdown' ? 'New closing sidework' : 'New station sidework',
-      task_name: workflow.id === 'breakdown' ? 'New closing sidework' : 'New station sidework',
-      shiftPhase: phase,
-      priority: 'medium',
-      status: 'pending',
-      requiresPhoto: false,
-      requiresManagerReview: false,
-    });
-    await loadStationSidework();
-    setSavingTaskId(null);
-  };
-
-  const panelContent = {
-    temps: {
-      eyebrow: 'Station Temps',
-      title: tempEquipment.length ? `${tempEquipment.length} equipment checks` : 'No temp checks configured',
-      description: tempEquipment.length ? 'Record station temperatures without leaving this sheet.' : 'Use Station setup to mark equipment that needs temp logs.',
-      rows: tempEquipment.map(item => {
-        const schedule = [];
-        if (item.required_on_opening) schedule.push('Opening');
-        if (item.required_on_closing) schedule.push('Closing');
-        if (item.temp_check_frequency_minutes) schedule.push(`Every ${item.temp_check_frequency_minutes} min`);
-
-        return {
-          label: item.name,
-          meta: schedule.length ? schedule.join(' + ') : 'Manual temp check',
-          status: hasTempSchedule(item) ? 'Scheduled' : 'Setup',
-        };
-      }),
-    },
-    cleaning: {
-      eyebrow: 'Station Cleaning',
-      title: cleaningEquipment.length ? `${cleaningEquipment.length} cleaning task sources` : 'No cleaning tasks configured',
-      description: cleaningEquipment.length ? 'Cleaning work attached to this station equipment.' : 'Use Station setup to attach cleaning checklists to equipment.',
-      rows: cleaningEquipment.map(item => ({ label: item.name, meta: 'Cleaning checklist', status: 'Setup' })),
-    },
-    prep: {
-      eyebrow: 'Station Prep',
-      title: 'Prep queue preview',
-      description: 'Show the next prep work tied to this station, then open the full queue when needed.',
-      rows: [
-        { label: station.name, meta: 'Station prep filter', status: 'Open' },
-        { label: area?.name || 'All areas', meta: 'Area context', status: 'Context' },
-      ],
-    },
-    sidework: {
-      eyebrow: 'Station Sidework',
-      title: stationSidework.length ? `${stationSidework.length} station task${stationSidework.length === 1 ? '' : 's'}` : 'No sidework assigned',
-      description: 'Manager view for sidework assigned to this station. Edit it here without jumping to staff tasks.',
-      rows: stationSidework.map((task) => ({ label: sideworkTaskName(task), meta: sideworkTaskDue(task) ? `Due ${sideworkTaskDue(task)}` : sideworkTaskPhase(task), status: task.status || 'pending' })),
-    },
-    breakdown: {
-      eyebrow: 'Closing Flow',
-      title: stationSidework.length ? `${stationSidework.length} closing task${stationSidework.length === 1 ? '' : 's'}` : 'No closing sidework assigned',
-      description: 'Manager view for closing tasks attached to this station.',
-      rows: stationSidework.map((task) => ({ label: sideworkTaskName(task), meta: sideworkTaskDue(task) ? `Due ${sideworkTaskDue(task)}` : sideworkTaskPhase(task), status: task.status || 'pending' })),
-    },
-    chemicals: {
-      eyebrow: 'Chemicals / SDS',
-      title: 'Station SDS preview',
-      description: 'Quick access point for chemicals linked to this station and its equipment.',
-      rows: [
-        { label: station.name, meta: 'Station chemicals', status: 'Review' },
-        { label: `${equipment.length} equipment`, meta: 'Potential SDS links', status: 'Library' },
-      ],
-    },
-  }[workflow.id] || {
-    eyebrow: workflow.label,
-    title: workflow.label,
-    description: 'Station-scoped workflow preview.',
-    rows: [],
-  };
-
-  return (
-    <div className="space-y-3 rounded-2xl border border-border/60 bg-card/70 p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="metric-label">{panelContent.eyebrow}</p>
-          <h3 className="mt-1 text-lg font-black text-foreground">{panelContent.title}</h3>
-          <p className="mt-1 text-xs text-muted-foreground">{panelContent.description}</p>
-        </div>
-        <button
-          type="button"
-          onClick={onOpenFull}
-          className="shrink-0 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-[10px] font-black text-primary transition-all hover:bg-primary/15"
-        >
-          {isSideworkWorkflow ? 'Manage templates' : 'Open full view'}
-        </button>
-      </div>
-
-      {isSideworkWorkflow ? (
-        <div className="space-y-2">
-          <button
-            type="button"
-            onClick={addStationSideworkTask}
-            disabled={savingTaskId === 'new'}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/35 bg-primary/5 px-3 py-2 text-xs font-black text-primary transition-all hover:bg-primary/10 disabled:opacity-60"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {savingTaskId === 'new' ? 'Adding...' : workflow.id === 'breakdown' ? 'Add closing task' : 'Add station task'}
-          </button>
-
-          {loadingSidework ? (
-            <div className="rounded-xl border border-border/50 bg-black/20 px-3 py-4 text-center text-xs font-semibold text-muted-foreground">
-              Loading station sidework...
             </div>
-          ) : stationSidework.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/60 bg-black/10 px-3 py-4 text-center text-xs font-semibold text-muted-foreground">
-              No sidework tasks are assigned to this station yet.
-            </div>
-          ) : (
-            stationSidework.map((task) => (
-              <div key={task.id} className="space-y-2 rounded-xl border border-border/50 bg-black/20 p-3">
-                <input
-                  defaultValue={sideworkTaskName(task)}
-                  onBlur={(event) => {
-                    const value = event.target.value.trim();
-                    if (value && value !== sideworkTaskName(task)) {
-                      updateSideworkTask(task, { taskName: value, task_name: value });
-                    }
-                  }}
-                  className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm font-bold text-foreground outline-none focus:border-primary/50"
-                />
-                <div className="grid grid-cols-3 gap-2">
-                  <select
-                    value={task.status || 'pending'}
-                    onChange={(event) => updateSideworkTask(task, { status: event.target.value })}
-                    className="h-9 rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending_review">Review</option>
-                    <option value="approved">Approved</option>
-                    <option value="overdue">Overdue</option>
-                  </select>
-                  <select
-                    value={task.priority || 'medium'}
-                    onChange={(event) => updateSideworkTask(task, { priority: event.target.value })}
-                    className="h-9 rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="critical">Critical</option>
-                  </select>
+
+            {/* Items stored in this equipment */}
+            {hasInventory && (
+              <div className="space-y-2 rounded-lg border border-border/40 bg-black/20 p-2.5">
+                <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Items stored here</p>
+
+                {linkedItems.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {linkedItems.map((pi) => (
+                      <span key={pi.id} className="flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-foreground">
+                        {pi.itemName}
+                        <button
+                          type="button"
+                          onClick={() => removeItem(pi.id)}
+                          className="ml-0.5 text-muted-foreground transition-colors hover:text-red-400"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="relative">
                   <input
-                    type="time"
-                    defaultValue={sideworkTaskDue(task)}
-                    onBlur={(event) => updateSideworkTask(task, { dueTime: event.target.value, due_time: event.target.value })}
-                    className="h-9 rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
+                    value={itemSearch}
+                    onChange={(e) => setItemSearch(e.target.value)}
+                    placeholder="Search items to add…"
+                    className="h-8 w-full rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
                   />
+                  {searchResults.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-44 overflow-y-auto rounded-xl border border-border bg-popover shadow-2xl">
+                      {searchResults.map((pi) => (
+                        <button
+                          key={pi.id}
+                          type="button"
+                          onClick={() => addItem(pi.id)}
+                          className="flex w-full items-center justify-between gap-2 px-3 py-2 text-xs transition-colors hover:bg-muted/60"
+                        >
+                          <span className="font-semibold text-foreground">{pi.itemName}</span>
+                          <span className="capitalize text-muted-foreground">{pi.category || ''}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center justify-between gap-2 text-[10px] font-bold text-muted-foreground">
-                  <span>{sideworkTaskPhase(task)} · {station.name}</span>
-                  {savingTaskId === task.id && <span className="text-primary">Saving...</span>}
-                </div>
+
+                {linkedItems.length === 0 && !itemSearch && (
+                  <p className="text-[10px] italic text-muted-foreground/60">Search above to link items stored in this equipment.</p>
+                )}
               </div>
-            ))
-          )}
-        </div>
-      ) : panelContent.rows.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border/60 bg-black/10 px-3 py-4 text-center text-xs font-semibold text-muted-foreground">
-          Nothing configured for this station yet.
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {panelContent.rows.map((row) => (
-            <div key={`${workflow.id}-${row.label}-${row.meta}`} className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-black/20 px-3 py-2">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-foreground">{row.label}</p>
-                <p className="text-[10px] text-muted-foreground">{row.meta}</p>
-              </div>
-              <span className="status-pill status-neutral shrink-0">{row.status}</span>
+            )}
+          </div>
+
+          {/* Temp toggle */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground"><Thermometer className="h-3.5 w-3.5 text-blue-400" />Temperatures</span>
+              <button
+                type="button"
+                onClick={() => updateField('requiresTemperatureLog', !hasTemp)}
+                className={cn('h-5 w-9 rounded-full border p-0.5 transition-all', hasTemp ? 'border-blue-500/50 bg-blue-500/20' : 'border-border bg-muted/40')}
+              >
+                <span className={cn('block h-3.5 w-3.5 rounded-full bg-foreground transition-transform', hasTemp && 'translate-x-4 bg-blue-400')} />
+              </button>
             </div>
-          ))}
+            {hasTemp && (
+              <select
+                value={item.temp_check_frequency_minutes || ''}
+                onChange={(e) => updateField('temp_check_frequency_minutes', e.target.value ? Number(e.target.value) : null)}
+                className="h-8 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none"
+              >
+                <option value="">Manual only</option>
+                <option value="30">Every 30 min</option>
+                <option value="60">Every hour</option>
+                <option value="120">Every 2 hours</option>
+                <option value="240">Every 4 hours</option>
+              </select>
+            )}
+          </div>
+
+          {/* Cleaning toggle */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground"><Sparkles className="h-3.5 w-3.5 text-green-400" />Cleaning</span>
+              <button
+                type="button"
+                onClick={() => updateField('requiresCleaningChecklist', !hasCleaning)}
+                className={cn('h-5 w-9 rounded-full border p-0.5 transition-all', hasCleaning ? 'border-green-500/50 bg-green-500/20' : 'border-border bg-muted/40')}
+              >
+                <span className={cn('block h-3.5 w-3.5 rounded-full bg-foreground transition-transform', hasCleaning && 'translate-x-4 bg-green-400')} />
+              </button>
+            </div>
+            {hasCleaning && cleaningTemplates.length > 0 && (
+              <select
+                value={item.cleaning_template_id || ''}
+                onChange={(e) => {
+                  const t = cleaningTemplates.find((o) => o.id === e.target.value);
+                  updateFields({ cleaning_template_id: t?.id || '', cleaning_template_name: t?.name || '' });
+                }}
+                className="h-8 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none"
+              >
+                <option value="">No template linked</option>
+                {cleaningTemplates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            )}
+          </div>
+
+          {/* Maintenance toggle */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground"><Wrench className="h-3.5 w-3.5 text-amber-400" />Maintenance</span>
+              <button
+                type="button"
+                onClick={() => updateField('requiresMaintenanceChecklist', !hasMaint)}
+                className={cn('h-5 w-9 rounded-full border p-0.5 transition-all', hasMaint ? 'border-amber-500/50 bg-amber-500/20' : 'border-border bg-muted/40')}
+              >
+                <span className={cn('block h-3.5 w-3.5 rounded-full bg-foreground transition-transform', hasMaint && 'translate-x-4 bg-amber-400')} />
+              </button>
+            </div>
+          </div>
+
+          {saving && <p className="text-[10px] font-bold text-primary">Saving…</p>}
         </div>
       )}
     </div>
   );
 }
+
+// ─── Add equipment inline form ─────────────────────────────────────────────────
+
+function AddEquipmentForm({ station, area, onSave, onCancel }) {
+  const [name, setName] = useState('');
+  const [type, setType] = useState('other');
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!name.trim()) return;
+    setSaving(true);
+    await base44.entities.Equipment.create({
+      name: name.trim(), equipmentType: type,
+      area_id: area?.id || station.area_id || '', area_name: area?.name || station.area_name || '',
+      station_id: station.id, station_name: station.name,
+      department: station.department || '', isActive: true,
+    });
+    await onSave?.();
+    setSaving(false);
+  };
+
+  return (
+    <div className="space-y-2 rounded-xl border border-primary/25 bg-primary/5 p-3">
+      <input
+        value={name} onChange={(e) => setName(e.target.value)} placeholder="Equipment name"
+        className="h-9 w-full rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50"
+      />
+      <select
+        value={type} onChange={(e) => setType(e.target.value)}
+        className="h-9 w-full rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none"
+      >
+        {EQUIPMENT_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
+      <div className="flex gap-2">
+        <button type="button" onClick={save} disabled={saving || !name.trim()}
+          className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-black text-primary-foreground disabled:opacity-50"
+        >{saving ? 'Saving…' : 'Add Equipment'}</button>
+        <button type="button" onClick={onCancel}
+          className="flex-1 rounded-lg border border-border/60 px-3 py-2 text-xs font-black text-muted-foreground"
+        >Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Station detail sheet (no tabs, single scroll) ───────────────────────────
 
 function StationDetailSheet({ station, area, equipment, cleaningTemplates, maintenanceTemplates, inventoryItems, open, onClose, onRefresh }) {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('overview');
-  const [activePanel, setActivePanel] = useState(null);
+  const [addingEquipment, setAddingEquipment] = useState(false);
+  const [equipmentExpanded, setEquipmentExpanded] = useState(true);
+  const [workflowsExpanded, setWorkflowsExpanded] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    setActiveSection('overview');
-    setActivePanel(null);
-  }, [station?.id, open]);
+  useEffect(() => { setAddingEquipment(false); }, [station?.id, open]);
 
   if (!station) return null;
 
-  const tempEquipment = equipment.filter((item) => item.temp_enabled || item.requiresTemperatureLog);
-  const issueCount = equipment.filter((item) => item.requiresMaintenanceChecklist).length;
-  const assignedEmployees = stationAssignments(station, area);
-  const selectedWorkflow = WORKFLOWS.find((workflow) => workflow.id === activePanel);
-  const configuredEquipment = equipment.filter(isEquipmentConfigured);
-  const tempScheduleCount = tempEquipment.filter(hasTempSchedule).length;
-  const setupTotal = equipment.length + 1;
-  const completionPct = setupTotal > 0 ? Math.round(((configuredEquipment.length + (isActive(station) ? 1 : 0)) / setupTotal) * 100) : 100;
-  const complianceTotal = tempEquipment.length + equipment.filter((item) => item.requiresCleaningChecklist).length;
-  const complianceComplete = tempScheduleCount + equipment.filter((item) => item.requiresCleaningChecklist).length;
-  const compliancePct = complianceTotal > 0 ? Math.round((complianceComplete / complianceTotal) * 100) : 100;
+  const { status, color, pct } = stationHealth(station, equipment);
+  const tempEquipment = equipment.filter((e) => e.temp_enabled || e.requiresTemperatureLog);
+  const issueCount = equipment.filter((e) => e.requiresMaintenanceChecklist).length;
+  const configuredCount = equipment.filter(isEquipmentConfigured).length;
+  const assignedEmployees = stationAssignments(station);
+
   const attentionItems = [
     !isActive(station) && 'Station is inactive',
     equipment.length === 0 && 'No equipment assigned',
-    tempEquipment.length > tempScheduleCount && `${tempEquipment.length - tempScheduleCount} temp schedule${tempEquipment.length - tempScheduleCount === 1 ? '' : 's'} missing`,
+    tempEquipment.some((e) => !hasTempSchedule(e)) && `${tempEquipment.filter((e) => !hasTempSchedule(e)).length} temp schedule${tempEquipment.filter((e) => !hasTempSchedule(e)).length === 1 ? '' : 's'} missing`,
     issueCount > 0 && `${issueCount} maintenance issue${issueCount === 1 ? '' : 's'} flagged`,
   ].filter(Boolean);
-  const sections = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'setup', label: 'Setup' },
-    { id: 'work', label: 'Work' },
-  ];
+
+  const headerBorderColor = color === 'success' ? 'border-green-500/30' : color === 'warning' ? 'border-amber-500/30' : color === 'critical' ? 'border-red-500/35' : 'border-border/40';
+  const headerBg = color === 'success' ? 'rgba(34,197,94,0.05)' : color === 'warning' ? 'rgba(245,158,11,0.05)' : color === 'critical' ? 'rgba(239,68,68,0.07)' : 'transparent';
+  const accentBar = color === 'success' ? 'bg-green-500' : color === 'warning' ? 'bg-amber-500' : color === 'critical' ? 'bg-red-500' : 'bg-slate-600';
+
+  const toggleActive = async () => {
+    setSaving(true);
+    await base44.entities.Station.update(station.id, { isActive: !isActive(station) });
+    await onRefresh?.();
+    setSaving(false);
+  };
 
   return (
-    <BottomSheet open={open} onClose={onClose} className="bg-background/95 border-border/70">
-      <div className="space-y-5 pb-2">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="metric-label">{area?.name || 'Station'}</p>
-            <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">{station.name}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{equipment.length} equipment · {station.department || 'Operations'}</p>
-          </div>
-          <div className={cn('status-marker status-marker-lg', isActive(station) ? 'status-success' : 'status-neutral')}>
-            {isActive(station) ? 'On' : 'Off'}
-          </div>
-        </div>
+    <BottomSheet open={open} onClose={onClose}>
+      <div className="space-y-4 pb-2">
 
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-lg border border-border/50 bg-card/70 p-3 text-center">
-            <p className="text-xl font-black text-foreground">{tempEquipment.length}</p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Temps</p>
-          </div>
-          <div className="rounded-lg border border-border/50 bg-card/70 p-3 text-center">
-            <p className="text-xl font-black text-foreground">{equipment.length}</p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Equipment</p>
-          </div>
-          <div className="rounded-lg border border-border/50 bg-card/70 p-3 text-center">
-            <p className={cn('text-xl font-black', issueCount > 0 ? 'text-red-400' : 'text-green-400')}>{issueCount}</p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Issues</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/60 bg-black/20 p-1">
-          {sections.map((section) => (
+        {/* Header */}
+        <div
+          className={cn('rounded-2xl border p-4', headerBorderColor)}
+          style={{ background: headerBg }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="metric-label">{area?.name || 'Station'}</p>
+              <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">{station.name}</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{station.department || 'Operations'}</p>
+            </div>
             <button
-              key={section.id}
               type="button"
-              onClick={() => {
-                setActiveSection(section.id);
-                setActivePanel(null);
-              }}
+              onClick={toggleActive}
+              disabled={saving}
               className={cn(
-                'h-9 rounded-xl text-[11px] font-black transition-all active:scale-[0.98]',
-                activeSection === section.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                'shrink-0 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] transition-all',
+                isActive(station) ? 'border-green-500/40 bg-green-500/15 text-green-400' : 'border-border/60 bg-muted/30 text-muted-foreground'
               )}
             >
-              {section.label}
+              {saving ? '…' : isActive(station) ? 'Active' : 'Inactive'}
             </button>
-          ))}
+          </div>
+
+          {/* Readiness bar */}
+          <div className="mt-4 space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-muted-foreground">Setup readiness</span>
+              <span className="font-black tabular-nums text-foreground">{pct}%</span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-black/30">
+              <div className={cn('h-full rounded-full transition-all duration-700', accentBar)} style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+
+          {/* Metrics row */}
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {[
+              { label: 'Equipment', value: equipment.length },
+              { label: 'Temp checks', value: tempEquipment.length },
+              { label: 'Issues', value: issueCount, highlight: issueCount > 0 },
+            ].map(({ label, value, highlight }) => (
+              <div key={label} className="rounded-xl bg-black/20 p-2.5 text-center">
+                <p className={cn('text-lg font-black', highlight ? 'text-red-400' : 'text-foreground')}>{value}</p>
+                <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {activeSection === 'overview' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <p className="metric-label">Assigned Today</p>
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {assignedEmployees.map((employee) => (
-                  <div key={`${station.id}-${employee.name}`} className="shrink-0 rounded-full border border-border/50 bg-black/25 py-1.5 pl-1.5 pr-3">
-                    <div className="flex items-center gap-2">
-                      <span className="status-marker status-marker-sm status-neutral">
-                        {initials(employee.name)}
-                      </span>
-                      <span className="text-xs font-bold text-foreground">{employee.name}</span>
-                      <span className="text-[10px] font-semibold text-muted-foreground">{employee.role}</span>
-                      <span className="text-[10px] font-semibold text-muted-foreground">{employee.shift}</span>
-                    </div>
-                  </div>
-                ))}
-                <div className="shrink-0 rounded-full border border-dashed border-border/60 bg-black/10 px-3 py-1.5 text-xs font-bold text-muted-foreground">
-                  <UserRound className="mr-1 inline h-3 w-3" />
-                  Demo crew
+        {/* Attention items */}
+        {attentionItems.length > 0 && (
+          <div className="space-y-1.5">
+            {attentionItems.map((item) => (
+              <div key={item} className="flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/8 px-3 py-2.5">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
+                <p className="text-xs font-bold text-foreground">{item}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Assigned today */}
+        {assignedEmployees.length > 0 && (
+          <div className="space-y-2">
+            <p className="metric-label">Assigned Today</p>
+            <div className="flex flex-wrap gap-2">
+              {assignedEmployees.map((e) => (
+                <div key={e.name} className="flex items-center gap-2 rounded-full border border-border/50 bg-black/25 py-1.5 pl-1.5 pr-3">
+                  <span className="status-marker status-marker-sm status-neutral">{e.name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase()}</span>
+                  <span className="text-xs font-bold text-foreground">{e.name}</span>
+                  {e.shift && <span className="text-[10px] text-muted-foreground">{e.shift}</span>}
                 </div>
-              </div>
+              ))}
             </div>
+          </div>
+        )}
 
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-xl border border-primary/25 bg-primary/5 p-3">
-                <p className="metric-label">Completion</p>
-                <p className="mt-2 text-2xl font-black text-foreground">{completionPct}%</p>
-                <p className="mt-1 text-[10px] text-muted-foreground">{configuredEquipment.length} of {equipment.length} equipment configured</p>
-              </div>
-              <div className="rounded-xl border border-border/60 bg-card/70 p-3">
-                <p className="metric-label">Compliance</p>
-                <p className="mt-2 text-2xl font-black text-foreground">{compliancePct}%</p>
-                <p className="mt-1 text-[10px] text-muted-foreground">{tempScheduleCount} of {tempEquipment.length} temp schedules active</p>
-              </div>
+        {/* Equipment section */}
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setEquipmentExpanded((e) => !e)}
+            className="flex w-full items-center justify-between gap-3"
+          >
+            <p className="metric-label">Equipment ({equipment.length})</p>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-muted-foreground">{configuredCount}/{equipment.length} configured</span>
+              <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', !equipmentExpanded && '-rotate-90')} />
             </div>
+          </button>
 
+          {equipmentExpanded && (
             <div className="space-y-2">
-              <p className="metric-label">Attention</p>
-              {attentionItems.length === 0 ? (
-                <div className="rounded-xl border border-border/50 bg-black/20 px-3 py-3 text-xs font-bold text-muted-foreground">
-                  No setup or compliance gaps for this station.
+              {addingEquipment ? (
+                <AddEquipmentForm
+                  station={station} area={area}
+                  onSave={async () => { await onRefresh?.(); setAddingEquipment(false); }}
+                  onCancel={() => setAddingEquipment(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddingEquipment(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary transition-all hover:bg-primary/8"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add Equipment
+                </button>
+              )}
+
+              {equipment.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border/50 px-3 py-5 text-center text-xs font-semibold text-muted-foreground">
+                  No equipment assigned to this station yet.
                 </div>
               ) : (
-                attentionItems.map((item) => (
-                  <div key={item} className="flex items-center gap-2 rounded-xl border border-border/50 bg-black/20 px-3 py-3">
-                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
-                    <p className="text-xs font-bold text-foreground">{item}</p>
-                  </div>
+                equipment.map((item) => (
+                  <EquipmentRow
+                    key={item.id}
+                    item={item}
+                    station={station}
+                    area={area}
+                    cleaningTemplates={cleaningTemplates}
+                    maintenanceTemplates={maintenanceTemplates}
+                    inventoryItems={inventoryItems}
+                    onRefresh={onRefresh}
+                  />
                 ))
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {activeSection === 'setup' && (
-          <StationSetupPanel
-            station={station}
-            area={area}
-            equipment={equipment}
-            cleaningTemplates={cleaningTemplates}
-            maintenanceTemplates={maintenanceTemplates}
-            inventoryItems={inventoryItems}
-            onRefresh={onRefresh}
-          />
-        )}
+        {/* Workflows */}
+        {(() => {
+          const stationWorkflows = WORKFLOWS.filter(({ id }) => {
+            if (id === 'temps')     return tempEquipment.length > 0;
+            if (id === 'cleaning')  return equipment.some((e) => e.requiresCleaningChecklist);
+            if (id === 'breakdown') return equipment.some((e) => e.requiresMaintenanceChecklist);
+            return equipment.length > 0; // prep, sidework, chemicals — only if station has any equipment
+          });
 
-        {activeSection === 'work' && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              {WORKFLOWS.map(({ id, label, icon: Icon, status }) => {
-                const selected = activePanel === id;
+          if (stationWorkflows.length === 0) return null;
 
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setActivePanel(selected ? null : id)}
-                    className={cn(
-                      'rounded-xl border p-4 text-left transition-all active:scale-[0.98] glow-interactive',
-                      selected ? 'border-primary/50 bg-primary/10' : 'border-border/60 bg-card/70'
-                    )}
-                  >
-                    <div className={cn('status-marker status-marker-md mb-3', status)}>
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <p className="text-sm font-black text-foreground">{label}</p>
-                  </button>
-                );
-              })}
+          return (
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => setWorkflowsExpanded((e) => !e)}
+                className="flex w-full items-center justify-between gap-3"
+              >
+                <p className="metric-label">Jump to workflow</p>
+                <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', !workflowsExpanded && '-rotate-90')} />
+              </button>
+
+              {workflowsExpanded && (
+                <div className="grid grid-cols-3 gap-2">
+                  {stationWorkflows.map(({ id, label, icon: Icon, route }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => {
+                        onClose?.();
+                        navigate(route, { state: { stationId: station.id, stationName: station.name, areaId: area?.id, areaName: area?.name } });
+                      }}
+                      className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-black/20 px-2 py-3 text-center transition-all active:scale-[0.97] hover:border-primary/25 hover:bg-primary/5"
+                    >
+                      <Icon className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-[10px] font-black text-muted-foreground">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-
-            {selectedWorkflow && (
-              <StationWorkflowPanel
-                workflow={selectedWorkflow}
-                station={station}
-                area={area}
-                equipment={equipment}
-                onOpenFull={() => {
-                  const isSideworkWorkflow = selectedWorkflow.id === 'sidework' || selectedWorkflow.id === 'breakdown';
-                  const route = isSideworkWorkflow
-                    ? `${selectedWorkflow.route}?station=${encodeURIComponent(station.id)}`
-                    : selectedWorkflow.route;
-                  onClose?.();
-                  navigate(route, { state: { stationId: station.id, stationName: station.name, areaId: area?.id, areaName: area?.name } });
-                }}
-              />
-            )}
-          </div>
-        )}
+          );
+        })()}
       </div>
     </BottomSheet>
   );
 }
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function OperationalMap() {
   const [areas, setAreas] = useState([]);
@@ -1158,14 +723,12 @@ export default function OperationalMap() {
   const [cleaningTemplates, setCleaningTemplates] = useState([]);
   const [maintenanceTemplates, setMaintenanceTemplates] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [selectedAreaId, setSelectedAreaId] = useState('all');
   const [selectedStationId, setSelectedStationId] = useState(null);
+  const [filter, setFilter] = useState('all'); // 'all' | 'attention' | 'inactive'
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     setLoading(true);
@@ -1182,192 +745,175 @@ export default function OperationalMap() {
       setStations(stationData);
       setEquipment(equipmentData);
       setCleaningTemplates(cleaningTemplateData.filter(isActive));
-      setMaintenanceTemplates(automationTemplateData.filter((item) => item.is_active !== false));
+      setMaintenanceTemplates(automationTemplateData.filter((i) => i.is_active !== false));
       setInventoryItems(inventoryData);
-    } catch (error) {
-      console.error('Failed to load operational data:', error);
+    } catch (err) {
+      console.error('Failed to load operational data:', err);
     }
     setLoading(false);
   };
 
   const activeAreas = useMemo(() => areas.filter(isActive).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)), [areas]);
-  const activeStations = useMemo(() => stations.filter(isActive).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)), [stations]);
+  const sortedStations = useMemo(() => [...stations].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)), [stations]);
   const activeEquipment = useMemo(() => equipment.filter(isActive), [equipment]);
 
   const query = search.trim().toLowerCase();
+  const stationEquipmentFor = (station) => activeEquipment.filter((e) => e.station_id === station.id || e.station_name === station.name);
 
-  const visibleAreas = useMemo(() => {
-    return activeAreas.filter((area) => {
-      if (selectedAreaId !== 'all' && area.id !== selectedAreaId) return false;
-      if (!query) return true;
+  const stationVisible = (station) => {
+    const eq = stationEquipmentFor(station);
+    if (!matchesSearch(station, eq, query)) return false;
+    if (filter === 'attention') return isActive(station) && stationNeedsAttention(station, eq);
+    if (filter === 'inactive') return !isActive(station);
+    return isActive(station);
+  };
 
-      const areaStations = activeStations.filter((station) => station.area_id === area.id || station.area_name === area.name);
-      const areaEquipment = activeEquipment.filter((item) => item.area_id === area.id || item.area_name === area.name);
-      return [area.name, ...areaStations.map((station) => station.name), ...areaEquipment.map((item) => item.name)]
-        .some((value) => value?.toLowerCase().includes(query));
-    });
-  }, [activeAreas, activeStations, activeEquipment, query, selectedAreaId]);
+  const visibleAreas = activeAreas.filter((area) => {
+    const areaStations = sortedStations.filter((s) => s.area_id === area.id || s.area_name === area.name);
+    return areaStations.some(stationVisible);
+  });
 
-  const unassignedStations = useMemo(() => {
-    if (selectedAreaId !== 'all') return [];
-    return activeStations.filter((station) => {
-      const hasArea = activeAreas.some((area) => station.area_id === area.id || station.area_name === area.name);
-      if (hasArea) return false;
-      if (!query) return true;
-      return station.name?.toLowerCase().includes(query);
-    });
-  }, [activeAreas, activeStations, query, selectedAreaId]);
+  const unassignedStations = sortedStations.filter((s) => {
+    if (!stationVisible(s)) return false;
+    return !activeAreas.some((a) => s.area_id === a.id || s.area_name === a.name);
+  });
 
-  const selectedStation = activeStations.find((station) => station.id === selectedStationId);
-  const selectedArea = selectedStation ? activeAreas.find((area) => selectedStation.area_id === area.id || selectedStation.area_name === area.name) : null;
-  const selectedEquipment = selectedStation ? activeEquipment.filter((item) => item.station_id === selectedStation.id || item.station_name === selectedStation.name) : [];
+  const allActiveStations = sortedStations.filter(isActive);
+  const attentionCount = allActiveStations.filter((s) => stationNeedsAttention(s, stationEquipmentFor(s))).length;
+  const issueCount = activeEquipment.filter((e) => e.requiresMaintenanceChecklist).length;
 
-  const issueCount = activeEquipment.filter((item) => item.requiresMaintenanceChecklist).length;
-  const readiness = activeStations.length > 0 ? Math.round((activeStations.filter(isActive).length / activeStations.length) * 100) : 100;
+  const selectedStation = sortedStations.find((s) => s.id === selectedStationId);
+  const selectedArea = selectedStation ? activeAreas.find((a) => selectedStation.area_id === a.id || selectedStation.area_name === a.name) : null;
+  const selectedEquipment = selectedStation ? stationEquipmentFor(selectedStation) : [];
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[620px] space-y-5">
+      <main className="app-page mx-auto max-w-[640px] space-y-4">
+
+        {/* Header */}
         <header className="flex items-start justify-between gap-4 pt-1">
           <div>
-            <p className="metric-label">Stations</p>
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Operational map</h1>
+            <p className="metric-label">Operations</p>
+            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Operational Map</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {allActiveStations.length} station{allActiveStations.length !== 1 ? 's' : ''} · {activeAreas.length} area{activeAreas.length !== 1 ? 's' : ''}
+              {attentionCount > 0 && <span className="text-amber-400"> · {attentionCount} need attention</span>}
+            </p>
           </div>
-          <button onClick={loadData} className="status-marker status-marker-md status-neutral" aria-label="Refresh stations">
+          <button
+            onClick={loadData}
+            className="status-marker status-marker-md status-neutral mt-1"
+            aria-label="Refresh"
+          >
             <RefreshCw className="h-4 w-4" />
           </button>
         </header>
 
-        <section className="app-card-lg flex items-center justify-between gap-5">
-          <div className="min-w-0 flex-1">
-            <p className="metric-label">Today</p>
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-foreground">Restaurant pulse</h2>
-            <div className="mt-5 grid grid-cols-3 gap-2">
-              <div>
-                <p className="text-xl font-black text-foreground">{activeAreas.length}</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Areas</p>
-              </div>
-              <div>
-                <p className="text-xl font-black text-foreground">{activeStations.length}</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Stations</p>
-              </div>
-              <div>
-                <p className={cn('text-xl font-black', issueCount > 0 ? 'text-red-400' : 'text-green-400')}>{issueCount}</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Issues</p>
-              </div>
-            </div>
-          </div>
-          <OperationalRing value={readiness} />
-        </section>
-
-        <div>
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search areas, stations, equipment"
-            className="h-12 w-full rounded-xl border border-border/60 bg-card/70 px-4 text-sm text-foreground outline-none transition-all focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
-          />
-        </div>
-
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          <button
-            onClick={() => setSelectedAreaId('all')}
-            className={cn('shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition-all', selectedAreaId === 'all' ? 'glow-active' : 'border border-border/50 bg-card/70 text-muted-foreground glow-interactive')}
+        {/* Quick stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <div
+            className="rounded-2xl border border-border/50 p-4 text-center"
+            style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
           >
-            All Areas
-          </button>
-          {activeAreas.map((area) => (
-            <button
-              key={area.id}
-              onClick={() => setSelectedAreaId(area.id)}
-              className={cn('shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition-all', selectedAreaId === area.id ? 'glow-active' : 'border border-border/50 bg-card/70 text-muted-foreground glow-interactive')}
-            >
-              {area.name}
-            </button>
-          ))}
+            <p className="text-2xl font-black text-foreground">{activeAreas.length}</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Areas</p>
+          </div>
+          <div
+            className="rounded-2xl border border-border/50 p-4 text-center"
+            style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+          >
+            <p className="text-2xl font-black text-foreground">{allActiveStations.length}</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Stations</p>
+          </div>
+          <div
+            className={cn('rounded-2xl border p-4 text-center', attentionCount > 0 ? 'border-amber-500/30' : 'border-border/50')}
+            style={{ background: attentionCount > 0 ? 'rgba(245,158,11,0.06)' : 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+          >
+            <p className={cn('text-2xl font-black', attentionCount > 0 ? 'text-amber-400' : 'text-green-400')}>{attentionCount}</p>
+            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Attention</p>
+          </div>
         </div>
 
+        {/* Search + filter */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search areas, stations, equipment…"
+              className="h-11 w-full rounded-xl border border-border/60 bg-card/70 pl-10 pr-4 text-sm text-foreground outline-none transition-all focus:border-primary/40"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            {[
+              { id: 'all', label: 'All stations' },
+              { id: 'attention', label: `Needs attention${attentionCount > 0 ? ` (${attentionCount})` : ''}` },
+              { id: 'inactive', label: 'Inactive' },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setFilter(id)}
+                className={cn(
+                  'rounded-full px-3 py-1.5 text-xs font-bold transition-all',
+                  filter === id ? 'glow-active' : 'border border-border/50 bg-card/70 text-muted-foreground'
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
         {loading ? (
-          <div className="app-card py-12 text-center text-sm text-muted-foreground">Loading stations...</div>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => <div key={i} className="skeleton h-40 w-full rounded-2xl" />)}
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {visibleAreas.map((area) => {
-              const areaStations = activeStations.filter((station) => station.area_id === area.id || station.area_name === area.name);
-              const filteredStations = query
-                ? areaStations.filter((station) => {
-                    const stationEquipment = activeEquipment.filter((item) => item.station_id === station.id || item.station_name === station.name);
-                    return [station.name, ...stationEquipment.map((item) => item.name)].some((value) => value?.toLowerCase().includes(query));
-                  })
-                : areaStations;
-
-              if (filteredStations.length === 0 && query) return null;
-
+              const areaStations = sortedStations.filter((s) => (s.area_id === area.id || s.area_name === area.name) && stationVisible(s));
+              if (areaStations.length === 0) return null;
               return (
-                <section key={area.id} className="space-y-3">
-                  <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <h2 className="text-lg font-black tracking-tight text-foreground">{area.name}</h2>
-                    </div>
-                    <span className="text-xs font-bold text-muted-foreground">{filteredStations.length} station{filteredStations.length === 1 ? '' : 's'}</span>
-                  </div>
-
-                  <div className="space-y-2">
-                    {filteredStations.length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-border/50 bg-card/40 p-5 text-sm text-muted-foreground">
-                        No stations in this area yet.
-                      </div>
-                    ) : (
-                      filteredStations.map((station) => {
-                        const stationEquipment = activeEquipment.filter((item) => item.station_id === station.id || item.station_name === station.name);
-                        return (
-                          <StationRow
-                            key={station.id}
-                            station={station}
-                            equipment={stationEquipment}
-                            selected={station.id === selectedStationId}
-                            onClick={() => setSelectedStationId(station.id)}
-                          />
-                        );
-                      })
-                    )}
-                  </div>
-                </section>
+                <AreaCard
+                  key={area.id}
+                  area={area}
+                  stations={areaStations}
+                  stationEquipmentFor={stationEquipmentFor}
+                  selectedStationId={selectedStationId}
+                  onSelectStation={(id) => setSelectedStationId((prev) => (prev === id ? null : id))}
+                />
               );
             })}
 
             {unassignedStations.length > 0 && (
-              <section className="space-y-3">
-                <div className="flex items-center justify-between px-1">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-amber-400" />
-                    <h2 className="text-lg font-black tracking-tight text-foreground">Unassigned</h2>
-                  </div>
-                  <span className="text-xs font-bold text-muted-foreground">Needs area</span>
-                </div>
-                <div className="space-y-2">
-                  {unassignedStations.map((station) => {
-                    const stationEquipment = activeEquipment.filter((item) => item.station_id === station.id || item.station_name === station.name);
-                    return (
-                      <StationRow
-                        key={station.id}
-                        station={station}
-                        equipment={stationEquipment}
-                        selected={station.id === selectedStationId}
-                        onClick={() => setSelectedStationId(station.id)}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
+              <AreaCard
+                area={{ id: '__unassigned', name: 'Unassigned', sortOrder: 999 }}
+                stations={unassignedStations}
+                stationEquipmentFor={stationEquipmentFor}
+                selectedStationId={selectedStationId}
+                onSelectStation={(id) => setSelectedStationId((prev) => (prev === id ? null : id))}
+              />
             )}
 
             {visibleAreas.length === 0 && unassignedStations.length === 0 && (
-              <div className="app-card py-12 text-center">
-                <div className="status-marker status-marker-lg status-neutral mx-auto mb-4">
-                  <MapPin className="h-5 w-5" />
-                </div>
-                <p className="text-sm font-semibold text-muted-foreground">No stations match your search.</p>
+              <div
+                className="rounded-2xl border border-border/50 py-14 text-center"
+                style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+              >
+                <MapPin className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
+                <p className="text-sm font-semibold text-muted-foreground">No stations match the current filter.</p>
+                <button onClick={() => { setFilter('all'); setSearch(''); }} className="mt-3 text-xs font-black text-primary">
+                  Clear filters
+                </button>
               </div>
             )}
           </div>

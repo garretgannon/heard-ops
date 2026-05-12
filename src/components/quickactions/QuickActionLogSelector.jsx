@@ -15,7 +15,7 @@ const LOG_CATEGORIES = [
 export default function QuickActionLogSelector({ onSelect, onClose }) {
   return (
     <div className="fixed inset-0 z-[1100] flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full lg:max-w-lg bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden">
+      <div className="w-full lg:max-w-lg card-glass border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-border/30 shrink-0">
           <h2 className="text-lg font-bold text-foreground">What would you like to log?</h2>
@@ -33,7 +33,7 @@ export default function QuickActionLogSelector({ onSelect, onClose }) {
                 haptics.light();
                 onSelect(cat.id);
               }}
-              className="p-3 rounded-lg border border-border/40 bg-card hover:bg-secondary/30 active:scale-95 transition-all text-left"
+              className="p-3 rounded-lg border border-border/40 card-glass hover:bg-secondary/30 active:scale-95 transition-all text-left"
             >
               <div className="text-2xl mb-2">{cat.icon}</div>
               <h3 className="text-sm font-bold text-foreground">{cat.label}</h3>

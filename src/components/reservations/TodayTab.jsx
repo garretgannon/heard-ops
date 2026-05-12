@@ -106,7 +106,7 @@ export default function TodayTab({ reservations, beos, isAdmin, onSelectBEO, onE
 
   if (todayItems.length === 0) {
     return (
-      <div className="text-center py-12 bg-card border border-border rounded-xl">
+      <div className="text-center py-12 card-glass border border-border rounded-xl">
         <Calendar className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
         <p className="text-sm text-muted-foreground">No reservations or events today</p>
       </div>

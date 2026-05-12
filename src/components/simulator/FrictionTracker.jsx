@@ -102,7 +102,7 @@ export default function FrictionTracker({ onClose }) {
                 value={formData.page}
                 onChange={(e) => setFormData({ ...formData, page: e.target.value })}
                 placeholder="e.g., Restaurant Type Selection"
-                className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full px-3 py-2 rounded-lg border border-border card-glass text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
             </div>
 
@@ -112,7 +112,7 @@ export default function FrictionTracker({ onClose }) {
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border card-glass text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
                 >
                   {ISSUE_TYPES.map(t => (
                     <option key={t.id} value={t.id}>{t.label}</option>
@@ -125,7 +125,7 @@ export default function FrictionTracker({ onClose }) {
                 <select
                   value={formData.severity}
                   onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border card-glass text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
                 >
                   {SEVERITIES.map(s => (
                     <option key={s.id} value={s.id}>{s.label}</option>
@@ -140,7 +140,7 @@ export default function FrictionTracker({ onClose }) {
                 value={formData.note}
                 onChange={(e) => setFormData({ ...formData, note: e.target.value })}
                 placeholder="Describe the issue..."
-                className="w-full px-3 py-2 rounded-lg border border-border bg-card text-foreground text-sm placeholder-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full px-3 py-2 rounded-lg border border-border card-glass text-foreground text-sm placeholder-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-amber-500"
                 rows={3}
               />
             </div>
@@ -148,7 +148,7 @@ export default function FrictionTracker({ onClose }) {
             <div className="flex gap-2">
               <button
                 onClick={() => setShowForm(false)}
-                className="flex-1 px-3 py-2 rounded-lg border border-border bg-card text-muted-foreground text-sm font-bold hover:text-foreground transition-all"
+                className="flex-1 px-3 py-2 rounded-lg border border-border card-glass text-muted-foreground text-sm font-bold hover:text-foreground transition-all"
               >
                 Cancel
               </button>

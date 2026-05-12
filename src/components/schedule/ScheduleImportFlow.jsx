@@ -355,7 +355,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
                 const headers = rawRows[headerRowIdx] || [];
                 const header = headers[parseInt(colIdx)] || '';
                 return (
-                  <div key={colIdx} className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2">
+                  <div key={colIdx} className="flex items-center gap-2 card-glass border border-border rounded-lg px-3 py-2">
                     <span className="text-xs font-bold text-foreground flex-1 truncate">{header}</span>
                     <ChevronRight className="h-3 w-3 text-muted-foreground" />
                     <select
@@ -378,7 +378,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
             </div>
             
             {savingTemplate && (
-              <div className="bg-card border border-border rounded-lg p-2 space-y-2">
+              <div className="card-glass border border-border rounded-lg p-2 space-y-2">
                 <input
                   autoFocus
                   value={templateName}
@@ -412,7 +412,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
               </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-3 mb-3">
+            <div className="card-glass border border-border rounded-lg p-3 mb-3">
               <label className="text-xs font-bold text-foreground block mb-2">Week Start Date</label>
               <input
                 type="date"
@@ -476,7 +476,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
               <CheckCircle2 className="h-10 w-10 text-green-400 mx-auto mb-2" />
               <p className="font-bold">Import Complete!</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-3 space-y-2 text-sm">
+            <div className="card-glass border border-border rounded-lg p-3 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Shifts Created</span><span className="font-bold text-green-400">{result.created}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Employees Created</span><span className="font-bold text-primary">{result.newEmployees}</span></div>
               {result.skipped > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Rows Skipped</span><span className="font-bold text-amber-400">{result.skipped}</span></div>}

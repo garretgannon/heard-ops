@@ -8,7 +8,7 @@ export default function ShiftNeedsAttentionPanel({ tasks }) {
   const totalIssues = overdueTasks.length + reviewTasks.length + unableTasks.length;
 
   return (
-    <div className="rounded-xl border border-border/30 bg-card p-4">
+    <div className="rounded-xl border border-border/30 card-glass p-4">
       <h3 className="font-bold text-foreground text-sm mb-3">Needs Attention</h3>
 
       {totalIssues === 0 ? (

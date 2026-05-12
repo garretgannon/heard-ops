@@ -59,7 +59,7 @@ export default function MyShifts() {
                 <button
                   key={shift.id}
                   onClick={() => navigate(`/shift/${shift.id}`)}
-                  className="w-full bg-card border border-border/30 rounded-lg p-4 hover:border-primary/50 transition-all active:scale-95 text-left"
+                  className="w-full card-glass border border-border/30 rounded-lg p-4 hover:border-primary/50 transition-all active:scale-95 text-left"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 space-y-2">

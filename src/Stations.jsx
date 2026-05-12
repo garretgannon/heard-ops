@@ -13,7 +13,7 @@ function StationCard({ station, onEdit, onDelete }) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg p-3.5 flex items-center justify-between">
+    <div className="card-glass border border-border rounded-lg p-3.5 flex items-center justify-between">
       <div>
         <p className="font-bold text-sm text-foreground">{station.name}</p>
         <div className="flex gap-2 mt-1.5">
@@ -141,7 +141,7 @@ export default function Stations() {
       <div className="fixed bottom-20 right-4 flex flex-col gap-2 items-end">
         <button
           onClick={() => { setShowBulk(true); setShowForm(false); }}
-          className="h-10 px-3 rounded-full bg-card border border-border text-xs font-bold text-foreground flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
+          className="h-10 px-3 rounded-full card-glass border border-border text-xs font-bold text-foreground flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
         >
           <Layers className="h-4 w-4" /> Bulk Add
         </button>

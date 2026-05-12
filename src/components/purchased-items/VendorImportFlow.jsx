@@ -325,7 +325,7 @@ export default function VendorImportFlow({ onClose, onComplete }) {
               <CheckCircle2 className="h-10 w-10 text-green-400 mx-auto mb-2" />
               <p className="font-bold">Import Complete</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-3 space-y-1 text-sm">
+            <div className="card-glass border border-border rounded-lg p-3 space-y-1 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Created</span><span className="font-bold text-green-400">{result.created}</span></div>
               {result.updated > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Updated</span><span className="font-bold text-primary">{result.updated}</span></div>}
               {result.errors.length > 0 && <div className="flex justify-between"><span className="text-muted-foreground">Errors</span><span className="font-bold text-red-400">{result.errors.length}</span></div>}

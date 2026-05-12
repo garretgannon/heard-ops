@@ -134,7 +134,7 @@ aesthetic. Show the action clearly with no text overlays. High contrast. Cinemat
       {isAdmin && (
         <div className="flex items-center gap-2 flex-wrap">
           {/* Upload photo */}
-          <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary transition-all">
+          <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg card-glass border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary transition-all">
             {uploadingPhoto ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
             Photo
             <input type="file" accept="image/*" className="hidden"
@@ -142,7 +142,7 @@ aesthetic. Show the action clearly with no text overlays. High contrast. Cinemat
           </label>
 
           {/* Upload video */}
-          <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary transition-all">
+          <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg card-glass border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary transition-all">
             {uploadingVideo ? <Loader2 className="h-3 w-3 animate-spin" /> : <Video className="h-3 w-3" />}
             Video
             <input type="file" accept="video/*" className="hidden"
@@ -150,7 +150,7 @@ aesthetic. Show the action clearly with no text overlays. High contrast. Cinemat
           </label>
 
           {/* Upload annotation */}
-          <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-amber-500/60 transition-all">
+          <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg card-glass border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-amber-500/60 transition-all">
             {uploadingAnnotation ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3" />}
             Annotate
             <input type="file" accept="image/*" className="hidden"
@@ -161,7 +161,7 @@ aesthetic. Show the action clearly with no text overlays. High contrast. Cinemat
           <button
             onClick={generateAI}
             disabled={generatingAI}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-[11px] font-semibold text-muted-foreground hover:text-primary hover:border-primary transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg card-glass border border-border text-[11px] font-semibold text-muted-foreground hover:text-primary hover:border-primary transition-all disabled:opacity-50"
           >
             {generatingAI ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
             {step.ai_illustration_url ? "Regen AI" : "Gen AI"}

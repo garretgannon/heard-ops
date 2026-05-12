@@ -53,7 +53,7 @@ export default function OnboardingWelcome({ onBegin }) {
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.45 + i * 0.07 }}
-            className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 text-left"
+            className="flex items-center gap-3 card-glass border border-border rounded-xl px-4 py-3 text-left"
           >
             <span className="text-xl">{f.icon}</span>
             <p className="text-sm font-medium text-foreground">{f.label}</p>

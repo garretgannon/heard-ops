@@ -72,7 +72,7 @@ export default function LogsAdvancedFilterDrawer({ isOpen, onClose, filters, onF
           </button>
           <button
             onClick={handleReset}
-            className="w-full h-9 rounded-lg border border-border bg-card text-foreground font-bold text-sm active:scale-95 transition-all hover:bg-muted">
+            className="w-full h-9 rounded-lg border border-border card-glass text-foreground font-bold text-sm active:scale-95 transition-all hover:bg-muted">
             Reset
           </button>
         </div>

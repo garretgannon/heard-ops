@@ -64,7 +64,7 @@ export default function TemperatureComplianceCard() {
 
   if (loading) {
     return (
-      <div className="bg-card border border-border rounded-xl p-6 h-40 flex items-center justify-center">
+      <div className="card-glass border border-border rounded-xl p-6 h-40 flex items-center justify-center">
         <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );

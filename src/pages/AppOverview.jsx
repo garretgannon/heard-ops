@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
@@ -12,11 +13,37 @@ import {
   UserRound,
   Wrench,
 } from 'lucide-react';
+
+function useLiveClock() {
+  const [time, setTime] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+function LiveClock() {
+  const time = useLiveClock();
+  const hours = time.getHours();
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const display = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const meal = hours < 11 ? 'Breakfast' : hours < 15 ? 'Lunch service' : hours < 17 ? 'Mid-shift' : 'Dinner service';
+  return (
+    <div className="text-right">
+      <p className="text-base font-black tabular-nums text-foreground">{display}</p>
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{meal}</p>
+    </div>
+  );
+}
 import { cn } from '@/lib/utils';
 import TaskVisual from '@/components/TaskVisual';
 import ApprovalCard from '@/components/approval/ApprovalCard';
 import ApprovalDetailSheet from '@/components/approval/ApprovalDetailSheet';
 import DenialReasonDrawer from '@/components/approval/DenialReasonDrawer';
+import ClearBurst from '@/components/approval/ClearBurst';
+import { AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 
 const PREP_IMAGES = {
   ranch: '/demo-prep/ranch.svg',
@@ -24,6 +51,15 @@ const PREP_IMAGES = {
   romaine: '/demo-prep/romaine.svg',
   guac: '/demo-prep/guacamole.svg',
 };
+
+function demoPhotoFor(name = '') {
+  const n = name.toLowerCase();
+  if (n.includes('ranch')) return PREP_IMAGES.ranch;
+  if (n.includes('pico') || n.includes('salsa')) return PREP_IMAGES.pico;
+  if (n.includes('romaine') || n.includes('lettuce')) return PREP_IMAGES.romaine;
+  if (n.includes('guac')) return PREP_IMAGES.guac;
+  return null;
+}
 
 const APPROVAL_QUEUE_TYPES = {
   temperature_log: 'temperature',
@@ -99,7 +135,7 @@ function PulseRing({ value }) {
 
 function PrepCard({ item }) {
   return (
-    <a href="/prep-lists" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-2xl border border-border/60 bg-card">
+    <Link to="/tasks?tab=prep" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-2xl border border-border/60 card-glass">
       <TaskVisual type="prep" name={item.name} imageUrl={item.image} className="h-full w-full" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
       <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-2">
@@ -113,14 +149,14 @@ function PrepCard({ item }) {
           <span className="truncate">{item.assignee}</span>
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
 
 function ActionRow({ item }) {
   const Icon = item.icon;
   return (
-    <a href={item.href} className="glow-interactive flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
+    <Link to={item.href} className="glow-interactive flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
       <span className={cn('status-marker status-marker-md shrink-0', item.statusClass)}>
         <Icon className="h-4 w-4" />
       </span>
@@ -129,21 +165,31 @@ function ActionRow({ item }) {
         <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.detail}</p>
       </div>
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-    </a>
+    </Link>
   );
 }
 
 function StationRow({ station }) {
+  const readyColor = station.ready >= 90 ? 'bg-green-500' : station.ready >= 75 ? 'bg-amber-500' : 'bg-red-500';
   return (
-    <a href="/operational-map" className="glow-interactive flex items-center gap-3 rounded-2xl border border-border/50 bg-black/20 px-4 py-3">
+    <a
+      href="/operational-map"
+      className="flex items-center gap-3 overflow-hidden rounded-2xl border border-border/50 px-4 py-3 transition-all active:scale-[0.99]"
+      style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+    >
       <span className={cn('status-marker status-marker-lg shrink-0', station.statusClass)}>{station.ready}%</span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-black text-foreground">{station.name}</p>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">{station.detail}</p>
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <p className="truncate text-sm font-black text-foreground">{station.name}</p>
+          <span className={cn('shrink-0 text-[10px] font-black', station.issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/50')}>
+            {station.issueCount > 0 ? `${station.issueCount} issue${station.issueCount === 1 ? '' : 's'}` : 'No issues'}
+          </span>
+        </div>
+        <div className="h-1 w-full overflow-hidden rounded-full bg-black/30">
+          <div className={cn('h-full rounded-full transition-all duration-700', readyColor)} style={{ width: `${station.ready}%` }} />
+        </div>
+        <p className="truncate text-[10px] text-muted-foreground">{station.detail}</p>
       </div>
-      <span className={cn('text-xs font-black', station.issueCount > 0 ? 'text-primary' : 'text-muted-foreground')}>
-        {station.issueCount} issues
-      </span>
     </a>
   );
 }
@@ -154,6 +200,7 @@ export default function AppOverview() {
   const [processedApprovals, setProcessedApprovals] = useState(0);
   const [denialDrawer, setDenialDrawer] = useState(null);
   const [detailSheet, setDetailSheet] = useState(null);
+  const [showBurst, setShowBurst] = useState(false);
   const [metrics, setMetrics] = useState({
     completedTasks: 0,
     totalTasks: 0,
@@ -162,6 +209,8 @@ export default function AppOverview() {
     equipmentIssues: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [livePrepQueue, setLivePrepQueue] = useState([]);
+  const [liveActivity, setLiveActivity] = useState([]);
 
   useEffect(() => {
     loadMetrics();
@@ -176,16 +225,18 @@ export default function AppOverview() {
         safeFilter(base44.entities.PrepItem, { status: 'pending_review' }, '-updated_date', 50),
         safeFilter(base44.entities.TemperatureLog, { requires_review: true }, '-updated_date', 50),
       ]);
-      const [maintenanceReqs, timeOffReqs, alerts, equipment] = await Promise.all([
+      const [maintenanceReqs, timeOffReqs, alerts, equipment, allPrepItems, recentLogs] = await Promise.all([
         safeFilter(base44.entities.MaintenanceRequest, { status: 'pending' }, '-updated_date', 50),
         safeFilter(base44.entities.TimeOffRequest, { status: 'pending' }, '-updated_date', 50),
         safeFilter(base44.entities.OperationalCheck, { status: { $in: ['failed', 'overdue'] } }, '-updated_date', 50),
         safeFilter(base44.entities.Equipment, { isActive: true }, '', 50),
+        base44.entities.PrepItem?.list?.('-updated_date', 20).catch(() => []),
+        base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []),
       ]);
 
       const allApprovals = uniqueApprovals([
         ...(approvals || []).map(normalizeApprovalQueueItem),
-        ...(prepItems || []).map(p => ({ ...p, approval_type: 'prep', sourceModule: 'PrepItem', sourceId: p.id })),
+        ...(prepItems || []).map(p => ({ ...p, approval_type: 'prep', sourceModule: 'PrepItem', sourceId: p.id, photo_url: p.photo_url || demoPhotoFor(p.name) })),
         ...(tempLogs || []).map(t => ({ ...t, approval_type: 'temperature', sourceModule: 'TemperatureLog', sourceId: t.id })),
         ...(maintenanceReqs || []).map(m => ({ ...m, approval_type: 'maintenance', sourceModule: 'MaintenanceRequest', sourceId: m.id })),
         ...(timeOffReqs || []).map(t => ({ ...t, approval_type: 'timeoff', sourceModule: 'TimeOffRequest', sourceId: t.id })),
@@ -202,6 +253,26 @@ export default function AppOverview() {
         openAlerts: (alerts || []).length,
         equipmentIssues: (equipment || []).filter((item) => item.temp_enabled && item.isActive).length,
       });
+
+      const prepQueue = (allPrepItems || [])
+        .filter(p => p.status !== 'completed')
+        .slice(0, 5)
+        .map(p => ({
+          name: p.name || 'Prep item',
+          assignee: p.assigned_to_name || p.assigned_employee_name || '—',
+          due: p.due_time || p.due_by || '',
+          progress: p.quantity ? Math.round(((p.completed_qty || 0) / p.quantity) * 100) : 0,
+          statusClass: p.status === 'overdue' ? 'status-critical' : p.status === 'in_progress' ? 'status-info' : 'status-warning',
+          image: demoPhotoFor(p.name),
+        }));
+      setLivePrepQueue(prepQueue);
+
+      const activity = (recentLogs || []).slice(0, 5).map(log => ({
+        label: log.summary || log.title || log.log_type || 'Activity',
+        time: log.created_date ? new Date(log.created_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '',
+        statusClass: log.severity === 'critical' ? 'status-critical' : log.severity === 'warning' ? 'status-warning' : 'status-success',
+      }));
+      setLiveActivity(activity);
     } catch (err) {
       console.error('Failed to load metrics:', err);
     }
@@ -221,11 +292,18 @@ export default function AppOverview() {
         : { approval_status: 'approved', approved_by: user?.email || 'current_user', approved_at: now };
 
       await base44.entities[moduleName]?.update?.(currentApproval.sourceId, updateData);
-      setApprovalQueue((items) => items.filter((item) => item.id !== currentApproval.id));
+      const remaining = approvalQueue.filter((item) => item.id !== currentApproval.id);
+      setApprovalQueue(remaining);
       setProcessedApprovals((count) => count + 1);
       setMetrics((current) => ({ ...current, pendingApprovals: Math.max(current.pendingApprovals - 1, 0) }));
       setDetailSheet(null);
-      toast.success('Approved');
+      if (remaining.length === 0) {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
+        setShowBurst(true);
+        setTimeout(() => setShowBurst(false), 1100);
+      } else {
+        toast.success('Approved');
+      }
     } catch (err) {
       toast.error('Failed to approve');
     }
@@ -242,12 +320,19 @@ export default function AppOverview() {
         : { approval_status: 'denied', denied_by: user?.email || 'current_user', denied_at: now, denial_reason: reason, denial_notes: notes };
 
       await base44.entities[moduleName]?.update?.(currentApproval.sourceId, updateData);
-      setApprovalQueue((items) => items.filter((item) => item.id !== currentApproval.id));
+      const remaining = approvalQueue.filter((item) => item.id !== currentApproval.id);
+      setApprovalQueue(remaining);
       setProcessedApprovals((count) => count + 1);
       setMetrics((current) => ({ ...current, pendingApprovals: Math.max(current.pendingApprovals - 1, 0) }));
       setDenialDrawer(null);
       setDetailSheet(null);
-      toast.success('Sent back');
+      if (remaining.length === 0) {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
+        setShowBurst(true);
+        setTimeout(() => setShowBurst(false), 1100);
+      } else {
+        toast.success('Sent back');
+      }
     } catch (err) {
       toast.error('Failed to send back approval');
     }
@@ -286,29 +371,21 @@ export default function AppOverview() {
     },
   ];
 
-  const prepQueue = [
-    { name: 'Ranch', assignee: 'Maya Chen', due: '10:30', progress: 38, statusClass: 'status-info', image: PREP_IMAGES.ranch },
-    { name: 'Pico de Gallo', assignee: 'Andre Ruiz', due: '11:00', progress: 0, statusClass: 'status-warning', image: PREP_IMAGES.pico },
-    { name: 'Cut Romaine', assignee: 'Jess Morgan', due: '11:30', progress: 0, statusClass: 'status-neutral', image: PREP_IMAGES.romaine },
-    { name: 'Guacamole', assignee: 'Taylor Kim', due: '12:00', progress: 0, statusClass: 'status-critical', image: PREP_IMAGES.guac },
-  ];
-
-  const stations = [
-    { name: 'Kitchen', ready: 82, detail: '5 crew assigned, Pantry behind', issueCount: 2, statusClass: 'status-info' },
-    { name: 'Bar', ready: 76, detail: '2 crew assigned, opening checks due', issueCount: 1, statusClass: 'status-warning' },
-    { name: 'Dining Room', ready: 90, detail: '3 crew assigned, service ready', issueCount: 0, statusClass: 'status-success' },
-  ];
-
-  const activity = [
-    { label: 'Maya started Ranch', time: '4 min ago', statusClass: 'status-info' },
-    { label: 'Lowboy 1 temp logged', time: '12 min ago', statusClass: 'status-success' },
-    { label: 'Waste entry submitted', time: '18 min ago', statusClass: 'status-neutral' },
-  ];
+  const prepQueue = livePrepQueue;
+  const activity = liveActivity;
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <div className="app-page max-w-[560px] space-y-5 lg:max-w-6xl">
+        <div className="pt-1 space-y-2">
+          <div className="skeleton h-8 w-48" />
+          <div className="skeleton h-4 w-72" />
+        </div>
+        <div className="skeleton h-64 w-full rounded-2xl" />
+        <div className="space-y-3">
+          <div className="skeleton h-5 w-32" />
+          {[1,2,3].map(i => <div key={i} className="skeleton h-16 w-full rounded-2xl" />)}
+        </div>
       </div>
     );
   }
@@ -316,9 +393,16 @@ export default function AppOverview() {
   return (
     <div className="app-screen">
       <div className="app-page max-w-[560px] space-y-7 lg:max-w-6xl">
-        <header className="pt-1">
-          <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Dinner prep is moving. Pantry needs attention.</p>
+        <header className="flex items-start justify-between gap-4 pt-1">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {metrics.pendingApprovals > 0
+                ? `${metrics.pendingApprovals} approval${metrics.pendingApprovals === 1 ? '' : 's'} waiting · ${overdueTasks > 0 ? `${overdueTasks} overdue` : 'tasks on track'}`
+                : 'All clear. Keep an eye on prep and temps.'}
+            </p>
+          </div>
+          <LiveClock />
         </header>
 
         {hasApprovalQueue && (
@@ -376,19 +460,21 @@ export default function AppOverview() {
           </div>
         </section>
 
-        <a href="/operational-map" className="glow-interactive block rounded-2xl border border-primary/30 bg-primary/10 p-4">
-          <div className="flex items-start gap-3">
-            <span className="status-marker status-marker-md status-info">
-              <Radio className="h-4 w-4" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Action</p>
-              <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Check Pantry station</h2>
-              <p className="mt-1 text-sm leading-5 text-muted-foreground">Ranch is in progress and pico has not started. Both are due before lunch setup.</p>
+        {metrics.openAlerts > 0 && (
+          <Link to="/operational-map" className="glow-interactive block rounded-2xl border border-primary/30 bg-primary/10 p-4">
+            <div className="flex items-start gap-3">
+              <span className="status-marker status-marker-md status-info">
+                <Radio className="h-4 w-4" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Action</p>
+                <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Review open issues</h2>
+                <p className="mt-1 text-sm leading-5 text-muted-foreground">{metrics.openAlerts} operational {metrics.openAlerts === 1 ? 'check' : 'checks'} need attention before service.</p>
+              </div>
+              <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary" />
             </div>
-            <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary" />
-          </div>
-        </a>
+          </Link>
+        )}
 
           </div>
           <div className="space-y-7">
@@ -404,37 +490,41 @@ export default function AppOverview() {
           </div>
         </section>
 
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-black tracking-tight text-foreground">Prep Queue</h2>
-            <a href="/prep-lists" className="text-xs font-black text-primary">View all</a>
-          </div>
-          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-            {prepQueue.map((item) => (
-              <PrepCard key={item.name} item={item} />
-            ))}
-          </div>
-        </section>
+        {prepQueue.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-black tracking-tight text-foreground">Prep Queue</h2>
+              <Link to="/tasks?tab=prep" className="text-xs font-black text-primary">View all</Link>
+            </div>
+            <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+              {prepQueue.map((item) => (
+                <PrepCard key={item.name} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-black tracking-tight text-foreground">Stations</h2>
-            <a href="/operational-map" className="text-xs font-black text-primary">Map</a>
+            <Link to="/operational-map" className="text-xs font-black text-primary">Map</Link>
           </div>
-          <div className="space-y-2">
-            {stations.map((station) => (
-              <StationRow key={station.name} station={station} />
-            ))}
-          </div>
+          <Link
+            to="/operational-map"
+            className="glow-interactive flex items-center justify-between rounded-2xl border border-border/50 bg-card/60 px-4 py-3.5"
+          >
+            <p className="text-sm font-semibold text-muted-foreground">View station status and equipment on the Operational Map</p>
+            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground ml-3" />
+          </Link>
         </section>
 
         <section className="space-y-3 pb-2">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-black tracking-tight text-foreground">Recent Activity</h2>
-            <a href="/logs" className="text-xs font-black text-primary">Logs</a>
+            <Link to="/logs" className="text-xs font-black text-primary">Logs</Link>
           </div>
           <div className="app-card space-y-3">
-            {activity.map((item) => (
+            {activity.length > 0 ? activity.map((item) => (
               <div key={item.label} className="flex items-center gap-3">
                 <span className={cn('status-marker status-marker-sm', item.statusClass)}>
                   <CheckCircle2 className="h-3 w-3" />
@@ -442,7 +532,9 @@ export default function AppOverview() {
                 <p className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">{item.label}</p>
                 <span className="text-xs font-semibold text-muted-foreground">{item.time}</span>
               </div>
-            ))}
+            )) : (
+              <p className="text-sm text-muted-foreground py-2">No recent activity logged today.</p>
+            )}
           </div>
         </section>
           </div>
@@ -464,6 +556,10 @@ export default function AppOverview() {
             onClose={() => setDetailSheet(null)}
           />
         )}
+
+        <AnimatePresence>
+          {showBurst && <ClearBurst key="burst" />}
+        </AnimatePresence>
       </div>
     </div>
   );

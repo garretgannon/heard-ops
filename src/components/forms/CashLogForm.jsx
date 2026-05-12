@@ -113,7 +113,7 @@ export default function CashLogForm({ open, onClose, onSaved }) {
               {DENOMINATIONS.map(d => {
                 const subtotal = (Number(form[d.key]) || 0) * d.value;
                 return (
-                  <div key={d.key} className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3">
+                  <div key={d.key} className="flex items-center gap-3 card-glass border border-border rounded-xl px-4 py-3">
                     <span className="w-12 font-bold text-sm">{d.label}</span>
                     <input
                       type="number"

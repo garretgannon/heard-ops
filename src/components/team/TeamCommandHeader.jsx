@@ -24,7 +24,7 @@ export default function TeamCommandHeader({ onSearch, onAddEmployee, searchQuery
           placeholder="Name, role, station..."
           value={searchQuery}
           onChange={(e) => onSearch?.(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border/30 bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border/30 card-glass text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
     </div>

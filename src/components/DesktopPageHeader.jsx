@@ -15,14 +15,14 @@ export default function DesktopPageHeader({ title, subtitle, actions }) {
         {actions}
         <button
           onClick={() => navigate('/shift')}
-          className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted transition-all active:scale-95"
+          className="h-8 px-3 rounded-lg border border-border card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted transition-all active:scale-95"
         >
           <CalendarDays className="h-3.5 w-3.5 text-primary" />
           Shift
         </button>
         <button
           onClick={() => navigate('/logs')}
-          className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted transition-all active:scale-95"
+          className="h-8 w-8 rounded-lg border border-border card-glass flex items-center justify-center hover:bg-muted transition-all active:scale-95"
         >
           <Bell className="h-3.5 w-3.5 text-muted-foreground" />
         </button>

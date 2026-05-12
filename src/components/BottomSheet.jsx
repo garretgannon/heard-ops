@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,7 +26,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -35,9 +36,9 @@ export default function BottomSheet({ open, onClose, title, children, className 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[1000] bg-black/70"
-            style={{ backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 z-[1000] bg-black/75"
+            style={{ backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }}
             onClick={onClose}
           />
 
@@ -47,33 +48,39 @@ export default function BottomSheet({ open, onClose, title, children, className 
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 32, stiffness: 380, mass: 0.9 }}
+            transition={{ type: "spring", damping: 34, stiffness: 400, mass: 0.85 }}
             className={cn(
               "fixed bottom-0 left-0 right-0 z-[1001] flex flex-col",
-              "bg-[#0E1520] border-t border-white/[0.07] rounded-t-[24px]",
+              "rounded-t-[28px]",
               "max-h-[90vh]",
               className
             )}
-            style={{ paddingBottom: "env(safe-area-inset-bottom, 16px)" }}
+            style={{
+              paddingBottom: "env(safe-area-inset-bottom, 16px)",
+              background: "linear-gradient(180deg, rgba(16, 23, 32, 0.98) 0%, rgba(8, 12, 18, 0.99) 100%)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+              boxShadow: "0 -8px 40px rgba(0, 0, 0, 0.6), 0 -1px 0 rgba(255, 255, 255, 0.05)",
+            }}
           >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-0 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-white/15" />
-            </div>
+            {/* Drag handle + header row */}
+            <div className="flex items-center justify-between px-5 shrink-0" style={{ paddingTop: "14px" }}>
+              {/* Centered drag handle */}
+              <div className="absolute left-1/2 -translate-x-1/2 top-3.5 w-9 h-[3px] rounded-full pointer-events-none" style={{ background: "rgba(255,255,255,0.18)" }} />
 
-            {/* Header row */}
-            {title && (
-              <div className="flex items-center justify-between px-5 pt-3 pb-0 shrink-0">
-                <p className="text-[17px] font-bold text-white tracking-tight">{title}</p>
-                <button
-                  onClick={onClose}
-                  className="h-7 w-7 flex items-center justify-center rounded-full active:scale-90 transition-transform"
-                  style={{ background: "rgba(255,255,255,0.07)" }}
-                >
-                  <X className="h-3.5 w-3.5 text-gray-400" />
-                </button>
-              </div>
-            )}
+              {title
+                ? <p className="text-[17px] font-bold text-white tracking-tight leading-snug">{title}</p>
+                : <div />
+              }
+
+              <button
+                onClick={onClose}
+                className="h-7 w-7 flex items-center justify-center rounded-full active:scale-90 transition-transform shrink-0"
+                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.07)" }}
+                aria-label="Close"
+              >
+                <X className="h-3.5 w-3.5 text-gray-400" />
+              </button>
+            </div>
 
             {/* Scrollable content */}
             <div className="overflow-y-auto px-5 pt-4 pb-4 flex-1">
@@ -82,6 +89,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

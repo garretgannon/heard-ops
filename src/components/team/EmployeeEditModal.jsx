@@ -72,7 +72,7 @@ export default function EmployeeEditModal({ employee, onClose, onSave }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.3, type: 'spring', damping: 20 }}
-          className="w-[min(95vw,500px)] lg:w-full lg:max-w-md max-h-[90vh] lg:max-h-[95vh] bg-card border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden"
+          className="w-[min(95vw,500px)] lg:w-full lg:max-w-md max-h-[90vh] lg:max-h-[95vh] card-glass border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden"
           style={{
             paddingBottom: 'env(safe-area-inset-bottom)',
           }}

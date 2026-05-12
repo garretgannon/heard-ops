@@ -21,7 +21,7 @@ export default function ShiftCategoryProgress({ tasks }) {
   }).filter((s) => s.total > 0);
 
   return (
-    <div className="rounded-xl border border-border/30 bg-card p-4">
+    <div className="rounded-xl border border-border/30 card-glass p-4">
       <h3 className="font-bold text-foreground text-sm mb-3">Category Progress</h3>
       <div className="space-y-3">
         {categoryStats.length === 0 ? (

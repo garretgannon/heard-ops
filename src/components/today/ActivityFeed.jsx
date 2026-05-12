@@ -42,7 +42,7 @@ export default function ActivityFeed({ logs, tasks }) {
   };
 
   return (
-    <div className="rounded-xl border border-border/30 bg-card p-5">
+    <div className="rounded-xl border border-border/30 card-glass p-5">
       <h3 className="font-bold text-foreground text-sm mb-4">Activity Feed</h3>
       <div className="space-y-2">
         {feed.length > 0 ? (

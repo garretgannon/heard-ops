@@ -83,7 +83,7 @@ export default function PrepPlanning() {
         {/* Status Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {!todayCount ? (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4">
+            <div className="lg:col-span-1 card-glass border border-border rounded-xl p-4">
               <div className="flex items-start gap-3 mb-3">
                 <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
                 <div>
@@ -99,7 +99,7 @@ export default function PrepPlanning() {
               </button>
             </div>
           ) : (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4 border-l-4 border-l-green-500">
+            <div className="lg:col-span-1 card-glass border border-border rounded-xl p-4 border-l-4 border-l-green-500">
               <div className="flex items-start gap-3 mb-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                 <div>
@@ -118,7 +118,7 @@ export default function PrepPlanning() {
           )}
 
           {!todayPlan ? (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4">
+            <div className="lg:col-span-1 card-glass border border-border rounded-xl p-4">
               <div className="flex items-start gap-3 mb-3">
                 <Clock className="h-5 w-5 text-slate-500 mt-0.5 shrink-0" />
                 <div>
@@ -129,7 +129,7 @@ export default function PrepPlanning() {
               <p className="text-xs text-muted-foreground">Plan will appear after count</p>
             </div>
           ) : (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4 border-l-4 border-l-blue-500">
+            <div className="lg:col-span-1 card-glass border border-border rounded-xl p-4 border-l-4 border-l-blue-500">
               <div className="flex items-start gap-3 mb-3">
                 <CheckCircle2 className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
                 <div>
@@ -146,7 +146,7 @@ export default function PrepPlanning() {
             </div>
           )}
 
-          <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4">
+          <div className="lg:col-span-1 card-glass border border-border rounded-xl p-4">
             <div className="flex items-start gap-3 mb-3">
               <ChefHat className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div>
@@ -182,7 +182,7 @@ export default function PrepPlanning() {
                 <p className="text-xs text-muted-foreground py-4 text-center">No count sessions yet</p>
               ) : (
                 countSessions.slice(0, 10).map(session => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-card border border-border rounded-lg text-xs">
+                  <div key={session.id} className="flex items-center justify-between p-3 card-glass border border-border rounded-lg text-xs">
                     <div>
                       <p className="font-semibold text-foreground">{session.shift} — {session.station}</p>
                       <p className="text-muted-foreground">{session.date} · Status: {session.status}</p>

@@ -91,7 +91,7 @@ export default function JobCodeManager({ jobCodes }) {
         </div>
 
         {jobCodes.filter(j => j.isActive).map(jobCode => (
-          <div key={jobCode.id} className="bg-card border border-border rounded-xl p-4 space-y-2">
+          <div key={jobCode.id} className="card-glass border border-border rounded-xl p-4 space-y-2">
             {editingId === jobCode.id ? (
               <div className="space-y-3">
                 <input
@@ -181,7 +181,7 @@ export default function JobCodeManager({ jobCodes }) {
               <button
                 key={preset.name}
                 onClick={() => handleCreate(preset)}
-                className="text-left p-2.5 rounded-lg bg-card border border-border hover:border-primary/50 active:scale-95 transition-all"
+                className="text-left p-2.5 rounded-lg card-glass border border-border hover:border-primary/50 active:scale-95 transition-all"
               >
                 <p className="font-semibold text-sm text-foreground">{preset.name}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{preset.description}</p>

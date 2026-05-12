@@ -71,7 +71,7 @@ export default function UpNextList({ tasks, onViewAll }) {
       {/* View Full Plan Link */}
       <button
         onClick={() => navigate('/tasks')}
-        className="w-full mx-4 lg:mx-0 h-9 rounded-lg border border-border/30 bg-card text-muted-foreground font-semibold text-xs hover:border-border/50 transition-all active:scale-95"
+        className="w-full mx-4 lg:mx-0 h-9 rounded-lg border border-border/30 card-glass text-muted-foreground font-semibold text-xs hover:border-border/50 transition-all active:scale-95"
       >
         View Shift Plan
       </button>

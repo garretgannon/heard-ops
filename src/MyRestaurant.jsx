@@ -237,7 +237,7 @@ function EquipmentModal({ onClose }) {
   const EquipmentForm = ({ stationName }) => (
     <div className="space-y-3 mt-2 p-3 bg-background border border-border rounded-xl">
       <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
-        className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
       <div className="space-y-1">
         <label className="text-[10px] font-bold text-muted-foreground uppercase">Type *</label>
         {EQUIPMENT_CATEGORIES.map(cat => (
@@ -259,14 +259,14 @@ function EquipmentModal({ onClose }) {
       </div>
       <div className="grid grid-cols-2 gap-2">
         <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
-          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
-          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
       </div>
       <select value={form.vendorId} onChange={e => {
         const vendor = vendors.find(v => v.id === e.target.value);
         setForm(p => ({ ...p, vendorId: e.target.value, vendorName: vendor?.name || '' }));
-      }} className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground">
+      }} className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground">
         <option value="">Select Vendor (optional)</option>
         {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
       </select>
@@ -359,7 +359,7 @@ function EquipmentModal({ onClose }) {
                       {editingId === item.id ? (
                         <EquipmentForm stationName={group.key !== '__unassigned' ? group.key : ''} />
                       ) : (
-                        <div className="bg-card border border-border/50 rounded-lg px-3 py-2.5 mt-2">
+                        <div className="card-glass border border-border/50 rounded-lg px-3 py-2.5 mt-2">
                           <div className="flex items-center gap-2">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-foreground">{item.name}</p>
@@ -876,10 +876,10 @@ export default function MyRestaurant() {
           <p className="text-xs text-muted-foreground mt-0.5">Manage your restaurant profile, locations, equipment and key information.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
+          <button className="h-8 px-3 rounded-lg border border-border card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
             Today's Plan
           </button>
-          <button className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted active:scale-95">
+          <button className="h-8 w-8 rounded-lg border border-border card-glass flex items-center justify-center hover:bg-muted active:scale-95">
             <Bell className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
@@ -894,7 +894,7 @@ export default function MyRestaurant() {
       {/* Desktop 2-col Card Grid */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 lg:px-8 lg:py-6">
         {/* Restaurant Profile */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Restaurant Profile</p>
             <button onClick={() => setModal('profile')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
@@ -911,7 +911,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Locations */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Locations</p>
             <button onClick={() => setModal('areas')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
@@ -921,7 +921,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Equipment */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Equipment</p>
             <button onClick={() => setModal('equipment')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
@@ -937,7 +937,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Food Safety */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Food Safety Systems</p>
             <button onClick={() => setModal('foodSafety')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
@@ -953,7 +953,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Emergency Contacts */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Emergency Contacts</p>
             <button onClick={() => setModal('emergencyContacts')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
@@ -969,7 +969,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Key Operating Info */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Key Operating Information</p>
             <button onClick={() => setModal('operatingInfo')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>

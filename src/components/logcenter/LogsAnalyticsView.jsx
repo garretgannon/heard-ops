@@ -36,19 +36,19 @@ export default function LogsAnalyticsView({ logs }) {
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="p-4 rounded-lg bg-card border border-border/20">
+        <div className="p-4 rounded-lg card-glass border border-border/20">
           <div className="text-2xl font-bold text-primary">{logs.length}</div>
           <div className="text-xs text-muted-foreground mt-1">Total Logs</div>
         </div>
-        <div className="p-4 rounded-lg bg-card border border-border/20">
+        <div className="p-4 rounded-lg card-glass border border-border/20">
           <div className="text-2xl font-bold text-yellow-400">{needsReview}</div>
           <div className="text-xs text-muted-foreground mt-1">Needs Review</div>
         </div>
-        <div className="p-4 rounded-lg bg-card border border-border/20">
+        <div className="p-4 rounded-lg card-glass border border-border/20">
           <div className="text-2xl font-bold text-red-500">{failedTemps}</div>
           <div className="text-xs text-muted-foreground mt-1">Failed Temps</div>
         </div>
-        <div className="p-4 rounded-lg bg-card border border-border/20">
+        <div className="p-4 rounded-lg card-glass border border-border/20">
           <div className="text-2xl font-bold text-green-500">
             {totalTemps > 0 ? Math.round(((totalTemps - failedTemps) / totalTemps) * 100) : 0}%
           </div>

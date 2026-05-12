@@ -16,7 +16,7 @@ export default function PageHeader({ title, subtitle, icon: Icon, notificationCo
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <button className="h-9 w-9 rounded-lg bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors">
+            <button className="h-9 w-9 rounded-lg card-glass border border-border flex items-center justify-center hover:bg-muted transition-colors">
               <Bell className="h-4 w-4 text-primary" />
               {notificationCount > 0 && (
                 <span className="absolute top-1 right-1 h-2 w-2 bg-status-error rounded-full" />

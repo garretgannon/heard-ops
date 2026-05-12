@@ -56,10 +56,10 @@ export default function InventorySimplified() {
           <button onClick={() => navigate('/purchased-items')} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center gap-1.5 active:scale-95">
             <Plus className="h-3.5 w-3.5" /> Create Purchase
           </button>
-          <button className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
+          <button onClick={() => navigate('/prep-count')} className="h-8 px-3 rounded-lg border border-border card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
             <Package className="h-3.5 w-3.5 text-primary" /> Count Tasks
           </button>
-          <button className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted active:scale-95">
+          <button onClick={() => navigate('/notifications')} className="h-8 w-8 rounded-lg border border-border card-glass flex items-center justify-center hover:bg-muted active:scale-95">
             <Bell className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
@@ -84,7 +84,7 @@ export default function InventorySimplified() {
           { label: 'Total Items', value: items.length, sub: 'Across locations', color: 'text-foreground' },
           { label: 'Par Level Items', value: items.filter(i => i.parLevel).length, sub: 'On target', color: 'text-green-400' },
         ].map(({ label, value, sub, color }) => (
-          <div key={label} className="bg-card border border-border/60 rounded-xl px-4 py-3">
+          <div key={label} className="card-glass border border-border/60 rounded-xl px-4 py-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">{label}</p>
             <p className={cn('text-2xl font-extrabold', color)}>{value}</p>
             <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
@@ -94,15 +94,15 @@ export default function InventorySimplified() {
 
       {/* Filters */}
       <div className="hidden lg:flex items-center gap-2 px-8 py-3 border-b border-border/30">
-        <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-lg bg-card border border-border text-xs text-foreground">
+        <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
           {CATEGORIES.map(c => <option key={c}>{c}</option>)}
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="h-8 px-3 rounded-lg bg-card border border-border text-xs text-foreground">
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
           {STATUSES.map(s => <option key={s}>{s}</option>)}
         </select>
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search items..." className="w-full h-8 pl-8 pr-3 bg-card border border-border rounded-lg text-xs text-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search items..." className="w-full h-8 pl-8 pr-3 card-glass border border-border rounded-lg text-xs text-foreground" />
         </div>
         <span className="text-xs text-muted-foreground ml-auto">Showing {filtered.length} of {items.length} items</span>
       </div>
@@ -120,13 +120,13 @@ export default function InventorySimplified() {
         {loading ? (
           <div className="flex items-center justify-center h-32"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 bg-card border border-border rounded-xl">
+          <div className="text-center py-16 card-glass border border-border rounded-xl">
             <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
             <p className="text-sm text-muted-foreground">No inventory items found</p>
             <button onClick={() => navigate('/purchased-items')} className="mt-3 btn-primary text-xs px-4 py-2 flex items-center gap-1 mx-auto"><Plus className="h-3.5 w-3.5" />Add Items</button>
           </div>
         ) : (
-          <div className="bg-card border border-border/60 rounded-xl overflow-hidden">
+          <div className="card-glass border border-border/60 rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
@@ -180,7 +180,7 @@ export default function InventorySimplified() {
         ) : filtered.slice(0, 30).map(item => {
           const st = statusStyle(item.currentStock ?? item.parLevel, item.parLevel);
           return (
-            <div key={item.id} className="bg-card border border-border rounded-xl px-4 py-3">
+            <div key={item.id} className="card-glass border border-border rounded-xl px-4 py-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="text-sm font-bold text-foreground">{item.itemName}</p>

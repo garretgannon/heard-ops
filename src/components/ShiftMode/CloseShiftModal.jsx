@@ -83,7 +83,7 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
   if (screen === 'complete') {
     return (
       <div className="fixed inset-0 bg-background z-50 flex items-center justify-center p-6">
-        <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-6 text-center space-y-4">
+        <div className="w-full max-w-sm card-glass border border-border rounded-2xl p-6 text-center space-y-4">
           <div className="h-16 w-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto">
             <CheckCircle2 className="h-8 w-8 text-green-400" />
           </div>
@@ -129,11 +129,11 @@ export default function CloseShiftModal({ isOpen, onClose, shift }) {
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add shift notes, upcoming tasks, warnings..."
               rows={6}
-              className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className="w-full px-3 py-2.5 card-glass border border-border rounded-lg text-foreground placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             />
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-3 space-y-2">
+          <div className="card-glass border border-border rounded-lg p-3 space-y-2">
             <h3 className="text-sm font-bold">Shift Summary</h3>
             <div className="text-xs text-secondary-text space-y-1">
               <p>Tasks: {localShift?.tasks_completed}/{localShift?.tasks_total} complete</p>

@@ -25,7 +25,7 @@ export default function EmployeeCard({ employee, onSelect, canContact, canManage
       role="button"
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onSelect?.(employee.id)}
-      className="w-full text-left p-4 rounded-xl border border-border/40 bg-card hover:border-border/60 transition-all active:scale-95 cursor-pointer"
+      className="w-full text-left p-4 rounded-xl border border-border/40 card-glass hover:border-border/60 transition-all active:scale-95 cursor-pointer"
     >
       <div className="space-y-4">
         {/* Header */}

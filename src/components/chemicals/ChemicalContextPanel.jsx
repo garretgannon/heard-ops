@@ -33,7 +33,7 @@ export default function ChemicalContextPanel({ areaId, stationId, equipmentId, t
   if (loading || chemicals.length === 0) return null;
 
   return (
-    <div className={cn('bg-card border border-border rounded-xl overflow-hidden', className)}>
+    <div className={cn('card-glass border border-border rounded-xl overflow-hidden', className)}>
       {/* Header */}
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-3 hover:bg-muted/30 transition-colors">
         <div className="flex items-center gap-2">

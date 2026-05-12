@@ -1,8 +1,44 @@
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { ArrowRight, Cog, UserRoundCog } from 'lucide-react';
+import { usePermissions } from '@/hooks/usePermissions';
+import {
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  Calendar,
+  ChefHat,
+  Cog,
+  FileText,
+  MessageSquare,
+  Settings,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { moreNavSections, morePrimaryActions } from '@/lib/routeConfig';
+
+const STAFF_SECTIONS = [
+  {
+    title: 'Reference',
+    items: [
+      { label: 'Training',        detail: 'Courses and certifications',   path: '/training',         icon: BookOpen,      status: 'status-review',   perm: 'view_training' },
+      { label: 'Recipes',         detail: 'Recipes and build cards',       path: '/recipes',          icon: ChefHat,       status: 'status-review',   perm: 'view_recipes' },
+      { label: 'Chemicals / SDS', detail: 'Safety data sheets',            path: '/chemical-library', icon: AlertTriangle, status: 'status-review' },
+    ],
+  },
+  {
+    title: 'Activity',
+    items: [
+      { label: 'My Shifts', detail: 'Upcoming and past shifts',        path: '/my-shifts', icon: Calendar,      status: 'status-info' },
+      { label: 'Comms',     detail: 'Announcements and station notes', path: '/comms',     icon: MessageSquare, status: 'status-warning' },
+      { label: 'Logs',      detail: 'Submit and view records',         path: '/logs',      icon: FileText,      status: 'status-warning', perm: 'view_logs' },
+    ],
+  },
+  {
+    title: 'Account',
+    items: [
+      { label: 'Profile & Settings', detail: 'Account preferences', path: '/profile', icon: Settings, status: 'status-neutral' },
+    ],
+  },
+];
 
 function MoreRow({ item, onClick }) {
   const Icon = item.icon;
@@ -27,21 +63,32 @@ function MoreRow({ item, onClick }) {
 export default function More() {
   const navigate = useNavigate();
   const { isAdmin } = useCurrentUser();
+  const { can } = usePermissions();
 
   if (!isAdmin) {
     return (
       <div className="app-screen">
-        <main className="app-page mx-auto max-w-[620px] space-y-5">
+        <main className="app-page mx-auto max-w-[620px] space-y-5 pb-28">
           <header className="pt-1">
             <p className="metric-label">More</p>
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Tools</h1>
+            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">Resources</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Tools and references for your shift.</p>
           </header>
-          <div className="app-card py-12 text-center">
-            <div className="status-marker status-marker-lg status-neutral mx-auto mb-4">
-              <UserRoundCog className="h-5 w-5" />
-            </div>
-            <p className="text-sm font-semibold text-muted-foreground">Admin tools are not available for your role.</p>
-          </div>
+
+          {STAFF_SECTIONS.map((section) => {
+            const visible = section.items.filter(item => !item.perm || can(item.perm));
+            if (visible.length === 0) return null;
+            return (
+              <section key={section.title} className="space-y-2">
+                <h2 className="px-1 text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">{section.title}</h2>
+                <div className="app-card py-1">
+                  {visible.map((item) => (
+                    <MoreRow key={item.path} item={item} onClick={() => navigate(item.path)} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </main>
       </div>
     );

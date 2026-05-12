@@ -1,6 +1,6 @@
 export default function SkeletonCard({ lines = 2, className = '' }) {
   return (
-    <div className={`bg-card border border-border rounded-xl p-4 ${className}`}>
+    <div className={`card-glass border border-border rounded-xl p-4 ${className}`}>
       <div className="skeleton h-3 w-1/3 rounded mb-3" />
       {Array.from({ length: lines }).map((_, i) => (
         <div

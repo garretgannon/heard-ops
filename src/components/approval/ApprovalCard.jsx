@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ChevronUp, Eye, X } from 'lucide-react';
+import { Camera, Check, ChevronUp, Eye, ShieldCheck, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TaskVisual from '@/components/TaskVisual';
 
@@ -162,6 +162,12 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
             </span>
           </div>
           <div className="absolute bottom-4 left-4 right-4">
+            {imageUrl && (
+              <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-green-500/25 px-2.5 py-1 backdrop-blur-sm">
+                <ShieldCheck className="h-3 w-3 text-green-400" />
+                <span className="text-[10px] font-black text-green-300">Photo Verified</span>
+              </div>
+            )}
             <h2 className="text-3xl font-black tracking-tight text-white">{content.title}</h2>
             <p className="mt-1 text-sm font-semibold text-white/70">{content.subtitle}</p>
           </div>
@@ -203,7 +209,12 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
             <button
               onPointerDown={(event) => event.stopPropagation()}
               onClick={onDeny}
-              className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-red-500/35 bg-red-500/10 text-sm font-black text-red-300 transition-all active:scale-[0.98]"
+              className="flex h-13 items-center justify-center gap-2 rounded-2xl text-sm font-black text-red-300 transition-all active:scale-[0.97]"
+              style={{
+                border: '1px solid rgba(239,68,68,0.3)',
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(239,68,68,0.08) 100%)',
+                boxShadow: '0 0 0 1px rgba(239,68,68,0.1), inset 0 1px 0 rgba(255,255,255,0.05)',
+              }}
               aria-label="Send back approval"
             >
               <X className="h-4 w-4" />
@@ -212,7 +223,12 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
             <button
               onPointerDown={(event) => event.stopPropagation()}
               onClick={onApprove}
-              className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-green-500/35 bg-green-500/15 text-sm font-black text-green-300 transition-all active:scale-[0.98]"
+              className="flex h-13 items-center justify-center gap-2 rounded-2xl text-sm font-black text-green-300 transition-all active:scale-[0.97]"
+              style={{
+                border: '1px solid rgba(34,197,94,0.3)',
+                background: 'linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(34,197,94,0.1) 100%)',
+                boxShadow: '0 0 0 1px rgba(34,197,94,0.12), 0 0 16px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.07)',
+              }}
               aria-label="Approve approval"
             >
               <Check className="h-4 w-4" />
@@ -223,12 +239,31 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
       </div>
 
       <div className="mt-4 flex items-center justify-center gap-3">
-        <div className={cn('rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]', drag < -20 ? 'bg-red-500/20 text-red-300' : 'bg-card text-muted-foreground')}>
-          Swipe left
+        <div className={cn(
+          'flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] transition-all',
+          drag < -20 ? 'bg-red-500/20 text-red-300' : 'text-muted-foreground/50'
+        )}>
+          <X className="h-2.5 w-2.5" />
+          Send back
         </div>
-        <div className={cn('h-2 w-2 rounded-full', Math.abs(drag) < 20 ? 'bg-primary' : 'bg-border/60')} />
-        <div className={cn('rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em]', drag > 20 ? 'bg-green-500/20 text-green-300' : 'bg-card text-muted-foreground')}>
-          Swipe right
+        <div className="flex items-center gap-1">
+          {[-2,-1,0,1,2].map(i => (
+            <div key={i} className={cn(
+              'rounded-full transition-all',
+              i === 0 ? 'h-2 w-2' : 'h-1.5 w-1.5',
+              Math.abs(drag) < 20 && i === 0 ? 'bg-primary' :
+              drag > 20 && i >= 0 ? 'bg-green-400' :
+              drag < -20 && i <= 0 ? 'bg-red-400' :
+              'bg-border/40'
+            )} />
+          ))}
+        </div>
+        <div className={cn(
+          'flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] transition-all',
+          drag > 20 ? 'bg-green-500/20 text-green-300' : 'text-muted-foreground/50'
+        )}>
+          Approve
+          <Check className="h-2.5 w-2.5" />
         </div>
       </div>
     </motion.div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import {
   Building2, MapPin, Users, Wrench,
-  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Bell
+  Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Bell, X, ChevronDown, ChevronUp
 } from 'lucide-react';
 import SetupProgressCard from '@/components/myrestaurant/SetupProgressCard';
 import SectionCard from '@/components/myrestaurant/SectionCard';
@@ -185,21 +185,26 @@ function EquipmentModal({ onClose }) {
   const [equipment, setEquipment] = useState([]);
   const [stations, setStations] = useState([]);
   const [vendors, setVendors] = useState([]);
+  const [purchasedItems, setPurchasedItems] = useState([]);
   const [expandedStation, setExpandedStation] = useState(null);
+  const [expandedEquipment, setExpandedEquipment] = useState(null);
   const [addingToStation, setAddingToStation] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const emptyForm = { name: '', equipmentType: '', station: '', modelNumber: '', serialNumber: '', vendorId: '', vendorName: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false, isActive: true };
+  const [itemSearch, setItemSearch] = useState('');
+  const emptyForm = { name: '', equipmentType: '', station: '', modelNumber: '', serialNumber: '', vendorId: '', vendorName: '', requiresTemperatureLog: false, requiresCleaningChecklist: false, requiresMaintenanceChecklist: false, inInventory: false, isActive: true, item_ids: [] };
   const [form, setForm] = useState(emptyForm);
 
   const reload = async () => {
-    const [eq, st, vd] = await Promise.all([
+    const [eq, st, vd, pi] = await Promise.all([
       base44.entities.Equipment.list('-updated_date', 200),
       base44.entities.Station.list('name', 100),
       base44.entities.Vendor.list('name', 200).catch(() => []),
+      base44.entities.PurchasedItem.list('itemName', 500).catch(() => []),
     ]);
     setEquipment(eq);
     setStations(st);
     setVendors(vd);
+    setPurchasedItems(pi.filter(i => i.active !== false));
   };
   useEffect(() => { reload(); }, []);
 
@@ -224,20 +229,40 @@ function EquipmentModal({ onClose }) {
   const startEdit = (item) => {
     setEditingId(item.id);
     setAddingToStation(null);
-    setForm({ name: item.name, equipmentType: item.equipmentType, station: item.station || '', modelNumber: item.modelNumber || '', serialNumber: item.serialNumber || '', vendorId: item.vendorId || '', vendorName: item.vendorName || '', requiresTemperatureLog: !!item.requiresTemperatureLog, requiresCleaningChecklist: !!item.requiresCleaningChecklist, requiresMaintenanceChecklist: !!item.requiresMaintenanceChecklist, inInventory: !!item.inInventory, isActive: item.isActive !== false });
+    setExpandedEquipment(null);
+    setForm({ name: item.name, equipmentType: item.equipmentType, station: item.station || '', modelNumber: item.modelNumber || '', serialNumber: item.serialNumber || '', vendorId: item.vendorId || '', vendorName: item.vendorName || '', requiresTemperatureLog: !!item.requiresTemperatureLog, requiresCleaningChecklist: !!item.requiresCleaningChecklist, requiresMaintenanceChecklist: !!item.requiresMaintenanceChecklist, inInventory: !!item.inInventory, isActive: item.isActive !== false, item_ids: item.item_ids || [] });
     setExpandedStation(item.station || '__unassigned');
   };
 
   const del = async (id) => {
     if (!confirm('Delete this equipment?')) return;
     await base44.entities.Equipment.delete(id);
+    if (expandedEquipment === id) setExpandedEquipment(null);
+    reload();
+  };
+
+  const toggleField = async (item, field) => {
+    await base44.entities.Equipment.update(item.id, { [field]: !item[field] });
+    reload();
+  };
+
+  const addItemToEquipment = async (equip, itemId) => {
+    const existing = equip.item_ids || [];
+    if (existing.includes(itemId)) return;
+    await base44.entities.Equipment.update(equip.id, { item_ids: [...existing, itemId] });
+    setItemSearch('');
+    reload();
+  };
+
+  const removeItemFromEquipment = async (equip, itemId) => {
+    await base44.entities.Equipment.update(equip.id, { item_ids: (equip.item_ids || []).filter(id => id !== itemId) });
     reload();
   };
 
   const EquipmentForm = ({ stationName }) => (
     <div className="space-y-3 mt-2 p-3 bg-background border border-border rounded-xl">
       <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
-        className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
       <div className="space-y-1">
         <label className="text-[10px] font-bold text-muted-foreground uppercase">Type *</label>
         {EQUIPMENT_CATEGORIES.map(cat => (
@@ -259,14 +284,14 @@ function EquipmentModal({ onClose }) {
       </div>
       <div className="grid grid-cols-2 gap-2">
         <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
-          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
-          className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
       </div>
       <select value={form.vendorId} onChange={e => {
         const vendor = vendors.find(v => v.id === e.target.value);
         setForm(p => ({ ...p, vendorId: e.target.value, vendorName: vendor?.name || '' }));
-      }} className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground">
+      }} className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground">
         <option value="">Select Vendor (optional)</option>
         {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
       </select>
@@ -354,33 +379,168 @@ function EquipmentModal({ onClose }) {
               {/* Expanded Equipment List */}
               {isExpanded && (
                 <div className="bg-background/60 px-3 pb-3 space-y-2">
-                  {group.items.map(item => (
-                    <div key={item.id}>
-                      {editingId === item.id ? (
-                        <EquipmentForm stationName={group.key !== '__unassigned' ? group.key : ''} />
-                      ) : (
-                        <div className="bg-card border border-border/50 rounded-lg px-3 py-2.5 mt-2">
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-foreground">{item.name}</p>
-                              <p className="text-xs text-muted-foreground">{typeLabel(item.equipmentType)}{item.modelNumber ? ` · ${item.modelNumber}` : ''}{item.vendorName && <span className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-300 rounded ml-1">📞 {item.vendorName}</span>}</p>
-                            </div>
-                            <button onClick={() => startEdit(item)} className="text-xs font-bold text-primary px-2 py-1 rounded hover:bg-primary/10">Edit</button>
-                            <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
-                          </div>
-                          <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                            {item.requiresTemperatureLog && <span className="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full font-bold">🌡️ Temp Log</span>}
-                            {item.requiresCleaningChecklist && <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold">🧹 Cleaning</span>}
-                            {item.requiresMaintenanceChecklist && <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">🔧 Maintenance</span>}
-                            {item.inInventory && <span className="text-[9px] bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded-full font-bold">📦 Inventory</span>}
-                            {COLD_TYPES.includes(item.equipmentType) && (
-                              <button onClick={() => { onClose(); navigate('/temperature-dashboard'); }} className="text-[9px] bg-cyan-500/15 text-cyan-400 px-1.5 py-0.5 rounded-full font-bold border border-cyan-500/20">View Temp History →</button>
+                  {group.items.map(item => {
+                    const isDetailOpen = expandedEquipment === item.id;
+                    const linkedItems = (item.item_ids || [])
+                      .map(id => purchasedItems.find(p => p.id === id))
+                      .filter(Boolean);
+                    const filteredSearch = itemSearch.trim()
+                      ? purchasedItems
+                          .filter(p =>
+                            p.itemName?.toLowerCase().includes(itemSearch.toLowerCase()) &&
+                            !(item.item_ids || []).includes(p.id)
+                          )
+                          .slice(0, 8)
+                      : [];
+
+                    return (
+                      <div key={item.id}>
+                        {editingId === item.id ? (
+                          <EquipmentForm stationName={group.key !== '__unassigned' ? group.key : ''} />
+                        ) : (
+                          <div className="card-glass border border-border/50 rounded-xl mt-2 overflow-hidden">
+                            {/* Clickable summary row */}
+                            <button
+                              onClick={() => {
+                                setExpandedEquipment(isDetailOpen ? null : item.id);
+                                setItemSearch('');
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-white/[0.03] transition-colors"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
+                                  {item.inInventory && (
+                                    <span className="shrink-0 text-[9px] bg-green-500/20 text-green-300 px-1.5 py-0.5 rounded-full font-bold">📦 Inv</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {typeLabel(item.equipmentType)}{item.modelNumber ? ` · ${item.modelNumber}` : ''}
+                                  {linkedItems.length > 0 && <span className="ml-1 text-primary/70">{linkedItems.length} item{linkedItems.length !== 1 ? 's' : ''}</span>}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  onClick={e => { e.stopPropagation(); startEdit(item); }}
+                                  className="text-xs font-bold text-primary px-2 py-1 rounded hover:bg-primary/10"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={e => { e.stopPropagation(); del(item.id); }}
+                                  className="text-red-400 p-1"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                                {isDetailOpen
+                                  ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                                  : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                                }
+                              </div>
+                            </button>
+
+                            {/* Expanded detail panel */}
+                            {isDetailOpen && (
+                              <div className="border-t border-border/30 px-3 pb-3 pt-3 space-y-4 bg-black/20">
+
+                                {/* Toggle grid */}
+                                <div>
+                                  <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2">Settings</p>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    {[
+                                      { field: 'inInventory',                label: 'In Inventory',  icon: '📦', activeColor: 'border-green-500/50 bg-green-500/10 text-green-300' },
+                                      { field: 'requiresTemperatureLog',      label: 'Temp Log',      icon: '🌡️', activeColor: 'border-sky-500/50 bg-sky-500/10 text-sky-300' },
+                                      { field: 'requiresCleaningChecklist',   label: 'Cleaning',      icon: '🧹', activeColor: 'border-purple-500/50 bg-purple-500/10 text-purple-300' },
+                                      { field: 'requiresMaintenanceChecklist',label: 'Maintenance',   icon: '🔧', activeColor: 'border-amber-500/50 bg-amber-500/10 text-amber-300' },
+                                    ].map(({ field, label, icon, activeColor }) => {
+                                      const isOn = !!item[field];
+                                      return (
+                                        <button
+                                          key={field}
+                                          onClick={() => toggleField(item, field)}
+                                          className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-bold transition-all active:scale-[0.97] ${isOn ? activeColor : 'border-border/40 bg-transparent text-muted-foreground/60 hover:border-border/70'}`}
+                                        >
+                                          <span>{icon}</span>
+                                          <span className="flex-1 text-left">{label}</span>
+                                          {/* pill toggle */}
+                                          <span className={`relative h-4 w-7 rounded-full border transition-all shrink-0 ${isOn ? 'border-current bg-current/30' : 'border-border/50 bg-transparent'}`}>
+                                            <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${isOn ? 'left-3.5' : 'left-0.5'}`} />
+                                          </span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+
+                                {/* Items stored in this equipment — only when inInventory is on */}
+                                {item.inInventory && (
+                                  <div className="space-y-2">
+                                    <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Items stored here</p>
+
+                                    {linkedItems.length > 0 && (
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {linkedItems.map(pi => (
+                                          <span key={pi.id} className="flex items-center gap-1 text-xs bg-primary/10 border border-primary/25 text-foreground rounded-full px-2.5 py-1 font-semibold">
+                                            {pi.itemName}
+                                            <button
+                                              onClick={() => removeItemFromEquipment(item, pi.id)}
+                                              className="text-muted-foreground hover:text-red-400 transition-colors ml-0.5"
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </button>
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+
+                                    <div className="relative">
+                                      <input
+                                        value={itemSearch}
+                                        onChange={e => setItemSearch(e.target.value)}
+                                        placeholder="Search items to add…"
+                                        className="w-full pl-3 pr-3 py-2 card-glass border border-border/50 rounded-lg text-xs text-foreground"
+                                      />
+                                      {filteredSearch.length > 0 && (
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-xl shadow-2xl z-20 max-h-44 overflow-y-auto">
+                                          {filteredSearch.map(pi => (
+                                            <button
+                                              key={pi.id}
+                                              onClick={() => addItemToEquipment(item, pi.id)}
+                                              className="w-full text-left px-3 py-2 text-xs hover:bg-muted/60 transition-colors flex items-center justify-between gap-2"
+                                            >
+                                              <span className="font-semibold text-foreground">{pi.itemName}</span>
+                                              <span className="text-muted-foreground text-[10px] capitalize">{pi.category || ''}</span>
+                                            </button>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {linkedItems.length === 0 && !itemSearch && (
+                                      <p className="text-[11px] text-muted-foreground/60 italic">Search above to link inventory items stored here.</p>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Vendor + cold-unit temp link */}
+                                {item.vendorName && (
+                                  <p className="text-[10px] text-muted-foreground">Service vendor: <span className="text-blue-300 font-semibold">{item.vendorName}</span></p>
+                                )}
+                                {COLD_TYPES.includes(item.equipmentType) && (
+                                  <button
+                                    onClick={() => { onClose(); navigate('/temperature-dashboard'); }}
+                                    className="w-full text-[10px] bg-cyan-500/10 text-cyan-400 px-2.5 py-1.5 rounded-lg font-bold border border-cyan-500/20 hover:bg-cyan-500/15 transition-all text-left"
+                                  >
+                                    View Temperature History →
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    );
+                  })}
 
                   {/* Add equipment to this station */}
                   {addingToStation === group.key ? (
@@ -876,10 +1036,10 @@ export default function MyRestaurant() {
           <p className="text-xs text-muted-foreground mt-0.5">Manage your restaurant profile, locations, equipment and key information.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
+          <button onClick={() => navigate('/app/overview')} className="h-8 px-3 rounded-lg border border-border card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
             Today's Plan
           </button>
-          <button className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted active:scale-95">
+          <button onClick={() => navigate('/notifications')} className="h-8 w-8 rounded-lg border border-border card-glass flex items-center justify-center hover:bg-muted active:scale-95">
             <Bell className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
@@ -894,7 +1054,7 @@ export default function MyRestaurant() {
       {/* Desktop 2-col Card Grid */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 lg:px-8 lg:py-6">
         {/* Restaurant Profile */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Restaurant Profile</p>
             <button onClick={() => setModal('profile')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
@@ -911,7 +1071,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Locations */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Locations</p>
             <button onClick={() => setModal('areas')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
@@ -921,7 +1081,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Equipment */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Equipment</p>
             <button onClick={() => setModal('equipment')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
@@ -937,7 +1097,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Food Safety */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Food Safety Systems</p>
             <button onClick={() => setModal('foodSafety')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
@@ -953,7 +1113,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Emergency Contacts */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Emergency Contacts</p>
             <button onClick={() => setModal('emergencyContacts')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
@@ -969,7 +1129,7 @@ export default function MyRestaurant() {
         </div>
 
         {/* Key Operating Info */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Key Operating Information</p>
             <button onClick={() => setModal('operatingInfo')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>

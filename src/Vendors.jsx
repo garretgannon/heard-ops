@@ -75,18 +75,18 @@ export default function Vendors() {
 
       {/* Filters */}
       <div className="lg:flex items-center gap-2 px-4 lg:px-8 py-3 border-b border-border/30 hidden">
-        <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-lg bg-card border border-border text-xs text-foreground">
+        <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
           <option value="">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{CAT_LABELS[c] || c}</option>)}
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="h-8 px-3 rounded-lg bg-card border border-border text-xs text-foreground">
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
           <option value="">All Vendors</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vendors..." className="w-full h-8 pl-8 pr-3 bg-card border border-border rounded-lg text-xs text-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vendors..." className="w-full h-8 pl-8 pr-3 card-glass border border-border rounded-lg text-xs text-foreground" />
         </div>
         <span className="text-xs text-muted-foreground ml-auto">Showing {filtered.length} vendors</span>
       </div>
@@ -104,7 +104,7 @@ export default function Vendors() {
         {loading ? (
           <div className="flex items-center justify-center h-32"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 bg-card border border-border rounded-xl">
+          <div className="text-center py-16 card-glass border border-border rounded-xl">
             <Truck className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
             <p className="text-sm font-semibold text-foreground mb-1">No vendors found</p>
             <p className="text-xs text-muted-foreground">Add your first vendor to get started</p>
@@ -116,7 +116,7 @@ export default function Vendors() {
               {filtered.map(vendor => {
                 const vendorEquip = equipment.filter(e => e.vendorId === vendor.id);
                 return (
-                  <div key={vendor.id} className="bg-card border border-border rounded-lg p-4 space-y-3 hover:border-primary/30 transition-colors">
+                  <div key={vendor.id} className="card-glass border border-border rounded-lg p-4 space-y-3 hover:border-primary/30 transition-colors">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">

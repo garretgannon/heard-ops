@@ -73,38 +73,39 @@ export default function Profile() {
     }
   };
 
+  const cardStyle = { background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' };
+
   return (
     <div className="pb-24 lg:pb-0">
       {/* Desktop Header */}
       <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
         <div>
-          <h1 className="text-xl font-extrabold text-foreground">Settings</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Manage your account, team, and system preferences.</p>
+          <p className="metric-label">Account</p>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Settings</h1>
         </div>
         <div className="flex items-center gap-2">
-          <button className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">Today's Plan</button>
-          <button className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted active:scale-95"><Bell className="h-3.5 w-3.5 text-muted-foreground" /></button>
+          <button onClick={() => navigate('/app/overview')} className="h-8 px-3 rounded-lg border border-border/50 text-xs font-bold text-foreground flex items-center gap-1.5 active:scale-95 transition-all" style={cardStyle}>Today's Plan</button>
+          <button onClick={() => navigate('/notifications')} className="h-8 w-8 rounded-lg border border-border/50 flex items-center justify-center active:scale-95 transition-all" style={cardStyle}><Bell className="h-3.5 w-3.5 text-muted-foreground" /></button>
         </div>
       </div>
 
       {/* Desktop Settings Grid */}
       <div className="hidden lg:block px-8 py-6">
-        {/* 2-col card grid */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           {SETTINGS_GROUPS.map(group => {
             const Icon = group.icon;
             return (
-              <div key={group.title} className="bg-card border border-border/60 rounded-xl p-4">
+              <div key={group.title} className="overflow-hidden rounded-2xl border border-border/40 p-4" style={cardStyle}>
                 <div className="flex items-start gap-3 mb-3">
                   <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', group.bg)}>
                     <Icon className={cn('h-5 w-5', group.color)} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-foreground">{group.title}</p>
+                    <p className="text-sm font-black text-foreground">{group.title}</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">{group.description}</p>
                   </div>
                 </div>
-                <div className="divide-y divide-border/40">
+                <div className="divide-y divide-border/30">
                   {group.items.map(item => (
                     <button key={item} onClick={() => { haptics.light(); navigate(group.link); }} className="w-full flex items-center justify-between py-2 text-xs font-semibold text-foreground hover:text-primary transition-colors active:scale-[0.98]">
                       <span>{item}</span>
@@ -117,18 +118,18 @@ export default function Profile() {
           })}
         </div>
 
-        {/* System Information — full width bottom card */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        {/* System Information */}
+        <div className="overflow-hidden rounded-2xl border border-border/40 p-4 mb-4" style={cardStyle}>
           <div className="flex items-start gap-3 mb-3">
-            <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-xl bg-white/5 border border-border/40 flex items-center justify-center shrink-0">
               <Info className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground">System Information</p>
+              <p className="text-sm font-black text-foreground">System Information</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">View system details, activity, and data management options.</p>
             </div>
           </div>
-          <div className="grid grid-cols-4 divide-x divide-border/40">
+          <div className="grid grid-cols-4 divide-x divide-border/30">
             {['Audit Logs', 'Data Export', 'System Status', 'Clear Cache'].map(item => (
               <button key={item} onClick={() => handleSystemInfoAction(item)} className="flex items-center justify-between px-4 py-2 text-xs font-semibold text-foreground hover:text-primary transition-colors active:scale-[0.98]">
                 <span>{item}</span>
@@ -139,8 +140,8 @@ export default function Profile() {
         </div>
 
         {/* Account actions */}
-        <div className="flex gap-3 mt-4">
-          <div className="flex-1 bg-card border border-border/60 rounded-xl p-3 flex items-center gap-3">
+        <div className="flex gap-3">
+          <div className="flex-1 overflow-hidden rounded-2xl border border-border/40 p-3 flex items-center gap-3" style={cardStyle}>
             <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
               <span className="text-base font-extrabold text-primary">{user?.full_name?.charAt(0) || 'U'}</span>
             </div>
@@ -158,30 +159,37 @@ export default function Profile() {
 
       {/* Mobile Layout */}
       <div className="lg:hidden">
-        <div className="sticky top-0 z-40 bg-card border-b border-border backdrop-blur-sm px-4 py-4">
+        <div
+          className="sticky top-0 z-40 px-4 py-3.5"
+          style={{
+            background: 'linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center active:scale-95 transition-all">
-              <ChevronLeft className="h-5 w-5" />
+            <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all active:scale-95" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <ChevronLeft className="h-5 w-5 text-foreground" />
             </button>
-            <h1 className="text-2xl font-bold text-foreground">Profile</h1>
+            <h1 className="text-xl font-black tracking-tight text-foreground">Profile</h1>
           </div>
         </div>
 
-        <div className="px-4 py-4 space-y-6">
-          <div className="bg-card border border-border rounded-xl p-4 space-y-2">
-            <p className="text-xs text-secondary-text font-bold uppercase">Account</p>
-            <p className="text-lg font-bold text-foreground">{user?.full_name}</p>
-            <p className="text-sm text-secondary-text">{user?.email}</p>
-            <p className="text-xs text-secondary-text mt-2">Role: <span className="font-bold text-primary">{user?.role?.toUpperCase()}</span></p>
+        <div className="px-4 py-4 space-y-4">
+          <div className="overflow-hidden rounded-2xl border border-border/40 p-4" style={cardStyle}>
+            <p className="metric-label">Account</p>
+            <p className="mt-2 text-lg font-black text-foreground">{user?.full_name}</p>
+            <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <div className="mt-2 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-black text-primary">
+              {user?.role?.toUpperCase()}
+            </div>
           </div>
 
-
-
           <div className="space-y-2">
-            <button onClick={() => setShowDeleteConfirm(true)} className="w-full h-12 rounded-xl border border-red-500/50 bg-red-500/10 text-red-400 font-bold flex items-center justify-center gap-2 active:scale-95">
+            <button onClick={() => setShowDeleteConfirm(true)} className="flex w-full h-12 items-center justify-center gap-2 rounded-2xl border border-red-500/35 bg-red-500/10 text-sm font-black text-red-400 active:scale-[0.97] transition-all">
               <Trash2 className="h-4 w-4" /> Delete Account
             </button>
-            <button onClick={handleLogout} className="w-full h-12 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 font-bold flex items-center justify-center gap-2 active:scale-95">
+            <button onClick={handleLogout} className="flex w-full h-12 items-center justify-center gap-2 rounded-2xl border border-red-500/25 bg-red-500/8 text-sm font-black text-red-400 active:scale-[0.97] transition-all">
               <LogOut className="h-4 w-4" /> Sign Out
             </button>
           </div>
@@ -189,13 +197,13 @@ export default function Profile() {
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm space-y-4">
-            <h2 className="text-xl font-bold text-foreground">Delete Account?</h2>
-            <p className="text-sm text-secondary-text">This action cannot be undone. All your data will be permanently deleted.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border/50 p-6 space-y-4" style={cardStyle}>
+            <h2 className="text-xl font-black text-foreground">Delete Account?</h2>
+            <p className="text-sm text-muted-foreground">This action cannot be undone. All your data will be permanently deleted.</p>
             <div className="flex gap-2">
-              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting} className="flex-1 h-10 rounded-lg border border-border bg-card text-foreground font-bold active:scale-95 disabled:opacity-50">Cancel</button>
-              <button onClick={handleDeleteAccount} disabled={deleting} className="flex-1 h-10 rounded-lg bg-red-500/20 text-red-400 font-bold border border-red-500/30 active:scale-95 disabled:opacity-50">
+              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting} className="flex-1 h-10 rounded-xl border border-border/50 text-sm font-black text-foreground active:scale-95 disabled:opacity-50 transition-all" style={cardStyle}>Cancel</button>
+              <button onClick={handleDeleteAccount} disabled={deleting} className="flex-1 h-10 rounded-xl border border-red-500/35 bg-red-500/15 text-sm font-black text-red-400 active:scale-95 disabled:opacity-50 transition-all">
                 {deleting ? <div className="h-4 w-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin mx-auto" /> : 'Delete'}
               </button>
             </div>

@@ -52,11 +52,11 @@ export default function CalendarView({ logs, onLogClick }) {
           ))}
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={() => nav(-1)} className="h-7 w-7 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
+          <button onClick={() => nav(-1)} className="h-7 w-7 rounded-lg border border-border card-glass flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
             <ChevronLeft className="h-3.5 w-3.5" />
           </button>
           <span className="text-xs font-bold text-foreground min-w-[120px] text-center">{headerLabel}</span>
-          <button onClick={() => nav(1)} className="h-7 w-7 rounded-lg border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
+          <button onClick={() => nav(1)} className="h-7 w-7 rounded-lg border border-border card-glass flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90">
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -108,7 +108,7 @@ export default function CalendarView({ logs, onLogClick }) {
       )}
 
       {selectedDay && (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="card-glass border border-border rounded-xl overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/30">
             <p className="text-xs font-bold text-foreground">{format(selectedDay, "EEEE, MMMM d")} · {selectedLogs.length} log{selectedLogs.length !== 1 ? "s" : ""}</p>
             <button onClick={() => setSelectedDay(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>

@@ -113,7 +113,7 @@ export default function ShiftLaunchModal({ isOpen, onComplete, onClose }) {
                   disabled={!isCompleted && !isCurrent}
                   className={cn(
                     'flex-shrink-0 h-8 px-2.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 whitespace-nowrap',
-                    isCompleted ? 'bg-primary/20 border border-primary/30 text-primary' : 'bg-card border border-border text-secondary-text',
+                    isCompleted ? 'bg-primary/20 border border-primary/30 text-primary' : 'card-glass border border-border text-secondary-text',
                     isCurrent && !isCompleted && 'ring-2 ring-primary/50 border-primary/30',
                     !isCompleted && !isCurrent && 'opacity-50 cursor-not-allowed'
                   )}

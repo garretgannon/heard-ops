@@ -20,7 +20,7 @@ export default function ShiftStartModal({ manager, onStart, isLoading }) {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-3 space-y-2">
+        <div className="card-glass border border-border rounded-lg p-3 space-y-2">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-amber-400 shrink-0" />
             <span className="text-xs font-semibold text-amber-400">Before you start:</span>

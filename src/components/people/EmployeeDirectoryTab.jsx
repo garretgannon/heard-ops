@@ -62,7 +62,7 @@ export default function EmployeeDirectoryTab() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search employees..."
-            className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground"
+            className="w-full pl-9 pr-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground"
           />
         </div>
         <button
@@ -140,7 +140,7 @@ function EmployeeRow({ emp, onEdit }) {
 
   return (
     <div
-      className="flex items-center gap-3 bg-card border border-border rounded-xl px-3 py-2.5 cursor-pointer hover:border-primary/30 transition-all"
+      className="flex items-center gap-3 card-glass border border-border rounded-xl px-3 py-2.5 cursor-pointer hover:border-primary/30 transition-all"
       onClick={onEdit}
     >
       {/* Avatar */}

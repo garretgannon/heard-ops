@@ -38,7 +38,7 @@ export default function OnboardingRoleSelection({ onBack, onSelect }) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => handleSelect(role)}
-            className="w-full rounded-2xl bg-card border border-border p-4 text-left hover:border-border/50 transition-all"
+            className="w-full rounded-2xl card-glass border border-border p-4 text-left hover:border-border/50 transition-all"
           >
             <div className="flex items-start gap-3">
               <span className="text-3xl">{role.icon}</span>

@@ -54,7 +54,7 @@ export default function ScheduleImport() {
       </div>
 
       <div className="px-4 py-4 space-y-3">
-        <div className="bg-card border border-border rounded-xl p-3 space-y-2">
+        <div className="card-glass border border-border rounded-xl p-3 space-y-2">
           <p className="text-xs font-bold text-foreground mb-2">Import Type</p>
           <button
             onClick={() => { haptics.medium?.(); setImportType('r365'); }}
@@ -74,7 +74,7 @@ export default function ScheduleImport() {
 
         <button
           onClick={() => { haptics.light?.(); navigate('/schedule'); }}
-          className="w-full bg-card border border-border text-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+          className="w-full card-glass border border-border text-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
         >
           <Calendar className="h-5 w-5" /> View Schedule
         </button>
@@ -88,7 +88,7 @@ export default function ScheduleImport() {
 
             <div className="space-y-2">
               {batches.map(batch => (
-                <div key={batch.id} className="bg-card border border-border rounded-lg p-3">
+                <div key={batch.id} className="card-glass border border-border rounded-lg p-3">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <p className="text-xs font-bold text-foreground">{batch.fileName}</p>
                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${

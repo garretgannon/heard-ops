@@ -22,7 +22,7 @@ export default function QuickActionButtons({ onActionClick }) {
               haptics.light();
               onActionClick(action.targetModal);
             }}
-            className="flex-shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-foreground text-xs font-bold whitespace-nowrap transition-all active:scale-95 hover:bg-muted hover:border-primary/30"
+            className="flex-shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border card-glass text-foreground text-xs font-bold whitespace-nowrap transition-all active:scale-95 hover:bg-muted hover:border-primary/30"
           >
             {Icon && <Icon className="h-3.5 w-3.5 text-primary flex-shrink-0" />}
             <span>{action.label}</span>

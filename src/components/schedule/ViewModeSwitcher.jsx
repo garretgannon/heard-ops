@@ -12,7 +12,7 @@ const VIEWS = [
 
 export default function ViewModeSwitcher({ viewMode, onViewChange }) {
   return (
-    <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg bg-card border border-border/30">
+    <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg card-glass border border-border/30">
       {VIEWS.map(view => {
         const Icon = view.icon;
         const isActive = viewMode === view.id;

@@ -189,7 +189,7 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
                 <p className="text-[10px] text-amber-300">⚠ {rawRows.filter(r => r.issues.length > 0).length} row(s) have validation issues</p>
               </div>
             )}
-            <div className="bg-card border border-border rounded-lg overflow-x-auto max-h-64 overflow-y-auto">
+            <div className="card-glass border border-border rounded-lg overflow-x-auto max-h-64 overflow-y-auto">
               <table className="w-full text-[10px]">
                 <tbody>
                   {rawRows.slice(0, 20).map((item, idx) => (
@@ -219,13 +219,13 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
                   <p className="text-[10px] text-green-300">✓ Detected format: {detectedFormat === 'weekly_grid' ? 'Weekly Grid' : 'Row-Based'}</p>
                 </div>
               )}
-              <button onClick={() => proceedToColumnMapping('weekly_grid')} className={`w-full px-3 py-2.5 rounded-lg text-sm text-left font-bold transition-all ${detectedFormat === 'weekly_grid' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-foreground hover:bg-muted'}`}>
+              <button onClick={() => proceedToColumnMapping('weekly_grid')} className={`w-full px-3 py-2.5 rounded-lg text-sm text-left font-bold transition-all ${detectedFormat === 'weekly_grid' ? 'bg-primary text-primary-foreground' : 'card-glass border border-border text-foreground hover:bg-muted'}`}>
                 Weekly Grid (Employees × Days)
               </button>
-              <button onClick={() => proceedToColumnMapping('row_based')} className={`w-full px-3 py-2.5 rounded-lg text-sm text-left font-bold transition-all ${detectedFormat === 'row_based' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-foreground hover:bg-muted'}`}>
+              <button onClick={() => proceedToColumnMapping('row_based')} className={`w-full px-3 py-2.5 rounded-lg text-sm text-left font-bold transition-all ${detectedFormat === 'row_based' ? 'bg-primary text-primary-foreground' : 'card-glass border border-border text-foreground hover:bg-muted'}`}>
                 Row-Based Export (One Shift Per Row)
               </button>
-              <button onClick={() => proceedToColumnMapping('unknown')} className="w-full px-3 py-2.5 rounded-lg text-sm text-left font-bold bg-card border border-border text-foreground hover:bg-muted">
+              <button onClick={() => proceedToColumnMapping('unknown')} className="w-full px-3 py-2.5 rounded-lg text-sm text-left font-bold card-glass border border-border text-foreground hover:bg-muted">
                 I'm Not Sure, Auto-Detect
               </button>
             </div>
@@ -235,7 +235,7 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
         {step === 'column_mapping' && (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">Map your schedule columns to app fields.</p>
-            <div className="bg-card border border-border rounded-lg p-3 space-y-2">
+            <div className="card-glass border border-border rounded-lg p-3 space-y-2">
               <label className="text-xs font-bold text-foreground block">Week Start Date</label>
               <input type="date" value={weekStart} onChange={e => setWeekStart(e.target.value)} className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground" />
               <label className="text-xs font-bold text-foreground block mt-2">Week Starts On</label>

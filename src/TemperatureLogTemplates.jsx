@@ -18,7 +18,7 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   const color = cat.color || 'blue';
 
   return (
-    <div className="bg-card border border-border rounded-lg p-3 space-y-2">
+    <div className="card-glass border border-border rounded-lg p-3 space-y-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {Icon && (

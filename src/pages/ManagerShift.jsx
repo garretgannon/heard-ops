@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertTriangle,
   ArrowRight,
@@ -10,45 +12,63 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Flame,
-  ListChecks,
+  Lock,
+  MapPin,
   MessageSquareText,
   RefreshCw,
   Save,
+  Shield,
   Sparkles,
+  Star,
   Store,
+  Target,
+  Trophy,
   Users,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import confetti from "canvas-confetti";
+import { haptics } from "@/utils/haptics";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const PRE_SHIFT_DUTY = "Set up and conduct pre-shift briefing";
 
-const DUTIES = [
-  "Review incoming handoff",
-  PRE_SHIFT_DUTY,
-  "Verify 86'd items and event changes",
-  "Walk all active stations",
-  "Check critical equipment and open issues",
-  "Confirm staffing and breaks",
-  "Review manager follow-ups",
-  "Prepare closing handoff",
+const DUTIES_CONFIG = [
+  { text: "Review incoming handoff",                   xp: 10, icon: MessageSquareText },
+  { text: PRE_SHIFT_DUTY,                              xp: 25, icon: Users,             requiresPreShift: true },
+  { text: "Verify 86'd items and event changes",       xp: 10, icon: Flame },
+  { text: "Walk all active stations",                  xp: 15, icon: MapPin },
+  { text: "Check critical equipment and open issues",  xp: 15, icon: AlertTriangle },
+  { text: "Confirm staffing and breaks",               xp: 10, icon: Users },
+  { text: "Review manager follow-ups",                 xp: 10, icon: ClipboardCheck },
+  { text: "Prepare closing handoff",                   xp: 15, icon: ArrowRight },
 ];
+const DUTIES = DUTIES_CONFIG.map(d => d.text);
 
-const SHIFT_LABELS = {
-  morning: "Opening",
-  afternoon: "Midday",
-  evening: "Dinner",
-  night: "Closing",
+const SHIFT_META = {
+  morning:   { label: "Opening Command",  color: "text-amber-400",  glow: "rgba(251,191,36,0.25)",   bg: "rgba(251,191,36,0.06)" },
+  afternoon: { label: "Midday Command",   color: "text-blue-400",   glow: "rgba(96,165,250,0.25)",   bg: "rgba(96,165,250,0.06)" },
+  evening:   { label: "Dinner Command",   color: "text-primary",    glow: "rgba(230,106,31,0.3)",    bg: "rgba(230,106,31,0.06)" },
+  night:     { label: "Closing Command",  color: "text-purple-400", glow: "rgba(167,139,250,0.25)",  bg: "rgba(167,139,250,0.06)" },
 };
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
+const STAGE_CONFIG = [
+  { id: "start", label: "Intel",   num: "01", icon: Shield  },
+  { id: "run",   label: "Ops",     num: "02", icon: Target  },
+  { id: "close", label: "Debrief", num: "03", icon: Trophy  },
+];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function todayKey() { return new Date().toISOString().slice(0, 10); }
 
 function currentShiftKey() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "morning";
-  if (hour < 16) return "afternoon";
-  if (hour < 23) return "evening";
+  const h = new Date().getHours();
+  if (h < 12) return "morning";
+  if (h < 16) return "afternoon";
+  if (h < 23) return "evening";
   return "night";
 }
 
@@ -64,86 +84,336 @@ function safeEntityCall(call) {
   return call?.catch?.(() => []) || Promise.resolve([]);
 }
 
-function BriefingCard({ icon: Icon, label, count, tone = "text-primary", children }) {
-  return (
-    <section className="bg-card border border-border rounded-xl p-3 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon className={`h-4 w-4 ${tone}`} />
-          <h2 className="text-sm font-bold text-foreground">{label}</h2>
-        </div>
-        <span className="text-xs font-bold text-muted-foreground">{count}</span>
-      </div>
-      {children}
-    </section>
+// ─── XP Float ─────────────────────────────────────────────────────────────────
+
+function XpFloat({ amount, onDone }) {
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 1, y: 0, scale: 1 }}
+      animate={{ opacity: 0, y: -80, scale: 1.25 }}
+      transition={{ duration: 0.9, ease: "easeOut" }}
+      onAnimationComplete={onDone}
+      className="pointer-events-none fixed bottom-40 left-1/2 z-[2000] -translate-x-1/2 text-2xl font-black text-primary"
+      style={{ textShadow: "0 0 16px rgba(230,106,31,0.9)" }}
+    >
+      +{amount} XP
+    </motion.div>,
+    document.body
   );
 }
 
-function EmptyLine({ text }) {
-  return <p className="text-xs text-muted-foreground py-1">{text}</p>;
-}
+// ─── Stage pipeline ───────────────────────────────────────────────────────────
 
-function MiniItem({ title, meta, tone = "border-border" }) {
+function StagePipeline({ active, acknowledged }) {
+  const activeIdx = STAGE_CONFIG.findIndex(s => s.id === active);
+
   return (
-    <div className={`rounded-lg border ${tone} bg-background/40 px-3 py-2`}>
-      <p className="text-sm font-semibold text-foreground truncate">{title}</p>
-      {meta && <p className="text-xs text-muted-foreground mt-0.5 truncate">{meta}</p>}
+    <div className="flex items-center gap-0">
+      {STAGE_CONFIG.map((stage, i) => {
+        const Icon = stage.icon;
+        const isActive = stage.id === active;
+        const isDone = i < activeIdx;
+
+        return (
+          <div key={stage.id} className="flex items-center">
+            <div className={cn(
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-black transition-all duration-300",
+              isActive
+                ? "border border-primary/50 bg-primary/15 text-primary"
+                : isDone
+                  ? "border border-green-500/30 bg-green-500/8 text-green-400"
+                  : "border border-border/40 bg-transparent text-muted-foreground/50"
+            )}
+              style={isActive ? { boxShadow: "0 0 12px rgba(230,106,31,0.2)" } : undefined}
+            >
+              {isDone
+                ? <Check className="h-3 w-3" />
+                : <Icon className="h-3 w-3" />
+              }
+              <span className="hidden sm:inline">{stage.label}</span>
+              <span className="sm:hidden">{stage.num}</span>
+            </div>
+            {i < STAGE_CONFIG.length - 1 && (
+              <div className={cn(
+                "mx-1 h-px w-4 transition-colors",
+                i < activeIdx ? "bg-green-500/40" : "bg-border/30"
+              )} />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
+// ─── Intel card ───────────────────────────────────────────────────────────────
+
+function IntelCard({ icon: Icon, label, count, severity = "neutral", children }) {
+  const [open, setOpen] = useState(true);
+  const borderLeft = severity === "critical" ? "border-l-red-500/70" : severity === "warning" ? "border-l-amber-500/60" : "border-l-primary/40";
+  const iconColor  = severity === "critical" ? "text-red-400" : severity === "warning" ? "text-amber-400" : "text-primary";
+  const countColor = severity === "critical" && count > 0 ? "text-red-400" : severity === "warning" && count > 0 ? "text-amber-400" : "text-muted-foreground";
+
+  return (
+    <div
+      className={cn("overflow-hidden rounded-xl border border-border/40 border-l-2", borderLeft)}
+      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.97) 0%, rgba(6,9,13,0.97) 100%)" }}
+    >
+      <button
+        type="button"
+        onClick={() => { haptics.light(); setOpen(o => !o); }}
+        className="flex w-full items-center justify-between px-4 py-3 text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <Icon className={cn("h-4 w-4 shrink-0", iconColor)} />
+          <span className="text-sm font-black text-foreground">{label}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={cn("text-sm font-black tabular-nums", countColor)}>{count}</span>
+          <motion.div animate={{ rotate: open ? 0 : -90 }} transition={{ duration: 0.18 }}>
+            <ArrowRight className="h-3.5 w-3.5 rotate-90 text-muted-foreground" />
+          </motion.div>
+        </div>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-1.5 border-t border-border/30 px-4 pb-3 pt-2.5">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function IntelRow({ title, meta, severity = "neutral" }) {
+  const tone = severity === "critical" ? "border-red-500/20 bg-red-500/5" : severity === "warning" ? "border-amber-500/20 bg-amber-500/5" : "border-border/30 bg-black/20";
+  return (
+    <div className={cn("rounded-lg border px-3 py-2", tone)}>
+      <p className="truncate text-sm font-semibold text-foreground">{title}</p>
+      {meta && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{meta}</p>}
+    </div>
+  );
+}
+
+function EmptyIntel({ text }) {
+  return <p className="py-1 text-xs text-muted-foreground">{text}</p>;
+}
+
+// ─── Duty card ────────────────────────────────────────────────────────────────
+
+function DutyCard({ config, checked, locked, onToggle, xpFloat, onXpDone }) {
+  const Icon = config.icon;
+  return (
+    <div className="relative">
+      <motion.button
+        type="button"
+        onClick={onToggle}
+        disabled={locked}
+        layout
+        animate={{
+          borderColor: checked ? "rgba(34,197,94,0.4)" : locked ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.1)",
+          backgroundColor: checked ? "rgba(34,197,94,0.06)" : "transparent",
+        }}
+        transition={{ duration: 0.25 }}
+        className="flex w-full items-center gap-3 overflow-hidden rounded-xl border border-border/25 px-4 py-3 text-left"
+        style={{ background: checked ? "rgba(34,197,94,0.06)" : "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
+      >
+        {/* Status icon */}
+        <motion.div
+          animate={{
+            backgroundColor: checked ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.04)",
+            borderColor: checked ? "rgba(34,197,94,0.5)" : locked ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.15)",
+          }}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+        >
+          <AnimatePresence mode="wait">
+            {checked
+              ? <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400 }}>
+                  <Check className="h-4 w-4 text-green-400" />
+                </motion.div>
+              : locked
+                ? <motion.div key="lock"><Lock className="h-3.5 w-3.5 text-muted-foreground/40" /></motion.div>
+                : <motion.div key="icon"><Icon className="h-3.5 w-3.5 text-muted-foreground" /></motion.div>
+            }
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Text */}
+        <div className="flex-1 min-w-0">
+          <p className={cn(
+            "text-sm font-bold leading-snug transition-all",
+            checked ? "text-muted-foreground line-through" : locked ? "text-muted-foreground/50" : "text-foreground"
+          )}>
+            {config.text}
+          </p>
+          {locked && <p className="mt-0.5 text-[10px] text-amber-400/70">Complete pre-shift briefing first</p>}
+        </div>
+
+        {/* XP badge */}
+        <div className={cn(
+          "flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-black transition-all",
+          checked
+            ? "border-green-500/30 bg-green-500/10 text-green-400"
+            : locked
+              ? "border-border/20 text-muted-foreground/30"
+              : "border-primary/25 bg-primary/8 text-primary"
+        )}>
+          <Zap className="h-2.5 w-2.5" />
+          {config.xp}
+        </div>
+      </motion.button>
+
+      {/* XP float */}
+      <AnimatePresence>
+        {xpFloat && (
+          <XpFloat key={xpFloat} amount={config.xp} onDone={onXpDone} />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Shift complete overlay ───────────────────────────────────────────────────
+
+function ShiftComplete({ shiftXp, checkedDuties, shift, onDismiss }) {
+  const meta = SHIFT_META[shift] || SHIFT_META.evening;
+  const pct = Math.round((checkedDuties.length / DUTIES.length) * 100);
+  const grade = pct === 100 ? "S" : pct >= 80 ? "A" : pct >= 60 ? "B" : pct >= 40 ? "C" : "D";
+  const gradeColor = grade === "S" ? "text-yellow-400" : grade === "A" ? "text-green-400" : grade === "B" ? "text-primary" : "text-amber-400";
+
+  useEffect(() => {
+    confetti({ particleCount: 80, spread: 65, origin: { y: 0.55 }, colors: ["#E66A1F", "#FB923C", "#FCD34D"] });
+    setTimeout(() => {
+      confetti({ particleCount: 40, angle: 60,  spread: 50, origin: { x: 0 }, colors: ["#22c55e", "#FCD34D"] });
+      confetti({ particleCount: 40, angle: 120, spread: 50, origin: { x: 1 }, colors: ["#22c55e", "#FCD34D"] });
+    }, 400);
+  }, []);
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[2000] flex items-center justify-center px-5"
+      style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(16px)" }}
+    >
+      <motion.div
+        initial={{ scale: 0.85, y: 30 }}
+        animate={{ scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22, delay: 0.1 }}
+        className="w-full max-w-sm space-y-5 text-center"
+      >
+        {/* Trophy */}
+        <div className="relative mx-auto h-24 w-24">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 rounded-full border border-primary/30 border-t-primary"
+            style={{ boxShadow: "0 0 24px rgba(230,106,31,0.25)" }}
+          />
+          <div className="absolute inset-2 flex items-center justify-center rounded-full border border-border/40 bg-black/60">
+            <Trophy className="h-10 w-10 text-primary" style={{ filter: "drop-shadow(0 0 8px rgba(230,106,31,0.7))" }} />
+          </div>
+        </div>
+
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">Shift Complete</p>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground">{meta.label}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Handoff saved. Next manager is briefed.</p>
+        </div>
+
+        {/* Stats */}
+        <div
+          className="overflow-hidden rounded-2xl border border-border/40"
+          style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+        >
+          <div
+            className="border-b border-border/30 py-4"
+            style={{ background: "linear-gradient(135deg, rgba(230,106,31,0.1) 0%, rgba(230,106,31,0.03) 100%)" }}
+          >
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/70">XP Earned</p>
+            <p className="mt-0.5 text-4xl font-black text-foreground" style={{ textShadow: "0 0 24px rgba(230,106,31,0.5)" }}>
+              {shiftXp}
+            </p>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-border/30">
+            <div className="flex flex-col items-center justify-center gap-0.5 py-3">
+              <p className={cn("text-3xl font-black", gradeColor)}>{grade}</p>
+              <p className="text-[9px] font-bold uppercase text-muted-foreground">Grade</p>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-0.5 py-3">
+              <p className="text-2xl font-black text-foreground">{checkedDuties.length}/{DUTIES.length}</p>
+              <p className="text-[9px] font-bold uppercase text-muted-foreground">Duties</p>
+            </div>
+            <div className="flex flex-col items-center justify-center gap-0.5 py-3">
+              <p className="text-2xl font-black text-green-400">{pct}%</p>
+              <p className="text-[9px] font-bold uppercase text-muted-foreground">Complete</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={onDismiss}
+          className="w-full rounded-2xl py-3.5 text-sm font-black text-white active:scale-[0.97]"
+          style={{
+            background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+            boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
+          }}
+        >
+          New Shift
+        </button>
+      </motion.div>
+    </motion.div>,
+    document.body
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export default function ManagerShift() {
   const navigate = useNavigate();
   const { user } = useCurrentUser();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]       = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeStage, setActiveStage] = useState("start");
   const [briefing, setBriefing] = useState({
-    handoffs: [],
-    managerLogs: [],
-    eightySix: [],
-    waste: [],
-    events: [],
-    issues: [],
-    tasks: [],
-    staff: [],
+    handoffs: [], managerLogs: [], eightySix: [],
+    waste: [], events: [], issues: [], tasks: [], staff: [],
   });
   const [preShiftSaved, setPreShiftSaved] = useState(false);
-  const [preShiftId, setPreShiftId] = useState(null);
-  const [preShiftForm, setPreShiftForm] = useState({
-    roles: "",
-    specialCleaning: "",
-    reservations: "",
-    outOfStock: "",
-    specials: "",
-    notes: "",
+  const [preShiftId, setPreShiftId]       = useState(null);
+  const [preShiftForm, setPreShiftForm]   = useState({
+    roles: "", specialCleaning: "", reservations: "", outOfStock: "", specials: "", notes: "",
   });
-  const [acknowledged, setAcknowledged] = useState(false);
+  const [acknowledged, setAcknowledged]   = useState(false);
   const [checkedDuties, setCheckedDuties] = useState([]);
-  const [handoffNotes, setHandoffNotes] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [handoffNotes, setHandoffNotes]   = useState("");
+  const [submitting, setSubmitting]       = useState(false);
+  const [shiftComplete, setShiftComplete] = useState(false);
 
-  const date = todayKey();
+  // Gamification
+  const [shiftXp, setShiftXp]         = useState(0);
+  const [xpFloats, setXpFloats]       = useState([]);
+
+  const date  = todayKey();
   const shift = currentShiftKey();
   const preShiftEntityShift = shift === "night" ? "evening" : shift;
   const ackKey = `heard-manager-shift-ack:${date}:${shift}:${user?.email || "manager"}`;
+  const meta = SHIFT_META[shift] || SHIFT_META.evening;
 
   const load = async ({ quiet = false } = {}) => {
-    if (quiet) setRefreshing(true);
-    else setLoading(true);
-
+    if (quiet) setRefreshing(true); else setLoading(true);
     try {
-      const [
-        handoffs,
-        managerLogs,
-        eightySix,
-        waste,
-        events,
-        issues,
-        tasks,
-        staff,
-        preShifts,
-      ] = await Promise.all([
+      const [handoffs, managerLogs, eightySix, waste, events, issues, tasks, staff, preShifts] = await Promise.all([
         safeEntityCall(base44.entities.ShiftHandoff?.list?.("-created_date", 8)),
         safeEntityCall(base44.entities.ManagerLog?.list?.("-created_date", 12)),
         safeEntityCall(base44.entities.EightySixItem?.filter?.({ is_active: true })),
@@ -155,33 +425,27 @@ export default function ManagerShift() {
         safeEntityCall(base44.entities.PreShift?.filter?.({ date, shift: preShiftEntityShift })),
       ]);
 
-      const upcomingEvents = events.filter(event => !event.eventDate || event.eventDate >= date).slice(0, 4);
+      const upcomingEvents = events.filter(e => !e.eventDate || e.eventDate >= date).slice(0, 4);
       const activeEightySix = eightySix.slice(0, 4);
       const currentPreShift = preShifts?.[0];
 
       setBriefing({
         handoffs: handoffs.slice(0, 3),
-        managerLogs: managerLogs.filter(log => log.status !== "resolved").slice(0, 4),
+        managerLogs: managerLogs.filter(l => l.status !== "resolved").slice(0, 4),
         eightySix: activeEightySix,
         waste: waste.slice(0, 4),
         events: upcomingEvents,
         issues: issues.slice(0, 4),
-        tasks: tasks.filter(task => !["complete", "approved"].includes(task.status)).slice(0, 6),
+        tasks: tasks.filter(t => !["complete", "approved"].includes(t.status)).slice(0, 6),
         staff: staff.slice(0, 60),
       });
       setPreShiftSaved(Boolean(currentPreShift));
       setPreShiftId(currentPreShift?.id || null);
       setPreShiftForm({
-        roles: currentPreShift?.staffing_notes || staff
-          .map(person => [person.employee_name, person.role, person.station].filter(Boolean).join(" - "))
-          .join("\n"),
+        roles: currentPreShift?.staffing_notes || staff.map(p => [p.employee_name, p.role, p.station].filter(Boolean).join(" - ")).join("\n"),
         specialCleaning: currentPreShift?.issues || "",
-        reservations: currentPreShift?.reservations || upcomingEvents
-          .map(event => [event.eventName, event.startTime, event.room, event.guestCount ? `${event.guestCount} guests` : ""].filter(Boolean).join(" - "))
-          .join("\n"),
-        outOfStock: currentPreShift?.items_86d || activeEightySix
-          .map(item => [item.item_name, item.category].filter(Boolean).join(" - "))
-          .join("\n"),
+        reservations: currentPreShift?.reservations || upcomingEvents.map(e => [e.eventName, e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ""].filter(Boolean).join(" - ")).join("\n"),
+        outOfStock: currentPreShift?.items_86d || activeEightySix.map(i => [i.item_name, i.category].filter(Boolean).join(" - ")).join("\n"),
         specials: currentPreShift?.specials || "",
         notes: currentPreShift?.notes || "",
       });
@@ -195,9 +459,7 @@ export default function ManagerShift() {
     }
   };
 
-  useEffect(() => {
-    load();
-  }, [ackKey]);
+  useEffect(() => { load(); }, [ackKey]);
 
   const totals = useMemo(() => {
     const critical = briefing.issues.length + briefing.eightySix.length;
@@ -205,30 +467,45 @@ export default function ManagerShift() {
     return { critical, followUps };
   }, [briefing]);
 
-  const toggleDuty = (duty) => {
-    if (duty === PRE_SHIFT_DUTY && !preShiftSaved) {
-      toast.error("Set up the pre-shift briefing first");
+  const addXp = (amount) => {
+    setShiftXp(prev => prev + amount);
+    const id = Date.now() + Math.random();
+    setXpFloats(prev => [...prev, id]);
+    setTimeout(() => setXpFloats(prev => prev.filter(x => x !== id)), 1200);
+  };
+
+  const toggleDuty = (config) => {
+    const { text: duty, xp, requiresPreShift } = config;
+    if (requiresPreShift && !preShiftSaved) {
+      haptics.warning();
+      toast.error("Save the pre-shift briefing first");
       return;
     }
-
-    setCheckedDuties(prev => (
-      prev.includes(duty) ? prev.filter(item => item !== duty) : [...prev, duty]
-    ));
+    const wasChecked = checkedDuties.includes(duty);
+    if (!wasChecked) {
+      const newChecked = [...checkedDuties, duty];
+      haptics.light();
+      setCheckedDuties(newChecked);
+      addXp(xp);
+      if (newChecked.length === DUTIES.length) {
+        setTimeout(() => haptics.success(), 300);
+      }
+    } else {
+      setCheckedDuties(prev => prev.filter(d => d !== duty));
+    }
   };
 
   const updatePreShiftField = (field, value) => {
     setPreShiftSaved(false);
-    setCheckedDuties(prev => prev.filter(item => item !== PRE_SHIFT_DUTY));
+    setCheckedDuties(prev => prev.filter(d => d !== PRE_SHIFT_DUTY));
     setPreShiftForm(prev => ({ ...prev, [field]: value }));
   };
 
   const savePreShift = async () => {
-    const hasRequiredPlan = preShiftForm.roles.trim() && preShiftForm.notes.trim();
-    if (!hasRequiredPlan) {
+    if (!preShiftForm.roles.trim() || !preShiftForm.notes.trim()) {
       toast.error("Add staff roles and briefing notes");
       return;
     }
-
     const talkingPoints = [
       preShiftForm.reservations && `Reservations/BEO:\n${preShiftForm.reservations}`,
       preShiftForm.outOfStock && `Out of stock / 86:\n${preShiftForm.outOfStock}`,
@@ -238,8 +515,7 @@ export default function ManagerShift() {
     ].filter(Boolean).join("\n\n");
 
     const payload = {
-      date,
-      shift: preShiftEntityShift,
+      date, shift: preShiftEntityShift,
       staffing_notes: preShiftForm.roles,
       specials: preShiftForm.specials,
       issues: preShiftForm.specialCleaning,
@@ -252,423 +528,536 @@ export default function ManagerShift() {
 
     if (saved?.id) setPreShiftId(saved.id);
     setPreShiftSaved(true);
+    addXp(15);
     setCheckedDuties(prev => prev.includes(PRE_SHIFT_DUTY) ? prev : [...prev, PRE_SHIFT_DUTY]);
+    haptics.success();
     toast.success("Pre-shift briefing saved");
   };
 
   const acknowledgeBriefing = async () => {
+    haptics.medium();
     localStorage.setItem(ackKey, "true");
     setAcknowledged(true);
-
+    addXp(20);
     await base44.entities.ManagerLog?.create?.({
-      title: `${SHIFT_LABELS[shift]} briefing reviewed`,
-      category: "shift_note",
-      shift,
+      title: `${meta.label} briefing reviewed`,
+      category: "shift_note", shift,
       notes: "Incoming handoff and shift briefing acknowledged.",
       priority: totals.critical > 0 ? "high" : "medium",
       status: "resolved",
       logged_by: user?.email,
       logged_by_name: user?.full_name,
     }).catch(() => null);
-
     toast.success("Briefing acknowledged");
     setActiveStage("run");
   };
 
   const completeHandoff = async () => {
     if (!preShiftSaved) {
+      haptics.warning();
       toast.error("Complete the pre-shift briefing before closing the shift");
       setActiveStage("run");
       return;
     }
-
     if (!handoffNotes.trim()) {
+      haptics.warning();
       toast.error("Add handoff notes for the next manager");
       return;
     }
-
+    haptics.medium();
     setSubmitting(true);
     try {
       await base44.entities.ShiftHandoff?.create?.({
-        date,
-        shift,
+        date, shift,
         logged_by: user?.email || user?.full_name || "Manager",
         department: "All",
         urgency: totals.critical > 0 ? "high" : "medium",
         notes_for_next_manager: handoffNotes,
-        items_86d: briefing.eightySix.map(item => item.item_name).join(", "),
-        maintenance_problems: briefing.issues.map(issue => issue.title).join("; "),
-        reservations_to_watch: briefing.events.map(event => event.eventName).join("; "),
+        items_86d: briefing.eightySix.map(i => i.item_name).join(", "),
+        maintenance_problems: briefing.issues.map(i => i.title).join("; "),
+        reservations_to_watch: briefing.events.map(e => e.eventName).join("; "),
         tags: ["FOH", "BOH", "Prep"],
       });
-      toast.success("Shift handoff saved");
-      setHandoffNotes("");
-      setActiveStage("start");
-      load({ quiet: true });
-    } catch (error) {
+      addXp(50);
+      haptics.strong();
+      setShiftComplete(true);
+    } catch {
       toast.error("Could not save handoff");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleDismissComplete = () => {
+    setShiftComplete(false);
+    setHandoffNotes("");
+    setActiveStage("start");
+    setShiftXp(0);
+    setCheckedDuties([]);
+    load({ quiet: true });
+  };
+
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary" />
+      <div className="flex h-64 flex-col items-center justify-center gap-3">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+          className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
+          style={{ boxShadow: "0 0 20px rgba(230,106,31,0.35)" }}
+        />
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading shift data…</p>
       </div>
     );
   }
 
+  const dutiesPct = Math.round((checkedDuties.length / DUTIES.length) * 100);
+
   return (
     <div className="min-h-screen pb-36 lg:pb-12">
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 pt-4 pb-3">
+
+      {/* Sticky HUD header */}
+      <div
+        className="sticky top-0 z-30 px-4 pt-4 pb-3"
+        style={{
+          background: "linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "0 1px 16px rgba(0,0,0,0.5)",
+        }}
+      >
+        {/* Title row */}
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-primary">Manager Shift</p>
-            <h1 className="text-xl font-extrabold text-foreground">{SHIFT_LABELS[shift]} command</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Briefing, duties, and closing handoff</p>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", meta.color)}>
+              Manager Shift
+            </p>
+            <h1 className="mt-0.5 text-xl font-black tracking-tight text-foreground">{meta.label}</h1>
           </div>
           <button
             type="button"
             onClick={() => load({ quiet: true })}
-            className="h-10 w-10 rounded-lg border border-border bg-card flex items-center justify-center"
-            aria-label="Refresh shift"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all"
+            style={{ background: "rgba(255,255,255,0.04)" }}
+            aria-label="Refresh"
           >
-            <RefreshCw className={`h-4 w-4 text-muted-foreground ${refreshing ? "animate-spin" : ""}`} />
+            <RefreshCw className={cn("h-4 w-4 text-muted-foreground", refreshing && "animate-spin")} />
           </button>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg bg-muted/30 p-1">
-          {[
-            ["start", "Start"],
-            ["run", "Duties"],
-            ["close", "Close"],
-          ].map(([id, label]) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveStage(id)}
-              className={`h-9 rounded-md text-xs font-bold transition ${
-                activeStage === id ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="px-4 pt-4 space-y-4 max-w-3xl mx-auto">
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-card border border-border rounded-xl p-3">
-            <AlertTriangle className="h-4 w-4 text-red-400" />
-            <p className="text-2xl font-extrabold text-foreground mt-1">{totals.critical}</p>
-            <p className="text-xs text-muted-foreground">critical items</p>
+        {/* Stats row */}
+        <div className="mt-2.5 flex items-center gap-3">
+          <div className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-black",
+            totals.critical > 0 ? "border-red-500/30 bg-red-500/10 text-red-400" : "border-border/30 text-muted-foreground/60"
+          )}>
+            <AlertTriangle className="h-3 w-3" />
+            {totals.critical} critical
           </div>
-          <div className="bg-card border border-border rounded-xl p-3">
-            <ListChecks className="h-4 w-4 text-primary" />
-            <p className="text-2xl font-extrabold text-foreground mt-1">{checkedDuties.length}/{DUTIES.length}</p>
-            <p className="text-xs text-muted-foreground">duties complete</p>
+          <div className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-black",
+            dutiesPct === 100 ? "border-green-500/30 bg-green-500/8 text-green-400" : "border-border/30 text-muted-foreground/60"
+          )}>
+            <ClipboardCheck className="h-3 w-3" />
+            {checkedDuties.length}/{DUTIES.length} duties
+          </div>
+          <div className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-black",
+            shiftXp > 0 ? "border-primary/30 bg-primary/8 text-primary" : "border-border/30 text-muted-foreground/60"
+          )}>
+            <Zap className="h-3 w-3" />
+            {shiftXp} XP
           </div>
         </div>
 
-        {activeStage === "start" && (
-          <>
-            <div className={`rounded-xl border p-3 flex items-start gap-3 ${
-              acknowledged ? "border-green-500/25 bg-green-500/10" : "border-primary/25 bg-primary/10"
-            }`}>
-              {acknowledged ? (
-                <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0 mt-0.5" />
-              ) : (
-                <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              )}
-              <div className="flex-1">
-                <p className="text-sm font-bold text-foreground">
-                  {acknowledged ? "Briefing reviewed" : "Review before starting duties"}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Confirming this creates a manager note and moves you into duties.
-                </p>
-              </div>
-            </div>
+        {/* Duty progress bar */}
+        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-black/40">
+          <motion.div
+            className="h-full rounded-full"
+            animate={{ width: `${dutiesPct}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            style={{
+              background: dutiesPct === 100
+                ? "linear-gradient(90deg, #22c55e, #4ade80)"
+                : "linear-gradient(90deg, hsl(22,76%,38%), hsl(22,76%,55%))",
+              boxShadow: dutiesPct === 100 ? "0 0 8px rgba(34,197,94,0.5)" : "0 0 6px rgba(230,106,31,0.4)",
+            }}
+          />
+        </div>
 
-            <BriefingCard icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length}>
-              {briefing.handoffs.length === 0 ? (
-                <EmptyLine text="No recent handoff found." />
-              ) : briefing.handoffs.map(item => (
-                <MiniItem
-                  key={item.id}
-                  title={item.notes_for_next_manager || item.notes || "Handoff note"}
-                  meta={[item.department, item.urgency].filter(Boolean).join(" - ")}
-                />
-              ))}
-            </BriefingCard>
-
-            <BriefingCard icon={Flame} label="86'd Items" count={briefing.eightySix.length} tone="text-red-400">
-              {briefing.eightySix.length === 0 ? (
-                <EmptyLine text="No active 86'd items." />
-              ) : briefing.eightySix.map(item => (
-                <MiniItem key={item.id} title={item.item_name} meta={item.category || item.notes} tone="border-red-500/20" />
-              ))}
-            </BriefingCard>
-
-            <BriefingCard icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} tone="text-red-400">
-              {briefing.issues.length === 0 ? (
-                <EmptyLine text="No open issues." />
-              ) : briefing.issues.map(item => (
-                <MiniItem key={item.id} title={item.title} meta={item.category || item.priority} tone="border-red-500/20" />
-              ))}
-            </BriefingCard>
-
-            <BriefingCard icon={CalendarClock} label="BEOs / Events" count={briefing.events.length}>
-              {briefing.events.length === 0 ? (
-                <EmptyLine text="No upcoming event changes." />
-              ) : briefing.events.map(item => (
-                <MiniItem key={item.id} title={item.eventName} meta={[item.eventDate, item.startTime, item.room].filter(Boolean).join(" - ")} />
-              ))}
-            </BriefingCard>
-
-            <BriefingCard icon={Store} label="Manager Logs and Waste" count={briefing.managerLogs.length + briefing.waste.length}>
-              {[...briefing.managerLogs, ...briefing.waste].length === 0 ? (
-                <EmptyLine text="No manager notes or recent waste." />
-              ) : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => (
-                <MiniItem
-                  key={`${item.id}-${recentDate(item)}`}
-                  title={titleFor(item, "Shift note")}
-                  meta={item.category || item.reason || recentDate(item)}
-                />
-              ))}
-            </BriefingCard>
-
-            <button
-              type="button"
-              onClick={acknowledgeBriefing}
-              disabled={acknowledged}
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-extrabold flex items-center justify-center gap-2 disabled:opacity-60"
-            >
-              <Check className="h-5 w-5" />
-              {acknowledged ? "Briefing Acknowledged" : "I Reviewed The Briefing"}
-            </button>
-          </>
-        )}
-
-        {activeStage === "run" && (
-          <>
-            <section className={`bg-card border rounded-xl p-3 space-y-3 ${
-              preShiftSaved ? "border-green-500/25" : "border-primary/30"
-            }`}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-                    <Users className="h-4 w-4 text-primary" />
-                    Pre-Shift Briefing
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Required before duties are complete. Use this to address FOH and keep face-to-face interaction built into the shift.
-                  </p>
-                </div>
-                <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
-                  preShiftSaved
-                    ? "bg-green-500/10 text-green-400 border-green-500/25"
-                    : "bg-primary/10 text-primary border-primary/25"
-                }`}>
-                  {preShiftSaved ? "Ready" : "Required"}
-                </span>
-              </div>
-
-              <div className="rounded-lg border border-border bg-background/40 p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Scheduled Team</p>
-                  <span className="text-xs font-bold text-foreground">{briefing.staff.length}</span>
-                </div>
-                {briefing.staff.length === 0 ? (
-                  <EmptyLine text="No scheduled staff found for today." />
-                ) : (
-                  <div className="grid grid-cols-1 gap-1.5">
-                    {briefing.staff.slice(0, 8).map(person => (
-                      <div key={person.id || `${person.employee_name}-${person.start_time}`} className="flex items-center justify-between gap-2 text-xs">
-                        <span className="font-semibold text-foreground truncate">{person.employee_name}</span>
-                        <span className="text-muted-foreground shrink-0">
-                          {[person.role, person.station, person.start_time].filter(Boolean).join(" - ")}
-                        </span>
-                      </div>
-                    ))}
-                    {briefing.staff.length > 8 && (
-                      <p className="text-xs text-muted-foreground">+{briefing.staff.length - 8} more scheduled</p>
-                    )}
-                  </div>
+        {/* Stage pipeline */}
+        <div className="mt-3 flex items-center justify-between">
+          <StagePipeline active={activeStage} acknowledged={acknowledged} />
+          <div className="flex gap-1">
+            {STAGE_CONFIG.map(stage => (
+              <button
+                key={stage.id}
+                type="button"
+                onClick={() => { haptics.light(); setActiveStage(stage.id); }}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                  activeStage === stage.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
-              </div>
-
-              <label className="block space-y-1.5">
-                <span className="text-xs font-bold text-foreground">Roles / Assignments</span>
-                <textarea
-                  value={preShiftForm.roles}
-                  onChange={event => updatePreShiftField("roles", event.target.value)}
-                  rows={4}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  placeholder="Who is working, role changes, sections, stations, breaks..."
-                />
-              </label>
-
-              <label className="block space-y-1.5">
-                <span className="text-xs font-bold text-foreground">Reservations / BEO</span>
-                <textarea
-                  value={preShiftForm.reservations}
-                  onChange={event => updatePreShiftField("reservations", event.target.value)}
-                  rows={3}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  placeholder="Large parties, VIPs, private events, service timing..."
-                />
-              </label>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="block space-y-1.5">
-                  <span className="text-xs font-bold text-foreground">Out of Stock / 86</span>
-                  <textarea
-                    value={preShiftForm.outOfStock}
-                    onChange={event => updatePreShiftField("outOfStock", event.target.value)}
-                    rows={3}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                    placeholder="86'd items, low stock, substitutions..."
-                  />
-                </label>
-
-                <label className="block space-y-1.5">
-                  <span className="text-xs font-bold text-foreground">Specials</span>
-                  <textarea
-                    value={preShiftForm.specials}
-                    onChange={event => updatePreShiftField("specials", event.target.value)}
-                    rows={3}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                    placeholder="Food, drinks, promos, talking points..."
-                  />
-                </label>
-              </div>
-
-              <label className="block space-y-1.5">
-                <span className="text-xs font-bold text-foreground">Special Cleaning / Focus</span>
-                <textarea
-                  value={preShiftForm.specialCleaning}
-                  onChange={event => updatePreShiftField("specialCleaning", event.target.value)}
-                  rows={2}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  placeholder="Cleaning priorities, reset items, inspection focus..."
-                />
-              </label>
-
-              <label className="block space-y-1.5">
-                <span className="text-xs font-bold text-foreground">Briefing Notes</span>
-                <textarea
-                  value={preShiftForm.notes}
-                  onChange={event => updatePreShiftField("notes", event.target.value)}
-                  rows={4}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  placeholder="What you will say to the team before service..."
-                />
-              </label>
-
-              <button
-                type="button"
-                onClick={savePreShift}
-                className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-extrabold flex items-center justify-center gap-2"
               >
-                <Save className="h-4 w-4" />
-                Save Pre-Shift Briefing
+                {stage.label}
               </button>
-            </section>
-
-            <section className="bg-card border border-border rounded-xl p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <ClipboardCheck className="h-4 w-4 text-primary" />
-                  Manager Duties
-                </h2>
-                <span className="text-xs font-bold text-muted-foreground">{checkedDuties.length}/{DUTIES.length}</span>
-              </div>
-
-              {DUTIES.map(duty => {
-                const checked = checkedDuties.includes(duty);
-                return (
-                  <button
-                    key={duty}
-                    type="button"
-                    onClick={() => toggleDuty(duty)}
-                    className="w-full min-h-11 rounded-lg border border-border bg-background/40 px-3 py-2 flex items-center gap-3 text-left"
-                  >
-                    <span className={`h-5 w-5 rounded-md border flex items-center justify-center shrink-0 ${
-                      checked ? "bg-primary border-primary text-primary-foreground" : "border-border"
-                    }`}>
-                      {checked && <Check className="h-3.5 w-3.5" />}
-                    </span>
-                    <span className={`text-sm font-semibold ${checked ? "text-muted-foreground line-through" : "text-foreground"}`}>
-                      {duty}
-                    </span>
-                  </button>
-                );
-              })}
-            </section>
-
-            <section className="grid grid-cols-1 gap-2">
-              <button
-                type="button"
-                onClick={() => navigate("/operational-map")}
-                className="bg-card border border-border rounded-xl p-3 flex items-center justify-between text-left"
-              >
-                <span>
-                  <span className="block text-sm font-bold text-foreground">Open Stations</span>
-                  <span className="block text-xs text-muted-foreground mt-0.5">Readiness, assignments, issues</span>
-                </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate("/approvals")}
-                className="bg-card border border-border rounded-xl p-3 flex items-center justify-between text-left"
-              >
-                <span>
-                  <span className="block text-sm font-bold text-foreground">Review Approvals</span>
-                  <span className="block text-xs text-muted-foreground mt-0.5">Completed work needing manager review</span>
-                </span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </section>
-          </>
-        )}
-
-        {activeStage === "close" && (
-          <section className="bg-card border border-border rounded-xl p-3 space-y-3">
-            <div>
-              <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Users className="h-4 w-4 text-primary" />
-                Handoff To Next Manager
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1">
-                Summarize unresolved items, staffing notes, guest issues, and what to watch next shift.
-              </p>
-            </div>
-
-            <textarea
-              value={handoffNotes}
-              onChange={event => setHandoffNotes(event.target.value)}
-              rows={7}
-              className="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm text-foreground outline-none focus:border-primary"
-              placeholder="What does the next manager need to know?"
-            />
-
-            <button
-              type="button"
-              onClick={completeHandoff}
-              disabled={submitting}
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-extrabold flex items-center justify-center gap-2 disabled:opacity-60"
-            >
-              <Check className="h-5 w-5" />
-              {submitting ? "Saving..." : "Complete Shift Handoff"}
-            </button>
-          </section>
-        )}
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* Stage content */}
+      <div className="mx-auto max-w-3xl px-4 pt-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeStage}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-3"
+          >
+
+            {/* ── INTEL ──────────────────────────────────────────────── */}
+            {activeStage === "start" && (
+              <>
+                {/* Acknowledge banner */}
+                <div
+                  className={cn(
+                    "flex items-start gap-3 rounded-2xl border p-4",
+                    acknowledged ? "border-green-500/30 bg-green-500/6" : "border-primary/30 bg-primary/6"
+                  )}
+                  style={{ boxShadow: acknowledged ? "0 0 20px rgba(34,197,94,0.08)" : "0 0 20px rgba(230,106,31,0.08)" }}
+                >
+                  {acknowledged
+                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" />
+                    : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />
+                  }
+                  <div className="flex-1">
+                    <p className="text-sm font-black text-foreground">
+                      {acknowledged ? "Intel reviewed — you're good to go" : "Review shift intel before starting"}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Acknowledging logs a manager note and moves you to Ops. +20 XP
+                    </p>
+                  </div>
+                  {acknowledged && (
+                    <div className="flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-black text-green-400">
+                      <Zap className="h-2.5 w-2.5" /> 20
+                    </div>
+                  )}
+                </div>
+
+                <IntelCard icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length}>
+                  {briefing.handoffs.length === 0
+                    ? <EmptyIntel text="No recent handoff found." />
+                    : briefing.handoffs.map(item => (
+                        <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"}
+                          meta={[item.department, item.urgency].filter(Boolean).join(" — ")} />
+                      ))
+                  }
+                </IntelCard>
+
+                <IntelCard icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"}>
+                  {briefing.eightySix.length === 0
+                    ? <EmptyIntel text="Nothing 86'd right now." />
+                    : briefing.eightySix.map(item => (
+                        <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />
+                      ))
+                  }
+                </IntelCard>
+
+                <IntelCard icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"}>
+                  {briefing.issues.length === 0
+                    ? <EmptyIntel text="No open issues." />
+                    : briefing.issues.map(item => (
+                        <IntelRow key={item.id} title={item.title} meta={item.category || item.priority} severity="critical" />
+                      ))
+                  }
+                </IntelCard>
+
+                <IntelCard icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"}>
+                  {briefing.events.length === 0
+                    ? <EmptyIntel text="No upcoming events." />
+                    : briefing.events.map(item => (
+                        <IntelRow key={item.id} title={item.eventName}
+                          meta={[item.eventDate, item.startTime, item.room].filter(Boolean).join(" · ")} severity="warning" />
+                      ))
+                  }
+                </IntelCard>
+
+                <IntelCard icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length}>
+                  {[...briefing.managerLogs, ...briefing.waste].length === 0
+                    ? <EmptyIntel text="No manager notes or recent waste." />
+                    : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => (
+                        <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")}
+                          meta={item.category || item.reason || recentDate(item)} />
+                      ))
+                  }
+                </IntelCard>
+
+                <button
+                  type="button"
+                  onClick={acknowledgeBriefing}
+                  disabled={acknowledged}
+                  className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
+                  style={{
+                    background: acknowledged
+                      ? "linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.2) 100%)"
+                      : "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+                    boxShadow: acknowledged
+                      ? "0 0 0 1px rgba(34,197,94,0.3)"
+                      : "0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)",
+                  }}
+                >
+                  {acknowledged
+                    ? <><CheckCircle2 className="h-5 w-5" />Intel Acknowledged — +20 XP</>
+                    : <><Shield className="h-5 w-5" />Acknowledge Briefing</>
+                  }
+                </button>
+              </>
+            )}
+
+            {/* ── OPS ────────────────────────────────────────────────── */}
+            {activeStage === "run" && (
+              <>
+                {/* Pre-shift briefing form */}
+                <div
+                  className={cn(
+                    "overflow-hidden rounded-2xl border",
+                    preShiftSaved ? "border-green-500/30" : "border-primary/30"
+                  )}
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
+                    <div className="flex items-start gap-2.5">
+                      <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div>
+                        <p className="text-sm font-black text-foreground">Pre-Shift Briefing</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">Required to unlock full duty XP. +25 XP on save.</p>
+                      </div>
+                    </div>
+                    <span className={cn(
+                      "shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black",
+                      preShiftSaved ? "border-green-500/35 bg-green-500/12 text-green-400" : "border-primary/35 bg-primary/12 text-primary"
+                    )}>
+                      {preShiftSaved ? "✓ Ready" : "Required"}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 px-4 pb-4">
+                    {/* Staff list */}
+                    {briefing.staff.length > 0 && (
+                      <div className="rounded-xl border border-border/40 bg-black/20 p-3">
+                        <div className="mb-2 flex items-center justify-between">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Scheduled Today</p>
+                          <span className="text-xs font-black text-foreground">{briefing.staff.length}</span>
+                        </div>
+                        <div className="space-y-1">
+                          {briefing.staff.slice(0, 8).map(person => (
+                            <div key={person.id || person.employee_name} className="flex items-center justify-between gap-2 text-xs">
+                              <span className="font-semibold text-foreground truncate">{person.employee_name}</span>
+                              <span className="shrink-0 text-muted-foreground">{[person.role, person.station, person.start_time].filter(Boolean).join(" · ")}</span>
+                            </div>
+                          ))}
+                          {briefing.staff.length > 8 && <p className="text-xs text-muted-foreground">+{briefing.staff.length - 8} more</p>}
+                        </div>
+                      </div>
+                    )}
+
+                    {[
+                      { field: "roles",           label: "Roles / Assignments",     rows: 4, placeholder: "Who is working, role changes, sections, stations, breaks…" },
+                      { field: "reservations",    label: "Reservations / BEO",      rows: 3, placeholder: "Large parties, VIPs, private events, service timing…" },
+                      { field: "outOfStock",      label: "Out of Stock / 86",       rows: 3, placeholder: "86'd items, low stock, substitutions…" },
+                      { field: "specials",        label: "Specials",                rows: 3, placeholder: "Food, drinks, promos, talking points…" },
+                      { field: "specialCleaning", label: "Special Cleaning / Focus",rows: 2, placeholder: "Cleaning priorities, reset items, inspection focus…" },
+                      { field: "notes",           label: "Briefing Notes",          rows: 4, placeholder: "What you will say to the team before service…" },
+                    ].map(({ field, label, rows, placeholder }) => (
+                      <label key={field} className="block space-y-1.5">
+                        <span className="text-xs font-black text-foreground">{label}</span>
+                        <textarea
+                          value={preShiftForm[field]}
+                          onChange={e => updatePreShiftField(field, e.target.value)}
+                          rows={rows}
+                          placeholder={placeholder}
+                          className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                        />
+                      </label>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={savePreShift}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
+                      style={{
+                        background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+                        boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
+                      }}
+                    >
+                      <Save className="h-4 w-4" />
+                      Save Briefing — +15 XP
+                    </button>
+                  </div>
+                </div>
+
+                {/* Duties list */}
+                <div
+                  className="overflow-hidden rounded-2xl border border-border/40"
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  <div className="flex items-center justify-between px-4 py-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <Target className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-black text-foreground">Mission Objectives</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-foreground")}>
+                        {checkedDuties.length}/{DUTIES.length}
+                      </span>
+                      {dutiesPct === 100 && <CheckCircle2 className="h-4 w-4 text-green-400" />}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 border-t border-border/30 px-3 pb-3 pt-3">
+                    {DUTIES_CONFIG.map((config) => {
+                      const locked = config.requiresPreShift && !preShiftSaved;
+                      const checked = checkedDuties.includes(config.text);
+                      const floatKey = xpFloats[xpFloats.length - 1];
+                      return (
+                        <DutyCard
+                          key={config.text}
+                          config={config}
+                          checked={checked}
+                          locked={locked}
+                          onToggle={() => toggleDuty(config)}
+                          xpFloat={!checked && floatKey}
+                          onXpDone={() => setXpFloats(prev => prev.slice(1))}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Quick nav */}
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { label: "Floor Map", sub: "Station readiness", path: "/operational-map", icon: MapPin },
+                    { label: "Approvals", sub: "Pending reviews",   path: "/approvals",       icon: ClipboardCheck },
+                  ].map(({ label, sub, path, icon: Icon }) => (
+                    <button
+                      key={path}
+                      type="button"
+                      onClick={() => navigate(path)}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-border/40 px-3 py-3 text-left transition-all hover:border-border/60"
+                      style={{ background: "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
+                    >
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <Icon className="h-3.5 w-3.5 text-primary" />
+                          <span className="text-xs font-black text-foreground">{label}</span>
+                        </div>
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* ── DEBRIEF ────────────────────────────────────────────── */}
+            {activeStage === "close" && (
+              <>
+                {/* Shift recap */}
+                <div
+                  className="grid grid-cols-3 gap-2 overflow-hidden rounded-2xl border border-border/40"
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  {[
+                    { label: "XP Earned", value: shiftXp,                  color: shiftXp > 0 ? "text-primary" : "text-muted-foreground" },
+                    { label: "Duties",    value: `${checkedDuties.length}/${DUTIES.length}`, color: dutiesPct === 100 ? "text-green-400" : "text-foreground" },
+                    { label: "Critical",  value: totals.critical,           color: totals.critical > 0 ? "text-red-400" : "text-green-400" },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-3 text-center">
+                      <p className={cn("text-2xl font-black", color)}>{value}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Handoff notes */}
+                <div
+                  className="overflow-hidden rounded-2xl border border-border/40"
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
+                    <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <div>
+                      <p className="text-sm font-black text-foreground">Handoff to Next Manager</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">Summarize open items, guest issues, staffing notes. +50 XP on submit.</p>
+                    </div>
+                  </div>
+
+                  <div className="px-4 pb-4 space-y-3">
+                    <textarea
+                      value={handoffNotes}
+                      onChange={e => setHandoffNotes(e.target.value)}
+                      rows={7}
+                      placeholder="What does the next manager need to know?"
+                      className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={completeHandoff}
+                      disabled={submitting}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
+                      style={{
+                        background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+                        boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)",
+                      }}
+                    >
+                      <Trophy className="h-5 w-5" />
+                      {submitting ? "Saving…" : "Complete Shift — +50 XP"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Handoff history link */}
+                <button
+                  type="button"
+                  onClick={() => navigate("/shift-handoff")}
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl border border-border/40 px-4 py-3.5 text-left transition-all hover:border-border/60 active:scale-[0.99]"
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="status-marker status-marker-md status-neutral">
+                      <Star className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-black text-foreground">Shift Handoff Log</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">View all previous handoff notes and shift history</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </button>
+              </>
+            )}
+
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Shift complete overlay */}
+      <AnimatePresence>
+        {shiftComplete && (
+          <ShiftComplete
+            shiftXp={shiftXp}
+            checkedDuties={checkedDuties}
+            shift={shift}
+            onDismiss={handleDismissComplete}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

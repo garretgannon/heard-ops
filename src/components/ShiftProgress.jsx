@@ -51,7 +51,7 @@ export default function ShiftProgress({
   };
 
   return (
-    <div className="rounded-lg bg-card border border-border p-3 space-y-3">
+    <div className="rounded-lg card-glass border border-border p-3 space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shift Progress</h3>

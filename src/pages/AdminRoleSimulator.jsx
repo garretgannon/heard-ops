@@ -132,7 +132,7 @@ export default function AdminRoleSimulator() {
         </div>
 
         {/* Info Section */}
-        <div className="mt-8 space-y-4 p-4 rounded-xl bg-card border border-border/50">
+        <div className="mt-8 space-y-4 p-4 rounded-xl card-glass border border-border/50">
           <h3 className="font-bold text-foreground">How Role Simulation Works</h3>
           <ul className="space-y-2 text-sm text-secondary-text">
             <li className="flex gap-2">

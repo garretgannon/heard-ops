@@ -188,7 +188,7 @@ export default function PrepTemplateBuilder() {
 
       <div className="px-4 lg:px-8 py-6 max-w-5xl mx-auto space-y-6">
         {/* Template Header */}
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <div className="card-glass border border-border rounded-2xl p-6 space-y-4">
           <h3 className="text-sm font-bold uppercase text-muted-foreground">Template Settings</h3>
           
           <div className="grid grid-cols-2 gap-4">
@@ -262,7 +262,7 @@ export default function PrepTemplateBuilder() {
         </div>
 
         {/* Prep Items Table */}
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <div className="card-glass border border-border rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold uppercase text-muted-foreground">Prep Items ({template.items?.length || 0})</h3>
           </div>
@@ -445,10 +445,10 @@ export default function PrepTemplateBuilder() {
               </button>
             </div>
             <div className="grid grid-cols-5 gap-2">
-              <input value={newItem.item_name} onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Item name" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <input type="number" value={newItem.par_quantity} onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Par qty" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <input value={newItem.unit} onChange={e => setNewItem(p => ({ ...p, unit: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Unit" className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground" />
-              <select value={newItem.priority} onChange={e => setNewItem(p => ({ ...p, priority: e.target.value }))} onKeyDown={handleFormKeyDown} className="px-2 py-1.5 bg-card border border-border rounded text-xs text-foreground">
+              <input value={newItem.item_name} onChange={e => setNewItem(p => ({ ...p, item_name: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Item name" className="px-2 py-1.5 card-glass border border-border rounded text-xs text-foreground" />
+              <input type="number" value={newItem.par_quantity} onChange={e => setNewItem(p => ({ ...p, par_quantity: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Par qty" className="px-2 py-1.5 card-glass border border-border rounded text-xs text-foreground" />
+              <input value={newItem.unit} onChange={e => setNewItem(p => ({ ...p, unit: e.target.value }))} onKeyDown={handleFormKeyDown} placeholder="Unit" className="px-2 py-1.5 card-glass border border-border rounded text-xs text-foreground" />
+              <select value={newItem.priority} onChange={e => setNewItem(p => ({ ...p, priority: e.target.value }))} onKeyDown={handleFormKeyDown} className="px-2 py-1.5 card-glass border border-border rounded text-xs text-foreground">
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>

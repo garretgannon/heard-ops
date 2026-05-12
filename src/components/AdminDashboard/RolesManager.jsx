@@ -123,7 +123,7 @@ export default function RolesManager() {
       </div>
 
       {showAddForm && (
-        <div className="flex gap-2 p-3 bg-card border border-border/40 rounded-xl">
+        <div className="flex gap-2 p-3 card-glass border border-border/40 rounded-xl">
           <input
             autoFocus
             type="text"
@@ -134,7 +134,7 @@ export default function RolesManager() {
             className="flex-1 bg-background border border-border/40 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
           />
           <button onClick={addRole} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:brightness-110">Create</button>
-          <button onClick={() => setShowAddForm(false)} className="px-3 py-2 rounded-lg bg-card border border-border/40 text-muted-foreground font-bold text-xs hover:text-foreground">Cancel</button>
+          <button onClick={() => setShowAddForm(false)} className="px-3 py-2 rounded-lg card-glass border border-border/40 text-muted-foreground font-bold text-xs hover:text-foreground">Cancel</button>
         </div>
       )}
 
@@ -147,7 +147,7 @@ export default function RolesManager() {
           const isBuiltIn = BUILT_IN_ROLE_IDS.includes(role.id);
 
           return (
-            <div key={role.id} className="bg-card border border-border/30 rounded-xl overflow-hidden">
+            <div key={role.id} className="card-glass border border-border/30 rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpandedRole(isExpanded ? null : role.id)}
                 className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/4 transition-colors"

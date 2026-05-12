@@ -151,7 +151,7 @@ export default function QuickStartSim({ onBack }) {
             <div className="flex gap-2">
               <button
                 onClick={() => setShowPresets(false)}
-                className="flex-1 px-4 py-2 rounded-lg border border-border bg-card text-foreground font-bold text-sm"
+                className="flex-1 px-4 py-2 rounded-lg border border-border card-glass text-foreground font-bold text-sm"
               >
                 Cancel
               </button>

@@ -99,7 +99,7 @@ function PulseRing({ value }) {
 
 function PrepCard({ item }) {
   return (
-    <a href="/prep-lists" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-2xl border border-border/60 bg-card">
+    <a href="/prep-lists" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-2xl border border-border/60 card-glass">
       <TaskVisual type="prep" name={item.name} imageUrl={item.image} className="h-full w-full" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
       <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-2">

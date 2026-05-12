@@ -37,7 +37,7 @@ export default function PrepPlanningCards() {
       {/* Inventory Count Card */}
       <button
         onClick={() => navigate(inventoryCount ? `/prep-count/${inventoryCount.id}` : '/prep-count')}
-        className="w-full bg-card border border-border rounded-xl p-4 text-left hover:border-primary/30 transition-colors active:scale-95"
+        className="w-full card-glass border border-border rounded-xl p-4 text-left hover:border-primary/30 transition-colors active:scale-95"
       >
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export default function PrepPlanningCards() {
       {/* Prep Plan Card */}
       <button
         onClick={() => navigate(prepPlan ? `/prep-plan/${prepPlan.id}` : '/prep-planning')}
-        className="w-full bg-card border border-border rounded-xl p-4 text-left hover:border-primary/30 transition-colors active:scale-95"
+        className="w-full card-glass border border-border rounded-xl p-4 text-left hover:border-primary/30 transition-colors active:scale-95"
       >
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">

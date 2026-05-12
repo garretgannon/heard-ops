@@ -47,7 +47,7 @@ export default function OnboardingQuickStart({ onBack, onComplete }) {
     <div className="h-full flex flex-col max-w-sm mx-auto px-6 pt-12 pb-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={subStep === 0 ? onBack : () => setSubStep(s => s - 1)} className="h-9 w-9 rounded-xl bg-card border border-border flex items-center justify-center active:scale-95">
+        <button onClick={subStep === 0 ? onBack : () => setSubStep(s => s - 1)} className="h-9 w-9 rounded-xl card-glass border border-border flex items-center justify-center active:scale-95">
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
@@ -77,7 +77,7 @@ export default function OnboardingQuickStart({ onBack, onComplete }) {
                 onChange={e => setRestaurantName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && canNext() && handleNext()}
                 placeholder="e.g. The Oak Room, Casa Mia..."
-                className="w-full h-14 bg-card border border-border rounded-2xl px-4 text-base font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                className="w-full h-14 card-glass border border-border rounded-2xl px-4 text-base font-semibold text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
               />
             </motion.div>
           )}
@@ -184,7 +184,7 @@ export default function OnboardingQuickStart({ onBack, onComplete }) {
                   </button>
                 ))}
               </div>
-              <div className="bg-card border border-border rounded-2xl px-4 py-3">
+              <div className="card-glass border border-border rounded-2xl px-4 py-3">
                 <p className="text-xs text-muted-foreground">💡 You can add or remove departments anytime from your settings.</p>
               </div>
             </motion.div>

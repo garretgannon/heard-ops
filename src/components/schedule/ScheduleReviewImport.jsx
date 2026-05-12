@@ -4,7 +4,7 @@ export default function ScheduleReviewImport({ pendingShifts, onPublish }) {
   return (
     <div className="space-y-4">
       {pendingShifts.length === 0 ? (
-        <div className="bg-card border border-border rounded-xl p-12 text-center">
+        <div className="card-glass border border-border rounded-xl p-12 text-center">
           <p className="text-muted-foreground">No pending shifts to review. Upload a schedule to get started.</p>
         </div>
       ) : (
@@ -12,7 +12,7 @@ export default function ScheduleReviewImport({ pendingShifts, onPublish }) {
           <p className="text-sm text-muted-foreground">{pendingShifts.length} shifts awaiting review</p>
           <div className="grid gap-3">
             {pendingShifts.map(shift => (
-              <div key={shift.id} className="bg-card border border-border rounded-lg p-4">
+              <div key={shift.id} className="card-glass border border-border rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-semibold">{shift.employee_name}</p>

@@ -313,7 +313,7 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
               <p className="text-xs text-muted-foreground mb-3">UTF-8 encoded CSV with required columns</p>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-3 space-y-2">
+            <div className="card-glass border border-border rounded-lg p-3 space-y-2">
               <p className="text-xs font-bold text-foreground">Required columns:</p>
               <p className="text-xs text-muted-foreground">Item Name, Category, Vendor, Unit, Case Cost</p>
               <p className="text-xs font-bold text-foreground mt-2">Optional columns:</p>
@@ -328,7 +328,7 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
             <p className="text-[10px] font-bold text-muted-foreground uppercase">{rawRows.length} rows detected</p>
             <div className="space-y-2">
               {headers.map(header => (
-                <div key={header} className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2">
+                <div key={header} className="flex items-center gap-2 card-glass border border-border rounded-lg px-3 py-2">
                   <span className="text-xs font-bold text-foreground flex-1 min-w-0 truncate">{header}</span>
                   <select
                     value={mapping[header] || ''}
@@ -394,7 +394,7 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
               <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto mb-3" />
               <p className="text-lg font-bold text-foreground">Import Complete</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-3 space-y-2">
+            <div className="card-glass border border-border rounded-lg p-3 space-y-2">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Records imported</span><span className="font-bold text-green-400">{result.created}</span></div>
               {result.duplicates > 0 && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Duplicates skipped</span><span className="font-bold text-amber-400">{result.duplicates}</span></div>}
               {result.errors.length > 0 && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Rows with errors</span><span className="font-bold text-red-400">{result.errors.length}</span></div>}

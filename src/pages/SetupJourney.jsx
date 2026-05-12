@@ -246,7 +246,7 @@ export default function SetupJourney() {
         </div>
 
         {/* Readiness score */}
-        <div className="bg-card border border-border rounded-2xl p-4">
+        <div className="card-glass border border-border rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Rocket className="h-4 w-4 text-primary" />
@@ -299,7 +299,7 @@ export default function SetupJourney() {
           <div className="space-y-2">
             {loading
               ? Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-16 bg-card border border-border rounded-2xl animate-pulse" />
+                  <div key={i} className="h-16 card-glass border border-border rounded-2xl animate-pulse" />
                 ))
               : MODULES.map(mod => (
                   <ModuleCard

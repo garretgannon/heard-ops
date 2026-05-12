@@ -100,7 +100,7 @@ export default function LogCreateModal({ onClose, onCreated, createType }) {
               {renderForm()}
               <button
                 onClick={() => setSelectedType(null)}
-                className="mt-4 w-full h-8 rounded-lg border border-border bg-card text-muted-foreground text-xs font-bold hover:text-foreground transition-all"
+                className="mt-4 w-full h-8 rounded-lg border border-border card-glass text-muted-foreground text-xs font-bold hover:text-foreground transition-all"
               >
                 ← Back to Type Selection
               </button>

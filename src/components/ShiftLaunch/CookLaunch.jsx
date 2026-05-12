@@ -91,7 +91,7 @@ export default function CookLaunch({ isOpen, onClose, onComplete, roleLabel }) {
                   disabled={!isCompleted && !isCurrent}
                   className={cn(
                     'flex-shrink-0 h-8 px-2.5 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 whitespace-nowrap',
-                    isCompleted ? 'bg-primary/20 border border-primary/30 text-primary' : 'bg-card border border-border text-secondary-text',
+                    isCompleted ? 'bg-primary/20 border border-primary/30 text-primary' : 'card-glass border border-border text-secondary-text',
                     isCurrent && !isCompleted && 'ring-2 ring-primary/50 border-primary/30',
                     !isCompleted && !isCurrent && 'opacity-50 cursor-not-allowed'
                   )}
@@ -117,7 +117,7 @@ export default function CookLaunch({ isOpen, onClose, onComplete, roleLabel }) {
             ) : (
               <div className="space-y-2">
                 {assignedPrep.map(prep => (
-                  <div key={prep.id} className="bg-card border border-border rounded-lg p-2.5">
+                  <div key={prep.id} className="card-glass border border-border rounded-lg p-2.5">
                     <div className="flex items-start gap-2">
                       <ChefHat className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                       <div className="flex-1">
@@ -150,7 +150,7 @@ export default function CookLaunch({ isOpen, onClose, onComplete, roleLabel }) {
             <p className="text-xs text-secondary-text">Review your station and note any issues</p>
             
             <div className="space-y-2">
-              <div className="bg-card border border-border rounded-lg p-2.5">
+              <div className="card-glass border border-border rounded-lg p-2.5">
                 <div className="flex items-start gap-2">
                   <Thermometer className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
                   <div className="text-xs">

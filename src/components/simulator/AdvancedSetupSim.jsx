@@ -86,17 +86,17 @@ export default function AdvancedSetupSim({ onBack }) {
 
         {/* Results cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-xl border border-border bg-card p-4 text-center">
+          <div className="rounded-xl border border-border card-glass p-4 text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Total Time</p>
             <p className="text-2xl font-bold text-foreground">{(elapsedTime / 60).toFixed(1)}m</p>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-4 text-center">
+          <div className="rounded-xl border border-border card-glass p-4 text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Steps Completed</p>
             <p className="text-2xl font-bold text-foreground">{completedSteps.length} / {SETUP_STEPS.length}</p>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-4 text-center">
+          <div className="rounded-xl border border-border card-glass p-4 text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Friction Points</p>
             <p className="text-2xl font-bold text-yellow-400">{frictionPoints.length}</p>
           </div>
@@ -118,7 +118,7 @@ export default function AdvancedSetupSim({ onBack }) {
         )}
 
         {/* Recommendations */}
-        <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+        <div className="rounded-xl border border-border card-glass p-4 space-y-2">
           <p className="text-sm font-bold text-foreground mb-2">Recommendations</p>
           <div className="space-y-1 text-xs text-muted-foreground">
             <p>✓ Advanced setup took {(elapsedTime / 60).toFixed(1)} minutes</p>
@@ -130,7 +130,7 @@ export default function AdvancedSetupSim({ onBack }) {
         <div className="flex gap-2">
           <button
             onClick={onBack}
-            className="flex-1 px-4 py-3 rounded-lg border border-border bg-card text-foreground font-bold"
+            className="flex-1 px-4 py-3 rounded-lg border border-border card-glass text-foreground font-bold"
           >
             Return to Simulator
           </button>
@@ -190,7 +190,7 @@ export default function AdvancedSetupSim({ onBack }) {
       </div>
 
       {/* Current step */}
-      <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="rounded-2xl border border-border card-glass p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
@@ -220,7 +220,7 @@ export default function AdvancedSetupSim({ onBack }) {
           </button>
           <button
             onClick={handleStepSkip}
-            className="flex-1 px-4 py-2.5 rounded-lg border border-border bg-card text-foreground font-bold text-sm"
+            className="flex-1 px-4 py-2.5 rounded-lg border border-border card-glass text-foreground font-bold text-sm"
           >
             Next
           </button>
@@ -245,7 +245,7 @@ export default function AdvancedSetupSim({ onBack }) {
                   ? 'bg-primary text-primary-foreground'
                   : completedSteps.includes(i)
                   ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                  : 'bg-card border border-border text-muted-foreground'
+                  : 'card-glass border border-border text-muted-foreground'
               }`}
             >
               {s.icon}
@@ -255,7 +255,7 @@ export default function AdvancedSetupSim({ onBack }) {
       </div>
 
       {/* Timer */}
-      <div className="rounded-xl border border-border bg-card p-3 flex items-center justify-between">
+      <div className="rounded-xl border border-border card-glass p-3 flex items-center justify-between">
         <p className="text-sm font-bold text-foreground">Elapsed Time</p>
         <p className="text-2xl font-bold text-primary">{(elapsedTime / 60).toFixed(1)}m</p>
       </div>

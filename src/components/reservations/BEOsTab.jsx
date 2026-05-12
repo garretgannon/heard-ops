@@ -103,7 +103,7 @@ export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh }) 
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-10 bg-card border border-border rounded-xl">
+        <div className="text-center py-10 card-glass border border-border rounded-xl">
           <p className="text-sm text-muted-foreground">No BEOs found</p>
         </div>
       ) : (

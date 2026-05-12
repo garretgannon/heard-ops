@@ -46,7 +46,7 @@ export default function OperationalMapHeader({
             placeholder="Search locations, stations, equipment..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-card border border-border/40 rounded-lg text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
+            className="w-full pl-10 pr-3 py-2 card-glass border border-border/40 rounded-lg text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50"
           />
         </div>
         <button className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-card transition-all">

@@ -15,7 +15,7 @@ export default function FilterChips({ filters, activeFilter, onFilterChange }) {
               "px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95",
               activeFilter === filter.id
                 ? "glow-active"
-                : "bg-card border border-border text-foreground glow-interactive"
+                : "card-glass border border-border text-foreground glow-interactive"
             )}
           >
             {filter.label}

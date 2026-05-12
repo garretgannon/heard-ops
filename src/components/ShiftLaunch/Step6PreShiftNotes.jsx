@@ -33,7 +33,7 @@ export default function Step6PreShiftNotes({ onComplete }) {
             placeholder="e.g., High volume event, New staff training, Inventory count..."
             value={focus}
             onChange={(e) => setFocus(e.target.value)}
-            className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-xs placeholder-muted-foreground text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="w-full px-3 py-2.5 card-glass border border-border rounded-lg text-xs placeholder-muted-foreground text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
         </div>
 
@@ -44,7 +44,7 @@ export default function Step6PreShiftNotes({ onComplete }) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={6}
-            className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-xs placeholder-muted-foreground text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+            className="w-full px-3 py-2.5 card-glass border border-border rounded-lg text-xs placeholder-muted-foreground text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
           />
         </div>
       </div>

@@ -44,7 +44,7 @@ export default function Step4ReservationsReview({ onComplete }) {
         <p className="text-xs text-secondary-text">Today's bookings and special events</p>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-3">
+      <div className="card-glass border border-border rounded-lg p-3">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center">
             <Users className="h-5 w-5 text-primary" />
@@ -60,7 +60,7 @@ export default function Step4ReservationsReview({ onComplete }) {
         <div className="space-y-2">
           <h3 className="text-xs font-bold uppercase tracking-wider text-secondary-text">Upcoming Reservations</h3>
           {data.reservations.map(res => (
-            <div key={res.id} className="bg-card border border-border rounded-lg p-2.5 space-y-1">
+            <div key={res.id} className="card-glass border border-border rounded-lg p-2.5 space-y-1">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-bold text-foreground">{res.guest_name}</p>
                 <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-primary/20 text-primary">{res.party_size} guests</span>

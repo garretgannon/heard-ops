@@ -44,7 +44,7 @@ export default function CalendarTab({ reservations, beos, onSelectBEO }) {
   return (
     <div className="space-y-3">
       {/* Month Navigator */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="card-glass border border-border rounded-xl overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <button onClick={prevMonth} className="p-1.5 rounded-lg bg-muted"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
           <span className="text-sm font-extrabold text-foreground">{MONTHS[month]} {year}</span>
@@ -88,13 +88,13 @@ export default function CalendarTab({ reservations, beos, onSelectBEO }) {
       <div>
         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{selectedDate}</p>
         {selectedRes.length === 0 && selectedBEOList.length === 0 ? (
-          <div className="text-center py-8 bg-card border border-border rounded-xl">
+          <div className="text-center py-8 card-glass border border-border rounded-xl">
             <p className="text-sm text-muted-foreground">Nothing scheduled</p>
           </div>
         ) : (
           <div className="space-y-2">
             {selectedRes.map(r => (
-              <div key={r.id} className="bg-card border border-border rounded-lg px-3 py-2.5 flex items-center gap-2">
+              <div key={r.id} className="card-glass border border-border rounded-lg px-3 py-2.5 flex items-center gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{r.name}</p>
                   <p className="text-xs text-muted-foreground">{r.time} · <Users className="h-2.5 w-2.5 inline" /> {r.partySize}</p>

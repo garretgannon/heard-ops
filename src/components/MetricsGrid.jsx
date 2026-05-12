@@ -11,7 +11,7 @@ export default function MetricsGrid({ metrics }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
-            className="bg-card border border-border rounded-lg p-2 text-center"
+            className="card-glass border border-border rounded-lg p-2 text-center"
           >
             <p className={cn("text-base font-bold", metric.color || "text-foreground")}>
               {metric.value}

@@ -93,7 +93,7 @@ export default function DenialReasonDrawer({ approval, onSubmit, onClose }) {
         {/* Footer */}
         <div className="px-6 py-4 border-t border-border/20 flex gap-2">
           <button onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-border bg-card text-foreground font-bold text-sm hover:bg-secondary transition-colors">
+            className="flex-1 py-2.5 rounded-xl border border-border card-glass text-foreground font-bold text-sm hover:bg-secondary transition-colors">
             Cancel
           </button>
           <button onClick={handleSubmit} disabled={!selectedReason || submitting}

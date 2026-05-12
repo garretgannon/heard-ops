@@ -15,7 +15,7 @@ export default function LogCard({ log, onClick, compact = false }) {
     <button
       onClick={() => onClick?.(log)}
       className={cn(
-        "w-full text-left bg-card border border-border/60 border-l-4 rounded-xl transition-all active:scale-[0.98] hover:border-border group",
+        "w-full text-left card-glass border border-border/60 border-l-4 rounded-xl transition-all active:scale-[0.98] hover:border-border group",
         cfg.border,
         compact ? "px-3 py-2.5" : "px-3.5 py-3"
       )}

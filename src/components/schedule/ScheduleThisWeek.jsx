@@ -76,7 +76,7 @@ export default function ScheduleThisWeek({ weekStart, shifts }) {
 
       {/* Desktop Grid */}
       <div className="hidden lg:block overflow-x-auto">
-        <div className="min-w-max bg-card border border-border rounded-xl overflow-hidden">
+        <div className="min-w-max card-glass border border-border rounded-xl overflow-hidden">
           {/* Days Header */}
           <div className="grid gap-px bg-border" style={{ gridTemplateColumns: `200px repeat(7, 180px)` }}>
             <div className="bg-card p-4 font-bold text-sm">Employee</div>
@@ -131,7 +131,7 @@ export default function ScheduleThisWeek({ weekStart, shifts }) {
           const dayShifts = filtered.filter(s => s.date === day);
           const d = new Date(day);
           return (
-            <div key={day} className="bg-card border border-border rounded-xl overflow-hidden">
+            <div key={day} className="card-glass border border-border rounded-xl overflow-hidden">
               <div className="bg-muted p-4 font-semibold flex items-center justify-between">
                 <span>{d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</span>
                 <span className="text-sm text-muted-foreground">{dayShifts.length} shifts</span>

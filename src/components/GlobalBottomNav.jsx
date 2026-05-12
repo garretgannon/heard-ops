@@ -51,14 +51,13 @@ export default function GlobalBottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[999] flex justify-center items-end pointer-events-none"
+        className="fixed bottom-0 left-0 right-0 z-[999] pointer-events-none"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <div
-          className="pointer-events-auto mx-0 px-4 pt-2 border-t flex justify-between items-end gap-1 transition-all duration-300"
+          className="pointer-events-auto px-2 border-t flex justify-between items-center transition-all duration-300"
           style={{
-            width: '100%',
-            minHeight: '68px',
+            height: '58px',
             background: 'linear-gradient(180deg, rgba(3, 7, 10, 0.86), rgba(0, 3, 6, 0.98))',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',

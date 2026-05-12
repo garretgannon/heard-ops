@@ -200,7 +200,7 @@ export default function LogsCenter() {
           <div className="flex-1" />
           <button
             onClick={generateDummyLogs}
-            className="glow-interactive hidden lg:flex h-8 px-3 rounded-lg border border-border/60 bg-card text-foreground font-bold text-xs active:scale-95 transition-all items-center gap-1 flex-shrink-0"
+            className="glow-interactive hidden lg:flex h-8 px-3 rounded-lg border border-border/60 card-glass text-foreground font-bold text-xs active:scale-95 transition-all items-center gap-1 flex-shrink-0"
             title="Generate test logs"
           >
             <Wand2 className="h-3.5 w-3.5" />
@@ -226,7 +226,7 @@ export default function LogsCenter() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-8 pl-8 pr-3 rounded-lg bg-card border border-border/40 text-foreground text-xs focus:outline-none focus:border-primary"
+                className="w-full h-8 pl-8 pr-3 rounded-lg card-glass border border-border/40 text-foreground text-xs focus:outline-none focus:border-primary"
               />
             </div>
             <button
@@ -247,7 +247,7 @@ export default function LogsCenter() {
                 onClick={() => { haptics.light?.(); setActiveFilter(chip.id); }}
                 className={cn(
                   'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
-                  activeFilter === chip.id ? 'glow-active' : 'bg-card border border-border/40 text-muted-foreground glow-interactive'
+                  activeFilter === chip.id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
                 )}
               >
                 {chip.label}

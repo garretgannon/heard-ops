@@ -7,7 +7,7 @@ import PrepListImportFlow from '@/components/PrepListImportFlow';
 
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   return (
-    <div className="bg-card border border-border rounded-lg p-3.5 space-y-2.5">
+    <div className="card-glass border border-border rounded-lg p-3.5 space-y-2.5">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
           <p className="font-bold text-sm text-foreground">{template.name}</p>
@@ -237,7 +237,7 @@ function TemplateForm({ template, onSave, onCancel }) {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="bg-card border border-border rounded-lg p-4 space-y-4">
+    <div className="card-glass border border-border rounded-lg p-4 space-y-4">
       <input
         type="text"
         placeholder="Template Name"

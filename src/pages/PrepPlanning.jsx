@@ -2,23 +2,32 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, Plus, AlertCircle, CheckCircle2, Clock, Zap, Settings } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  ChefHat, AlertCircle, CheckCircle2, Clock, Zap, Settings,
+  ClipboardList, ArrowRight, Calendar, FileStack,
+} from 'lucide-react';
 import { toast } from 'sonner';
-import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { haptics } from '@/utils/haptics';
 import BulkParEditorModal from '@/components/prep/BulkParEditorModal';
 
 const ALLOWED_ROLES = ['admin', 'manager', 'chef', 'kitchen_lead'];
+
+const cardStyle = {
+  background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)",
+};
 
 export default function PrepPlanning() {
   const { user, isAdmin } = useCurrentUser();
   const navigate = useNavigate();
   const [countSessions, setCountSessions] = useState([]);
-  const [prepPlans, setPrepPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [today] = useState(new Date());
-  const [bulkEditOpen, setBulkEditOpen] = useState(false);
-  const [selectedStation, setSelectedStation] = useState(null);
-  const [selectedShift, setSelectedShift] = useState('opening');
+  const [prepPlans, setPrepPlans]         = useState([]);
+  const [loading, setLoading]             = useState(true);
+  const [today]                           = useState(new Date());
+  const [bulkEditOpen, setBulkEditOpen]   = useState(false);
 
   const isAllowed = isAdmin || ALLOWED_ROLES.includes(user?.role);
 
@@ -36,24 +45,22 @@ export default function PrepPlanning() {
       ]);
       setCountSessions(counts || []);
       setPrepPlans(plans || []);
-    } catch (e) {
-      console.error('Error loading prep data:', e);
+    } catch {
       toast.error('Failed to load prep planning data');
     }
     setLoading(false);
   };
 
-  const startCount = async (shift, station) => {
+  const startCount = async () => {
+    haptics.medium();
     try {
-      const templates = await base44.entities.PrepPlanTemplate?.filter?.({ is_active: true, shift, station }).catch(() => []);
-      if (templates?.length === 0) {
-        toast.error(`No active prep templates for ${shift} shift at ${station}`);
+      const templates = await base44.entities.PrepPlanTemplate?.filter?.({ is_active: true }).catch(() => []);
+      if (!templates?.length) {
+        toast.error('No active prep templates — set up templates first');
         return;
       }
-      navigate('/prep-count', { state: { shift, station } });
-    } catch (e) {
-      toast.error('Failed to start count');
-    }
+    } catch { /* proceed anyway */ }
+    navigate('/prep-count');
   };
 
   if (!isAllowed) {
@@ -62,152 +69,240 @@ export default function PrepPlanning() {
         <div className="text-center px-4">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <p className="text-lg font-bold text-foreground">Access Denied</p>
-          <p className="text-sm text-muted-foreground">Only admins, managers, chefs, and kitchen leads can access prep planning.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Available to admins, managers, chefs, and kitchen leads.
+          </p>
         </div>
       </div>
     );
   }
 
-  const todayStr = today.toISOString().split('T')[0];
+  if (loading) return (
+    <div className="flex h-64 flex-col items-center justify-center gap-3">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+        className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
+        style={{ boxShadow: "0 0 20px rgba(230,106,31,0.35)" }}
+      />
+      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+        Loading prep data…
+      </p>
+    </div>
+  );
+
+  const todayStr  = today.toISOString().split('T')[0];
   const todayCount = countSessions.find(c => c.date === todayStr);
-  const todayPlan = prepPlans.find(p => p.date === todayStr);
+  const todayPlan  = prepPlans.find(p => p.date === todayStr);
+  const dayLabel   = format(today, "EEE, MMM d");
 
   return (
-    <div className="pb-32 bg-background">
-      <DesktopPageHeader
-        title="Prep Planning"
-        subtitle="Par-based prep inventory counting and task generation"
-      />
+    <div className="min-h-screen pb-40 lg:pb-12">
 
-      <div className="px-4 lg:px-8 py-6 space-y-8 max-w-6xl mx-auto">
-        {/* Status Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {!todayCount ? (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-bold text-foreground text-sm">Prep Inventory Count Required</p>
-                  <p className="text-xs text-muted-foreground">No count submitted yet today</p>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate('/prep-count')}
-                className="w-full btn-primary text-xs h-8 flex items-center justify-center gap-1 mt-3"
-              >
-                <Zap className="h-3 w-3" /> Start Count
-              </button>
-            </div>
-          ) : (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4 border-l-4 border-l-green-500">
-              <div className="flex items-start gap-3 mb-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-bold text-foreground text-sm">Count Submitted</p>
-                  <p className="text-xs text-muted-foreground">{todayCount.shift} shift</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mb-2">Status: {todayCount.status}</p>
-              <button
-                onClick={() => navigate(`/prep-count/${todayCount.id}`)}
-                className="w-full btn-secondary text-xs h-8 flex items-center justify-center gap-1"
-              >
-                View Count
-              </button>
-            </div>
-          )}
-
-          {!todayPlan ? (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <Clock className="h-5 w-5 text-slate-500 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-bold text-foreground text-sm">Prep Plan</p>
-                  <p className="text-xs text-muted-foreground">Waiting for count submission</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground">Plan will appear after count</p>
-            </div>
-          ) : (
-            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4 border-l-4 border-l-blue-500">
-              <div className="flex items-start gap-3 mb-3">
-                <CheckCircle2 className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-bold text-foreground text-sm">Prep Plan Ready</p>
-                  <p className="text-xs text-muted-foreground">Status: {todayPlan.status}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate(`/prep-plan/${todayPlan.id}`)}
-                className="w-full btn-primary text-xs h-8 flex items-center justify-center gap-1"
-              >
-                Review Plan
-              </button>
-            </div>
-          )}
-
-          <div className="lg:col-span-1 bg-card border border-border rounded-xl p-4">
-            <div className="flex items-start gap-3 mb-3">
-              <ChefHat className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-              <div>
-                <p className="font-bold text-foreground text-sm">Prep Templates</p>
-                <p className="text-xs text-muted-foreground">Configure par-based recipes</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => navigate('/prep-plan-templates')}
-                className="flex-1 btn-secondary text-xs h-8 flex items-center justify-center gap-1"
-              >
-                <Plus className="h-3 w-3" /> Manage
-              </button>
-              <button
-                onClick={() => { setSelectedStation('Prep'); setSelectedShift('opening'); setBulkEditOpen(true); }}
-                className="flex-1 btn-secondary text-xs h-8 flex items-center justify-center gap-1"
-              >
-                <Settings className="h-3 w-3" /> Bulk Edit
-              </button>
+      {/* Sticky header */}
+      <div
+        className="sticky top-0 z-30 px-4 pt-4 pb-3"
+        style={{
+          background: "linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "0 1px 16px rgba(0,0,0,0.5)",
+        }}
+      >
+        <div className="flex items-center justify-between max-w-3xl mx-auto">
+          <div className="flex items-center gap-2.5">
+            <ChefHat className="h-5 w-5 text-primary" />
+            <div>
+              <p className="metric-label">Kitchen</p>
+              <h1 className="text-xl font-black tracking-tight text-foreground">Prep Planning</h1>
             </div>
           </div>
+          <div
+            className="flex items-center gap-1.5 rounded-lg border border-border/40 px-2.5 py-1.5"
+            style={cardStyle}
+          >
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-[11px] font-bold text-muted-foreground">{dayLabel}</span>
+          </div>
         </div>
+      </div>
 
-        {/* Recent Activity */}
-        {loading ? (
-          <div className="text-center py-10 text-muted-foreground">Loading...</div>
-        ) : (
-          <div>
-            <h2 className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">Recent Activity</h2>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {countSessions.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-4 text-center">No count sessions yet</p>
+      <div className="mx-auto max-w-3xl space-y-4 px-4 pt-4">
+
+        {/* Today's status */}
+        <section className="space-y-2">
+          <p className="metric-label px-1">Today's Status</p>
+          <div className="grid grid-cols-2 gap-2">
+
+            {/* Count */}
+            <div
+              className={cn(
+                "flex flex-col gap-2 rounded-2xl border p-4",
+                todayCount ? "border-green-500/30" : "border-amber-500/30"
+              )}
+              style={{ background: todayCount ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.06)" }}
+            >
+              <div className="flex items-center gap-2">
+                {todayCount
+                  ? <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
+                  : <AlertCircle  className="h-4 w-4 text-amber-400 shrink-0" />
+                }
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Count</p>
+              </div>
+              <p className={cn("text-sm font-black leading-tight", todayCount ? "text-green-400" : "text-amber-400")}>
+                {todayCount ? "Submitted" : "Not Done"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {todayCount ? `${todayCount.shift} shift` : "No count today yet"}
+              </p>
+              {todayCount ? (
+                <button
+                  onClick={() => { haptics.light(); navigate(`/prep-count/${todayCount.id}`); }}
+                  className="mt-1 flex items-center gap-1 text-[11px] font-bold text-green-400 active:opacity-70"
+                >
+                  View <ArrowRight className="h-3 w-3" />
+                </button>
               ) : (
-                countSessions.slice(0, 10).map(session => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-card border border-border rounded-lg text-xs">
-                    <div>
-                      <p className="font-semibold text-foreground">{session.shift} — {session.station}</p>
-                      <p className="text-muted-foreground">{session.date} · Status: {session.status}</p>
-                    </div>
-                    <button
-                      onClick={() => navigate(`/prep-count/${session.id}`)}
-                      className="text-primary font-bold hover:underline"
-                    >
-                      View →
-                    </button>
-                  </div>
-                ))
+                <button
+                  onClick={startCount}
+                  className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 py-1.5 text-xs font-black text-amber-400 active:scale-[0.97] transition-all"
+                  style={{ background: "rgba(245,158,11,0.08)" }}
+                >
+                  <Zap className="h-3 w-3" /> Start Count
+                </button>
+              )}
+            </div>
+
+            {/* Prep plan */}
+            <div
+              className={cn(
+                "flex flex-col gap-2 rounded-2xl border p-4",
+                todayPlan ? "border-blue-500/30" : "border-border/40"
+              )}
+              style={{
+                background: todayPlan
+                  ? "rgba(96,165,250,0.06)"
+                  : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
+              }}
+            >
+              <div className="flex items-center gap-2">
+                {todayPlan
+                  ? <CheckCircle2 className="h-4 w-4 text-blue-400 shrink-0" />
+                  : <Clock className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+                }
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Prep Plan</p>
+              </div>
+              <p className={cn("text-sm font-black leading-tight", todayPlan ? "text-blue-400" : "text-foreground/30")}>
+                {todayPlan ? "Ready" : "Pending"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {todayPlan ? `Status: ${todayPlan.status}` : "Awaiting count submission"}
+              </p>
+              {todayPlan && (
+                <button
+                  onClick={() => { haptics.light(); navigate(`/prep-plan/${todayPlan.id}`); }}
+                  className="mt-1 flex items-center gap-1 text-[11px] font-bold text-blue-400 active:opacity-70"
+                >
+                  Review <ArrowRight className="h-3 w-3" />
+                </button>
               )}
             </div>
           </div>
-        )}
+        </section>
+
+        {/* Actions */}
+        <section className="space-y-2">
+          <p className="metric-label px-1">Actions</p>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              {
+                icon: Zap, label: "Start Count", sub: "Submit today's inventory",
+                color: "text-amber-400", border: "border-amber-500/25", bg: "rgba(245,158,11,0.06)",
+                onClick: startCount,
+              },
+              {
+                icon: ClipboardList, label: "Review Plan", sub: "View generated tasks",
+                color: "text-blue-400", border: "border-blue-500/25", bg: "rgba(96,165,250,0.06)",
+                onClick: () => {
+                  haptics.light();
+                  todayPlan
+                    ? navigate(`/prep-plan/${todayPlan.id}`)
+                    : toast.info('No plan yet — submit a count first');
+                },
+              },
+              {
+                icon: FileStack, label: "Templates", sub: "Manage par-based recipes",
+                color: "text-primary", border: "border-primary/25", bg: "rgba(230,106,31,0.06)",
+                onClick: () => { haptics.light(); navigate('/prep-plan-templates'); },
+              },
+              {
+                icon: Settings, label: "Bulk Edit Pars", sub: "Edit multiple pars at once",
+                color: "text-violet-400", border: "border-violet-500/25", bg: "rgba(139,92,246,0.06)",
+                onClick: () => { haptics.light(); setBulkEditOpen(true); },
+              },
+            ].map(({ icon: Icon, label, sub, color, border, bg, onClick }) => (
+              <button
+                key={label}
+                onClick={onClick}
+                className={cn(
+                  "flex flex-col items-start gap-2 rounded-2xl border p-4 text-left active:scale-[0.97] transition-all",
+                  border
+                )}
+                style={{ background: bg, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
+              >
+                <Icon className={cn("h-4 w-4", color)} />
+                <div>
+                  <p className={cn("text-sm font-black", color)}>{label}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{sub}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Recent sessions */}
+        <section className="space-y-2">
+          <p className="metric-label px-1">Recent Sessions</p>
+          {countSessions.length === 0 ? (
+            <div
+              className="flex flex-col items-center gap-3 rounded-2xl border border-border/30 py-12 text-center"
+              style={cardStyle}
+            >
+              <ChefHat className="h-8 w-8 text-muted-foreground/25" />
+              <p className="text-sm font-bold text-foreground">No sessions yet</p>
+              <p className="text-xs text-muted-foreground">Start your first count to generate a prep plan.</p>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {countSessions.slice(0, 8).map(session => (
+                <button
+                  key={session.id}
+                  onClick={() => { haptics.light(); navigate(`/prep-count/${session.id}`); }}
+                  className="flex w-full items-center gap-3 rounded-xl border border-border/40 px-3 py-2.5 text-left active:scale-[0.98] transition-all"
+                  style={cardStyle}
+                >
+                  <ClipboardList className="h-4 w-4 shrink-0 text-muted-foreground/50" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate capitalize">
+                      {session.shift} — {session.station || 'All Stations'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">{session.date} · {session.status}</p>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/30" />
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
       </div>
 
-      {/* Bulk Edit Modal */}
       {bulkEditOpen && (
         <BulkParEditorModal
-          station={selectedStation}
-          shift={selectedShift}
+          station="Prep"
+          shift="opening"
           onClose={() => setBulkEditOpen(false)}
-          onSave={() => loadData()}
+          onSave={loadData}
         />
       )}
     </div>

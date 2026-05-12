@@ -72,7 +72,7 @@ export default function AdminRolePreview() {
 
       {/* Preview Dropdown */}
       {open && (
-        <div className="fixed bottom-36 lg:bottom-16 right-4 z-50 w-48 bg-card border border-border rounded-lg shadow-lg overflow-hidden">
+        <div className="fixed bottom-36 lg:bottom-16 right-4 z-50 w-48 card-glass border border-border rounded-lg shadow-lg overflow-hidden">
           <div className="p-2 border-b border-border/30">
             <h3 className="text-xs font-bold text-muted-foreground uppercase">Preview as role</h3>
           </div>

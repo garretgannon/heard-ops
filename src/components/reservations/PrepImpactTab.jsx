@@ -13,7 +13,7 @@ const STATUS_COLOR = {
 
 function PrepItemCard({ item, beoName, onStatusChange, isAdmin }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-3">
+    <div className="card-glass border border-border rounded-xl p-3">
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -124,7 +124,7 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }
 
       {/* BEO sections with generate button */}
       {upcomingBEOs.length === 0 && (
-        <div className="text-center py-10 bg-card border border-border rounded-xl">
+        <div className="text-center py-10 card-glass border border-border rounded-xl">
           <p className="text-sm text-muted-foreground">No upcoming events with prep items</p>
         </div>
       )}

@@ -73,7 +73,7 @@ export default function RoleSwitcher({ onBack }) {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="fixed top-16 left-4 right-4 z-40 bg-card border border-border rounded-2xl shadow-lg max-w-sm mx-auto"
+          className="fixed top-16 left-4 right-4 z-40 card-glass border border-border rounded-2xl shadow-lg max-w-sm mx-auto"
         >
           <div className="p-4 border-b border-border">
             <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Select a role</p>

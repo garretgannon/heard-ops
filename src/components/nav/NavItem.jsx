@@ -7,7 +7,7 @@ export default function NavItem({ icon: Icon = Home, label, isActive, isAdd, onC
       <button
         onClick={onClick}
         aria-label={label}
-        className="relative -mt-6 flex min-w-[58px] flex-col items-center justify-center gap-1 rounded-full transition-all duration-200 active:scale-95"
+        className="relative -mt-8 flex flex-1 flex-col items-center justify-center gap-1 rounded-full transition-all duration-200 active:scale-95"
       >
         <span
           className="flex h-14 w-14 items-center justify-center rounded-full border border-primary/45 text-primary-foreground"
@@ -26,15 +26,24 @@ export default function NavItem({ icon: Icon = Home, label, isActive, isAdd, onC
     <button
       onClick={onClick}
       className={cn(
-        'flex min-w-[58px] flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 transition-all duration-200 active:scale-95',
-        isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+        'relative flex flex-1 h-full flex-col items-center justify-center gap-[5px] rounded-lg px-1 transition-all duration-200 active:scale-95',
+        isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground/70'
       )}
     >
-      <Icon
-        className={cn('h-5 w-5 transition-all duration-200', isActive ? 'text-primary' : 'text-muted-foreground')}
-        strokeWidth={isActive ? 2.25 : 1.8}
-      />
-      <span className={cn('text-[9px] font-semibold leading-none transition-colors duration-200', isActive ? 'text-primary' : 'text-muted-foreground')}>
+      <div className="relative">
+        <Icon
+          className={cn('h-6 w-6 transition-all duration-200', isActive ? 'text-primary' : 'text-muted-foreground')}
+          strokeWidth={isActive ? 2.2 : 1.75}
+          style={isActive ? { filter: 'drop-shadow(0 0 6px rgba(230, 106, 31, 0.55))' } : undefined}
+        />
+        {isActive && (
+          <span
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 nav-active-dot"
+            aria-hidden
+          />
+        )}
+      </div>
+      <span className={cn('text-[10px] font-semibold leading-none transition-colors duration-200', isActive ? 'text-primary' : 'text-muted-foreground')}>
         {label}
       </span>
     </button>

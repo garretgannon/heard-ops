@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -121,21 +121,35 @@
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
     font-weight: 400;
+    font-feature-settings: "cv11", "ss01", "kern" 1;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background:
-      radial-gradient(circle at 50% -10%, rgba(230, 106, 31, 0.055), transparent 32rem),
+      radial-gradient(ellipse 80% 40% at 50% -5%, rgba(230, 106, 31, 0.065), transparent 55%),
+      radial-gradient(ellipse 40% 30% at 85% 100%, rgba(230, 106, 31, 0.025), transparent 40%),
       hsl(var(--background));
     overscroll-behavior: none;
   }
   body.modal-open {
     overflow: hidden;
   }
+
+  ::selection {
+    background: rgba(230, 106, 31, 0.32);
+    color: #fff;
+  }
+  ::-moz-selection {
+    background: rgba(230, 106, 31, 0.32);
+    color: #fff;
+  }
+
   @media (max-width: 1023px) {
     input, textarea, select {
       font-size: 16px !important;
       -webkit-user-zoom: 1;
-      padding: 0.75rem !important;
+      padding-block: 0.75rem !important;
       min-height: 2.75rem;
     }
   }
@@ -147,12 +161,15 @@
   }
   h1 {
     @apply font-bold;
+    letter-spacing: -0.025em;
   }
   h2 {
     @apply font-bold;
+    letter-spacing: -0.02em;
   }
   h3 {
     @apply font-semibold;
+    letter-spacing: -0.015em;
   }
   button {
     @apply font-bold select-none;
@@ -161,18 +178,28 @@
     @apply font-semibold text-sm;
   }
 
+  input, textarea, select {
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: rgba(230, 106, 31, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(230, 106, 31, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    outline: none;
+  }
+
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/40;
+    background: rgba(255, 255, 255, 0.18);
   }
 }
 
@@ -569,13 +596,15 @@
   }
 
   .app-card {
-    @apply rounded-lg border border-border/70 bg-card/90 p-4 shadow-card;
-    background: linear-gradient(180deg, rgba(10, 17, 22, 0.96), rgba(5, 9, 12, 0.96));
+    @apply rounded-xl border border-border/60 p-4;
+    background: linear-gradient(160deg, rgba(13, 20, 27, 0.97) 0%, rgba(6, 10, 14, 0.97) 100%);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
   }
 
   .app-card-lg {
-    @apply rounded-lg border border-border/70 bg-card/90 p-5 lg:p-6 shadow-card;
-    background: linear-gradient(180deg, rgba(10, 17, 22, 0.96), rgba(5, 9, 12, 0.96));
+    @apply rounded-xl border border-border/60 p-5 lg:p-6;
+    background: linear-gradient(160deg, rgba(13, 20, 27, 0.97) 0%, rgba(6, 10, 14, 0.97) 100%);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
   }
 
   .app-section-title {
@@ -583,8 +612,9 @@
   }
 
   .metric-card {
-    @apply rounded-lg border border-border/70 bg-card/90 p-5 shadow-card;
-    background: linear-gradient(180deg, rgba(10, 17, 22, 0.96), rgba(5, 9, 12, 0.96));
+    @apply rounded-xl border border-border/60 p-5;
+    background: linear-gradient(160deg, rgba(13, 20, 27, 0.97) 0%, rgba(6, 10, 14, 0.97) 100%);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
   }
 
   .metric-label {
@@ -639,6 +669,11 @@
 
   .status-neutral {
     @apply border-border text-muted-foreground;
+  }
+
+  .status-review {
+    @apply border-violet-500/50 text-violet-400;
+    box-shadow: 0 0 14px rgba(139, 92, 246, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.06);
   }
 
   .status-pill {
@@ -831,5 +866,93 @@
 
   .animate-subtle-bounce {
     animation: subtle-bounce 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* ── No scrollbar utility ── */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ── Branded loading spinner ── */
+  @keyframes heard-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .heard-spinner {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(230, 106, 31, 0.15);
+    border-top-color: rgba(230, 106, 31, 0.9);
+    animation: heard-spin 700ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    box-shadow: 0 0 16px rgba(230, 106, 31, 0.18);
+  }
+
+  /* ── Dark glass card surface — background + shadow only, no padding/radius ── */
+  .card-glass {
+    background: linear-gradient(160deg, rgba(11, 17, 24, 0.98) 0%, rgba(6, 9, 13, 0.98) 100%);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025);
+  }
+
+  /* ── Glass surface ── */
+  .glass {
+    background: rgba(13, 20, 27, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Elevation shadows ── */
+  .elevation-1 {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+  .elevation-2 {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .elevation-3 {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.45), 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  /* ── Orange glow badge for active nav ── */
+  .nav-active-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 6px rgba(230, 106, 31, 0.7);
+  }
+
+  /* ── Shimmer surface for premium cards ── */
+  @keyframes shimmer-slide {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  .shimmer-surface {
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.025) 50%,
+      transparent 60%
+    ) 0 0 / 200% 100%;
+    animation: shimmer-slide 4s linear infinite;
+  }
+
+  /* ── Desktop header/page header polish ── */
+  .app-header-band {
+    @apply border-b border-border/40 px-4 py-5 lg:px-8 lg:py-6;
+    background: linear-gradient(180deg, rgba(13, 20, 27, 0.6) 0%, transparent 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* ── Active/selected highlight ring for cards ── */
+  .ring-primary-soft {
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 16px rgba(230, 106, 31, 0.2);
   }
 }

@@ -71,7 +71,7 @@ export default function EmployeeEditDrawer({ employee, employees, onClose, onSav
   return (
     <div className="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60" onClick={onClose}>
       <div
-        className="w-full lg:w-[560px] max-h-[92vh] overflow-y-auto bg-card border border-border rounded-t-2xl lg:rounded-2xl"
+        className="w-full lg:w-[560px] max-h-[92vh] overflow-y-auto card-glass border border-border rounded-t-2xl lg:rounded-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

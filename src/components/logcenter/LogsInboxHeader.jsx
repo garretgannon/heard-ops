@@ -46,7 +46,7 @@ export default function LogsInboxHeader({ logs, onStatClick }) {
             <button
               key={stat.id}
               onClick={() => onStatClick?.(stat.id)}
-              className="flex flex-col items-center gap-1 p-2.5 rounded-lg bg-card border border-border/30 hover:border-border/60 active:scale-95 transition-all"
+              className="flex flex-col items-center gap-1 p-2.5 rounded-lg card-glass border border-border/30 hover:border-border/60 active:scale-95 transition-all"
             >
               <Icon className={`h-4 w-4 ${stat.color}`} />
               <p className="text-xs font-bold text-foreground">{stat.value}</p>

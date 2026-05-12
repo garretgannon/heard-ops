@@ -60,7 +60,7 @@ function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCan
     <div className="space-y-3 p-3 bg-background/80 border border-border rounded-xl mt-2">
       <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
         placeholder="Equipment name *"
-        className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
       <div>
         <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Type *</p>
         {EQUIPMENT_CATEGORIES.map(cat => (
@@ -79,14 +79,14 @@ function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCan
       </div>
       <div className="grid grid-cols-2 gap-2">
         <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
-          className="px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+          className="px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
-          className="px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground" />
+          className="px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
       </div>
       <select value={form.vendorId} onChange={e => {
         const vendor = vendors.find(v => v.id === e.target.value);
         setForm(p => ({ ...p, vendorId: e.target.value, vendorName: vendor?.name || '' }));
-      }} className="w-full px-3 py-2 bg-card border border-border rounded-lg text-sm text-foreground">
+      }} className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground">
         <option value="">Select Vendor (optional)</option>
         {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
       </select>
@@ -427,7 +427,7 @@ export default function LocationSetup() {
           <>
             {/* Add Area Form */}
             {addingArea && (
-              <div className="p-4 bg-card border border-border rounded-xl mb-4 space-y-3">
+              <div className="p-4 card-glass border border-border rounded-xl mb-4 space-y-3">
                 <p className="text-sm font-bold text-foreground">New Area</p>
                 <input autoFocus value={newAreaName} onChange={e => setNewAreaName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') addArea(); if (e.key === 'Escape') setAddingArea(false); }}

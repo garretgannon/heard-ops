@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Download, AlertTriangle, TrendingDown, Zap } from 'lucide-react';
 import TemperatureComplianceCard from '@/components/temperature/TemperatureComplianceCard';
 import TemperatureDashboardSection from '@/components/temperature/TemperatureDashboardSection';
 
 export default function TemperatureDashboard() {
+  const navigate = useNavigate();
   const { isAdmin } = useCurrentUser();
   
   if (!isAdmin) {
@@ -24,7 +26,7 @@ export default function TemperatureDashboard() {
             <h1 className="text-3xl font-bold text-foreground">Temperature Monitoring</h1>
             <p className="text-sm text-muted-foreground mt-1">Compliance tracking and temperature logs</p>
           </div>
-          <button className="h-11 px-4 rounded-lg border border-border/40 bg-card text-muted-foreground flex items-center gap-2 hover:border-border/60 active:scale-95 transition-all">
+          <button onClick={() => navigate('/reports')} className="h-11 px-4 rounded-lg border border-border/40 card-glass text-muted-foreground flex items-center gap-2 hover:border-border/60 active:scale-95 transition-all">
             <Download className="h-5 w-5" />
             Export
           </button>
@@ -63,7 +65,7 @@ export default function TemperatureDashboard() {
 
         <div className="space-y-4">
           <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Equipment Health</h2>
-          <div className="bg-card border border-border/40 rounded-xl p-6">
+          <div className="card-glass border border-border/40 rounded-xl p-6">
             <p className="text-muted-foreground text-sm">Equipment failure tracking and history coming soon</p>
           </div>
         </div>

@@ -69,8 +69,8 @@ export default function Profile() {
           <p className="text-xs text-muted-foreground mt-0.5">Manage your account, team, and system preferences.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">Today's Plan</button>
-          <button className="h-8 w-8 rounded-lg border border-border bg-card flex items-center justify-center hover:bg-muted active:scale-95"><Bell className="h-3.5 w-3.5 text-muted-foreground" /></button>
+          <button className="h-8 px-3 rounded-lg border border-border card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">Today's Plan</button>
+          <button className="h-8 w-8 rounded-lg border border-border card-glass flex items-center justify-center hover:bg-muted active:scale-95"><Bell className="h-3.5 w-3.5 text-muted-foreground" /></button>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ export default function Profile() {
           {SETTINGS_GROUPS.map(group => {
             const Icon = group.icon;
             return (
-              <div key={group.title} className="bg-card border border-border/60 rounded-xl p-4">
+              <div key={group.title} className="card-glass border border-border/60 rounded-xl p-4">
                 <div className="flex items-start gap-3 mb-3">
                   <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', group.bg)}>
                     <Icon className={cn('h-5 w-5', group.color)} />
@@ -105,7 +105,7 @@ export default function Profile() {
         </div>
 
         {/* System Information — full width bottom card */}
-        <div className="bg-card border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-start gap-3 mb-3">
             <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
               <Info className="h-5 w-5 text-muted-foreground" />
@@ -127,7 +127,7 @@ export default function Profile() {
 
         {/* Account actions */}
         <div className="flex gap-3 mt-4">
-          <div className="flex-1 bg-card border border-border/60 rounded-xl p-3 flex items-center gap-3">
+          <div className="flex-1 card-glass border border-border/60 rounded-xl p-3 flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
               <span className="text-base font-extrabold text-primary">{user?.full_name?.charAt(0) || 'U'}</span>
             </div>
@@ -155,7 +155,7 @@ export default function Profile() {
         </div>
 
         <div className="px-4 py-4 space-y-6">
-          <div className="bg-card border border-border rounded-xl p-4 space-y-2">
+          <div className="card-glass border border-border rounded-xl p-4 space-y-2">
             <p className="text-xs text-secondary-text font-bold uppercase">Account</p>
             <p className="text-lg font-bold text-foreground">{user?.full_name}</p>
             <p className="text-sm text-secondary-text">{user?.email}</p>
@@ -177,11 +177,11 @@ export default function Profile() {
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm space-y-4">
+          <div className="card-glass border border-border rounded-2xl p-6 max-w-sm space-y-4">
             <h2 className="text-xl font-bold text-foreground">Delete Account?</h2>
             <p className="text-sm text-secondary-text">This action cannot be undone. All your data will be permanently deleted.</p>
             <div className="flex gap-2">
-              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting} className="flex-1 h-10 rounded-lg border border-border bg-card text-foreground font-bold active:scale-95 disabled:opacity-50">Cancel</button>
+              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting} className="flex-1 h-10 rounded-lg border border-border card-glass text-foreground font-bold active:scale-95 disabled:opacity-50">Cancel</button>
               <button onClick={handleDeleteAccount} disabled={deleting} className="flex-1 h-10 rounded-lg bg-red-500/20 text-red-400 font-bold border border-red-500/30 active:scale-95 disabled:opacity-50">
                 {deleting ? <div className="h-4 w-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin mx-auto" /> : 'Delete'}
               </button>

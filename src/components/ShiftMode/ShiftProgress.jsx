@@ -9,7 +9,7 @@ export default function ShiftProgress({ shift }) {
   const overallProgress = Math.round((taskProgress + logProgress) / 2);
 
   return (
-    <div className="bg-card border border-border rounded-xl p-3 space-y-3">
+    <div className="card-glass border border-border rounded-xl p-3 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold">Shift Progress</h3>
         <span className="text-2xl font-bold text-primary">{overallProgress}%</span>

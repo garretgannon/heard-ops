@@ -327,7 +327,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
 
 
 
-            <div className="bg-card border border-border rounded-xl p-4">
+            <div className="card-glass border border-border rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-bold text-foreground">Or paste table data</p>
                 <button onClick={() => setUsePaste(!usePaste)} className="text-[10px] font-bold text-primary">{usePaste ? 'Hide' : 'Show'}</button>
@@ -349,7 +349,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{rawRows.length} rows detected · {headers.length} columns</p>
             <div className="space-y-2">
               {headers.map(header => (
-                <div key={header} className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2">
+                <div key={header} className="flex items-center gap-2 card-glass border border-border rounded-lg px-3 py-2">
                   <span className="text-xs font-bold text-foreground flex-1 truncate">{header}</span>
                   <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
                   <select
@@ -447,7 +447,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
         {/* STEP 5: Confirm */}
         {step === 5 && (
           <div className="space-y-4">
-            <div className="bg-card border border-border rounded-xl p-4 space-y-2">
+            <div className="card-glass border border-border rounded-xl p-4 space-y-2">
               <p className="text-sm font-extrabold text-foreground mb-3">Ready to Import</p>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -482,7 +482,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
               <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto mb-3" />
               <p className="text-lg font-extrabold text-foreground">Import Complete!</p>
             </div>
-            <div className="bg-card border border-border rounded-xl p-4 space-y-2">
+            <div className="card-glass border border-border rounded-xl p-4 space-y-2">
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Items created</span><span className="font-bold text-green-400">{result.created}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Items updated</span><span className="font-bold text-primary">{result.updated}</span></div>
               <div className="flex justify-between text-sm"><span className="text-muted-foreground">Rows skipped</span><span className="font-bold text-muted-foreground">{result.skipped}</span></div>

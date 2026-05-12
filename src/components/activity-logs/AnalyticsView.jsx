@@ -6,7 +6,7 @@ import { CheckCircle2, AlertTriangle, Clock, Thermometer, Wrench, Flag, Users, B
 
 function StatCard({ label, value, icon: Icon, borderColor, sub }) {
   return (
-    <div className={cn("bg-card border border-border/60 rounded-xl px-4 py-3 space-y-1", borderColor && `border-l-4 ${borderColor}`)}>
+    <div className={cn("card-glass border border-border/60 rounded-xl px-4 py-3 space-y-1", borderColor && `border-l-4 ${borderColor}`)}>
       <div className="flex items-center justify-between">
         <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
         {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground/60" />}
@@ -69,7 +69,7 @@ export default function AnalyticsView({ logs }) {
       </div>
       <div>
         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Breakdown ({stats.total} total)</p>
-        <div className="bg-card border border-border/60 rounded-xl p-4 space-y-3">
+        <div className="card-glass border border-border/60 rounded-xl p-4 space-y-3">
           {typeEntries.map(([type, count]) => {
             const cfg = LOG_TYPES[type];
             if (!cfg) return null;

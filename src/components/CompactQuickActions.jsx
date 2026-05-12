@@ -19,7 +19,7 @@ export default function CompactQuickActions({ onActionClick }) {
             haptics.light();
             onActionClick?.(id);
           }}
-          className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg bg-card border border-border/50 hover:border-border/80 active:scale-95 transition-all group"
+          className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg card-glass border border-border/50 hover:border-border/80 active:scale-95 transition-all group"
         >
           <div className="relative">
             <Icon className={`h-5 w-5 stroke-[1.5] ${color}`} />

@@ -48,7 +48,7 @@ export default function OnboardingTeamSize({ onBack, onSelect }) {
                 className={`w-full rounded-2xl p-6 text-center transition-all relative overflow-hidden ${
                   isSelected
                     ? 'bg-primary text-primary-foreground ring-2 ring-primary/50'
-                    : 'bg-card border border-border hover:border-border/50'
+                    : 'card-glass border border-border hover:border-border/50'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2 mb-2">

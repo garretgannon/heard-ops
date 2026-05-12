@@ -16,7 +16,7 @@ export default function ServerLaunch({ isOpen, onClose, onComplete, roleLabel })
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         <h2 className="text-sm font-bold text-foreground">Shift Briefing</h2>
-        <div className="bg-card border border-border rounded-lg p-3 space-y-2 text-xs text-secondary-text">
+        <div className="card-glass border border-border rounded-lg p-3 space-y-2 text-xs text-secondary-text">
           <p>Review today's reservations, specials, and service notes from FOH lead.</p>
         </div>
 

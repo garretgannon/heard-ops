@@ -14,7 +14,7 @@ export default function AccessRestricted({ message }) {
       </p>
       <button
         onClick={() => navigate('/')}
-        className="mt-6 px-5 py-2.5 rounded-xl bg-card border border-border text-sm font-semibold text-foreground hover:border-border/80 active:scale-95 transition-all"
+        className="mt-6 px-5 py-2.5 rounded-xl card-glass border border-border text-sm font-semibold text-foreground hover:border-border/80 active:scale-95 transition-all"
       >
         Back to Today
       </button>

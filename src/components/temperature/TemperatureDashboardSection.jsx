@@ -11,7 +11,7 @@ export default function TemperatureDashboardSection({ title, filter, icon: Icon,
 
   return (
     <>
-      <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
+      <div className="card-glass border border-border/40 rounded-xl overflow-hidden">
         {/* Header */}
         <button
           onClick={() => setIsOpen(!isOpen)}

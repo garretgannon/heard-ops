@@ -175,7 +175,7 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Menu Item
             </button>
             {menuItems.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="bg-card border border-border rounded-xl p-3 space-y-2">
+              <div key={idx} className="card-glass border border-border rounded-xl p-3 space-y-2">
                 <div className="flex gap-2">
                   <input value={item.itemName} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, itemName: e.target.value, _dirty:true} : x))} placeholder="Item name *" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <button onClick={() => setMenuItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
@@ -198,7 +198,7 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Prep Item
             </button>
             {prepItems.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="bg-card border border-border rounded-xl p-3 space-y-2">
+              <div key={idx} className="card-glass border border-border rounded-xl p-3 space-y-2">
                 <div className="flex gap-2">
                   <input value={item.prepItem} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, prepItem: e.target.value, _dirty:true} : x))} placeholder="Prep item *" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <button onClick={() => setPrepItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
@@ -237,7 +237,7 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Dietary Restriction
             </button>
             {dietary.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="bg-card border border-border rounded-xl p-3 space-y-2">
+              <div key={idx} className="card-glass border border-border rounded-xl p-3 space-y-2">
                 <div className="flex gap-2">
                   <input value={item.guestName} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, guestName: e.target.value} : x))} placeholder="Guest name (optional)" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <button onClick={() => setDietary(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>

@@ -18,7 +18,7 @@ export default function ShiftOverviewCard({
   const status = getStatus();
 
   return (
-    <div className="bg-card border border-border/30 rounded-xl p-5 space-y-4 shadow-lg">
+    <div className="card-glass border border-border/30 rounded-xl p-5 space-y-4 shadow-lg">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">

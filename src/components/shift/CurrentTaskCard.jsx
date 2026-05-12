@@ -41,7 +41,7 @@ export default function CurrentTaskCard({
 
   if (!task) {
     return (
-      <div className="bg-card border border-border/30 rounded-xl p-5 text-center space-y-3 shadow-lg">
+      <div className="card-glass border border-border/30 rounded-xl p-5 text-center space-y-3 shadow-lg">
         <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto" />
         <div>
           <p className="font-bold text-foreground">All tasks complete!</p>
@@ -91,7 +91,7 @@ export default function CurrentTaskCard({
   return (
     <div className="space-y-4">
       {/* Task Card */}
-      <div className="bg-card border border-border/30 rounded-xl p-5 space-y-4 shadow-lg">
+      <div className="card-glass border border-border/30 rounded-xl p-5 space-y-4 shadow-lg">
         {/* Type Badge */}
         <div className={cn('inline-block px-2.5 py-1 rounded-lg border text-[10px] font-bold', taskTypeColor)}>
           {TASK_TYPE_ICONS[task.type]} {task.type.replace('_', ' ')}
@@ -173,14 +173,14 @@ export default function CurrentTaskCard({
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleUnableClick}
-              className="h-10 rounded-lg border border-border/30 bg-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
+              className="h-10 rounded-lg border border-border/30 card-glass text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
             >
               Unable to Complete
             </button>
             {!isStartable && (
               <button
                 onClick={() => onSkip?.(task.id)}
-                className="h-10 rounded-lg border border-border/30 bg-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
+                className="h-10 rounded-lg border border-border/30 card-glass text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
               >
                 Skip for Now
               </button>
@@ -215,7 +215,7 @@ export default function CurrentTaskCard({
           <div className="flex gap-2">
             <button
               onClick={() => setShowActions(false)}
-              className="flex-1 h-9 rounded-lg border border-border bg-card text-foreground font-semibold text-xs"
+              className="flex-1 h-9 rounded-lg border border-border card-glass text-foreground font-semibold text-xs"
             >
               Cancel
             </button>

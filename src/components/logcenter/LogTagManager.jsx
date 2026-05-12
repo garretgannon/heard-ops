@@ -81,7 +81,7 @@ export default function LogTagManager({ selectedTags = [], onChange, maxTags = 1
             <div key={typeKey}>
               <button
                 onClick={() => setExpandedType(isExpanded ? null : typeKey)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-card hover:bg-muted transition-all text-left"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border card-glass hover:bg-muted transition-all text-left"
               >
                 <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <span>{typeConfig.icon}</span>

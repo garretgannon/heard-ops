@@ -487,7 +487,7 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
       {/* Bulk Add Dialog */}
       {showBulkAdd && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowBulkAdd(false)}>
-          <div className="bg-card border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="card-glass border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-border">
               <h2 className="font-semibold text-lg">Bulk Add Items</h2>
               <button onClick={() => setShowBulkAdd(false)}><X className="h-5 w-5 text-muted-foreground" /></button>

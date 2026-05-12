@@ -157,7 +157,7 @@ export default function BEODetail({ beo, isAdmin, user, onClose, onEdit, onSave 
           <SectionBlock title="Prep & Production" color="text-orange-400">
             <div className="space-y-1.5">
               {prepItems.map(item => (
-                <div key={item.id} className="bg-card border border-border rounded-lg px-3 py-2">
+                <div key={item.id} className="card-glass border border-border rounded-lg px-3 py-2">
                   <div className="flex items-center gap-2">
                     <span className="flex-1 text-xs font-bold text-foreground">{item.prepItem}</span>
                     {item.quantity && <span className="text-xs text-muted-foreground">{item.quantity} {item.unit}</span>}
@@ -238,7 +238,7 @@ export default function BEODetail({ beo, isAdmin, user, onClose, onEdit, onSave 
           <SectionBlock title="Equipment Needs">
             <div className="space-y-1.5">
               {equipment.map(e => (
-                <div key={e.id} className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2">
+                <div key={e.id} className="flex items-center gap-2 card-glass border border-border rounded-lg px-3 py-2">
                   <span className="flex-1 text-sm font-semibold text-foreground">{e.equipmentName}</span>
                   {e.quantity && <span className="text-xs text-muted-foreground">× {e.quantity}</span>}
                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${e.status === 'on-site' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground'}`}>
@@ -270,7 +270,7 @@ export default function BEODetail({ beo, isAdmin, user, onClose, onEdit, onSave 
             <div className="space-y-1.5">
               {attachments.map(a => (
                 <a key={a.id} href={a.fileUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2 active:scale-[0.99]">
+                  className="flex items-center gap-2 card-glass border border-border rounded-lg px-3 py-2 active:scale-[0.99]">
                   <span className="flex-1 text-sm font-semibold text-primary truncate">{a.fileName}</span>
                   <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground capitalize">{a.fileType}</span>
                 </a>

@@ -68,7 +68,7 @@ export default function OwnershipTab() {
 
       <div className="space-y-3">
         {Object.values(areaMap).map(area => (
-          <div key={area.id} className="bg-card border border-border rounded-xl overflow-hidden">
+          <div key={area.id} className="card-glass border border-border rounded-xl overflow-hidden">
             {/* Area row */}
             <div className="flex items-center gap-3 px-3 py-2.5 bg-muted/30">
               <MapPin className="h-4 w-4 text-orange-400 shrink-0" />
@@ -105,7 +105,7 @@ export default function OwnershipTab() {
         ))}
 
         {unassigned.length > 0 && (
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="card-glass border border-border rounded-xl overflow-hidden">
             <div className="px-3 py-2 bg-muted/20">
               <p className="text-xs font-bold text-muted-foreground">Unassigned Stations</p>
             </div>

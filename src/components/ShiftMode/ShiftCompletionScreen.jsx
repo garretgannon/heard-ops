@@ -49,15 +49,15 @@ export default function ShiftCompletionScreen({
 
       {/* Performance Breakdown */}
       <div className="w-full grid grid-cols-3 gap-2">
-        <div className="bg-card border border-border rounded-lg p-3 text-center">
+        <div className="card-glass border border-border rounded-lg p-3 text-center">
           <p className="text-sm font-bold text-blue-400">{tasksCompletedPct}%</p>
           <p className="text-[9px] text-muted-foreground font-semibold uppercase mt-1">Tasks</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-3 text-center">
+        <div className="card-glass border border-border rounded-lg p-3 text-center">
           <p className="text-sm font-bold text-emerald-400">{logsCompletedPct}%</p>
           <p className="text-[9px] text-muted-foreground font-semibold uppercase mt-1">Logs</p>
         </div>
-        <div className="bg-card border border-border rounded-lg p-3 text-center">
+        <div className="card-glass border border-border rounded-lg p-3 text-center">
           <p className="text-sm font-bold text-amber-400">{issuesLeftOpen}</p>
           <p className="text-[9px] text-muted-foreground font-semibold uppercase mt-1">Issues Open</p>
         </div>
@@ -65,7 +65,7 @@ export default function ShiftCompletionScreen({
 
       {/* Coverage Rating */}
       {coverageRating > 0 && (
-        <div className="w-full bg-card border border-border rounded-lg p-3">
+        <div className="w-full card-glass border border-border rounded-lg p-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-foreground">Coverage</span>
             <div className="flex gap-0.5">

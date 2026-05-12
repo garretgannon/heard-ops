@@ -76,7 +76,7 @@ export default function Pulse() {
         {/* Operational Health Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Completion Rate */}
-          <div className="bg-card border border-border rounded-lg p-4 space-y-2">
+          <div className="card-glass border border-border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-green-500" />
               <p className="text-xs font-bold text-muted-foreground uppercase">Completion</p>
@@ -86,7 +86,7 @@ export default function Pulse() {
           </div>
 
           {/* Active Alerts */}
-          <div className="bg-card border border-border rounded-lg p-4 space-y-2">
+          <div className="card-glass border border-border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-red-500" />
               <p className="text-xs font-bold text-muted-foreground uppercase">Alerts</p>
@@ -96,7 +96,7 @@ export default function Pulse() {
           </div>
 
           {/* Overdue Items */}
-          <div className="bg-card border border-border rounded-lg p-4 space-y-2">
+          <div className="card-glass border border-border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-amber-500" />
               <p className="text-xs font-bold text-muted-foreground uppercase">Overdue</p>
@@ -106,7 +106,7 @@ export default function Pulse() {
           </div>
 
           {/* Team Active */}
-          <div className="bg-card border border-border rounded-lg p-4 space-y-2">
+          <div className="card-glass border border-border rounded-lg p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4 text-blue-500" />
               <p className="text-xs font-bold text-muted-foreground uppercase">Team</p>
@@ -116,7 +116,7 @@ export default function Pulse() {
           </div>
 
           {/* Pending Approvals */}
-          <div onClick={() => navigate('/review-queue')} className="bg-card border border-border rounded-lg p-4 space-y-2 cursor-pointer hover:border-primary/50 transition-colors">
+          <div onClick={() => navigate('/review-queue')} className="card-glass border border-border rounded-lg p-4 space-y-2 cursor-pointer hover:border-primary/50 transition-colors">
             <div className="flex items-center gap-2">
               <CheckSquare className="h-4 w-4 text-primary" />
               <p className="text-xs font-bold text-muted-foreground uppercase">Approvals</p>

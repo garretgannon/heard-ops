@@ -24,7 +24,7 @@ export default function LogsQuickActionsSidebar({ logs, onLogClick, onCreateLog,
             <button
               key={log.id}
               onClick={() => onLogClick(log)}
-              className="w-full text-left px-2.5 py-2 rounded-lg bg-card/70 hover:bg-card border border-border/40 hover:border-primary/40 transition-all active:scale-95">
+              className="w-full text-left px-2.5 py-2 rounded-lg bg-card/70 hover:card-glass border border-border/40 hover:border-primary/40 transition-all active:scale-95">
               <p className="text-[10px] font-bold text-foreground line-clamp-1">{log.title}</p>
               <p className="text-[9px] text-muted-foreground">{log.subtitle || log.person}</p>
             </button>

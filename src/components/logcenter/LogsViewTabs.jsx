@@ -19,7 +19,7 @@ export default function LogsViewTabs({ activeView, onViewChange }) {
               'flex-1 h-9 rounded-lg text-xs font-semibold transition-all duration-200',
               activeView === view.id
                 ? 'glow-active'
-                : 'bg-card border border-border/40 text-muted-foreground hover:border-border/60'
+                : 'card-glass border border-border/40 text-muted-foreground hover:border-border/60'
             )}
           >
             {view.label}

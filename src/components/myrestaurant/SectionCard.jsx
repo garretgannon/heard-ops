@@ -2,7 +2,7 @@ export default function SectionCard({ icon: Icon, title, description, count, com
   return (
     <button
       onClick={onClick}
-      className="w-full bg-card border border-border rounded-xl p-3.5 flex items-center gap-3 text-left active:scale-[0.98] transition-all"
+      className="w-full card-glass border border-border rounded-xl p-3.5 flex items-center gap-3 text-left active:scale-[0.98] transition-all"
     >
       <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${complete ? 'bg-green-500/15' : 'bg-muted'}`}>
         <Icon className={`h-5 w-5 ${complete ? 'text-green-400' : 'text-muted-foreground'}`} />
