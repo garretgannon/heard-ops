@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import {
   AlertTriangle, Beaker, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight,
-  ClipboardCheck, ListChecks, Package, Plus, RefreshCw, Sparkles, Thermometer,
+  ClipboardCheck, ListChecks, Package, Plus, RefreshCw, Search, Sparkles, Thermometer,
   Wrench, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -281,11 +281,26 @@ function AddEquipmentForm({ station, area, onSave, onCancel }) {
 
 function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates, inventoryItems, onEquipmentRefresh }) {
   const navigate = useNavigate();
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [addingEquipment, setAddingEquipment] = useState(false);
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Prep / Sidework add form
+  const [addingItem, setAddingItem] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemQty, setNewItemQty] = useState('');
+
+  // Temps — per-equipment input state
+  const [tempInputs, setTempInputs] = useState({});
+  const [tempSaving, setTempSaving] = useState({});
+  const [tempLogged, setTempLogged] = useState({});
+
+  // Chemicals — all chemicals for search + assigned subset
+  const [allChemicals, setAllChemicals] = useState([]);
+  const [chemSearch, setChemSearch] = useState('');
 
   useEffect(() => {
     if (workflow === 'equipment') { setLoading(false); return; }
@@ -304,9 +319,6 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           (i.station_id === station.id || i.station_name === station.name || i.stationId === station.id) &&
           (i.date === todayStr || !i.date)
         ));
-      } else if (workflow === 'temps') {
-        const tempItems = await base44.entities.MonitoredTemperatureItem.list().catch(() => []);
-        setData(tempItems.filter(i => i.station_id === station.id || i.station_name === station.name));
       } else if (workflow === 'cleaning') {
         const tasks = await base44.entities.GeneratedTask.list('-created_date', 200).catch(() => []);
         setData(tasks.filter(t =>
@@ -316,6 +328,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
         ));
       } else if (workflow === 'chemicals') {
         const chemicals = await base44.entities.Chemical.list().catch(() => []);
+        setAllChemicals(chemicals);
         setData(chemicals.filter(c => {
           const stations = c.assigned_stations || c.assignedStations || [];
           return stations.includes(station.id) || stations.includes(station.name) ||
@@ -328,6 +341,133 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
     setLoading(false);
   };
 
+  // ── Prep actions ──────────────────────────────────────────────────────────
+  const togglePrepItem = async (item) => {
+    const next = item.status === 'completed' ? 'pending' : 'completed';
+    setData(prev => prev.map(i => i.id === item.id ? { ...i, status: next } : i));
+    await base44.entities.PrepItem.update(item.id, { status: next });
+  };
+
+  const addPrepItem = async () => {
+    if (!newItemName.trim()) return;
+    setSaving(true);
+    const created = await base44.entities.PrepItem.create({
+      itemName: newItemName.trim(),
+      quantity: newItemQty.trim() || undefined,
+      station_id: station.id,
+      station_name: station.name,
+      status: 'pending',
+      due_date: todayStr,
+    });
+    setData(prev => [created, ...(prev || [])]);
+    setNewItemName(''); setNewItemQty(''); setAddingItem(false);
+    setSaving(false);
+  };
+
+  // ── Sidework actions ──────────────────────────────────────────────────────
+  const toggleSideworkTask = async (task) => {
+    const next = task.status === 'completed' ? 'pending' : 'completed';
+    setData(prev => prev.map(t => t.id === task.id ? { ...t, status: next } : t));
+    await base44.entities.DailySideWorkTask.update(task.id, { status: next });
+  };
+
+  const addSideworkTask = async () => {
+    if (!newItemName.trim()) return;
+    setSaving(true);
+    const created = await base44.entities.DailySideWorkTask.create({
+      title: newItemName.trim(),
+      station_id: station.id,
+      station_name: station.name,
+      date: todayStr,
+      status: 'pending',
+    });
+    setData(prev => [created, ...(prev || [])]);
+    setNewItemName(''); setAddingItem(false);
+    setSaving(false);
+  };
+
+  // ── Temp actions ──────────────────────────────────────────────────────────
+  const logTemp = async (eq) => {
+    const val = tempInputs[eq.id];
+    if (!val || isNaN(Number(val))) return;
+    setTempSaving(prev => ({ ...prev, [eq.id]: true }));
+    await base44.entities.TemperatureLog.create({
+      equipment_id: eq.id,
+      equipment_name: eq.name,
+      station_id: station.id,
+      station_name: station.name,
+      temperature: Number(val),
+      unit: 'F',
+      status: 'logged',
+      in_range: true,
+    });
+    setTempLogged(prev => ({ ...prev, [eq.id]: val }));
+    setTempInputs(prev => ({ ...prev, [eq.id]: '' }));
+    setTempSaving(prev => ({ ...prev, [eq.id]: false }));
+  };
+
+  // ── Cleaning actions ──────────────────────────────────────────────────────
+  const toggleCleaningTask = async (task) => {
+    const next = task.status === 'completed' ? 'pending' : 'completed';
+    setData(prev => prev.map(t => t.id === task.id ? { ...t, status: next } : t));
+    await base44.entities.GeneratedTask.update(task.id, { status: next });
+  };
+
+  // ── Chemical actions ──────────────────────────────────────────────────────
+  const assignChemical = async (chem) => {
+    const existing = chem.assigned_stations || chem.assignedStations || [];
+    if (existing.includes(station.id)) return;
+    const updated = [...existing, station.id];
+    setSaving(true);
+    await base44.entities.Chemical.update(chem.id, { assigned_stations: updated });
+    const updatedChem = { ...chem, assigned_stations: updated };
+    setAllChemicals(prev => prev.map(c => c.id === chem.id ? updatedChem : c));
+    setData(prev => [...(prev || []), updatedChem]);
+    setChemSearch('');
+    setSaving(false);
+  };
+
+  const unassignChemical = async (chem) => {
+    const existing = chem.assigned_stations || chem.assignedStations || [];
+    const updated = existing.filter(s => s !== station.id && s !== station.name);
+    setSaving(true);
+    await base44.entities.Chemical.update(chem.id, { assigned_stations: updated });
+    setData(prev => (prev || []).filter(c => c.id !== chem.id));
+    setAllChemicals(prev => prev.map(c => c.id === chem.id ? { ...c, assigned_stations: updated } : c));
+    setSaving(false);
+  };
+
+  // ── Shared add-item form (Prep / Sidework) ────────────────────────────────
+  const renderAddItemForm = (onAdd, placeholder, showQty = false) => (
+    <div className="space-y-2 rounded-xl border border-primary/25 bg-primary/5 p-3">
+      <input
+        value={newItemName}
+        onChange={e => setNewItemName(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && onAdd()}
+        placeholder={placeholder}
+        autoFocus
+        className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary/50"
+      />
+      {showQty && (
+        <input
+          value={newItemQty}
+          onChange={e => setNewItemQty(e.target.value)}
+          placeholder="Qty / amount (optional)"
+          className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50"
+        />
+      )}
+      <div className="flex gap-2">
+        <button type="button" onClick={onAdd} disabled={saving || !newItemName.trim()} className="flex-1 h-10 rounded-lg bg-primary text-xs font-black text-primary-foreground disabled:opacity-50">
+          {saving ? 'Adding…' : 'Add'}
+        </button>
+        <button type="button" onClick={() => { setAddingItem(false); setNewItemName(''); setNewItemQty(''); }} className="flex-1 h-10 rounded-lg border border-border/60 text-xs font-black text-muted-foreground">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── Equipment ─────────────────────────────────────────────────────────────
   if (workflow === 'equipment') {
     return (
       <div className="space-y-3">
@@ -340,11 +480,9 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
         )}
         {equipment.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border/50 px-3 py-5 text-center text-xs font-semibold text-muted-foreground">No equipment assigned to this station yet.</div>
-        ) : (
-          equipment.map((item) => (
-            <EquipmentRow key={item.id} item={item} cleaningTemplates={cleaningTemplates} inventoryItems={inventoryItems} onRefresh={onEquipmentRefresh} />
-          ))
-        )}
+        ) : equipment.map(item => (
+          <EquipmentRow key={item.id} item={item} cleaningTemplates={cleaningTemplates} inventoryItems={inventoryItems} onRefresh={onEquipmentRefresh} />
+        ))}
       </div>
     );
   }
@@ -353,54 +491,87 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
     return <div className="flex items-center justify-center py-10"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
   }
 
+  // ── Prep ──────────────────────────────────────────────────────────────────
   if (workflow === 'prep') {
-    const isEmpty = !data || data.length === 0;
+    const doneCount = (data || []).filter(i => i.status === 'completed').length;
     return (
       <div className="space-y-2">
-        {isEmpty ? (
+        {addingItem ? renderAddItemForm(addPrepItem, 'Item name…', true) : (
+          <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
+            <Plus className="h-3.5 w-3.5" /> Add prep item
+          </button>
+        )}
+        {data && data.length > 0 && (
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{doneCount}/{data.length} complete</p>
+        )}
+        {(!data || data.length === 0) && !addingItem && (
           <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
             <p className="text-sm font-semibold text-muted-foreground">No prep items for this station</p>
+            <p className="text-xs text-muted-foreground mt-1">Add one above or create from the prep list page</p>
           </div>
-        ) : data.map(item => (
-          <div key={item.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3">
-            <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center', item.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
+        )}
+        {(data || []).map(item => (
+          <button key={item.id} type="button" onClick={() => togglePrepItem(item)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3 text-left active:scale-[0.98] transition-transform">
+            <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', item.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
               {item.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className={cn('text-sm font-bold', item.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>{item.itemName || item.name || item.title}</p>
+              <p className={cn('text-sm font-bold transition-all', item.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>
+                {item.itemName || item.name || item.title}
+              </p>
               {item.quantity && <p className="text-xs text-muted-foreground">{item.quantity} {item.unit || ''}</p>}
             </div>
-            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', item.status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground')}>{item.status || 'pending'}</span>
-          </div>
+            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', item.status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground')}>
+              {item.status === 'completed' ? 'done' : 'pending'}
+            </span>
+          </button>
         ))}
         <button onClick={() => navigate('/tasks?tab=prep')} className="w-full text-xs font-black text-primary text-center py-2">View all prep →</button>
       </div>
     );
   }
 
+  // ── Sidework ──────────────────────────────────────────────────────────────
   if (workflow === 'sidework') {
-    const isEmpty = !data || data.length === 0;
+    const doneCount = (data || []).filter(t => t.status === 'completed').length;
     return (
       <div className="space-y-2">
-        {isEmpty ? (
+        {addingItem ? renderAddItemForm(addSideworkTask, 'Task name…') : (
+          <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
+            <Plus className="h-3.5 w-3.5" /> Add sidework task
+          </button>
+        )}
+        {data && data.length > 0 && (
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{doneCount}/{data.length} complete</p>
+        )}
+        {(!data || data.length === 0) && !addingItem && (
           <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
             <p className="text-sm font-semibold text-muted-foreground">No sidework tasks for this station today</p>
+            <p className="text-xs text-muted-foreground mt-1">Add one above or create from the sidework page</p>
           </div>
-        ) : data.map(task => (
-          <div key={task.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3">
-            <div className={cn('h-5 w-5 rounded-full border-2 shrink-0', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')} />
+        )}
+        {(data || []).map(task => (
+          <button key={task.id} type="button" onClick={() => toggleSideworkTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3 text-left active:scale-[0.98] transition-transform">
+            <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
+              {task.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
+            </div>
             <div className="flex-1 min-w-0">
-              <p className={cn('text-sm font-bold', task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>{task.title || task.name || task.task_name}</p>
+              <p className={cn('text-sm font-bold transition-all', task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>
+                {task.title || task.name || task.task_name}
+              </p>
               {task.frequency && <p className="text-xs text-muted-foreground capitalize">{task.frequency}</p>}
             </div>
-            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', task.status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground')}>{task.status || 'pending'}</span>
-          </div>
+            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', task.status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground')}>
+              {task.status === 'completed' ? 'done' : 'pending'}
+            </span>
+          </button>
         ))}
         <button onClick={() => navigate('/tasks?tab=sidework')} className="w-full text-xs font-black text-primary text-center py-2">View all sidework →</button>
       </div>
     );
   }
 
+  // ── Temps ─────────────────────────────────────────────────────────────────
   if (workflow === 'temps') {
     const tempEquipment = equipment.filter(e => e.temp_enabled || e.requiresTemperatureLog);
     return (
@@ -413,20 +584,44 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           </div>
         ) : (
           <>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{tempEquipment.length} item{tempEquipment.length !== 1 ? 's' : ''} tracked</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{tempEquipment.length} item{tempEquipment.length !== 1 ? 's' : ''} tracked — tap to log a reading</p>
             {tempEquipment.map(eq => {
               const m = getEquipmentMeta(eq.equipmentType);
               const EqIcon = m.icon;
+              const logged = tempLogged[eq.id];
               return (
-                <div key={eq.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3">
-                  <span className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: m.bg }}>
-                    <EqIcon className={cn('h-4 w-4', m.iconColor)} />
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground">{eq.name}</p>
-                    <p className="text-xs text-muted-foreground">{hasTempSchedule(eq) ? `Every ${eq.temp_check_frequency_minutes} min` : 'Manual checks'}</p>
+                <div key={eq.id} className="rounded-xl border border-border/40 bg-black/20 p-3 space-y-2.5">
+                  <div className="flex items-center gap-3">
+                    <span className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: m.bg }}>
+                      <EqIcon className={cn('h-4 w-4', m.iconColor)} />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-foreground">{eq.name}</p>
+                      <p className="text-xs text-muted-foreground">{hasTempSchedule(eq) ? `Every ${eq.temp_check_frequency_minutes} min` : 'Manual checks'}</p>
+                    </div>
+                    {logged && (
+                      <span className="text-xs font-black text-green-400 shrink-0">✓ {logged}°F logged</span>
+                    )}
                   </div>
-                  <Thermometer className={cn('h-4 w-4', hasTempSchedule(eq) ? 'text-blue-400' : 'text-blue-400/40')} />
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      value={tempInputs[eq.id] || ''}
+                      onChange={e => setTempInputs(prev => ({ ...prev, [eq.id]: e.target.value }))}
+                      onKeyDown={e => e.key === 'Enter' && logTemp(eq)}
+                      placeholder="Enter °F"
+                      className="h-10 flex-1 rounded-lg border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-blue-500/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => logTemp(eq)}
+                      disabled={tempSaving[eq.id] || !tempInputs[eq.id]}
+                      className="h-10 px-4 rounded-lg bg-blue-500/20 border border-blue-500/30 text-xs font-black text-blue-400 disabled:opacity-40 active:scale-95"
+                    >
+                      {tempSaving[eq.id] ? '…' : 'Log'}
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -437,52 +632,118 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
     );
   }
 
+  // ── Cleaning ──────────────────────────────────────────────────────────────
   if (workflow === 'cleaning') {
-    const isEmpty = !data || data.length === 0;
+    const doneCount = (data || []).filter(t => t.status === 'completed').length;
     return (
       <div className="space-y-2">
-        {isEmpty ? (
+        {data && data.length > 0 && (
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{doneCount}/{data.length} complete</p>
+        )}
+        {(!data || data.length === 0) && (
           <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
             <Sparkles className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-sm font-semibold text-muted-foreground">No cleaning tasks today</p>
+            <p className="text-xs text-muted-foreground mt-1">Tasks appear here when generated for this station</p>
           </div>
-        ) : data.map(task => (
-          <div key={task.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3">
-            <div className={cn('h-5 w-5 rounded-full border-2 shrink-0', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')} />
+        )}
+        {(data || []).map(task => (
+          <button key={task.id} type="button" onClick={() => toggleCleaningTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3 text-left active:scale-[0.98] transition-transform">
+            <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
+              {task.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
+            </div>
             <div className="flex-1 min-w-0">
-              <p className={cn('text-sm font-bold', task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>{task.title || task.name || task.task_name}</p>
+              <p className={cn('text-sm font-bold transition-all', task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>
+                {task.title || task.name || task.task_name}
+              </p>
               {task.due_date && <p className="text-xs text-muted-foreground">Due: {task.due_date}</p>}
             </div>
-            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', task.status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground')}>{task.status || 'pending'}</span>
-          </div>
+            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0', task.status === 'completed' ? 'bg-green-500/15 text-green-400' : 'bg-muted text-muted-foreground')}>
+              {task.status === 'completed' ? 'done' : 'pending'}
+            </span>
+          </button>
         ))}
         <button onClick={() => navigate('/cleaning')} className="w-full text-xs font-black text-primary text-center py-2">View cleaning log →</button>
       </div>
     );
   }
 
+  // ── Chemicals ─────────────────────────────────────────────────────────────
   if (workflow === 'chemicals') {
-    const isEmpty = !data || data.length === 0;
+    const assignedIds = new Set((data || []).map(c => c.id));
+    const searchResults = chemSearch.trim()
+      ? allChemicals.filter(c =>
+          !assignedIds.has(c.id) &&
+          (c.name || c.chemical_name || '').toLowerCase().includes(chemSearch.toLowerCase())
+        ).slice(0, 6)
+      : [];
+
     return (
-      <div className="space-y-2">
-        {isEmpty ? (
+      <div className="space-y-3">
+        {/* Search to assign */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            value={chemSearch}
+            onChange={e => setChemSearch(e.target.value)}
+            placeholder="Search chemicals to assign…"
+            className="h-10 w-full rounded-xl border border-border/60 bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary/50"
+          />
+          {chemSearch && (
+            <button onClick={() => setChemSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Search results dropdown */}
+        {searchResults.length > 0 && (
+          <div className="rounded-xl border border-border/60 bg-popover overflow-hidden shadow-xl">
+            {searchResults.map(chem => (
+              <button key={chem.id} type="button" onClick={() => assignChemical(chem)} disabled={saving}
+                className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm hover:bg-muted/50 border-b border-border/30 last:border-0">
+                <div className="flex items-center gap-2.5">
+                  <Beaker className="h-4 w-4 text-purple-400 shrink-0" />
+                  <span className="font-semibold text-foreground">{chem.name || chem.chemical_name}</span>
+                </div>
+                <span className="text-xs font-bold text-primary">+ Assign</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Assigned chemicals */}
+        {(!data || data.length === 0) && !chemSearch && (
           <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
             <Beaker className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-sm font-semibold text-muted-foreground">No chemicals assigned to this station</p>
+            <p className="text-xs text-muted-foreground mt-1">Search above to assign chemicals</p>
           </div>
-        ) : data.map(chem => (
-          <div key={chem.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3">
-            <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
-              <Beaker className="h-4 w-4 text-purple-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-foreground">{chem.name || chem.chemical_name}</p>
-              {chem.chemical_type && <p className="text-xs text-muted-foreground capitalize">{chem.chemical_type}</p>}
-            </div>
-            {chem.dilution_ratio && <span className="text-[10px] font-bold text-muted-foreground">{chem.dilution_ratio}</span>}
-          </div>
-        ))}
-        <button onClick={() => navigate('/chemical-library')} className="w-full text-xs font-black text-primary text-center py-2">View all chemicals →</button>
+        )}
+
+        {(data || []).length > 0 && (
+          <>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{data.length} assigned</p>
+            {(data || []).map(chem => (
+              <div key={chem.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3">
+                <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+                  <Beaker className="h-4 w-4 text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground">{chem.name || chem.chemical_name}</p>
+                  {chem.chemical_type && <p className="text-xs text-muted-foreground capitalize">{chem.chemical_type}</p>}
+                  {chem.dilution_ratio && <p className="text-xs text-muted-foreground">{chem.dilution_ratio}</p>}
+                </div>
+                <button type="button" onClick={() => unassignChemical(chem)} disabled={saving}
+                  className="h-7 w-7 rounded-full flex items-center justify-center border border-border/50 bg-muted/30 text-muted-foreground hover:text-red-400 hover:border-red-500/30 active:scale-90 transition-all">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </>
+        )}
+
+        <button onClick={() => navigate('/chemical-library')} className="w-full text-xs font-black text-primary text-center py-2">View chemical library →</button>
       </div>
     );
   }
