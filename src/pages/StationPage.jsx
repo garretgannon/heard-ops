@@ -316,7 +316,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
       } else if (workflow === 'sidework') {
         const items = await base44.entities.DailySideWorkTask.list('-updated_date', 200).catch(() => []);
         setData(items.filter(i =>
-          (i.station_id === station.id || i.station_name === station.name || i.stationId === station.id) &&
+          (i.station_id === station.id || i.station === station.name || i.station_name === station.name) &&
           (i.date === todayStr || !i.date)
         ));
       } else if (workflow === 'cleaning') {
@@ -345,45 +345,58 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   const togglePrepItem = async (item) => {
     const next = item.status === 'completed' ? 'pending' : 'completed';
     setData(prev => prev.map(i => i.id === item.id ? { ...i, status: next } : i));
-    await base44.entities.PrepItem.update(item.id, { status: next });
+    await base44.entities.PrepItem.update(item.id, { status: next }).catch(console.error);
   };
 
   const addPrepItem = async () => {
     if (!newItemName.trim()) return;
     setSaving(true);
-    const created = await base44.entities.PrepItem.create({
-      itemName: newItemName.trim(),
-      quantity: newItemQty.trim() || undefined,
-      station_id: station.id,
-      station_name: station.name,
-      status: 'pending',
-      due_date: todayStr,
-    });
-    setData(prev => [created, ...(prev || [])]);
-    setNewItemName(''); setNewItemQty(''); setAddingItem(false);
-    setSaving(false);
+    try {
+      const created = await base44.entities.PrepItem.create({
+        name: newItemName.trim(),
+        quantity: newItemQty.trim() ? parseFloat(newItemQty) || newItemQty.trim() : undefined,
+        station_name: station.name,
+        station_id: station.id,
+        status: 'pending',
+        allow_all_roles: true,
+        due_date: todayStr,
+      });
+      if (created) setData(prev => [created, ...(prev || [])]);
+      setNewItemName(''); setNewItemQty(''); setAddingItem(false);
+    } catch (err) {
+      console.error('Failed to add prep item:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // ── Sidework actions ──────────────────────────────────────────────────────
   const toggleSideworkTask = async (task) => {
     const next = task.status === 'completed' ? 'pending' : 'completed';
     setData(prev => prev.map(t => t.id === task.id ? { ...t, status: next } : t));
-    await base44.entities.DailySideWorkTask.update(task.id, { status: next });
+    await base44.entities.DailySideWorkTask.update(task.id, { status: next }).catch(console.error);
   };
 
   const addSideworkTask = async () => {
     if (!newItemName.trim()) return;
     setSaving(true);
-    const created = await base44.entities.DailySideWorkTask.create({
-      title: newItemName.trim(),
-      station_id: station.id,
-      station_name: station.name,
-      date: todayStr,
-      status: 'pending',
-    });
-    setData(prev => [created, ...(prev || [])]);
-    setNewItemName(''); setAddingItem(false);
-    setSaving(false);
+    try {
+      const created = await base44.entities.DailySideWorkTask.create({
+        taskName: newItemName.trim(),
+        station_id: station.id,
+        station: station.name,
+        station_name: station.name,
+        date: todayStr,
+        status: 'pending',
+        allow_all_roles: true,
+      });
+      if (created) setData(prev => [created, ...(prev || [])]);
+      setNewItemName(''); setAddingItem(false);
+    } catch (err) {
+      console.error('Failed to add sidework task:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // ── Temp actions ──────────────────────────────────────────────────────────
@@ -517,7 +530,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
             </div>
             <div className="flex-1 min-w-0">
               <p className={cn('text-sm font-bold transition-all', item.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>
-                {item.itemName || item.name || item.title}
+                {item.name || item.itemName || item.item_name || item.title}
               </p>
               {item.quantity && <p className="text-xs text-muted-foreground">{item.quantity} {item.unit || ''}</p>}
             </div>
@@ -557,7 +570,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
             </div>
             <div className="flex-1 min-w-0">
               <p className={cn('text-sm font-bold transition-all', task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>
-                {task.title || task.name || task.task_name}
+                {task.taskName || task.title || task.task_name || task.name}
               </p>
               {task.frequency && <p className="text-xs text-muted-foreground capitalize">{task.frequency}</p>}
             </div>
@@ -654,7 +667,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
             </div>
             <div className="flex-1 min-w-0">
               <p className={cn('text-sm font-bold transition-all', task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground')}>
-                {task.title || task.name || task.task_name}
+                {task.taskName || task.title || task.task_name || task.name}
               </p>
               {task.due_date && <p className="text-xs text-muted-foreground">Due: {task.due_date}</p>}
             </div>
