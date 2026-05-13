@@ -10,6 +10,11 @@ import { cn } from '@/lib/utils';
 import BottomSheet from '@/components/BottomSheet';
 import { getEquipmentMeta } from '@/lib/equipmentConfig';
 
+const cardStyle = {
+  background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)",
+};
+
 const EQUIPMENT_TYPES = [
   ['dish-machine', 'Dish Machine'], ['3-compartment-sink', '3-Comp Sink'],
   ['hand-sink', 'Hand Sink'], ['prep-sink', 'Prep Sink'],
@@ -860,7 +865,7 @@ export default function StationPage() {
       </header>
 
       {/* Content */}
-      <main className="pt-[60px] pb-10 px-4 max-w-2xl mx-auto lg:max-w-4xl lg:px-8">
+      <main className="pt-[60px] pb-24 px-4 max-w-2xl mx-auto lg:max-w-4xl lg:px-8">
         {loading ? (
           <div className="space-y-4 pt-4">
             <div className="skeleton h-48 rounded-2xl" />
@@ -903,7 +908,7 @@ export default function StationPage() {
                   { label: 'Temp checks', value: tempEquipment.length },
                   { label: 'Issues', value: issueCount, highlight: issueCount > 0 },
                 ].map(({ label, value, highlight }) => (
-                  <div key={label} className="rounded-xl bg-black/20 p-2.5 text-center">
+                  <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(0,0,0,0.3)', boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
                     <p className={cn('text-lg font-black', highlight ? 'text-red-400' : 'text-foreground')}>{value}</p>
                     <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{label}</p>
                   </div>
@@ -926,10 +931,10 @@ export default function StationPage() {
             {/* Assigned employees */}
             {assignedEmployees.length > 0 && (
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Assigned Today</p>
+                <p className="metric-label">Assigned Today</p>
                 <div className="flex flex-wrap gap-2">
                   {assignedEmployees.map(e => (
-                    <div key={e.name} className="flex items-center gap-2 rounded-full border border-border/50 bg-black/25 py-1.5 pl-1.5 pr-3">
+                    <div key={e.name} className="flex items-center gap-2 rounded-full border border-border/40 py-1.5 pl-1.5 pr-3" style={{ background: 'rgba(11,17,24,0.95)', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
                       <span className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center text-[9px] font-black text-primary">
                         {e.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()}
                       </span>
@@ -943,13 +948,14 @@ export default function StationPage() {
 
             {/* Workflow grid */}
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Workflows</p>
+              <p className="metric-label mb-2">Workflows</p>
               <div className="grid grid-cols-3 gap-2 lg:grid-cols-6">
                 {WORKFLOWS.map(({ id: wid, label, icon: WorkflowIcon }) => (
                   <button key={wid} type="button" onClick={() => setActiveWorkflow(wid)}
-                    className="flex flex-col items-center gap-2 rounded-xl border border-border/50 bg-black/20 px-2 py-4 text-center transition-all active:scale-[0.97] hover:border-primary/25 hover:bg-primary/5">
-                    <WorkflowIcon className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-[10px] font-black text-muted-foreground">{label}</span>
+                    className="flex flex-col items-center gap-2 rounded-2xl border border-border/40 px-2 py-4 text-center transition-all active:scale-[0.97] hover:border-primary/30"
+                    style={cardStyle}>
+                    <WorkflowIcon className="h-5 w-5 text-primary/70" />
+                    <span className="text-[10px] font-black text-foreground/70">{label}</span>
                   </button>
                 ))}
               </div>
