@@ -5,11 +5,11 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Fetch all data in parallel
+    // Fetch all data in parallel — use asServiceRole to avoid user-context rate limits
     const [pendingTasks, failedChecks, existingApprovals] = await Promise.all([
-      base44.entities.GeneratedTask?.filter?.({ status: 'completed', requires_approval: true }, '-completed_at', 50).catch(() => []),
-      base44.entities.OperationalCheck?.filter?.({ status: 'failed' }, '-completed_at', 50).catch(() => []),
-      base44.entities.ApprovalQueue?.filter?.({ status: 'pending' }, '-submitted_at', 200).catch(() => []),
+      base44.asServiceRole.entities.GeneratedTask?.filter?.({ status: 'completed', requires_approval: true }, '-completed_at', 50).catch(() => []),
+      base44.asServiceRole.entities.OperationalCheck?.filter?.({ status: 'failed' }, '-completed_at', 50).catch(() => []),
+      base44.asServiceRole.entities.ApprovalQueue?.filter?.({ status: 'pending' }, '-submitted_at', 200).catch(() => []),
     ]);
 
     // Build a set of already-queued source IDs to avoid duplicates without extra API calls
@@ -49,11 +49,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Create all new entries in parallel (batched)
-    if (toCreate.length > 0) {
-      await Promise.all(
-        toCreate.map(entry => base44.entities.ApprovalQueue?.create?.(entry).catch(() => null))
-      );
+    // Create all new entries sequentially to avoid rate limits
+    for (const entry of toCreate) {
+      await base44.asServiceRole.entities.ApprovalQueue?.create?.(entry).catch(() => null);
     }
 
     return Response.json({ success: true, created: toCreate.length });
