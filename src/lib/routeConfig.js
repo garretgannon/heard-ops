@@ -163,7 +163,6 @@ export const moreNavSections = [
   {
     title: "Activity",
     items: [
-      { label: "Shift Handoff", detail: "Document and pass the shift",    path: "/shift?stage=debrief", icon: TrendingUp,    status: "status-warning" },
       { label: "Logs",          detail: "History and records",            path: "/logs",          icon: FileText,      status: "status-warning" },
       { label: "Comms",         detail: "Announcements and station notes", path: "/comms",         icon: MessageSquare, status: "status-warning" },
     ],

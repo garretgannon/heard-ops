@@ -5,8 +5,7 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import {
-  Beaker, Search, Plus, Edit2, Trash2, X, AlertTriangle, Download,
-  Shield, Droplet, ChevronRight, Archive, Eye
+  Beaker, Search, Plus, Edit2, Trash2, X, Download, ChevronRight, Eye
 } from 'lucide-react';
 
 const CATEGORIES = {
@@ -151,7 +150,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-20">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-36">
         {/* Basic Info */}
         <div className="space-y-2">
           <label className="text-xs font-bold text-foreground">Name *</label>
@@ -235,13 +234,16 @@ function ChemicalForm({ chemical, onSave, onClose }) {
 
         {/* Assignments */}
         <div className="border-t border-border pt-3">
-          <p className="text-xs font-bold text-foreground mb-2">🔗 Assignments</p>
+          <p className="text-xs font-bold text-foreground mb-1">🔗 Assignments</p>
+          <p className="mb-3 text-[11px] leading-4 text-muted-foreground">
+            Link this chemical to the areas and stations where the team should see it.
+          </p>
           {areas.length > 0 && (
-            <div className="mb-2">
-              <p className="text-[9px] text-muted-foreground mb-1">Areas</p>
-              <div className="flex flex-wrap gap-1">
+            <div className="mb-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mb-1.5">Areas</p>
+              <div className="flex flex-wrap gap-1.5">
                 {areas.map(a => (
-                  <button key={a.id} onClick={() => toggleArr('assigned_areas', a.id)} className={cn('text-[9px] px-2 py-0.5 rounded font-semibold', form.assigned_areas?.includes(a.id) ? 'bg-blue-500/20 text-blue-300' : 'bg-muted text-muted-foreground')}>
+                  <button key={a.id} onClick={() => toggleArr('assigned_areas', a.id)} className={cn('min-h-7 max-w-full rounded-full px-2.5 py-1 text-[10px] font-semibold', form.assigned_areas?.includes(a.id) ? 'bg-blue-500/20 text-blue-300' : 'bg-muted text-muted-foreground')}>
                     {a.name}
                   </button>
                 ))}
@@ -250,10 +252,10 @@ function ChemicalForm({ chemical, onSave, onClose }) {
           )}
           {stations.length > 0 && (
             <div>
-              <p className="text-[9px] text-muted-foreground mb-1">Stations</p>
-              <div className="flex flex-wrap gap-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mb-1.5">Stations</p>
+              <div className="flex flex-wrap gap-1.5">
                 {stations.map(s => (
-                  <button key={s.id} onClick={() => toggleArr('assigned_stations', s.id)} className={cn('text-[9px] px-2 py-0.5 rounded font-semibold', form.assigned_stations?.includes(s.id) ? 'bg-green-500/20 text-green-300' : 'bg-muted text-muted-foreground')}>
+                  <button key={s.id} onClick={() => toggleArr('assigned_stations', s.id)} className={cn('min-h-7 max-w-full rounded-full px-2.5 py-1 text-[10px] font-semibold', form.assigned_stations?.includes(s.id) ? 'bg-green-500/20 text-green-300' : 'bg-muted text-muted-foreground')}>
                     {s.name}
                   </button>
                 ))}
@@ -264,7 +266,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
       </div>
 
       {/* Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex gap-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex gap-2 pb-[max(12px,env(safe-area-inset-bottom))]">
         <button onClick={save} disabled={saving} className="flex-1 btn-primary text-sm h-10">{saving ? '...' : 'Save'}</button>
         <button onClick={onClose} className="flex-1 btn-secondary text-sm h-10">Cancel</button>
       </div>

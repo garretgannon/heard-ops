@@ -36,7 +36,7 @@ function ThreadRow({ thread, active, acknowledged, onClick }) {
     <button
       onClick={onClick}
       className={cn(
-        'w-full rounded-xl border p-3 text-left transition-all active:scale-[0.99]',
+        'w-full max-w-full overflow-hidden rounded-xl border p-3 text-left transition-all active:scale-[0.99]',
         active ? 'border-primary/40' : 'border-border/40 hover:border-border/60'
       )}
       style={active
@@ -49,14 +49,14 @@ function ThreadRow({ thread, active, acknowledged, onClick }) {
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <p className="truncate text-sm font-black text-foreground">{thread.title}</p>
             {thread.requires_acknowledgement && !acknowledged && (
               <span className="status-pill status-warning shrink-0">Ack</span>
             )}
           </div>
           <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{thread.body || meta.label}</p>
-          <div className="mt-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
             <span>{meta.label}</span>
             {thread.station_name && <span>{thread.station_name}</span>}
             <span>{formatTime(thread.last_message_at || thread.created_date)}</span>
@@ -124,11 +124,11 @@ function NewThreadForm({ isAdmin, stations, onCreate }) {
 
       {open && (
         <div className="space-y-3 border-t border-border/40 pt-3">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <select
               value={form.type}
               onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}
-              className="h-11 rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground"
+              className="h-11 min-w-0 rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground"
             >
               <option value="announcement">Announcement</option>
               <option value="station_note">Station note</option>
@@ -137,7 +137,7 @@ function NewThreadForm({ isAdmin, stations, onCreate }) {
             <select
               value={form.priority}
               onChange={(event) => setForm((prev) => ({ ...prev, priority: event.target.value }))}
-              className="h-11 rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground"
+              className="h-11 min-w-0 rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground"
             >
               <option value="normal">Normal</option>
               <option value="high">High</option>
@@ -304,7 +304,7 @@ export default function CommsCenter() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Communications" />
-      <main className="app-page mx-auto max-w-2xl lg:max-w-5xl space-y-5">
+      <main className="app-page mx-auto max-w-2xl space-y-5 overflow-hidden lg:max-w-5xl">
         <header className="pt-1 lg:hidden">
           <p className="metric-label">Comms</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Communication center</h1>
@@ -313,8 +313,8 @@ export default function CommsCenter() {
 
         <NewThreadForm isAdmin={isAdmin} stations={stations} onCreate={createThread} />
 
-        <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
-          <section className="space-y-3">
+        <div className="grid min-w-0 max-w-full gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
+          <section className="min-w-0 space-y-3">
             <div className="flex gap-2 overflow-x-auto pb-1">
               {[
                 ['open', 'Open'],
@@ -333,7 +333,7 @@ export default function CommsCenter() {
               ))}
             </div>
 
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               {visibleThreads.length === 0 ? (
                 <div className="app-card py-10 text-center">
                   <MessageSquare className="mx-auto h-7 w-7 text-muted-foreground" />
@@ -351,12 +351,12 @@ export default function CommsCenter() {
             </div>
           </section>
 
-          <section className="app-card-lg min-h-[520px] space-y-5">
+          <section className="app-card-lg min-w-0 max-w-full overflow-hidden space-y-5 lg:min-h-[520px]">
             {activeThread ? (
               <>
-                <div className="flex items-start justify-between gap-4 border-b border-border/40 pb-4">
-                  <div>
-                    <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-start justify-between gap-3 border-b border-border/40 pb-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className={cn('status-pill', priorityClass[activeThread.priority] || 'status-info')}>
                         {(TYPE_META[activeThread.type] || TYPE_META.announcement).label}
                       </span>
@@ -366,7 +366,7 @@ export default function CommsCenter() {
                         </span>
                       )}
                     </div>
-                    <h2 className="mt-3 text-2xl font-black tracking-tight text-foreground">{activeThread.title}</h2>
+                    <h2 className="mt-3 break-words text-2xl font-black tracking-tight text-foreground">{activeThread.title}</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {activeThread.station_name || activeThread.area_name || 'All staff'} · {formatTime(activeThread.last_message_at || activeThread.created_date)}
                     </p>
@@ -378,12 +378,12 @@ export default function CommsCenter() {
 
                 <div className="space-y-3">
                   {threadMessages.map((message) => (
-                    <div key={message.id} className="rounded-xl border border-border/30 p-4" style={{ background: 'rgba(255,255,255,0.025)' }}>
+                    <div key={message.id} className="max-w-full overflow-hidden rounded-xl border border-border/30 p-4" style={{ background: 'rgba(255,255,255,0.025)' }}>
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">{message.created_by_name || message.created_by || 'Team'}</p>
-                        <p className="text-xs text-muted-foreground">{formatTime(message.created_date)}</p>
+                        <p className="min-w-0 truncate text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">{message.created_by_name || message.created_by || 'Team'}</p>
+                        <p className="shrink-0 text-xs text-muted-foreground">{formatTime(message.created_date)}</p>
                       </div>
-                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">{message.body}</p>
+                      <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-foreground">{message.body}</p>
                     </div>
                   ))}
                 </div>
