@@ -294,15 +294,21 @@ export default function StaffShift() {
     if (quiet) setRefreshing(true); else setLoading(true);
     try {
       const entityShift = shift === 'night' ? 'evening' : shift;
-      const [preShifts, eightySix, beos, threads, staff, prepItems, sidework, equip] = await Promise.all([
+
+      // Batch 1: briefing data
+      const [preShifts, eightySix, beos] = await Promise.all([
         safeList(base44.entities.PreShift?.filter?.({ date, shift: entityShift })),
-        safeList(base44.entities.EightySixItem?.filter?.({ is_active: true })),
-        safeList(base44.entities.BEO?.list?.('-eventDate', 10)),
-        safeList(base44.entities.MessageThread?.filter?.({ status: 'open' })),
-        safeList(base44.entities.StaffShift?.filter?.({ date })),
-        safeList(base44.entities.PrepItem?.filter?.({ date })),
-        safeList(base44.entities.DailySideWorkTask?.filter?.({ date })),
-        safeList(base44.entities.Equipment?.list?.('name', 200)),
+        safeList(base44.entities.EightySixItem?.filter?.({ is_active: true }, '-created_date', 10)),
+        safeList(base44.entities.BEO?.list?.('-eventDate', 5)),
+      ]);
+
+      // Batch 2: task data (sequential to avoid rate limit burst)
+      const [threads, staff, prepItems, sidework, equip] = await Promise.all([
+        safeList(base44.entities.MessageThread?.filter?.({ status: 'open' }, '-created_date', 10)),
+        safeList(base44.entities.StaffShift?.filter?.({ date }, 'employee_name', 20)),
+        safeList(base44.entities.PrepItem?.filter?.({ date }, 'sort_order', 50)),
+        safeList(base44.entities.DailySideWorkTask?.filter?.({ date }, 'sort_order', 30)),
+        safeList(base44.entities.Equipment?.filter?.({ isActive: true }, 'name', 50)),
       ]);
 
       setData({
