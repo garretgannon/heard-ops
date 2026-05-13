@@ -179,11 +179,11 @@ export default function Layout() {
         ) : (
           /* Tab route header: Logo | Actions */
           <>
-            <div className="flex items-center flex-1">
+            <div className="flex min-w-0 flex-1 items-center">
               <img
                 src={BRAND_ASSETS.headerLogo}
                 alt="HeardOS"
-                className="h-12 w-auto max-w-[220px] object-contain shrink-0"
+                className="h-12 w-auto max-w-[230px] object-contain shrink-0"
               />
             </div>
             <div className="flex items-center gap-1.5">
@@ -226,20 +226,20 @@ export default function Layout() {
 
         {/* Logo / Brand */}
         <div className={cn(
-          "flex items-center shrink-0 pt-5",
-          collapsed ? "px-3 pb-4 justify-center" : "px-5 pb-4 gap-3"
+          "flex shrink-0 pt-5",
+          collapsed ? "items-center justify-center px-3 pb-4" : "flex-col items-start px-4 pb-4"
         )}>
           <img
             src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.headerLogo}
             alt="HeardOS"
             className={cn(
               "object-contain shrink-0",
-              collapsed ? "h-8 w-8 rounded-lg" : "h-14 w-full max-w-[190px]"
+              collapsed ? "h-8 w-8 rounded-lg" : "h-16 w-full max-w-[210px]"
             )}
             style={{ filter: 'drop-shadow(0 0 6px rgba(230,106,31,0.5))' }}
           />
           {!collapsed && (
-            <div className="min-w-0 flex-1">
+            <div className="mt-1 min-w-0">
               <p className="text-[10px] text-muted-foreground/70 mt-0.5 font-medium tracking-wide truncate">
                 {restaurantName || 'Restaurant Ops'}
               </p>
