@@ -830,7 +830,7 @@ export default function StaffTasks() {
       onScroll={handleScroll}
       onTouchEnd={handleTouchEnd}
       className="max-w-full overflow-x-hidden pb-40 lg:overflow-auto lg:pb-28"
-      style={{ maxHeight: 'calc(100vh - 52px)', overscrollBehavior: 'contain' }}
+      style={{ maxHeight: '100%', overscrollBehavior: 'contain' }}
     >
       {pullRefresh > 0 && (
         <div className="sticky top-0 z-30 flex items-center justify-center h-12 bg-primary/10">

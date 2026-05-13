@@ -432,15 +432,19 @@ export default function Layout() {
 
       {/* Main content area */}
       <main
-        className={cn("min-h-screen transition-all duration-200", collapsed ? "lg:pl-[60px] lg:pt-[72px]" : "lg:pl-[220px] lg:pt-[72px]")}
-        style={isMobile ? { paddingTop: "calc(72px + env(safe-area-inset-top, 0px))" } : {}}
+        className={cn(
+          "transition-all duration-200",
+          isMobile
+            ? "fixed bottom-0 left-0 right-0 overflow-y-auto overscroll-contain"
+            : cn("min-h-screen", collapsed ? "lg:pl-[60px] lg:pt-[72px]" : "lg:pl-[220px] lg:pt-[72px]")
+        )}
+        style={isMobile ? { top: "calc(72px + env(safe-area-inset-top, 0px))", WebkitOverflowScrolling: "touch" } : {}}
         onTouchStart={onSwipeStart}
         onTouchEnd={onSwipeEnd}
       >
         {isMobile && isTabRoute(location.pathname) ? (
           <div
-            className="overflow-hidden"
-            style={{ height: "calc(100dvh - 72px - env(safe-area-inset-top, 0px))" }}
+            className="h-full overflow-hidden"
           >
             <SwipeTabContainer />
           </div>
