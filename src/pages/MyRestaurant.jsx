@@ -1151,7 +1151,6 @@ export default function MyRestaurant() {
           <div className="space-y-2">
             <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
             <SectionCard icon={Users} title="Job Codes" description="Cook, server, bartender, manager..." count={counts.jobCodes} complete={counts.jobCodes > 0} needsSetup={!counts.jobCodes} onClick={() => setModal('jobCodes')} />
-            <SectionCard icon={Users} title="Team Structure" description="People hierarchy and role ownership" onClick={() => navigate('/people')} />
           </div>
         </div>
 

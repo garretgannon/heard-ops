@@ -70,7 +70,7 @@ export default function PhotoUploadModule({ photos = [], onAdd, onRemove, label 
           )}
         </div>
         {photos.length > 0 && <CheckCircle2 className="h-4 w-4 text-green-500 ml-auto flex-shrink-0" />}
-        <input type="file" accept="image/*,video/*" capture="environment" className="hidden"
+        <input type="file" accept="image/*" capture="environment" className="hidden"
           onChange={e => e.target.files[0] && handleFile(e.target.files[0])} />
       </label>
 

@@ -1,22 +1,57 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, List, Camera, CheckCircle2, Wand2, Play } from "lucide-react";
+import { X, ChevronRight, List, Camera, CheckCircle2, Wand2, ChefHat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import IngredientSheet from "./IngredientSheet";
 import PhotoUploadModule from "./PhotoUploadModule";
 import useHaptic from "@/hooks/useHaptic";
+
+function ChefSignOffOverlay({ itemName, onApprove, onCancel }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60] bg-[#030507] flex flex-col items-center justify-center px-8 text-center"
+    >
+      <div className="h-20 w-20 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-6">
+        <ChefHat className="h-10 w-10 text-emerald-400" />
+      </div>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400/70 mb-2">Chef Sign-Off Required</p>
+      <p className="text-2xl font-extrabold text-white mb-2">{itemName}</p>
+      <p className="text-white/40 text-sm mb-10">Hand your phone to the chef to taste and approve this item before it can be marked complete.</p>
+      <button
+        onClick={onApprove}
+        className="w-full h-14 rounded-2xl bg-emerald-500 text-white font-extrabold text-base flex items-center justify-center gap-2 mb-3 active:scale-[0.97] transition-transform"
+      >
+        <CheckCircle2 className="h-5 w-5" />
+        Tastes Good — Approve
+      </button>
+      <button
+        onClick={onCancel}
+        className="text-white/30 text-sm font-semibold py-2"
+      >
+        Cancel
+      </button>
+    </motion.div>
+  );
+}
 
 export default function ActivePrepStep({
   item,
   steps = [],
   ingredients = [],
   requiresPhoto = false,
+  requiresChefApproval = false,
   onComplete,
   onClose,
 }) {
   const haptic = useHaptic();
   const [stepIndex, setStepIndex] = useState(0);
   const [photos, setPhotos] = useState([]);
+  const [chefApproved, setChefApproved] = useState(false);
+  const [showChefSignOff, setShowChefSignOff] = useState(false);
   const [showIngredients, setShowIngredients] = useState(false);
   const [showPhotoModule, setShowPhotoModule] = useState(false);
   const [direction, setDirection] = useState(1);
@@ -35,7 +70,11 @@ export default function ActivePrepStep({
         setShowPhotoModule(true);
         return;
       }
-      onComplete?.({ photos });
+      if (requiresChefApproval && !chefApproved) {
+        setShowChefSignOff(true);
+        return;
+      }
+      onComplete?.({ photos, chefApproved });
     } else {
       setDirection(1);
       setStepIndex(i => i + 1);
@@ -57,6 +96,8 @@ export default function ActivePrepStep({
 
   // No steps: show single-action complete screen
   if (totalSteps === 0) {
+    const photoBlocking = requiresPhoto && photos.length === 0;
+    const chefBlocking = requiresChefApproval && !chefApproved;
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -81,17 +122,41 @@ export default function ActivePrepStep({
               <PhotoUploadModule photos={photos} onAdd={url => setPhotos(p => [...p, url])} required label="Completion Photo" />
             </div>
           )}
+          {requiresChefApproval && (
+            <button
+              onClick={() => setShowChefSignOff(true)}
+              className={cn(
+                "w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all",
+                chefApproved
+                  ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-400"
+                  : "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+              )}
+            >
+              <ChefHat className="h-4 w-4" />
+              {chefApproved ? "Chef Approved" : "Get Chef Sign-Off"}
+            </button>
+          )}
           <button
             onClick={() => {
-              if (requiresPhoto && photos.length === 0) return;
-              onComplete?.({ photos });
+              if (photoBlocking || chefBlocking) return;
+              onComplete?.({ photos, chefApproved });
             }}
-            disabled={requiresPhoto && photos.length === 0}
+            disabled={photoBlocking || chefBlocking}
             className="w-full h-14 rounded-2xl bg-primary text-white font-extrabold text-base disabled:opacity-40"
           >
             Mark Complete
           </button>
         </div>
+        {showChefSignOff && createPortal(
+          <AnimatePresence>
+            <ChefSignOffOverlay
+              itemName={item?.name}
+              onApprove={() => { setChefApproved(true); setShowChefSignOff(false); }}
+              onCancel={() => setShowChefSignOff(false)}
+            />
+          </AnimatePresence>,
+          document.body
+        )}
       </motion.div>
     );
   }
@@ -208,6 +273,22 @@ export default function ActivePrepStep({
           </div>
         )}
 
+        {/* Chef sign-off button on last step */}
+        {isLast && requiresChefApproval && (
+          <button
+            onClick={() => setShowChefSignOff(true)}
+            className={cn(
+              "w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all",
+              chefApproved
+                ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-400"
+                : "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+            )}
+          >
+            <ChefHat className="h-4 w-4" />
+            {chefApproved ? "Chef Approved" : "Get Chef Sign-Off"}
+          </button>
+        )}
+
         <div className="flex gap-3">
           {stepIndex > 0 && (
             <button onClick={back} className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 font-bold text-xl">
@@ -218,7 +299,7 @@ export default function ActivePrepStep({
             onClick={advance}
             whileTap={{ scale: 0.96 }}
             transition={{ type: "spring", stiffness: 500, damping: 18 }}
-            disabled={isLast && requiresPhoto && photos.length === 0}
+            disabled={isLast && ((requiresPhoto && photos.length === 0) || (requiresChefApproval && !chefApproved))}
             className="flex-1 h-14 rounded-2xl bg-primary text-white font-extrabold text-base flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {isLast ? (
@@ -235,6 +316,17 @@ export default function ActivePrepStep({
         open={showIngredients}
         onClose={() => setShowIngredients(false)}
       />
+
+      {showChefSignOff && createPortal(
+        <AnimatePresence>
+          <ChefSignOffOverlay
+            itemName={item?.name}
+            onApprove={() => { setChefApproved(true); setShowChefSignOff(false); }}
+            onCancel={() => setShowChefSignOff(false)}
+          />
+        </AnimatePresence>,
+        document.body
+      )}
     </motion.div>
   );
 }

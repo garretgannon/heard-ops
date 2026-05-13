@@ -2,16 +2,17 @@ import { Users, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
-const TABS = [
-  { id: 'directory', label: 'Directory', icon: Users },
-  { id: 'progress', label: 'Progress', icon: Trophy },
+const ALL_TABS = [
+  { id: 'directory', label: 'Directory', icon: Users, adminOnly: false },
+  { id: 'progress', label: 'Progress', icon: Trophy, adminOnly: true },
 ];
 
-export default function TeamTabNav({ activeTab, onTabChange }) {
+export default function TeamTabNav({ activeTab, onTabChange, isAdmin = false }) {
+  const tabs = ALL_TABS.filter(t => !t.adminOnly || isAdmin);
   return (
     <div className="border-b border-border/20 overflow-x-auto scrollbar-hide">
       <div className="flex gap-1 px-4 lg:px-8 min-w-min">
-        {TABS.map(({ id, label, icon: IconComponent }) => {
+        {tabs.map(({ id, label, icon: IconComponent }) => {
           const isActive = activeTab === id;
           return (
             <button

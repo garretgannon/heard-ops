@@ -170,30 +170,6 @@ function ActionRow({ item }) {
   );
 }
 
-function StationRow({ station }) {
-  const readyColor = station.ready >= 90 ? 'bg-green-500' : station.ready >= 75 ? 'bg-amber-500' : 'bg-red-500';
-  return (
-    <a
-      href="/operational-map"
-      className="flex items-center gap-3 overflow-hidden rounded-2xl border border-border/50 px-4 py-3 transition-all active:scale-[0.99]"
-      style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
-    >
-      <span className={cn('status-marker status-marker-lg shrink-0', station.statusClass)}>{station.ready}%</span>
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-sm font-black text-foreground">{station.name}</p>
-          <span className={cn('shrink-0 text-[10px] font-black', station.issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/50')}>
-            {station.issueCount > 0 ? `${station.issueCount} issue${station.issueCount === 1 ? '' : 's'}` : 'No issues'}
-          </span>
-        </div>
-        <div className="h-1 w-full overflow-hidden rounded-full bg-black/30">
-          <div className={cn('h-full rounded-full transition-all duration-700', readyColor)} style={{ width: `${station.ready}%` }} />
-        </div>
-        <p className="truncate text-[10px] text-muted-foreground">{station.detail}</p>
-      </div>
-    </a>
-  );
-}
 
 export default function AppOverview() {
   const { user } = useCurrentUser();
@@ -548,20 +524,6 @@ export default function AppOverview() {
             </div>
           </section>
         )}
-
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-black tracking-tight text-foreground">Stations</h2>
-            <Link to="/operational-map" className="text-xs font-black text-primary">Map</Link>
-          </div>
-          <Link
-            to="/operational-map"
-            className="glow-interactive flex items-center justify-between rounded-2xl border border-border/50 bg-card/60 px-4 py-3.5"
-          >
-            <p className="text-sm font-semibold text-muted-foreground">View station status and equipment on the Operational Map</p>
-            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground ml-3" />
-          </Link>
-        </section>
 
         <section className="space-y-3 pb-2">
           <div className="flex items-center justify-between">

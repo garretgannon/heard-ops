@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Search, Copy, Eye, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Copy, Eye, AlertCircle, Camera, ChefHat, Thermometer, Clock, User, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import TemplateFormModal from '@/components/templates/TemplateFormModal';
@@ -229,109 +229,81 @@ export default function TemplateManager() {
         ) : (
           filtered.map(template => {
             const warnings = getWarnings(template);
-            const creates = getCreates(template);
             const typeLabel = TEMPLATE_TYPES.find(t => t.id === template.template_type)?.label;
+            const isActive = template.is_active && !warnings.length;
+            const isDraft = !template.is_active;
+            const needsSetup = !!warnings.length;
+
+            const meta = [
+              template.assigned_role,
+              template.shift && template.shift !== 'any' ? template.shift : null,
+              template.assigned_station,
+              template.recurrence_type ? template.recurrence_type : null,
+              template.due_time ? `due ${template.due_time}` : null,
+            ].filter(Boolean);
+
             return (
-              <div key={template.id} className="border border-border rounded-lg overflow-hidden hover:border-border/60 hover:brightness-105 transition-all" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                {/* Top Row: Name + Action Buttons */}
-                <div className="px-3 py-2.5 flex items-center justify-between gap-2 border-b border-border/50">
+              <div key={template.id} className="border border-border/40 rounded-xl overflow-hidden transition-all hover:border-border/60" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                {/* Row 1: type badge + name + actions */}
+                <div className="px-3 pt-3 pb-2.5 flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-sm text-foreground truncate">{template.name}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={cn('text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded', TYPE_COLORS[template.template_type] || 'bg-muted text-muted-foreground')}>
+                        {typeLabel}
+                      </span>
+                      {/* Status dot */}
+                      <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', isActive ? 'bg-green-500' : needsSetup ? 'bg-amber-500' : 'bg-slate-500')} />
+                      <span className={cn('text-[10px] font-bold', isActive ? 'text-green-500' : needsSetup ? 'text-amber-400' : 'text-muted-foreground')}>
+                        {isActive ? 'Active' : needsSetup ? 'Needs setup' : 'Draft'}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-sm text-foreground leading-snug">{template.name}</h3>
                   </div>
                   {isAdmin && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={() => setPreviewTemplate(template)}
-                        className="h-6 w-6 flex items-center justify-center rounded-md bg-primary/10 hover:bg-primary/15 text-primary transition-all active:scale-90"
-                        title="Preview"
-                      >
+                    <div className="flex items-center gap-1 shrink-0 pt-0.5">
+                      <button onClick={() => setPreviewTemplate(template)} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all active:scale-90" title="Preview">
                         <Eye className="h-3.5 w-3.5" />
                       </button>
-                      <button
-                        onClick={() => { setSelectedTemplate(template); setActiveModal('edit'); }}
-                        className="h-6 w-6 flex items-center justify-center rounded-md bg-muted/40 hover:bg-muted/60 text-muted-foreground transition-all active:scale-90"
-                        title="Edit"
-                      >
+                      <button onClick={() => { setSelectedTemplate(template); setActiveModal('edit'); }} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all active:scale-90" title="Edit">
                         <Edit2 className="h-3 w-3" />
                       </button>
-                      <button
-                        onClick={() => handleDuplicate(template)}
-                        className="h-6 w-6 flex items-center justify-center rounded-md bg-muted/40 hover:bg-muted/60 text-muted-foreground transition-all active:scale-90"
-                        title="Duplicate"
-                      >
+                      <button onClick={() => handleDuplicate(template)} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all active:scale-90" title="Duplicate">
                         <Copy className="h-3 w-3" />
                       </button>
-                      <button
-                        onClick={() => handleDelete(template.id)}
-                        className="h-6 w-6 flex items-center justify-center rounded-md bg-red-500/10 hover:bg-red-500/15 text-red-500 transition-all active:scale-90"
-                        title="Delete"
-                      >
+                      <button onClick={() => handleDelete(template.id)} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-90" title="Delete">
                         <Trash2 className="h-3 w-3" />
                       </button>
                     </div>
                   )}
                 </div>
 
-                {/* Second Row: Type + Role + Shift + Station */}
-                <div className="px-3 py-2 flex items-center gap-1.5 border-b border-border/50 flex-wrap">
-                  <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', TYPE_COLORS[template.template_type] || 'bg-muted text-muted-foreground')}>
-                    {typeLabel}
-                  </span>
-                  {template.assigned_role && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">👤 {template.assigned_role}</span>}
-                  {template.shift && template.shift !== 'any' && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">🕐 {template.shift}</span>}
-                  {template.assigned_station && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-300">📍 {template.assigned_station}</span>}
-                </div>
-
-                {/* Details Row: Schedule + Due + Last Generated + Creates */}
-                <div className="px-3 py-2 border-b border-border/50">
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Recurrence:</span>
-                      <span className="font-bold text-foreground capitalize">{template.recurrence_type || 'daily'}</span>
-                    </div>
-                    {template.due_time && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Due:</span>
-                        <span className="font-bold text-foreground">{template.due_time}</span>
-                      </div>
+                {/* Row 2: metadata + requirement icons */}
+                <div className="px-3 pb-3 flex items-center justify-between gap-2">
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {meta.join(' · ')}
+                  </p>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {template.photo_required && (
+                      <span className="h-5 w-5 flex items-center justify-center rounded bg-primary/10 text-primary" title="Photo required">
+                        <Camera className="h-3 w-3" />
+                      </span>
                     )}
-                    {template.last_generated_date && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Last Generated:</span>
-                        <span className="font-bold text-foreground">{template.last_generated_date}</span>
-                      </div>
+                    {template.manager_review_required && (
+                      <span className="h-5 w-5 flex items-center justify-center rounded bg-emerald-500/10 text-emerald-400" title="Chef / manager approval">
+                        <ChefHat className="h-3 w-3" />
+                      </span>
                     )}
-                    {creates.length > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Creates:</span>
-                        <span className="font-bold text-foreground">{creates.join(' + ')}</span>
-                      </div>
+                    {template.template_type === 'temperature' && template.temp_corrective_action && (
+                      <span className="h-5 w-5 flex items-center justify-center rounded bg-orange-500/10 text-orange-400" title="Has corrective action">
+                        <Thermometer className="h-3 w-3" />
+                      </span>
+                    )}
+                    {warnings.length > 0 && (
+                      <span className="text-[10px] font-bold text-amber-400 cursor-help" title={warnings.join(', ')}>
+                        {warnings.length} issues
+                      </span>
                     )}
                   </div>
-                </div>
-
-                {/* Requirements Row */}
-                {(template.photo_required || template.manager_review_required || (template.template_type === 'temperature' && template.temp_corrective_action)) && (
-                  <div className="px-3 py-1.5 border-b border-border/50 flex flex-wrap gap-1">
-                    {template.photo_required && <span className="text-[9px] bg-blue-500/20 text-blue-300 font-bold px-1.5 py-0.5 rounded">📸 Photo</span>}
-                    {template.manager_review_required && <span className="text-[9px] bg-purple-500/20 text-purple-300 font-bold px-1.5 py-0.5 rounded">✓ Review</span>}
-                    {template.template_type === 'temperature' && template.temp_corrective_action && <span className="text-[9px] bg-orange-500/20 text-orange-300 font-bold px-1.5 py-0.5 rounded">🔧 Action</span>}
-                  </div>
-                )}
-
-                {/* Status Badge + Last Updated + Warnings */}
-                <div className="px-3 py-2 flex items-center justify-between text-[10px]">
-                  <div className="flex items-center gap-1.5">
-                    <span className={cn('font-bold px-2 py-0.5 rounded', template.is_active && !warnings.length ? 'bg-green-500/20 text-green-300' : warnings.length ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-500/20 text-slate-300')}>
-                      {template.is_active && !warnings.length ? '✓ ACTIVE' : warnings.length ? '⚠️ SETUP' : 'DRAFT'}
-                    </span>
-                    {template.updated_date && <span className="text-muted-foreground">Updated {template.updated_date.split('T')[0]}</span>}
-                  </div>
-                  {warnings.length > 0 && (
-                    <div className="text-amber-400 font-bold cursor-help" title={warnings.join(', ')}>
-                      {warnings.length} issues
-                    </div>
-                  )}
                 </div>
               </div>
             );

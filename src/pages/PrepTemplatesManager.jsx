@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload, Download } from 'lucide-react';
+import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload, Download, Camera, ChefHat } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import PrepListImportFlow from '@/components/PrepListImportFlow';
@@ -46,7 +46,7 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
 
 const UNITS = ['lbs','oz','kg','g','portions','each','batches','gallons','quarts','cups','tbsp','tsp','bags','cases','pans','trays','slices','pieces','servings','liters','ml','other'];
 
-const BLANK_ITEM = () => ({ itemName: '', quantity: 1, unit: 'lbs', priority: 'medium', jobCode: 'Prep Cook', notes: '', sortOrder: 0 });
+const BLANK_ITEM = () => ({ itemName: '', quantity: 1, unit: 'lbs', priority: 'medium', jobCode: 'Prep Cook', notes: '', sortOrder: 0, photoRequired: false, chefApprovalRequired: false });
 
 function BulkItemEntry({ items, onChange }) {
   const rowRefs = useRef([]);
@@ -88,15 +88,17 @@ function BulkItemEntry({ items, onChange }) {
 
   return (
     <div className="space-y-0.5">
-      <div className="grid grid-cols-[1fr_60px_108px_76px_28px] gap-1.5 px-1 mb-1">
+      <div className="grid grid-cols-[1fr_60px_108px_76px_26px_26px_28px] gap-1.5 px-1 mb-1">
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Item Name</span>
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Qty</span>
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Unit</span>
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Priority</span>
+        <span title="Photo required" className="flex items-center justify-center"><Camera className="h-3 w-3 text-muted-foreground/50" /></span>
+        <span title="Chef approval required" className="flex items-center justify-center"><ChefHat className="h-3 w-3 text-muted-foreground/50" /></span>
         <span />
       </div>
       {items.map((item, idx) => (
-        <div key={idx} ref={el => rowRefs.current[idx] = el} className="grid grid-cols-[1fr_60px_108px_76px_28px] gap-1.5 items-center">
+        <div key={idx} ref={el => rowRefs.current[idx] = el} className="grid grid-cols-[1fr_60px_108px_76px_26px_26px_28px] gap-1.5 items-center">
           <input
             data-field="name"
             type="text"
@@ -137,6 +139,22 @@ function BulkItemEntry({ items, onChange }) {
             <option value="medium">🟡 Med</option>
             <option value="low">🔵 Low</option>
           </select>
+          <button
+            onClick={() => updateItem(idx, 'photoRequired', !item.photoRequired)}
+            tabIndex={-1}
+            title="Require completion photo"
+            className={`h-7 w-7 flex items-center justify-center rounded-md transition-colors ${item.photoRequired ? 'text-primary bg-primary/15' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
+          >
+            <Camera className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => updateItem(idx, 'chefApprovalRequired', !item.chefApprovalRequired)}
+            tabIndex={-1}
+            title="Require chef approval"
+            className={`h-7 w-7 flex items-center justify-center rounded-md transition-colors ${item.chefApprovalRequired ? 'text-emerald-400 bg-emerald-500/15' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
+          >
+            <ChefHat className="h-3.5 w-3.5" />
+          </button>
           <button onClick={() => removeRow(idx)} tabIndex={-1} className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors">
             <X className="h-3.5 w-3.5" />
           </button>

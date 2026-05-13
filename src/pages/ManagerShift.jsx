@@ -17,10 +17,13 @@ import {
   MessageSquareText,
   RefreshCw,
   Save,
-  Shield,
+  ClipboardList,
   Sparkles,
   Star,
   Store,
+  Activity,
+  LogOut,
+  Shield,
   Target,
   Trophy,
   Users,
@@ -56,9 +59,9 @@ const SHIFT_META = {
 };
 
 const STAGE_CONFIG = [
-  { id: "start", label: "Intel",   num: "01", icon: Shield  },
-  { id: "run",   label: "Ops",     num: "02", icon: Target  },
-  { id: "close", label: "Debrief", num: "03", icon: Trophy  },
+  { id: "start", label: "Pre-Shift", num: "01", icon: ClipboardList },
+  { id: "run",   label: "Running",   num: "02", icon: Activity      },
+  { id: "close", label: "Sign-Off",  num: "03", icon: LogOut        },
 ];
 
 function stageFromLocation(location) {

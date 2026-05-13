@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ClipboardList, CheckCircle2, ArrowRight, Camera, UserRound, Play } from "lucide-react";
+import { ClipboardList, CheckCircle2, ArrowRight, Camera, UserRound, Play, ChefHat } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import DesktopPageHeader from "@/components/DesktopPageHeader";
-import { AnimatePresence } from "framer-motion";
 import ActivePrepStep from "@/components/prep-flow/ActivePrepStep";
 import PrepCompletionScreen from "@/components/prep-flow/PrepCompletionScreen";
 import { haptics } from "@/utils/haptics";
@@ -165,7 +166,8 @@ function buildData(prepItems, sideWork, generatedTasks, filter, user) {
       due_time: i.due_time, status: i.status || "pending",
       priority: i.priority || "medium",
       qty_done: i.completed_qty || 0, qty_needed: parseFloat(i.quantity) || 1,
-      unit: i.unit || "", requires_photo: !!i.master_photo_url,
+      unit: i.unit || "", requires_photo: i.photoRequired || i.requires_photo || !!i.master_photo_url,
+      chef_approval_required: i.chefApprovalRequired || i.chef_approval_required || false,
       image_url: i.master_photo_url || i.image_url,
       assignee_name: i.assigned_to_name || i.assignee_name,
       demo: !!i.demo,
@@ -176,7 +178,8 @@ function buildData(prepItems, sideWork, generatedTasks, filter, user) {
       station: t.station || t.role || "Side Work", assignee: t.assigned_to_name,
       due_time: t.dueTime || t.due_time, status: t.status || "pending",
       priority: t.priority || "medium",
-      requires_photo: t.requiresPhoto || t.requires_photo,
+      requires_photo: t.photoRequired || t.requiresPhoto || t.requires_photo || false,
+      chef_approval_required: t.chefApprovalRequired || t.chef_approval_required || false,
       demo: !!t.demo,
       _raw: t,
     })),
@@ -298,7 +301,26 @@ function PrepTaskCard({ task, onUpdateQty, onStart, navigate }) {
 
 /* ── Side Work Task Card ────────────────────────────────── */
 function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
-  const [completionFiles, setCompletionFiles] = useState([]);
+  const [photoUrl, setPhotoUrl] = useState(null);
+  const [chefApproved, setChefApproved] = useState(false);
+  const [showChefSignOff, setShowChefSignOff] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const photoBlocking = task.requires_photo && !photoUrl;
+  const chefBlocking = task.chef_approval_required && !chefApproved;
+  const canComplete = !photoBlocking && !chefBlocking;
+
+  const handlePhotoCapture = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setPhotoUrl(file_url);
+    } catch {
+      setPhotoUrl(URL.createObjectURL(file));
+    }
+    setUploading(false);
+  };
 
   return (
     <div className="app-card overflow-hidden p-0">
@@ -310,7 +332,16 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
             <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border", statusStyles[task.status] || statusStyles.pending)}>
               {task.status.replace("_", " ").toUpperCase()}
             </span>
-            {task.requires_photo && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300">📷 REQ</span>}
+            {task.requires_photo && (
+              <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full", photoUrl ? "bg-green-500/15 text-green-400" : "bg-primary/15 text-primary")}>
+                {photoUrl ? "📷 Done" : "📷 Required"}
+              </span>
+            )}
+            {task.chef_approval_required && (
+              <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full", chefApproved ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-400")}>
+                {chefApproved ? "Chef ✓" : "Chef Req"}
+              </span>
+            )}
           </div>
           <p className="text-sm font-bold text-foreground truncate">{task.name}</p>
           <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -319,19 +350,39 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
         </div>
       </div>
       <div className="flex border-t border-border">
-        <label className="px-3 h-10 text-xs font-bold text-muted-foreground flex items-center gap-1 active:bg-muted/50 transition-all cursor-pointer">
+        <label className={cn(
+          "px-3 h-10 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer",
+          photoUrl ? "text-green-400" : task.requires_photo ? "text-primary" : "text-muted-foreground",
+          "active:bg-muted/50"
+        )}>
           <Camera className="h-3.5 w-3.5" />
-          {completionFiles.length ? completionFiles.length : 'Proof'}
-          <input type="file" accept="image/*,.pdf" multiple className="hidden" onChange={(event) => setCompletionFiles(Array.from(event.target.files || []))} />
+          {uploading ? "…" : photoUrl ? "Retake" : task.requires_photo ? "Photo*" : "Photo"}
+          <input type="file" accept="image/*" capture="environment" className="hidden"
+            onChange={e => e.target.files[0] && handlePhotoCapture(e.target.files[0])} />
         </label>
+        {task.chef_approval_required && (
+          <>
+            <div className="w-px bg-border" />
+            <button
+              onClick={() => setShowChefSignOff(true)}
+              className={cn(
+                "px-3 h-10 text-xs font-bold flex items-center gap-1 transition-all active:bg-muted/50",
+                chefApproved ? "text-emerald-400" : "text-amber-400"
+              )}
+            >
+              <ChefHat className="h-3.5 w-3.5" />
+              {chefApproved ? "Approved" : "Sign-Off"}
+            </button>
+          </>
+        )}
         <div className="w-px bg-border" />
         <button
-          onClick={() => { haptics.medium(); onComplete(task, completionFiles); }}
-          disabled={completing}
+          onClick={() => { haptics.medium(); onComplete(task, photoUrl ? [photoUrl] : []); }}
+          disabled={completing || !canComplete}
           className="flex-1 h-10 text-xs font-bold text-green-400 flex items-center justify-center gap-1.5 active:bg-green-500/10 transition-all disabled:opacity-40"
         >
           <CheckCircle2 className="h-3.5 w-3.5" />
-          {completing ? "Saving…" : "Mark Complete"}
+          {completing ? "Saving…" : "Complete"}
         </button>
         <div className="w-px bg-border" />
         <button
@@ -341,6 +392,38 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
           Open <ArrowRight className="h-3 w-3" />
         </button>
       </div>
+
+      {showChefSignOff && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-[#030507] flex flex-col items-center justify-center px-8 text-center"
+          >
+            <div className="h-20 w-20 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-6">
+              <ChefHat className="h-10 w-10 text-emerald-400" />
+            </div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400/70 mb-2">Chef Sign-Off Required</p>
+            <p className="text-2xl font-extrabold text-white mb-2">{task.name}</p>
+            <p className="text-white/40 text-sm mb-10">Hand your phone to the chef to taste and approve this item before it can be marked complete.</p>
+            <button
+              onClick={() => { setChefApproved(true); setShowChefSignOff(false); haptics.medium(); }}
+              className="w-full h-14 rounded-2xl bg-emerald-500 text-white font-extrabold text-base flex items-center justify-center gap-2 mb-3 active:scale-[0.97] transition-transform"
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              Tastes Good — Approve
+            </button>
+            <button
+              onClick={() => setShowChefSignOff(false)}
+              className="text-white/30 text-sm font-semibold py-2"
+            >
+              Cancel
+            </button>
+          </motion.div>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
@@ -645,6 +728,7 @@ export default function StaffTasks() {
             steps={activePrepFlow.steps}
             ingredients={[]}
             requiresPhoto={activePrepFlow.item?.requires_photo || false}
+            requiresChefApproval={activePrepFlow.item?.chef_approval_required || false}
             onComplete={handlePrepFlowComplete}
             onClose={() => { setPrepFlowPhase(null); setActivePrepFlow(null); }}
           />

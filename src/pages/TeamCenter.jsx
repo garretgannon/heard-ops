@@ -166,6 +166,7 @@ const isMounted = useRef(true);
       <TeamTabNav
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        isAdmin={isAdmin}
       />
 
       {/* Content */}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Camera, ChefHat } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 function BulkTaskEntry({ items, onChange }) {
@@ -15,7 +15,7 @@ function BulkTaskEntry({ items, onChange }) {
   const addRow = useCallback((afterIdx) => {
     const updated = [
       ...items.slice(0, afterIdx + 1),
-      { taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' },
+      { taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '', photoRequired: false, chefApprovalRequired: false },
       ...items.slice(afterIdx + 1),
     ];
     onChange(updated);
@@ -25,7 +25,7 @@ function BulkTaskEntry({ items, onChange }) {
   }, [items, onChange]);
 
   const removeRow = (idx) => {
-    if (items.length === 1) { onChange([{ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' }]); return; }
+    if (items.length === 1) { onChange([{ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '', photoRequired: false, chefApprovalRequired: false }]); return; }
     onChange(items.filter((_, i) => i !== idx));
     setTimeout(() => {
       rowRefs.current[Math.max(0, idx - 1)]?.querySelector('[data-field="name"]')?.focus();
@@ -38,14 +38,16 @@ function BulkTaskEntry({ items, onChange }) {
         <p className="text-xs font-bold text-secondary-text">Tasks ({items.filter(i => i.taskName).length})</p>
         <span className="text-[10px] text-muted-foreground">Tab between fields · Enter for new row</span>
       </div>
-      <div className="grid grid-cols-[1fr_80px_76px_28px] gap-1.5 px-1 mb-1">
+      <div className="grid grid-cols-[1fr_80px_76px_26px_26px_28px] gap-1.5 px-1 mb-1">
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Task Name</span>
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Due Time</span>
         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Priority</span>
+        <span title="Photo required" className="flex items-center justify-center"><Camera className="h-3 w-3 text-muted-foreground/50" /></span>
+        <span title="Chef approval required" className="flex items-center justify-center"><ChefHat className="h-3 w-3 text-muted-foreground/50" /></span>
         <span />
       </div>
       {items.map((item, idx) => (
-        <div key={idx} ref={el => rowRefs.current[idx] = el} className="grid grid-cols-[1fr_80px_76px_28px] gap-1.5 items-center">
+        <div key={idx} ref={el => rowRefs.current[idx] = el} className="grid grid-cols-[1fr_80px_76px_26px_26px_28px] gap-1.5 items-center">
           <input
             data-field="name"
             type="text"
@@ -76,6 +78,22 @@ function BulkTaskEntry({ items, onChange }) {
             <option value="medium">🟡 Med</option>
             <option value="low">🔵 Low</option>
           </select>
+          <button
+            onClick={() => update(idx, 'photoRequired', !item.photoRequired)}
+            tabIndex={-1}
+            title="Require completion photo"
+            className={`h-7 w-7 flex items-center justify-center rounded-md transition-colors ${item.photoRequired ? 'text-primary bg-primary/15' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
+          >
+            <Camera className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => update(idx, 'chefApprovalRequired', !item.chefApprovalRequired)}
+            tabIndex={-1}
+            title="Require chef approval"
+            className={`h-7 w-7 flex items-center justify-center rounded-md transition-colors ${item.chefApprovalRequired ? 'text-emerald-400 bg-emerald-500/15' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
+          >
+            <ChefHat className="h-3.5 w-3.5" />
+          </button>
           <button onClick={() => removeRow(idx)} tabIndex={-1} className="h-7 w-7 flex items-center justify-center rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors">
             <X className="h-3.5 w-3.5" />
           </button>
@@ -181,7 +199,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
     }
   }, [formData.jobCode, formData.job_code_id, jobCodes]);
 
-  const BLANK_ITEM = () => ({ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '' });
+  const BLANK_ITEM = () => ({ taskName: '', priority: 'medium', shiftPhase: 'anytime', dueTime: '', photoRequired: false, chefApprovalRequired: false });
 
   const loadItems = async (templateId) => {
     try {
