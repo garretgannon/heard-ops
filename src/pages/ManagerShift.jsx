@@ -189,30 +189,52 @@ function StagePipeline({ active, acknowledged }) {
 
 // ─── Intel card ───────────────────────────────────────────────────────────────
 
-function IntelCard({ icon: Icon, label, count, severity = "neutral", children }) {
-  const [open, setOpen] = useState(true);
-  const borderLeft = severity === "critical" ? "border-l-red-500/70" : severity === "warning" ? "border-l-amber-500/60" : "border-l-primary/40";
-  const iconColor  = severity === "critical" ? "text-red-400" : severity === "warning" ? "text-amber-400" : "text-primary";
-  const countColor = severity === "critical" && count > 0 ? "text-red-400" : severity === "warning" && count > 0 ? "text-amber-400" : "text-muted-foreground";
+function IntelCard({ id, icon: Icon, label, count, severity = "neutral", children, onViewed }) {
+  const [open, setOpen] = useState(false);
+  const [viewed, setViewed] = useState(false);
+
+  const iconColor = severity === "critical" ? "text-red-400" : severity === "warning" ? "text-amber-400" : "text-primary";
+  const badgeStyle = severity === "critical" && count > 0
+    ? "border-red-500/30 bg-red-500/10 text-red-400"
+    : severity === "warning" && count > 0
+      ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+      : "border-border/30 text-muted-foreground";
+
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    haptics.light();
+    if (next && !viewed) {
+      setViewed(true);
+      onViewed?.(id);
+    }
+  };
 
   return (
     <div
-      className={cn("overflow-hidden rounded-xl border border-border/40 border-l-2", borderLeft)}
-      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.97) 0%, rgba(6,9,13,0.97) 100%)" }}
+      className={cn(
+        "overflow-hidden rounded-xl border transition-colors duration-300",
+        viewed ? "border-border/50" : "border-border/40"
+      )}
+      style={{
+        background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.02)",
+      }}
     >
       <button
         type="button"
-        onClick={() => { haptics.light(); setOpen(o => !o); }}
+        onClick={toggle}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
         <div className="flex items-center gap-2.5">
-          <Icon className={cn("h-4 w-4 shrink-0", iconColor)} />
-          <span className="text-sm font-black text-foreground">{label}</span>
+          <Icon className={cn("h-4 w-4 shrink-0", viewed ? "text-green-400/70" : iconColor)} />
+          <span className={cn("text-sm font-black transition-colors", viewed ? "text-foreground/70" : "text-foreground")}>{label}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className={cn("text-sm font-black tabular-nums", countColor)}>{count}</span>
+          {viewed && <Check className="h-3 w-3 text-green-400/60" />}
+          <span className={cn("rounded-full border px-2 py-0.5 text-xs font-black tabular-nums", badgeStyle)}>{count}</span>
           <motion.div animate={{ rotate: open ? 0 : -90 }} transition={{ duration: 0.18 }}>
-            <ArrowRight className="h-3.5 w-3.5 rotate-90 text-muted-foreground" />
+            <ArrowRight className="h-3.5 w-3.5 rotate-90 text-muted-foreground/50" />
           </motion.div>
         </div>
       </button>
@@ -225,7 +247,7 @@ function IntelCard({ icon: Icon, label, count, severity = "neutral", children })
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="space-y-1.5 border-t border-border/30 px-4 pb-3 pt-2.5">
+            <div className="space-y-1 border-t border-border/20 px-4 pb-3 pt-2.5">
               {children}
             </div>
           </motion.div>
@@ -236,11 +258,15 @@ function IntelCard({ icon: Icon, label, count, severity = "neutral", children })
 }
 
 function IntelRow({ title, meta, severity = "neutral" }) {
-  const tone = severity === "critical" ? "border-red-500/20 bg-red-500/5" : severity === "warning" ? "border-amber-500/20 bg-amber-500/5" : "border-border/30 bg-black/20";
+  const dot = severity === "critical" ? "bg-red-400/80" : severity === "warning" ? "bg-amber-400/80" : "bg-border/60";
   return (
-    <div className={cn("rounded-lg border px-3 py-2", tone)}>
-      <p className="truncate text-sm font-semibold text-foreground">{title}</p>
-      {meta && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{meta}</p>}
+    <div className="flex items-start gap-3 rounded-lg border border-border/20 px-3 py-2.5"
+      style={{ background: "rgba(255,255,255,0.02)" }}>
+      <div className={cn("mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full", dot)} />
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-foreground leading-snug">{title}</p>
+        {meta && <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">{meta}</p>}
+      </div>
     </div>
   );
 }
@@ -443,6 +469,14 @@ export default function ManagerShift() {
   const [debriefReviews, setDebriefReviews] = useState({});
   const [submitting, setSubmitting]       = useState(false);
   const [shiftComplete, setShiftComplete] = useState(false);
+  const [viewedIntelCards, setViewedIntelCards] = useState(new Set());
+
+  const INTEL_CARD_IDS = ["handoff", "eightySix", "issues", "events", "logs"];
+  const allCardsViewed = INTEL_CARD_IDS.every(id => viewedIntelCards.has(id));
+
+  const markCardViewed = (id) => {
+    setViewedIntelCards(prev => new Set([...prev, id]));
+  };
 
   // Gamification
   const [shiftXp, setShiftXp]         = useState(0);
@@ -815,7 +849,7 @@ export default function ManagerShift() {
         {/* Stats row */}
         <div className="mt-2.5 flex items-center gap-3">
           <div className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-black",
-            totals.critical > 0 ? "border-red-500/30 bg-red-500/10 text-red-400" : "border-border/30 text-muted-foreground/60"
+            totals.critical > 0 ? "border-amber-500/25 text-amber-400/80" : "border-border/30 text-muted-foreground/60"
           )}>
             <AlertTriangle className="h-3 w-3" />
             {totals.critical} critical
@@ -901,7 +935,7 @@ export default function ManagerShift() {
           })}
         </div>
         <div className="ml-auto flex items-center gap-3">
-          <span className={cn('text-xs font-bold', totals.critical > 0 ? 'text-red-400' : 'text-muted-foreground')}>
+          <span className={cn('text-xs font-bold', totals.critical > 0 ? 'text-amber-400/80' : 'text-muted-foreground')}>
             {totals.critical} critical
           </span>
           <span className={cn('text-xs font-bold', checkedDuties.length === DUTIES.length ? 'text-green-400' : 'text-muted-foreground')}>
@@ -935,13 +969,34 @@ export default function ManagerShift() {
             {/* ── INTEL ──────────────────────────────────────────────── */}
             {activeStage === "start" && (
               <>
+                {/* Scorecard */}
+                <div
+                  className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
+                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                >
+                  {[
+                    { label: "Critical", value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
+                    { label: "Warnings", value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
+                    { label: "Follow-Ups", value: briefing.managerLogs.length + briefing.tasks.length, color: "text-foreground/70" },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-4">
+                      <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Acknowledge banner */}
                 <div
                   className={cn(
                     "flex items-start gap-3 rounded-2xl border p-4",
-                    acknowledged ? "border-green-500/30 bg-green-500/6" : "border-primary/30 bg-primary/6"
+                    acknowledged ? "border-green-500/30" : "border-border/40"
                   )}
-                  style={{ boxShadow: acknowledged ? "0 0 20px rgba(34,197,94,0.08)" : "0 0 20px rgba(230,106,31,0.08)" }}
+                  style={{
+                    background: acknowledged
+                      ? "rgba(34,197,94,0.05)"
+                      : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
+                  }}
                 >
                   {acknowledged
                     ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" />
@@ -962,7 +1017,7 @@ export default function ManagerShift() {
                   )}
                 </div>
 
-                <IntelCard icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length}>
+                <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
                   {briefing.handoffs.length === 0
                     ? <EmptyIntel text="No recent handoff found." />
                     : briefing.handoffs.map(item => (
@@ -972,7 +1027,7 @@ export default function ManagerShift() {
                   }
                 </IntelCard>
 
-                <IntelCard icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"}>
+                <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
                   {briefing.eightySix.length === 0
                     ? <EmptyIntel text="Nothing 86'd right now." />
                     : briefing.eightySix.map(item => (
@@ -981,7 +1036,7 @@ export default function ManagerShift() {
                   }
                 </IntelCard>
 
-                <IntelCard icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"}>
+                <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
                   {briefing.issues.length === 0
                     ? <EmptyIntel text="No open issues." />
                     : briefing.issues.map(item => (
@@ -990,7 +1045,7 @@ export default function ManagerShift() {
                   }
                 </IntelCard>
 
-                <IntelCard icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"}>
+                <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
                   {briefing.events.length === 0
                     ? <EmptyIntel text="No upcoming events." />
                     : briefing.events.map(item => (
@@ -1000,7 +1055,7 @@ export default function ManagerShift() {
                   }
                 </IntelCard>
 
-                <IntelCard icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length}>
+                <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
                   {[...briefing.managerLogs, ...briefing.waste].length === 0
                     ? <EmptyIntel text="No manager notes or recent waste." />
                     : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => (
@@ -1010,23 +1065,50 @@ export default function ManagerShift() {
                   }
                 </IntelCard>
 
+                {/* Progress before acknowledge */}
+                {!acknowledged && (
+                  <div className="flex items-center justify-between px-1">
+                    <p className="text-[11px] font-bold text-muted-foreground">
+                      {viewedIntelCards.size}/{INTEL_CARD_IDS.length} sections reviewed
+                    </p>
+                    <div className="flex gap-1">
+                      {INTEL_CARD_IDS.map(cid => (
+                        <div
+                          key={cid}
+                          className={cn(
+                            "h-1 w-6 rounded-full transition-all duration-300",
+                            viewedIntelCards.has(cid) ? "bg-green-400/60" : "bg-border/40"
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={acknowledgeBriefing}
-                  disabled={acknowledged}
-                  className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
+                  disabled={acknowledged || !allCardsViewed}
+                  className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white transition-all active:scale-[0.98]"
                   style={{
                     background: acknowledged
                       ? "linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.2) 100%)"
-                      : "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+                      : allCardsViewed
+                        ? "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)"
+                        : "rgba(255,255,255,0.04)",
                     boxShadow: acknowledged
                       ? "0 0 0 1px rgba(34,197,94,0.3)"
-                      : "0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)",
+                      : allCardsViewed
+                        ? "0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)"
+                        : "0 0 0 1px rgba(255,255,255,0.06)",
+                    opacity: !acknowledged && !allCardsViewed ? 0.5 : 1,
                   }}
                 >
                   {acknowledged
                     ? <><CheckCircle2 className="h-5 w-5" />Intel Acknowledged — +20 XP</>
-                    : <><Shield className="h-5 w-5" />Acknowledge Briefing</>
+                    : allCardsViewed
+                      ? <><Shield className="h-5 w-5" />Acknowledge Briefing</>
+                      : <><Shield className="h-5 w-5" />Review all sections to continue</>
                   }
                 </button>
               </>

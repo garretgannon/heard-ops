@@ -33,13 +33,62 @@ function fmtTime(t) {
   return `${hour}${m ? `:${String(m).padStart(2, '0')}` : ''}${ampm}`;
 }
 
-export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect, onContextMenu, isDragging, conflicts }) {
+export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect, onContextMenu, isDragging, conflicts, variant = 'grid' }) {
   const role = (shift.role || '').toLowerCase();
   const colors = ROLE_COLORS[role] || DEFAULT_COLOR;
   const startFmt = fmtTime(shift.start_time);
   const endFmt = fmtTime(shift.end_time);
   const hasConflicts = conflicts && conflicts.length > 0;
   const hasError = conflicts?.some(c => c.type === 'error');
+  const timeStr = [startFmt, endFmt].filter(Boolean).join('–');
+
+  if (variant === 'mobile') {
+    return (
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(
+          'w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all active:scale-[0.98]',
+          isSelected ? 'border-primary/50' : 'border-border/40',
+          hasError && 'border-red-500/40',
+        )}
+        style={{
+          background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)',
+        }}
+      >
+        {/* Color accent bar */}
+        <div className={cn('h-10 w-1 rounded-full shrink-0', colors.dot)} />
+
+        {/* Name + role */}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-black text-foreground truncate leading-snug">
+            {shift.employee_name || '—'}
+          </p>
+          <p className={cn('text-[11px] font-bold capitalize leading-snug', colors.text)}>
+            {shift.role || 'No role'}{shift.station ? ` · ${shift.station}` : ''}
+          </p>
+        </div>
+
+        {/* Time + status */}
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          {timeStr ? (
+            <p className="text-sm font-bold text-foreground tabular-nums">{timeStr}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">No time</p>
+          )}
+          <div className="flex items-center gap-1">
+            {hasConflicts && (
+              hasError
+                ? <AlertCircle className="h-3 w-3 text-red-400" />
+                : <AlertTriangle className="h-3 w-3 text-amber-400" />
+            )}
+            <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[shift.status] || STATUS_DOT.draft)} />
+          </div>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <div

@@ -17,19 +17,49 @@ export default function ScheduleGrid({
         {weekDays.map((day, dayIdx) => {
           const dayShifts = shifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } });
           const today = isToday(day);
+          if (!today && dayShifts.length === 0) return null;
           return (
-            <div key={dayIdx} className={cn('rounded-xl border overflow-hidden', today ? 'border-primary/50' : 'border-border/40')}>
-              <div className={cn('px-4 py-3 border-b flex items-center justify-between', today ? 'bg-primary/10 border-primary/30' : 'bg-card border-border/30')}>
-                <p className={cn('font-bold text-sm', today ? 'text-primary' : 'text-foreground')}>{format(day, 'EEE, MMM d')}</p>
-                {today && <span className="text-[10px] font-bold bg-primary text-white px-2 py-0.5 rounded-full">TODAY</span>}
-                <span className="text-xs text-muted-foreground">{dayShifts.length} shifts</span>
+            <div
+              key={dayIdx}
+              className={cn('overflow-hidden rounded-2xl border', today ? 'border-primary/40' : 'border-border/40')}
+              style={{
+                background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)',
+              }}
+            >
+              {/* Day header */}
+              <div className={cn(
+                'flex items-center justify-between px-4 py-3 border-b',
+                today ? 'border-primary/20' : 'border-border/20',
+              )}>
+                <div className="flex items-center gap-2.5">
+                  {today && <div className="h-2 w-2 rounded-full bg-primary" />}
+                  <p className={cn('text-sm font-black', today ? 'text-primary' : 'text-foreground')}>
+                    {format(day, 'EEE, MMM d')}
+                  </p>
+                  {today && (
+                    <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary">
+                      TODAY
+                    </span>
+                  )}
+                </div>
+                <span className={cn(
+                  'text-[11px] font-bold tabular-nums',
+                  dayShifts.length > 0 ? 'text-foreground/60' : 'text-muted-foreground/40'
+                )}>
+                  {dayShifts.length} {dayShifts.length === 1 ? 'shift' : 'shifts'}
+                </span>
               </div>
-              <div className="p-3 space-y-2 bg-background">
+
+              {/* Shifts */}
+              <div className="space-y-1.5 p-3">
                 {dayShifts.length === 0
-                  ? <p className="text-xs text-muted-foreground text-center py-3">No shifts</p>
+                  ? <p className="py-2 text-center text-xs text-muted-foreground/50">No shifts scheduled</p>
                   : dayShifts.map(shift => (
                     <ShiftBlock
-                      key={shift.id} shift={shift}
+                      key={shift.id}
+                      shift={shift}
+                      variant="mobile"
                       isSelected={selectedShiftIds.includes(shift.id)}
                       onSelect={() => onSelectShift(shift)}
                       onMultiSelect={() => {

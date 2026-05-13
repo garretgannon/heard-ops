@@ -446,16 +446,16 @@ export default function ScheduleCenter() {
           {!isExpanded && (
           <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
             {[
-              { label: 'Scheduled Hours', value: totalHours.toFixed(0), suffix: 'h', color: 'text-blue-400' },
-              { label: 'Labor Cost', value: '$0', suffix: '', color: 'text-green-400' },
-              { label: 'Staff Scheduled', value: weekShifts.length > 0 ? new Set(weekShifts.map(s => s.employee_email)).size : 0, suffix: '', color: 'text-foreground' },
-              { label: 'Draft Shifts', value: draftCount, suffix: '', color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground' },
-              { label: 'Pending Approvals', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground' },
-              { label: 'Conflicts/Issues', value: conflictCount, suffix: '', color: conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground' },
+              { label: 'Hours', value: totalHours.toFixed(0), suffix: 'h', color: 'text-blue-400' },
+              { label: 'Staff', value: weekShifts.length > 0 ? new Set(weekShifts.map(s => s.employee_email)).size : 0, suffix: '', color: 'text-foreground' },
+              { label: 'Drafts', value: draftCount, suffix: '', color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
+              { label: 'Time Off', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
+              { label: 'Conflicts', value: conflictCount, suffix: '', color: conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground/50' },
+              { label: 'Labor', value: '$0', suffix: '', color: 'text-green-400' },
             ].map(({ label, value, suffix, color }) => (
-              <div key={label} className="bg-card/50 border border-border/40 rounded-lg px-2.5 py-2">
-                <p className={cn('text-sm font-extrabold leading-none', color)}>{value}{suffix}</p>
-                <p className="text-[10px] text-muted-foreground mt-1 truncate">{label}</p>
+              <div key={label} className="rounded-xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+                <p className={cn('text-sm font-extrabold leading-none tabular-nums', color)}>{value}{suffix}</p>
+                <p className="mt-1 truncate text-[10px] text-muted-foreground">{label}</p>
               </div>
             ))}
           </div>

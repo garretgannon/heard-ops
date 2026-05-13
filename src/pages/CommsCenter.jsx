@@ -37,8 +37,12 @@ function ThreadRow({ thread, active, acknowledged, onClick }) {
       onClick={onClick}
       className={cn(
         'w-full rounded-xl border p-3 text-left transition-all active:scale-[0.99]',
-        active ? 'border-primary/45 bg-primary/10' : 'border-border/45 bg-black/20 hover:border-border'
+        active ? 'border-primary/40' : 'border-border/40 hover:border-border/60'
       )}
+      style={active
+        ? { background: 'rgba(230,106,31,0.08)', boxShadow: '0 0 0 1px rgba(230,106,31,0.15)' }
+        : { background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }
+      }
     >
       <div className="flex items-start gap-3">
         <div className={cn('status-marker status-marker-md shrink-0', priorityClass[thread.priority] || meta.status)}>
@@ -124,7 +128,7 @@ function NewThreadForm({ isAdmin, stations, onCreate }) {
             <select
               value={form.type}
               onChange={(event) => setForm((prev) => ({ ...prev, type: event.target.value }))}
-              className="h-11 rounded-xl border border-border/60 bg-black/20 px-3 text-sm font-bold text-foreground"
+              className="h-11 rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground"
             >
               <option value="announcement">Announcement</option>
               <option value="station_note">Station note</option>
@@ -133,7 +137,7 @@ function NewThreadForm({ isAdmin, stations, onCreate }) {
             <select
               value={form.priority}
               onChange={(event) => setForm((prev) => ({ ...prev, priority: event.target.value }))}
-              className="h-11 rounded-xl border border-border/60 bg-black/20 px-3 text-sm font-bold text-foreground"
+              className="h-11 rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground"
             >
               <option value="normal">Normal</option>
               <option value="high">High</option>
@@ -145,19 +149,19 @@ function NewThreadForm({ isAdmin, stations, onCreate }) {
             value={form.title}
             onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
             placeholder="Title"
-            className="h-11 w-full rounded-xl border border-border/60 bg-black/20 px-3 text-sm font-bold text-foreground placeholder:text-muted-foreground"
+            className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground placeholder:text-muted-foreground"
           />
           <textarea
             value={form.body}
             onChange={(event) => setForm((prev) => ({ ...prev, body: event.target.value }))}
             placeholder="What does the team need to know?"
             rows={4}
-            className="w-full resize-none rounded-xl border border-border/60 bg-black/20 px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground"
+            className="w-full resize-none rounded-xl border border-border/60 bg-background px-3 py-3 text-sm text-foreground placeholder:text-muted-foreground"
           />
           <select
             value={form.station_id}
             onChange={(event) => setForm((prev) => ({ ...prev, station_id: event.target.value }))}
-            className="h-11 w-full rounded-xl border border-border/60 bg-black/20 px-3 text-sm font-bold text-foreground"
+            className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground"
           >
             <option value="">All stations</option>
             {stations.map((station) => (
@@ -300,7 +304,7 @@ export default function CommsCenter() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Communications" />
-      <main className="app-page mx-auto max-w-[980px] lg:max-w-7xl space-y-5">
+      <main className="app-page mx-auto max-w-2xl lg:max-w-5xl space-y-5">
         <header className="pt-1 lg:hidden">
           <p className="metric-label">Comms</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Communication center</h1>
@@ -374,7 +378,7 @@ export default function CommsCenter() {
 
                 <div className="space-y-3">
                   {threadMessages.map((message) => (
-                    <div key={message.id} className="rounded-xl border border-border/45 bg-black/20 p-4">
+                    <div key={message.id} className="rounded-xl border border-border/30 p-4" style={{ background: 'rgba(255,255,255,0.025)' }}>
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">{message.created_by_name || message.created_by || 'Team'}</p>
                         <p className="text-xs text-muted-foreground">{formatTime(message.created_date)}</p>
@@ -397,7 +401,7 @@ export default function CommsCenter() {
                       onChange={(event) => setReply(event.target.value)}
                       onKeyDown={(event) => event.key === 'Enter' && sendReply()}
                       placeholder="Reply with an update..."
-                      className="h-11 min-w-0 flex-1 rounded-xl border border-border/60 bg-black/20 px-3 text-sm text-foreground placeholder:text-muted-foreground"
+                      className="h-11 min-w-0 flex-1 rounded-xl border border-border/60 bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground"
                     />
                     <button type="button" onClick={sendReply} disabled={!reply.trim()} className="btn-primary h-11 px-4 disabled:opacity-50">
                       <Send className="h-4 w-4" />
