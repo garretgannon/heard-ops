@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import { BarChart2, CheckCircle2, ClipboardList, Thermometer, Wrench } from 'lucide-react';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const today = () => new Date().toISOString().split('T')[0];
 const thisWeekStart = () => {
@@ -105,8 +106,9 @@ export default function Reports() {
 
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="Reports" subtitle="Today's operational summary" />
       <main className="app-page mx-auto max-w-[720px] lg:max-w-6xl space-y-6 pb-28">
-        <header className="pt-1">
+        <header className="pt-1 lg:hidden">
           <p className="metric-label">Operations</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Reports</h1>
           <p className="mt-1 text-sm text-muted-foreground">Today's operational summary.</p>
@@ -152,67 +154,69 @@ export default function Reports() {
               />
             </div>
 
-            <SectionCard eyebrow="This Week" title="Task completion">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{data.weekCompleted} of {data.weekTotal} tasks completed</span>
-                  <span className="text-sm font-black text-foreground">{pct(data.weekCompleted, data.weekTotal)}</span>
-                </div>
-                <div className="h-2 rounded-full bg-black/30 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all duration-700"
-                    style={{ width: data.weekTotal > 0 ? `${Math.round((data.weekCompleted / data.weekTotal) * 100)}%` : '0%' }}
-                  />
-                </div>
-                {Object.entries(data.tasksByType).length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    {Object.entries(data.tasksByType).slice(0, 6).map(([type, counts]) => (
-                      <div key={type} className="flex items-center justify-between rounded-xl border border-border/30 bg-black/20 px-3 py-2">
-                        <span className="text-xs text-muted-foreground capitalize">{type.replace(/_/g, ' ')}</span>
-                        <span className="text-xs font-black text-foreground">{counts.done}/{counts.total}</span>
-                      </div>
-                    ))}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <SectionCard eyebrow="This Week" title="Task completion">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{data.weekCompleted} of {data.weekTotal} tasks completed</span>
+                    <span className="text-sm font-black text-foreground">{pct(data.weekCompleted, data.weekTotal)}</span>
                   </div>
-                )}
-              </div>
-            </SectionCard>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <SectionCard eyebrow="Compliance" title="Temperature logs">
-                <div className="space-y-2">
-                  {data.tempTotal > 0 ? (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <span className="status-marker status-marker-md status-info"><Thermometer className="h-4 w-4" /></span>
-                        <div>
-                          <p className="text-sm font-black text-foreground">{data.tempTotal} checks logged</p>
-                          <p className="text-xs text-muted-foreground">{data.tempInRange} in acceptable range</p>
+                  <div className="h-2 rounded-full bg-black/30 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all duration-700"
+                      style={{ width: data.weekTotal > 0 ? `${Math.round((data.weekCompleted / data.weekTotal) * 100)}%` : '0%' }}
+                    />
+                  </div>
+                  {Object.entries(data.tasksByType).length > 0 && (
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      {Object.entries(data.tasksByType).slice(0, 6).map(([type, counts]) => (
+                        <div key={type} className="flex items-center justify-between rounded-xl border border-border/30 bg-black/20 px-3 py-2">
+                          <span className="text-xs text-muted-foreground capitalize">{type.replace(/_/g, ' ')}</span>
+                          <span className="text-xs font-black text-foreground">{counts.done}/{counts.total}</span>
                         </div>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-black/30 overflow-hidden mt-2">
-                        <div className="h-full rounded-full bg-blue-500 transition-all duration-700"
-                          style={{ width: `${Math.round((data.tempInRange / data.tempTotal) * 100)}%` }} />
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-sm text-muted-foreground py-2">No temperature logs today.</p>
+                      ))}
+                    </div>
                   )}
                 </div>
               </SectionCard>
 
-              <SectionCard eyebrow="Maintenance" title="Open requests">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <span className={cn('status-marker status-marker-md', data.openMaintenance > 0 ? 'status-warning' : 'status-success')}>
-                      <Wrench className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <p className="text-sm font-black text-foreground">{data.openMaintenance} open</p>
-                      <p className="text-xs text-muted-foreground">{data.resolvedMaintenance} resolved total</p>
+              <div className="space-y-4">
+                <SectionCard eyebrow="Compliance" title="Temperature logs">
+                  <div className="space-y-2">
+                    {data.tempTotal > 0 ? (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <span className="status-marker status-marker-md status-info"><Thermometer className="h-4 w-4" /></span>
+                          <div>
+                            <p className="text-sm font-black text-foreground">{data.tempTotal} checks logged</p>
+                            <p className="text-xs text-muted-foreground">{data.tempInRange} in acceptable range</p>
+                          </div>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-black/30 overflow-hidden mt-2">
+                          <div className="h-full rounded-full bg-blue-500 transition-all duration-700"
+                            style={{ width: `${Math.round((data.tempInRange / data.tempTotal) * 100)}%` }} />
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground py-2">No temperature logs today.</p>
+                    )}
+                  </div>
+                </SectionCard>
+
+                <SectionCard eyebrow="Maintenance" title="Open requests">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <span className={cn('status-marker status-marker-md', data.openMaintenance > 0 ? 'status-warning' : 'status-success')}>
+                        <Wrench className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-black text-foreground">{data.openMaintenance} open</p>
+                        <p className="text-xs text-muted-foreground">{data.resolvedMaintenance} resolved total</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </SectionCard>
+                </SectionCard>
+              </div>
             </div>
 
             <SectionCard eyebrow="Approvals" title="Queue status">

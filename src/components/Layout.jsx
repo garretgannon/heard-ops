@@ -54,6 +54,7 @@ export default function Layout() {
   const { isAdmin, user } = useCurrentUser();
   const { can } = usePermissions();
   const [restaurantName, setRestaurantName] = useState("");
+  const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 900);
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem('sidebar_collapsed') === 'true'; } catch { return false; }
@@ -405,8 +406,8 @@ export default function Layout() {
         }}
       >
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70">HeardOS</p>
-          <h2 className="text-[24px] leading-tight font-black text-foreground truncate">{pageTitle}</h2>
+          <p className="text-[14px] font-black text-foreground truncate leading-none">{restaurantName || 'HeardOS'}</p>
+          <p className="text-[11px] text-muted-foreground/60 mt-0.5 font-medium">{dateStr}</p>
         </div>
 
         <div className="flex items-center gap-2.5">

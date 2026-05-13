@@ -6,6 +6,7 @@ import { haptics } from '@/utils/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MODAL_VARIANTS, BACKDROP_VARIANTS } from '@/lib/modalAnimations';
 import VendorForm from '@/components/VendorForm';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const CAT_LABELS = { food: 'Food', beverage: 'Beverage', repairs: 'Repairs', equipment: 'Equipment', linen: 'Linen', pest: 'Pest Control', grease_trap: 'Grease Trap', plumbing: 'Plumbing', electrical: 'Electrical', pos: 'POS', hood_cleaning: 'Hood Cleaning', other: 'Other' };
 
@@ -57,16 +58,18 @@ export default function Vendors() {
 
   return (
     <div className="pb-24 lg:pb-0">
-      {/* Desktop Header */}
-      <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">Vendors</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Manage vendor relationships and ordering</p>
-        </div>
-        <button onClick={() => { haptics.medium(); setEditingVendor(null); setShowForm(true); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center gap-1.5 active:scale-95">
-          <Plus className="h-3.5 w-3.5" /> Add Vendor
-        </button>
-      </div>
+      <DesktopPageHeader
+        title="Vendors"
+        subtitle="Manage vendor relationships and ordering"
+        actions={
+          <button
+            onClick={() => { haptics.medium(); setEditingVendor(null); setShowForm(true); }}
+            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center gap-1.5 active:scale-95"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add Vendor
+          </button>
+        }
+      />
 
       {/* Mobile Header */}
       <div className="lg:hidden bg-card border-b border-border px-4 py-4">

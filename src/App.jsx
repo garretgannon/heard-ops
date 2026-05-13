@@ -67,6 +67,7 @@ const Stations = lazy(() => import('./pages/Stations'));
 const RestaurantLayout = lazy(() => import('./pages/RestaurantLayout'));
 const JobCodes = lazy(() => import('./pages/JobCodes'));
 const OperationalMap = lazy(() => import('./pages/OperationalMap'));
+const StationPage = lazy(() => import('./pages/StationPage'));
 const LocationSetup = lazy(() => import('./pages/LocationSetup'));
 const PeopleHierarchy = lazy(() => import('./pages/PeopleHierarchy'));
 const SetupJourney = lazy(() => import('./pages/SetupJourney'));
@@ -214,6 +215,7 @@ const AuthenticatedApp = () => {
         <Route path="/restaurant-layout" element={<RestaurantLayout />} />
         <Route path="/job-codes" element={<JobCodes />} />
         <Route path="/operational-map" element={<OperationalMap />} />
+        <Route path="/station/:id" element={<StationPage />} />
         <Route path="/location-setup" element={<LocationSetup />} />
         <Route path="/people" element={<PeopleHierarchy />} />
         <Route path="/setup-journey" element={<SetupJourney />} />

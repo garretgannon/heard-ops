@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const SETTINGS_GROUPS = [
   {
@@ -77,17 +78,7 @@ export default function Profile() {
 
   return (
     <div className="pb-24 lg:pb-0">
-      {/* Desktop Header */}
-      <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
-        <div>
-          <p className="metric-label">Account</p>
-          <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Settings</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/app/overview')} className="h-8 px-3 rounded-lg border border-border/50 text-xs font-bold text-foreground flex items-center gap-1.5 active:scale-95 transition-all" style={cardStyle}>Today's Plan</button>
-          <button onClick={() => navigate('/notifications')} className="h-8 w-8 rounded-lg border border-border/50 flex items-center justify-center active:scale-95 transition-all" style={cardStyle}><Bell className="h-3.5 w-3.5 text-muted-foreground" /></button>
-        </div>
-      </div>
+      <DesktopPageHeader title="Settings" subtitle="Account preferences and notifications" />
 
       {/* Desktop Settings Grid */}
       <div className="hidden lg:block px-8 py-6">
