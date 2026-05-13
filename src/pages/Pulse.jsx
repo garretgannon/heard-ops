@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { Activity, TrendingUp, Clock, AlertCircle, CheckSquare, Users, ArrowRight, RefreshCw } from 'lucide-react';
+import { TrendingUp, Clock, AlertCircle, CheckSquare, Users, ArrowRight, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 
-const PULSE_ICON_URL = 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg';
+const PULSE_ICON_URL = BRAND_ASSETS.appIcon;
 
 const METRIC_CONFIG = [
   { key: 'completionRate',   label: 'Completion',   unit: '%', icon: TrendingUp,  color: 'text-green-400',  glow: 'rgba(34,197,94,0.25)',   border: 'border-green-500/25',  bg: 'rgba(34,197,94,0.05)' },

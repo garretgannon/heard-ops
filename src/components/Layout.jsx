@@ -18,6 +18,7 @@ import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
 import { usePermissions } from '@/hooks/usePermissions';
 import { desktopNavSections, moreNavSections } from '@/lib/routeConfig';
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 
 // Build a flat path → label map from all nav sections
 const ALL_NAV_ITEMS = [
@@ -180,12 +181,12 @@ export default function Layout() {
           <>
             <div className="flex items-center gap-2.5 flex-1">
               <img
-                src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg"
+                src={BRAND_ASSETS.appIcon}
                 alt="HeardOS"
-                className="h-7 w-7 object-contain shrink-0"
+                className="h-8 w-8 rounded-lg object-contain shrink-0"
               />
               <span className="font-extrabold text-[18px] tracking-tight text-foreground">
-                Heard<span className="text-primary">OS</span>
+                heard<span className="text-primary">OS</span>
               </span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -233,16 +234,16 @@ export default function Layout() {
         )}>
           <div className="relative shrink-0">
             <img
-              src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg"
+              src={BRAND_ASSETS.appIcon}
               alt="HeardOS"
-              className="h-7 w-7 object-contain"
+              className="h-8 w-8 rounded-lg object-contain"
               style={{ filter: 'drop-shadow(0 0 6px rgba(230,106,31,0.5))' }}
             />
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <h1 className="font-black text-[16px] tracking-tight text-foreground leading-none">
-                Heard<span className="text-primary">OS</span>
+                heard<span className="text-primary">OS</span>
               </h1>
               <p className="text-[10px] text-muted-foreground/70 mt-0.5 font-medium tracking-wide truncate">
                 {restaurantName || 'Restaurant Ops'}

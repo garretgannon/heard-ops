@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 import { haptics } from "@/utils/haptics";
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 
 export default function MoreHeader({ onSettings }) {
   return (
@@ -12,10 +13,8 @@ export default function MoreHeader({ onSettings }) {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
-              H
-            </div>
-            <span className="text-xs font-bold text-secondary-text">HeardOS</span>
+            <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-8 w-8 rounded-lg object-contain" />
+            <span className="text-xs font-bold text-secondary-text">heardOS</span>
           </div>
 
           {/* Settings Icon */}

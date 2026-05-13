@@ -4,8 +4,9 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Activity, TrendingUp, Clock, AlertCircle, CheckSquare } from 'lucide-react';
  import StatusBadge from '@/components/pulse/StatusBadge';
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 
- const PULSE_ICON_URL = 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg';
+ const PULSE_ICON_URL = BRAND_ASSETS.appIcon;
 
 export default function Pulse() {
   const { user } = useCurrentUser();

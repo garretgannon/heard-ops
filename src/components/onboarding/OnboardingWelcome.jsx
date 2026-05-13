@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Zap, ArrowRight } from 'lucide-react';
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 
 const FEATURES = [
   { icon: "🏗️", label: "Auto-builds your restaurant structure" },
@@ -19,9 +20,7 @@ export default function OnboardingWelcome({ onBegin }) {
         className="mb-6"
       >
         <div className="relative inline-flex">
-          <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary to-orange-700 flex items-center justify-center shadow-glow-lg">
-            <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-10 w-10" />
-          </div>
+          <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-20 w-20 rounded-2xl object-contain shadow-glow-lg" />
           <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-green-400 border-2 border-background flex items-center justify-center">
             <Zap className="h-3 w-3 text-green-900" />
           </div>

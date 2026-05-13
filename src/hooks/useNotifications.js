@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 
 const STORAGE_KEY = 'heardos-notif-prefs';
 
@@ -46,7 +47,7 @@ export function useNotifications() {
 
     const notif = new Notification(title, {
       body,
-      icon: 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/b1b52980c_HeardOS_app_icon_pulse_58.png',
+      icon: BRAND_ASSETS.appIcon,
       tag: tag || 'heardos',
       silent: false,
     });

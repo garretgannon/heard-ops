@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { redirectToLogin } from '@/lib/auth-urls';
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 import {
-  AlertTriangle,
   ArrowRight,
   CalendarDays,
   CheckCircle2,
@@ -132,8 +132,8 @@ export default function Landing() {
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#243041]/60 bg-[#050A0F]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-7 w-7" />
-            <span className="text-[17px] font-extrabold tracking-tight">Heard<span className="text-[#E66A1F]">OS</span></span>
+            <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-8 w-8 rounded-lg object-contain" />
+            <span className="text-[17px] font-extrabold tracking-tight">heard<span className="text-[#FF9A16]">OS</span></span>
           </div>
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-400 md:flex">
             <a href="#pain" className="transition-colors hover:text-white">Problem</a>
@@ -151,17 +151,26 @@ export default function Landing() {
       <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pb-12 pt-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(230,106,31,0.16),transparent_34rem)]" />
 
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-8 flex items-center gap-2 rounded-full border border-[#E66A1F]/30 bg-[#E66A1F]/10 px-3 py-1.5">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-5 flex items-center gap-2 rounded-full border border-[#E66A1F]/30 bg-[#E66A1F]/10 px-3 py-1.5">
           <div className="h-1.5 w-1.5 rounded-full bg-[#E66A1F]" />
           <span className="text-xs font-bold tracking-wide text-[#E66A1F]">RESTAURANT OPERATIONS</span>
         </motion.div>
 
+        <motion.img
+          src={BRAND_ASSETS.horizontalLogo}
+          alt="heardOS"
+          initial={{ opacity: 0, y: 24 }}
+          animate={heroIn ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-5 w-full max-w-[760px] object-contain"
+        />
+
         <motion.h1 ref={heroRef} initial={{ opacity: 0, y: 30 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="mb-6 max-w-3xl text-center text-5xl font-extrabold leading-[1.1] tracking-tight md:text-6xl">
-          Run every restaurant shift with clarity.
+          Operations, amplified.
         </motion.h1>
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.15 }} className="mb-8 max-w-2xl text-center text-lg leading-relaxed text-slate-400">
-          HeardOS turns handoffs, tasks, logs, prep, temps, and approvals into one shift command center.
+          heardOS turns handoffs, tasks, logs, prep, temps, and approvals into one shift command center.
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={heroIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5, delay: 0.3 }} className="mb-12 flex flex-col gap-3 sm:flex-row">
@@ -264,11 +273,11 @@ export default function Landing() {
       <footer className="border-t border-[#243041] px-4 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
           <div className="flex items-center gap-2">
-            <img src="https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/4d2dcd0d8_HeardOS_pulse_mark.svg" alt="HeardOS" className="h-6 w-6" />
-            <span className="text-sm font-extrabold">Heard<span className="text-[#E66A1F]">OS</span></span>
+            <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-7 w-7 rounded-md object-contain" />
+            <span className="text-sm font-extrabold">heard<span className="text-[#FF9A16]">OS</span></span>
             <span className="ml-2 text-xs text-slate-600">Restaurant shift operations</span>
           </div>
-          <p className="text-xs text-slate-600">(c) 2026 HeardOS. All rights reserved.</p>
+          <p className="text-xs text-slate-600">(c) 2026 heardOS. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -1,4 +1,5 @@
 const CACHE = 'heardos-v1';
+const APP_ICON = '/brand/heardos-app-icon-512.png';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
@@ -10,8 +11,8 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/b1b52980c_HeardOS_app_icon_pulse_58.png',
-      badge: 'https://media.base44.com/images/public/69f0c74de6e9ba52961af58a/b1b52980c_HeardOS_app_icon_pulse_58.png',
+      icon: APP_ICON,
+      badge: APP_ICON,
       tag: data.tag || 'heardos-alert',
       data: { url: data.url || '/' },
       vibrate: [200, 100, 200],
