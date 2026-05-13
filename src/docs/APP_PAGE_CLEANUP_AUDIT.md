@@ -8,9 +8,9 @@ This audit maps page files, app routes, navigation entry points, and obvious leg
 
 ## Route Inventory Summary
 
-- Real routed pages in `src/pages`: 60
-- Redirect-only legacy routes in `src/App.jsx`: 55
-- Page files in `src/pages` with no route: 2
+- Page files in `src/pages`: 59
+- Redirect-only legacy routes in `src/App.jsx`: 59
+- Page files in `src/pages` missing from lazy imports: 0
 - Top-level `src/*.jsx` files that duplicated `src/pages/*.jsx`: 57
 - Top-level duplicate files that are byte-identical to `src/pages`: 2
 
@@ -42,21 +42,21 @@ Cleanup result: removed the 57 duplicate top-level page files after an exact imp
 
 ### Remove or archive `src/pages/ShiftHandoff.jsx`
 
-Status: no active route.
+Status: completed on 2026-05-13.
 
 The route `/shift-handoff` currently renders `ManagerShift`, not `ShiftHandoff`. The modern handoff save logic lives inside `src/pages/ManagerShift.jsx`, including `ShiftHandoff` entity creation and a matching `UnifiedLog`.
 
-Recommendation: archive or remove `src/pages/ShiftHandoff.jsx` after confirming no desired UI exists only in that old page.
+Cleanup result: removed `src/pages/ShiftHandoff.jsx`. `/shift-handoff` remains routed to the modern `ManagerShift` close/debrief flow.
 
 Risk: medium. It is product-adjacent, but currently unreachable.
 
 ### Remove or archive `src/pages/StationShift.jsx`
 
-Status: no active route.
+Status: completed on 2026-05-13.
 
 The active staff shift route is `/station-shift`, which renders `src/pages/StaffShift.jsx`. `StationShift.jsx` appears to be an older station-specific shift experience using `StationShiftSession`.
 
-Recommendation: compare against `StaffShift.jsx`; migrate any unique desired behavior, then remove/archive `StationShift.jsx`.
+Cleanup result: removed `src/pages/StationShift.jsx`. `/station-shift` remains routed to `src/pages/StaffShift.jsx`.
 
 Risk: medium. It may contain ideas worth preserving, but it is not reachable today.
 
@@ -64,11 +64,13 @@ Risk: medium. It may contain ideas worth preserving, but it is not reachable tod
 
 ### Knowledge and recipe surfaces
 
+Status: partially completed on 2026-05-13.
+
 Current active routes:
 
 - `/recipes` -> `Recipes`
 - `/build-cards` -> `BuildCards`
-- `/recipes-and-build-cards` -> `RecipesAndBuildCards`
+- `/recipes-and-build-cards` -> redirects to `/recipes`
 - `/standards` -> `Standards`
 - `/knowledge` and `/search` -> `Knowledge`
 
@@ -79,6 +81,8 @@ Recommendation:
 - Keep `/build-cards` and `/standards` only if they have clear navigation and distinct workflows.
 
 Risk: product decision needed.
+
+Cleanup result: removed the old `src/pages/RecipesAndBuildCards.jsx` chooser page and made its route redirect to `/recipes`.
 
 ### Temperature surfaces
 
@@ -121,10 +125,12 @@ Risk: medium. Admin workflows may depend on these.
 
 ### SDS and chemical safety surfaces
 
+Status: completed on 2026-05-13.
+
 Current active routes:
 
 - `/chemical-library` -> `ChemicalLibrary`
-- `/sds-library` -> `SDSLibrary`
+- `/sds-library` -> redirects to `/chemical-library`
 
 Recommendation:
 
@@ -133,6 +139,8 @@ Recommendation:
 - Otherwise merge SDS viewing/upload into ChemicalLibrary and redirect `/sds-library`.
 
 Risk: product/data model decision needed.
+
+Cleanup result: removed `src/pages/SDSLibrary.jsx`, updated SDS/MSDS legacy routes to redirect to `/chemical-library`, and updated the operational map SDS link to open Chemicals.
 
 ## Route Hygiene Findings
 

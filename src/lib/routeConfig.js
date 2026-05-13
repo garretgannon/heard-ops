@@ -11,7 +11,6 @@ import {
   BookOpen,
   MoreHorizontal,
   Store,
-  TrendingUp,
   AlertTriangle,
   Warehouse,
   Truck,
@@ -105,7 +104,7 @@ export const desktopNavSections = [
   {
     label: "WORK",
     items: [
-      { path: "/app/overview", label: "Overview", icon: LayoutDashboard },
+      { path: "/app/overview", label: "Dashboard", icon: LayoutDashboard },
       { path: "/shift", label: "Shift", icon: Sparkles },
       { path: "/logs", label: "Logs", icon: FileText, perm: "view_logs" },
       { path: "/team", label: "Team", icon: Users, perm: "view_team" },
@@ -209,7 +208,7 @@ export const allRoutes = {
   dailyOps: {
     today: {
       path: "/app/overview",
-      label: "Overview",
+      label: "Dashboard",
       icon: LayoutDashboard,
       exact: true,
       component: "AppOverview",
@@ -225,14 +224,6 @@ export const allRoutes = {
       roles: ["admin"],
       module: "dailyOps",
       description: "Manager briefing, duties, and handoff",
-    },
-    shiftHandoff: {
-      path: "/shift?stage=debrief",
-      label: "Shift Handoff",
-      icon: TrendingUp,
-      component: "ManagerShift",
-      roles: ["admin"],
-      module: "dailyOps",
     },
   },
 
@@ -441,14 +432,14 @@ export const allRoutes = {
       module: "knowledge",
       description: "SOPs, standards, and guidelines",
     },
-    msds: {
-      path: "/sds-library",
-      label: "SDS / MSDS Safety",
+    chemicals: {
+      path: "/chemical-library",
+      label: "Chemicals / SDS",
       icon: AlertTriangle,
-      component: "SDSLibrary",
+      component: "ChemicalLibrary",
       roles: ["admin", "user"],
       module: "knowledge",
-      description: "Safety data sheets and compliance docs",
+      description: "Chemical assignments, safety data sheets, and compliance docs",
     },
     templates: {
       path: "/templates",
@@ -604,94 +595,14 @@ export const legacyRedirects = {
   "/SideWorkStaff": "/tasks?tab=sidework",
   "/SideWorkProduction": "/tasks?tab=sidework",
   "/waste-log": "/logs?type=waste",
-  "/MSDS": "/sds-library",
-  "/SDS": "/sds-library",
-  "/safety-data-sheets": "/sds-library",
-  "/chemical-sheets": "/sds-library",
+  "/MSDS": "/chemical-library",
+  "/SDS": "/chemical-library",
+  "/safety-data-sheets": "/chemical-library",
+  "/chemical-sheets": "/chemical-library",
   "/today": "/app/overview",
   "/schedule-center": "/schedule",
   "/restaurant-team": "/team",
   "/pre-shift": "/shift",
-};
-
-/**
- * MORE PAGE STRUCTURE
- * Organized module groups for the More menu
- */
-export const morePageStructure = {
-  kitchen: {
-    title: "Kitchen",
-    description: "Back of house operations",
-    items: [
-      "prepLists",
-      "prepTemplates",
-      "recipes",
-    ],
-  },
-  foh: {
-    title: "Front of House",
-    description: "Service and side work",
-    items: [
-      "sideWork",
-      "sideWorkTemplates",
-    ],
-  },
-  cleaning: {
-    title: "Cleaning",
-    description: "Checklists and templates",
-    items: [
-      "cleaningChecklist",
-      "cleaningTemplates",
-    ],
-  },
-  foodSafety: {
-    title: "Food Safety",
-    description: "Temperature and compliance",
-    items: [
-      "tempLogTemplates",
-    ],
-  },
-  inventory: {
-    title: "Inventory",
-    description: "Waste and availability",
-    items: [
-      "purchasedItems",
-      "wasteLog",
-      "wasteTemplates",
-      "eightsixTemplates",
-      "vendors",
-    ],
-  },
-  operations: {
-    title: "Operations",
-    description: "Scheduling",
-    items: [
-      "schedule",
-      "scheduleImport",
-      "team",
-      "reports",
-      "shiftHandoff",
-    ],
-  },
-  management: {
-    title: "Management",
-    description: "Admin tools and settings",
-    items: [
-      "restaurantLayout",
-      "jobCodes",
-      "templates",
-    ],
-  },
-  settings: {
-    title: "Settings",
-    description: "Personal and restaurant",
-    items: [
-      "profile",
-      "restaurant",
-      "notifications",
-      "more",
-    ],
-  },
 };
 
 /**

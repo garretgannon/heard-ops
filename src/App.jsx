@@ -32,7 +32,6 @@ const TeamCenter = lazy(() => import('./pages/TeamCenter'));
 const ScheduleCenter = lazy(() => import('./pages/ScheduleCenter'));
 const ScheduleImport = lazy(() => import('./pages/ScheduleImport'));
 const ApprovalInbox = lazy(() => import('./pages/ApprovalInbox'));
-const ReviewInbox = lazy(() => import('./pages/ReviewInbox'));
 const Cleaning = lazy(() => import('./pages/Cleaning'));
 const InventorySimplified = lazy(() => import('./pages/InventorySimplified'));
 const Vendors = lazy(() => import('./pages/Vendors'));
@@ -40,7 +39,6 @@ const Reports = lazy(() => import('./pages/Reports'));
 const Profile = lazy(() => import('./pages/Profile'));
 const MyRestaurant = lazy(() => import('./pages/MyRestaurant'));
 const NotificationSettings = lazy(() => import('./pages/NotificationSettings'));
-const RecipesAndBuildCards = lazy(() => import('./pages/RecipesAndBuildCards'));
 const BuildCards = lazy(() => import('./pages/BuildCards'));
 const ReservationsAndBEOs = lazy(() => import('./pages/ReservationsAndBEOs'));
 const PurchasedItems = lazy(() => import('./pages/PurchasedItems'));
@@ -78,7 +76,6 @@ const AdminCommandCenter = lazy(() => import('./pages/AdminCommandCenter'));
 const OnboardingSimulator = lazy(() => import('./pages/OnboardingSimulator'));
 const Shift = lazy(() => import('./pages/Shift'));
 const TemplateManager = lazy(() => import('./pages/TemplateManager'));
-const SDSLibrary = lazy(() => import('./pages/SDSLibrary'));
 const Standards = lazy(() => import('./pages/Standards'));
 const AppOverview = lazy(() => import('./pages/AppOverview'));
 
@@ -127,11 +124,11 @@ const AuthenticatedApp = () => {
         {/* Root redirect for logged-in users */}
         <Route path="/" element={<Navigate to={isAdmin ? "/app/overview" : "/station-shift"} replace />} />
 
-        {/* OVERVIEW - Logged-in dashboard */}
+        {/* Dashboard - canonical app overview */}
         <Route path="/app/overview" element={<AppOverview />} />
         
-        {/* BOTTOM NAV ROUTES (5 main) */}
-        <Route path="/dashboard" element={<AppOverview />} />
+        {/* Legacy dashboard alias */}
+        <Route path="/dashboard" element={<Navigate to="/app/overview" replace />} />
         <Route path="/station-shift" element={<StaffShift />} />
         <Route path="/tasks" element={<PermissionGate permission={PERMISSIONS.COMPLETE_TASKS}><StaffTasks /></PermissionGate>} />
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
@@ -159,7 +156,7 @@ const AuthenticatedApp = () => {
 
         {/* ADMIN/MANAGER - Approvals */}
         <Route path="/approvals" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ApprovalInbox /></PermissionGate>} />
-        <Route path="/review-queue" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ReviewInbox /></PermissionGate>} />
+        <Route path="/review-queue" element={<Navigate to="/approvals" replace />} />
 
         {/* ADMIN ONLY - Template Management */}
         <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
@@ -171,7 +168,7 @@ const AuthenticatedApp = () => {
         <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
         <Route path="/recipe-bulk-import" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><RecipeBulkImport /></PermissionGate>} />
 
-        <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
+        <Route path="/recipes-and-build-cards" element={<Navigate to="/recipes" replace />} />
         <Route path="/reservations" element={<PermissionGate permission={PERMISSIONS.VIEW_BEOS}><ReservationsAndBEOs /></PermissionGate>} />
         <Route path="/purchased-items" element={<PurchasedItems />} />
 
@@ -220,7 +217,7 @@ const AuthenticatedApp = () => {
         <Route path="/people" element={<PeopleHierarchy />} />
         <Route path="/setup-journey" element={<SetupJourney />} />
         <Route path="/automation-rules" element={<AutomationRules />} />
-        <Route path="/sds-library" element={<SDSLibrary />} />
+        <Route path="/sds-library" element={<Navigate to="/chemical-library" replace />} />
 
         {/* SETTINGS ROUTES */}
         <Route path="/profile" element={<Profile />} />
@@ -263,10 +260,10 @@ const AuthenticatedApp = () => {
         <Route path="/schedule-center" element={<Navigate to="/schedule" replace />} />
 
         {/* SDS/MSDS REDIRECTS */}
-        <Route path="/MSDS" element={<Navigate to="/sds-library" replace />} />
-        <Route path="/SDS" element={<Navigate to="/sds-library" replace />} />
-        <Route path="/safety-data-sheets" element={<Navigate to="/sds-library" replace />} />
-        <Route path="/chemical-sheets" element={<Navigate to="/sds-library" replace />} />
+        <Route path="/MSDS" element={<Navigate to="/chemical-library" replace />} />
+        <Route path="/SDS" element={<Navigate to="/chemical-library" replace />} />
+        <Route path="/safety-data-sheets" element={<Navigate to="/chemical-library" replace />} />
+        <Route path="/chemical-sheets" element={<Navigate to="/chemical-library" replace />} />
 
         {/* ROUTE ALIASES - keep older buttons and quick actions from dead-ending */}
         <Route path="/today" element={<Navigate to="/app/overview" replace />} />

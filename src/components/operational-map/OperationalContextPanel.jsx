@@ -328,7 +328,7 @@ export default function OperationalContextPanel({
               <div className="px-2.5 py-1.5 bg-background/50 border border-border/20 rounded text-xs flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-foreground">Fry Oil (Canola Blend)</p>
-                  <button onClick={() => navigate('/sds-library')} className="text-[10px] text-primary hover:underline">SDS →</button>
+                  <button onClick={() => navigate('/chemical-library')} className="text-[10px] text-primary hover:underline">SDS →</button>
                 </div>
                 <button className="p-1 text-muted-foreground hover:text-foreground">
                   {/* menu icon */}

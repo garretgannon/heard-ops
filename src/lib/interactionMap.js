@@ -182,7 +182,7 @@ export const stationsMap = {
 export const staffShiftMap = {
   stationHandoffCapture: {
     type: INTERACTION_TYPES.SUBMIT_FORM,
-    target: 'StationShift:handoff',
+    target: 'StaffShift:handoff',
     label: 'Capture station handoff',
   },
   taskComplete: {
@@ -192,7 +192,7 @@ export const staffShiftMap = {
   },
   closeStation: {
     type: INTERACTION_TYPES.SUBMIT_FORM,
-    target: 'StationShift:session',
+    target: 'StaffShift:session',
     label: 'Close station shift',
   },
 };

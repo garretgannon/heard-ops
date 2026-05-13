@@ -364,7 +364,7 @@ export default function AppOverview() {
 
   return (
     <div className="app-screen">
-      <DesktopPageHeader title="Overview" />
+      <DesktopPageHeader title="Dashboard" />
       <div className="app-page max-w-[560px] space-y-7 lg:max-w-6xl">
         <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
           <div>
