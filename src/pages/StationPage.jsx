@@ -259,19 +259,19 @@ function AddEquipmentForm({ station, area, onSave, onCancel }) {
   const TypeIcon = meta.icon;
 
   return (
-    <div className="space-y-2 rounded-xl border border-primary/25 bg-primary/5 p-3">
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Equipment name" className="h-9 w-full rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50" />
+    <div className="space-y-3 rounded-xl border border-primary/25 bg-primary/5 p-3">
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Equipment name" className="h-12 w-full rounded-xl border border-border/60 bg-background px-4 text-base font-semibold text-foreground outline-none focus:border-primary/50" />
       <div className="flex items-center gap-2">
-        <span className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center" style={{ background: meta.bg }}>
-          <TypeIcon className={cn('h-4 w-4', meta.iconColor)} />
+        <span className="h-12 w-12 shrink-0 rounded-xl flex items-center justify-center" style={{ background: meta.bg }}>
+          <TypeIcon className={cn('h-5 w-5', meta.iconColor)} />
         </span>
-        <select value={type} onChange={(e) => setType(e.target.value)} className="h-9 flex-1 rounded-lg border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none">
+        <select value={type} onChange={(e) => setType(e.target.value)} className="h-12 flex-1 rounded-xl border border-border/60 bg-background px-3 text-base font-semibold text-foreground outline-none">
           {EQUIPMENT_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={saving || !name.trim()} className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-black text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : 'Add Equipment'}</button>
-        <button type="button" onClick={onCancel} className="flex-1 rounded-lg border border-border/60 px-3 py-2 text-xs font-black text-muted-foreground">Cancel</button>
+        <button type="button" onClick={save} disabled={saving || !name.trim()} className="flex-1 rounded-xl bg-primary px-3 py-3 text-sm font-black text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : 'Add Equipment'}</button>
+        <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-border/60 px-3 py-3 text-sm font-black text-muted-foreground">Cancel</button>
       </div>
     </div>
   );
@@ -685,7 +685,7 @@ export default function StationPage() {
       </main>
 
       {/* Workflow bottom sheet */}
-      <BottomSheet open={Boolean(activeWorkflow)} onClose={() => setActiveWorkflow(null)} title={activeWorkflowDef?.label || ''}>
+      <BottomSheet open={Boolean(activeWorkflow)} onClose={() => setActiveWorkflow(null)} title={activeWorkflowDef?.label || ''} className={activeWorkflow === 'equipment' ? 'min-h-[75vh]' : undefined}>
         {activeWorkflow && station && (
           <WorkflowSheetContent
             key={activeWorkflow}
