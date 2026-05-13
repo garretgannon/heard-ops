@@ -130,7 +130,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#050A0F] text-white">
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#243041]/60 bg-[#050A0F]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex min-h-[84px] max-w-6xl items-center justify-between px-5 py-4">
           <div className="flex items-center">
             <img src={BRAND_ASSETS.headerLogo} alt="HeardOS" className="h-16 w-auto max-w-[280px] object-contain" />
           </div>

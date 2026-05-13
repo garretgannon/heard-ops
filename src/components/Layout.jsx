@@ -131,10 +131,10 @@ export default function Layout() {
 
       {/* Mobile header — frosted glass */}
       <header
-        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-end px-3 pb-2"
+        className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-end px-4 pb-3"
         style={{
-          paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
-          height: "calc(56px + env(safe-area-inset-top, 0px))",
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)",
+          height: "calc(72px + env(safe-area-inset-top, 0px))",
           background: "linear-gradient(180deg, rgba(6, 10, 16, 0.97) 0%, rgba(8, 13, 20, 0.94) 100%)",
           backdropFilter: "blur(24px) saturate(180%)",
           WebkitBackdropFilter: "blur(24px) saturate(180%)",
@@ -227,14 +227,14 @@ export default function Layout() {
         {/* Logo / Brand */}
         <div className={cn(
           "flex shrink-0 pt-5",
-          collapsed ? "items-center justify-center px-3 pb-4" : "flex-col items-start px-4 pb-4"
+          collapsed ? "items-center justify-center px-3 pb-5" : "flex-col items-start px-5 pb-5"
         )}>
           <img
             src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.headerLogo}
             alt="HeardOS"
             className={cn(
               "object-contain shrink-0",
-              collapsed ? "h-8 w-8 rounded-lg" : "h-16 w-full max-w-[210px]"
+              collapsed ? "h-8 w-8 rounded-lg" : "h-16 w-full max-w-[200px]"
             )}
             style={{ filter: 'drop-shadow(0 0 6px rgba(230,106,31,0.5))' }}
           />

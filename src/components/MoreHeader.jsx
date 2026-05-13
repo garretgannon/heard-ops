@@ -5,12 +5,12 @@ import { BRAND_ASSETS } from '@/lib/brandAssets';
 export default function MoreHeader({ onSettings }) {
   return (
     <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="px-4 py-3">
+      <div className="px-5 py-4">
         {/* Title */}
         <h1 className="text-lg font-bold text-foreground mb-2">More</h1>
 
         {/* Top Row: Logo + Settings */}
-        <div className="flex items-center justify-between">
+        <div className="flex min-h-[60px] items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
             <img src={BRAND_ASSETS.headerLogo} alt="HeardOS" className="h-14 w-auto max-w-[240px] object-contain" />
