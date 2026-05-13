@@ -12,9 +12,8 @@ export default function MoreHeader({ onSettings }) {
         {/* Top Row: Logo + Settings */}
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-8 w-8 rounded-lg object-contain" />
-            <span className="text-xs font-bold text-secondary-text">heardOS</span>
+          <div className="flex items-center">
+            <img src={BRAND_ASSETS.signalLogoCropped} alt="HeardOS" className="h-12 w-auto max-w-[210px] object-contain" />
           </div>
 
           {/* Settings Icon */}

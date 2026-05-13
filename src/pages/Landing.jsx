@@ -131,9 +131,8 @@ export default function Landing() {
     <div className="min-h-screen overflow-x-hidden bg-[#050A0F] text-white">
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#243041]/60 bg-[#050A0F]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-8 w-8 rounded-lg object-contain" />
-            <span className="text-[17px] font-extrabold tracking-tight">heard<span className="text-[#FF9A16]">OS</span></span>
+          <div className="flex items-center">
+            <img src={BRAND_ASSETS.signalLogoCropped} alt="HeardOS" className="h-14 w-auto max-w-[240px] object-contain" />
           </div>
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-400 md:flex">
             <a href="#pain" className="transition-colors hover:text-white">Problem</a>

@@ -6,4 +6,5 @@ export const BRAND_ASSETS = {
   stackedLogo: '/brand/heardos-stacked-logo.png',
   commsLogo: '/brand/heardos-comms-logo.png',
   signalLogo: '/brand/heardos-signal-logo.png',
+  signalLogoCropped: '/brand/heardos-signal-logo-cropped.png',
 };

@@ -179,15 +179,12 @@ export default function Layout() {
         ) : (
           /* Tab route header: Logo | Actions */
           <>
-            <div className="flex items-center gap-2.5 flex-1">
+            <div className="flex items-center flex-1">
               <img
-                src={BRAND_ASSETS.appIcon}
+                src={BRAND_ASSETS.signalLogoCropped}
                 alt="HeardOS"
-                className="h-8 w-8 rounded-lg object-contain shrink-0"
+                className="h-12 w-auto max-w-[220px] object-contain shrink-0"
               />
-              <span className="font-extrabold text-[18px] tracking-tight text-foreground">
-                heard<span className="text-primary">OS</span>
-              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Link
@@ -232,19 +229,17 @@ export default function Layout() {
           "flex items-center shrink-0 pt-5",
           collapsed ? "px-3 pb-4 justify-center" : "px-5 pb-4 gap-3"
         )}>
-          <div className="relative shrink-0">
-            <img
-              src={BRAND_ASSETS.appIcon}
-              alt="HeardOS"
-              className="h-8 w-8 rounded-lg object-contain"
-              style={{ filter: 'drop-shadow(0 0 6px rgba(230,106,31,0.5))' }}
-            />
-          </div>
+          <img
+            src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.signalLogoCropped}
+            alt="HeardOS"
+            className={cn(
+              "object-contain shrink-0",
+              collapsed ? "h-8 w-8 rounded-lg" : "h-14 w-full max-w-[190px]"
+            )}
+            style={{ filter: 'drop-shadow(0 0 6px rgba(230,106,31,0.5))' }}
+          />
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <h1 className="font-black text-[16px] tracking-tight text-foreground leading-none">
-                heard<span className="text-primary">OS</span>
-              </h1>
               <p className="text-[10px] text-muted-foreground/70 mt-0.5 font-medium tracking-wide truncate">
                 {restaurantName || 'Restaurant Ops'}
               </p>
