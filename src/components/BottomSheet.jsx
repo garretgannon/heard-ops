@@ -50,7 +50,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 34, stiffness: 400, mass: 0.85 }}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-[1001] flex flex-col",
+              "fixed bottom-0 left-0 right-0 z-[1001] flex w-full max-w-full flex-col overflow-hidden",
               "rounded-t-[28px]",
               "max-h-[90vh]",
               className
@@ -63,12 +63,12 @@ export default function BottomSheet({ open, onClose, title, children, className 
             }}
           >
             {/* Drag handle + header row */}
-            <div className="flex items-center justify-between px-5 shrink-0" style={{ paddingTop: "14px" }}>
+            <div className="flex min-w-0 items-center justify-between px-5 shrink-0" style={{ paddingTop: "14px" }}>
               {/* Centered drag handle */}
               <div className="absolute left-1/2 -translate-x-1/2 top-3.5 w-9 h-[3px] rounded-full pointer-events-none" style={{ background: "rgba(255,255,255,0.18)" }} />
 
               {title
-                ? <p className="text-[17px] font-bold text-white tracking-tight leading-snug">{title}</p>
+                ? <p className="min-w-0 truncate pr-3 text-[17px] font-bold text-white tracking-tight leading-snug">{title}</p>
                 : <div />
               }
 
@@ -83,7 +83,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
             </div>
 
             {/* Scrollable content */}
-            <div className="overflow-y-auto px-5 pt-4 pb-4 flex-1">
+            <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pt-4 pb-4">
               {children}
             </div>
           </motion.div>

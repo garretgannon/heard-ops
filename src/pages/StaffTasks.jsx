@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ClipboardList, CheckCircle2, ArrowRight, Camera, UserRound, Play, ChefHat } from "lucide-react";
+import { ClipboardList, CheckCircle2, ArrowRight, Camera, UserRound, Play, ChefHat, X, MapPin, ImagePlus, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import DesktopPageHeader from "@/components/DesktopPageHeader";
 import ActivePrepStep from "@/components/prep-flow/ActivePrepStep";
@@ -188,11 +188,12 @@ function buildData(prepItems, sideWork, generatedTasks, filter, user) {
       type: t.task_type === "cleaning_task" ? "cleaning" : t.task_type === "maintenance_check" ? "issues" : t.task_type === "temperature_check" ? "food-safety" : "sidework",
       name: t.task_title || "Station Task",
       station: t.station_name || t.station_id || "Station",
-      assignee: t.assigned_user_email,
+      assignee: t.assigned_user_name || t.assigned_user_email,
       due_time: t.due_time,
       status: t.status || "pending",
       priority: t.priority || "medium",
       requires_photo: (t.required_proof || []).includes("photo"),
+      image_url: t.source_photo_url || t.photo_url || t.image_url || t.attachment_urls?.[0],
       demo: false,
       _raw: t,
       _entity: "GeneratedTask",
@@ -325,7 +326,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
   return (
     <div className="app-card overflow-hidden p-0">
       <div className="flex items-start gap-3 p-3">
-        <TaskVisual type="sidework" name={task.name} step={task.station} compact className="h-14 w-14 shrink-0 rounded-xl border border-border/50" />
+        <TaskVisual type="sidework" name={task.name} step={task.station} imageUrl={task.image_url} compact className="h-14 w-14 shrink-0 rounded-xl border border-border/50" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300">Side Work</span>
@@ -445,6 +446,228 @@ function GroupHeader({ label, count }) {
   );
 }
 
+function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  const [taskType, setTaskType] = useState("cleaning_task");
+  const [priority, setPriority] = useState("medium");
+  const [stationId, setStationId] = useState("");
+  const [assigneeEmail, setAssigneeEmail] = useState("");
+  const [stations, setStations] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [loadingLists, setLoadingLists] = useState(false);
+  const fileRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setLoadingLists(true);
+    Promise.all([
+      base44.entities.Station?.list?.("name", 200).catch(() => []) || Promise.resolve([]),
+      base44.entities.Employee?.list?.("full_name", 200).catch(() => []) || Promise.resolve([]),
+    ]).then(([stationData, employeeData]) => {
+      if (cancelled) return;
+      setStations((stationData || []).filter((station) => station?.isActive !== false));
+      setEmployees((employeeData || []).filter((employee) => employee?.isActive !== false));
+      setLoadingLists(false);
+    });
+    return () => { cancelled = true; };
+  }, [open]);
+
+  useEffect(() => {
+    return () => {
+      if (photoPreview?.startsWith("blob:")) URL.revokeObjectURL(photoPreview);
+    };
+  }, [photoPreview]);
+
+  const resetAndClose = () => {
+    setPhotoFile(null);
+    setPhotoPreview("");
+    setTitle("");
+    setNotes("");
+    setTaskType("cleaning_task");
+    setPriority("medium");
+    setStationId("");
+    setAssigneeEmail("");
+    setSaving(false);
+    onClose();
+  };
+
+  const handleFile = (file) => {
+    if (!file) return;
+    if (photoPreview?.startsWith("blob:")) URL.revokeObjectURL(photoPreview);
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const saveTask = async () => {
+    if (!title.trim()) {
+      toast("Add what needs to be done");
+      return;
+    }
+    setSaving(true);
+    try {
+      const station = stations.find((item) => item.id === stationId);
+      const assignee = employees.find((item) => item.email === assigneeEmail);
+      const uploaded = photoFile ? await uploadTaskFiles([photoFile]) : [];
+      const sourcePhotoUrl = uploaded[0] || "";
+      const dueDate = new Date().toISOString().split("T")[0];
+      const payload = {
+        task_title: title.trim(),
+        description: notes.trim(),
+        task_type: taskType,
+        priority,
+        status: "pending",
+        due_date: dueDate,
+        station_id: station?.id || "",
+        station_name: station?.name || "",
+        assigned_user_email: assignee?.email || "",
+        assigned_user_name: assignee?.full_name || assignee?.name || "",
+        created_by_email: currentUser?.email || "",
+        created_by_name: currentUser?.full_name || currentUser?.name || "",
+        required_proof: sourcePhotoUrl ? ["photo"] : [],
+        source_photo_url: sourcePhotoUrl,
+        photo_url: sourcePhotoUrl,
+        attachment_urls: sourcePhotoUrl ? [sourcePhotoUrl] : [],
+      };
+      await base44.entities.GeneratedTask.create(payload);
+      await base44.entities.UnifiedLog?.create?.({
+        type: taskType === "maintenance_check" ? "maintenance" : "task",
+        title: title.trim(),
+        description: notes.trim(),
+        status: "open",
+        priority,
+        station_id: station?.id || "",
+        station_name: station?.name || "",
+        assigned_to: assignee?.email || "",
+        photo_url: sourcePhotoUrl,
+        created_by: currentUser?.email || "",
+      }).catch(() => null);
+      toast("Task assigned");
+      onCreated?.();
+      resetAndClose();
+    } catch (error) {
+      console.error("Failed to create photo task:", error);
+      toast("Could not assign task");
+      setSaving(false);
+    }
+  };
+
+  if (!open) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[250] flex items-end bg-black/75 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6">
+      <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-border/60 bg-background shadow-2xl sm:rounded-3xl">
+        <div className="flex shrink-0 items-center justify-between border-b border-border/50 px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Photo Task</p>
+            <h2 className="truncate text-lg font-black text-foreground">Assign work from a photo</h2>
+          </div>
+          <button onClick={resetAndClose} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 text-muted-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="min-w-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto px-4 py-4">
+          <div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(event) => handleFile(event.target.files?.[0])}
+            />
+            {photoPreview ? (
+              <button type="button" onClick={() => fileRef.current?.click()} className="relative block h-52 w-full overflow-hidden rounded-2xl border border-border/60">
+                <img src={photoPreview} alt="Task context" className="h-full w-full object-cover" />
+                <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1.5 text-xs font-black text-white">Retake</span>
+              </button>
+            ) : (
+              <button type="button" onClick={() => fileRef.current?.click()} className="flex h-44 w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-primary/35 bg-primary/5 text-primary">
+                <ImagePlus className="h-8 w-8" />
+                <span className="text-sm font-black">Take photo</span>
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">What needs to happen?</label>
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Clean broken sushi case"
+              className="h-12 w-full rounded-xl border border-border/60 bg-background px-3 text-base font-bold text-foreground outline-none focus:border-primary/50"
+            />
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Add context, location details, or safety notes..."
+              className="min-h-20 w-full resize-none rounded-xl border border-border/60 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Type</span>
+              <select value={taskType} onChange={(event) => setTaskType(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+                <option value="cleaning_task">Cleaning</option>
+                <option value="maintenance_check">Maintenance / Fix</option>
+                <option value="sidework_task">Side work</option>
+              </select>
+            </label>
+            <label className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Priority</span>
+              <select value={priority} onChange={(event) => setPriority(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+                <option value="medium">Normal</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Station</span>
+              <select value={stationId} onChange={(event) => setStationId(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+                <option value="">{loadingLists ? "Loading..." : "Any station"}</option>
+                {stations.map((station) => (
+                  <option key={station.id} value={station.id}>{station.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Person</span>
+              <select value={assigneeEmail} onChange={(event) => setAssigneeEmail(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+                <option value="">{loadingLists ? "Loading..." : "Anyone"}</option>
+                {employees.map((employee) => (
+                  <option key={employee.id || employee.email} value={employee.email}>{employee.full_name || employee.name || employee.email}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div className="shrink-0 border-t border-border/50 p-4">
+          <button
+            type="button"
+            onClick={saveTask}
+            disabled={saving || !title.trim()}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-black text-primary-foreground disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
+            {saving ? "Assigning..." : "Assign Task"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "prep", label: "Prep" },
@@ -456,7 +679,7 @@ const FILTERS = [
 
 /* ── Page ───────────────────────────────────────────────── */
 export default function StaffTasks() {
-  const { user } = useCurrentUser();
+  const { user, isAdmin } = useCurrentUser();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const toast = useToast();
@@ -466,6 +689,7 @@ export default function StaffTasks() {
   const [filter, setFilter] = useState(() => searchParams.get("tab") || "all");
   const [completingTask, setCompletingTask] = useState({});
   const [selectedPrepTask, setSelectedPrepTask] = useState(null);
+  const [showPhotoTask, setShowPhotoTask] = useState(false);
   const [activePrepFlow, setActivePrepFlow] = useState(null);   // { item, steps }
   const [prepFlowPhase, setPrepFlowPhase] = useState(null);      // 'active' | 'complete'
   const [prepFlowCompletion, setPrepFlowCompletion] = useState(null);
@@ -605,7 +829,7 @@ export default function StaffTasks() {
       ref={scrollRef}
       onScroll={handleScroll}
       onTouchEnd={handleTouchEnd}
-      className="pb-40 lg:pb-28 lg:overflow-auto"
+      className="max-w-full overflow-x-hidden pb-40 lg:overflow-auto lg:pb-28"
       style={{ maxHeight: 'calc(100vh - 52px)', overscrollBehavior: 'contain' }}
     >
       {pullRefresh > 0 && (
@@ -619,19 +843,44 @@ export default function StaffTasks() {
       <DesktopPageHeader title="My Tasks" subtitle="Your shift mission list" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
-        <h1 className="text-2xl font-black tracking-tight text-foreground">My Tasks</h1>
-        <p className="text-[11px] text-muted-foreground">Your shift mission list</p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-black tracking-tight text-foreground">My Tasks</h1>
+            <p className="text-[11px] text-muted-foreground">Your shift mission list</p>
+          </div>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setShowPhotoTask(true)}
+              className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-black text-primary-foreground active:scale-95"
+            >
+              <Camera className="h-4 w-4" />
+              Assign
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="px-4 py-3 space-y-4 max-w-[1100px] mx-auto lg:px-6">
+      <div className="mx-auto max-w-[1100px] space-y-4 overflow-x-hidden px-4 py-3 lg:px-6">
+        {isAdmin && (
+          <button
+            type="button"
+            onClick={() => setShowPhotoTask(true)}
+            className="hidden w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-black text-primary transition-all hover:bg-primary/15 active:scale-[0.99] lg:flex"
+          >
+            <Camera className="h-4 w-4" />
+            Photo Assign Task
+          </button>
+        )}
+
         {/* Shift summary card */}
         {data && (
-          <div className="card-glass border border-border rounded-xl p-3 flex items-center gap-4">
-            <div className="text-center pr-4 border-r border-border">
+          <div className="card-glass flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border border-border p-3 sm:gap-4">
+            <div className="shrink-0 border-r border-border pr-3 text-center sm:pr-4">
               <p className="text-2xl font-bold text-primary">{data.shiftScore}</p>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Shift Score</p>
             </div>
-            <div className="flex-1 grid grid-cols-3 gap-2 text-center">
+            <div className="grid min-w-0 flex-1 grid-cols-3 gap-1 text-center sm:gap-2">
               <div>
                 <p className="text-base font-bold text-foreground">{data.total}</p>
                 <p className="text-[10px] text-muted-foreground">Assigned</p>
@@ -649,21 +898,23 @@ export default function StaffTasks() {
         )}
 
         {/* Filter chips */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
-          {FILTERS.map(f => (
-            <button
-              key={f.id}
-              onClick={() => { haptics.light(); setFilter(f.id); }}
-              className={cn(
-                "flex-shrink-0 h-8 px-3 rounded-full text-xs font-bold whitespace-nowrap border transition-all active:scale-95",
-                filter === f.id
-                  ? "bg-primary/15 text-primary border-primary/30"
-                  : "bg-card border-border text-muted-foreground hover:bg-muted"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+        <div className="max-w-full overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex w-max gap-1.5">
+            {FILTERS.map(f => (
+              <button
+                key={f.id}
+                onClick={() => { haptics.light(); setFilter(f.id); }}
+                className={cn(
+                  "h-8 flex-shrink-0 whitespace-nowrap rounded-full border px-3 text-xs font-bold transition-all active:scale-95",
+                  filter === f.id
+                    ? "bg-primary/15 text-primary border-primary/30"
+                    : "bg-card border-border text-muted-foreground hover:bg-muted"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Task groups */}
@@ -719,6 +970,17 @@ export default function StaffTasks() {
           }}
         />
       )}
+
+      <PhotoTaskSheet
+        open={showPhotoTask}
+        onClose={() => setShowPhotoTask(false)}
+        currentUser={user}
+        toast={toast}
+        onCreated={() => {
+          rawCache.generatedTasks = null;
+          setTimeout(() => load(), 250);
+        }}
+      />
 
       {/* Prep Flow Engine */}
       <AnimatePresence>

@@ -69,36 +69,38 @@ export default function AssignmentAuthorityEditor() {
   if (loading) return <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>;
 
   return (
-    <div className="space-y-2">
+    <div className="max-w-full space-y-2 overflow-x-hidden">
       {DEFAULT_ROLES.map(role => (
-        <div key={role} className="flex items-center gap-3 px-3.5 py-2.5 bg-background/50 border border-border/40 rounded-lg group hover:border-border/60 transition-all">
-          <p className="text-xs font-semibold text-foreground w-28 shrink-0">{role}</p>
+        <div key={role} className="group flex min-w-0 flex-col gap-2 rounded-lg border border-border/40 bg-background/50 px-3.5 py-2.5 transition-all hover:border-border/60 sm:flex-row sm:items-center sm:gap-3">
+          <p className="text-xs font-semibold text-foreground sm:w-28 sm:shrink-0">{role}</p>
           
           {editing === role ? (
-            <div className="flex-1 flex gap-1.5">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row">
               <input
                 autoFocus
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 placeholder="e.g. Line Cook, Prep Cook, Dishwasher"
-                className="flex-1 px-2.5 py-1 bg-card border border-primary/50 rounded text-xs text-foreground outline-none"
+                className="min-w-0 flex-1 rounded border border-primary/50 bg-card px-2.5 py-2 text-xs text-foreground outline-none sm:py-1"
               />
-              <button
-                onClick={() => handleSave(role)}
-                className="px-2.5 py-1 bg-green-500/20 text-green-300 rounded hover:bg-green-500/30 transition-all text-xs font-semibold"
-              >
-                <Save className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={handleCancel}
-                className="px-2.5 py-1 text-muted-foreground hover:text-foreground transition-all"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => handleSave(role)}
+                  className="flex h-9 flex-1 items-center justify-center rounded bg-green-500/20 px-2.5 text-xs font-semibold text-green-300 transition-all hover:bg-green-500/30 sm:h-auto sm:flex-none sm:py-1"
+                >
+                  <Save className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="flex h-9 flex-1 items-center justify-center rounded px-2.5 text-muted-foreground transition-all hover:text-foreground sm:h-auto sm:flex-none sm:py-1"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           ) : (
             <>
-              <p className="text-xs text-muted-foreground flex-1">
+              <p className="min-w-0 flex-1 break-words text-xs text-muted-foreground">
                 {authority[role]
                   ? authority[role]
                   : <span className="italic text-muted-foreground/50">Cannot assign tasks</span>

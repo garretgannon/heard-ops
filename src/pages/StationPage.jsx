@@ -488,7 +488,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   // ── Equipment ─────────────────────────────────────────────────────────────
   if (workflow === 'equipment') {
     return (
-      <div className="space-y-3">
+      <div className="max-w-full space-y-3 overflow-x-hidden">
         {addingEquipment ? (
           <AddEquipmentForm station={station} area={null} onSave={async () => { await onEquipmentRefresh(); setAddingEquipment(false); }} onCancel={() => setAddingEquipment(false)} />
         ) : (
@@ -513,7 +513,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   if (workflow === 'prep') {
     const doneCount = (data || []).filter(i => i.status === 'completed').length;
     return (
-      <div className="space-y-2">
+      <div className="max-w-full space-y-2 overflow-x-hidden">
         {addingItem ? renderAddItemForm(addPrepItem, 'Item name…', true) : (
           <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
             <Plus className="h-3.5 w-3.5" /> Add prep item
@@ -553,7 +553,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   if (workflow === 'sidework') {
     const doneCount = (data || []).filter(t => t.status === 'completed').length;
     return (
-      <div className="space-y-2">
+      <div className="max-w-full space-y-2 overflow-x-hidden">
         {addingItem ? renderAddItemForm(addSideworkTask, 'Task name…') : (
           <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
             <Plus className="h-3.5 w-3.5" /> Add sidework task
@@ -593,7 +593,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   if (workflow === 'temps') {
     const tempEquipment = equipment.filter(e => e.temp_enabled || e.requiresTemperatureLog);
     return (
-      <div className="space-y-3">
+      <div className="max-w-full space-y-3 overflow-x-hidden">
         {tempEquipment.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
             <Thermometer className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
@@ -654,7 +654,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   if (workflow === 'cleaning') {
     const doneCount = (data || []).filter(t => t.status === 'completed').length;
     return (
-      <div className="space-y-2">
+      <div className="max-w-full space-y-2 overflow-x-hidden">
         {data && data.length > 0 && (
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{doneCount}/{data.length} complete</p>
         )}
@@ -697,7 +697,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
       : [];
 
     return (
-      <div className="space-y-3">
+      <div className="max-w-full space-y-3 overflow-x-hidden">
         {/* Search to assign */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -719,12 +719,12 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           <div className="rounded-xl border border-border/60 bg-popover overflow-hidden shadow-xl">
             {searchResults.map(chem => (
               <button key={chem.id} type="button" onClick={() => assignChemical(chem)} disabled={saving}
-                className="flex w-full items-center justify-between gap-2 px-4 py-3 text-sm hover:bg-muted/50 border-b border-border/30 last:border-0">
-                <div className="flex items-center gap-2.5">
+                className="flex w-full min-w-0 items-center justify-between gap-2 border-b border-border/30 px-4 py-3 text-sm last:border-0 hover:bg-muted/50">
+                <div className="flex min-w-0 items-center gap-2.5">
                   <Beaker className="h-4 w-4 text-purple-400 shrink-0" />
-                  <span className="font-semibold text-foreground">{chem.name || chem.chemical_name}</span>
+                  <span className="min-w-0 break-words font-semibold text-foreground">{chem.name || chem.chemical_name}</span>
                 </div>
-                <span className="text-xs font-bold text-primary">+ Assign</span>
+                <span className="shrink-0 text-xs font-bold text-primary">+ Assign</span>
               </button>
             ))}
           </div>
@@ -743,12 +743,12 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           <>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{data.length} assigned</p>
             {(data || []).map(chem => (
-              <div key={chem.id} className="flex items-center gap-3 rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+              <div key={chem.id} className="flex min-w-0 items-center gap-3 rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
                   <Beaker className="h-4 w-4 text-purple-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-foreground">{chem.name || chem.chemical_name}</p>
+                  <p className="break-words text-sm font-bold text-foreground">{chem.name || chem.chemical_name}</p>
                   {chem.chemical_type && <p className="text-xs text-muted-foreground capitalize">{chem.chemical_type}</p>}
                   {chem.dilution_ratio && <p className="text-xs text-muted-foreground">{chem.dilution_ratio}</p>}
                 </div>
@@ -840,7 +840,7 @@ export default function StationPage() {
   const activeWorkflowDef = WORKFLOWS.find(w => w.id === activeWorkflow);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen max-w-full overflow-x-hidden bg-background">
       {/* Fixed header */}
       <header
         className="fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px]"
@@ -865,7 +865,7 @@ export default function StationPage() {
       </header>
 
       {/* Content */}
-      <main className="pt-[60px] pb-24 px-4 max-w-2xl mx-auto lg:max-w-4xl lg:px-8">
+      <main className="mx-auto max-w-2xl overflow-x-hidden px-4 pb-24 pt-[60px] lg:max-w-4xl lg:px-8">
         {loading ? (
           <div className="space-y-4 pt-4">
             <div className="skeleton h-48 rounded-2xl" />
@@ -965,7 +965,7 @@ export default function StationPage() {
       </main>
 
       {/* Workflow bottom sheet */}
-      <BottomSheet open={Boolean(activeWorkflow)} onClose={() => setActiveWorkflow(null)} title={activeWorkflowDef?.label || ''} className={activeWorkflow === 'equipment' ? 'min-h-[75vh]' : undefined}>
+      <BottomSheet open={Boolean(activeWorkflow)} onClose={() => setActiveWorkflow(null)} title={activeWorkflowDef?.label || ''} className={cn('max-w-full overflow-hidden', activeWorkflow === 'equipment' && 'min-h-[75vh]')}>
         {activeWorkflow && station && (
           <WorkflowSheetContent
             key={activeWorkflow}
