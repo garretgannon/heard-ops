@@ -181,7 +181,7 @@ export default function Layout() {
           <>
             <div className="flex items-center flex-1">
               <img
-                src={BRAND_ASSETS.signalLogoCropped}
+                src={BRAND_ASSETS.headerLogo}
                 alt="HeardOS"
                 className="h-12 w-auto max-w-[220px] object-contain shrink-0"
               />
@@ -230,7 +230,7 @@ export default function Layout() {
           collapsed ? "px-3 pb-4 justify-center" : "px-5 pb-4 gap-3"
         )}>
           <img
-            src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.signalLogoCropped}
+            src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.headerLogo}
             alt="HeardOS"
             className={cn(
               "object-contain shrink-0",
