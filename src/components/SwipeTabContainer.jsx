@@ -97,11 +97,11 @@ export default function SwipeTabContainer() {
     const dx = e.touches[0].clientX - touchStart.current.x;
     const dy = e.touches[0].clientY - touchStart.current.y;
 
-    // Need at least 8px movement to decide direction (avoids accidental locks)
+    // Need at least 14px movement to decide direction (avoids accidental locks on taps)
     if (touchStart.current.locked === null) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
-      // Require horizontal to be meaningfully dominant (ratio ≥ 1.5)
-      if (Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
+      // Require horizontal to be clearly dominant (ratio ≥ 2.5) to avoid false triggers on taps
+      if (Math.abs(dx) > Math.abs(dy) * 2.5) {
         touchStart.current.locked = 'h';
         isDragging.current = true;
       } else {
@@ -157,6 +157,7 @@ export default function SwipeTabContainer() {
     <div
       ref={containerRef}
       className="h-full overflow-hidden w-full"
+      style={{ touchAction: 'pan-y' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
