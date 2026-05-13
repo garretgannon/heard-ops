@@ -15,6 +15,7 @@ export default function PrepInventoryCounter() {
   
   const [shift, setShift] = useState(state?.shift || 'opening');
   const [station, setStation] = useState(state?.station || '');
+  const [stations, setStations] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [counts, setCounts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,9 +24,19 @@ export default function PrepInventoryCounter() {
   const [today] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
+    loadStations();
     loadTemplates();
     if (id) loadExistingCount();
   }, [id, shift, station]);
+
+  const loadStations = async () => {
+    try {
+      const data = await base44.entities.Station.list().catch(() => []);
+      setStations(data.filter(s => s.isActive !== false).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)));
+    } catch {
+      setStations([]);
+    }
+  };
 
   const loadTemplates = async () => {
     try {
@@ -148,8 +159,8 @@ export default function PrepInventoryCounter() {
               className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
             >
               <option value="">Choose station…</option>
-              {['Grill', 'Pantry', 'Prep', 'Bakery', 'Bar', 'Expo'].map(s => (
-                <option key={s} value={s}>{s}</option>
+              {stations.map(s => (
+                <option key={s.id} value={s.name}>{s.name}</option>
               ))}
             </select>
           </div>

@@ -218,11 +218,6 @@ export default function PrepPlanning() {
           <div className="grid grid-cols-2 gap-2">
             {[
               {
-                icon: Zap, label: "Start Count", sub: "Submit today's inventory",
-                color: "text-amber-400", border: "border-amber-500/25", bg: "rgba(245,158,11,0.06)",
-                onClick: startCount,
-              },
-              {
                 icon: ClipboardList, label: "Review Plan", sub: "View generated tasks",
                 color: "text-blue-400", border: "border-blue-500/25", bg: "rgba(96,165,250,0.06)",
                 onClick: () => {
