@@ -128,7 +128,7 @@ function EquipmentRow({ item, cleaningTemplates, inventoryItems, onRefresh }) {
     : [];
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border/40 bg-black/20">
+    <div className="overflow-hidden rounded-xl border border-border/40" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-white/[0.03]">
         <span className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center" style={{ background: meta.bg }}>
           <Icon className={cn('h-3.5 w-3.5', meta.iconColor)} />
@@ -160,7 +160,7 @@ function EquipmentRow({ item, cleaningTemplates, inventoryItems, onRefresh }) {
               </button>
             </div>
             {hasInventory && (
-              <div className="space-y-2 rounded-lg border border-border/40 bg-black/20 p-2.5">
+              <div className="space-y-2 rounded-lg border border-border/40 p-2.5" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Items stored here</p>
                 {linkedItems.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
@@ -529,7 +529,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           </div>
         )}
         {(data || []).map(item => (
-          <button key={item.id} type="button" onClick={() => togglePrepItem(item)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3 text-left active:scale-[0.98] transition-transform">
+          <button key={item.id} type="button" onClick={() => togglePrepItem(item)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
             <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', item.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
               {item.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
             </div>
@@ -569,7 +569,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           </div>
         )}
         {(data || []).map(task => (
-          <button key={task.id} type="button" onClick={() => toggleSideworkTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3 text-left active:scale-[0.98] transition-transform">
+          <button key={task.id} type="button" onClick={() => toggleSideworkTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
             <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
               {task.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
             </div>
@@ -608,7 +608,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
               const EqIcon = m.icon;
               const logged = tempLogged[eq.id];
               return (
-                <div key={eq.id} className="rounded-xl border border-border/40 bg-black/20 p-3 space-y-2.5">
+                <div key={eq.id} className="rounded-xl border border-border/40 p-3 space-y-2.5" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                   <div className="flex items-center gap-3">
                     <span className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: m.bg }}>
                       <EqIcon className={cn('h-4 w-4', m.iconColor)} />
@@ -666,7 +666,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           </div>
         )}
         {(data || []).map(task => (
-          <button key={task.id} type="button" onClick={() => toggleCleaningTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3 text-left active:scale-[0.98] transition-transform">
+          <button key={task.id} type="button" onClick={() => toggleCleaningTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
             <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
               {task.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
             </div>
@@ -743,7 +743,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           <>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{data.length} assigned</p>
             {(data || []).map(chem => (
-              <div key={chem.id} className="flex items-center gap-3 rounded-xl border border-border/40 bg-black/20 p-3">
+              <div key={chem.id} className="flex items-center gap-3 rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
                   <Beaker className="h-4 w-4 text-purple-400" />
                 </div>

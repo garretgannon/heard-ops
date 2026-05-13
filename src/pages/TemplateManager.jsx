@@ -232,7 +232,7 @@ export default function TemplateManager() {
             const creates = getCreates(template);
             const typeLabel = TEMPLATE_TYPES.find(t => t.id === template.template_type)?.label;
             return (
-              <div key={template.id} className="bg-card/50 border border-border rounded-lg overflow-hidden hover:border-border/60 hover:bg-card/70 transition-all">
+              <div key={template.id} className="border border-border rounded-lg overflow-hidden hover:border-border/60 hover:brightness-105 transition-all" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 {/* Top Row: Name + Action Buttons */}
                 <div className="px-3 py-2.5 flex items-center justify-between gap-2 border-b border-border/50">
                   <div className="min-w-0 flex-1">

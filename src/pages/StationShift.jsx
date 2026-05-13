@@ -130,8 +130,8 @@ const TASK_TYPE_STYLES = {
   maintenance_check: { border: 'border-l-amber-500/70', bg: 'bg-amber-500/5', marker: 'border-amber-500/50 text-amber-400' },
   station_readiness: { border: 'border-l-primary/70', bg: 'bg-primary/5', marker: 'border-primary/50 text-primary' },
   prep:              { border: 'border-l-purple-500/70', bg: 'bg-purple-500/5', marker: 'border-purple-500/50 text-purple-400' },
-  sidework:          { border: 'border-l-slate-400/50', bg: 'bg-black/20', marker: 'border-border text-muted-foreground' },
-  closing:           { border: 'border-l-slate-400/50', bg: 'bg-black/20', marker: 'border-border text-muted-foreground' },
+  sidework:          { border: 'border-l-slate-400/50', bg: '', marker: 'border-border text-muted-foreground' },
+  closing:           { border: 'border-l-slate-400/50', bg: '', marker: 'border-border text-muted-foreground' },
 };
 
 const STAGES = [
@@ -189,6 +189,7 @@ function SectionCard({ eyebrow, title, children, action }) {
 function TaskRow({ task, checked, onToggle }) {
   const Icon = task.icon || ClipboardCheck;
   const styles = TASK_TYPE_STYLES[task.type] || TASK_TYPE_STYLES.closing;
+  const cardStyle = !checked ? { background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' } : undefined;
   return (
     <button
       type="button"
@@ -199,6 +200,7 @@ function TaskRow({ task, checked, onToggle }) {
           ? 'border-green-500/40 border-l-green-500/60 bg-green-500/5 opacity-70'
           : cn('border-border/40', styles.border, styles.bg)
       )}
+      style={cardStyle}
     >
       <span className={cn(
         'status-marker status-marker-sm shrink-0 transition-all',
@@ -680,11 +682,11 @@ export default function StationShift() {
           <>
             <SectionCard eyebrow="Day Brief" title="Read before starting">
               <div className="space-y-3">
-                <div className="rounded-xl border border-border/50 bg-black/20 p-3">
+                <div className="rounded-xl border border-border/50 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                   <p className="text-xs font-black text-foreground">Management Notes</p>
                   <p className="mt-1 text-sm text-muted-foreground">{lineup?.notes || 'No management notes posted yet.'}</p>
                 </div>
-                <div className="rounded-xl border border-border/50 bg-black/20 p-3">
+                <div className="rounded-xl border border-border/50 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                   <p className="text-xs font-black text-foreground">Specials / Focus</p>
                   <p className="mt-1 text-sm text-muted-foreground">{lineup?.specials || lineup?.prep_priorities || 'No specials or focus items posted.'}</p>
                 </div>
@@ -697,7 +699,7 @@ export default function StationShift() {
               ) : (
                 <div className="space-y-2">
                   {eightySixItems.slice(0, 5).map((item) => (
-                    <div key={item.id} className="rounded-xl border border-border/50 bg-black/20 p-3">
+                    <div key={item.id} className="rounded-xl border border-border/50 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                       <p className="text-sm font-bold text-foreground">{item.item_name}</p>
                       <p className="text-xs text-muted-foreground">{item.reason}</p>
                     </div>
@@ -712,7 +714,7 @@ export default function StationShift() {
               ) : (
                 <div className="space-y-2">
                   {events.slice(0, 4).map((event) => (
-                    <div key={event.id} className="flex items-center gap-3 rounded-xl border border-border/50 bg-black/20 p-3">
+                    <div key={event.id} className="flex items-center gap-3 rounded-xl border border-border/50 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                       <Clock className="h-4 w-4 text-primary" />
                       <div>
                         <p className="text-sm font-bold text-foreground">{event.title}</p>

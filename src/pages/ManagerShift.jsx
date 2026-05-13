@@ -1144,7 +1144,7 @@ export default function ManagerShift() {
                   <div className="space-y-3 px-4 pb-4">
                     {/* Staff list */}
                     {briefing.staff.length > 0 && (
-                      <div className="rounded-xl border border-border/40 bg-black/20 p-3">
+                      <div className="rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                         <div className="mb-2 flex items-center justify-between">
                           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Scheduled Today</p>
                           <span className="text-xs font-black text-foreground">{briefing.staff.length}</span>
@@ -1305,7 +1305,7 @@ export default function ManagerShift() {
                         const review = debriefReviews[item.key] || {};
                         const needsNote = item.requiresNote || review.status === "follow_up";
                         return (
-                          <div key={item.key} className="rounded-xl border border-border/40 bg-black/20 p-3">
+                          <div key={item.key} className="rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">{item.group}</p>

@@ -22,7 +22,7 @@ const PageNotFound = lazy(() => import('./lib/PageNotFound'));
 const Landing = lazy(() => import('./pages/Landing'));
 const Pulse = lazy(() => import('./pages/Pulse'));
 const StaffTasks = lazy(() => import('./pages/StaffTasks'));
-const StationShift = lazy(() => import('./pages/StationShift'));
+const StaffShift = lazy(() => import('./pages/StaffShift'));
 const LogsCenter = lazy(() => import('./pages/LogsCenter'));
 const CommsCenter = lazy(() => import('./pages/CommsCenter'));
 const MyShifts = lazy(() => import('./pages/MyShifts'));
@@ -132,11 +132,11 @@ const AuthenticatedApp = () => {
         
         {/* BOTTOM NAV ROUTES (5 main) */}
         <Route path="/dashboard" element={<AppOverview />} />
-        <Route path="/station-shift" element={<StationShift />} />
-        <Route path="/tasks" element={<StaffTasks />} />
+        <Route path="/station-shift" element={<StaffShift />} />
+        <Route path="/tasks" element={<PermissionGate permission={PERMISSIONS.COMPLETE_TASKS}><StaffTasks /></PermissionGate>} />
         <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
         <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
-        <Route path="/comms" element={<CommsCenter />} />
+        <Route path="/comms" element={<PermissionGate permission={PERMISSIONS.VIEW_COMMS}><CommsCenter /></PermissionGate>} />
         <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
 
         <Route path="/more" element={<More />} />
@@ -158,28 +158,31 @@ const AuthenticatedApp = () => {
         <Route path="/bathroom-checks" element={<Navigate to="/logs?type=bathroom" replace />} />
 
         {/* ADMIN/MANAGER - Approvals */}
-        <Route path="/approvals" element={<ApprovalInbox />} />
-        <Route path="/review-queue" element={<ReviewInbox />} />
+        <Route path="/approvals" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ApprovalInbox /></PermissionGate>} />
+        <Route path="/review-queue" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ReviewInbox /></PermissionGate>} />
 
         {/* ADMIN ONLY - Template Management */}
         <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
         <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
 
         {/* KNOWLEDGE ROUTES */}
-        <Route path="/knowledge" element={<Knowledge />} />
-        <Route path="/search" element={<Knowledge />} />
+        <Route path="/knowledge" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
+        <Route path="/search" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
         <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
         <Route path="/recipe-bulk-import" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><RecipeBulkImport /></PermissionGate>} />
 
         <Route path="/recipes-and-build-cards" element={<RecipesAndBuildCards />} />
-        <Route path="/reservations" element={<ReservationsAndBEOs />} />
+        <Route path="/reservations" element={<PermissionGate permission={PERMISSIONS.VIEW_BEOS}><ReservationsAndBEOs /></PermissionGate>} />
         <Route path="/purchased-items" element={<PurchasedItems />} />
 
         <Route path="/chemical-library" element={<ChemicalLibrary />} />
-        <Route path="/training" element={<Training />} />
+        <Route path="/training" element={<PermissionGate permission={PERMISSIONS.VIEW_TRAINING}><Training /></PermissionGate>} />
         <Route path="/vendors" element={<PermissionGate permission={PERMISSIONS.VIEW_VENDORS}><Vendors /></PermissionGate>} />
 
         {/* TEMPLATE ROUTES (Admin) */}
+        <Route path="/templates" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
+        <Route path="/templates/new" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
+        <Route path="/templates/:id" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
         <Route path="/prep-templates" element={<PrepTemplatesManager />} />
         <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
         <Route path="/prep-plan-templates" element={<PrepPlanTemplatesManager />} />
@@ -201,16 +204,13 @@ const AuthenticatedApp = () => {
         <Route path="/schedule" element={<PermissionGate permission={PERMISSIONS.VIEW_SCHEDULE}><ScheduleCenter /></PermissionGate>} />
         <Route path="/inventory" element={<PermissionGate permission={PERMISSIONS.VIEW_INVENTORY}><InventorySimplified /></PermissionGate>} />
         <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
-        <Route path="/station-readiness" element={<StationReadiness />} />
+        <Route path="/station-readiness" element={<PermissionGate permission={PERMISSIONS.VIEW_STATION_READINESS}><StationReadiness /></PermissionGate>} />
         <Route path="/shift-handoff" element={<ManagerShift />} />
 
         {/* ADMIN ROUTES (Under /more) */}
         <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
         <Route path="/admin/command-center" element={<AdminCommandCenter />} />
         <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
-        <Route path="/templates" element={<TemplateManager />} />
-        <Route path="/templates/new" element={<TemplateManager />} />
-        <Route path="/templates/:id" element={<TemplateManager />} />
         <Route path="/stations" element={<Stations />} />
         <Route path="/restaurant-layout" element={<RestaurantLayout />} />
         <Route path="/job-codes" element={<JobCodes />} />

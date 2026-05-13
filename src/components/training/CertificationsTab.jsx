@@ -46,7 +46,7 @@ export default function CertificationsTab({ certifications, onRefresh }) {
           {certifications.map(cert => {
             const daysLeft = cert.expirationDate ? getDaysUntilExpiry(cert.expirationDate) : null;
             return (
-              <div key={cert.id} className="p-4 rounded-xl border border-border/30 bg-card/50 space-y-3">
+              <div key={cert.id} className="p-4 rounded-xl border border-border/30 space-y-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3 className="font-bold text-foreground">{cert.certificationName}</h3>

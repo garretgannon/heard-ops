@@ -49,7 +49,7 @@ export default function InboxZeroState({ processedToday, onReset }) {
           </div>
         </div>
 
-        <div className="mb-7 flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-black/25 px-4 py-3 text-sm text-muted-foreground">
+        <div className="mb-7 flex items-center justify-center gap-2 rounded-lg border border-border/40 px-4 py-3 text-sm text-muted-foreground" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
           <ShieldCheck className="h-4 w-4 text-primary" />
           <span>Queue reviewed and ready for service.</span>
         </div>

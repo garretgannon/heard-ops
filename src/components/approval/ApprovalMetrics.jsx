@@ -43,7 +43,7 @@ export default function ApprovalMetrics({ total, remaining, processedToday, urge
 
       <div className="grid grid-cols-4 gap-2">
         {metrics.map(({ label, value, icon: Icon, status }) => (
-          <div key={label} className="rounded-lg border border-border/40 bg-black/25 p-2.5 text-center">
+          <div key={label} className="rounded-lg border border-border/40 p-2.5 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
             <div className={cn('status-marker status-marker-md mx-auto mb-2', status)}>
               <Icon className="h-3.5 w-3.5" />
             </div>

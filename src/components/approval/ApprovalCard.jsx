@@ -187,7 +187,7 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
             </div>
           </div>
 
-          <div className="mt-5 space-y-2 rounded-2xl border border-border/40 bg-black/20 p-4">
+          <div className="mt-5 space-y-2 rounded-2xl border border-border/40 p-4" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
             {getDetailRows().map((row) => (
               <div key={row.label} className="flex items-center justify-between gap-3 text-sm">
                 <span className="text-muted-foreground">{row.label}</span>

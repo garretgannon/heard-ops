@@ -14,7 +14,7 @@ const thisWeekStart = () => {
 
 function MetricTile({ label, value, sub, color = 'text-foreground' }) {
   return (
-    <div className="rounded-2xl border border-border/40 bg-black/25 p-4 space-y-1">
+    <div className="rounded-2xl border border-border/40 p-4 space-y-1" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
       <p className={cn('text-2xl font-black tabular-nums', color)}>{value}</p>
       <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
       {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
@@ -170,7 +170,7 @@ export default function Reports() {
                   {Object.entries(data.tasksByType).length > 0 && (
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       {Object.entries(data.tasksByType).slice(0, 6).map(([type, counts]) => (
-                        <div key={type} className="flex items-center justify-between rounded-xl border border-border/30 bg-black/20 px-3 py-2">
+                        <div key={type} className="flex items-center justify-between rounded-xl border border-border/30 px-3 py-2" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                           <span className="text-xs text-muted-foreground capitalize">{type.replace(/_/g, ' ')}</span>
                           <span className="text-xs font-black text-foreground">{counts.done}/{counts.total}</span>
                         </div>

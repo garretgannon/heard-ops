@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Save, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import {
@@ -54,6 +55,10 @@ export default function RolePermissionBuilder() {
       }
       invalidatePermCache(selectedRole);
       setSaved(true);
+      toast.success('Permissions saved');
+    } catch (err) {
+      toast.error('Failed to save permissions');
+      console.error(err);
     } finally {
       setSaving(false);
     }

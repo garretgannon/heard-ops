@@ -56,7 +56,7 @@ export default function AdminCommandCenter() {
       </div>
 
       <div className="px-4 py-5">
-        {active === 'permissions' && <RolePermissionBuilder />}
+        {active === 'permissions' && <RolesManager />}
         {active === 'preview'     && <RolePreview jobCodes={[]} />}
       </div>
     </div>

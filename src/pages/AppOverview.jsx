@@ -489,15 +489,15 @@ export default function AppOverview() {
               </p>
             </div>
             <div className="mt-5 grid w-full grid-cols-3 gap-2">
-              <div className="rounded-2xl border border-border/40 bg-black/25 p-3">
+              <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 <p className="text-lg font-black text-primary">{overdueTasks}</p>
                 <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Overdue</p>
               </div>
-              <div className="rounded-2xl border border-border/40 bg-black/25 p-3">
+              <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 <p className="text-lg font-black text-foreground">{pendingApprovals}</p>
                 <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Approvals</p>
               </div>
-              <div className="rounded-2xl border border-border/40 bg-black/25 p-3">
+              <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                 <p className="text-lg font-black text-foreground">{issueCount}</p>
                 <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Issues</p>
               </div>

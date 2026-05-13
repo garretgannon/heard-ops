@@ -46,7 +46,7 @@ function RecipeCard({ recipe, onClick }) {
   const costStatus = getCostStatus();
 
   return (
-    <button onClick={onClick} className="w-full text-left bg-card/50 border border-border rounded-lg overflow-hidden hover:border-border/60 hover:bg-card/70 transition-all active:scale-[0.98]">
+    <button onClick={onClick} className="w-full text-left border border-border rounded-lg overflow-hidden hover:border-border/60 hover:brightness-105 transition-all active:scale-[0.98]" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
       <div className="px-3 py-2.5">
         {/* Name + Type */}
         <div className="flex items-start justify-between gap-2 mb-1.5">

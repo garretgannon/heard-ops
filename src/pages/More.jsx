@@ -65,7 +65,8 @@ function HubCard({ item, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="min-h-[100px] rounded-xl border border-border/60 bg-black/20 p-4 text-left transition-all active:scale-[0.98] glow-interactive"
+      className="min-h-[100px] rounded-xl border border-border/60 p-4 text-left transition-all active:scale-[0.98] glow-interactive"
+      style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
     >
       <div className={cn('status-marker status-marker-md mb-3', item.status)}>
         <Icon className="h-4 w-4" />
@@ -172,7 +173,8 @@ export default function More() {
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className="min-h-[112px] rounded-xl border border-border/60 bg-black/20 p-4 text-left transition-all active:scale-[0.98] glow-interactive"
+                  className="min-h-[112px] rounded-xl border border-border/60 p-4 text-left transition-all active:scale-[0.98] glow-interactive"
+                  style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
                 >
                   <div className={cn('status-marker status-marker-md mb-3', item.status)}>
                     <Icon className="h-4 w-4" />
@@ -199,7 +201,8 @@ export default function More() {
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className="min-h-[120px] rounded-xl border border-border/60 bg-black/20 p-5 text-left transition-all active:scale-[0.98] glow-interactive"
+                  className="min-h-[120px] rounded-xl border border-border/60 p-5 text-left transition-all active:scale-[0.98] glow-interactive"
+                  style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
                 >
                   <div className={cn('status-marker status-marker-md mb-3', item.status)}>
                     <Icon className="h-4 w-4" />
