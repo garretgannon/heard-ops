@@ -46,7 +46,6 @@ const Recipes = lazy(() => import('./pages/Recipes'));
 const RecipeBulkImport = lazy(() => import('./pages/RecipeBulkImport'));
 const Training = lazy(() => import('./pages/Training'));
 const ChemicalLibrary = lazy(() => import('./pages/ChemicalLibrary'));
-const Knowledge = lazy(() => import('./pages/Knowledge'));
 const PrepTemplatesManager = lazy(() => import('./pages/PrepTemplatesManager'));
 const PrepPlanning = lazy(() => import('./pages/PrepPlanning'));
 const PrepInventoryCounter = lazy(() => import('./pages/PrepInventoryCounter'));
@@ -67,7 +66,6 @@ const JobCodes = lazy(() => import('./pages/JobCodes'));
 const OperationalMap = lazy(() => import('./pages/OperationalMap'));
 const StationPage = lazy(() => import('./pages/StationPage'));
 const LocationSetup = lazy(() => import('./pages/LocationSetup'));
-const PeopleHierarchy = lazy(() => import('./pages/PeopleHierarchy'));
 const SetupJourney = lazy(() => import('./pages/SetupJourney'));
 const AutomationRules = lazy(() => import('./pages/AutomationRules'));
 const ManagerShift = lazy(() => import('./pages/ManagerShift'));
@@ -76,7 +74,6 @@ const AdminCommandCenter = lazy(() => import('./pages/AdminCommandCenter'));
 const OnboardingSimulator = lazy(() => import('./pages/OnboardingSimulator'));
 const Shift = lazy(() => import('./pages/Shift'));
 const TemplateManager = lazy(() => import('./pages/TemplateManager'));
-const Standards = lazy(() => import('./pages/Standards'));
 const AppOverview = lazy(() => import('./pages/AppOverview'));
 
 function RouteFallback() {
@@ -139,8 +136,6 @@ const AuthenticatedApp = () => {
           <Route path="/approvals" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ApprovalInbox /></PermissionGate>} />
           <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
           <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
-          <Route path="/knowledge" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
-          <Route path="/search" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
           <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
           <Route path="/recipe-bulk-import" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><RecipeBulkImport /></PermissionGate>} />
           <Route path="/reservations" element={<PermissionGate permission={PERMISSIONS.VIEW_BEOS}><ReservationsAndBEOs /></PermissionGate>} />
@@ -182,14 +177,12 @@ const AuthenticatedApp = () => {
           <Route path="/operational-map" element={<OperationalMap />} />
           <Route path="/station/:id" element={<StationPage />} />
           <Route path="/location-setup" element={<LocationSetup />} />
-          <Route path="/people" element={<PeopleHierarchy />} />
           <Route path="/setup-journey" element={<SetupJourney />} />
           <Route path="/automation-rules" element={<AutomationRules />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-restaurant" element={<MyRestaurant />} />
           <Route path="/notifications" element={<NotificationSettings />} />
           <Route path="/build-cards" element={<BuildCards />} />
-          <Route path="/standards" element={<Standards />} />
           <Route path="/schedule-import" element={<ScheduleImport />} />
           <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
           <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />

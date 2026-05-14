@@ -250,7 +250,7 @@ export default function PurchasedItems() {
               <button
                 key={f.key}
                 onClick={() => setActiveFilter(f.key)}
-                className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-bold transition-all ${activeFilter === f.key ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+                className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${activeFilter === f.key ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}
               >
                 {f.label}
               </button>
@@ -259,7 +259,7 @@ export default function PurchasedItems() {
         </div>
       </div>
 
-      <div className="px-4 py-3 space-y-2.5">
+      <div className="px-4 py-3 lg:px-8 lg:py-6 space-y-4">
         <SummaryCard items={items} isAdmin={isAdmin} />
 
         {loading ? (
@@ -282,14 +282,16 @@ export default function PurchasedItems() {
         ) : (
           <>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{filtered.length} item{filtered.length !== 1 ? 's' : ''}</p>
-            {filtered.map(item => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                isAdmin={isAdmin}
-                onClick={() => { haptics.light(); setSelected(item); }}
-              />
-            ))}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+              {filtered.map(item => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  isAdmin={isAdmin}
+                  onClick={() => { haptics.light(); setSelected(item); }}
+                />
+              ))}
+            </div>
           </>
         )}
       </div>

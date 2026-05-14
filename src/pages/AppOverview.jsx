@@ -260,7 +260,7 @@ export default function AppOverview() {
       const moduleName = approval.sourceModule;
       const updateData = moduleName === 'ApprovalQueue'
         ? { status: 'approved', approved_by_email: user?.email || user?.created_by || 'current_user', approved_at: now }
-        : { approval_status: 'approved', approved_by: user?.email || 'current_user', approved_at: now };
+        : { status: 'completed', approval_status: 'approved', approved_by: user?.email || 'current_user', approved_at: now };
 
       await base44.entities[moduleName]?.update?.(approval.sourceId, updateData);
       const remaining = approvalQueue.filter((item) => `${item.sourceModule}:${item.sourceId}` !== `${approval.sourceModule}:${approval.sourceId}`);
@@ -289,7 +289,7 @@ export default function AppOverview() {
       const moduleName = approval.sourceModule;
       const updateData = moduleName === 'ApprovalQueue'
         ? { status: 'denied', approved_by_email: user?.email || user?.created_by || 'current_user', approved_at: now, denial_reason: [reason, notes].filter(Boolean).join(': ') }
-        : { approval_status: 'denied', denied_by: user?.email || 'current_user', denied_at: now, denial_reason: reason, denial_notes: notes };
+        : { status: 'denied', approval_status: 'denied', denied_by: user?.email || 'current_user', denied_at: now, denial_reason: reason, denial_notes: notes };
 
       await base44.entities[moduleName]?.update?.(approval.sourceId, updateData);
       const remaining = approvalQueue.filter((item) => `${item.sourceModule}:${item.sourceId}` !== `${approval.sourceModule}:${approval.sourceId}`);
@@ -405,13 +405,16 @@ export default function AppOverview() {
           </section>
         )}
 
-        {/* Desktop approval list — compact rows, shown only on lg+ */}
+        <div className="space-y-7 lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-6 lg:space-y-0">
+          <div className="space-y-5">
+
+        {/* Desktop approvals — in left column, naturally width-constrained */}
         {hasApprovalQueue && (
           <section className="hidden lg:block space-y-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Priority</p>
-                <h2 className="mt-1 text-xl font-black tracking-tight text-foreground">Approvals</h2>
+                <h2 className="mt-0.5 text-lg font-black tracking-tight text-foreground">Approvals</h2>
               </div>
               <div className="text-right">
                 <p className="text-xs font-black text-foreground">{processedApprovals} cleared today</p>
@@ -419,7 +422,7 @@ export default function AppOverview() {
               </div>
             </div>
             <div className="space-y-2">
-              {approvalQueue.slice(0, 8).map((approval) => (
+              {approvalQueue.slice(0, 6).map((approval) => (
                 <div key={`${approval.sourceModule}:${approval.sourceId || approval.id}`} className="flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
                   <span className={cn('status-marker status-marker-md shrink-0',
                     approval.approval_type === 'temperature' ? 'status-warning' :
@@ -433,18 +436,8 @@ export default function AppOverview() {
                     <p className="text-xs text-muted-foreground capitalize">{(approval.approval_type || '').replace(/_/g, ' ')}{approval.created_by ? ` · ${approval.created_by}` : ''}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => handleApprove(approval)}
-                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => { setDenialDrawer({ approval }); setDetailSheet(null); }}
-                      className="text-xs font-bold px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
-                    >
-                      Deny
-                    </button>
+                    <button onClick={() => handleApprove(approval)} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors">Approve</button>
+                    <button onClick={() => { setDenialDrawer({ approval }); setDetailSheet(null); }} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors">Deny</button>
                   </div>
                 </div>
               ))}
@@ -452,9 +445,7 @@ export default function AppOverview() {
           </section>
         )}
 
-        <div className="space-y-7 lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-6 lg:space-y-0">
-          <div className="space-y-7">
-        <section className={cn('relative overflow-hidden rounded-[28px] border border-border/60 bg-card/70 px-5 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]', hasApprovalQueue && 'mt-2')}>
+        <section className={cn('relative overflow-hidden rounded-[28px] border border-border/60 bg-card/70 px-5 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]')}>
           <div className="absolute inset-x-10 top-0 h-24 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative flex flex-col items-center text-center">
             <PulseRing value={readiness} />
@@ -498,7 +489,7 @@ export default function AppOverview() {
         )}
 
           </div>
-          <div className="space-y-7">
+          <div className="space-y-5">
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-black tracking-tight text-foreground">Needs Attention</h2>

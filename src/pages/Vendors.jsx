@@ -64,7 +64,7 @@ export default function Vendors() {
         actions={
           <button
             onClick={() => { haptics.medium(); setEditingVendor(null); setShowForm(true); }}
-            className="h-8 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center gap-1.5 active:scale-95"
+            className="btn-primary text-xs h-8 px-3 flex items-center gap-1.5"
           >
             <Plus className="h-3.5 w-3.5" /> Add Vendor
           </button>
@@ -115,7 +115,7 @@ export default function Vendors() {
         ) : (
           <>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Vendor Directory</p>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
               {filtered.map(vendor => {
                 const vendorEquip = equipment.filter(e => e.vendorId === vendor.id);
                 return (

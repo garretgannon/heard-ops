@@ -138,7 +138,6 @@ export const desktopNavSections = [
     label: "SETUP",
     items: [
       { path: "/templates", label: "Templates", icon: ClipboardList, perm: "view_templates" },
-      { path: "/people", label: "People", icon: GitBranch },
       { path: "/operational-map", label: "Operations", icon: Map },
       { path: "/automation-rules", label: "Automation", icon: Zap },
       { path: "/reports", label: "Reports", icon: BarChart2, perm: "view_reports" },

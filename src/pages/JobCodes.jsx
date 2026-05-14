@@ -91,7 +91,15 @@ export default function JobCodes() {
 
   return (
     <div className="pb-24">
-      <DesktopPageHeader title="Job Codes" subtitle="Manage job codes, roles, and assignments" />
+      <DesktopPageHeader
+        title="Job Codes"
+        subtitle="Manage job codes, roles, and assignments"
+        actions={
+          <button onClick={() => { haptics.medium(); setEditingJobCode(null); setShowForm(true); }} className="btn-primary text-xs h-8 px-3 flex items-center gap-1.5">
+            <Plus className="h-3.5 w-3.5" /> New Job Code
+          </button>
+        }
+      />
       <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Job Codes</h1>
         <div className="space-y-3">
@@ -130,7 +138,7 @@ export default function JobCodes() {
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-4 lg:px-8 lg:py-6 space-y-3">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (
@@ -142,21 +150,23 @@ export default function JobCodes() {
             <p className="text-xs text-secondary-text mb-2">
               Showing {filtered.length} of {jobCodes.length}
             </p>
-            {filtered.map(jobCode => (
-              <JobCodeCard
-                key={jobCode.id}
-                jobCode={jobCode}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+              {filtered.map(jobCode => (
+                <JobCodeCard
+                  key={jobCode.id}
+                  jobCode={jobCode}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
           </>
         )}
       </div>
 
       <button
         onClick={() => { haptics.medium(); setEditingJobCode(null); setShowForm(true); }}
-        className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
+        className="lg:hidden fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
       >
         <Plus className="h-5 w-5" />
       </button>

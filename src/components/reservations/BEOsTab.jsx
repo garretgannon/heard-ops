@@ -107,7 +107,7 @@ export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh }) 
           <p className="text-sm text-muted-foreground">No BEOs found</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {filtered.map(b => (
             <BEOCard key={b.id} beo={b} isAdmin={isAdmin} onSelect={onSelect} onEdit={onEdit} onDelete={handleDelete} />
           ))}

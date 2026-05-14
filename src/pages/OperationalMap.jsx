@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -244,9 +245,10 @@ export default function OperationalMap() {
 
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="Operations" subtitle="Station readiness, equipment, and area overview" />
       <main className="app-page mx-auto max-w-[640px] lg:max-w-7xl space-y-4">
 
-        <header className="flex items-start justify-between gap-4 pt-1">
+        <header className="lg:hidden flex items-start justify-between gap-4 pt-1">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Stations</h1>
             <p className="mt-1 text-sm text-muted-foreground">

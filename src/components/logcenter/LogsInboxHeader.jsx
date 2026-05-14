@@ -37,8 +37,8 @@ export default function LogsInboxHeader({ logs, onStatClick }) {
   ];
 
   return (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-3">
-      <h1 className="text-2xl font-bold text-foreground mb-3">Logs</h1>
+    <div className="lg:hidden sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-3">
+      <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Logs</h1>
       <div className="grid grid-cols-4 gap-2">
         {stats.map((stat) => {
           const Icon = stat.icon;

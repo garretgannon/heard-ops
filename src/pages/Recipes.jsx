@@ -159,7 +159,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all shrink-0',
                 activeTab === tab.id
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'glow-active'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
               )}
             >
@@ -847,7 +847,7 @@ export default function Recipes() {
                 <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-8 px-3 rounded-lg bg-muted text-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
                   <Sparkles className="h-3.5 w-3.5" /> Bulk Import
                 </button>
-                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
+                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5">
                   <Plus className="h-3.5 w-3.5" /> New Recipe
                 </button>
               </div>
@@ -867,9 +867,9 @@ export default function Recipes() {
               {['all', 'prep', 'sauce', 'protein', 'pantry'].map(c => {
                 const count = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.category === c && r.status !== 'archived').length;
                 return (
-                  <button key={c} onClick={() => setFilterCat(c)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === c ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                  <button key={c} onClick={() => setFilterCat(c)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === c ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                     <span className="capitalize">{c}</span>
-                    <span className={`text-[9px] font-bold ${filterCat === c ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>
+                    <span className={`text-[9px] font-bold ${filterCat === c ? 'text-primary/60' : 'text-muted-foreground'}`}>{count}</span>
                   </button>
                 );
               })}
@@ -883,9 +883,9 @@ export default function Recipes() {
               {['Grill', 'Prep', 'Pantry', 'Bakery', 'Bar'].map(s => {
                 const count = recipes.filter(r => r.station === s && r.status !== 'archived').length;
                 return (
-                  <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterStation === s ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                  <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterStation === s ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                     <span>{s}</span>
-                    <span className={`text-[9px] font-bold ${filterStation === s ? 'text-white/60' : 'text-muted-foreground'}`}>{count}</span>
+                    <span className={`text-[9px] font-bold ${filterStation === s ? 'text-primary/60' : 'text-muted-foreground'}`}>{count}</span>
                   </button>
                 );
               })}
@@ -896,13 +896,13 @@ export default function Recipes() {
           <div>
             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">STATUS</p>
             <div className="space-y-0.5">
-              <button onClick={() => setFilterCat('all')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'all' ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+              <button onClick={() => setFilterCat('all')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'all' ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                 <span>Active</span>
-                <span className={`text-[9px] font-bold ${filterCat === 'all' ? 'text-white/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status !== 'archived').length}</span>
+                <span className={`text-[9px] font-bold ${filterCat === 'all' ? 'text-primary/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status !== 'archived').length}</span>
               </button>
-              <button onClick={() => setFilterCat('archived')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'archived' ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+              <button onClick={() => setFilterCat('archived')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'archived' ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                 <span>Archived</span>
-                <span className={`text-[9px] font-bold ${filterCat === 'archived' ? 'text-white/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status === 'archived').length}</span>
+                <span className={`text-[9px] font-bold ${filterCat === 'archived' ? 'text-primary/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status === 'archived').length}</span>
               </button>
             </div>
           </div>
@@ -933,7 +933,7 @@ export default function Recipes() {
               <p className="text-xs text-muted-foreground mb-6">Overview, Build, Prep, Costing, Allergens, Training, Station</p>
               {isAdmin && (
                 <div className="flex flex-col gap-2 w-full">
-                  <button onClick={() => { setEditing(null); setShowForm(true); }} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95">
+                  <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary px-3 py-2 text-xs flex items-center justify-center gap-1.5">
                     <Plus className="h-3.5 w-3.5" /> New Recipe
                   </button>
                   <button onClick={() => navigate('/recipe-bulk-import')} className="px-3 py-2 rounded-lg bg-muted text-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95">
@@ -959,7 +959,7 @@ export default function Recipes() {
                 <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-8 w-8 rounded-full bg-muted text-foreground flex items-center justify-center">
                   <Sparkles className="h-4 w-4" />
                 </button>
-                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 w-8 rounded-full btn-primary flex items-center justify-center">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
@@ -972,14 +972,14 @@ export default function Recipes() {
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
             {CATEGORIES.map(c => (
-              <button key={c} onClick={() => setFilterCat(c)} className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-bold capitalize transition-all ${filterCat === c ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>{c}</button>
+              <button key={c} onClick={() => setFilterCat(c)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${filterCat === c ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{c}</button>
             ))}
           </div>
         </div>
         <div className="flex gap-1.5 overflow-x-auto px-4 pb-2.5">
-          <button onClick={() => setFilterStation('')} className={`shrink-0 text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all ${!filterStation ? 'bg-card border border-primary/40 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>All Stations</button>
+          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
           {STATIONS.map(s => (
-            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`shrink-0 text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all ${filterStation === s ? 'bg-card border border-primary/40 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>{s}</button>
+            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s}</button>
           ))}
         </div>
       </div>

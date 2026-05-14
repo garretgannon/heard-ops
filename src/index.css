@@ -427,14 +427,28 @@
 
   /* Buttons - Unified Hierarchy */
   .btn-primary {
-    @apply rounded-lg bg-primary text-primary-foreground px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-150;
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.24), 0 0 14px rgba(230, 106, 31, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+    @apply rounded-lg text-primary px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-150;
+    background: rgba(230, 106, 31, 0.12);
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 14px rgba(230, 106, 31, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.06);
   }
 
   .btn-primary:hover,
   .btn-primary:focus-visible {
-    background: rgba(230, 106, 31, 0.16);
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.34), 0 0 18px rgba(230, 106, 31, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    background: rgba(230, 106, 31, 0.2);
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.5), 0 0 20px rgba(230, 106, 31, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Global override: any <button> or <a> using bg-primary directly gets the glass style */
+  button[class~="bg-primary"],
+  a[class~="bg-primary"] {
+    background-color: rgba(230, 106, 31, 0.12) !important;
+    color: rgb(230, 106, 31) !important;
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 14px rgba(230, 106, 31, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+  }
+  button[class~="bg-primary"]:hover,
+  a[class~="bg-primary"]:hover {
+    background-color: rgba(230, 106, 31, 0.2) !important;
+    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.5), 0 0 20px rgba(230, 106, 31, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.1);
   }
 
   .btn-secondary {
@@ -563,11 +577,11 @@
   }
 
   .app-page {
-    @apply w-full max-w-7xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-8 lg:pb-10;
+    @apply w-full max-w-7xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-6 lg:pb-10;
   }
 
   .app-page-narrow {
-    @apply w-full max-w-5xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-8 lg:pb-10;
+    @apply w-full max-w-5xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-6 lg:pb-10;
   }
 
   .mobile-tab-viewport {

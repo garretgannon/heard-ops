@@ -129,169 +129,178 @@ export default function PrepPlanning() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl space-y-4 px-4 pt-4">
+      <div className="mx-auto max-w-7xl px-4 pt-4 lg:px-8 lg:pt-6">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
 
-        {/* Today's status */}
-        <section className="space-y-2">
-          <p className="metric-label px-1">Today's Status</p>
-          <div className="grid grid-cols-2 gap-2">
+          {/* Left column: Status + Actions */}
+          <div className="space-y-4">
 
-            {/* Count */}
-            <div
-              className={cn(
-                "flex flex-col gap-2 rounded-2xl border p-4",
-                todayCount ? "border-green-500/30" : "border-amber-500/30"
-              )}
-              style={{ background: todayCount ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.06)" }}
-            >
-              <div className="flex items-center gap-2">
-                {todayCount
-                  ? <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
-                  : <AlertCircle  className="h-4 w-4 text-amber-400 shrink-0" />
-                }
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Count</p>
-              </div>
-              <p className={cn("text-sm font-black leading-tight", todayCount ? "text-green-400" : "text-amber-400")}>
-                {todayCount ? "Submitted" : "Not Done"}
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {todayCount ? `${todayCount.shift} shift` : "No count today yet"}
-              </p>
-              {todayCount ? (
-                <button
-                  onClick={() => { haptics.light(); navigate(`/prep-count/${todayCount.id}`); }}
-                  className="mt-1 flex items-center gap-1 text-[11px] font-bold text-green-400 active:opacity-70"
+            {/* Today's status */}
+            <section className="space-y-2">
+              <p className="metric-label px-1">Today's Status</p>
+              <div className="grid grid-cols-2 gap-2">
+
+                {/* Count */}
+                <div
+                  className={cn(
+                    "flex flex-col gap-2 rounded-2xl border p-4",
+                    todayCount ? "border-green-500/30" : "border-amber-500/30"
+                  )}
+                  style={{ background: todayCount ? "rgba(34,197,94,0.06)" : "rgba(245,158,11,0.06)" }}
                 >
-                  View <ArrowRight className="h-3 w-3" />
-                </button>
-              ) : (
-                <button
-                  onClick={startCount}
-                  className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 py-1.5 text-xs font-black text-amber-400 active:scale-[0.97] transition-all"
-                  style={{ background: "rgba(245,158,11,0.08)" }}
-                >
-                  <Zap className="h-3 w-3" /> Start Count
-                </button>
-              )}
-            </div>
-
-            {/* Prep plan */}
-            <div
-              className={cn(
-                "flex flex-col gap-2 rounded-2xl border p-4",
-                todayPlan ? "border-blue-500/30" : "border-border/40"
-              )}
-              style={{
-                background: todayPlan
-                  ? "rgba(96,165,250,0.06)"
-                  : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
-              }}
-            >
-              <div className="flex items-center gap-2">
-                {todayPlan
-                  ? <CheckCircle2 className="h-4 w-4 text-blue-400 shrink-0" />
-                  : <Clock className="h-4 w-4 text-muted-foreground/40 shrink-0" />
-                }
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Prep Plan</p>
-              </div>
-              <p className={cn("text-sm font-black leading-tight", todayPlan ? "text-blue-400" : "text-foreground/30")}>
-                {todayPlan ? "Ready" : "Pending"}
-              </p>
-              <p className="text-[10px] text-muted-foreground">
-                {todayPlan ? `Status: ${todayPlan.status}` : "Awaiting count submission"}
-              </p>
-              {todayPlan && (
-                <button
-                  onClick={() => { haptics.light(); navigate(`/prep-plan/${todayPlan.id}`); }}
-                  className="mt-1 flex items-center gap-1 text-[11px] font-bold text-blue-400 active:opacity-70"
-                >
-                  Review <ArrowRight className="h-3 w-3" />
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Actions */}
-        <section className="space-y-2">
-          <p className="metric-label px-1">Actions</p>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              {
-                icon: ClipboardList, label: "Review Plan", sub: "View generated tasks",
-                color: "text-blue-400", border: "border-blue-500/25", bg: "rgba(96,165,250,0.06)",
-                onClick: () => {
-                  haptics.light();
-                  todayPlan
-                    ? navigate(`/prep-plan/${todayPlan.id}`)
-                    : toast.info('No plan yet — submit a count first');
-                },
-              },
-              {
-                icon: FileStack, label: "Templates", sub: "Manage par-based recipes",
-                color: "text-primary", border: "border-primary/25", bg: "rgba(230,106,31,0.06)",
-                onClick: () => { haptics.light(); navigate('/prep-plan-templates'); },
-              },
-              {
-                icon: Settings, label: "Bulk Edit Pars", sub: "Edit multiple pars at once",
-                color: "text-violet-400", border: "border-violet-500/25", bg: "rgba(139,92,246,0.06)",
-                onClick: () => { haptics.light(); setBulkEditOpen(true); },
-              },
-            ].map(({ icon: Icon, label, sub, color, border, bg, onClick }) => (
-              <button
-                key={label}
-                onClick={onClick}
-                className={cn(
-                  "flex flex-col items-start gap-2 rounded-2xl border p-4 text-left active:scale-[0.97] transition-all",
-                  border
-                )}
-                style={{ background: bg, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
-              >
-                <Icon className={cn("h-4 w-4", color)} />
-                <div>
-                  <p className={cn("text-sm font-black", color)}>{label}</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{sub}</p>
+                  <div className="flex items-center gap-2">
+                    {todayCount
+                      ? <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
+                      : <AlertCircle  className="h-4 w-4 text-amber-400 shrink-0" />
+                    }
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Count</p>
+                  </div>
+                  <p className={cn("text-sm font-black leading-tight", todayCount ? "text-green-400" : "text-amber-400")}>
+                    {todayCount ? "Submitted" : "Not Done"}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {todayCount ? `${todayCount.shift} shift` : "No count today yet"}
+                  </p>
+                  {todayCount ? (
+                    <button
+                      onClick={() => { haptics.light(); navigate(`/prep-count/${todayCount.id}`); }}
+                      className="mt-1 flex items-center gap-1 text-[11px] font-bold text-green-400 active:opacity-70"
+                    >
+                      View <ArrowRight className="h-3 w-3" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={startCount}
+                      className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 py-1.5 text-xs font-black text-amber-400 active:scale-[0.97] transition-all"
+                      style={{ background: "rgba(245,158,11,0.08)" }}
+                    >
+                      <Zap className="h-3 w-3" /> Start Count
+                    </button>
+                  )}
                 </div>
-              </button>
-            ))}
-          </div>
-        </section>
 
-        {/* Recent sessions */}
-        <section className="space-y-2">
-          <p className="metric-label px-1">Recent Sessions</p>
-          {countSessions.length === 0 ? (
-            <div
-              className="flex flex-col items-center gap-3 rounded-2xl border border-border/30 py-12 text-center"
-              style={cardStyle}
-            >
-              <ChefHat className="h-8 w-8 text-muted-foreground/25" />
-              <p className="text-sm font-bold text-foreground">No sessions yet</p>
-              <p className="text-xs text-muted-foreground">Start your first count to generate a prep plan.</p>
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              {countSessions.slice(0, 8).map(session => (
-                <button
-                  key={session.id}
-                  onClick={() => { haptics.light(); navigate(`/prep-count/${session.id}`); }}
-                  className="flex w-full items-center gap-3 rounded-xl border border-border/40 px-3 py-2.5 text-left active:scale-[0.98] transition-all"
+                {/* Prep plan */}
+                <div
+                  className={cn(
+                    "flex flex-col gap-2 rounded-2xl border p-4",
+                    todayPlan ? "border-blue-500/30" : "border-border/40"
+                  )}
+                  style={{
+                    background: todayPlan
+                      ? "rgba(96,165,250,0.06)"
+                      : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    {todayPlan
+                      ? <CheckCircle2 className="h-4 w-4 text-blue-400 shrink-0" />
+                      : <Clock className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+                    }
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Prep Plan</p>
+                  </div>
+                  <p className={cn("text-sm font-black leading-tight", todayPlan ? "text-blue-400" : "text-foreground/30")}>
+                    {todayPlan ? "Ready" : "Pending"}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {todayPlan ? `Status: ${todayPlan.status}` : "Awaiting count submission"}
+                  </p>
+                  {todayPlan && (
+                    <button
+                      onClick={() => { haptics.light(); navigate(`/prep-plan/${todayPlan.id}`); }}
+                      className="mt-1 flex items-center gap-1 text-[11px] font-bold text-blue-400 active:opacity-70"
+                    >
+                      Review <ArrowRight className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Actions */}
+            <section className="space-y-2">
+              <p className="metric-label px-1">Actions</p>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                {[
+                  {
+                    icon: ClipboardList, label: "Review Plan", sub: "View generated tasks",
+                    color: "text-blue-400", border: "border-blue-500/25", bg: "rgba(96,165,250,0.06)",
+                    onClick: () => {
+                      haptics.light();
+                      todayPlan
+                        ? navigate(`/prep-plan/${todayPlan.id}`)
+                        : toast.info('No plan yet — submit a count first');
+                    },
+                  },
+                  {
+                    icon: FileStack, label: "Templates", sub: "Manage par-based recipes",
+                    color: "text-primary", border: "border-primary/25", bg: "rgba(230,106,31,0.06)",
+                    onClick: () => { haptics.light(); navigate('/prep-plan-templates'); },
+                  },
+                  {
+                    icon: Settings, label: "Bulk Edit Pars", sub: "Edit multiple pars at once",
+                    color: "text-violet-400", border: "border-violet-500/25", bg: "rgba(139,92,246,0.06)",
+                    onClick: () => { haptics.light(); setBulkEditOpen(true); },
+                  },
+                ].map(({ icon: Icon, label, sub, color, border, bg, onClick }) => (
+                  <button
+                    key={label}
+                    onClick={onClick}
+                    className={cn(
+                      "flex flex-col items-start gap-2 rounded-2xl border p-4 text-left active:scale-[0.97] transition-all",
+                      border
+                    )}
+                    style={{ background: bg, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
+                  >
+                    <Icon className={cn("h-4 w-4", color)} />
+                    <div>
+                      <p className={cn("text-sm font-black", color)}>{label}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{sub}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+          </div>
+
+          {/* Right column: Recent Sessions */}
+          <div>
+            <section className="space-y-2">
+              <p className="metric-label px-1">Recent Sessions</p>
+              {countSessions.length === 0 ? (
+                <div
+                  className="flex flex-col items-center gap-3 rounded-2xl border border-border/30 py-12 text-center"
                   style={cardStyle}
                 >
-                  <ClipboardList className="h-4 w-4 shrink-0 text-muted-foreground/50" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate capitalize">
-                      {session.shift} — {session.station || 'All Stations'}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{session.date} · {session.status}</p>
-                  </div>
-                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/30" />
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
+                  <ChefHat className="h-8 w-8 text-muted-foreground/25" />
+                  <p className="text-sm font-bold text-foreground">No sessions yet</p>
+                  <p className="text-xs text-muted-foreground">Start your first count to generate a prep plan.</p>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {countSessions.slice(0, 12).map(session => (
+                    <button
+                      key={session.id}
+                      onClick={() => { haptics.light(); navigate(`/prep-count/${session.id}`); }}
+                      className="flex w-full items-center gap-3 rounded-xl border border-border/40 px-3 py-2.5 text-left active:scale-[0.98] transition-all"
+                      style={cardStyle}
+                    >
+                      <ClipboardList className="h-4 w-4 shrink-0 text-muted-foreground/50" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate capitalize">
+                          {session.shift} — {session.station || 'All Stations'}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">{session.date} · {session.status}</p>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/30" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
 
+        </div>
       </div>
 
       {bulkEditOpen && (

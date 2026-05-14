@@ -1,10 +1,15 @@
-import { Users, Trophy } from 'lucide-react';
+import { Users, Trophy, GitBranch, MapPin, Shield, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
 const ALL_TABS = [
-  { id: 'directory', label: 'Directory', icon: Users, adminOnly: false },
-  { id: 'progress', label: 'Progress', icon: Trophy, adminOnly: true },
+  { id: 'directory',   label: 'Directory',   icon: Users,      adminOnly: false },
+  { id: 'progress',    label: 'Progress',    icon: Trophy,     adminOnly: true },
+  { id: 'org',         label: 'Org Chart',   icon: GitBranch,  adminOnly: true },
+  { id: 'ownership',   label: 'Ownership',   icon: MapPin,     adminOnly: true },
+  { id: 'roles',       label: 'Roles',       icon: Shield,     adminOnly: true },
+  { id: 'permissions', label: 'Permissions', icon: Shield,     adminOnly: true },
+  { id: 'job-codes',   label: 'Job Codes',   icon: Briefcase,  adminOnly: true },
 ];
 
 export default function TeamTabNav({ activeTab, onTabChange, isAdmin = false }) {
@@ -19,13 +24,13 @@ export default function TeamTabNav({ activeTab, onTabChange, isAdmin = false }) 
               key={id}
               onClick={() => { haptics.light?.(); onTabChange?.(id); }}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 my-2 rounded-lg border font-semibold text-sm transition-all whitespace-nowrap',
+                'flex items-center gap-1.5 px-3 py-1.5 my-1.5 rounded-lg border font-semibold text-xs transition-all whitespace-nowrap',
                 isActive
                   ? 'glow-active'
                   : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
               )}
             >
-              <IconComponent className="h-4 w-4" />
+              <IconComponent className="h-3.5 w-3.5" />
               <span>{label}</span>
             </button>
           );

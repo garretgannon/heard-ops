@@ -47,7 +47,20 @@ export default function InventorySimplified() {
 
   return (
     <div className="pb-24 lg:pb-0">
-      <DesktopPageHeader title="Inventory" />
+      <DesktopPageHeader
+        title="Inventory"
+        subtitle="Track stock levels and manage counts"
+        actions={
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/purchased-items')} className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5">
+              <Plus className="h-3.5 w-3.5" /> Create Purchase
+            </button>
+            <button onClick={() => navigate('/prep-count')} className="h-8 px-3 rounded-lg border border-border/60 card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
+              <Package className="h-3.5 w-3.5 text-primary" /> Count Tasks
+            </button>
+          </div>
+        }
+      />
       {/* Desktop Header - legacy, hidden in favor of DesktopPageHeader */}
       <div className="hidden items-center justify-between px-8 pt-6 pb-4 border-b border-border/30">
         <div>

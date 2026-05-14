@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/utils/haptics';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -424,9 +425,44 @@ export default function StaffShift() {
   return (
     <div className="min-h-screen pb-36">
 
+      <DesktopPageHeader title="Shift" subtitle="Brief, work your tasks, and sign off" />
+
+      {/* Desktop stage nav */}
+      <div className="hidden lg:flex items-center gap-1 px-8 py-3 border-b border-border/20 bg-card/30 shrink-0">
+        {STAGE_CONFIG.map(stage => {
+          const Icon = stage.icon;
+          const isActive = activeStage === stage.id;
+          const activeIdx = STAGE_CONFIG.findIndex(s => s.id === activeStage);
+          const isDone = STAGE_CONFIG.findIndex(s => s.id === stage.id) < activeIdx;
+          return (
+            <button
+              key={stage.id}
+              type="button"
+              onClick={() => { haptics.light(); setActiveStage(stage.id); }}
+              className={cn(
+                'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+                isActive ? 'glow-active' : isDone ? 'text-green-400 hover:bg-muted' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              )}
+            >
+              {isDone ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
+              {stage.label}
+            </button>
+          );
+        })}
+        <div className="ml-auto flex items-center gap-3">
+          <span className="text-xs font-bold text-primary">{shiftXp} XP</span>
+          <span className={cn('text-xs font-bold', progressPct === 100 ? 'text-green-400' : 'text-muted-foreground')}>
+            {doneTasks}/{totalTasks} tasks
+          </span>
+          <button type="button" onClick={() => load({ quiet: true })} className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 hover:bg-muted transition-all">
+            <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
+          </button>
+        </div>
+      </div>
+
       {/* ── Sticky HUD ── */}
       <div
-        className="sticky top-0 z-30 px-4 pt-4 pb-3"
+        className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-3"
         style={{
           background: 'linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)',
           backdropFilter: 'blur(20px)',
@@ -490,7 +526,7 @@ export default function StaffShift() {
                 onClick={() => { haptics.light(); setActiveStage(stage.id); }}
                 className={cn(
                   'rounded-lg px-3 py-1.5 text-xs font-bold transition-all',
-                  activeStage === stage.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  activeStage === stage.id ? 'glow-active' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 {stage.label}
@@ -501,7 +537,7 @@ export default function StaffShift() {
       </div>
 
       {/* ── Stage content ── */}
-      <div className="mx-auto max-w-2xl px-4 pt-4">
+      <div className="mx-auto max-w-5xl px-4 pt-4 lg:px-8 lg:pt-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
@@ -532,68 +568,70 @@ export default function StaffShift() {
                   ))}
                 </div>
 
-                {/* Pre-Shift Notes */}
-                <BriefSection id="preshift" icon={Sparkles} label="Manager Notes" count={data.preShift ? 1 : 0} onViewed={markSectionViewed}>
-                  {data.preShift ? (
-                    <>
-                      {data.preShift.specials    && <BriefRow title={data.preShift.specials}        meta="Specials" />}
-                      {data.preShift.staffing_notes && <BriefRow title={data.preShift.staffing_notes} meta="Staffing" />}
-                      {data.preShift.notes       && <BriefRow title={data.preShift.notes}           meta="Briefing notes" />}
-                      {!data.preShift.specials && !data.preShift.staffing_notes && !data.preShift.notes && (
-                        <BriefRow title="Pre-shift submitted" meta={`${data.preShift.shift} shift`} />
-                      )}
-                    </>
-                  ) : (
-                    <EmptyBrief text="No manager notes yet — check back or ask your manager." />
-                  )}
-                </BriefSection>
+                <div className="lg:grid lg:grid-cols-2 lg:gap-3 space-y-3 lg:space-y-0">
+                  {/* Pre-Shift Notes */}
+                  <BriefSection id="preshift" icon={Sparkles} label="Manager Notes" count={data.preShift ? 1 : 0} onViewed={markSectionViewed}>
+                    {data.preShift ? (
+                      <>
+                        {data.preShift.specials    && <BriefRow title={data.preShift.specials}        meta="Specials" />}
+                        {data.preShift.staffing_notes && <BriefRow title={data.preShift.staffing_notes} meta="Staffing" />}
+                        {data.preShift.notes       && <BriefRow title={data.preShift.notes}           meta="Briefing notes" />}
+                        {!data.preShift.specials && !data.preShift.staffing_notes && !data.preShift.notes && (
+                          <BriefRow title="Pre-shift submitted" meta={`${data.preShift.shift} shift`} />
+                        )}
+                      </>
+                    ) : (
+                      <EmptyBrief text="No manager notes yet — check back or ask your manager." />
+                    )}
+                  </BriefSection>
 
-                {/* 86'd Items */}
-                <BriefSection id="eightysix" icon={Flame} label="86'd Items" count={data.eightySix.length} onViewed={markSectionViewed}>
-                  {data.eightySix.length === 0
-                    ? <EmptyBrief text="Nothing 86'd right now." />
-                    : data.eightySix.map(item => (
-                        <BriefRow key={item.id} title={item.item_name} meta={item.category || item.notes} />
-                      ))
-                  }
-                </BriefSection>
+                  {/* 86'd Items */}
+                  <BriefSection id="eightysix" icon={Flame} label="86'd Items" count={data.eightySix.length} onViewed={markSectionViewed}>
+                    {data.eightySix.length === 0
+                      ? <EmptyBrief text="Nothing 86'd right now." />
+                      : data.eightySix.map(item => (
+                          <BriefRow key={item.id} title={item.item_name} meta={item.category || item.notes} />
+                        ))
+                    }
+                  </BriefSection>
 
-                {/* Events */}
-                <BriefSection id="events" icon={CalendarClock} label="Events & Reservations" count={data.events.length} onViewed={markSectionViewed}>
-                  {data.events.length === 0
-                    ? <EmptyBrief text="No events today." />
-                    : data.events.map(item => (
-                        <BriefRow key={item.id}
-                          title={item.eventName}
-                          meta={[item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ''].filter(Boolean).join(' · ')}
-                        />
-                      ))
-                  }
-                </BriefSection>
+                  {/* Events */}
+                  <BriefSection id="events" icon={CalendarClock} label="Events & Reservations" count={data.events.length} onViewed={markSectionViewed}>
+                    {data.events.length === 0
+                      ? <EmptyBrief text="No events today." />
+                      : data.events.map(item => (
+                          <BriefRow key={item.id}
+                            title={item.eventName}
+                            meta={[item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ''].filter(Boolean).join(' · ')}
+                          />
+                        ))
+                    }
+                  </BriefSection>
 
-                {/* Team */}
-                <BriefSection id="team" icon={Users} label="Your Team Today" count={data.staffToday.length} onViewed={markSectionViewed}>
-                  {data.staffToday.length === 0
-                    ? <EmptyBrief text="No schedule data yet." />
-                    : data.staffToday.slice(0, 14).map(person => (
-                        <BriefRow
-                          key={person.id}
-                          title={person.employee_name || person.name || 'Staff'}
-                          meta={[person.role, person.station, person.start_time ? `${person.start_time}–${person.end_time || '?'}` : ''].filter(Boolean).join(' · ')}
-                        />
-                      ))
-                  }
-                </BriefSection>
+                  {/* Team */}
+                  <BriefSection id="team" icon={Users} label="Your Team Today" count={data.staffToday.length} onViewed={markSectionViewed}>
+                    {data.staffToday.length === 0
+                      ? <EmptyBrief text="No schedule data yet." />
+                      : data.staffToday.slice(0, 14).map(person => (
+                          <BriefRow
+                            key={person.id}
+                            title={person.employee_name || person.name || 'Staff'}
+                            meta={[person.role, person.station, person.start_time ? `${person.start_time}–${person.end_time || '?'}` : ''].filter(Boolean).join(' · ')}
+                          />
+                        ))
+                    }
+                  </BriefSection>
 
-                {/* Announcements */}
-                <BriefSection id="comms" icon={Bell} label="Announcements" count={data.announcements.length} onViewed={markSectionViewed}>
-                  {data.announcements.length === 0
-                    ? <EmptyBrief text="No announcements." />
-                    : data.announcements.map(item => (
-                        <BriefRow key={item.id} title={item.title} meta={item.body?.slice(0, 100)} />
-                      ))
-                  }
-                </BriefSection>
+                  {/* Announcements */}
+                  <BriefSection id="comms" icon={Bell} label="Announcements" count={data.announcements.length} onViewed={markSectionViewed}>
+                    {data.announcements.length === 0
+                      ? <EmptyBrief text="No announcements." />
+                      : data.announcements.map(item => (
+                          <BriefRow key={item.id} title={item.title} meta={item.body?.slice(0, 100)} />
+                        ))
+                    }
+                  </BriefSection>
+                </div>
 
                 {/* Progress tracker */}
                 {!briefDone && (
@@ -645,112 +683,114 @@ export default function StaffShift() {
             {/* ── WORK ───────────────────────────────────────────── */}
             {activeStage === 'work' && (
               <>
-                {/* Prep list */}
-                {data.prepItems.length > 0 && (
-                  <WorkSection icon={ClipboardCheck} label="Prep List" done={checkedPrep.size} total={data.prepItems.length}>
-                    {data.prepItems.map(item => (
-                      <TaskCard
-                        key={item.id}
-                        item={item}
-                        checked={checkedPrep.has(item.id)}
-                        onToggle={() => togglePrep(item)}
-                      />
-                    ))}
-                  </WorkSection>
-                )}
+                <div className="lg:grid lg:grid-cols-2 lg:gap-3 space-y-3 lg:space-y-0">
+                  {/* Prep list */}
+                  {data.prepItems.length > 0 && (
+                    <WorkSection icon={ClipboardCheck} label="Prep List" done={checkedPrep.size} total={data.prepItems.length}>
+                      {data.prepItems.map(item => (
+                        <TaskCard
+                          key={item.id}
+                          item={item}
+                          checked={checkedPrep.has(item.id)}
+                          onToggle={() => togglePrep(item)}
+                        />
+                      ))}
+                    </WorkSection>
+                  )}
 
-                {/* Sidework */}
-                {data.sideworkTasks.length > 0 && (
-                  <WorkSection icon={ListChecks} label="Sidework" done={checkedSide.size} total={data.sideworkTasks.length}>
-                    {data.sideworkTasks.map(task => (
-                      <TaskCard
-                        key={task.id}
-                        item={task}
-                        checked={checkedSide.has(task.id)}
-                        onToggle={() => toggleSide(task)}
-                      />
-                    ))}
-                  </WorkSection>
-                )}
+                  {/* Sidework */}
+                  {data.sideworkTasks.length > 0 && (
+                    <WorkSection icon={ListChecks} label="Sidework" done={checkedSide.size} total={data.sideworkTasks.length}>
+                      {data.sideworkTasks.map(task => (
+                        <TaskCard
+                          key={task.id}
+                          item={task}
+                          checked={checkedSide.has(task.id)}
+                          onToggle={() => toggleSide(task)}
+                        />
+                      ))}
+                    </WorkSection>
+                  )}
 
-                {/* Temperature checks */}
-                {data.equipment.length > 0 && (
-                  <WorkSection icon={Thermometer} iconColor="text-blue-400" label="Temperature Checks" done={loggedTemps.size} total={data.equipment.length}>
-                    {data.equipment.map(eq => {
-                      const logged = loggedTemps.has(eq.id);
-                      return (
-                        <div
-                          key={eq.id}
-                          className="flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors"
-                          style={{
-                            borderColor: logged ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.08)',
-                            background: logged ? 'rgba(34,197,94,0.06)' : 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
-                          }}
-                        >
-                          <motion.div
-                            animate={{
-                              backgroundColor: logged ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
-                              borderColor: logged ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.15)',
+                  {/* Temperature checks */}
+                  {data.equipment.length > 0 && (
+                    <WorkSection icon={Thermometer} iconColor="text-blue-400" label="Temperature Checks" done={loggedTemps.size} total={data.equipment.length}>
+                      {data.equipment.map(eq => {
+                        const logged = loggedTemps.has(eq.id);
+                        return (
+                          <div
+                            key={eq.id}
+                            className="flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors"
+                            style={{
+                              borderColor: logged ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.08)',
+                              background: logged ? 'rgba(34,197,94,0.06)' : 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
                             }}
-                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
                           >
-                            {logged
-                              ? <Check className="h-4 w-4 text-green-400" />
-                              : <Thermometer className="h-3.5 w-3.5 text-blue-400/70" />
-                            }
-                          </motion.div>
+                            <motion.div
+                              animate={{
+                                backgroundColor: logged ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
+                                borderColor: logged ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.15)',
+                              }}
+                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+                            >
+                              {logged
+                                ? <Check className="h-4 w-4 text-green-400" />
+                                : <Thermometer className="h-3.5 w-3.5 text-blue-400/70" />
+                              }
+                            </motion.div>
 
-                          <div className="flex-1 min-w-0">
-                            <p className={cn('text-sm font-bold leading-snug', logged ? 'text-muted-foreground line-through' : 'text-foreground')}>
-                              {eq.name}
-                            </p>
-                            <p className="mt-0.5 text-[11px] text-muted-foreground">
-                              {eq.equipmentType?.replace(/-/g, ' ') || 'Equipment'}
-                            </p>
-                          </div>
-
-                          {logged ? (
-                            <span className="text-[11px] font-black text-green-400 flex items-center gap-1">
-                              <Zap className="h-2.5 w-2.5" /> Logged
-                            </span>
-                          ) : (
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <input
-                                type="number"
-                                value={tempInputs[eq.id] || ''}
-                                onChange={e => setTempInputs(prev => ({ ...prev, [eq.id]: e.target.value }))}
-                                onKeyDown={e => e.key === 'Enter' && logTemp(eq)}
-                                placeholder="°F"
-                                className="w-16 rounded-lg border border-border/50 bg-background px-2 py-1.5 text-center text-sm font-bold text-foreground outline-none focus:border-primary/50"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => logTemp(eq)}
-                                disabled={!tempInputs[eq.id]}
-                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/30 bg-blue-500/15 disabled:opacity-40 transition-all active:scale-95"
-                              >
-                                <Check className="h-3.5 w-3.5 text-blue-400" />
-                              </button>
+                            <div className="flex-1 min-w-0">
+                              <p className={cn('text-sm font-bold leading-snug', logged ? 'text-muted-foreground line-through' : 'text-foreground')}>
+                                {eq.name}
+                              </p>
+                              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                                {eq.equipmentType?.replace(/-/g, ' ') || 'Equipment'}
+                              </p>
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </WorkSection>
-                )}
 
-                {/* Empty state */}
-                {totalTasks === 0 && (
-                  <div
-                    className="flex flex-col items-center gap-3 rounded-2xl border border-border/30 py-12 text-center"
-                    style={cardBg}
-                  >
-                    <CheckCircle2 className="h-8 w-8 text-green-400/50" />
-                    <p className="text-sm font-bold text-foreground">No tasks assigned yet</p>
-                    <p className="text-xs text-muted-foreground">Check back or ask your manager.</p>
-                  </div>
-                )}
+                            {logged ? (
+                              <span className="text-[11px] font-black text-green-400 flex items-center gap-1">
+                                <Zap className="h-2.5 w-2.5" /> Logged
+                              </span>
+                            ) : (
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <input
+                                  type="number"
+                                  value={tempInputs[eq.id] || ''}
+                                  onChange={e => setTempInputs(prev => ({ ...prev, [eq.id]: e.target.value }))}
+                                  onKeyDown={e => e.key === 'Enter' && logTemp(eq)}
+                                  placeholder="°F"
+                                  className="w-16 rounded-lg border border-border/50 bg-background px-2 py-1.5 text-center text-sm font-bold text-foreground outline-none focus:border-primary/50"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => logTemp(eq)}
+                                  disabled={!tempInputs[eq.id]}
+                                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/30 bg-blue-500/15 disabled:opacity-40 transition-all active:scale-95"
+                                >
+                                  <Check className="h-3.5 w-3.5 text-blue-400" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </WorkSection>
+                  )}
+
+                  {/* Empty state */}
+                  {totalTasks === 0 && (
+                    <div
+                      className="flex flex-col items-center gap-3 rounded-2xl border border-border/30 py-12 text-center"
+                      style={cardBg}
+                    >
+                      <CheckCircle2 className="h-8 w-8 text-green-400/50" />
+                      <p className="text-sm font-bold text-foreground">No tasks assigned yet</p>
+                      <p className="text-xs text-muted-foreground">Check back or ask your manager.</p>
+                    </div>
+                  )}
+                </div>
 
                 {/* Close out CTA */}
                 {progressPct === 100 ? (

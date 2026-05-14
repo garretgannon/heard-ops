@@ -923,9 +923,9 @@ export default function ManagerShift() {
                 type="button"
                 onClick={() => { haptics.light(); setActiveStage(stage.id); }}
                 className={cn(
-                  'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all',
+                  'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'glow-active'
                     : isDone
                       ? 'text-green-400 hover:bg-muted'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -958,7 +958,7 @@ export default function ManagerShift() {
       </div>
 
       {/* Stage content */}
-      <div className="mx-auto max-w-3xl px-4 pt-4 lg:px-8">
+      <div className="mx-auto max-w-3xl lg:max-w-5xl px-4 pt-4 lg:px-8">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
@@ -1020,53 +1020,55 @@ export default function ManagerShift() {
                   )}
                 </div>
 
-                <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
-                  {briefing.handoffs.length === 0
-                    ? <EmptyIntel text="No recent handoff found." />
-                    : briefing.handoffs.map(item => (
-                        <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"}
-                          meta={[item.department, item.urgency].filter(Boolean).join(" — ")} />
-                      ))
-                  }
-                </IntelCard>
+                <div className="lg:grid lg:grid-cols-2 lg:gap-3 space-y-3 lg:space-y-0">
+                  <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
+                    {briefing.handoffs.length === 0
+                      ? <EmptyIntel text="No recent handoff found." />
+                      : briefing.handoffs.map(item => (
+                          <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"}
+                            meta={[item.department, item.urgency].filter(Boolean).join(" — ")} />
+                        ))
+                    }
+                  </IntelCard>
 
-                <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
-                  {briefing.eightySix.length === 0
-                    ? <EmptyIntel text="Nothing 86'd right now." />
-                    : briefing.eightySix.map(item => (
-                        <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />
-                      ))
-                  }
-                </IntelCard>
+                  <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
+                    {briefing.eightySix.length === 0
+                      ? <EmptyIntel text="Nothing 86'd right now." />
+                      : briefing.eightySix.map(item => (
+                          <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />
+                        ))
+                    }
+                  </IntelCard>
 
-                <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
-                  {briefing.issues.length === 0
-                    ? <EmptyIntel text="No open issues." />
-                    : briefing.issues.map(item => (
-                        <IntelRow key={item.id} title={item.title} meta={item.category || item.priority} severity="critical" />
-                      ))
-                  }
-                </IntelCard>
+                  <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
+                    {briefing.issues.length === 0
+                      ? <EmptyIntel text="No open issues." />
+                      : briefing.issues.map(item => (
+                          <IntelRow key={item.id} title={item.title} meta={item.category || item.priority} severity="critical" />
+                        ))
+                    }
+                  </IntelCard>
 
-                <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
-                  {briefing.events.length === 0
-                    ? <EmptyIntel text="No upcoming events." />
-                    : briefing.events.map(item => (
-                        <IntelRow key={item.id} title={item.eventName}
-                          meta={[item.eventDate, item.startTime, item.room].filter(Boolean).join(" · ")} severity="warning" />
-                      ))
-                  }
-                </IntelCard>
+                  <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
+                    {briefing.events.length === 0
+                      ? <EmptyIntel text="No upcoming events." />
+                      : briefing.events.map(item => (
+                          <IntelRow key={item.id} title={item.eventName}
+                            meta={[item.eventDate, item.startTime, item.room].filter(Boolean).join(" · ")} severity="warning" />
+                        ))
+                    }
+                  </IntelCard>
 
-                <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
-                  {[...briefing.managerLogs, ...briefing.waste].length === 0
-                    ? <EmptyIntel text="No manager notes or recent waste." />
-                    : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => (
-                        <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")}
-                          meta={item.category || item.reason || recentDate(item)} />
-                      ))
-                  }
-                </IntelCard>
+                  <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
+                    {[...briefing.managerLogs, ...briefing.waste].length === 0
+                      ? <EmptyIntel text="No manager notes or recent waste." />
+                      : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => (
+                          <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")}
+                            meta={item.category || item.reason || recentDate(item)} />
+                        ))
+                    }
+                  </IntelCard>
+                </div>
 
                 {/* Progress before acknowledge */}
                 {!acknowledged && (
@@ -1120,146 +1122,153 @@ export default function ManagerShift() {
             {/* ── OPS ────────────────────────────────────────────────── */}
             {activeStage === "run" && (
               <>
-                {/* Pre-shift briefing form */}
-                <div
-                  className={cn(
-                    "overflow-hidden rounded-2xl border",
-                    preShiftSaved ? "border-green-500/30" : "border-primary/30"
-                  )}
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
-                    <div className="flex items-start gap-2.5">
-                      <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      <div>
-                        <p className="text-sm font-black text-foreground">Pre-Shift Briefing</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">Required to unlock full duty XP. +25 XP on save.</p>
-                      </div>
-                    </div>
-                    <span className={cn(
-                      "shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black",
-                      preShiftSaved ? "border-green-500/35 bg-green-500/12 text-green-400" : "border-primary/35 bg-primary/12 text-primary"
-                    )}>
-                      {preShiftSaved ? "✓ Ready" : "Required"}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3 px-4 pb-4">
-                    {/* Staff list */}
-                    {briefing.staff.length > 0 && (
-                      <div className="rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                        <div className="mb-2 flex items-center justify-between">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Scheduled Today</p>
-                          <span className="text-xs font-black text-foreground">{briefing.staff.length}</span>
+                <div className="lg:grid lg:grid-cols-2 lg:gap-4 space-y-3 lg:space-y-0">
+                  {/* Left: Pre-shift briefing form */}
+                  <div>
+                    <div
+                      className={cn(
+                        "overflow-hidden rounded-2xl border",
+                        preShiftSaved ? "border-green-500/30" : "border-primary/30"
+                      )}
+                      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                    >
+                      <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
+                        <div className="flex items-start gap-2.5">
+                          <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <div>
+                            <p className="text-sm font-black text-foreground">Pre-Shift Briefing</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">Required to unlock full duty XP. +25 XP on save.</p>
+                          </div>
                         </div>
-                        <div className="space-y-1">
-                          {briefing.staff.slice(0, 8).map(person => (
-                            <div key={person.id || person.employee_name} className="flex items-center justify-between gap-2 text-xs">
-                              <span className="font-semibold text-foreground truncate">{person.employee_name}</span>
-                              <span className="shrink-0 text-muted-foreground">{[person.role, person.station, person.start_time].filter(Boolean).join(" · ")}</span>
+                        <span className={cn(
+                          "shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black",
+                          preShiftSaved ? "border-green-500/35 bg-green-500/12 text-green-400" : "border-primary/35 bg-primary/12 text-primary"
+                        )}>
+                          {preShiftSaved ? "✓ Ready" : "Required"}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 px-4 pb-4">
+                        {/* Staff list */}
+                        {briefing.staff.length > 0 && (
+                          <div className="rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                            <div className="mb-2 flex items-center justify-between">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Scheduled Today</p>
+                              <span className="text-xs font-black text-foreground">{briefing.staff.length}</span>
                             </div>
-                          ))}
-                          {briefing.staff.length > 8 && <p className="text-xs text-muted-foreground">+{briefing.staff.length - 8} more</p>}
-                        </div>
+                            <div className="space-y-1">
+                              {briefing.staff.slice(0, 8).map(person => (
+                                <div key={person.id || person.employee_name} className="flex items-center justify-between gap-2 text-xs">
+                                  <span className="font-semibold text-foreground truncate">{person.employee_name}</span>
+                                  <span className="shrink-0 text-muted-foreground">{[person.role, person.station, person.start_time].filter(Boolean).join(" · ")}</span>
+                                </div>
+                              ))}
+                              {briefing.staff.length > 8 && <p className="text-xs text-muted-foreground">+{briefing.staff.length - 8} more</p>}
+                            </div>
+                          </div>
+                        )}
+
+                        {[
+                          { field: "roles",           label: "Roles / Assignments",     rows: 4, placeholder: "Who is working, role changes, sections, stations, breaks…" },
+                          { field: "reservations",    label: "Reservations / BEO",      rows: 3, placeholder: "Large parties, VIPs, private events, service timing…" },
+                          { field: "outOfStock",      label: "Out of Stock / 86",       rows: 3, placeholder: "86'd items, low stock, substitutions…" },
+                          { field: "specials",        label: "Specials",                rows: 3, placeholder: "Food, drinks, promos, talking points…" },
+                          { field: "specialCleaning", label: "Special Cleaning / Focus",rows: 2, placeholder: "Cleaning priorities, reset items, inspection focus…" },
+                          { field: "notes",           label: "Briefing Notes",          rows: 4, placeholder: "What you will say to the team before service…" },
+                        ].map(({ field, label, rows, placeholder }) => (
+                          <label key={field} className="block space-y-1.5">
+                            <span className="text-xs font-black text-foreground">{label}</span>
+                            <textarea
+                              value={preShiftForm[field]}
+                              onChange={e => updatePreShiftField(field, e.target.value)}
+                              rows={rows}
+                              placeholder={placeholder}
+                              className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                            />
+                          </label>
+                        ))}
+
+                        <button
+                          type="button"
+                          onClick={savePreShift}
+                          className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
+                          style={{
+                            background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+                            boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
+                          }}
+                        >
+                          <Save className="h-4 w-4" />
+                          Save Briefing — +15 XP
+                        </button>
                       </div>
-                    )}
-
-                    {[
-                      { field: "roles",           label: "Roles / Assignments",     rows: 4, placeholder: "Who is working, role changes, sections, stations, breaks…" },
-                      { field: "reservations",    label: "Reservations / BEO",      rows: 3, placeholder: "Large parties, VIPs, private events, service timing…" },
-                      { field: "outOfStock",      label: "Out of Stock / 86",       rows: 3, placeholder: "86'd items, low stock, substitutions…" },
-                      { field: "specials",        label: "Specials",                rows: 3, placeholder: "Food, drinks, promos, talking points…" },
-                      { field: "specialCleaning", label: "Special Cleaning / Focus",rows: 2, placeholder: "Cleaning priorities, reset items, inspection focus…" },
-                      { field: "notes",           label: "Briefing Notes",          rows: 4, placeholder: "What you will say to the team before service…" },
-                    ].map(({ field, label, rows, placeholder }) => (
-                      <label key={field} className="block space-y-1.5">
-                        <span className="text-xs font-black text-foreground">{label}</span>
-                        <textarea
-                          value={preShiftForm[field]}
-                          onChange={e => updatePreShiftField(field, e.target.value)}
-                          rows={rows}
-                          placeholder={placeholder}
-                          className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-                        />
-                      </label>
-                    ))}
-
-                    <button
-                      type="button"
-                      onClick={savePreShift}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
-                      style={{
-                        background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
-                        boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
-                      }}
-                    >
-                      <Save className="h-4 w-4" />
-                      Save Briefing — +15 XP
-                    </button>
-                  </div>
-                </div>
-
-                {/* Duties list */}
-                <div
-                  className="overflow-hidden rounded-2xl border border-border/40"
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  <div className="flex items-center justify-between px-4 py-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <Target className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-black text-foreground">Mission Objectives</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-foreground")}>
-                        {checkedDuties.length}/{DUTIES.length}
-                      </span>
-                      {dutiesPct === 100 && <CheckCircle2 className="h-4 w-4 text-green-400" />}
                     </div>
                   </div>
 
-                  <div className="space-y-2 border-t border-border/30 px-3 pb-3 pt-3">
-                    {DUTIES_CONFIG.map((config) => {
-                      const locked = config.requiresPreShift && !preShiftSaved;
-                      const checked = checkedDuties.includes(config.text);
-                      const floatKey = xpFloats[xpFloats.length - 1];
-                      return (
-                        <DutyCard
-                          key={config.text}
-                          config={config}
-                          checked={checked}
-                          locked={locked}
-                          onToggle={() => toggleDuty(config)}
-                          xpFloat={!checked && floatKey}
-                          onXpDone={() => setXpFloats(prev => prev.slice(1))}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Quick nav */}
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: "Floor Map", sub: "Station readiness", path: "/operational-map", icon: MapPin },
-                    { label: "Approvals", sub: "Pending reviews",   path: "/approvals",       icon: ClipboardCheck },
-                  ].map(({ label, sub, path, icon: Icon }) => (
-                    <button
-                      key={path}
-                      type="button"
-                      onClick={() => navigate(path)}
-                      className="flex items-center justify-between gap-2 rounded-xl border border-border/40 px-3 py-3 text-left transition-all hover:border-border/60"
-                      style={{ background: "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
+                  {/* Right: Duties + Quick nav */}
+                  <div className="space-y-3">
+                    {/* Duties list */}
+                    <div
+                      className="overflow-hidden rounded-2xl border border-border/40"
+                      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
                     >
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <Icon className="h-3.5 w-3.5 text-primary" />
-                          <span className="text-xs font-black text-foreground">{label}</span>
+                      <div className="flex items-center justify-between px-4 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <Target className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-black text-foreground">Mission Objectives</span>
                         </div>
-                        <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
+                        <div className="flex items-center gap-2">
+                          <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-foreground")}>
+                            {checkedDuties.length}/{DUTIES.length}
+                          </span>
+                          {dutiesPct === 100 && <CheckCircle2 className="h-4 w-4 text-green-400" />}
+                        </div>
                       </div>
-                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    </button>
-                  ))}
+
+                      <div className="space-y-2 border-t border-border/30 px-3 pb-3 pt-3">
+                        {DUTIES_CONFIG.map((config) => {
+                          const locked = config.requiresPreShift && !preShiftSaved;
+                          const checked = checkedDuties.includes(config.text);
+                          const floatKey = xpFloats[xpFloats.length - 1];
+                          return (
+                            <DutyCard
+                              key={config.text}
+                              config={config}
+                              checked={checked}
+                              locked={locked}
+                              onToggle={() => toggleDuty(config)}
+                              xpFloat={!checked && floatKey}
+                              onXpDone={() => setXpFloats(prev => prev.slice(1))}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Quick nav */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: "Floor Map", sub: "Station readiness", path: "/operational-map", icon: MapPin },
+                        { label: "Approvals", sub: "Pending reviews",   path: "/approvals",       icon: ClipboardCheck },
+                      ].map(({ label, sub, path, icon: Icon }) => (
+                        <button
+                          key={path}
+                          type="button"
+                          onClick={() => navigate(path)}
+                          className="flex items-center justify-between gap-2 rounded-xl border border-border/40 px-3 py-3 text-left transition-all hover:border-border/60"
+                          style={{ background: "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
+                        >
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <Icon className="h-3.5 w-3.5 text-primary" />
+                              <span className="text-xs font-black text-foreground">{label}</span>
+                            </div>
+                            <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
+                          </div>
+                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </>
             )}

@@ -114,14 +114,22 @@ export default function TemperatureLogTemplates() {
 
   return (
     <div className="pb-24">
-      <DesktopPageHeader title="Temperature Log Templates" subtitle="Create reusable temperature log templates" />
+      <DesktopPageHeader
+        title="Temperature Log Templates"
+        subtitle="Create reusable temperature log templates"
+        actions={
+          <button onClick={() => { haptics.medium(); setEditingTemplate(null); setShowForm(true); }} className="btn-primary text-xs h-8 px-3 flex items-center gap-1.5">
+            <Plus className="h-3.5 w-3.5" /> New Template
+          </button>
+        }
+      />
       <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Temperature Log Templates</h1>
 
         {/* Category filter tabs */}
         <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
           {[['', 'All'], ['cooling-log', '❄ Cooling'], ['refrigerator-freezer', '🧊 Fridge / Freezer'], ['hot-holding', '🔥 Hot Holding']].map(([val, label]) => (
-            <button key={val} onClick={() => setFilterCategory(val)} className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-bold transition-all ${filterCategory === val ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>{label}</button>
+            <button key={val} onClick={() => setFilterCategory(val)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterCategory === val ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{label}</button>
           ))}
         </div>
 
@@ -131,19 +139,21 @@ export default function TemperatureLogTemplates() {
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-4 lg:px-8 lg:py-6">
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground text-sm">No templates found</div>
         ) : (
-          filtered.map(t => (
-            <TemplateCard key={t.id} template={t} onEdit={t => { setEditingTemplate(t); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />
-          ))
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+            {filtered.map(t => (
+              <TemplateCard key={t.id} template={t} onEdit={t => { setEditingTemplate(t); setShowForm(true); }} onDuplicate={handleDuplicate} onArchive={handleArchive} />
+            ))}
+          </div>
         )}
       </div>
 
-      <button onClick={() => { haptics.medium(); setEditingTemplate(null); setShowForm(true); }} className="fixed bottom-24 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all">
+      <button onClick={() => { haptics.medium(); setEditingTemplate(null); setShowForm(true); }} className="lg:hidden fixed bottom-24 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all">
         <Plus className="h-6 w-6" />
       </button>
 

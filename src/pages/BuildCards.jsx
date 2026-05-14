@@ -566,7 +566,7 @@ export default function BuildCards() {
 
           <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
             {CATEGORIES.map(c => (
-              <button key={c} onClick={() => setFilterCat(c)} className={`shrink-0 text-xs px-3 py-1.5 rounded-full font-bold capitalize transition-all ${filterCat === c ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <button key={c} onClick={() => setFilterCat(c)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${filterCat === c ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>
                 {CATEGORY_LABELS[c] || c}
               </button>
             ))}
@@ -574,9 +574,9 @@ export default function BuildCards() {
         </div>
 
         <div className="flex gap-1.5 overflow-x-auto px-4 pb-2.5">
-          <button onClick={() => setFilterStation('')} className={`shrink-0 text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all ${!filterStation ? 'bg-card border border-primary/40 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>All Stations</button>
+          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
           {STATIONS.map(s => (
-            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`shrink-0 text-[10px] px-2.5 py-1 rounded-lg font-bold transition-all ${filterStation === s ? 'bg-card border border-primary/40 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>{s}</button>
+            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s}</button>
           ))}
         </div>
       </div>

@@ -60,6 +60,9 @@ export default function Layout() {
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem('sidebar_collapsed') === 'true'; } catch { return false; }
   });
+  const [clockTime, setClockTime] = useState(() =>
+    new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  );
 
   const isSecondary = !isTabRoute(location.pathname);
   const swipeRef = useRef(null);
@@ -95,6 +98,13 @@ export default function Layout() {
     base44.entities.Settings.filter({ key: "restaurant_name" }).then(results => {
       if (results.length > 0 && results[0].value) setRestaurantName(results[0].value);
     });
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setClockTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+    }, 30000);
+    return () => clearInterval(id);
   }, []);
 
   // ── Swipe-back gesture (left-edge only, secondary pages) ─────────────────
@@ -392,7 +402,7 @@ export default function Layout() {
       {/* Desktop top rail */}
       <header
         className={cn(
-          "hidden lg:flex fixed top-0 right-0 z-20 h-[72px] items-center justify-between px-8",
+          "hidden lg:flex fixed top-0 right-0 z-20 h-[72px] items-center px-8 gap-4",
           collapsed ? "left-[60px]" : "left-[220px]"
         )}
         style={{
@@ -401,12 +411,16 @@ export default function Layout() {
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
-        <div className="min-w-0">
+        <div className="flex-1 min-w-0">
           <p className="text-[14px] font-black text-foreground truncate leading-none">{restaurantName || 'HeardOS'}</p>
-          <p className="text-[11px] text-muted-foreground/60 mt-0.5 font-medium">{dateStr}</p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-col items-center">
+          <p className="text-[24px] font-black text-foreground leading-none tabular-nums tracking-tight">{clockTime}</p>
+          <p className="text-[10px] text-muted-foreground/50 font-medium mt-0.5">{dateStr}</p>
+        </div>
+
+        <div className="flex-1 flex items-center gap-2.5 justify-end">
           <button
             onClick={toggleCollapsed}
             className="h-10 w-10 rounded-xl border border-white/10 bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] transition"

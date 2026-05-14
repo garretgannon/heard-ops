@@ -65,7 +65,15 @@ export default function AutomationRules() {
 
   return (
     <div className="pb-24">
-      <DesktopPageHeader title="Automation Rules" subtitle="Create templates to auto-generate operational tasks" />
+      <DesktopPageHeader
+        title="Automation Rules"
+        subtitle="Create templates to auto-generate operational tasks"
+        actions={
+          <button onClick={() => { setEditingTemplate(null); setShowBuilder(true); }} className="btn-primary text-xs h-8 px-3 flex items-center gap-1.5">
+            <Plus className="h-3.5 w-3.5" /> Create Template
+          </button>
+        }
+      />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border/30 px-6 py-4">
         <div className="mb-4">
@@ -95,7 +103,7 @@ export default function AutomationRules() {
       </div>
 
       {/* Template List */}
-      <div className="px-6 py-4 space-y-2">
+      <div className="px-6 py-4 lg:px-8 lg:py-6">
         {loading ? (
           <div className="text-center py-8 text-muted-foreground text-sm">Loading templates...</div>
         ) : filtered.length === 0 ? (
@@ -103,7 +111,8 @@ export default function AutomationRules() {
             {templates.length === 0 ? 'No templates yet. Create your first automation.' : 'No matching templates.'}
           </div>
         ) : (
-          filtered.map(template => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {filtered.map(template => (
             <div
               key={template.id}
               className="card-glass border border-border/40 rounded-lg p-4 flex items-center justify-between group hover:border-border/60 transition-all"
@@ -141,7 +150,8 @@ export default function AutomationRules() {
                 </button>
               </div>
             </div>
-          ))
+          ))}
+          </div>
         )}
       </div>
 

@@ -424,7 +424,15 @@ export default function PrepTemplatesManager() {
 
   return (
     <div className="pb-24">
-      <DesktopPageHeader title="Prep Templates" subtitle="Create reusable prep list templates" />
+      <DesktopPageHeader
+        title="Prep Templates"
+        subtitle="Create reusable prep list templates"
+        actions={
+          <button onClick={() => setIsCreating(true)} className="btn-primary text-xs h-8 px-3 flex items-center gap-1.5">
+            <Plus className="h-3.5 w-3.5" /> New Template
+          </button>
+        }
+      />
       <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="flex items-center gap-3 mb-3">
           <button onClick={() => navigate(-1)} className="btn-secondary text-xs h-8 px-2">
@@ -489,7 +497,7 @@ export default function PrepTemplatesManager() {
         )}
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-4 lg:px-8 lg:py-6">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (
@@ -497,21 +505,23 @@ export default function PrepTemplatesManager() {
             {templates.length === 0 ? 'No templates yet' : 'No templates match'}
           </div>
         ) : (
-          filtered.map(template => (
-            <TemplateCard
-              key={template.id}
-              template={template}
-              onEdit={handleEdit}
-              onDuplicate={handleDuplicate}
-              onArchive={handleArchive}
-            />
-          ))
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+            {filtered.map(template => (
+              <TemplateCard
+                key={template.id}
+                template={template}
+                onEdit={handleEdit}
+                onDuplicate={handleDuplicate}
+                onArchive={handleArchive}
+              />
+            ))}
+          </div>
         )}
       </div>
 
       <button
         onClick={() => setIsCreating(true)}
-        className="fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
+        className="lg:hidden fixed bottom-20 right-4 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
       >
         <Plus className="h-5 w-5" />
       </button>

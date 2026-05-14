@@ -141,7 +141,12 @@ function ChemicalForm({ chemical, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col">
+    <>
+      {/* Desktop backdrop */}
+      <div className="hidden lg:block fixed inset-0 bg-black/50 z-[49]" onClick={onClose} />
+      {/* Panel — full screen on mobile, right-side panel on desktop */}
+      <div className="fixed inset-0 bg-background z-50 flex flex-col lg:inset-auto lg:right-0 lg:top-0 lg:bottom-0 lg:w-[520px] lg:bg-card lg:border-l lg:border-border"
+        style={{ boxShadow: '-8px 0 48px rgba(0,0,0,0.5)' }}>
       {/* Header */}
       <div className="bg-card border-b border-border px-4 py-3 flex items-center justify-between shrink-0">
         <h2 className="text-sm font-extrabold text-foreground">{chemical ? 'Edit Chemical' : 'New Chemical'}</h2>
@@ -150,7 +155,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-36">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-4">
         {/* Basic Info */}
         <div className="space-y-2">
           <label className="text-xs font-bold text-foreground">Name *</label>
@@ -266,11 +271,12 @@ function ChemicalForm({ chemical, onSave, onClose }) {
       </div>
 
       {/* Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex gap-2 pb-[max(12px,env(safe-area-inset-bottom))]">
+      <div className="shrink-0 bg-card border-t border-border px-4 py-3 flex gap-2 pb-[max(12px,env(safe-area-inset-bottom))]">
         <button onClick={save} disabled={saving} className="flex-1 btn-primary text-sm h-10">{saving ? '...' : 'Save'}</button>
         <button onClick={onClose} className="flex-1 btn-secondary text-sm h-10">Cancel</button>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -308,8 +314,6 @@ export default function ChemicalLibrary() {
     await load();
   };
 
-  if (showForm) return <ChemicalForm chemical={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />;
-
   return (
     <div className="pb-28">
       <DesktopPageHeader
@@ -333,10 +337,10 @@ export default function ChemicalLibrary() {
       {/* Filters */}
       <div className="bg-card border-b border-border px-4 py-3 lg:px-8">
         <div className="flex gap-1.5 overflow-x-auto pb-1">
-          <button onClick={() => setFilterCat('all')} className={cn('shrink-0 text-xs px-3 py-1.5 rounded-full font-bold transition-all', filterCat === 'all' ? 'bg-primary text-white' : 'bg-muted text-muted-foreground')}>All</button>
+          <button onClick={() => setFilterCat('all')} className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filterCat === 'all' ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>All</button>
           {Object.entries(CATEGORIES).map(([k, v]) => (
-            <button key={k} onClick={() => setFilterCat(k)} className={cn('shrink-0 text-xs px-3 py-1.5 rounded-full font-bold transition-all flex items-center gap-1', filterCat === k ? 'bg-primary text-white' : 'bg-muted text-muted-foreground')}>
-              {v.icon} {v.label}
+            <button key={k} onClick={() => setFilterCat(k)} className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filterCat === k ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>
+              {v.label}
             </button>
           ))}
         </div>
@@ -358,6 +362,15 @@ export default function ChemicalLibrary() {
           </div>
         )}
       </div>
+
+      {/* Chemical Form */}
+      {showForm && (
+        <ChemicalForm
+          chemical={editing}
+          onSave={handleSave}
+          onClose={() => { setShowForm(false); setEditing(null); }}
+        />
+      )}
 
       {/* Detail Drawer */}
       {selected && (

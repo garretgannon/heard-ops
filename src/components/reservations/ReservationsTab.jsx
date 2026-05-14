@@ -106,7 +106,7 @@ export default function ReservationsTab({ reservations, isAdmin, onEdit, onRefre
           <p className="text-sm text-muted-foreground">No reservations found</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {filtered.map(r => (
             <ReservationCard key={r.id} res={r} isAdmin={isAdmin} onEdit={onEdit} onDelete={handleDelete} />
           ))}

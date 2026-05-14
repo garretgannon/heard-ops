@@ -11,6 +11,12 @@ import TeamProgressView from '@/components/team/TeamProgressView';
 import AddEmployeeModal from '@/components/team/AddEmployeeModal';
 import EmployeeEditModal from '@/components/team/EmployeeEditModal';
 import { buildEmployeeProgress } from '@/lib/employeeProgress';
+import OrgChartTab from '@/components/people/OrgChartTab';
+import OwnershipTab from '@/components/people/OwnershipTab';
+import RolesManagerTab from '@/components/people/RolesManagerTab';
+import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
+import AssignmentAuthorityEditor from '@/components/people/AssignmentAuthorityEditor';
+import JobCodesTab from '@/components/people/JobCodesTab';
 
 export default function TeamCenter() {
   const { user, isAdmin, isFOH } = useCurrentUser();
@@ -128,7 +134,7 @@ const isMounted = useRef(true);
     <div className="app-screen lg:flex lg:flex-col">
       <DesktopPageHeader
         title="Team"
-        subtitle="Staff directory and certifications"
+        subtitle="Staff directory, structure & access"
         actions={
           <>
             <div className="relative">
@@ -170,7 +176,7 @@ const isMounted = useRef(true);
       />
 
       {/* Content */}
-      <div className="app-page-narrow flex-1">
+      <div className="app-page flex-1">
         {activeTab === 'directory' && (
           <DirectoryView
             employees={filteredEmployees}
@@ -188,6 +194,40 @@ const isMounted = useRef(true);
             currentUser={user}
           />
         )}
+
+        {activeTab === 'org' && <OrgChartTab />}
+
+        {activeTab === 'ownership' && <OwnershipTab />}
+
+        {activeTab === 'roles' && <RolesManagerTab />}
+
+        {activeTab === 'permissions' && (
+          <div className="space-y-3">
+            <div className="card-glass border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-border/40">
+                <p className="text-sm font-bold text-foreground">Permissions & Visibility</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Define what each role can see and do in the app</p>
+              </div>
+              <div className="p-4">
+                <RolePermissionBuilder />
+              </div>
+            </div>
+            <div className="card-glass border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-border/40">
+                <p className="text-sm font-bold text-foreground">Assignment Authority</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Who can assign tasks to whom</p>
+              </div>
+              <div className="p-4">
+                <AssignmentAuthorityEditor />
+              </div>
+              <div className="px-4 py-3 border-t border-border/40 bg-background/50">
+                <p className="text-[10px] text-muted-foreground">Individual employee overrides can be set in Directory → Edit Employee → Can Assign Tasks To.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'job-codes' && <JobCodesTab />}
 
       </div>
 

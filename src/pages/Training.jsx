@@ -60,7 +60,8 @@ export default function Training() {
 
     return (
       <div className="pb-32 bg-background min-h-screen">
-        <TrainingHeader />
+        <DesktopPageHeader title="Training" subtitle="Your assignments and progress" />
+        <div className="lg:hidden"><TrainingHeader /></div>
         {loading ? (
           <div className="flex items-center justify-center h-48">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -137,22 +138,43 @@ export default function Training() {
   const TabComponent = activeTabData.component;
 
   return (
-    <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
+    <div className="pb-32 bg-background min-h-screen">
       <DesktopPageHeader title="Training" subtitle="Create modules, assign training, track completions" />
       <div className="lg:hidden"><TrainingHeader /></div>
 
-      {/* Tab Navigation */}
-      <div className="sticky top-0 z-20 border-b border-border/30 bg-background/95 backdrop-blur-sm">
-        <div className="px-4 py-3 lg:px-8 max-w-6xl mx-auto w-full">
-          <div className="flex gap-1">
+      {/* Mobile horizontal tab nav */}
+      <div className="lg:hidden sticky top-0 z-20 border-b border-border/30 bg-background/95 backdrop-blur-sm">
+        <div className="px-4 py-3 flex gap-1 overflow-x-auto">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`shrink-0 px-3 py-2 text-sm font-semibold rounded-lg transition-all ${
+                activeTab === tab.id
+                  ? 'glow-active'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content — sidebar nav on desktop, stacked on mobile */}
+      <div className="px-4 py-6 lg:px-8 lg:py-6 max-w-6xl mx-auto w-full lg:flex lg:gap-8 lg:items-start">
+        {/* Desktop vertical tab sidebar */}
+        <div className="hidden lg:block w-44 shrink-0">
+          <div className="sticky top-[152px] space-y-1">
+            <p className="text-[9px] font-extrabold uppercase tracking-[0.14em] px-3 mb-2 text-muted-foreground/50">Views</p>
             {TABS.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-3 py-2 text-sm font-semibold rounded-lg transition-all ${
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   activeTab === tab.id
-                    ? 'bg-primary text-white'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    ? 'bg-primary/15 text-primary border border-primary/25'
+                    : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border border-transparent'
                 }`}
               >
                 {tab.label}
@@ -160,17 +182,17 @@ export default function Training() {
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Tab Content */}
-      <div className="flex-1 px-4 py-6 lg:px-8 max-w-6xl mx-auto w-full">
-        <TabComponent
-          modules={modules}
-          assignments={assignments}
-          completions={completions}
-          certifications={certifications}
-          onRefresh={loadData}
-        />
+        {/* Tab content */}
+        <div className="flex-1 min-w-0">
+          <TabComponent
+            modules={modules}
+            assignments={assignments}
+            completions={completions}
+            certifications={certifications}
+            onRefresh={loadData}
+          />
+        </div>
       </div>
     </div>
   );

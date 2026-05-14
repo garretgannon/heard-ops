@@ -35,7 +35,7 @@ export default function AdminCommandCenter() {
       </div>
 
       {/* Tabs */}
-      <div className="sticky top-0 lg:top-[73px] z-30 bg-background/90 backdrop-blur border-b border-border/20 px-4 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
+      <div className="sticky top-0 lg:top-[112px] z-30 bg-background/90 backdrop-blur border-b border-border/20 px-4 py-2 flex gap-1 overflow-x-auto scrollbar-hide">
         {SECTIONS.map(s => {
           const Icon = s.icon;
           return (

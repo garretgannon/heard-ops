@@ -40,7 +40,7 @@ export default function DirectoryView({ employees, linkedRecords, isAdmin, isFOH
   }
 
   return (
-    <div className="space-y-2">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       {employees.map((employee) => (
         <EmployeeCard
           key={employee.id}

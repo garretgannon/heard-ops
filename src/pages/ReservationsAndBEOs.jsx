@@ -133,8 +133,21 @@ export default function ReservationsAndBEOs() {
   return (
     <div className="pb-28">
       {/* Header */}
-      <DesktopPageHeader title="Reservations & BEOs" subtitle="Events, reservations, and prep impact planning" />
-      <div className="bg-card border-b border-border sticky top-0 z-10">
+      <DesktopPageHeader
+        title="Reservations & BEOs"
+        subtitle="Events, reservations, and prep impact planning"
+        actions={
+          isAdmin && (
+            <button
+              onClick={() => { setShowEventCreate(true); haptics.medium(); }}
+              className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Event
+            </button>
+          )
+        }
+      />
+      <div className="bg-card border-b border-border sticky top-0 lg:top-[112px] z-10">
         <div className="px-4 pt-4 pb-2 lg:hidden">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
@@ -170,7 +183,7 @@ export default function ReservationsAndBEOs() {
         </div>
       </div>
 
-      <div className="px-4 pt-3">
+      <div className="px-4 pt-3 lg:px-8 lg:pt-6">
         {!loading && <OverviewCard reservations={reservations} beos={beos} />}
 
         {loading ? (

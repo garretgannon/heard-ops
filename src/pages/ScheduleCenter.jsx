@@ -13,6 +13,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 
 import ScheduleGrid from '@/components/schedule/ScheduleGrid';
+import DesktopPageHeader from '@/components/DesktopPageHeader';
 import ShiftDetailDrawer from '@/components/schedule/ShiftDetailDrawer';
 import BulkActionToolbar from '@/components/schedule/BulkActionToolbar';
 import WeekSelector from '@/components/schedule/WeekSelector';
@@ -370,8 +371,10 @@ export default function ScheduleCenter() {
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); }}>
 
-      {/* ── Premium Header ── */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border/20">
+      <DesktopPageHeader title="Schedule" subtitle="Staff shifts, assignments, and weekly planning" />
+
+      {/* ── Schedule Header ── */}
+      <div className="sticky top-0 lg:top-[112px] z-30 bg-background/95 backdrop-blur-lg border-b border-border/20">
         <div className={cn('px-4 lg:px-6 space-y-3', isExpanded ? 'py-2' : 'py-4')}>
 
           {/* Header: Title + Week Navigation + Right Actions */}
