@@ -53,7 +53,7 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
       </div>
 
       {menuOpen && (
-        <button onClick={() => { haptics.light(); onArchive(template); setMenuOpen(false); }} className="w-full btn-secondary text-xs py-2 flex items-center justify-center gap-1 text-red-400">
+        <button onClick={() => { haptics.light(); onArchive(template); setMenuOpen(false); }} className="w-full btn-danger text-xs py-2 flex items-center justify-center gap-1">
           <Archive className="h-3 w-3" /> {template.isActive ? 'Archive' : 'Unarchive'}
         </button>
       )}

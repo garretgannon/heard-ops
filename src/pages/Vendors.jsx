@@ -158,7 +158,7 @@ export default function Vendors() {
                           <Mail className="h-3.5 w-3.5" /> Email
                         </a>
                       )}
-                      <button onClick={() => { haptics.light(); setEditingVendor(vendor); setShowForm(true); }} className="flex-1 h-8 rounded-lg bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
+                      <button onClick={() => { haptics.light(); setEditingVendor(vendor); setShowForm(true); }} className="btn-secondary flex-1 h-8 text-xs flex items-center justify-center gap-1">
                         <Edit2 className="h-3.5 w-3.5" /> Edit
                       </button>
                     </div>

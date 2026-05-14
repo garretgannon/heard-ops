@@ -121,169 +121,78 @@ const AuthenticatedApp = () => {
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<Layout />}>
-        {/* Root redirect for logged-in users */}
-        <Route path="/" element={<Navigate to={isAdmin ? "/app/overview" : "/station-shift"} replace />} />
-
-        {/* Dashboard - canonical app overview */}
-        <Route path="/app/overview" element={<AppOverview />} />
-        
-        {/* Legacy dashboard alias */}
-        <Route path="/dashboard" element={<Navigate to="/app/overview" replace />} />
-        <Route path="/station-shift" element={<StaffShift />} />
-        <Route path="/tasks" element={<PermissionGate permission={PERMISSIONS.COMPLETE_TASKS}><StaffTasks /></PermissionGate>} />
-        <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
-        <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
-        <Route path="/comms" element={<PermissionGate permission={PERMISSIONS.VIEW_COMMS}><CommsCenter /></PermissionGate>} />
-        <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
-
-        <Route path="/more" element={<More />} />
-
-        {/* TASK ROUTES - Redirected to Today with filters */}
-        <Route path="/prep-lists" element={<Navigate to="/tasks?tab=prep" replace />} />
-        <Route path="/side-work" element={<Navigate to="/tasks?tab=sidework" replace />} />
-        <Route path="/cleaning" element={<Cleaning />} />
-        <Route path="/cleaning-templates" element={<CleaningTemplates />} />
-        <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
-        <Route path="/my-shifts" element={<MyShifts />} />
-        <Route path="/shift" element={<ManagerShift />} />
-        <Route path="/shift/:id" element={<Shift />} />
-
-        {/* COMPLIANCE ROUTES */}
-        <Route path="/temp-logs" element={<Navigate to="/logs?type=temperature" replace />} />
-        <Route path="/waste-86" element={<Navigate to="/logs?type=waste" replace />} />
-        <Route path="/waste-log" element={<Navigate to="/logs?type=waste" replace />} />
-        <Route path="/bathroom-checks" element={<Navigate to="/logs?type=bathroom" replace />} />
-
-        {/* ADMIN/MANAGER - Approvals */}
-        <Route path="/approvals" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ApprovalInbox /></PermissionGate>} />
-        <Route path="/review-queue" element={<Navigate to="/approvals" replace />} />
-
-        {/* ADMIN ONLY - Template Management */}
-        <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
-        <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
-
-        {/* KNOWLEDGE ROUTES */}
-        <Route path="/knowledge" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
-        <Route path="/search" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
-        <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
-        <Route path="/recipe-bulk-import" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><RecipeBulkImport /></PermissionGate>} />
-
-        <Route path="/recipes-and-build-cards" element={<Navigate to="/recipes" replace />} />
-        <Route path="/reservations" element={<PermissionGate permission={PERMISSIONS.VIEW_BEOS}><ReservationsAndBEOs /></PermissionGate>} />
-        <Route path="/purchased-items" element={<PurchasedItems />} />
-
-        <Route path="/chemical-library" element={<ChemicalLibrary />} />
-        <Route path="/training" element={<PermissionGate permission={PERMISSIONS.VIEW_TRAINING}><Training /></PermissionGate>} />
-        <Route path="/vendors" element={<PermissionGate permission={PERMISSIONS.VIEW_VENDORS}><Vendors /></PermissionGate>} />
-
-        {/* TEMPLATE ROUTES (Admin) */}
-        <Route path="/templates" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
-        <Route path="/templates/new" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
-        <Route path="/templates/:id" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
-        <Route path="/prep-templates" element={<PrepTemplatesManager />} />
-        <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
-        <Route path="/prep-plan-templates" element={<PrepPlanTemplatesManager />} />
-        <Route path="/prep-plan-templates/new" element={<PrepTemplateBuilder />} />
-        <Route path="/prep-plan-templates/:id" element={<PrepTemplateBuilder />} />
-        <Route path="/side-work-templates" element={<SideWorkTemplates />} />
-        <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
-        <Route path="/waste-templates" element={<WasteTemplates />} />
-        <Route path="/waste-templates/:id/edit" element={<WasteTemplates />} />
-        <Route path="/86-templates" element={<EightySixTemplates />} />
-        <Route path="/86-templates/:id/edit" element={<EightySixTemplates />} />
-
-        {/* OPERATIONS (Secondary) */}
-        <Route path="/prep-planning" element={<PrepPlanning />} />
-        <Route path="/prep-count" element={<PrepInventoryCounter />} />
-        <Route path="/prep-count/:id" element={<PrepInventoryCounter />} />
-        <Route path="/prep-plan/:id" element={<PrepPlanReview />} />
-        <Route path="/issues" element={<Navigate to="/logs?type=incident" replace />} />
-        <Route path="/schedule" element={<PermissionGate permission={PERMISSIONS.VIEW_SCHEDULE}><ScheduleCenter /></PermissionGate>} />
-        <Route path="/inventory" element={<PermissionGate permission={PERMISSIONS.VIEW_INVENTORY}><InventorySimplified /></PermissionGate>} />
-        <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
-        <Route path="/station-readiness" element={<PermissionGate permission={PERMISSIONS.VIEW_STATION_READINESS}><StationReadiness /></PermissionGate>} />
-        <Route path="/shift-handoff" element={<ManagerShift />} />
-
-        {/* ADMIN ROUTES (Under /more) */}
-        <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
-        <Route path="/admin/command-center" element={<AdminCommandCenter />} />
-        <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
-        <Route path="/stations" element={<Stations />} />
-        <Route path="/restaurant-layout" element={<RestaurantLayout />} />
-        <Route path="/job-codes" element={<JobCodes />} />
-        <Route path="/operational-map" element={<OperationalMap />} />
-        <Route path="/station/:id" element={<StationPage />} />
-        <Route path="/location-setup" element={<LocationSetup />} />
-        <Route path="/people" element={<PeopleHierarchy />} />
-        <Route path="/setup-journey" element={<SetupJourney />} />
-        <Route path="/automation-rules" element={<AutomationRules />} />
-        <Route path="/sds-library" element={<Navigate to="/chemical-library" replace />} />
-
-        {/* SETTINGS ROUTES */}
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/my-restaurant" element={<MyRestaurant />} />
-        <Route path="/notifications" element={<NotificationSettings />} />
-
-        {/* LEGACY REDIRECTS - All logs → unified system */}
-        <Route path="/ManagerLog" element={<Navigate to="/logs" replace />} />
-        <Route path="/NewLog" element={<Navigate to="/logs" replace />} />
-        <Route path="/MaintenanceRequests" element={<Navigate to="/logs?type=maintenance" replace />} />
-        <Route path="/IncidentReports" element={<Navigate to="/logs?type=incident" replace />} />
-        <Route path="/Incidents" element={<Navigate to="/logs?type=incident" replace />} />
-        <Route path="/IssueTracker" element={<Navigate to="/logs?type=incident" replace />} />
-        <Route path="/BathroomChecks" element={<Navigate to="/logs?type=bathroom" replace />} />
-        <Route path="/TempLogs" element={<Navigate to="/station-readiness" replace />} />
-        <Route path="/TemperatureMonitoring" element={<Navigate to="/station-readiness" replace />} />
-        <Route path="/TemperatureDashboard" element={<Navigate to="/station-readiness" replace />} />
-        <Route path="/WasteLog" element={<Navigate to="/logs?type=waste" replace />} />
-        <Route path="/WasteEntry" element={<Navigate to="/logs?type=waste" replace />} />
-        <Route path="/CleaningLog" element={<Navigate to="/logs?type=cleaning" replace />} />
-        <Route path="/Cleaning" element={<Navigate to="/logs?type=cleaning" replace />} />
-        <Route path="/EightySix" element={<Navigate to="/logs?type=waste" replace />} />
-        <Route path="/Inventory" element={<Navigate to="/inventory" replace />} />
-        <Route path="/InventoryControl" element={<Navigate to="/inventory" replace />} />
-        <Route path="/InventorySimplified" element={<Navigate to="/inventory" replace />} />
-        <Route path="/Recipes" element={<Navigate to="/recipes" replace />} />
-        <Route path="/RecipeBuildCard" element={<Navigate to="/recipes" replace />} />
-        <Route path="/BuildBook" element={<Navigate to="/recipes" replace />} />
-        <Route path="/BarBook" element={<Navigate to="/recipes" replace />} />
-        <Route path="/RecipesAndBuildCards" element={<Navigate to="/recipes" replace />} />
-        <Route path="/Calendar" element={<Navigate to="/schedule" replace />} />
-        <Route path="/EmployeeCalendar" element={<Navigate to="/schedule" replace />} />
-        <Route path="/ScheduleImport" element={<Navigate to="/schedule" replace />} />
-        <Route path="/R365ScheduleImport" element={<Navigate to="/schedule" replace />} />
-        <Route path="/SideWork" element={<Navigate to="/tasks?tab=sidework" replace />} />
-        <Route path="/SideWorkManager" element={<Navigate to="/tasks?tab=sidework" replace />} />
-        <Route path="/SideWorkStaff" element={<Navigate to="/tasks?tab=sidework" replace />} />
-        <Route path="/SideWorkProduction" element={<Navigate to="/tasks?tab=sidework" replace />} />
-        <Route path="/restaurant-team" element={<Navigate to="/team" replace />} />
-        <Route path="/schedule-center" element={<Navigate to="/schedule" replace />} />
-
-        {/* SDS/MSDS REDIRECTS */}
-        <Route path="/MSDS" element={<Navigate to="/chemical-library" replace />} />
-        <Route path="/SDS" element={<Navigate to="/chemical-library" replace />} />
-        <Route path="/safety-data-sheets" element={<Navigate to="/chemical-library" replace />} />
-        <Route path="/chemical-sheets" element={<Navigate to="/chemical-library" replace />} />
-
-        {/* ROUTE ALIASES - keep older buttons and quick actions from dead-ending */}
-        <Route path="/today" element={<Navigate to="/app/overview" replace />} />
-        <Route path="/build-cards" element={<BuildCards />} />
-        <Route path="/standards" element={<Standards />} />
-        <Route path="/schedule-import" element={<ScheduleImport />} />
-        <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
-        <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
-        <Route path="/86-templates/new" element={<EightySixTemplates />} />
-        <Route path="/waste-templates/new" element={<WasteTemplates />} />
-        <Route path="/kitchen-prep" element={<Navigate to="/tasks?tab=prep" replace />} />
-        <Route path="/side-work-production" element={<Navigate to="/tasks?tab=sidework" replace />} />
-        <Route path="/manager-log" element={<Navigate to="/logs?type=manager" replace />} />
-        <Route path="/maintenance" element={<Navigate to="/logs?type=maintenance" replace />} />
-        <Route path="/incidents" element={<Navigate to="/logs?type=incident" replace />} />
-        <Route path="/photo-review" element={<Navigate to="/logs?action=photo" replace />} />
-        <Route path="/pre-shift" element={<Navigate to="/shift" replace />} />
-
-        {/* 404 */}
-        <Route path="/" element={<Navigate to="/app/overview" replace />} />
+          <Route path="/" element={<Navigate to={isAdmin ? "/app/overview" : "/station-shift"} replace />} />
+          <Route path="/app/overview" element={<AppOverview />} />
+          <Route path="/station-shift" element={<StaffShift />} />
+          <Route path="/tasks" element={<PermissionGate permission={PERMISSIONS.COMPLETE_TASKS}><StaffTasks /></PermissionGate>} />
+          <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
+          <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
+          <Route path="/comms" element={<PermissionGate permission={PERMISSIONS.VIEW_COMMS}><CommsCenter /></PermissionGate>} />
+          <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
+          <Route path="/more" element={<More />} />
+          <Route path="/cleaning" element={<Cleaning />} />
+          <Route path="/cleaning-templates" element={<CleaningTemplates />} />
+          <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
+          <Route path="/my-shifts" element={<MyShifts />} />
+          <Route path="/shift" element={<ManagerShift />} />
+          <Route path="/shift/:id" element={<Shift />} />
+          <Route path="/approvals" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ApprovalInbox /></PermissionGate>} />
+          <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
+          <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
+          <Route path="/knowledge" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
+          <Route path="/search" element={<PermissionGate permission={PERMISSIONS.VIEW_KNOWLEDGE}><Knowledge /></PermissionGate>} />
+          <Route path="/recipes" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><Recipes /></PermissionGate>} />
+          <Route path="/recipe-bulk-import" element={<PermissionGate permission={PERMISSIONS.VIEW_RECIPES}><RecipeBulkImport /></PermissionGate>} />
+          <Route path="/reservations" element={<PermissionGate permission={PERMISSIONS.VIEW_BEOS}><ReservationsAndBEOs /></PermissionGate>} />
+          <Route path="/purchased-items" element={<PurchasedItems />} />
+          <Route path="/chemical-library" element={<ChemicalLibrary />} />
+          <Route path="/training" element={<PermissionGate permission={PERMISSIONS.VIEW_TRAINING}><Training /></PermissionGate>} />
+          <Route path="/vendors" element={<PermissionGate permission={PERMISSIONS.VIEW_VENDORS}><Vendors /></PermissionGate>} />
+          <Route path="/templates" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
+          <Route path="/templates/new" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
+          <Route path="/templates/:id" element={<PermissionGate permission={PERMISSIONS.VIEW_TEMPLATES}><TemplateManager /></PermissionGate>} />
+          <Route path="/prep-templates" element={<PrepTemplatesManager />} />
+          <Route path="/prep-templates/:id/edit" element={<PrepTemplatesManager />} />
+          <Route path="/prep-plan-templates" element={<PrepPlanTemplatesManager />} />
+          <Route path="/prep-plan-templates/new" element={<PrepTemplateBuilder />} />
+          <Route path="/prep-plan-templates/:id" element={<PrepTemplateBuilder />} />
+          <Route path="/side-work-templates" element={<SideWorkTemplates />} />
+          <Route path="/side-work-templates/:id/edit" element={<SideWorkTemplates />} />
+          <Route path="/waste-templates" element={<WasteTemplates />} />
+          <Route path="/waste-templates/:id/edit" element={<WasteTemplates />} />
+          <Route path="/waste-templates/new" element={<WasteTemplates />} />
+          <Route path="/86-templates" element={<EightySixTemplates />} />
+          <Route path="/86-templates/:id/edit" element={<EightySixTemplates />} />
+          <Route path="/86-templates/new" element={<EightySixTemplates />} />
+          <Route path="/prep-planning" element={<PrepPlanning />} />
+          <Route path="/prep-count" element={<PrepInventoryCounter />} />
+          <Route path="/prep-count/:id" element={<PrepInventoryCounter />} />
+          <Route path="/prep-plan/:id" element={<PrepPlanReview />} />
+          <Route path="/schedule" element={<PermissionGate permission={PERMISSIONS.VIEW_SCHEDULE}><ScheduleCenter /></PermissionGate>} />
+          <Route path="/inventory" element={<PermissionGate permission={PERMISSIONS.VIEW_INVENTORY}><InventorySimplified /></PermissionGate>} />
+          <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
+          <Route path="/station-readiness" element={<PermissionGate permission={PERMISSIONS.VIEW_STATION_READINESS}><StationReadiness /></PermissionGate>} />
+          <Route path="/shift-handoff" element={<ManagerShift />} />
+          <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
+          <Route path="/admin/command-center" element={<AdminCommandCenter />} />
+          <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />
+          <Route path="/stations" element={<Stations />} />
+          <Route path="/restaurant-layout" element={<RestaurantLayout />} />
+          <Route path="/job-codes" element={<JobCodes />} />
+          <Route path="/operational-map" element={<OperationalMap />} />
+          <Route path="/station/:id" element={<StationPage />} />
+          <Route path="/location-setup" element={<LocationSetup />} />
+          <Route path="/people" element={<PeopleHierarchy />} />
+          <Route path="/setup-journey" element={<SetupJourney />} />
+          <Route path="/automation-rules" element={<AutomationRules />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/my-restaurant" element={<MyRestaurant />} />
+          <Route path="/notifications" element={<NotificationSettings />} />
+          <Route path="/build-cards" element={<BuildCards />} />
+          <Route path="/standards" element={<Standards />} />
+          <Route path="/schedule-import" element={<ScheduleImport />} />
+          <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
+          <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

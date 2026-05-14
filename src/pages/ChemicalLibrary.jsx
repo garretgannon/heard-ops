@@ -322,7 +322,7 @@ export default function ChemicalLibrary() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search chemicals…" className="w-52 pl-9 pr-3 py-2 card-glass border border-border rounded-lg text-xs" />
             </div>
             {isAdmin && (
-              <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5">
+              <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="btn-primary text-xs h-8 px-3 flex items-center gap-1.5">
                 <Plus className="h-3.5 w-3.5" /> Add Chemical
               </button>
             )}

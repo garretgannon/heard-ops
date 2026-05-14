@@ -328,7 +328,7 @@ export default function SetupJourney() {
             <p className="text-sm text-muted-foreground mb-4">Your operational foundation is solid. Time to run your restaurant.</p>
             <button
               onClick={() => navigate('/')}
-              className="w-full h-12 bg-green-500 text-white font-extrabold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              className="w-full h-12 btn-primary flex items-center justify-center gap-2"
             >
               <Rocket className="h-5 w-5" /> Launch Operations
             </button>

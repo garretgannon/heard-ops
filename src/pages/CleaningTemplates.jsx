@@ -69,7 +69,7 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
             onArchive(template);
             setMenuOpen(false);
           }}
-          className="w-full btn-secondary text-xs py-2 flex items-center justify-center gap-1 text-red-400"
+          className="w-full btn-danger text-xs py-2 flex items-center justify-center gap-1"
         >
           <Archive className="h-3 w-3" />
           {template.isActive ? 'Archive' : 'Unarchive'}
