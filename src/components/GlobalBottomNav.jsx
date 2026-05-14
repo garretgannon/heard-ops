@@ -5,6 +5,8 @@ import NavItem from '@/components/nav/NavItem';
 import QuickAddSheet from '@/components/QuickAddSheet';
 import QuickAddPrepModal from '@/components/QuickAddPrepModal';
 import QuickAddTaskModal from '@/components/QuickAddTaskModal';
+import QuickAddWasteModal from '@/components/QuickAddWasteModal';
+import QuickAddEightySixModal from '@/components/QuickAddEightySixModal';
 import QuickActionModal from '@/components/quickactions/QuickActionModal';
 import { usePermissions } from '@/hooks/usePermissions';
 import { bottomNavRoutes } from '@/lib/routeConfig';
@@ -14,7 +16,7 @@ export default function GlobalBottomNav() {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 900);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
-  const [activeModal, setActiveModal] = useState(null); // 'prep' | 'task'
+  const [activeModal, setActiveModal] = useState(null); // 'prep' | 'task' | 'waste' | 'eighty_six'
   const [activeQuickAction, setActiveQuickAction] = useState(null); // legacy template actions
   const { user, isAdmin } = useCurrentUser();
   const { can } = usePermissions();
@@ -86,6 +88,8 @@ export default function GlobalBottomNav() {
         onClose={() => setShowQuickAdd(false)}
         onAction={(id) => {
           if (id === 'prep' || id === 'task') setActiveModal(id);
+          else if (id === 'add_waste') setActiveModal('waste');
+          else if (id === 'add_eighty_six') setActiveModal('eighty_six');
           else setActiveQuickAction(id);
         }}
       />
@@ -98,6 +102,18 @@ export default function GlobalBottomNav() {
 
       <QuickAddTaskModal
         open={activeModal === 'task'}
+        onClose={() => setActiveModal(null)}
+        onSuccess={() => setActiveModal(null)}
+      />
+
+      <QuickAddWasteModal
+        open={activeModal === 'waste'}
+        onClose={() => setActiveModal(null)}
+        onSuccess={() => setActiveModal(null)}
+      />
+
+      <QuickAddEightySixModal
+        open={activeModal === 'eighty_six'}
         onClose={() => setActiveModal(null)}
         onSuccess={() => setActiveModal(null)}
       />

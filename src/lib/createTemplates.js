@@ -217,7 +217,7 @@ export const CREATE_TEMPLATES = {
   },
   waste_log: {
     id: 'waste_log',
-    actionTypes: ['add_waste', 'waste', 'add_eighty_six'],
+    actionTypes: ['add_waste', 'waste'],
     title: 'Waste',
     eyebrow: 'Log',
     entity: 'UnifiedLog',

@@ -71,7 +71,7 @@ function PhotoField({ label, url, onUpload, onClear }) {
   );
 }
 
-const inputCls = "h-10 w-full rounded-xl border border-border/60 bg-card/50 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50";
+const inputCls = "h-11 w-full rounded-xl border border-border/60 bg-card/50 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50";
 
 export default function QuickAddTaskModal({ open, onClose, onSuccess }) {
   const { user } = useCurrentUser();
