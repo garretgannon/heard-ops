@@ -281,7 +281,7 @@ function PrepTaskCard({ task, onUpdateQty, onStart, navigate }) {
         <button
           onClick={() => {
             haptics.medium();
-            task.demo ? navigate("/prep-lists") : onUpdateQty(task);
+            task.demo ? navigate("/tasks?tab=prep") : onUpdateQty(task);
           }}
           className="flex-1 h-11 text-xs font-bold text-primary flex items-center justify-center gap-1.5 active:bg-primary/10 transition-all"
         >
@@ -387,7 +387,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
         </button>
         <div className="w-px bg-border" />
         <button
-          onClick={() => navigate(task._entity === "GeneratedTask" ? "/station-shift" : "/side-work")}
+          onClick={() => navigate(task._entity === "GeneratedTask" ? "/station-shift" : "/tasks?tab=sidework")}
           className="px-4 h-10 text-xs font-bold text-muted-foreground flex items-center gap-1 active:bg-muted/50 transition-all"
         >
           Open <ArrowRight className="h-3 w-3" />

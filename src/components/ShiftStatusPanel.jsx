@@ -28,7 +28,7 @@ export default function ShiftStatusPanel({ prepLists, prepItems, stations }) {
             return (
               <Link
                 key={item.id}
-                to={`/prep-lists?id=${item.prep_list_id}`}
+                to="/tasks?tab=prep"
                 className="flex items-center justify-between px-4 py-2.5 hover:bg-secondary/40 transition-colors group"
               >
                 <div className="flex-1 min-w-0">

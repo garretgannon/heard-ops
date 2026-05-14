@@ -323,7 +323,7 @@ export default function AppOverview() {
     {
       label: 'Finish Pantry prep',
       detail: 'Ranch and pico are due before 11:00 AM',
-      href: '/prep-lists',
+      href: '/tasks?tab=prep',
       icon: Flame,
       statusClass: 'status-info',
     },

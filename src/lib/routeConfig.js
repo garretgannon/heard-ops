@@ -247,7 +247,6 @@ export const allRoutes = {
       roles: ["user", "admin"],
       module: "tasks",
       description: "Side work assignments with role-based views",
-      legacyPaths: ["/SideWork", "/SideWorkManager", "/SideWorkStaff", "/SideWorkProduction"],
     },
     prepLists: {
       path: "/tasks?tab=prep",
@@ -280,7 +279,6 @@ export const allRoutes = {
       roles: ["user", "admin"],
       module: "compliance",
       description: "Temperature, waste, incident logs",
-      legacyPaths: ["/Logs", "/ManagerLog", "/NewLog", "/TempLogs", "/temp-logs", "/IssueTracker", "/MaintenanceRequests", "/IncidentReports", "/Incidents"],
     },
     tempLogTemplates: {
       path: "/temp-log-templates",
@@ -299,7 +297,6 @@ export const allRoutes = {
       roles: ["user", "admin"],
       module: "compliance",
       description: "Log waste, compost, and 86'd items",
-      legacyPaths: ["/waste-log"],
     },
     bathroomChecks: {
       path: "/logs?type=bathroom",
@@ -421,7 +418,6 @@ export const allRoutes = {
       roles: ["user", "admin"],
       module: "knowledge",
       description: "All recipes and build instructions",
-      legacyPaths: ["/Recipes", "/RecipeBuildCard", "/BuildBook", "/BarBook"],
     },
     standards: {
       path: "/standards",
@@ -484,7 +480,6 @@ export const allRoutes = {
       roles: ["admin"],
       module: "operations",
       description: "Staff schedules, imports, and assignments",
-      legacyPaths: ["/ScheduleCenter", "/Calendar", "/EmployeeCalendar", "/ScheduleImport", "/R365ScheduleImport"],
     },
     inventory: {
       path: "/inventory",
@@ -494,7 +489,6 @@ export const allRoutes = {
       roles: ["admin", "user"],
       module: "operations",
       description: "Track stock levels and reorder points",
-      legacyPaths: ["/Inventory", "/InventoryControl", "/InventorySimplified"],
     },
     team: {
       path: "/team",
@@ -555,54 +549,6 @@ export const allRoutes = {
       description: "Alert preferences and settings",
     },
   },
-};
-
-/**
- * LEGACY REDIRECT MAP
- * Maps old routes to their new consolidated homes
- */
-export const legacyRedirects = {
-  "/": "/app/overview",
-  "/Inventory": "/inventory",
-  "/InventoryControl": "/inventory",
-  "/InventorySimplified": "/inventory",
-  "/Recipes": "/recipes",
-  "/RecipeBuildCard": "/recipes",
-  "/BuildBook": "/recipes",
-  "/BarBook": "/recipes",
-  "/RecipesAndBuildCards": "/recipes",
-  "/ManagerLog": "/logs",
-  "/NewLog": "/logs",
-  "/TempLogs": "/station-readiness",
-  "/temp-logs": "/logs?type=temperature",
-  "/MaintenanceRequests": "/logs?type=maintenance",
-  "/IncidentReports": "/logs?type=incident",
-  "/Incidents": "/logs?type=incident",
-  "/IssueTracker": "/logs?type=incident",
-  "/issues": "/logs?type=incident",
-  "/BathroomChecks": "/logs?type=bathroom",
-  "/WasteLog": "/logs?type=waste",
-  "/WasteEntry": "/logs?type=waste",
-  "/CleaningLog": "/logs?type=cleaning",
-  "/Cleaning": "/logs?type=cleaning",
-  "/EightySix": "/logs?type=waste",
-  "/Calendar": "/schedule",
-  "/EmployeeCalendar": "/schedule",
-  "/ScheduleImport": "/schedule",
-  "/R365ScheduleImport": "/schedule",
-  "/SideWork": "/tasks?tab=sidework",
-  "/SideWorkManager": "/tasks?tab=sidework",
-  "/SideWorkStaff": "/tasks?tab=sidework",
-  "/SideWorkProduction": "/tasks?tab=sidework",
-  "/waste-log": "/logs?type=waste",
-  "/MSDS": "/chemical-library",
-  "/SDS": "/chemical-library",
-  "/safety-data-sheets": "/chemical-library",
-  "/chemical-sheets": "/chemical-library",
-  "/today": "/app/overview",
-  "/schedule-center": "/schedule",
-  "/restaurant-team": "/team",
-  "/pre-shift": "/shift",
 };
 
 /**

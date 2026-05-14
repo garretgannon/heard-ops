@@ -13,7 +13,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-cyan-400",
     badge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
     dot: "bg-cyan-500",
-    routePath: "/temp-logs",
+    routePath: "/logs?type=temperature",
   },
   bathroom: {
     label: "Bathroom Check",
@@ -23,7 +23,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-purple-400",
     badge: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     dot: "bg-purple-500",
-    routePath: "/more",
+    routePath: "/logs?type=bathroom",
   },
   maintenance: {
     label: "Maintenance",
@@ -33,7 +33,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-amber-400",
     badge: "bg-amber-400/20 text-amber-300 border-amber-400/30",
     dot: "bg-amber-400",
-    routePath: "/issues",
+    routePath: "/logs?type=maintenance",
   },
   incident: {
     label: "Incident",
@@ -43,7 +43,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-red-400",
     badge: "bg-red-500/20 text-red-300 border-red-500/30",
     dot: "bg-red-500",
-    routePath: "/issues",
+    routePath: "/logs?type=incident",
   },
   employee: {
     label: "Employee Log",
@@ -73,7 +73,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-teal-400",
     badge: "bg-teal-500/20 text-teal-300 border-teal-500/30",
     dot: "bg-teal-500",
-    routePath: "/temp-logs",
+    routePath: "/logs?type=temperature",
   },
   cleaning: {
     label: "Cleaning",
@@ -93,7 +93,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-yellow-500",
     badge: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
     dot: "bg-yellow-600",
-    routePath: "/waste-86",
+    routePath: "/logs?type=waste",
   },
   eighty_six: {
     label: "86'd",
@@ -103,7 +103,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-orange-500",
     badge: "bg-orange-600/20 text-orange-400 border-orange-600/30",
     dot: "bg-orange-600",
-    routePath: "/waste-86",
+    routePath: "/logs?type=waste",
   },
   equipment: {
     label: "Equipment",
@@ -113,7 +113,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-sky-400",
     badge: "bg-sky-500/20 text-sky-300 border-sky-500/30",
     dot: "bg-sky-500",
-    routePath: "/issues",
+    routePath: "/logs?type=incident",
   },
   guest_complaint: {
     label: "Guest Complaint",
@@ -123,7 +123,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-rose-400",
     badge: "bg-rose-500/20 text-rose-300 border-rose-500/30",
     dot: "bg-rose-500",
-    routePath: "/issues",
+    routePath: "/logs?type=incident",
   },
   shift_handoff: {
     label: "Shift Handoff",
@@ -143,7 +143,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-red-400",
     badge: "bg-red-500/20 text-red-300 border-red-500/30",
     dot: "bg-red-500",
-    routePath: "/issues",
+    routePath: "/logs?type=incident",
   },
   prep: {
     label: "Prep",
@@ -153,7 +153,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-violet-400",
     badge: "bg-violet-500/20 text-violet-300 border-violet-500/30",
     dot: "bg-violet-500",
-    routePath: "/prep-lists",
+    routePath: "/tasks?tab=prep",
   },
   side_work: {
     label: "Side Work",
@@ -163,7 +163,7 @@ export const LOG_TYPE_CONFIG = {
     text: "text-pink-400",
     badge: "bg-pink-400/20 text-pink-300 border-pink-400/30",
     dot: "bg-pink-400",
-    routePath: "/side-work",
+    routePath: "/tasks?tab=sidework",
   },
 };
 
