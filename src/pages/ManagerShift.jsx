@@ -887,8 +887,7 @@ export default function ManagerShift() {
         </div>
 
         {/* Stage pipeline */}
-        <div className="mt-3 flex items-center justify-between">
-          <StagePipeline active={activeStage} acknowledged={acknowledged} />
+        <div className="mt-3 flex items-center justify-center">
           <div className="flex gap-1">
             {STAGE_CONFIG.map(stage => (
               <button
@@ -896,11 +895,12 @@ export default function ManagerShift() {
                 type="button"
                 onClick={() => { haptics.light(); setActiveStage(stage.id); }}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-xs font-bold transition-all",
+                  "whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-black transition-all duration-300 border",
                   activeStage === stage.id
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-primary/50 bg-primary/15 text-primary"
+                    : "border-border/40 bg-transparent text-muted-foreground/50 hover:text-foreground hover:border-border/60"
                 )}
+                style={activeStage === stage.id ? { boxShadow: "0 0 12px rgba(230,106,31,0.2)" } : undefined}
               >
                 {stage.label}
               </button>

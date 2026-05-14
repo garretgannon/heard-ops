@@ -1,106 +1,41 @@
-import {
-  AlertTriangle,
-  CalendarPlus,
-  ClipboardCheck,
-  FileText,
-  Thermometer,
-  Trash2,
-  Wrench,
-} from 'lucide-react';
+import { ChefHat, CheckSquare, Wrench, FileText, Trash2, AlertOctagon } from 'lucide-react';
 import BottomSheet from '@/components/BottomSheet';
 import { haptics } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 
-const QUICK_ACTIONS = [
-  {
-    id: 'task',
-    label: 'Task',
-    detail: 'Open task assignment template',
-    icon: ClipboardCheck,
-    actionType: 'add_task',
-    status: 'status-info',
-  },
-  {
-    id: 'manager_note',
-    label: 'Manager Log',
-    detail: 'Open manager log template',
-    icon: FileText,
-    actionType: 'add_manager_note',
-    status: 'status-neutral',
-  },
-  {
-    id: 'reservation',
-    label: 'Reservation / BEO',
-    detail: 'Open event template',
-    icon: CalendarPlus,
-    actionType: 'add_beo',
-    status: 'status-info',
-  },
-  {
-    id: 'waste',
-    label: 'Waste',
-    detail: 'Open waste log template',
-    icon: Trash2,
-    actionType: 'add_waste',
-    status: 'status-warning',
-  },
-  {
-    id: 'maintenance',
-    label: 'Maintenance Issue',
-    detail: 'Open maintenance template',
-    icon: Wrench,
-    actionType: 'report_maintenance',
-    status: 'status-warning',
-  },
-  {
-    id: 'temperature',
-    label: 'Temp Log',
-    detail: 'Open temperature template',
-    icon: Thermometer,
-    actionType: 'log_temperature',
-    status: 'status-info',
-  },
-  {
-    id: 'incident',
-    label: 'Incident',
-    detail: 'Open incident template',
-    icon: AlertTriangle,
-    actionType: 'report_incident',
-    status: 'status-critical',
-  },
+const ACTIONS = [
+  { id: 'prep',                label: 'Add Prep',         icon: ChefHat,       color: 'text-amber-400',  bg: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.22)'  },
+  { id: 'task',                label: 'Add Task',         icon: CheckSquare,   color: 'text-primary',    bg: 'rgba(230,106,31,0.08)',  border: 'rgba(230,106,31,0.22)'  },
+  { id: 'add_manager_note',    label: 'Manager Log',      icon: FileText,      color: 'text-blue-400',   bg: 'rgba(96,165,250,0.08)',  border: 'rgba(96,165,250,0.22)'  },
+  { id: 'report_maintenance',  label: 'Maintenance',      icon: Wrench,        color: 'text-orange-400', bg: 'rgba(251,146,60,0.08)',  border: 'rgba(251,146,60,0.22)'  },
+  { id: 'add_waste',           label: 'Add Waste',        icon: Trash2,        color: 'text-red-400',    bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.22)' },
+  { id: 'add_eighty_six',      label: 'Add 86',           icon: AlertOctagon,  color: 'text-rose-400',   bg: 'rgba(251,113,133,0.08)', border: 'rgba(251,113,133,0.22)' },
 ];
 
 export default function QuickAddSheet({ open, onClose, onAction }) {
-  const handleAction = (action) => {
+  const handleAction = (id) => {
     haptics.medium?.();
     onClose?.();
-    onAction?.(action.actionType);
+    onAction?.(id);
   };
 
   return (
-    <BottomSheet open={open} onClose={onClose} className="bg-background/95 border-border/70">
-      <div className="max-w-full space-y-5 overflow-x-hidden pb-1">
-        <div className="min-w-0">
-          <p className="metric-label">Add</p>
-          <h2 className="mt-1 break-words text-2xl font-black tracking-tight text-foreground">Choose a template</h2>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {QUICK_ACTIONS.map((action) => {
-            const Icon = action.icon;
-            return (
-              <button
-                key={action.id}
-                onClick={() => handleAction(action)}
-                className="group min-h-[104px] min-w-0 rounded-xl border border-border/60 bg-card/70 p-4 text-left transition-all duration-200 active:scale-[0.98] glow-interactive sm:min-h-[116px]"
-              >
-                <div className={`${action.status} status-marker status-marker-lg mb-4`}>
-                  <Icon className="h-5 w-5" />
-                </div>
-                <p className="break-words text-sm font-black tracking-tight text-foreground">{action.label}</p>
-                <p className="mt-1 break-words text-xs leading-snug text-muted-foreground">{action.detail}</p>
-              </button>
-            );
-          })}
+    <BottomSheet open={open} onClose={onClose}>
+      <div className="pb-2">
+        <div className="grid grid-cols-2 gap-2.5">
+          {ACTIONS.map(({ id, label, icon: Icon, color, bg, border }) => (
+            <button
+              key={id}
+              onClick={() => handleAction(id)}
+              className="flex flex-col items-center gap-2.5 rounded-2xl p-4 transition-all active:scale-[0.97]"
+              style={{ background: bg, border: `1px solid ${border}` }}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: bg }}>
+                <Icon className={cn('h-5 w-5', color)} strokeWidth={1.75} />
+              </div>
+              <span className="text-xs font-black tracking-tight text-foreground">{label}</span>
+            </button>
+          ))}
         </div>
       </div>
     </BottomSheet>

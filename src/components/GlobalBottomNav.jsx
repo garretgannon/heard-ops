@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import NavItem from '@/components/nav/NavItem';
 import QuickAddSheet from '@/components/QuickAddSheet';
+import QuickAddPrepModal from '@/components/QuickAddPrepModal';
+import QuickAddTaskModal from '@/components/QuickAddTaskModal';
 import QuickActionModal from '@/components/quickactions/QuickActionModal';
 import { usePermissions } from '@/hooks/usePermissions';
 import { bottomNavRoutes } from '@/lib/routeConfig';
@@ -12,7 +14,8 @@ export default function GlobalBottomNav() {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 900);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
-  const [activeQuickAction, setActiveQuickAction] = useState(null);
+  const [activeModal, setActiveModal] = useState(null); // 'prep' | 'task'
+  const [activeQuickAction, setActiveQuickAction] = useState(null); // legacy template actions
   const { user, isAdmin } = useCurrentUser();
   const { can } = usePermissions();
 
@@ -34,16 +37,13 @@ export default function GlobalBottomNav() {
     .filter(item => !item.perm || can(item.perm))
     .slice(0, 5);
 
-  // Determine active route
   const getActiveId = () => {
     const active = navConfig.find(item => (
       item.activePaths?.some(activePath => (
         activePath === '/' ? pathname === '/' : pathname.startsWith(activePath)
       ))
     ));
-    if (active) return active.id;
-
-    return 'today';
+    return active?.id ?? 'today';
   };
 
   const activeId = getActiveId();
@@ -84,7 +84,22 @@ export default function GlobalBottomNav() {
       <QuickAddSheet
         open={showQuickAdd}
         onClose={() => setShowQuickAdd(false)}
-        onAction={(actionType) => setActiveQuickAction(actionType)}
+        onAction={(id) => {
+          if (id === 'prep' || id === 'task') setActiveModal(id);
+          else setActiveQuickAction(id);
+        }}
+      />
+
+      <QuickAddPrepModal
+        open={activeModal === 'prep'}
+        onClose={() => setActiveModal(null)}
+        onSuccess={() => setActiveModal(null)}
+      />
+
+      <QuickAddTaskModal
+        open={activeModal === 'task'}
+        onClose={() => setActiveModal(null)}
+        onSuccess={() => setActiveModal(null)}
       />
 
       {activeQuickAction && (
