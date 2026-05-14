@@ -32,7 +32,7 @@ export default function MobileModalWrapper({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1100] flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[1100] flex items-end justify-center overflow-x-hidden bg-black/60 backdrop-blur-sm lg:items-center lg:p-6">
       {/* Click overlay to close */}
       <div
         className="absolute inset-0 lg:hidden"
@@ -43,16 +43,16 @@ export default function MobileModalWrapper({
       {/* Modal */}
       <div
         className={cn(
-          'w-full lg:max-w-lg max-h-[90vh] card-glass border border-border rounded-t-2xl lg:rounded-2xl flex flex-col overflow-hidden relative',
+          'relative flex max-h-[90vh] w-full max-w-full flex-col overflow-hidden rounded-t-2xl border border-border card-glass lg:max-w-lg lg:rounded-2xl',
           className
         )}
       >
         {/* Header - Sticky */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border/30 shrink-0">
-          <h2 className="text-lg font-bold text-foreground">{title}</h2>
+        <div className="flex min-w-0 shrink-0 items-center justify-between border-b border-border/30 px-4 py-4">
+          <h2 className="min-w-0 truncate pr-3 text-lg font-bold text-foreground">{title}</h2>
           <button
             onClick={onClose}
-            className="h-11 w-11 rounded-lg hover:bg-secondary flex items-center justify-center active:scale-95 transition-transform"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-transform hover:bg-secondary active:scale-95"
             aria-label="Close modal"
           >
             <X className="h-5 w-5" />
@@ -60,11 +60,11 @@ export default function MobileModalWrapper({
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">{children}</div>
+        <div className="min-w-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto p-4">{children}</div>
 
         {/* Footer - Sticky */}
         {footer && (
-          <div className="flex gap-2 px-4 py-3 border-t border-border/30 shrink-0 pb-[max(12px,env(safe-area-inset-bottom))]">
+          <div className="flex min-w-0 shrink-0 gap-2 border-t border-border/30 px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))] [&>*]:min-w-0">
             {footer}
           </div>
         )}

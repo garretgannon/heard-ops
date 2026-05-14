@@ -78,26 +78,26 @@ export default function QuickAddSheet({ open, onClose, onAction }) {
 
   return (
     <BottomSheet open={open} onClose={onClose} className="bg-background/95 border-border/70">
-      <div className="space-y-5 pb-1">
-        <div>
+      <div className="max-w-full space-y-5 overflow-x-hidden pb-1">
+        <div className="min-w-0">
           <p className="metric-label">Add</p>
-          <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">Choose a template</h2>
+          <h2 className="mt-1 break-words text-2xl font-black tracking-tight text-foreground">Choose a template</h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
               <button
                 key={action.id}
                 onClick={() => handleAction(action)}
-                className="group min-h-[116px] rounded-xl border border-border/60 bg-card/70 p-4 text-left transition-all duration-200 active:scale-[0.98] glow-interactive"
+                className="group min-h-[104px] min-w-0 rounded-xl border border-border/60 bg-card/70 p-4 text-left transition-all duration-200 active:scale-[0.98] glow-interactive sm:min-h-[116px]"
               >
                 <div className={`${action.status} status-marker status-marker-lg mb-4`}>
                   <Icon className="h-5 w-5" />
                 </div>
-                <p className="text-sm font-black tracking-tight text-foreground">{action.label}</p>
-                <p className="mt-1 text-xs leading-snug text-muted-foreground">{action.detail}</p>
+                <p className="break-words text-sm font-black tracking-tight text-foreground">{action.label}</p>
+                <p className="mt-1 break-words text-xs leading-snug text-muted-foreground">{action.detail}</p>
               </button>
             );
           })}

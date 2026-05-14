@@ -20,16 +20,16 @@ function ModalShell({ title, onClose, children, footer }) {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="w-[min(95vw,500px)] sm:max-w-lg bg-card rounded-t-3xl sm:rounded-3xl border border-border flex flex-col max-h-[90vh]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-border bg-card">
-          <h2 className="text-base font-bold">{title}</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center active:scale-95 active:opacity-70">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-x-hidden bg-black/70 sm:items-center" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="flex max-h-[90vh] w-full max-w-[500px] flex-col overflow-hidden rounded-t-3xl border border-border bg-card sm:rounded-3xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="sticky top-0 z-10 flex min-w-0 items-center justify-between border-b border-border bg-card px-5 py-4">
+          <h2 className="min-w-0 truncate pr-3 text-base font-bold">{title}</h2>
+          <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted active:scale-95 active:opacity-70">
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4" data-scrollable>{children}</div>
-        <div className="sticky bottom-0 flex flex-col gap-2 px-5 py-4 border-t border-border bg-card" style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}>{footer}</div>
+        <div className="min-w-0 flex-1 space-y-4 overflow-x-hidden overflow-y-auto px-5 py-4 [&_input]:min-w-0 [&_select]:min-w-0 [&_textarea]:min-w-0" data-scrollable>{children}</div>
+        <div className="sticky bottom-0 flex min-w-0 flex-col gap-2 border-t border-border bg-card px-5 py-4" style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}>{footer}</div>
       </div>
     </div>
   );
@@ -37,14 +37,14 @@ function ModalShell({ title, onClose, children, footer }) {
 
 function Field({ label, children }) {
   return (
-    <div className="space-y-1.5">
+    <div className="min-w-0 space-y-1.5">
       <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{label}</label>
       {children}
     </div>
   );
 }
 
-const inputCls = "w-full px-3 py-2.5 bg-muted border border-border rounded-lg sm:text-sm text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary";
+const inputCls = "w-full min-w-0 max-w-full px-3 py-2.5 bg-muted border border-border rounded-lg sm:text-sm text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary";
 
 /* ── 1. Manager Log ───────────────────────────────────── */
 function ManagerLogModal({ isOpen, onClose, onSuccess }) {
@@ -97,7 +97,7 @@ function ManagerLogModal({ isOpen, onClose, onSuccess }) {
       <Field label="Title *">
         <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="What happened?" className={inputCls} autoFocus />
       </Field>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Shift">
           <select value={shift} onChange={e => setShift(e.target.value)} className={inputCls}>
             <option>AM</option>
@@ -201,7 +201,7 @@ function AddTaskModal({ isOpen, onClose, onSuccess }) {
       <Field label="Task Name *">
         <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="What needs to be done?" className={inputCls} autoFocus />
       </Field>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Type">
           <select value={taskType} onChange={e => setTaskType(e.target.value)} className={inputCls}>
             <option>Side Work</option>
@@ -221,7 +221,7 @@ function AddTaskModal({ isOpen, onClose, onSuccess }) {
           </select>
         </Field>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Station / Role">
           <input type="text" value={station} onChange={e => setStation(e.target.value)} placeholder="e.g., Line, FOH..." className={inputCls} />
         </Field>
@@ -290,7 +290,7 @@ function UpdatePrepModal({ isOpen, onClose, onSuccess }) {
       <Field label="Station">
         <input type="text" value={station} onChange={e => setStation(e.target.value)} placeholder="e.g., Cold Prep, Sauté..." className={inputCls} />
       </Field>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Quantity">
           <input type="text" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="Amount" className={inputCls} />
         </Field>
@@ -372,7 +372,7 @@ function LogWasteModal({ isOpen, onClose, onSuccess }) {
           <option>Other</option>
         </select>
       </Field>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="col-span-2">
           <Field label="Quantity">
             <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="0" min="0" step="0.1" className={inputCls} />
@@ -441,7 +441,7 @@ function ReportIssueModal({ isOpen, onClose, onSuccess }) {
       <Field label="Issue Title *">
         <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Brief description of the issue..." className={inputCls} autoFocus />
       </Field>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Category">
           <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
             <option>Equipment</option>

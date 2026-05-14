@@ -94,7 +94,7 @@ export default function BEOForm({ beo, onSave, onClose }) {
       value={form[field]}
       onChange={e => set(field, e.target.value)}
       placeholder={placeholder}
-      className={`${half ? '' : 'w-full'} px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground`}
+      className={`${half ? '' : 'w-full'} min-w-0 max-w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground`}
     />
   );
 
@@ -104,43 +104,43 @@ export default function BEOForm({ beo, onSave, onClose }) {
       onChange={e => set(field, e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none"
+      className="w-full min-w-0 max-w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none"
     />
   );
 
   return (
-    <div className="fixed inset-0 bg-background z-[1100] flex flex-col">
-      <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
-        <button type="button" onClick={onClose} disabled={saving} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center disabled:opacity-50">
+    <div className="fixed inset-0 z-[1100] flex max-w-full flex-col overflow-x-hidden bg-background">
+      <div className="flex min-w-0 shrink-0 items-center gap-3 border-b border-border bg-card px-4 py-3">
+        <button type="button" onClick={onClose} disabled={saving} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted disabled:opacity-50">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
-        <h2 className="flex-1 text-sm font-extrabold text-foreground">{beo ? 'Edit BEO' : 'New BEO'}</h2>
-        <button type="button" onClick={save} disabled={saving || !form.eventName.trim()} className="btn-primary text-xs px-4 h-8 disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
+        <h2 className="min-w-0 flex-1 truncate text-sm font-extrabold text-foreground">{beo ? 'Edit BEO' : 'New BEO'}</h2>
+        <button type="button" onClick={save} disabled={saving || !form.eventName.trim()} className="btn-primary h-8 shrink-0 px-4 text-xs disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
       </div>
 
       {/* Sub-tabs */}
-      <div className="flex gap-0 overflow-x-auto border-b border-border bg-card shrink-0">
+      <div className="flex max-w-full shrink-0 gap-0 overflow-x-auto border-b border-border bg-card">
         {TABS.map(t => (
           <button key={t} onClick={() => setTab(t)} className={`shrink-0 px-3 py-2 text-xs font-bold border-b-2 transition-all ${tab === t ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>{t}</button>
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-10">
+      <div className="min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto px-4 py-4 pb-10 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
         {tab === 'Details' && (
           <>
             <Input field="eventName" placeholder="Event name *" />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Input field="eventDate" type="date" placeholder="Event date" />
-              <div className="flex gap-1">
+              <div className="grid min-w-0 grid-cols-2 gap-1">
                 <Input field="startTime" type="time" half />
                 <Input field="endTime" type="time" half />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Input field="guestCount" type="number" placeholder="Guest count" />
               <Input field="room" placeholder="Room / area" />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <select value={form.eventType} onChange={e => set('eventType', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
                 {EVENT_TYPES.map(t => <option key={t} value={t} className="capitalize">{t.replace(/-/g, ' ')}</option>)}
               </select>
@@ -153,15 +153,15 @@ export default function BEOForm({ beo, onSave, onClose }) {
             </select>
             <Input field="clientName" placeholder="Client / host name" />
             <Input field="internalEventOwner" placeholder="Internal event owner" />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Input field="eventCaptain" placeholder="Event captain" />
               <Input field="managerOnDuty" placeholder="Manager on duty" />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Input field="serversNeeded" type="number" placeholder="Servers needed" />
               <Input field="bartendersNeeded" type="number" placeholder="Bartenders needed" />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Input field="cooksNeeded" type="number" placeholder="Cooks needed" />
               <Input field="setupStaffNeeded" type="number" placeholder="Setup staff needed" />
             </div>
@@ -175,12 +175,12 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Menu Item
             </button>
             {menuItems.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="card-glass border border-border rounded-xl p-3 space-y-2">
-                <div className="flex gap-2">
+              <div key={idx} className="card-glass max-w-full overflow-hidden rounded-xl border border-border p-3 space-y-2">
+                <div className="flex min-w-0 gap-2">
                   <input value={item.itemName} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, itemName: e.target.value, _dirty:true} : x))} placeholder="Item name *" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <button onClick={() => setMenuItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => setMenuItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
                   <input value={item.course} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, course: e.target.value, _dirty:true} : x))} placeholder="Course" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <input type="number" value={item.quantity} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <input value={item.unit} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty:true} : x))} placeholder="Unit" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
@@ -198,12 +198,12 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Prep Item
             </button>
             {prepItems.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="card-glass border border-border rounded-xl p-3 space-y-2">
-                <div className="flex gap-2">
+              <div key={idx} className="card-glass max-w-full overflow-hidden rounded-xl border border-border p-3 space-y-2">
+                <div className="flex min-w-0 gap-2">
                   <input value={item.prepItem} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, prepItem: e.target.value, _dirty:true} : x))} placeholder="Prep item *" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <button onClick={() => setPrepItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => setPrepItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
                   <input type="number" value={item.quantity} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <input value={item.unit} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty:true} : x))} placeholder="Unit" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <input type="time" value={item.dueTime} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, dueTime: e.target.value, _dirty:true} : x))} className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
@@ -221,10 +221,10 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Timeline Item
             </button>
             {timeline.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="flex gap-2 items-start">
+              <div key={idx} className="flex min-w-0 gap-2 items-start">
                 <input type="time" value={item.time} onChange={e => setTimeline(p => p.map((x,i) => i===idx ? {...x, time: e.target.value, _dirty:true} : x))} className="w-20 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground shrink-0" />
                 <input value={item.label} onChange={e => setTimeline(p => p.map((x,i) => i===idx ? {...x, label: e.target.value, _dirty:true} : x))} placeholder="Label" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                <button onClick={() => setTimeline(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400 mt-1.5"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button onClick={() => setTimeline(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="mt-1.5 shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             ))}
           </>
@@ -237,12 +237,12 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Dietary Restriction
             </button>
             {dietary.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="card-glass border border-border rounded-xl p-3 space-y-2">
-                <div className="flex gap-2">
+              <div key={idx} className="card-glass max-w-full overflow-hidden rounded-xl border border-border p-3 space-y-2">
+                <div className="flex min-w-0 gap-2">
                   <input value={item.guestName} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, guestName: e.target.value} : x))} placeholder="Guest name (optional)" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <button onClick={() => setDietary(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => setDietary(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                   <input value={item.restriction} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, restriction: e.target.value} : x))} placeholder="Restriction *" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <select value={item.severity} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, severity: e.target.value} : x))} className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground">
                     {['preference','intolerance','allergy','life-threatening'].map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
@@ -265,10 +265,10 @@ export default function BEOForm({ beo, onSave, onClose }) {
               <Plus className="h-3.5 w-3.5" /> Add Equipment Need
             </button>
             {equipment.filter(i => !i._deleted).map((item, idx) => (
-              <div key={idx} className="flex gap-2 items-center">
+              <div key={idx} className="flex min-w-0 gap-2 items-center">
                 <input value={item.equipmentName} onChange={e => setEquipment(p => p.map((x,i) => i===idx ? {...x, equipmentName: e.target.value, _dirty:true} : x))} placeholder="Equipment" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
                 <input type="number" value={item.quantity} onChange={e => setEquipment(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="w-14 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                <button onClick={() => setEquipment(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button onClick={() => setEquipment(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             ))}
           </>

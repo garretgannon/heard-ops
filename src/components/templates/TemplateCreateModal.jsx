@@ -6,7 +6,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import MobileModalWrapper from '@/components/MobileModalWrapper';
 import { getCreateTemplate } from '@/lib/createTemplates';
 
-const inputClassName = 'w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary';
+const inputClassName = 'w-full max-w-full min-w-0 px-3 py-2 rounded-lg border border-border bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary';
 
 function formatOptionLabel(value) {
   return String(value)
@@ -270,14 +270,14 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
 
     if (field.type === 'checkbox') {
       return (
-        <label key={field.name} className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-muted/50 min-h-11">
+        <label key={field.name} className="flex min-w-0 cursor-pointer items-center gap-3 rounded-lg p-3 hover:bg-muted/50 min-h-11">
           <input
             type="checkbox"
             checked={Boolean(values[field.name])}
             onChange={(event) => setValue(field.name, event.target.checked)}
             className="w-5 h-5 cursor-pointer"
           />
-          <span className="text-sm text-muted-foreground">{field.label}</span>
+          <span className="min-w-0 text-sm text-muted-foreground">{field.label}</span>
         </label>
       );
     }
@@ -295,7 +295,7 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
       return (
         <div key={field.name}>
           {commonLabel}
-          <div className="rounded-xl border border-border bg-background/80 p-2">
+          <div className="max-w-full overflow-hidden rounded-xl border border-border bg-background/80 p-2">
             <input
               type="text"
               value={selectedRecord ? recordLabel(selectedRecord, field.displayFields) : query}
@@ -306,7 +306,7 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
                 setOpenPicker(field.name);
               }}
               placeholder={field.placeholder || `Search ${field.label.toLowerCase()}`}
-              className="w-full bg-transparent px-2 py-2 text-base text-foreground outline-none placeholder:text-muted-foreground"
+              className="w-full min-w-0 bg-transparent px-2 py-2 text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
             {field.privacyNote && (
               <p className="px-2 pb-2 text-[11px] font-semibold text-muted-foreground">{field.privacyNote}</p>
@@ -318,10 +318,10 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
                     key={record.id}
                     type="button"
                     onClick={() => applyRecordSelection(field, record)}
-                    className="w-full rounded-lg px-2 py-2 text-left hover:bg-muted/60 active:scale-[0.99]"
+                    className="w-full min-w-0 rounded-lg px-2 py-2 text-left hover:bg-muted/60 active:scale-[0.99]"
                   >
-                    <p className="text-sm font-bold text-foreground">{recordLabel(record, field.displayFields)}</p>
-                    <p className="text-xs text-muted-foreground">{recordLabel(record, field.searchFields)}</p>
+                    <p className="break-words text-sm font-bold text-foreground">{recordLabel(record, field.displayFields)}</p>
+                    <p className="break-words text-xs text-muted-foreground">{recordLabel(record, field.searchFields)}</p>
                   </button>
                 )) : (
                   <p className="px-2 py-3 text-sm text-muted-foreground">No linked records found.</p>
@@ -344,7 +344,7 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
       return (
         <div key={field.name}>
           {commonLabel}
-          <div className="rounded-xl border border-border bg-background/80 p-2">
+          <div className="max-w-full overflow-hidden rounded-xl border border-border bg-background/80 p-2">
             <input
               type="text"
               value={query}
@@ -354,16 +354,16 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
                 setOpenPicker(field.name);
               }}
               placeholder={field.placeholder || `Search ${field.label.toLowerCase()}`}
-              className="w-full bg-transparent px-2 py-2 text-base text-foreground outline-none placeholder:text-muted-foreground"
+              className="w-full min-w-0 bg-transparent px-2 py-2 text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
             {selectedRecords.length > 0 && (
-              <div className="flex flex-wrap gap-2 px-2 pb-2">
+              <div className="flex max-w-full flex-wrap gap-2 overflow-hidden px-2 pb-2">
                 {selectedRecords.map(record => (
                   <button
                     key={record.id}
                     type="button"
                     onClick={() => toggleMultiRecord(field, record)}
-                    className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary"
+                    className="max-w-full break-words rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary"
                   >
                     {recordLabel(record, field.displayFields)}
                   </button>
@@ -379,12 +379,12 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
                       key={record.id}
                       type="button"
                       onClick={() => toggleMultiRecord(field, record)}
-                      className="w-full rounded-lg px-2 py-2 text-left hover:bg-muted/60 active:scale-[0.99]"
+                      className="w-full min-w-0 rounded-lg px-2 py-2 text-left hover:bg-muted/60 active:scale-[0.99]"
                     >
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="break-words text-sm font-bold text-foreground">
                         {isSelected ? 'Selected · ' : ''}{recordLabel(record, field.displayFields)}
                       </p>
-                      <p className="text-xs text-muted-foreground">{recordLabel(record, field.searchFields)}</p>
+                      <p className="break-words text-xs text-muted-foreground">{recordLabel(record, field.searchFields)}</p>
                     </button>
                   );
                 }) : (
@@ -418,7 +418,7 @@ export default function TemplateCreateModal({ templateId, actionType, onClose, o
       title={template.title}
       footer={footer}
     >
-      <div className="rounded-xl border border-border/50 bg-muted/20 p-4">
+      <div className="max-w-full overflow-hidden rounded-xl border border-border/50 bg-muted/20 p-4">
         <p className="metric-label">{template.eyebrow}</p>
       </div>
 
