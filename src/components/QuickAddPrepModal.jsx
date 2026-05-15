@@ -75,6 +75,7 @@ const inputCls = "h-11 w-full rounded-xl border border-border/60 bg-card/50 px-3
 export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
   const toast = useToast();
   const [name, setName] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [assignType, setAssignType] = useState('station');
   const [stationId, setStationId] = useState('');
   const [personEmail, setPersonEmail] = useState('');
@@ -85,6 +86,7 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
   const [employees, setEmployees] = useState([]);
   const [prepItems, setPrepItems] = useState([]);
   const [saving, setSaving] = useState(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
@@ -100,8 +102,18 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
   }, [open]);
 
   const reset = () => {
-    setName(''); setAssignType('station'); setStationId('');
+    setName(''); setShowSuggestions(false); setAssignType('station'); setStationId('');
     setPersonEmail(''); setPersonName(''); setRefPhotoUrl(''); setRequireCompletionPhoto(true);
+  };
+
+  const suggestions = name.trim().length > 0
+    ? prepItems.filter(p => p.name?.toLowerCase().includes(name.toLowerCase())).slice(0, 6)
+    : [];
+
+  const selectSuggestion = (val) => {
+    setName(val);
+    setShowSuggestions(false);
+    inputRef.current?.blur();
   };
 
   const handleClose = () => { reset(); onClose?.(); };
@@ -120,6 +132,7 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
         priority: 'medium',
         prep_list_id: 'current',
         quantity: '1',
+        sort_order: -1,
         photo_url: refPhotoUrl || undefined,
         require_completion_photo: requireCompletionPhoto,
       };
@@ -148,19 +161,34 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
       <div className="space-y-4 pb-2">
 
         {/* Prep item name */}
-        <div>
+        <div className="relative">
           <label className="mb-1.5 block text-xs font-bold text-muted-foreground">Prep Item *</label>
           <input
-            list="prep-items-list"
+            ref={inputRef}
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={e => { setName(e.target.value); setShowSuggestions(true); }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             placeholder="Search or type item name…"
             className={inputCls}
             autoFocus
+            autoComplete="off"
           />
-          <datalist id="prep-items-list">
-            {prepItems.map(p => <option key={p.id} value={p.name} />)}
-          </datalist>
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg">
+              {suggestions.map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onMouseDown={() => selectSuggestion(p.name)}
+                  onTouchStart={() => selectSuggestion(p.name)}
+                  className="w-full px-3 py-2.5 text-left text-sm text-foreground hover:bg-muted/60 active:bg-muted border-b border-border/30 last:border-0"
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Assign to: Station or Person */}

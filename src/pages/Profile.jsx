@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Zap, Shield, LogOut, Settings, Trash2, ChevronLeft, ChevronRight, Bell, Users, Lock, Link, Palette, Sliders, Info } from 'lucide-react';
+import { Zap, Shield, LogOut, Settings, Trash2, ChevronLeft, ChevronRight, Bell, Link, Palette, Sliders, Info } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -9,24 +9,6 @@ import { cn } from '@/lib/utils';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const SETTINGS_GROUPS = [
-  {
-    title: 'Users & Roles',
-    icon: Users,
-    description: 'Manage team members, roles, and access levels.',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/15',
-    items: ['Manage Users', 'Roles & Permissions', 'Invite Team Members'],
-    link: '/team',
-  },
-  {
-    title: 'Permissions',
-    icon: Lock,
-    description: 'Configure permissions and access controls for your team.',
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/15',
-    items: ['Permission Policies', 'Location Access', 'Feature Access'],
-    link: '/admin/command-center',
-  },
   {
     title: 'Notifications',
     icon: Bell,

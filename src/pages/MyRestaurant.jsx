@@ -1131,6 +1131,23 @@ export default function MyRestaurant() {
             ))}
           </div>
         </div>
+
+        {/* Team & Access */}
+        <div className="card-glass border border-border/60 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Team & Access</p>
+            <button onClick={() => navigate('/team')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+          </div>
+          <div className="space-y-1.5">
+            {['Staff Directory','Roles & Permissions','Job Codes','Org Chart'].map(k=>(
+              <div key={k} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{k}</span>
+                <span className="text-primary font-bold">→</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => navigate('/team')} className="mt-3 text-[10px] font-bold text-primary hover:underline">Open Team →</button>
+        </div>
       </div>
 
       {/* Mobile Layout */}
@@ -1151,6 +1168,7 @@ export default function MyRestaurant() {
           <div className="space-y-2">
             <SectionCard icon={Settings} title="Departments" description="Kitchen, FOH, Bar, Management..." count={counts.depts} complete={counts.depts > 0} needsSetup={!counts.depts} onClick={() => setModal('departments')} />
             <SectionCard icon={Users} title="Job Codes" description="Cook, server, bartender, manager..." count={counts.jobCodes} complete={counts.jobCodes > 0} needsSetup={!counts.jobCodes} onClick={() => setModal('jobCodes')} />
+            <SectionCard icon={Users} title="Team & Access" description="Staff directory, roles, permissions, org chart" onClick={() => navigate('/team')} />
           </div>
         </div>
 

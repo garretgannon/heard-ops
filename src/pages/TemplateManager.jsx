@@ -153,7 +153,18 @@ export default function TemplateManager() {
 
   return (
     <div className="pb-20 bg-background min-h-screen">
-      <DesktopPageHeader title="Templates" subtitle="Unified operational task templates" />
+      <DesktopPageHeader
+        title="Templates"
+        subtitle="Unified operational task templates"
+        actions={isAdmin && (
+          <button
+            onClick={() => { setSelectedTemplate(null); setActiveModal('create'); }}
+            className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5"
+          >
+            <Plus className="h-3.5 w-3.5" /> New Template
+          </button>
+        )}
+      />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border px-4 py-4">
         <div className="flex items-center justify-between gap-3 mb-4">

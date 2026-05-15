@@ -207,7 +207,26 @@ export default function PurchasedItems() {
 
   return (
     <div className="pb-28">
-      <DesktopPageHeader title="Purchased Items" subtitle="Item master for recipe costing, inventory, vendors, and waste" />
+      <DesktopPageHeader
+        title="Purchased Items"
+        subtitle="Item master for recipe costing, inventory, vendors, and waste"
+        actions={isAdmin && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { setShowImport(true); haptics.medium(); }}
+              className="h-8 px-3 rounded-lg border border-border/60 card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95"
+            >
+              <Upload className="h-3.5 w-3.5 text-primary" /> Import
+            </button>
+            <button
+              onClick={() => { setEditingItem(null); setShowForm(true); haptics.medium(); }}
+              className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Item
+            </button>
+          </div>
+        )}
+      />
       {/* Header */}
       <div className="lg:hidden bg-card border-b border-border sticky top-0 z-10">
         <div className="px-4 pt-4 pb-3">

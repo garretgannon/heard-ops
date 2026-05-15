@@ -142,7 +142,6 @@ export const desktopNavSections = [
       { path: "/automation-rules", label: "Automation", icon: Zap },
       { path: "/reports", label: "Reports", icon: BarChart2, perm: "view_reports" },
       { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-      { path: "/admin/command-center", label: "Roles & Access", icon: ShieldCheck, perm: "manage_settings" },
       { path: "/profile", label: "Settings", icon: Settings },
     ],
   },

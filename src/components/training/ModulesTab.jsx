@@ -1,13 +1,8 @@
-import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Plus, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import ModuleFormModal from './ModuleFormModal';
 
-export default function ModulesTab({ modules, onRefresh }) {
-  const [showForm, setShowForm] = useState(false);
-  const [selectedModule, setSelectedModule] = useState(null);
-
+export default function ModulesTab({ modules, onRefresh, onNewModule, onEditModule }) {
   const handleDelete = async (id) => {
     if (!confirm('Delete this training module?')) return;
     try {
@@ -21,11 +16,11 @@ export default function ModulesTab({ modules, onRefresh }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center lg:hidden">
         <h2 className="text-base font-bold">Training Modules</h2>
         <button
-          onClick={() => { setSelectedModule(null); setShowForm(true); }}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-white font-semibold text-sm hover:brightness-110 transition-all active:scale-95"
+          onClick={() => onNewModule?.()}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg btn-primary text-sm"
         >
           <Plus className="h-4 w-4" /> New Module
         </button>
@@ -61,7 +56,7 @@ export default function ModulesTab({ modules, onRefresh }) {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => { setSelectedModule(mod); setShowForm(true); }}
+                  onClick={() => onEditModule?.(mod)}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-semibold transition-all"
                 >
                   <Edit2 className="h-3.5 w-3.5" /> Edit
@@ -78,13 +73,6 @@ export default function ModulesTab({ modules, onRefresh }) {
         </div>
       )}
 
-      {showForm && (
-        <ModuleFormModal
-          module={selectedModule}
-          onClose={() => { setShowForm(false); setSelectedModule(null); }}
-          onSuccess={() => { setShowForm(false); setSelectedModule(null); onRefresh(); }}
-        />
-      )}
     </div>
   );
 }

@@ -117,7 +117,7 @@ export default function QuickAddTaskModal({ open, onClose, onSuccess }) {
       const payload = {
         title: title.trim(),
         notes: details.trim() || undefined,
-        status: 'pending',
+        status: 'not_started',
         task_type: 'General',
         photo_url: refPhotoUrl || undefined,
         require_completion_photo: requireCompletionPhoto,

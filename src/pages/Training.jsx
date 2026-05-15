@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { BookOpen, CheckCircle2 } from 'lucide-react';
+import { BookOpen, CheckCircle2, Plus } from 'lucide-react';
 import TrainingHeader from '@/components/training/TrainingHeader';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import ModulesTab from '@/components/training/ModulesTab';
 import AssignmentsTab from '@/components/training/AssignmentsTab';
 import CompletionsTab from '@/components/training/CompletionsTab';
 import CertificationsTab from '@/components/training/CertificationsTab';
+import ModuleFormModal from '@/components/training/ModuleFormModal';
 
 const TABS = [
   { id: 'modules', label: 'Modules', component: ModulesTab },
@@ -134,12 +135,28 @@ export default function Training() {
     );
   }
 
+  const [showModuleForm, setShowModuleForm] = useState(false);
+  const [editingModule, setEditingModule] = useState(null);
+
+  const openModuleForm = (mod = null) => { setEditingModule(mod); setShowModuleForm(true); };
+  const closeModuleForm = () => { setShowModuleForm(false); setEditingModule(null); };
+
   const activeTabData = TABS.find(t => t.id === activeTab);
   const TabComponent = activeTabData.component;
 
   return (
     <div className="pb-32 bg-background min-h-screen">
-      <DesktopPageHeader title="Training" subtitle="Create modules, assign training, track completions" />
+      <DesktopPageHeader
+        title="Training"
+        subtitle="Create modules, assign training, track completions"
+        actions={
+          activeTab === 'modules' && (
+            <button onClick={() => openModuleForm()} className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5">
+              <Plus className="h-3.5 w-3.5" /> Module
+            </button>
+          )
+        }
+      />
       <div className="lg:hidden"><TrainingHeader /></div>
 
       {/* Mobile horizontal tab nav */}
@@ -191,9 +208,19 @@ export default function Training() {
             completions={completions}
             certifications={certifications}
             onRefresh={loadData}
+            onNewModule={() => openModuleForm()}
+            onEditModule={(mod) => openModuleForm(mod)}
           />
         </div>
       </div>
+
+      {showModuleForm && (
+        <ModuleFormModal
+          module={editingModule}
+          onClose={closeModuleForm}
+          onSuccess={() => { closeModuleForm(); loadData(); }}
+        />
+      )}
     </div>
   );
 }
