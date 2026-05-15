@@ -145,11 +145,9 @@ export default function Layout() {
         style={{
           paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)",
           height: "calc(72px + env(safe-area-inset-top, 0px))",
-          background: "linear-gradient(180deg, rgba(6, 10, 16, 0.97) 0%, rgba(8, 13, 20, 0.94) 100%)",
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          background: "#000000",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "0 1px 20px rgba(0,0,0,0.5)",
+          boxShadow: "0 1px 20px rgba(0,0,0,0.8)",
         }}
       >
         {isMobile && isSecondary ? (
@@ -193,7 +191,7 @@ export default function Layout() {
               <img
                 src={BRAND_ASSETS.headerLogo}
                 alt="HeardOS"
-                className="h-12 w-auto max-w-[230px] object-contain shrink-0"
+                className="h-10 w-auto max-w-[220px] object-contain shrink-0"
               />
             </div>
             <div className="flex items-center gap-1.5">
@@ -223,7 +221,7 @@ export default function Layout() {
           collapsed ? "w-[60px]" : "w-[220px]"
         )}
         style={{
-          background: 'linear-gradient(180deg, rgba(5,8,14,1) 0%, rgba(4,6,11,1) 100%)',
+          background: 'linear-gradient(180deg, #000000 0%, rgba(4,6,11,1) 40%)',
           borderRight: '1px solid rgba(255,255,255,0.055)',
           boxShadow: '4px 0 32px rgba(0,0,0,0.6), 1px 0 0 rgba(230,106,31,0.04)',
         }}
@@ -244,9 +242,9 @@ export default function Layout() {
             alt="HeardOS"
             className={cn(
               "object-contain shrink-0",
-              collapsed ? "h-8 w-8 rounded-lg" : "h-16 w-full max-w-[200px]"
+              collapsed ? "h-8 w-8 rounded-lg" : "h-14 w-full max-w-[190px]"
             )}
-            style={{ filter: 'drop-shadow(0 0 6px rgba(230,106,31,0.5))' }}
+            style={{}}
           />
           {!collapsed && (
             <div className="mt-1 min-w-0">

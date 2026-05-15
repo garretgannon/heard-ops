@@ -286,13 +286,13 @@ export default function OperationalMap() {
               </button>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
             {[
               { id: 'all', label: 'All stations' },
               { id: 'attention', label: `Needs attention${attentionCount > 0 ? ` (${attentionCount})` : ''}` },
               { id: 'inactive', label: 'Inactive' },
             ].map(({ id, label }) => (
-              <button key={id} type="button" onClick={() => setFilter(id)} className={cn('rounded-full px-3 py-1.5 text-xs font-bold transition-all', filter === id ? 'glow-active' : 'border border-border/50 bg-card/70 text-muted-foreground')}>
+              <button key={id} type="button" onClick={() => setFilter(id)} className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filter === id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>
                 {label}
               </button>
             ))}

@@ -33,7 +33,7 @@ function fmtTime(t) {
   return `${hour}${m ? `:${String(m).padStart(2, '0')}` : ''}${ampm}`;
 }
 
-export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect, onContextMenu, isDragging, conflicts, variant = 'grid' }) {
+export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect, onContextMenu, isDragging, conflicts, variant = 'grid', showEmployee = false }) {
   const role = (shift.role || '').toLowerCase();
   const colors = ROLE_COLORS[role] || DEFAULT_COLOR;
   const startFmt = fmtTime(shift.start_time);
@@ -117,6 +117,13 @@ export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect,
         <div className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[shift.status] || STATUS_DOT.draft)} />
       </div>
 
+      {/* Employee name (shown in station lane view) */}
+      {showEmployee && shift.employee_name && (
+        <p className="text-[10px] font-extrabold text-foreground/80 leading-tight pr-5 truncate">
+          {shift.employee_name}
+        </p>
+      )}
+
       {/* Role - Large & Color-Coded */}
       <p className={cn('text-xs font-extrabold capitalize leading-tight pr-5', colors.text)}>
         {shift.role || '—'}
@@ -129,8 +136,8 @@ export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect,
         </p>
       )}
 
-      {/* Station if set */}
-      {shift.station && (
+      {/* Station if set and not already shown as lane header */}
+      {shift.station && !showEmployee && (
         <p className="text-[9px] text-muted-foreground truncate mt-0.5">{shift.station}</p>
       )}
     </div>

@@ -304,7 +304,7 @@ export default function CommsCenter() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Communications" />
-      <main className="app-page space-y-5 overflow-hidden">
+      <main className="app-page space-y-5">
         <header className="pt-1 lg:hidden">
           <p className="metric-label">Comms</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Communication center</h1>
@@ -317,7 +317,7 @@ export default function CommsCenter() {
 
         <div className="grid min-w-0 max-w-full gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
           <section className="min-w-0 space-y-3">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-1.5 overflow-x-auto pb-1">
               {[
                 ['open', 'Open'],
                 ['unread', 'Need Ack'],
@@ -328,7 +328,7 @@ export default function CommsCenter() {
                   key={id}
                   type="button"
                   onClick={() => setFilter(id)}
-                  className={cn('shrink-0 rounded-full px-5 py-2 text-xs font-black uppercase tracking-[0.12em]', filter === id ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground')}
+                  className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filter === id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}
                 >
                   {label}
                 </button>

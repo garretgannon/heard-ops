@@ -213,7 +213,7 @@ export default function TemplateManager() {
         </div>
 
         {/* Type Filter Chips */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
           <FilterChip label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
           {TEMPLATE_TYPES.map(t => (
             <FilterChip key={t.id} label={t.label} active={filter === t.id} onClick={() => setFilter(t.id)} />
@@ -345,8 +345,8 @@ function FilterChip({ label, active, onClick }) {
   return (
     <button onClick={onClick}
       className={cn(
-        'px-3 py-1.5 rounded-lg whitespace-nowrap text-xs font-bold transition-all',
-        active ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+        'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
+        active ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
       )}>
       {label}
     </button>

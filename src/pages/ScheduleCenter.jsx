@@ -38,6 +38,7 @@ export default function ScheduleCenter() {
   const [viewMode, setViewMode] = useState('weekly');
   const [shifts, setShifts] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [stationsList, setStationsList] = useState([]);
   const [timeOffRequests, setTimeOffRequests] = useState([]);
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,15 +80,30 @@ export default function ScheduleCenter() {
     };
 
     try {
-      const [shiftsData, rawEmployees, timeOff, avail] = await Promise.all([
+      const [shiftsData, rawEmployees, timeOff, avail, stationsData] = await Promise.all([
         safeList('StaffShift', '-created_date', 500),
         safeList('Employee', '-created_date', 200),
         safeList('TimeOffRequest', '-created_date', 200),
         safeList('EmployeeAvailability'),
+        safeList('Station', 'name', 200),
       ]);
       const safeShifts = Array.isArray(shiftsData) ? shiftsData : [];
       const safeEmployees = Array.isArray(rawEmployees) ? rawEmployees : [];
-      setShifts(safeShifts);
+      const safeStations = Array.isArray(stationsData) ? stationsData : [];
+
+      // Build id→name map so old shifts that stored a station ID display correctly.
+      // New shifts store the name directly; this is a no-op for those records.
+      const stationIdToName = safeStations.reduce((acc, s) => {
+        if (s.id && s.name) acc[s.id] = s.name;
+        return acc;
+      }, {});
+      const resolvedShifts = safeShifts.map(s => ({
+        ...s,
+        station: (s.station && stationIdToName[s.station]) ? stationIdToName[s.station] : s.station,
+      }));
+
+      setShifts(resolvedShifts);
+      setStationsList(safeStations);
       setTimeOffRequests(Array.isArray(timeOff) ? timeOff : []);
       setAvailability(Array.isArray(avail) ? avail : []);
       const normalized = safeEmployees.map(e => ({
@@ -472,11 +488,11 @@ export default function ScheduleCenter() {
                 <div className="relative">
                   <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <Grid3x3 className="h-3 w-3" />
-                    <span>Group by {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Department' : 'Role'}</span>
+                    <span>Group: {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Dept' : groupBy === 'station' ? 'Station' : 'Role'}</span>
                   </button>
                   {showGroupPanel && (
                     <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
-                      {[['employee','Employee'],['department','Department'],['role','Role']].map(([val, label]) => (
+                      {[['employee','Employee'],['station','Station Lane'],['role','Role'],['department','Department']].map(([val, label]) => (
                         <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }} className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors', groupBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
                           {groupBy === val && <Check className="h-3 w-3" />}
                           {label}
@@ -577,6 +593,7 @@ export default function ScheduleCenter() {
           isMobile={isMobile}
           groupBy={groupBy}
           isExpanded={isExpanded}
+          stationsList={stationsList}
         />}
       </div>
 

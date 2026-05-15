@@ -37,17 +37,17 @@ export default function LogsCompactFilterBar({ search, onSearch, activeFilter, o
       </div>
 
       {/* Quick Filter Chips - Internal Scroll Only */}
-      <div className="px-4 py-2 overflow-x-auto overflow-y-hidden scrollbar-hide w-full box-border" style={{ overscrollBehavior: 'contain' }}>
-        <div className="flex gap-2 w-max">
+      <div className="px-4 py-2 overflow-x-auto scrollbar-hide" style={{ overscrollBehavior: 'contain' }}>
+        <div className="flex gap-1.5">
           {QUICK_FILTERS.map((filter) => (
             <button
               key={filter.id}
               onClick={() => { haptics.light?.(); onFilterChange(filter.id); }}
               className={cn(
-                'flex-shrink-0 h-8 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
+                'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
                 activeFilter === filter.id
                   ? 'glow-active'
-                  : 'card-glass border border-border/40 text-muted-foreground hover:border-border/60 hover:bg-muted/20'
+                  : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
               )}
             >
               {filter.label}

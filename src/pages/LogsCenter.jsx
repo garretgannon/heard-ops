@@ -166,9 +166,9 @@ export default function LogsCenter() {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden pb-40 lg:pb-0">
+    <div className="flex h-screen bg-background lg:overflow-hidden pb-40 lg:pb-0">
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col lg:overflow-hidden">
         {/* Desktop page header — inline (no sticky) since parent is overflow-hidden flex column */}
         <div
           className="hidden lg:flex items-center justify-between shrink-0 -mx-8 px-8 h-10"

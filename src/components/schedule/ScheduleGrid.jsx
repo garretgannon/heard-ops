@@ -2,7 +2,127 @@ import { format, isSameDay, parseISO, isToday, getDay } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ShiftBlock from './ShiftBlock';
 import { cn } from '@/lib/utils';
-import { Plus } from 'lucide-react';
+import { Plus, MapPin, Users } from 'lucide-react';
+
+// ─── Station Lane View ────────────────────────────────────────────────────────
+// Read-only view grouping shifts by station. No drag/drop for safety.
+
+function StationLaneGrid({ shifts, stationsList, weekDays, selectedShiftIds, onSelectShift, shiftConflicts, isExpanded }) {
+  // Collect unique station names from shifts + from Station entity list
+  const entityStations = (stationsList || []).map(s => s.name).filter(Boolean);
+  const shiftStations = [...new Set(shifts.map(s => s.station).filter(Boolean))];
+  const allStationNames = [...new Set([...entityStations, ...shiftStations])];
+
+  // Shifts with no station
+  const unassignedShifts = shifts.filter(s => !s.station);
+
+  const stationsToShow = [
+    ...allStationNames,
+    ...(unassignedShifts.length > 0 ? ['__unassigned__'] : []),
+  ];
+
+  if (stationsToShow.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
+        <MapPin className="h-8 w-8 text-muted-foreground/30" />
+        <p className="text-sm text-muted-foreground">No stations configured yet.</p>
+        <p className="text-xs text-muted-foreground/60">Add stations in Stations settings, then assign shifts to them.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('bg-card overflow-hidden', isExpanded ? 'rounded-none border-none' : 'rounded-xl border border-border/40 shadow-sm')}>
+      <div className={cn('overflow-auto', isExpanded ? 'max-h-[calc(100vh-52px)]' : 'max-h-[calc(100vh-300px)]')}>
+        <div className="min-w-[860px]">
+          {/* Header */}
+          <div className="grid sticky top-0 z-20 border-b border-border/50 bg-card/95 backdrop-blur-sm" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+            <div className="px-3 py-2.5 border-r border-border/30 sticky left-0 z-30 bg-card/95 flex items-center gap-1.5">
+              <MapPin className="h-3 w-3 text-primary" />
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Station</p>
+            </div>
+            {weekDays.map((day, idx) => {
+              const today = isToday(day);
+              return (
+                <div key={idx} className={cn('py-2 px-1.5 text-center border-l border-border/30 relative', today ? 'bg-primary/8' : 'bg-card/95')}>
+                  {today && <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />}
+                  <p className={cn('text-[9px] font-bold uppercase tracking-widest', today ? 'text-primary' : 'text-muted-foreground')}>{format(day, 'EEE')}</p>
+                  <p className={cn('text-xs font-extrabold mt-0.5', today ? 'text-primary' : 'text-foreground')}>{format(day, 'd')}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Station rows */}
+          {stationsToShow.map((stationName, rowIdx) => {
+            const isUnassigned = stationName === '__unassigned__';
+            const rowShifts = isUnassigned
+              ? unassignedShifts
+              : shifts.filter(s => s.station === stationName);
+
+            const totalCoverage = rowShifts.filter(s => s.employee_email || s.employee_name).length;
+
+            return (
+              <div
+                key={stationName}
+                className={cn('grid border-t border-border/20', rowIdx % 2 === 0 ? 'bg-background/50' : 'bg-background/30')}
+                style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}
+              >
+                {/* Station label cell */}
+                <div className="flex items-center gap-2 px-3 py-2 border-r border-border/30 sticky left-0 z-10 bg-inherit">
+                  <div className={cn(
+                    'h-2 w-2 rounded-full shrink-0',
+                    totalCoverage > 0 ? 'bg-green-400' : 'bg-muted-foreground/30'
+                  )} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-foreground truncate leading-tight">
+                      {isUnassigned ? 'No Station' : stationName}
+                    </p>
+                    {rowShifts.length > 0 && (
+                      <p className="text-[9px] text-muted-foreground/60 flex items-center gap-0.5 mt-0.5">
+                        <Users className="h-2.5 w-2.5" /> {rowShifts.length}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Day cells */}
+                {weekDays.map((day, dayIdx) => {
+                  const today = isToday(day);
+                  const dayShifts = rowShifts.filter(s => {
+                    try { return isSameDay(parseISO(s.date), day); } catch { return false; }
+                  });
+                  return (
+                    <div
+                      key={dayIdx}
+                      className={cn(
+                        'min-h-[56px] px-1 py-1 border-l border-border/20',
+                        today && 'bg-primary/6 border-l-primary/30',
+                      )}
+                    >
+                      {dayShifts.map(shift => (
+                        <ShiftBlock
+                          key={shift.id}
+                          shift={shift}
+                          isSelected={selectedShiftIds.includes(shift.id)}
+                          onSelect={() => onSelectShift(shift)}
+                          conflicts={shiftConflicts?.[shift.id]}
+                          showEmployee
+                        />
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Grid ────────────────────────────────────────────────────────────────
 
 export default function ScheduleGrid({
   shifts, employees, weekDays,
@@ -10,6 +130,7 @@ export default function ScheduleGrid({
   shiftConflicts, timeOffRequests, availability,
   onDragEnd, onAddShift, onShiftContextMenu, onEmptyCellContextMenu,
   isMobile, groupBy = 'employee', isExpanded = false,
+  stationsList = [],
 }) {
   if (isMobile) {
     return (
@@ -110,6 +231,21 @@ export default function ScheduleGrid({
         isEven={i % 2 === 0}
       />
     ));
+
+  // Station lane view — non-draggable, read-optimized
+  if (groupBy === 'station') {
+    return (
+      <StationLaneGrid
+        shifts={shifts}
+        stationsList={stationsList}
+        weekDays={weekDays}
+        selectedShiftIds={selectedShiftIds}
+        onSelectShift={onSelectShift}
+        shiftConflicts={shiftConflicts}
+        isExpanded={isExpanded}
+      />
+    );
+  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>

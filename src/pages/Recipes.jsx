@@ -12,9 +12,19 @@ import {
 } from 'lucide-react';
 import RecipeCosting from '@/components/recipes/RecipeCosting';
 
-const CATEGORIES = ['all','prep','sauce','protein','pantry','bakery','bar','dessert','archived'];
-const STATIONS = ['Grill','Fry','Pantry','Prep','Bakery','Bar','Expo'];
+const DEFAULT_CATEGORIES = ['prep','sauce','protein','pantry','bakery','bar','dessert','other'];
 const ALLERGEN_LIST = ['Gluten','Dairy','Egg','Soy','Shellfish','Nuts','Peanuts'];
+
+async function loadCategories() {
+  const results = await base44.entities.Settings.filter({ key: 'recipe_categories' }).catch(() => []);
+  if (results[0]?.value) { try { return JSON.parse(results[0].value); } catch {} }
+  return DEFAULT_CATEGORIES;
+}
+async function saveCategories(cats) {
+  const results = await base44.entities.Settings.filter({ key: 'recipe_categories' }).catch(() => []);
+  if (results[0]) { await base44.entities.Settings.update(results[0].id, { value: JSON.stringify(cats) }); }
+  else { await base44.entities.Settings.create({ key: 'recipe_categories', value: JSON.stringify(cats) }); }
+}
 const DIETARY_FLAGS = ['Vegetarian','Vegan','Spicy','GF'];
 const UNITS = ['oz','lb','cup','qt','gal','each','bunch','tsp','tbsp','fl oz','g','kg','L','mL','slice','bag','case'];
 
@@ -516,6 +526,48 @@ function RecipeForm({ recipe, onSave, onClose }) {
   const [linkSearch, setLinkSearch] = useState('');
   const [purchasedItemsList, setPurchasedItemsList] = useState([]);
   const [allRecipesList, setAllRecipesList] = useState([]);
+  const [formCategories, setFormCategories] = useState(DEFAULT_CATEGORIES);
+  const [formStations, setFormStations] = useState([]);
+  const [showCatManager, setShowCatManager] = useState(false);
+  const [newCatInput, setNewCatInput] = useState('');
+  const [editingCat, setEditingCat] = useState(null);
+
+  useEffect(() => {
+    Promise.all([
+      loadCategories(),
+      base44.entities.Station.list('sortOrder', 100).catch(() => []),
+    ]).then(([cats, stns]) => {
+      setFormCategories(cats);
+      setFormStations(stns.filter(s => s.isActive !== false));
+    });
+  }, []);
+
+  const addCategory = async () => {
+    const name = newCatInput.trim().toLowerCase();
+    if (!name || formCategories.includes(name)) return;
+    const updated = [...formCategories, name];
+    setFormCategories(updated);
+    setNewCatInput('');
+    await saveCategories(updated);
+  };
+
+  const deleteCategory = async (cat) => {
+    const updated = formCategories.filter(c => c !== cat);
+    setFormCategories(updated);
+    if (form.category === cat) set('category', '');
+    await saveCategories(updated);
+  };
+
+  const renameCategory = async () => {
+    if (!editingCat) return;
+    const newName = editingCat.value.trim().toLowerCase();
+    if (!newName || (newName !== editingCat.original && formCategories.includes(newName))) { setEditingCat(null); return; }
+    const updated = formCategories.map(c => c === editingCat.original ? newName : c);
+    setFormCategories(updated);
+    if (form.category === editingCat.original) set('category', newName);
+    setEditingCat(null);
+    await saveCategories(updated);
+  };
 
   const handlePhotoUpload = async (file) => {
     if (!file) return;
@@ -753,21 +805,21 @@ function RecipeForm({ recipe, onSave, onClose }) {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Category</label>
-                    <input
-                      list="recipe-categories"
-                      value={form.category}
-                      onChange={e => set('category', e.target.value)}
-                      placeholder="Type or pick…"
-                      className={fieldCls}
-                    />
-                    <datalist id="recipe-categories">
-                      {['prep','sauce','protein','pantry','bakery','bar','dessert','other'].map(c => <option key={c} value={c} />)}
-                    </datalist>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-bold text-muted-foreground">Category</label>
+                      <button type="button" onClick={() => setShowCatManager(true)} className="text-[10px] font-bold text-primary hover:text-primary/80 transition-colors">Manage</button>
+                    </div>
+                    <select value={form.category} onChange={e => set('category', e.target.value)} className={fieldCls}>
+                      <option value="">— Select —</option>
+                      {formCategories.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                    </select>
                   </div>
                   <div>
                     <label className={labelCls}>Station</label>
-                    <input value={form.station} onChange={e => set('station', e.target.value)} placeholder="Grill" className={fieldCls} />
+                    <select value={form.station} onChange={e => set('station', e.target.value)} className={fieldCls}>
+                      <option value="">— None —</option>
+                      {formStations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                    </select>
                   </div>
                 </div>
                 <div>
@@ -1139,6 +1191,55 @@ function RecipeForm({ recipe, onSave, onClose }) {
           </div>
         </div>
       </div>
+
+      {/* Category Manager */}
+      {showCatManager && (
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-end sm:items-center justify-center p-4">
+          <div className="w-full max-w-sm bg-card rounded-2xl border border-border overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="font-bold text-foreground text-sm">Manage Categories</h3>
+              <button onClick={() => { setShowCatManager(false); setEditingCat(null); }} className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center">
+                <X className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
+              {formCategories.map(cat => (
+                <div key={cat} className="flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-2">
+                  {editingCat?.original === cat ? (
+                    <input
+                      autoFocus
+                      value={editingCat.value}
+                      onChange={e => setEditingCat(p => ({ ...p, value: e.target.value }))}
+                      onBlur={renameCategory}
+                      onKeyDown={e => { if (e.key === 'Enter') renameCategory(); if (e.key === 'Escape') setEditingCat(null); }}
+                      className="flex-1 px-2 py-0.5 bg-background border border-primary/40 rounded text-sm text-foreground focus:outline-none"
+                    />
+                  ) : (
+                    <span className="flex-1 text-sm font-semibold text-foreground capitalize cursor-text" onClick={() => setEditingCat({ original: cat, value: cat })}>{cat}</span>
+                  )}
+                  <button onClick={() => deleteCategory(cat)} className="h-5 w-5 rounded flex items-center justify-center text-muted-foreground hover:text-red-400 shrink-0">
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              {formCategories.length === 0 && <p className="text-xs text-muted-foreground text-center py-4">No categories yet</p>}
+            </div>
+            <div className="px-4 pb-4 pt-3 border-t border-border/50">
+              <p className="text-[10px] text-muted-foreground mb-2">Click a name to rename it.</p>
+              <div className="flex gap-2">
+                <input
+                  value={newCatInput}
+                  onChange={e => setNewCatInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addCategory()}
+                  placeholder="New category name…"
+                  className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                />
+                <button onClick={addCategory} className="btn-primary px-3 h-9 text-sm">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1154,11 +1255,19 @@ export default function Recipes() {
   const [selected, setSelected] = useState(null);
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [stationsList, setStationsList] = useState([]);
 
   const load = async () => {
     setLoading(true);
-    const data = await base44.entities.Recipe.list('-updated_date', 200).catch(() => []);
+    const [data, cats, stns] = await Promise.all([
+      base44.entities.Recipe.list('-updated_date', 200).catch(() => []),
+      loadCategories(),
+      base44.entities.Station.list('sortOrder', 100).catch(() => []),
+    ]);
     setRecipes(data);
+    setCategories(cats);
+    setStationsList(stns.filter(s => s.isActive !== false));
     setLoading(false);
   };
 
@@ -1234,7 +1343,7 @@ export default function Recipes() {
           <div>
             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">CATEGORY</p>
             <div className="space-y-0.5">
-              {['all', 'prep', 'sauce', 'protein', 'pantry'].map(c => {
+              {['all', ...categories].map(c => {
                 const count = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.category === c && r.status !== 'archived').length;
                 return (
                   <button key={c} onClick={() => setFilterCat(c)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === c ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
@@ -1250,12 +1359,12 @@ export default function Recipes() {
           <div>
             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">STATION</p>
             <div className="space-y-0.5">
-              {['Grill', 'Prep', 'Pantry', 'Bakery', 'Bar'].map(s => {
-                const count = recipes.filter(r => r.station === s && r.status !== 'archived').length;
+              {stationsList.map(s => {
+                const count = recipes.filter(r => r.station === s.name && r.status !== 'archived').length;
                 return (
-                  <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterStation === s ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
-                    <span>{s}</span>
-                    <span className={`text-[9px] font-bold ${filterStation === s ? 'text-primary/60' : 'text-muted-foreground'}`}>{count}</span>
+                  <button key={s.id} onClick={() => setFilterStation(filterStation === s.name ? '' : s.name)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterStation === s.name ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                    <span>{s.name}</span>
+                    <span className={`text-[9px] font-bold ${filterStation === s.name ? 'text-primary/60' : 'text-muted-foreground'}`}>{count}</span>
                   </button>
                 );
               })}
@@ -1320,15 +1429,15 @@ export default function Recipes() {
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
-            {CATEGORIES.map(c => (
+            {['all', ...categories, 'archived'].map(c => (
               <button key={c} onClick={() => setFilterCat(c)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${filterCat === c ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{c}</button>
             ))}
           </div>
         </div>
         <div className="flex gap-1.5 overflow-x-auto px-4 pb-2.5">
-          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
-          {STATIONS.map(s => (
-            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s}</button>
+          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
+          {stationsList.map(s => (
+            <button key={s.id} onClick={() => setFilterStation(filterStation === s.name ? '' : s.name)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s.name ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s.name}</button>
           ))}
         </div>
       </div>

@@ -127,7 +127,7 @@ export default function TemperatureLogTemplates() {
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Temperature Log Templates</h1>
 
         {/* Category filter tabs */}
-        <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
+        <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1">
           {[['', 'All'], ['cooling-log', '❄ Cooling'], ['refrigerator-freezer', '🧊 Fridge / Freezer'], ['hot-holding', '🔥 Hot Holding']].map(([val, label]) => (
             <button key={val} onClick={() => setFilterCategory(val)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterCategory === val ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{label}</button>
           ))}

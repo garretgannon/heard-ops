@@ -89,12 +89,12 @@ export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh }) 
             className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
           />
         </div>
-        <div className="flex gap-1 overflow-x-auto pb-0.5">
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
           {['all','tentative','confirmed','in-production','ready','completed'].map(s => (
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
-              className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full capitalize transition-all ${filterStatus === s ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${filterStatus === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}
             >
               {s.replace(/-/g, ' ')}
             </button>

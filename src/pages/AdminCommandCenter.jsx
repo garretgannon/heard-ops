@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { Settings, Eye, Shield, Users } from 'lucide-react';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
@@ -42,11 +43,7 @@ export default function AdminCommandCenter() {
             <button
               key={s.id}
               onClick={() => setActive(s.id)}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                active === s.id
-                  ? 'bg-primary/15 text-primary border border-primary/30'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+              className={cn('flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all', active === s.id ? 'glow-active' : 'text-muted-foreground glow-interactive')}
             >
               <Icon className="h-3.5 w-3.5" />
               {s.label}

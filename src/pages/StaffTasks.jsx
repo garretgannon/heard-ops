@@ -915,23 +915,21 @@ export default function StaffTasks() {
         )}
 
         {/* Filter chips */}
-        <div className="max-w-full overflow-x-auto pb-1 scrollbar-hide">
-          <div className="flex w-max gap-1.5">
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
             {FILTERS.map(f => (
               <button
                 key={f.id}
                 onClick={() => { haptics.light(); setFilter(f.id); }}
                 className={cn(
-                  "h-8 flex-shrink-0 whitespace-nowrap rounded-full border px-3 text-xs font-bold transition-all active:scale-95",
+                  "flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200",
                   filter === f.id
-                    ? "bg-primary/15 text-primary border-primary/30"
-                    : "bg-card border-border text-muted-foreground hover:bg-muted"
+                    ? "glow-active"
+                    : "card-glass border border-border/40 text-muted-foreground glow-interactive"
                 )}
               >
                 {f.label}
               </button>
             ))}
-          </div>
         </div>
 
         {/* Task groups */}

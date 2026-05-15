@@ -23,10 +23,10 @@ export default function LogFilterChips({ activeFilter, onFilterChange }) {
             key={id}
             onClick={() => { haptics.light?.(); onFilterChange?.(id); }}
             className={cn(
-              'flex items-center gap-1 px-2.5 py-1 rounded-full border font-semibold text-xs whitespace-nowrap transition-all active:scale-95',
+              'flex-shrink-0 h-7 flex items-center gap-1 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
               activeFilter === id
-                ? 'glow-active border-transparent'
-                : 'border-border/40 bg-card text-muted-foreground hover:border-border/60'
+                ? 'glow-active'
+                : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
             )}
           >
             <span className="text-sm">{icon}</span>

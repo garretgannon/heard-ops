@@ -163,17 +163,23 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
             <select value={form.area} onChange={e => setForm(f => ({...f, area: e.target.value}))}
               className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
               <option value="">Select area…</option>
-              {areas.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+              {areas.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
             </select>
           </div>
 
           {/* Station */}
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Station</label>
-            <select value={form.station} onChange={e => setForm(f => ({...f, station: e.target.value}))}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select
+              value={form.station}
+              onChange={e => {
+                const s = stations.find(st => st.name === e.target.value);
+                setForm(f => ({ ...f, station: e.target.value, station_id: s?.id || '' }));
+              }}
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+            >
               <option value="">Select station…</option>
-              {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
             </select>
           </div>
 

@@ -110,12 +110,12 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }
   return (
     <div className="space-y-4">
       {/* Group by filter */}
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5">
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
         {['event','station','date'].map(g => (
           <button
             key={g}
             onClick={() => setGroupBy(g)}
-            className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full capitalize transition-all ${groupBy === g ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+            className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${groupBy === g ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}
           >
             By {g}
           </button>

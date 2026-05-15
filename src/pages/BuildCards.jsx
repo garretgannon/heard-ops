@@ -574,9 +574,9 @@ export default function BuildCards() {
         </div>
 
         <div className="flex gap-1.5 overflow-x-auto px-4 pb-2.5">
-          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
+          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
           {STATIONS.map(s => (
-            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`flex-shrink-0 h-7 px-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s}</button>
+            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s}</button>
           ))}
         </div>
       </div>

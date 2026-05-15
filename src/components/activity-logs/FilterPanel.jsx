@@ -107,10 +107,10 @@ function MultiChip({ options, selected, onChange, colorFn }) {
             isActive ? selected.filter(s => s !== opt.id) : [...selected, opt.id]
           )}
             className={cn(
-              "h-6 px-2 rounded-full text-[10px] font-bold border transition-all",
+              "h-7 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200",
               isActive
-                ? (colorFn?.(opt.id) || "bg-primary/20 text-primary border-primary/40")
-                : "bg-card border-border text-muted-foreground hover:border-muted-foreground/40"
+                ? (colorFn?.(opt.id) || "glow-active")
+                : "card-glass border-border/40 text-muted-foreground glow-interactive"
             )}>
             {opt.icon && <span className="mr-1">{opt.icon}</span>}
             {opt.label}
@@ -246,8 +246,8 @@ export default function FilterPanel({ filters, onChange, currentUser, isOpen, on
                 ].map(p => (
                   <button key={p.id}
                     onClick={() => set("datePreset", filters.datePreset === p.id ? "" : p.id)}
-                    className={cn("h-6 px-2 rounded-full text-[10px] font-bold border transition-all",
-                      filters.datePreset === p.id ? "bg-primary/20 text-primary border-primary/40" : "bg-card border-border text-muted-foreground hover:border-muted-foreground/40")}>
+                    className={cn("h-7 px-2.5 rounded-full text-xs font-semibold border transition-all duration-200",
+                      filters.datePreset === p.id ? "glow-active" : "card-glass border-border/40 text-muted-foreground glow-interactive")}>
                     {p.label}
                   </button>
                 ))}

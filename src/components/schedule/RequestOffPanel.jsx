@@ -1,14 +1,123 @@
 import { useState, useEffect } from 'react';
-import { X, Clock, Check, XCircle, Plus, Calendar } from 'lucide-react';
+import { X, Clock, Check, XCircle, Plus, Calendar, ArrowLeftRight, Package } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { format, parseISO } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
   approved: 'bg-green-500/20 text-green-300 border-green-500/30',
   denied: 'bg-red-500/20 text-red-300 border-red-500/30',
 };
+
+const TYPE_CONFIG = {
+  time_off: { label: 'Time Off', icon: Calendar, color: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
+  swap: { label: 'Swap Request', icon: ArrowLeftRight, color: 'bg-purple-500/15 text-purple-300 border-purple-500/30' },
+  pickup: { label: 'Pickup Request', icon: Package, color: 'bg-teal-500/15 text-teal-300 border-teal-500/30' },
+};
+
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const [y, mo, day] = d.split('-');
+    const dt = new Date(+y, +mo - 1, +day);
+    return dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  } catch { return d; }
+}
+
+function fmtTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  if (isNaN(h)) return t;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}${m ? `:${String(m).padStart(2, '0')}` : ''} ${ampm}`;
+}
+
+function RequestCard({ req, onApprove, onDeny }) {
+  const type = req.type || 'time_off';
+  const typeConf = TYPE_CONFIG[type] || TYPE_CONFIG.time_off;
+  const TypeIcon = typeConf.icon;
+
+  return (
+    <div className="rounded-xl border border-border/40 bg-background p-4 space-y-3">
+      {/* Header row */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-foreground truncate">{req.employee_name || req.employee_email}</p>
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            <span className={cn('inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border', typeConf.color)}>
+              <TypeIcon className="h-2.5 w-2.5" />
+              {typeConf.label}
+            </span>
+            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border capitalize', STATUS_COLORS[req.status])}>
+              {req.status}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Time off: date range */}
+      {type === 'time_off' && (
+        <div className="rounded-lg bg-secondary/40 px-3 py-2">
+          <p className="text-xs text-muted-foreground">
+            {fmtDate(req.start_date)}
+            {req.end_date && req.end_date !== req.start_date && <> → {fmtDate(req.end_date)}</>}
+          </p>
+          {req.reason && <p className="text-xs text-foreground/70 mt-1 italic">"{req.reason}"</p>}
+        </div>
+      )}
+
+      {/* Swap: shift context */}
+      {type === 'swap' && (
+        <div className="rounded-lg bg-secondary/40 px-3 py-2 space-y-1.5">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Their shift</p>
+            <p className="text-xs text-foreground font-semibold">
+              {req.shift_role || '—'}{req.shift_date ? ` · ${fmtDate(req.shift_date)}` : ''}
+            </p>
+            {(req.shift_time) && (
+              <p className="text-[11px] text-muted-foreground">{req.shift_time}</p>
+            )}
+          </div>
+          {req.target_employee_email && (
+            <div className="border-t border-border/30 pt-1.5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Swap with</p>
+              <p className="text-xs text-foreground">{req.target_employee_email}</p>
+              {req.offered_shift_date && (
+                <p className="text-[11px] text-muted-foreground">Their shift: {fmtDate(req.offered_shift_date)}</p>
+              )}
+            </div>
+          )}
+          {req.reason && <p className="text-xs text-foreground/70 italic">"{req.reason}"</p>}
+        </div>
+      )}
+
+      {/* Pickup: just a note */}
+      {type === 'pickup' && (
+        <div className="rounded-lg bg-secondary/40 px-3 py-2">
+          {req.shift_date && <p className="text-xs text-foreground">{fmtDate(req.shift_date)}{req.shift_role ? ` · ${req.shift_role}` : ''}</p>}
+          {req.reason && <p className="text-xs text-foreground/70 mt-1 italic">"{req.reason}"</p>}
+        </div>
+      )}
+
+      {/* Actions */}
+      {req.status === 'pending' && (
+        <div className="flex gap-2">
+          <button onClick={() => onApprove(req)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-green-500/15 border border-green-500/30 text-green-400 text-xs font-bold hover:bg-green-500/25 transition-colors">
+            <Check className="h-3 w-3" />
+            {type === 'swap' ? 'Approve Swap' : type === 'pickup' ? 'Approve Pickup' : 'Approve'}
+          </button>
+          <button onClick={() => onDeny(req)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-bold hover:bg-red-500/25 transition-colors">
+            <XCircle className="h-3 w-3" /> Deny
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function RequestOffPanel({ onClose, employees }) {
   const [requests, setRequests] = useState([]);
@@ -26,15 +135,55 @@ export default function RequestOffPanel({ onClose, employees }) {
 
   useEffect(() => { load(); }, []);
 
-  const updateStatus = async (id, status) => {
-    await base44.entities.TimeOffRequest.update(id, { status, reviewed_by: 'Manager' });
-    toast.success(status === 'approved' ? 'Request approved' : 'Request denied');
+  const handleApprove = async (req) => {
+    try {
+      await base44.entities.TimeOffRequest.update(req.id, { status: 'approved', reviewed_by: 'Manager' });
+
+      if (req.type === 'swap' && req.shift_id) {
+        if (req.target_employee_email && req.offered_shift_id) {
+          // Full swap: reassign both shifts
+          await Promise.all([
+            base44.entities.StaffShift.update(req.shift_id, {
+              employee_email: req.target_employee_email,
+              offered: false,
+            }).catch(() => null),
+            base44.entities.StaffShift.update(req.offered_shift_id, {
+              employee_email: req.employee_email,
+              offered: false,
+            }).catch(() => null),
+          ]);
+          toast.success('Swap approved — shifts reassigned');
+        } else {
+          // No counter-shift: mark as open for pickup
+          await base44.entities.StaffShift.update(req.shift_id, { offered: true }).catch(() => null);
+          toast.success('Swap approved — shift marked as open');
+        }
+      } else if (req.type === 'pickup' && req.shift_id) {
+        await base44.entities.StaffShift.update(req.shift_id, {
+          employee_email: req.employee_email,
+          employee_name: req.employee_name,
+          offered: false,
+        }).catch(() => null);
+        toast.success('Pickup approved');
+      } else {
+        toast.success('Request approved');
+      }
+
+      load();
+    } catch {
+      toast.error('Failed to approve');
+    }
+  };
+
+  const handleDeny = async (req) => {
+    await base44.entities.TimeOffRequest.update(req.id, { status: 'denied', reviewed_by: 'Manager' }).catch(() => null);
+    toast.success('Request denied');
     load();
   };
 
   const handleAdd = async () => {
     if (!form.employee_email || !form.start_date || !form.end_date) { toast.error('Fill in required fields'); return; }
-    await base44.entities.TimeOffRequest.create({ ...form, status: 'pending', submitted_date: new Date().toISOString() });
+    await base44.entities.TimeOffRequest.create({ ...form, type: 'time_off', status: 'pending', submitted_date: new Date().toISOString() });
     toast.success('Request submitted');
     setShowAdd(false);
     setForm({ employee_email: '', employee_name: '', start_date: '', end_date: '', reason: '' });
@@ -42,13 +191,17 @@ export default function RequestOffPanel({ onClose, employees }) {
   };
 
   const filtered = requests.filter(r => r.status === tab);
+  const counts = { pending: 0, approved: 0, denied: 0 };
+  requests.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-stretch justify-end" onClick={onClose}>
       <div className="w-full max-w-sm bg-card border-l border-border/30 flex flex-col" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border/30">
-          <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /> Time Off Requests</h2>
+          <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-primary" /> Schedule Requests
+          </h2>
           <button onClick={onClose} className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center">
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
@@ -58,10 +211,11 @@ export default function RequestOffPanel({ onClose, employees }) {
         <div className="flex border-b border-border/30">
           {['pending', 'approved', 'denied'].map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 text-xs font-bold capitalize transition-colors ${tab === t ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+              className={cn('flex-1 py-2.5 text-xs font-bold capitalize transition-colors',
+                tab === t ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground')}>
               {t}
-              <span className={`ml-1 text-[10px] ${tab === t ? 'text-primary' : 'text-muted-foreground'}`}>
-                ({requests.filter(r => r.status === t).length})
+              <span className={cn('ml-1 text-[10px]', tab === t ? 'text-primary' : 'text-muted-foreground')}>
+                ({counts[t]})
               </span>
             </button>
           ))}
@@ -77,37 +231,14 @@ export default function RequestOffPanel({ onClose, employees }) {
             </div>
           )}
           {filtered.map(req => (
-            <div key={req.id} className="rounded-xl border border-border/40 bg-background p-4">
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <div>
-                  <p className="text-sm font-bold text-foreground">{req.employee_name || req.employee_email}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {req.start_date} {req.end_date !== req.start_date ? `→ ${req.end_date}` : ''}
-                  </p>
-                </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border capitalize ${STATUS_COLORS[req.status]}`}>{req.status}</span>
-              </div>
-              {req.reason && <p className="text-xs text-muted-foreground mb-3 italic">"{req.reason}"</p>}
-              {req.status === 'pending' && (
-                <div className="flex gap-2">
-                  <button onClick={() => updateStatus(req.id, 'approved')}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-green-500/15 border border-green-500/30 text-green-400 text-xs font-bold hover:bg-green-500/25 transition-colors">
-                    <Check className="h-3 w-3" /> Approve
-                  </button>
-                  <button onClick={() => updateStatus(req.id, 'denied')}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-bold hover:bg-red-500/25 transition-colors">
-                    <XCircle className="h-3 w-3" /> Deny
-                  </button>
-                </div>
-              )}
-            </div>
+            <RequestCard key={req.id} req={req} onApprove={handleApprove} onDeny={handleDeny} />
           ))}
         </div>
 
         {/* Add form */}
         {showAdd && (
           <div className="border-t border-border/30 p-4 space-y-3 bg-background/50">
-            <p className="text-xs font-bold text-foreground">New Request</p>
+            <p className="text-xs font-bold text-foreground">Add Time Off Request</p>
             <select value={form.employee_email} onChange={e => {
               const emp = employees.find(em => em.email === e.target.value);
               setForm(f => ({ ...f, employee_email: e.target.value, employee_name: emp?.name || '' }));
@@ -136,7 +267,7 @@ export default function RequestOffPanel({ onClose, employees }) {
           <div className="border-t border-border/30 p-4">
             <button onClick={() => setShowAdd(true)}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/15 border border-primary/30 text-primary text-sm font-bold hover:bg-primary/25 transition-colors">
-              <Plus className="h-4 w-4" /> New Request
+              <Plus className="h-4 w-4" /> Add Time Off Request
             </button>
           </div>
         )}

@@ -79,10 +79,10 @@ export default function EmployeeDirectoryTab() {
           <button
             key={d}
             onClick={() => setDeptFilter(d)}
-            className={`shrink-0 text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
+            className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
               deptFilter === d
-                ? 'bg-primary/15 text-primary border-primary/30'
-                : 'border-border text-muted-foreground hover:border-primary/30'
+                ? 'glow-active'
+                : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
             }`}
           >
             {d === 'all' ? 'All' : d}
