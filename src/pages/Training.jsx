@@ -25,6 +25,8 @@ export default function Training() {
   const [completions, setCompletions] = useState([]);
   const [certifications, setCertifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModuleForm, setShowModuleForm] = useState(false);
+  const [editingModule, setEditingModule] = useState(null);
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -134,9 +136,6 @@ export default function Training() {
       </div>
     );
   }
-
-  const [showModuleForm, setShowModuleForm] = useState(false);
-  const [editingModule, setEditingModule] = useState(null);
 
   const openModuleForm = (mod = null) => { setEditingModule(mod); setShowModuleForm(true); };
   const closeModuleForm = () => { setShowModuleForm(false); setEditingModule(null); };
