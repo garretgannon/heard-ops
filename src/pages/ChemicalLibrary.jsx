@@ -335,7 +335,7 @@ export default function ChemicalLibrary() {
       />
 
       {/* Filters */}
-      <div className="bg-card border-b border-border px-4 py-3 lg:px-8">
+      <div className="bg-card border-b border-border px-4 py-3">
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           <button onClick={() => setFilterCat('all')} className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filterCat === 'all' ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>All</button>
           {Object.entries(CATEGORIES).map(([k, v]) => (
@@ -347,7 +347,7 @@ export default function ChemicalLibrary() {
       </div>
 
       {/* Grid */}
-      <div className="px-4 py-4 lg:px-8 space-y-3">
+      <div className="px-4 py-4 space-y-3">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading chemicals…</div>
         ) : filtered.length === 0 ? (

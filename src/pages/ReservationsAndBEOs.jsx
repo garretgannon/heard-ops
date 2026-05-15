@@ -183,7 +183,7 @@ export default function ReservationsAndBEOs() {
         </div>
       </div>
 
-      <div className="px-4 pt-3 lg:px-8 lg:pt-6">
+      <div className="px-4 pt-3 lg:pt-6">
         {!loading && <OverviewCard reservations={reservations} beos={beos} />}
 
         {loading ? (

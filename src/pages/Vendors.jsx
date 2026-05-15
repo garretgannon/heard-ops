@@ -77,7 +77,7 @@ export default function Vendors() {
       </div>
 
       {/* Filters */}
-      <div className="lg:flex items-center gap-2 px-4 lg:px-8 py-3 border-b border-border/30 hidden">
+      <div className="lg:flex items-center gap-2 px-4 py-3 border-b border-border/30 hidden">
         <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
           <option value="">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{CAT_LABELS[c] || c}</option>)}
@@ -103,7 +103,7 @@ export default function Vendors() {
       </div>
 
       {/* Unified Card Grid */}
-      <div className="px-4 lg:px-8 py-4">
+      <div className="px-4 py-4">
         {loading ? (
           <div className="flex items-center justify-center h-32"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
         ) : filtered.length === 0 ? (

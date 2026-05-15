@@ -129,7 +129,7 @@ export default function PrepPlanning() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pt-4 lg:px-8 lg:pt-6">
+      <div className="mx-auto max-w-7xl px-4 pt-4 lg:pt-6">
         <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
 
           {/* Left column: Status + Actions */}

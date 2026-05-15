@@ -159,7 +159,7 @@ export default function StationReadiness() {
       />
 
       {/* Stats Bar */}
-      <div className="bg-card border-b border-border px-4 py-3 lg:px-8 grid grid-cols-4 gap-2">
+      <div className="bg-card border-b border-border px-4 py-3 grid grid-cols-4 gap-2">
         <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
           <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
           <p className="text-[9px] text-muted-foreground">Completed</p>
@@ -179,7 +179,7 @@ export default function StationReadiness() {
       </div>
 
       {/* Filters */}
-      <div className="bg-card border-b border-border px-4 py-3 lg:px-8 flex gap-2 overflow-x-auto pb-1">
+      <div className="bg-card border-b border-border px-4 py-3 flex gap-2 overflow-x-auto pb-1">
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="text-xs px-3 py-1.5 rounded-lg bg-background border border-border font-semibold text-foreground">
           <option value="all">All Status</option>
           {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -193,7 +193,7 @@ export default function StationReadiness() {
       </div>
 
       {/* Checks Grid */}
-      <div className="px-4 py-4 lg:px-8 space-y-3">
+      <div className="px-4 py-4 space-y-3">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading checks…</div>
         ) : filtered.length === 0 ? (

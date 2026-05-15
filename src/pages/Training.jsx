@@ -68,7 +68,7 @@ export default function Training() {
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="px-4 py-6 lg:px-8 max-w-2xl mx-auto space-y-6">
+          <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
             {myAssignments.length > 0 && (
               <section className="space-y-3">
                 <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">My Assignments</h2>
@@ -179,7 +179,7 @@ export default function Training() {
       </div>
 
       {/* Content — sidebar nav on desktop, stacked on mobile */}
-      <div className="px-4 py-6 lg:px-8 lg:py-6 max-w-6xl mx-auto w-full lg:flex lg:gap-8 lg:items-start">
+      <div className="px-4 py-6 lg:py-6 max-w-6xl mx-auto w-full lg:flex lg:gap-8 lg:items-start">
         {/* Desktop vertical tab sidebar */}
         <div className="hidden lg:block w-44 shrink-0">
           <div className="sticky top-[152px] space-y-1">

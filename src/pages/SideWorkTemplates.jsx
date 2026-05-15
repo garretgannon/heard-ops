@@ -257,7 +257,7 @@ export default function SideWorkTemplates() {
       </div>
 
       {/* Content */}
-      <div className="p-4 lg:px-8 lg:py-6">
+      <div className="p-4 lg:py-6">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (

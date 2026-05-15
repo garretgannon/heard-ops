@@ -91,7 +91,7 @@ export default function InventorySimplified() {
       </div>
 
       {/* KPI Row */}
-      <div className="hidden lg:grid lg:grid-cols-5 lg:gap-3 lg:px-8 lg:py-4 border-b border-border/30">
+      <div className="hidden lg:grid lg:grid-cols-5 lg:gap-3 lg:py-4 border-b border-border/30">
         {[
           { label: 'Total Value', value: `$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, sub: 'Estimated', color: 'text-foreground' },
           { label: 'Low Stock Items', value: lowStock, sub: 'Needs attention', color: lowStock > 0 ? 'text-amber-400' : 'text-foreground' },

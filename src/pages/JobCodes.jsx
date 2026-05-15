@@ -138,7 +138,7 @@ export default function JobCodes() {
         </div>
       </div>
 
-      <div className="p-4 lg:px-8 lg:py-6 space-y-3">
+      <div className="p-4 lg:py-6 space-y-3">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (

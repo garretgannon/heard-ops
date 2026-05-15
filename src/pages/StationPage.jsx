@@ -302,6 +302,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   const [tempInputs, setTempInputs] = useState({});
   const [tempSaving, setTempSaving] = useState({});
   const [tempLogged, setTempLogged] = useState({});
+  const [foodSafetySettings, setFoodSafetySettings] = useState(null);
 
   // Chemicals — all chemicals for search + assigned subset
   const [allChemicals, setAllChemicals] = useState([]);
@@ -311,6 +312,13 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
     if (workflow === 'equipment') { setLoading(false); return; }
     loadData();
   }, [workflow, station?.id]);
+
+  useEffect(() => {
+    if (workflow !== 'temps' || foodSafetySettings) return;
+    base44.entities.FoodSafetySettings.filter({ key: 'global' }).then(results => {
+      setFoodSafetySettings(results[0] || {});
+    }).catch(() => setFoodSafetySettings({}));
+  }, [workflow]);
 
   const loadData = async () => {
     setLoading(true);
@@ -405,21 +413,42 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   };
 
   // ── Temp actions ──────────────────────────────────────────────────────────
+  const FREEZER_TYPES = new Set(['walk-in-freezer','reach-in-freezer','chest-freezer']);
+  const COOLER_TYPES  = new Set(['walk-in-cooler','reach-in-cooler','prep-table-cooler','lowboy-cooler','beer-cooler','wine-cooler','ice-machine']);
+  const HOT_TYPES     = new Set(['steam-table','hot-holding-cabinet']);
+
+  const getTempThreshold = (eq) => {
+    const s = foodSafetySettings || {};
+    const t = eq.equipmentType;
+    if (FREEZER_TYPES.has(t)) return { min: s.freezerMin ?? -10, max: s.freezerMax ?? 0,  label: 'Freezer range' };
+    if (COOLER_TYPES.has(t))  return { min: s.coolerMin  ??  34, max: s.coolerMax  ?? 41, label: 'Cooler range'  };
+    if (HOT_TYPES.has(t))     return { min: s.hotHoldingMin ?? 135, max: null,             label: 'Hot holding min' };
+    return null;
+  };
+
   const logTemp = async (eq) => {
     const val = tempInputs[eq.id];
     if (!val || isNaN(Number(val))) return;
     setTempSaving(prev => ({ ...prev, [eq.id]: true }));
+    const temp = Number(val);
+    const threshold = getTempThreshold(eq);
+    const in_range = threshold
+      ? (threshold.min === null || temp >= threshold.min) && (threshold.max === null || temp <= threshold.max)
+      : true;
     await base44.entities.TemperatureLog.create({
       equipment_id: eq.id,
       equipment_name: eq.name,
+      equipment_type: eq.equipmentType,
       station_id: station.id,
       station_name: station.name,
-      temperature: Number(val),
+      temperature: temp,
       unit: 'F',
-      status: 'logged',
-      in_range: true,
+      status: in_range ? 'logged' : 'out_of_range',
+      in_range,
+      min_threshold: threshold?.min ?? null,
+      max_threshold: threshold?.max ?? null,
     });
-    setTempLogged(prev => ({ ...prev, [eq.id]: val }));
+    setTempLogged(prev => ({ ...prev, [eq.id]: { val, in_range, threshold } }));
     setTempInputs(prev => ({ ...prev, [eq.id]: '' }));
     setTempSaving(prev => ({ ...prev, [eq.id]: false }));
   };
@@ -607,20 +636,37 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
               const m = getEquipmentMeta(eq.equipmentType);
               const EqIcon = m.icon;
               const logged = tempLogged[eq.id];
+              const threshold = getTempThreshold(eq);
+              const rangeLabel = threshold
+                ? threshold.max === null
+                  ? `Min ${threshold.min}°F`
+                  : `${threshold.min}–${threshold.max}°F`
+                : null;
               return (
-                <div key={eq.id} className="rounded-xl border border-border/40 p-3 space-y-2.5" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                <div key={eq.id} className={cn('rounded-xl border p-3 space-y-2.5', logged && !logged.in_range ? 'border-red-500/40' : 'border-border/40')} style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
                   <div className="flex items-center gap-3">
                     <span className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: m.bg }}>
                       <EqIcon className={cn('h-4 w-4', m.iconColor)} />
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-foreground">{eq.name}</p>
-                      <p className="text-xs text-muted-foreground">{hasTempSchedule(eq) ? `Every ${eq.temp_check_frequency_minutes} min` : 'Manual checks'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {hasTempSchedule(eq) ? `Every ${eq.temp_check_frequency_minutes} min` : 'Manual checks'}
+                        {rangeLabel && <span className="ml-2 text-muted-foreground/60">· Target {rangeLabel}</span>}
+                      </p>
                     </div>
                     {logged && (
-                      <span className="text-xs font-black text-green-400 shrink-0">✓ {logged}°F logged</span>
+                      <span className={cn('text-xs font-black shrink-0', logged.in_range ? 'text-green-400' : 'text-red-400')}>
+                        {logged.in_range ? '✓' : '✗'} {logged.val}°F
+                      </span>
                     )}
                   </div>
+                  {logged && !logged.in_range && (
+                    <div className="flex items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+                      <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                      <p className="text-xs font-bold text-red-400">Out of range — corrective action required. Target: {rangeLabel}</p>
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <input
                       type="number"

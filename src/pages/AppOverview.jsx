@@ -405,136 +405,245 @@ export default function AppOverview() {
           </section>
         )}
 
-        <div className="space-y-7 lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-6 lg:space-y-0">
-          <div className="space-y-5">
-
-        {/* Desktop approvals — in left column, naturally width-constrained */}
-        {hasApprovalQueue && (
-          <section className="hidden lg:block space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Priority</p>
-                <h2 className="mt-0.5 text-lg font-black tracking-tight text-foreground">Approvals</h2>
+        {/* ── Mobile layout ─────────────────────────────────────── */}
+        <div className="space-y-7 lg:hidden">
+          <section className="relative overflow-hidden rounded-[28px] border border-border/60 bg-card/70 px-5 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+            <div className="absolute inset-x-10 top-0 h-24 rounded-full bg-primary/10 blur-3xl" />
+            <div className="relative flex flex-col items-center text-center">
+              <PulseRing value={readiness} />
+              <div className="mt-1 space-y-1">
+                <p className="text-lg font-black tracking-tight text-foreground">Readiness</p>
+                <p className="mx-auto max-w-[280px] text-sm leading-5 text-muted-foreground">
+                  Pantry is tracking behind, but service readiness is still recoverable.
+                </p>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-black text-foreground">{processedApprovals} cleared today</p>
-                <p className="text-[10px] font-bold text-muted-foreground">{approvalQueue.length} waiting</p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {approvalQueue.slice(0, 6).map((approval) => (
-                <div key={`${approval.sourceModule}:${approval.sourceId || approval.id}`} className="flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
-                  <span className={cn('status-marker status-marker-md shrink-0',
-                    approval.approval_type === 'temperature' ? 'status-warning' :
-                    approval.approval_type === 'prep' ? 'status-info' :
-                    approval.approval_type === 'maintenance' ? 'status-critical' : 'status-neutral'
-                  )}>
-                    <CheckCircle2 className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-foreground">{approval.title || approval.name || 'Approval request'}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{(approval.approval_type || '').replace(/_/g, ' ')}{approval.created_by ? ` · ${approval.created_by}` : ''}</p>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <button onClick={() => handleApprove(approval)} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors">Approve</button>
-                    <button onClick={() => { setDenialDrawer({ approval }); setDetailSheet(null); }} className="text-xs font-bold px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors">Deny</button>
-                  </div>
+              <div className="mt-5 grid w-full grid-cols-3 gap-2">
+                <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                  <p className="text-lg font-black text-primary">{overdueTasks}</p>
+                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Overdue</p>
                 </div>
-              ))}
+                <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                  <p className="text-lg font-black text-foreground">{pendingApprovals}</p>
+                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Approvals</p>
+                </div>
+                <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                  <p className="text-lg font-black text-foreground">{issueCount}</p>
+                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Issues</p>
+                </div>
+              </div>
             </div>
           </section>
-        )}
 
-        <section className={cn('relative overflow-hidden rounded-[28px] border border-border/60 bg-card/70 px-5 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]')}>
-          <div className="absolute inset-x-10 top-0 h-24 rounded-full bg-primary/10 blur-3xl" />
-          <div className="relative flex flex-col items-center text-center">
-            <PulseRing value={readiness} />
-            <div className="mt-1 space-y-1">
-              <p className="text-lg font-black tracking-tight text-foreground">Readiness</p>
-              <p className="mx-auto max-w-[280px] text-sm leading-5 text-muted-foreground">
-                Pantry is tracking behind, but service readiness is still recoverable.
-              </p>
-            </div>
-            <div className="mt-5 grid w-full grid-cols-3 gap-2">
-              <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                <p className="text-lg font-black text-primary">{overdueTasks}</p>
-                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Overdue</p>
+          {metrics.openAlerts > 0 && (
+            <Link to="/operational-map" className="glow-interactive block rounded-2xl border border-primary/30 bg-primary/10 p-4">
+              <div className="flex items-start gap-3">
+                <span className="status-marker status-marker-md status-info"><Radio className="h-4 w-4" /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Action</p>
+                  <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Review open issues</h2>
+                  <p className="mt-1 text-sm leading-5 text-muted-foreground">{metrics.openAlerts} operational {metrics.openAlerts === 1 ? 'check' : 'checks'} need attention before service.</p>
+                </div>
+                <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary" />
               </div>
-              <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                <p className="text-lg font-black text-foreground">{pendingApprovals}</p>
-                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Approvals</p>
-              </div>
-              <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                <p className="text-lg font-black text-foreground">{issueCount}</p>
-                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Issues</p>
-              </div>
-            </div>
-          </div>
-        </section>
+            </Link>
+          )}
 
-        {metrics.openAlerts > 0 && (
-          <Link to="/operational-map" className="glow-interactive block rounded-2xl border border-primary/30 bg-primary/10 p-4">
-            <div className="flex items-start gap-3">
-              <span className="status-marker status-marker-md status-info">
-                <Radio className="h-4 w-4" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Action</p>
-                <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Review open issues</h2>
-                <p className="mt-1 text-sm leading-5 text-muted-foreground">{metrics.openAlerts} operational {metrics.openAlerts === 1 ? 'check' : 'checks'} need attention before service.</p>
-              </div>
-              <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary" />
-            </div>
-          </Link>
-        )}
-
-          </div>
-          <div className="space-y-5">
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-black tracking-tight text-foreground">Needs Attention</h2>
-            <span className="text-xs font-bold text-muted-foreground">Today</span>
-          </div>
-          <div className="space-y-2">
-            {actions.map((item) => (
-              <ActionRow key={item.label} item={item} />
-            ))}
-          </div>
-        </section>
-
-        {prepQueue.length > 0 && (
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-black tracking-tight text-foreground">Prep Queue</h2>
-              <Link to="/tasks?tab=prep" className="text-xs font-black text-primary">View all</Link>
+              <h2 className="text-base font-black tracking-tight text-foreground">Needs Attention</h2>
+              <span className="text-xs font-bold text-muted-foreground">Today</span>
             </div>
-            <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-              {prepQueue.map((item) => (
-                <PrepCard key={item.name} item={item} />
-              ))}
+            <div className="space-y-2">
+              {actions.map((item) => <ActionRow key={item.label} item={item} />)}
             </div>
           </section>
-        )}
 
-        <section className="space-y-3 pb-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-black tracking-tight text-foreground">Recent Activity</h2>
-            <Link to="/logs" className="text-xs font-black text-primary">Logs</Link>
-          </div>
-          <div className="app-card space-y-3">
-            {activity.length > 0 ? activity.map((item) => (
-              <div key={item.label} className="flex items-center gap-3">
-                <span className={cn('status-marker status-marker-sm', item.statusClass)}>
-                  <CheckCircle2 className="h-3 w-3" />
-                </span>
-                <p className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">{item.label}</p>
-                <span className="text-xs font-semibold text-muted-foreground">{item.time}</span>
+          {prepQueue.length > 0 && (
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-black tracking-tight text-foreground">Prep Queue</h2>
+                <Link to="/tasks?tab=prep" className="text-xs font-black text-primary">View all</Link>
               </div>
-            )) : (
-              <p className="text-sm text-muted-foreground py-2">No recent activity logged today.</p>
-            )}
+              <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+                {prepQueue.map((item) => <PrepCard key={item.name} item={item} />)}
+              </div>
+            </section>
+          )}
+
+          <section className="space-y-3 pb-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-black tracking-tight text-foreground">Recent Activity</h2>
+              <Link to="/logs" className="text-xs font-black text-primary">Logs</Link>
+            </div>
+            <div className="app-card space-y-3">
+              {activity.length > 0 ? activity.map((item) => (
+                <div key={item.label} className="flex items-center gap-3">
+                  <span className={cn('status-marker status-marker-sm', item.statusClass)}><CheckCircle2 className="h-3 w-3" /></span>
+                  <p className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">{item.label}</p>
+                  <span className="text-xs font-semibold text-muted-foreground">{item.time}</span>
+                </div>
+              )) : (
+                <p className="text-sm text-muted-foreground py-2">No recent activity logged today.</p>
+              )}
+            </div>
+          </section>
+        </div>
+
+        {/* ── Desktop layout ─────────────────────────────────────── */}
+        <div className="hidden lg:block space-y-5">
+          {/* Greeting */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {pendingApprovals > 0
+                  ? `${pendingApprovals} approval${pendingApprovals === 1 ? '' : 's'} waiting · ${overdueTasks > 0 ? `${overdueTasks} overdue` : 'tasks on track'}`
+                  : 'All clear — keep an eye on prep and temps.'}
+              </p>
+            </div>
           </div>
-        </section>
+
+          {/* KPI strip — 4 tiles */}
+          <div className="grid grid-cols-4 gap-3">
+            <div className="rounded-2xl border border-primary/25 p-4" style={{ background: 'rgba(230,106,31,0.07)' }}>
+              <p className="text-3xl font-black tracking-tight text-primary">{readiness}%</p>
+              <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Shift Readiness</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">{overdueTasks === 0 ? 'All tasks on track' : `${overdueTasks} behind schedule`}</p>
+            </div>
+            <Link to="/tasks" className="block rounded-2xl border border-border/50 card-glass p-4 glow-interactive">
+              <p className={cn('text-3xl font-black tracking-tight', overdueTasks > 0 ? 'text-amber-400' : 'text-foreground')}>{overdueTasks}</p>
+              <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Overdue Tasks</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">{overdueTasks === 0 ? 'On track' : 'Need attention'}</p>
+            </Link>
+            <div className="rounded-2xl border border-border/50 card-glass p-4">
+              <p className={cn('text-3xl font-black tracking-tight', pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground/50')}>{pendingApprovals}</p>
+              <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Pending Approvals</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">{pendingApprovals === 0 ? 'Queue cleared' : 'Waiting for review'}</p>
+            </div>
+            <Link to="/logs" className="block rounded-2xl border border-border/50 card-glass p-4 glow-interactive">
+              <p className={cn('text-3xl font-black tracking-tight', issueCount > 0 ? 'text-red-400' : 'text-foreground')}>{issueCount}</p>
+              <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Open Issues</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">{issueCount === 0 ? 'No alerts' : 'Operational alerts'}</p>
+            </Link>
+          </div>
+
+          {/* 3-column main content */}
+          <div className="grid grid-cols-3 gap-4 items-start">
+
+            {/* Col 1: Approvals */}
+            <div className="space-y-4">
+              {hasApprovalQueue ? (
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Priority</p>
+                      <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Approvals</h2>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-bold text-muted-foreground">{approvalQueue.length} waiting</span>
+                      {processedApprovals > 0 && <p className="text-[10px] text-muted-foreground">{processedApprovals} cleared today</p>}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {approvalQueue.slice(0, 8).map((approval) => (
+                      <div key={`${approval.sourceModule}:${approval.sourceId || approval.id}`}
+                        className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 px-3 py-2.5">
+                        <span className={cn('status-marker status-marker-sm shrink-0',
+                          approval.approval_type === 'temperature' ? 'status-warning' :
+                          approval.approval_type === 'prep' ? 'status-info' :
+                          approval.approval_type === 'maintenance' ? 'status-critical' : 'status-neutral'
+                        )}>
+                          <CheckCircle2 className="h-3 w-3" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold text-foreground">{approval.title || approval.name || 'Approval request'}</p>
+                          <p className="text-xs text-muted-foreground capitalize">{(approval.approval_type || '').replace(/_/g, ' ')}{approval.created_by ? ` · ${approval.created_by}` : ''}</p>
+                        </div>
+                        <div className="flex gap-1.5 shrink-0">
+                          <button onClick={() => handleApprove(approval)} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors">Approve</button>
+                          <button onClick={() => { setDenialDrawer({ approval }); setDetailSheet(null); }} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">Deny</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : (
+                <section className="rounded-2xl border border-green-500/20 bg-green-500/5 p-5 flex flex-col items-center text-center gap-2">
+                  <CheckCircle2 className="h-8 w-8 text-green-400" />
+                  <p className="text-base font-black text-foreground">Queue Clear</p>
+                  <p className="text-xs text-muted-foreground">{processedApprovals > 0 ? `${processedApprovals} cleared today.` : "No pending approvals."}</p>
+                </section>
+              )}
+            </div>
+
+            {/* Col 2: Needs Attention */}
+            <div className="space-y-4">
+              <section className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-black tracking-tight text-foreground">Needs Attention</h2>
+                  <span className="text-xs font-bold text-muted-foreground">Today</span>
+                </div>
+                <div className="space-y-2">
+                  {actions.map((item) => <ActionRow key={item.label} item={item} />)}
+                </div>
+              </section>
+              {metrics.openAlerts > 0 && (
+                <Link to="/operational-map" className="glow-interactive block rounded-2xl border border-primary/30 bg-primary/10 p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="status-marker status-marker-md status-info"><Radio className="h-4 w-4" /></span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Action</p>
+                      <h2 className="mt-1 text-sm font-black text-foreground">Review open issues</h2>
+                      <p className="mt-1 text-xs text-muted-foreground">{metrics.openAlerts} {metrics.openAlerts === 1 ? 'check needs' : 'checks need'} attention before service.</p>
+                    </div>
+                    <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary" />
+                  </div>
+                </Link>
+              )}
+            </div>
+
+            {/* Col 3: Prep Queue + Recent Activity */}
+            <div className="space-y-4">
+              {prepQueue.length > 0 && (
+                <section className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base font-black tracking-tight text-foreground">Prep Queue</h2>
+                    <Link to="/tasks?tab=prep" className="text-xs font-black text-primary">View all</Link>
+                  </div>
+                  <div className="space-y-2">
+                    {prepQueue.slice(0, 4).map((item) => (
+                      <Link key={item.name} to="/tasks?tab=prep"
+                        className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 px-3 py-2.5 glow-interactive">
+                        <span className={cn('status-marker status-marker-sm shrink-0', item.statusClass)} />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold text-foreground">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">{item.assignee} · {item.progress}%</p>
+                        </div>
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+              <section className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-black tracking-tight text-foreground">Recent Activity</h2>
+                  <Link to="/logs" className="text-xs font-black text-primary">Logs</Link>
+                </div>
+                <div className="app-card space-y-3">
+                  {activity.length > 0 ? activity.map((item) => (
+                    <div key={item.label} className="flex items-center gap-3">
+                      <span className={cn('status-marker status-marker-sm', item.statusClass)}><CheckCircle2 className="h-3 w-3" /></span>
+                      <p className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">{item.label}</p>
+                      <span className="text-xs font-semibold text-muted-foreground">{item.time}</span>
+                    </div>
+                  )) : (
+                    <p className="text-sm text-muted-foreground py-2">No recent activity logged today.</p>
+                  )}
+                </div>
+              </section>
+            </div>
+
           </div>
         </div>
 

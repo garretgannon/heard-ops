@@ -98,7 +98,7 @@ export default function TemperatureMonitoring() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-6 py-6 lg:px-8 max-w-5xl mx-auto w-full">
+      <div className="flex-1 px-6 py-6 max-w-5xl mx-auto w-full">
         {Object.keys(itemsByType).length === 0 ? (
           <div className="text-center py-12">
             <Thermometer className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

@@ -278,7 +278,7 @@ export default function PurchasedItems() {
         </div>
       </div>
 
-      <div className="px-4 py-3 lg:px-8 lg:py-6 space-y-4">
+      <div className="px-4 py-3 lg:py-6 space-y-4">
         <SummaryCard items={items} isAdmin={isAdmin} />
 
         {loading ? (

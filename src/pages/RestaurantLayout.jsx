@@ -309,7 +309,7 @@ export default function RestaurantLayout() {
   return (
     <div className="pb-28 lg:pb-8">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 lg:px-8 pt-4 pb-4">
+      <div className="flex items-center gap-3 px-4 pt-4 pb-4">
         <button
           onClick={() => navigate('/my-restaurant')}
           className="h-8 w-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary"
@@ -329,7 +329,7 @@ export default function RestaurantLayout() {
         </button>
       </div>
 
-      <div className="px-4 lg:px-8 space-y-2">
+      <div className="px-4 space-y-2">
         {addingArea && (
           <div className="p-3 card-glass border border-border rounded-xl">
             <AreaForm

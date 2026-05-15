@@ -80,7 +80,7 @@ export default function PrepPlanTemplatesManager() {
         }
       />
 
-      <div className="px-4 lg:px-8 py-6 max-w-6xl mx-auto">
+      <div className="px-4 py-6 max-w-6xl mx-auto">
         <div className="lg:hidden mb-4 rounded-xl border border-border bg-card p-3">
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Prep Plan Templates</p>
           <div className="mt-3 grid grid-cols-2 gap-2">

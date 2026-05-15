@@ -958,7 +958,7 @@ export default function ManagerShift() {
       </div>
 
       {/* Stage content */}
-      <div className="mx-auto max-w-3xl lg:max-w-5xl px-4 pt-4 lg:px-8">
+      <div className="mx-auto max-w-3xl lg:max-w-5xl px-4 pt-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}

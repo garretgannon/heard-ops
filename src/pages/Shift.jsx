@@ -213,7 +213,7 @@ export default function Shift() {
       <ShiftModeHeader />
 
       {/* Main Content */}
-      <div className="flex-1 px-4 py-6 lg:px-8 w-full">
+      <div className="flex-1 px-4 py-6 w-full">
         {isMobile ? (
           /* Mobile Staff View */
           <div className="max-w-2xl mx-auto w-full space-y-6">

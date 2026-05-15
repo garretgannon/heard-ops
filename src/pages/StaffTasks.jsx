@@ -840,7 +840,20 @@ export default function StaffTasks() {
           />
         </div>
       )}
-      <DesktopPageHeader title="My Tasks" subtitle="Your shift mission list" />
+      <DesktopPageHeader
+        title="My Tasks"
+        subtitle="Your shift mission list"
+        actions={isAdmin && (
+          <button
+            type="button"
+            onClick={() => setShowPhotoTask(true)}
+            className="h-8 px-3 rounded-lg border border-primary/30 bg-primary/10 text-xs font-bold text-primary flex items-center gap-1.5 hover:bg-primary/15 active:scale-95 transition-all"
+          >
+            <Camera className="h-3.5 w-3.5" />
+            Photo Assign Task
+          </button>
+        )}
+      />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border px-4 pt-3 pb-3">
         <div className="flex items-center justify-between gap-3">
@@ -862,17 +875,6 @@ export default function StaffTasks() {
       </div>
 
       <div className="mx-auto max-w-[1100px] space-y-4 overflow-x-hidden px-4 py-3 lg:px-6">
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setShowPhotoTask(true)}
-            className="hidden w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-black text-primary transition-all hover:bg-primary/15 active:scale-[0.99] lg:flex"
-          >
-            <Camera className="h-4 w-4" />
-            Photo Assign Task
-          </button>
-        )}
-
         {/* Shift summary card */}
         {data && (
           <div className="card-glass flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border border-border p-3 sm:gap-4">

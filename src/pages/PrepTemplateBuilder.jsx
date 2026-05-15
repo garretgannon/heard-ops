@@ -186,7 +186,7 @@ export default function PrepTemplateBuilder() {
         }
       />
 
-      <div className="px-4 lg:px-8 py-6 max-w-5xl mx-auto space-y-6">
+      <div className="px-4 py-6 max-w-5xl mx-auto space-y-6">
         {/* Template Header */}
         <div className="card-glass border border-border rounded-2xl p-6 space-y-4">
           <h3 className="text-sm font-bold uppercase text-muted-foreground">Template Settings</h3>

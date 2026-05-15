@@ -11,7 +11,7 @@ export default function TemperatureDashboard() {
   if (!isAdmin) {
     return (
       <div className="pb-32 bg-background min-h-screen">
-        <div className="px-4 py-12 lg:px-8 text-center">
+        <div className="px-4 py-12 text-center">
           <p className="text-muted-foreground">Temperature dashboard available for managers only</p>
         </div>
       </div>
@@ -20,7 +20,7 @@ export default function TemperatureDashboard() {
 
   return (
     <div className="pb-32 bg-background min-h-screen lg:flex lg:flex-col">
-      <div className="border-b border-border/20 px-4 py-6 lg:px-8">
+      <div className="border-b border-border/20 px-4 py-6">
         <div className="max-w-6xl mx-auto flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Temperature Monitoring</h1>
@@ -33,7 +33,7 @@ export default function TemperatureDashboard() {
         </div>
       </div>
 
-      <div className="flex-1 px-4 py-6 lg:px-8 max-w-6xl mx-auto w-full space-y-6">
+      <div className="flex-1 px-4 py-6 max-w-6xl mx-auto w-full space-y-6">
         <TemperatureComplianceCard />
 
         <div className="space-y-4">

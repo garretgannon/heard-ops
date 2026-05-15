@@ -1051,7 +1051,7 @@ export default function MyRestaurant() {
       </div>
 
       {/* Desktop 2-col Card Grid */}
-      <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 lg:px-8 lg:py-6">
+      <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 lg:py-6">
         {/* Restaurant Profile */}
         <div className="card-glass border border-border/60 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">

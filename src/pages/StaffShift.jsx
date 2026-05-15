@@ -537,7 +537,7 @@ export default function StaffShift() {
       </div>
 
       {/* ── Stage content ── */}
-      <div className="mx-auto max-w-5xl px-4 pt-4 lg:px-8 lg:pt-6">
+      <div className="mx-auto max-w-5xl px-4 pt-4 lg:pt-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
