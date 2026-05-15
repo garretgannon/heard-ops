@@ -58,6 +58,8 @@ const TemperatureLogTemplates = lazy(() => import('./pages/TemperatureLogTemplat
 const TemperatureDashboard = lazy(() => import('./pages/TemperatureDashboard'));
 const TemperatureMonitoring = lazy(() => import('./pages/TemperatureMonitoring'));
 const WasteTemplates = lazy(() => import('./pages/WasteTemplates'));
+const Notepad = lazy(() => import('./pages/Notepad'));
+const CashDrawer = lazy(() => import('./pages/CashDrawer'));
 const EightySixTemplates = lazy(() => import('./pages/86Templates'));
 const StationReadiness = lazy(() => import('./pages/StationReadiness'));
 const Stations = lazy(() => import('./pages/Stations'));
@@ -178,6 +180,8 @@ const AuthenticatedApp = () => {
           <Route path="/station/:id" element={<StationPage />} />
           <Route path="/location-setup" element={<LocationSetup />} />
           <Route path="/setup-journey" element={<SetupJourney />} />
+          <Route path="/notepad" element={<Notepad />} />
+          <Route path="/cash-drawer" element={<CashDrawer />} />
           <Route path="/automation-rules" element={<AutomationRules />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-restaurant" element={<MyRestaurant />} />

@@ -90,7 +90,7 @@ export default function JobCodes() {
   };
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Job Codes"
         subtitle="Manage job codes, roles, and assignments"

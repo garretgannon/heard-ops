@@ -171,13 +171,15 @@ export default function LogsCenter() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Desktop page header — inline (no sticky) since parent is overflow-hidden flex column */}
         <div
-          className="hidden lg:flex items-center gap-3 shrink-0 -mx-8 px-8 py-2.5"
+          className="hidden lg:flex items-center justify-between shrink-0 -mx-8 px-8 h-10"
           style={{ background: 'rgba(5,8,14,0.97)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
         >
-          <h1 className="text-[13px] font-bold text-foreground/80 tracking-wide">Logs</h1>
-          <span className="text-muted-foreground/30 text-xs">·</span>
-          <p className="text-[12px] text-muted-foreground/60">All operational records in one place</p>
-          <div className="flex-1" />
+          <div className="flex items-center gap-3">
+            <h1 className="text-[15px] font-bold text-foreground/90 tracking-wide">Logs</h1>
+            <span className="text-muted-foreground/30 text-sm">·</span>
+            <p className="text-[13px] text-muted-foreground/60">All operational records in one place</p>
+          </div>
+          <div className="flex items-center gap-2">
           <button
             onClick={generateDummyLogs}
             className="glow-interactive h-8 px-3 rounded-lg border border-border/60 card-glass text-foreground font-bold text-xs active:scale-95 transition-all flex items-center gap-1"
@@ -192,6 +194,7 @@ export default function LogsCenter() {
           >
             <Plus className="h-3.5 w-3.5" /> New Log
           </button>
+          </div>
         </div>
         {/* Inbox Header with Stats */}
         <LogsInboxHeader

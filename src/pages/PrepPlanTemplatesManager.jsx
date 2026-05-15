@@ -64,7 +64,7 @@ export default function PrepPlanTemplatesManager() {
   }
 
   return (
-    <div className="pb-32 bg-background">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Prep Templates"
         subtitle="Manage reusable prep templates and quick add single items"
@@ -80,7 +80,7 @@ export default function PrepPlanTemplatesManager() {
         }
       />
 
-      <div className="px-4 py-6 max-w-6xl mx-auto">
+      <div className="app-page max-w-6xl">
         <div className="lg:hidden mb-4 rounded-xl border border-border bg-card p-3">
           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Prep Plan Templates</p>
           <div className="mt-3 grid grid-cols-2 gap-2">

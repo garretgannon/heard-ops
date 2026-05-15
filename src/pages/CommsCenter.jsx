@@ -304,18 +304,20 @@ export default function CommsCenter() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Communications" />
-      <main className="app-page mx-auto max-w-2xl space-y-5 overflow-hidden lg:max-w-5xl">
+      <main className="app-page space-y-5 overflow-hidden">
         <header className="pt-1 lg:hidden">
           <p className="metric-label">Comms</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Communication center</h1>
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">Announcements, station notes, and comments tied to actual work.</p>
         </header>
 
-        <NewThreadForm isAdmin={isAdmin} stations={stations} onCreate={createThread} />
+        <div className="lg:mt-0">
+          <NewThreadForm isAdmin={isAdmin} stations={stations} onCreate={createThread} />
+        </div>
 
         <div className="grid min-w-0 max-w-full gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
           <section className="min-w-0 space-y-3">
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex flex-wrap gap-2">
               {[
                 ['open', 'Open'],
                 ['unread', 'Need Ack'],
@@ -326,7 +328,7 @@ export default function CommsCenter() {
                   key={id}
                   type="button"
                   onClick={() => setFilter(id)}
-                  className={cn('shrink-0 rounded-full px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em]', filter === id ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground')}
+                  className={cn('shrink-0 rounded-full px-5 py-2 text-xs font-black uppercase tracking-[0.12em]', filter === id ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground')}
                 >
                   {label}
                 </button>

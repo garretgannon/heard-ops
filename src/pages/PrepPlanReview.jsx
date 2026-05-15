@@ -80,7 +80,7 @@ export default function PrepPlanReview() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="app-screen">
       <DesktopPageHeader title="Review Prep Plan" subtitle="Review and approve prep plan details" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
@@ -94,7 +94,7 @@ export default function PrepPlanReview() {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-4 max-w-3xl mx-auto space-y-3">
+      <div className="app-page-narrow space-y-3">
         {plan.items && plan.items.length > 0 ? (
           plan.items.map((item, idx) => (
             <div key={idx} className="card-glass border border-border rounded-lg p-4">

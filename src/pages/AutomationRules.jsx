@@ -64,7 +64,7 @@ export default function AutomationRules() {
   };
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Automation Rules"
         subtitle="Create templates to auto-generate operational tasks"
@@ -103,7 +103,7 @@ export default function AutomationRules() {
       </div>
 
       {/* Template List */}
-      <div className="px-4 py-4 lg:py-6">
+      <div className="app-page">
         {loading ? (
           <div className="text-center py-8 text-muted-foreground text-sm">Loading templates...</div>
         ) : filtered.length === 0 ? (

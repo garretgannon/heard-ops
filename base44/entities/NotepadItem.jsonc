@@ -1,0 +1,39 @@
+{
+  "name": "NotepadItem",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "string",
+      "title": "Content"
+    },
+    "type": {
+      "type": "string",
+      "title": "Type",
+      "enum": ["task", "note"],
+      "enumNames": ["Task", "Note"],
+      "default": "task"
+    },
+    "checked": {
+      "type": "boolean",
+      "title": "Checked",
+      "default": false
+    },
+    "created_by": {
+      "type": "string",
+      "title": "Created By (Email)"
+    },
+    "created_by_name": {
+      "type": "string",
+      "title": "Created By (Name)"
+    },
+    "assigned_to_id": {
+      "type": "string",
+      "title": "Assigned To (ID)"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "title": "Assigned To (Name)"
+    }
+  },
+  "required": ["content"]
+}

@@ -62,7 +62,7 @@ export default function Training() {
     const completedIds = new Set(myCompletions.map(c => c.moduleId || c.module_id));
 
     return (
-      <div className="pb-32 bg-background min-h-screen">
+      <div className="app-screen">
         <DesktopPageHeader title="Training" subtitle="Your assignments and progress" />
         <div className="lg:hidden"><TrainingHeader /></div>
         {loading ? (
@@ -70,7 +70,7 @@ export default function Training() {
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
+          <div className="app-page-narrow space-y-6">
             {myAssignments.length > 0 && (
               <section className="space-y-3">
                 <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">My Assignments</h2>
@@ -144,7 +144,7 @@ export default function Training() {
   const TabComponent = activeTabData.component;
 
   return (
-    <div className="pb-32 bg-background min-h-screen">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Training"
         subtitle="Create modules, assign training, track completions"
@@ -178,7 +178,7 @@ export default function Training() {
       </div>
 
       {/* Content — sidebar nav on desktop, stacked on mobile */}
-      <div className="px-4 py-6 lg:py-6 max-w-6xl mx-auto w-full lg:flex lg:gap-8 lg:items-start">
+      <div className="app-page max-w-6xl w-full lg:flex lg:gap-8 lg:items-start">
         {/* Desktop vertical tab sidebar */}
         <div className="hidden lg:block w-44 shrink-0">
           <div className="sticky top-[152px] space-y-1">

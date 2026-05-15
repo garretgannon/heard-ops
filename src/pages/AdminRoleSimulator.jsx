@@ -37,7 +37,7 @@ export default function AdminRoleSimulator() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="app-screen">
       <DesktopPageHeader title="Role Simulator" subtitle="Preview the app exactly as each role experiences it" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border backdrop-blur-sm">
@@ -66,7 +66,7 @@ export default function AdminRoleSimulator() {
       </div>
 
       {/* Role Grid */}
-      <div className="px-4 py-6 space-y-4">
+      <div className="app-page space-y-4">
         <div className="grid grid-cols-1 gap-3">
           {Object.entries(ROLE_DEFINITIONS).map(([roleKey, roleDef]) => {
             const IconComponent = ROLE_ICONS[roleKey];

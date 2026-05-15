@@ -470,7 +470,7 @@ export default function Layout() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-[430px] mx-auto lg:max-w-[1500px] lg:mx-auto px-4 pt-3 lg:px-8 lg:pt-7 lg:pb-10"
+              className="w-full max-w-[430px] mx-auto lg:max-w-[1500px] lg:mx-0 px-4 pt-3 lg:px-8 lg:pt-0 lg:pb-10"
             >
               <Outlet />
             </motion.div>

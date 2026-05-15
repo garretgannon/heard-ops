@@ -102,7 +102,7 @@ export default function MyShifts() {
           </div>
         </header>
 
-        {shifts.length === 0 ? (
+        <div className="lg:mt-0">{shifts.length === 0 ? (
           <div className="app-card py-14 text-center">
             <Calendar className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
             <p className="text-sm font-semibold text-muted-foreground">No shifts scheduled</p>
@@ -127,7 +127,7 @@ export default function MyShifts() {
               </section>
             )}
           </>
-        )}
+        )}</div>
 
       </main>
     </div>

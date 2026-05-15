@@ -154,7 +154,6 @@ export default function QuickAddTaskModal({ open, onClose, onSuccess }) {
             onChange={e => setTitle(e.target.value)}
             placeholder="What needs to be done?"
             className={inputCls}
-            autoFocus
           />
         </div>
 

@@ -142,7 +142,7 @@ export default function WasteTemplates() {
   };
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Waste Templates"
         subtitle="Create reusable waste log templates"
@@ -176,7 +176,7 @@ export default function WasteTemplates() {
         </div>
       </div>
 
-      <div className="p-4 lg:py-6">
+      <div className="app-page">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (

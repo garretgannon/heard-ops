@@ -46,7 +46,7 @@ export default function ScheduleImport() {
   }
 
   return (
-    <div className="pb-28">
+    <div className="app-screen">
       <DesktopPageHeader title="Schedule Import" subtitle="Bulk upload weekly staff schedules from CSV, Excel, or R365" />
       <div className="lg:hidden bg-card border-b border-border sticky top-0 z-10 px-4 py-3">
         <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
@@ -55,7 +55,7 @@ export default function ScheduleImport() {
         <p className="text-[11px] text-muted-foreground mt-1">Bulk upload weekly staff schedules from CSV, Excel, or R365.</p>
       </div>
 
-      <div className="px-4 py-4 space-y-3">
+      <div className="app-page space-y-3">
         <div className="card-glass border border-border rounded-xl p-3 space-y-2">
           <p className="text-xs font-bold text-foreground mb-2">Import Type</p>
           <button

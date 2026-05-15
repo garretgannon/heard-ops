@@ -106,8 +106,19 @@ export const desktopNavSections = [
     items: [
       { path: "/app/overview", label: "Dashboard", icon: LayoutDashboard },
       { path: "/shift", label: "Shift", icon: Sparkles },
+      { path: "/notepad", label: "Notepad", icon: Notebook },
+      { path: "/cash-drawer", label: "Cash Drawer", icon: DollarSign },
       { path: "/logs", label: "Logs", icon: FileText, perm: "view_logs" },
-      { path: "/team", label: "Team", icon: Users, perm: "view_team" },
+      { path: "/comms", label: "Comms", icon: MessageSquare },
+    ],
+  },
+  {
+    label: "PLANNING",
+    items: [
+      { path: "/prep-planning", label: "Prep Planning", icon: ClipboardList, perm: "edit_prep_lists" },
+      { path: "/schedule", label: "Schedule", icon: Calendar, perm: "view_schedule" },
+      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate, perm: "view_beos" },
+      { path: "/approvals", label: "Approvals", icon: CheckSquare },
     ],
   },
   {
@@ -127,18 +138,11 @@ export const desktopNavSections = [
     ],
   },
   {
-    label: "PLANNING",
+    label: "ADMIN",
     items: [
-      { path: "/prep-planning", label: "Prep Planning", icon: ClipboardList, perm: "edit_prep_lists" },
-      { path: "/schedule", label: "Schedule", icon: Calendar, perm: "view_schedule" },
-      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate, perm: "view_beos" },
-    ],
-  },
-  {
-    label: "SETUP",
-    items: [
+      { path: "/team", label: "Team", icon: Users, perm: "view_team" },
+      { path: "/operational-map", label: "Stations", icon: Map },
       { path: "/templates", label: "Templates", icon: ClipboardList, perm: "view_templates" },
-      { path: "/operational-map", label: "Operations", icon: Map },
       { path: "/automation-rules", label: "Automation", icon: Zap },
       { path: "/reports", label: "Reports", icon: BarChart2, perm: "view_reports" },
       { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
@@ -160,6 +164,8 @@ export const moreNavSections = [
   {
     title: "Activity",
     items: [
+      { label: "Notepad",       detail: "Personal tasks and notes",       path: "/notepad",       icon: Notebook,      status: "status-neutral" },
+      { label: "Cash Drawer",   detail: "Count drawers and log cash",     path: "/cash-drawer",   icon: DollarSign,    status: "status-neutral" },
       { label: "Logs",          detail: "History and records",            path: "/logs",          icon: FileText,      status: "status-warning" },
       { label: "Comms",         detail: "Announcements and station notes", path: "/comms",         icon: MessageSquare, status: "status-warning" },
     ],

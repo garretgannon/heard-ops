@@ -86,7 +86,7 @@ export default function Cleaning() {
           )}
         </header>
 
-        {loading ? (
+        <div className="lg:mt-0">{loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => <div key={i} className="skeleton h-20 w-full rounded-2xl" />)}
           </div>
@@ -181,7 +181,7 @@ export default function Cleaning() {
               </button>
             )}
           </div>
-        )}
+        )}</div>
       </main>
     </div>
   );

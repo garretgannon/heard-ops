@@ -172,7 +172,7 @@ export default function PrepTemplateBuilder() {
   }
 
   return (
-    <div className="pb-32 bg-background min-h-screen">
+    <div className="app-screen">
       <DesktopPageHeader
         title={id ? 'Edit Prep Template' : 'New Prep Template'}
         subtitle="Build reusable prep templates for your restaurant"
@@ -186,7 +186,7 @@ export default function PrepTemplateBuilder() {
         }
       />
 
-      <div className="px-4 py-6 max-w-5xl mx-auto space-y-6">
+      <div className="app-page max-w-5xl space-y-6">
         {/* Template Header */}
         <div className="card-glass border border-border rounded-2xl p-6 space-y-4">
           <h3 className="text-sm font-bold uppercase text-muted-foreground">Template Settings</h3>

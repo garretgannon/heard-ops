@@ -261,7 +261,7 @@ export default function OperationalMap() {
           </button>
         </header>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 lg:mt-0">
           <div className="rounded-2xl border border-border/50 p-4 text-center" style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}>
             <p className="text-2xl font-black text-foreground">{activeAreas.length}</p>
             <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Areas</p>

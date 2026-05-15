@@ -131,7 +131,7 @@ export default function ReservationsAndBEOs() {
   }
 
   return (
-    <div className="pb-28">
+    <div className="app-screen">
       {/* Header */}
       <DesktopPageHeader
         title="Reservations & BEOs"
@@ -183,7 +183,7 @@ export default function ReservationsAndBEOs() {
         </div>
       </div>
 
-      <div className="px-4 pt-3 lg:pt-6">
+      <div className="px-4 pt-3 lg:pt-14">
         {!loading && <OverviewCard reservations={reservations} beos={beos} />}
 
         {loading ? (

@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/useToast";
 import { useUnifiedState } from "@/lib/UnifiedStateContext";
 import UpdateQuantitySheet from "@/components/tasks/UpdateQuantitySheet";
 import TaskVisual from "@/components/TaskVisual";
+import PrepRecipeSheet from "@/components/PrepRecipeSheet";
 
 const rawCache = { prepItems: null, sideWork: null, generatedTasks: null, ts: 0 };
 const CACHE_TTL = 30_000;
@@ -233,6 +234,8 @@ const statusStyles = {
 /* ── Prep Task Card ─────────────────────────────────────── */
 function PrepTaskCard({ task, onUpdateQty, onStart, navigate }) {
   const pct = Math.min(Math.round((task.qty_done / task.qty_needed) * 100), 100);
+  const [showRecipe, setShowRecipe] = useState(false);
+  const linkedRecipeId = task._raw?.linked_recipe_id;
   return (
     <div className="app-card overflow-hidden p-0">
       <div className="relative h-36 overflow-hidden">
@@ -288,14 +291,26 @@ function PrepTaskCard({ task, onUpdateQty, onStart, navigate }) {
           <ClipboardList className="h-3.5 w-3.5" />
           {task.demo ? "Preview Prep" : "Update Quantity"}
         </button>
+        {linkedRecipeId && (
+          <>
+            <div className="w-px bg-border/50" />
+            <button
+              onClick={() => { haptics.light(); setShowRecipe(true); }}
+              className="px-4 h-11 text-xs font-bold text-amber-400 flex items-center gap-1.5 active:bg-amber-500/10 transition-all"
+            >
+              <ChefHat className="h-3.5 w-3.5" /> Recipe
+            </button>
+          </>
+        )}
         <div className="w-px bg-border/50" />
         <button
           onClick={() => onStart?.(task)}
-          className="px-4 h-10 text-xs font-bold text-primary flex items-center gap-1.5 active:bg-primary/10 transition-all"
+          className="px-4 h-11 text-xs font-bold text-primary flex items-center gap-1.5 active:bg-primary/10 transition-all"
         >
           <Play className="h-3 w-3" /> Start
         </button>
       </div>
+      <PrepRecipeSheet open={showRecipe} onClose={() => setShowRecipe(false)} recipeId={linkedRecipeId} />
     </div>
   );
 }
@@ -874,7 +889,7 @@ export default function StaffTasks() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1100px] space-y-4 overflow-x-hidden px-4 py-3 lg:px-6">
+      <div className="mx-auto max-w-[1100px] space-y-4 overflow-x-hidden px-4 py-3 lg:px-6 lg:pt-14">
         {/* Shift summary card */}
         {data && (
           <div className="card-glass flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border border-border p-3 sm:gap-4">

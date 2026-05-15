@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
@@ -16,10 +16,16 @@ import { cn } from "@/lib/utils";
  *  className  — extra class on the panel
  */
 export default function BottomSheet({ open, onClose, title, children, className }) {
+  const scrollRef = useRef(null);
+
   // Lock body scroll while open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      // Reset scroll position to top after animation settles
+      setTimeout(() => {
+        if (scrollRef.current) scrollRef.current.scrollTop = 0;
+      }, 50);
     } else {
       document.body.style.overflow = "";
     }
@@ -83,7 +89,7 @@ export default function BottomSheet({ open, onClose, title, children, className 
             </div>
 
             {/* Scrollable content */}
-            <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pt-4 pb-4">
+            <div ref={scrollRef} className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pt-4 pb-4">
               {children}
             </div>
           </motion.div>

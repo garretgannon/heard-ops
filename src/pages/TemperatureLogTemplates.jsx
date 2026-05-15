@@ -113,7 +113,7 @@ export default function TemperatureLogTemplates() {
   if (!isAdmin) return <div className="p-4 text-center text-muted-foreground">Admin only</div>;
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Temperature Log Templates"
         subtitle="Create reusable temperature log templates"
@@ -139,7 +139,7 @@ export default function TemperatureLogTemplates() {
         </div>
       </div>
 
-      <div className="p-4 lg:py-6">
+      <div className="app-page">
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
         ) : filtered.length === 0 ? (

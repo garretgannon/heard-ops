@@ -177,7 +177,7 @@ export default function CleaningTemplates() {
   }
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Cleaning Templates"
         subtitle="Create reusable cleaning checklists"
@@ -229,7 +229,7 @@ export default function CleaningTemplates() {
         </div>
       </div>
 
-      <div className="p-4 lg:py-6">
+      <div className="app-page">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (

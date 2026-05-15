@@ -423,7 +423,7 @@ export default function StaffShift() {
   }
 
   return (
-    <div className="min-h-screen pb-36">
+    <div className="app-screen">
 
       <DesktopPageHeader title="Shift" subtitle="Brief, work your tasks, and sign off" />
 
@@ -537,7 +537,7 @@ export default function StaffShift() {
       </div>
 
       {/* ── Stage content ── */}
-      <div className="mx-auto max-w-5xl px-4 pt-4 lg:pt-6">
+      <div className="app-page max-w-5xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}

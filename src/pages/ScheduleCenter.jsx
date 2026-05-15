@@ -369,12 +369,12 @@ export default function ScheduleCenter() {
   const DEPARTMENTS = ['FOH', 'BOH', 'Bar', 'Management'];
 
   return (
-    <div className="min-h-screen bg-background pb-24 lg:pb-0" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); }}>
+    <div className="app-screen" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); }}>
 
       <DesktopPageHeader title="Schedule" subtitle="Staff shifts, assignments, and weekly planning" />
 
       {/* ── Schedule Header ── */}
-      <div className="sticky top-0 lg:top-[112px] z-30 bg-background/95 backdrop-blur-lg border-b border-border/20">
+      <div className="sticky top-0 lg:top-[112px] z-30 bg-background/95 backdrop-blur-lg border-b border-border/20 lg:mt-14">
         <div className={cn('px-4 lg:px-6 space-y-3', isExpanded ? 'py-2' : 'py-4')}>
 
           {/* Header: Title + Week Navigation + Right Actions */}

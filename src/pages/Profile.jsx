@@ -59,11 +59,11 @@ export default function Profile() {
   const cardStyle = { background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' };
 
   return (
-    <div className="pb-24 lg:pb-0">
+    <div className="app-screen">
       <DesktopPageHeader title="Settings" subtitle="Account preferences and notifications" />
 
       {/* Desktop Settings Grid */}
-      <div className="hidden lg:block px-8 py-6">
+      <div className="hidden lg:block px-8 pt-14 pb-6">
         <div className="grid grid-cols-2 gap-3 mb-4">
           {SETTINGS_GROUPS.map(group => {
             const Icon = group.icon;

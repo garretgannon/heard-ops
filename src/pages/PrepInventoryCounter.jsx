@@ -134,7 +134,7 @@ export default function PrepInventoryCounter() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="app-screen">
       <DesktopPageHeader title="Prep Inventory Count" subtitle="Count and record prep quantities" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
@@ -148,7 +148,7 @@ export default function PrepInventoryCounter() {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-4 max-w-2xl mx-auto space-y-4">
+      <div className="app-page-narrow space-y-4">
         {/* Station Select */}
         {!station && (
           <div className="card-glass border border-border rounded-lg p-4 mb-4">

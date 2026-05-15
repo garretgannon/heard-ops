@@ -405,7 +405,7 @@ export default function LocationSetup() {
   }, [loading, selectedStationId, stations]);
 
   return (
-    <div className="pb-28 lg:pb-8">
+    <div className="app-screen">
       <DesktopPageHeader title="Location Setup" subtitle="Areas, stations, and equipment hierarchy" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 py-4">
@@ -429,7 +429,7 @@ export default function LocationSetup() {
         </div>
       </div>
 
-      <div className="px-4 py-4">
+      <div className="app-page">
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading location map…</div>
         ) : (

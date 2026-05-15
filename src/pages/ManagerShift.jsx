@@ -227,11 +227,11 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center justify-between px-4 py-3 text-left"
+        className="flex w-full items-center justify-between px-4 py-3 lg:px-5 lg:py-4 text-left"
       >
         <div className="flex items-center gap-2.5">
-          <Icon className={cn("h-4 w-4 shrink-0", viewed ? "text-green-400/70" : iconColor)} />
-          <span className={cn("text-sm font-black transition-colors", viewed ? "text-foreground/70" : "text-foreground")}>{label}</span>
+          <Icon className={cn("h-4 w-4 lg:h-5 lg:w-5 shrink-0", viewed ? "text-green-400/70" : iconColor)} />
+          <span className={cn("text-sm lg:text-[15px] font-black transition-colors", viewed ? "text-foreground/70" : "text-foreground")}>{label}</span>
         </div>
         <div className="flex items-center gap-2">
           {viewed && <Check className="h-3 w-3 text-green-400/60" />}
@@ -263,12 +263,12 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
 function IntelRow({ title, meta, severity = "neutral" }) {
   const dot = severity === "critical" ? "bg-red-400/80" : severity === "warning" ? "bg-amber-400/80" : "bg-border/60";
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border/20 px-3 py-2.5"
+    <div className="flex items-start gap-3 rounded-lg border border-border/20 px-3 py-2.5 lg:px-4 lg:py-3"
       style={{ background: "rgba(255,255,255,0.02)" }}>
       <div className={cn("mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full", dot)} />
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-foreground leading-snug">{title}</p>
-        {meta && <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">{meta}</p>}
+        <p className="text-sm lg:text-[15px] font-semibold text-foreground leading-snug">{title}</p>
+        {meta && <p className="mt-0.5 text-[11px] lg:text-xs text-muted-foreground leading-snug">{meta}</p>}
       </div>
     </div>
   );
@@ -294,7 +294,7 @@ function DutyCard({ config, checked, locked, onToggle, xpFloat, onXpDone }) {
           backgroundColor: checked ? "rgba(34,197,94,0.06)" : "transparent",
         }}
         transition={{ duration: 0.25 }}
-        className="flex w-full items-center gap-3 overflow-hidden rounded-xl border border-border/25 px-4 py-3 text-left"
+        className="flex w-full items-center gap-3 overflow-hidden rounded-xl border border-border/25 px-4 py-3 lg:px-5 lg:py-3.5 text-left"
         style={{ background: checked ? "rgba(34,197,94,0.06)" : "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
       >
         {/* Status icon */}
@@ -320,7 +320,7 @@ function DutyCard({ config, checked, locked, onToggle, xpFloat, onXpDone }) {
         {/* Text */}
         <div className="flex-1 min-w-0">
           <p className={cn(
-            "text-sm font-bold leading-snug transition-all",
+            "text-sm lg:text-[15px] font-bold leading-snug transition-all",
             checked ? "text-muted-foreground line-through" : locked ? "text-muted-foreground/50" : "text-foreground"
           )}>
             {config.text}
@@ -817,7 +817,7 @@ export default function ManagerShift() {
   const dutiesPct = Math.round((checkedDuties.length / DUTIES.length) * 100);
 
   return (
-    <div className="min-h-screen pb-36 lg:pb-12">
+    <div className="app-screen">
       <DesktopPageHeader title="Shift" subtitle="Manager briefing, duties, and handoff" />
 
       {/* Sticky HUD header */}
@@ -910,7 +910,7 @@ export default function ManagerShift() {
       </div>
 
       {/* Desktop stage nav — replaces the hidden mobile HUD tabs */}
-      <div className="hidden lg:flex items-center gap-2 px-8 py-3 border-b border-border/20 bg-card/30">
+      <div className="hidden lg:flex items-center gap-2 px-8 py-3 lg:mt-7 border-b border-border/20 bg-card/30">
         <div className="flex gap-1">
           {STAGE_CONFIG.map(stage => {
             const Icon = stage.icon;
@@ -958,7 +958,7 @@ export default function ManagerShift() {
       </div>
 
       {/* Stage content */}
-      <div className="mx-auto max-w-3xl lg:max-w-5xl px-4 pt-4">
+      <div className="app-page">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
@@ -1006,7 +1006,7 @@ export default function ManagerShift() {
                     : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />
                   }
                   <div className="flex-1">
-                    <p className="text-sm font-black text-foreground">
+                    <p className="text-sm lg:text-[15px] font-black text-foreground">
                       {acknowledged ? "Intel reviewed — you're good to go" : "Review shift intel before starting"}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
@@ -1020,7 +1020,7 @@ export default function ManagerShift() {
                   )}
                 </div>
 
-                <div className="lg:grid lg:grid-cols-2 lg:gap-3 space-y-3 lg:space-y-0">
+                <div className="lg:grid lg:grid-cols-3 lg:gap-3 space-y-3 lg:space-y-0">
                   <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
                     {briefing.handoffs.length === 0
                       ? <EmptyIntel text="No recent handoff found." />
@@ -1122,7 +1122,7 @@ export default function ManagerShift() {
             {/* ── OPS ────────────────────────────────────────────────── */}
             {activeStage === "run" && (
               <>
-                <div className="lg:grid lg:grid-cols-2 lg:gap-4 space-y-3 lg:space-y-0">
+                <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 space-y-3 lg:space-y-0">
                   {/* Left: Pre-shift briefing form */}
                   <div>
                     <div
@@ -1136,7 +1136,7 @@ export default function ManagerShift() {
                         <div className="flex items-start gap-2.5">
                           <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                           <div>
-                            <p className="text-sm font-black text-foreground">Pre-Shift Briefing</p>
+                            <p className="text-sm lg:text-[15px] font-black text-foreground">Pre-Shift Briefing</p>
                             <p className="mt-0.5 text-xs text-muted-foreground">Required to unlock full duty XP. +25 XP on save.</p>
                           </div>
                         </div>
@@ -1214,7 +1214,7 @@ export default function ManagerShift() {
                       <div className="flex items-center justify-between px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
                           <Target className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-black text-foreground">Mission Objectives</span>
+                          <span className="text-sm lg:text-[15px] font-black text-foreground">Mission Objectives</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-foreground")}>
@@ -1301,7 +1301,7 @@ export default function ManagerShift() {
                   <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
                     <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <div>
-                      <p className="text-sm font-black text-foreground">Required Close Review</p>
+                      <p className="text-sm lg:text-[15px] font-black text-foreground">Required Close Review</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">Every checklist, sidework item, issue, 86 item, and shift log needs a resolution or no-follow-up confirmation.</p>
                     </div>
                   </div>
@@ -1374,7 +1374,7 @@ export default function ManagerShift() {
                   <div className="flex items-start gap-2.5 px-4 py-4">
                     <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <div>
-                      <p className="text-sm font-black text-foreground">Handoff Requirements</p>
+                      <p className="text-sm lg:text-[15px] font-black text-foreground">Handoff Requirements</p>
                       <div className="mt-2 space-y-1.5">
                         {briefing.handoffPrompts.map(prompt => (
                           <div key={prompt} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -1395,7 +1395,7 @@ export default function ManagerShift() {
                   <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
                     <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <div>
-                      <p className="text-sm font-black text-foreground">Handoff to Next Manager</p>
+                      <p className="text-sm lg:text-[15px] font-black text-foreground">Handoff to Next Manager</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">Summarize open items, guest issues, staffing notes. +50 XP on submit.</p>
                     </div>
                   </div>
@@ -1437,7 +1437,7 @@ export default function ManagerShift() {
                       <Star className="h-4 w-4" />
                     </span>
                     <div>
-                      <p className="text-sm font-black text-foreground">Shift Handoff Log</p>
+                      <p className="text-sm lg:text-[15px] font-black text-foreground">Shift Handoff Log</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">View all previous handoff notes and shift history</p>
                     </div>
                   </div>

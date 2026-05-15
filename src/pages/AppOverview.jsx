@@ -490,7 +490,7 @@ export default function AppOverview() {
         </div>
 
         {/* ── Desktop layout ─────────────────────────────────────── */}
-        <div className="hidden lg:block space-y-5">
+        <div className="hidden lg:block space-y-5 lg:mt-0">
           {/* Greeting */}
           <div className="flex items-center justify-between">
             <div>

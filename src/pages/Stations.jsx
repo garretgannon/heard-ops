@@ -105,7 +105,7 @@ export default function Stations() {
   };
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader title="Stations" subtitle="Manage kitchen and service stations" />
       <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Stations</h1>
@@ -121,7 +121,7 @@ export default function Stations() {
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="app-page space-y-3">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (

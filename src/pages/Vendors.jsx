@@ -57,7 +57,7 @@ export default function Vendors() {
   const categories = [...new Set(vendors.map(v => v.category).filter(Boolean))];
 
   return (
-    <div className="pb-24 lg:pb-0">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Vendors"
         subtitle="Manage vendor relationships and ordering"
@@ -77,7 +77,7 @@ export default function Vendors() {
       </div>
 
       {/* Filters */}
-      <div className="lg:flex items-center gap-2 px-4 py-3 border-b border-border/30 hidden">
+      <div className="hidden lg:flex items-center gap-2 px-4 py-3 border-b border-border/30 lg:mt-14">
         <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
           <option value="">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{CAT_LABELS[c] || c}</option>)}

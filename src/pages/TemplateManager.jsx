@@ -152,7 +152,7 @@ export default function TemplateManager() {
   if (loading) return <div className="flex items-center justify-center h-screen"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
-    <div className="pb-20 bg-background min-h-screen">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Templates"
         subtitle="Unified operational task templates"
@@ -222,7 +222,7 @@ export default function TemplateManager() {
       </div>
 
       {/* Template Cards */}
-      <div className="px-4 py-4 space-y-2 max-w-6xl lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
+      <div className="app-page space-y-2 lg:grid lg:grid-cols-2 lg:gap-3 lg:space-y-0">
         {filtered.length === 0 ? (
           <div className="col-span-2 text-center py-20">
             <AlertCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />

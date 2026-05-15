@@ -542,7 +542,7 @@ export default function BuildCards() {
   if (showForm) return <BuildCardForm card={editing} onSave={handleSave} onClose={() => { setShowForm(false); setEditing(null); }} />;
 
   return (
-    <div className="pb-28">
+    <div className="app-screen">
       <DesktopPageHeader title="Build Cards" subtitle="Menu specs, plating guides, modifiers, and service execution" />
       <div className="lg:hidden bg-card border-b border-border sticky top-0 z-10">
         <div className="px-4 pt-4 pb-3">
@@ -581,7 +581,7 @@ export default function BuildCards() {
         </div>
       </div>
 
-      <div className="px-4 py-3 space-y-2.5">
+      <div className="app-page space-y-2.5">
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (

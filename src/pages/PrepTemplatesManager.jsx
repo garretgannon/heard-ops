@@ -48,8 +48,10 @@ const UNITS = ['lbs','oz','kg','g','portions','each','batches','gallons','quarts
 
 const BLANK_ITEM = () => ({ itemName: '', quantity: 1, unit: 'lbs', priority: 'medium', jobCode: 'Prep Cook', notes: '', sortOrder: 0, photoRequired: false, chefApprovalRequired: false });
 
-function BulkItemEntry({ items, onChange }) {
+function BulkItemEntry({ items, onChange, recipes = [] }) {
   const rowRefs = useRef([]);
+  const [activePickerIdx, setActivePickerIdx] = useState(null);
+  const [pickerSearch, setPickerSearch] = useState('');
 
   const updateItem = (idx, field, value) => {
     const updated = [...items];
@@ -97,18 +99,45 @@ function BulkItemEntry({ items, onChange }) {
         <span title="Chef approval required" className="flex items-center justify-center"><ChefHat className="h-3 w-3 text-muted-foreground/50" /></span>
         <span />
       </div>
-      {items.map((item, idx) => (
+      {items.map((item, idx) => {
+        const isDup = items.some((other, i) => i !== idx && other.itemName.trim().toLowerCase() === item.itemName.trim().toLowerCase() && item.itemName.trim());
+        const q = (activePickerIdx === idx ? pickerSearch : item.itemName).toLowerCase();
+        const filteredRecipes = activePickerIdx === idx ? recipes.filter(r => !pickerSearch || r.name.toLowerCase().includes(pickerSearch.toLowerCase())).slice(0, 6) : [];
+        return (
         <div key={idx} ref={el => rowRefs.current[idx] = el} className="grid grid-cols-[1fr_60px_108px_76px_26px_26px_28px] gap-1.5 items-center">
-          <input
-            data-field="name"
-            type="text"
-            placeholder="Item name…"
-            value={item.itemName}
-            onChange={e => updateItem(idx, 'itemName', e.target.value)}
-            onKeyDown={e => handleNameKeyDown(e, idx)}
-            className="w-full h-8 px-2.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
-            autoComplete="off"
-          />
+          <div className="relative">
+            <input
+              data-field="name"
+              type="text"
+              placeholder="Item name…"
+              value={item.itemName}
+              onChange={e => { updateItem(idx, 'itemName', e.target.value); if (activePickerIdx !== idx) { setActivePickerIdx(idx); setPickerSearch(e.target.value); } else { setPickerSearch(e.target.value); } }}
+              onFocus={() => { setActivePickerIdx(idx); setPickerSearch(item.itemName); }}
+              onBlur={() => setTimeout(() => setActivePickerIdx(null), 150)}
+              onKeyDown={e => handleNameKeyDown(e, idx)}
+              className={`w-full h-8 px-2.5 bg-background border rounded-lg text-xs text-foreground focus:outline-none ${isDup ? 'border-amber-500/60' : item.linked_recipe_id ? 'border-primary/50' : 'border-border focus:border-primary'}`}
+              autoComplete="off"
+            />
+            {isDup && <span className="absolute right-1.5 top-1 text-[9px] text-amber-400 font-bold">DUP</span>}
+            {activePickerIdx === idx && recipes.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-0.5 max-h-36 overflow-y-auto rounded-lg border border-border/60 bg-card shadow-lg">
+                {filteredRecipes.map(r => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onMouseDown={() => { updateItem(idx, 'itemName', r.name); updateItem(idx, 'linked_recipe_id', r.id); setActivePickerIdx(null); setTimeout(() => rowRefs.current[idx]?.querySelector('[data-field="qty"]')?.focus(), 30); }}
+                    className="w-full px-2.5 py-2 text-left text-xs hover:bg-muted/60 border-b border-border/20 last:border-0 flex items-center justify-between gap-1"
+                  >
+                    <span className="font-semibold text-foreground truncate">📖 {r.name}</span>
+                    <span className="text-[9px] text-muted-foreground shrink-0 capitalize">{r.category || ''}</span>
+                  </button>
+                ))}
+                {filteredRecipes.length === 0 && pickerSearch.length >= 2 && (
+                  <p className="px-2.5 py-2 text-xs text-muted-foreground">No matching recipes</p>
+                )}
+              </div>
+            )}
+          </div>
           <input
             data-field="qty"
             type="number"
@@ -159,7 +188,8 @@ function BulkItemEntry({ items, onChange }) {
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
-      ))}
+        );
+      })}
       <button onClick={() => addRow(items.length - 1)} className="w-full h-8 mt-1 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1.5">
         <Plus className="h-3.5 w-3.5" /> Add item <span className="text-[10px] opacity-60">(or press Enter on any row)</span>
       </button>
@@ -178,6 +208,7 @@ function TemplateForm({ template, onSave, onCancel }) {
   const [requiresManagerReview, setRequiresManagerReview] = useState(template?.requiresManagerReview || false);
   const [notes, setNotes] = useState(template?.notes || '');
   const [items, setItems] = useState([BLANK_ITEM()]);
+  const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
     if (template?.id) {
@@ -185,6 +216,7 @@ function TemplateForm({ template, onSave, onCancel }) {
         setItems(loaded.length > 0 ? loaded : [BLANK_ITEM()]);
       });
     }
+    base44.entities.Recipe.list('name', 200).catch(() => []).then(r => setRecipes(r.filter(x => x.status !== 'archived')));
   }, [template?.id]);
 
   const toggleDay = (day) => {
@@ -232,17 +264,14 @@ function TemplateForm({ template, onSave, onCancel }) {
       }
 
       // Save items
+      const names = items.filter(i => i.itemName.trim()).map(i => i.itemName.trim().toLowerCase());
+      const hasDups = names.some((n, i) => names.indexOf(n) !== i);
+      if (hasDups) { alert('Duplicate item names found. Please fix before saving.'); return; }
       for (const item of items) {
         if (item.id) {
-          await base44.entities.PrepTemplateItem.update(item.id, {
-            ...item,
-            prepTemplateId: templateId
-          });
+          await base44.entities.PrepTemplateItem.update(item.id, { ...item, prepTemplateId: templateId });
         } else if (item.itemName) {
-          await base44.entities.PrepTemplateItem.create({
-            ...item,
-            prepTemplateId: templateId
-          });
+          await base44.entities.PrepTemplateItem.create({ ...item, prepTemplateId: templateId });
         }
       }
 
@@ -339,7 +368,7 @@ function TemplateForm({ template, onSave, onCancel }) {
           <p className="text-xs font-bold text-secondary-text">Items ({items.filter(i => i.itemName).length})</p>
           <span className="text-[10px] text-muted-foreground">Tab between fields · Enter for new row</span>
         </div>
-        <BulkItemEntry items={items} onChange={setItems} />
+        <BulkItemEntry items={items} onChange={setItems} recipes={recipes} />
       </div>
 
       <div className="flex gap-2 pt-4">
@@ -423,7 +452,7 @@ export default function PrepTemplatesManager() {
   };
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Prep Templates"
         subtitle="Create reusable prep list templates"
@@ -497,7 +526,7 @@ export default function PrepTemplatesManager() {
         )}
       </div>
 
-      <div className="p-4 lg:py-6">
+      <div className="app-page">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (

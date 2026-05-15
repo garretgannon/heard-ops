@@ -577,11 +577,22 @@
   }
 
   .app-page {
-    @apply w-full max-w-7xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-6 lg:pb-10;
+    @apply w-full max-w-7xl mx-auto px-4 py-5 pb-28;
   }
 
   .app-page-narrow {
-    @apply w-full max-w-5xl mx-auto px-4 py-5 pb-28 lg:px-8 lg:py-6 lg:pb-10;
+    @apply w-full max-w-5xl mx-auto px-4 py-5 pb-28;
+  }
+
+  @media (min-width: 1024px) {
+    .app-page,
+    .app-page-narrow {
+      margin-left: 0 !important;
+      margin-right: auto;
+      padding-left: 2rem;
+      padding-top: 3.5rem;
+      padding-bottom: 2.5rem;
+    }
   }
 
   .mobile-tab-viewport {

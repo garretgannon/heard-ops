@@ -114,7 +114,7 @@ export default function Reports() {
           <p className="mt-1 text-sm text-muted-foreground">Today's operational summary.</p>
         </header>
 
-        {loading ? (
+        <div className="lg:mt-0">{loading ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               {[1, 2, 3, 4].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}
@@ -242,7 +242,7 @@ export default function Reports() {
               </div>
             </SectionCard>
           </>
-        )}
+        )}</div>
       </main>
     </div>
   );

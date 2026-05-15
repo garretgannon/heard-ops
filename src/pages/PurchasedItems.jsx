@@ -206,7 +206,7 @@ export default function PurchasedItems() {
   }
 
   return (
-    <div className="pb-28">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Purchased Items"
         subtitle="Item master for recipe costing, inventory, vendors, and waste"
@@ -278,7 +278,7 @@ export default function PurchasedItems() {
         </div>
       </div>
 
-      <div className="px-4 py-3 lg:py-6 space-y-4">
+      <div className="app-page space-y-4">
         <SummaryCard items={items} isAdmin={isAdmin} />
 
         {loading ? (

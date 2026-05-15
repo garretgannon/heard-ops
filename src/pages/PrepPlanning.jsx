@@ -98,7 +98,7 @@ export default function PrepPlanning() {
   const dayLabel   = format(today, "EEE, MMM d");
 
   return (
-    <div className="min-h-screen pb-40 lg:pb-12">
+    <div className="app-screen">
       <DesktopPageHeader title="Prep Planning" subtitle="Plan production and set par levels" />
 
       {/* Sticky header */}
@@ -129,7 +129,7 @@ export default function PrepPlanning() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pt-4 lg:pt-6">
+      <div className="app-page">
         <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
 
           {/* Left column: Status + Actions */}

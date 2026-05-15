@@ -46,7 +46,7 @@ export default function InventorySimplified() {
   const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   return (
-    <div className="pb-24 lg:pb-0">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Inventory"
         subtitle="Track stock levels and manage counts"
@@ -91,7 +91,7 @@ export default function InventorySimplified() {
       </div>
 
       {/* KPI Row */}
-      <div className="hidden lg:grid lg:grid-cols-5 lg:gap-3 lg:py-4 border-b border-border/30">
+      <div className="hidden lg:grid lg:grid-cols-5 lg:gap-3 lg:py-4 border-b border-border/30 lg:mt-14">
         {[
           { label: 'Total Value', value: `$${totalValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, sub: 'Estimated', color: 'text-foreground' },
           { label: 'Low Stock Items', value: lowStock, sub: 'Needs attention', color: lowStock > 0 ? 'text-amber-400' : 'text-foreground' },

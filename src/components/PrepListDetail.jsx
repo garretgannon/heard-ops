@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import PhotoUpload from "./PhotoUpload";
 import { ArrowLeft, Plus, Trash2, GripVertical, ArrowUpDown, Upload, CheckSquare, Square, FileDown, MessageSquare, ListPlus, X } from "lucide-react";
@@ -38,6 +38,16 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
   const [expandedSteps, setExpandedSteps] = useState({});
   const toggleSteps = (id) => setExpandedSteps(prev => ({ ...prev, [id]: !prev[id] }));
   const [fastCompleteItem, setFastCompleteItem] = useState(null);
+  const [recipes, setRecipes] = useState([]);
+  const [recipeSearch, setRecipeSearch] = useState('');
+  const [showRecipeSuggestions, setShowRecipeSuggestions] = useState(false);
+  const [dialogLinkedRecipeId, setDialogLinkedRecipeId] = useState('');
+  const [editLinkedRecipeId, setEditLinkedRecipeId] = useState('');
+  const recipeInputRef = useRef(null);
+
+  useEffect(() => {
+    base44.entities.Recipe.list('name', 200).catch(() => []).then(r => setRecipes(r.filter(x => x.status !== 'archived')));
+  }, []);
 
   const saveHandoverNotes = async () => {
     setSavingHandover(true);
@@ -184,6 +194,8 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
 
   const handleAddItem = async () => {
     if (!form.name.trim()) return;
+    const duplicate = items.some(i => i.name.trim().toLowerCase() === form.name.trim().toLowerCase());
+    if (duplicate) { toast.error(`"${form.name.trim()}" already exists in this prep list`); return; }
     setSaving(true);
     await base44.entities.PrepItem.create({
       ...form,
@@ -192,8 +204,11 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
       status: "pending",
       sort_order: items.length,
       allow_all_roles: !form.role_assignment && !form.assigned_to_individual,
+      linked_recipe_id: dialogLinkedRecipeId || undefined,
     });
     setForm({ name: "", quantity: "", unit: "", notes: "", priority: "medium", role_assignment: "", assigned_to_individual: "" });
+    setDialogLinkedRecipeId('');
+    setRecipeSearch('');
 
     setSaving(false);
     setDialogOpen(false);
@@ -546,15 +561,50 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
       )}
 
       {/* Add item dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={open => { setDialogOpen(open); if (!open) { setRecipeSearch(''); setDialogLinkedRecipeId(''); setShowRecipeSuggestions(false); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Prep Item</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div>
+            <div className="relative">
               <Label>Item Name</Label>
-              <Input placeholder="e.g., Dice onions, Portion steaks" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+              {dialogLinkedRecipeId ? (
+                <div className="flex items-center gap-2 mt-1 rounded-lg border border-border bg-background px-3 py-2">
+                  <span className="flex-1 text-sm font-semibold truncate">📖 {form.name}</span>
+                  <button type="button" onClick={() => { setDialogLinkedRecipeId(''); }} className="text-xs text-muted-foreground hover:text-destructive shrink-0">Unlink</button>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    ref={recipeInputRef}
+                    placeholder="Type to search recipes or enter new item…"
+                    value={form.name}
+                    onChange={e => { setForm({ ...form, name: e.target.value }); setShowRecipeSuggestions(true); }}
+                    onFocus={() => setShowRecipeSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowRecipeSuggestions(false), 150)}
+                    className="mt-1"
+                  />
+                  {showRecipeSuggestions && form.name.length >= 2 && (
+                    <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-44 overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
+                      {recipes.filter(r => r.name.toLowerCase().includes(form.name.toLowerCase())).slice(0, 6).map(r => (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onMouseDown={() => { setForm(p => ({ ...p, name: r.name })); setDialogLinkedRecipeId(r.id); setShowRecipeSuggestions(false); }}
+                          className="w-full px-3 py-2.5 text-left text-sm hover:bg-muted/60 border-b border-border/30 last:border-0 flex items-center justify-between gap-2"
+                        >
+                          <span className="font-semibold text-foreground">📖 {r.name}</span>
+                          <span className="text-[10px] text-muted-foreground shrink-0 capitalize">{r.category || 'recipe'}</span>
+                        </button>
+                      ))}
+                      {recipes.filter(r => r.name.toLowerCase().includes(form.name.toLowerCase())).length === 0 && (
+                        <p className="px-3 py-2.5 text-sm text-muted-foreground">No matching recipes — will create as new item</p>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

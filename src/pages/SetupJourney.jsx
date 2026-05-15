@@ -231,7 +231,7 @@ export default function SetupJourney() {
   if (!statuses.prep?.done) suggestions.push({ text: 'No prep templates set — your kitchen team is missing daily guidance', icon: '📋' });
 
   return (
-    <div className="min-h-screen pb-32 lg:pb-16">
+    <div className="app-screen">
       <DesktopPageHeader title="Setup Journey" subtitle="Build your operating system" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/30 px-4 pt-4 pb-4">
@@ -274,7 +274,7 @@ export default function SetupJourney() {
         </div>
       </div>
 
-      <div className="px-4 pt-4 space-y-4">
+      <div className="app-page space-y-4">
 
         {/* Suggestions */}
         {suggestions.length > 0 && (

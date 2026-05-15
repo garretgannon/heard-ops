@@ -86,6 +86,11 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
   const [employees, setEmployees] = useState([]);
   const [prepItems, setPrepItems] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [recipes, setRecipes] = useState([]);
+  const [linkedRecipeId, setLinkedRecipeId] = useState('');
+  const [linkedRecipeName, setLinkedRecipeName] = useState('');
+  const [recipeSearch, setRecipeSearch] = useState('');
+  const [showRecipePicker, setShowRecipePicker] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -94,19 +99,22 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
       base44.entities.Station.list('-updated_date', 100).catch(() => []),
       base44.entities.Employee.list('full_name', 100).catch(() => []),
       base44.entities.PrepItem.list('-updated_date', 200).catch(() => []),
-    ]).then(([s, e, p]) => {
+      base44.entities.Recipe.list('name', 200).catch(() => []),
+    ]).then(([s, e, p, r]) => {
       setStations(s.filter(x => x.isActive !== false));
       setEmployees(e.filter(x => x.status !== 'inactive'));
       setPrepItems(p);
+      setRecipes(r.filter(x => x.status !== 'archived'));
     });
   }, [open]);
 
   const reset = () => {
     setName(''); setShowSuggestions(false); setAssignType('station'); setStationId('');
     setPersonEmail(''); setPersonName(''); setRefPhotoUrl(''); setRequireCompletionPhoto(true);
+    setLinkedRecipeId(''); setLinkedRecipeName(''); setRecipeSearch(''); setShowRecipePicker(false);
   };
 
-  const suggestions = name.trim().length > 0
+  const suggestions = name.trim().length >= 3
     ? prepItems.filter(p => p.name?.toLowerCase().includes(name.toLowerCase())).slice(0, 6)
     : [];
 
@@ -135,6 +143,7 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
         sort_order: -1,
         photo_url: refPhotoUrl || undefined,
         require_completion_photo: requireCompletionPhoto,
+        linked_recipe_id: linkedRecipeId || undefined,
       };
       if (assignType === 'station') {
         payload.station_name = station?.name || stationId;
@@ -169,9 +178,8 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
             onChange={e => { setName(e.target.value); setShowSuggestions(true); }}
             onFocus={() => setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            placeholder="Search or type item name…"
+            placeholder="Type at least 3 letters to search…"
             className={inputCls}
-            autoFocus
             autoComplete="off"
           />
           {showSuggestions && suggestions.length > 0 && (
@@ -229,6 +237,47 @@ export default function QuickAddPrepModal({ open, onClose, onSuccess }) {
               <option value="">Select person…</option>
               {employees.map(e => <option key={e.id} value={e.email}>{e.full_name}</option>)}
             </select>
+          )}
+        </div>
+
+        {/* Link Recipe */}
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-muted-foreground">Linked Recipe (optional)</label>
+          {linkedRecipeId ? (
+            <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/50 px-3 py-2.5">
+              <span className="flex-1 text-sm font-semibold text-foreground truncate">📖 {linkedRecipeName}</span>
+              <button type="button" onClick={() => { setLinkedRecipeId(''); setLinkedRecipeName(''); }} className="text-xs text-muted-foreground hover:text-red-400 transition-colors shrink-0">Remove</button>
+            </div>
+          ) : (
+            <div className="relative">
+              <input
+                value={recipeSearch}
+                onChange={e => { setRecipeSearch(e.target.value); setShowRecipePicker(true); }}
+                onFocus={() => setShowRecipePicker(true)}
+                onBlur={() => setTimeout(() => setShowRecipePicker(false), 150)}
+                placeholder="Search recipes…"
+                className={inputCls}
+              />
+              {showRecipePicker && recipeSearch.length >= 2 && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg max-h-44 overflow-y-auto">
+                  {recipes.filter(r => r.name?.toLowerCase().includes(recipeSearch.toLowerCase())).slice(0, 6).map(r => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onMouseDown={() => { setLinkedRecipeId(r.id); setLinkedRecipeName(r.name); setRecipeSearch(''); setShowRecipePicker(false); }}
+                      onTouchStart={() => { setLinkedRecipeId(r.id); setLinkedRecipeName(r.name); setRecipeSearch(''); setShowRecipePicker(false); }}
+                      className="w-full px-3 py-2.5 text-left text-sm text-foreground hover:bg-muted/60 active:bg-muted border-b border-border/30 last:border-0"
+                    >
+                      <span className="font-semibold">{r.name}</span>
+                      {r.category && <span className="ml-2 text-[10px] text-muted-foreground capitalize">{r.category}</span>}
+                    </button>
+                  ))}
+                  {recipes.filter(r => r.name?.toLowerCase().includes(recipeSearch.toLowerCase())).length === 0 && (
+                    <p className="px-3 py-3 text-sm text-muted-foreground">No recipes found</p>
+                  )}
+                </div>
+              )}
+            </div>
           )}
         </div>
 

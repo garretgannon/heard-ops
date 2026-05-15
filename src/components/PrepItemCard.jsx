@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import SwipeableCard from "./SwipeableCard";
 import useHaptic from "@/hooks/useHaptic";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, ListChecks } from "lucide-react";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, ListChecks, ChefHat } from "lucide-react";
 import PriorityBadge from "./PriorityBadge";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import PhotoUpload from "./PhotoUpload";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";
 import PrepStepsPanel from "./PrepStepsPanel";
+import PrepRecipeSheet from "./PrepRecipeSheet";
 
 export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
   const haptic = useHaptic();
@@ -24,6 +25,7 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
   const [stepsOpen, setStepsOpen] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [showRecipe, setShowRecipe] = useState(false);
   const isCompleted = item.status === "completed";
   const isOverdue = item.status === "overdue";
 
@@ -130,13 +132,23 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
             {prepList && <span>{prepList.name}</span>}
           </div>
           {item.notes && <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>}
-          <button
-            onClick={e => { e.stopPropagation(); setStepsOpen(v => !v); }}
-            className={`flex items-center gap-1 text-xs font-medium mt-1 transition-colors ${stepsOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            <ListChecks className="h-3 w-3" />
-            {stepsOpen ? "Hide Steps" : "View Steps"}
-          </button>
+          <div className="flex items-center gap-3 mt-1">
+            <button
+              onClick={e => { e.stopPropagation(); setStepsOpen(v => !v); }}
+              className={`flex items-center gap-1 text-xs font-medium transition-colors ${stepsOpen ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <ListChecks className="h-3 w-3" />
+              {stepsOpen ? "Hide Steps" : "View Steps"}
+            </button>
+            {item.linked_recipe_id && (
+              <button
+                onClick={e => { e.stopPropagation(); setShowRecipe(true); }}
+                className="flex items-center gap-1 text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors"
+              >
+                <ChefHat className="h-3 w-3" /> Recipe
+              </button>
+            )}
+          </div>
           {isCompleted && item.completed_by && (
             <p className="text-xs text-accent mt-1">✓ {item.completed_by}</p>
           )}
@@ -185,6 +197,7 @@ export default function PrepItemCard({ item, prepList, userName, onUpdate }) {
       )}
 
       <PhotoPreviewDialog url={photoPreview} onClose={() => setPhotoPreview(null)} />
+      <PrepRecipeSheet open={showRecipe} onClose={() => setShowRecipe(false)} recipeId={item.linked_recipe_id} />
     </motion.div>
     </SwipeableCard>
   );

@@ -203,7 +203,7 @@ export default function SideWorkTemplates() {
   }
 
   return (
-    <div className="pb-24">
+    <div className="app-screen">
       <DesktopPageHeader
         title="Side Work Templates"
         subtitle="Create reusable side work templates"
@@ -257,7 +257,7 @@ export default function SideWorkTemplates() {
       </div>
 
       {/* Content */}
-      <div className="p-4 lg:py-6">
+      <div className="app-page">
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (
