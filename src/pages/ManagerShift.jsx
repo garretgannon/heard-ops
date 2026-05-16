@@ -961,7 +961,7 @@ export default function ManagerShift() {
       </div>
 
       {/* Stage content */}
-      <div className="app-page">
+      <div className="app-page lg:!pt-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}

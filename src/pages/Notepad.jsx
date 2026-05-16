@@ -287,7 +287,7 @@ export default function Notepad() {
             ? `${unassignedOpen.length} open · ${delegated.length} delegated`
             : delegated.length > 0
               ? `${delegated.length} delegated`
-              : undefined
+              : 'Your shift scratchpad'
         }
       />
 

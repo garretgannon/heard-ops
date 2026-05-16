@@ -379,8 +379,8 @@ export default function AppOverview() {
 
   return (
     <div className="app-screen">
+      <DesktopPageHeader title="Dashboard" subtitle="Operations overview" />
       <div className="app-page max-w-[560px] space-y-7 lg:max-w-6xl">
-        <DesktopPageHeader title="Dashboard" />
         <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
@@ -506,7 +506,7 @@ export default function AppOverview() {
         </div>
 
         {/* ── Desktop layout ─────────────────────────────────────── */}
-        <div className="hidden lg:block space-y-5">
+        <div className="hidden lg:block space-y-5 lg:!mt-0">
 
               {/* Greeting row */}
               <div className="flex items-center justify-between">
