@@ -32,7 +32,7 @@ const MODULES = [
     desc: 'Set up your operational map — kitchen, bar, dining room, and more.',
     why: 'Stations are where work happens. Tasks, cleaning, and logs are all tied to stations.',
     color: 'purple',
-    link: '/location-setup',
+    link: '/restaurant-setup-wizard',
     checks: async () => {
       const stations = await base44.entities.Station.list().catch(() => []);
       return { count: stations.length, done: stations.length >= 3 };

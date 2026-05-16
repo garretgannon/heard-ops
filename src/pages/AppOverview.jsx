@@ -133,7 +133,7 @@ function PulseRing({ value }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-4xl font-black tracking-tight text-foreground">{value}%</span>
-        <span className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Ready</span>
+        <span className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Stations</span>
       </div>
     </div>
   );
@@ -379,14 +379,15 @@ export default function AppOverview() {
 
   return (
     <div className="app-screen">
-      <DesktopPageHeader title="Dashboard" />
       <div className="app-page max-w-[560px] space-y-7 lg:max-w-6xl">
+        <DesktopPageHeader title="Dashboard" />
         <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {metrics.pendingApprovals > 0
-                ? `${metrics.pendingApprovals} approval${metrics.pendingApprovals === 1 ? '' : 's'} waiting · ${overdueTasks > 0 ? `${overdueTasks} overdue` : 'tasks on track'}`
+                ? `${metrics.pendingApprovals} approval${metrics.pendingApprovals === 1 ? '' : 's'} waiting${overdueTasks > 0 ? ` · ${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue` : ''}`
+                : overdueTasks > 0 ? `${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue — check the queue`
                 : 'All clear. Keep an eye on prep and temps.'}
             </p>
           </div>
@@ -427,7 +428,7 @@ export default function AppOverview() {
             <div className="relative flex flex-col items-center text-center">
               <PulseRing value={readiness} />
               <div className="mt-1 space-y-1">
-                <p className="text-lg font-black tracking-tight text-foreground">Readiness</p>
+                <p className="text-lg font-black tracking-tight text-foreground">Station Readiness</p>
                 <p className="mx-auto max-w-[280px] text-sm leading-5 text-muted-foreground">
                   Pantry is tracking behind, but service readiness is still recoverable.
                 </p>
@@ -512,7 +513,7 @@ export default function AppOverview() {
                 <div>
                   <h1 className="text-xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    {pendingApprovals > 0 ? `${pendingApprovals} approval${pendingApprovals !== 1 ? 's' : ''} waiting` : 'Approval queue clear'}{overdueTasks > 0 ? ` · ${overdueTasks} overdue` : ' · tasks on track'}
+                    {pendingApprovals > 0 ? `${pendingApprovals} approval${pendingApprovals !== 1 ? 's' : ''} waiting` : 'Approvals clear'}{overdueTasks > 0 ? ` · ${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue` : ' · tasks on track'}
                   </p>
                 </div>
                 <LiveClock />
@@ -530,7 +531,7 @@ export default function AppOverview() {
                   </div>
                   <div>
                     <p className="text-3xl font-black text-primary">{readiness}%</p>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mt-0.5">Readiness</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mt-0.5">Station Readiness</p>
                   </div>
                   <div className="h-1 rounded-full bg-primary/20 overflow-hidden">
                     <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${readiness}%` }} />
@@ -709,11 +710,20 @@ export default function AppOverview() {
                         valueColor={pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground/40'}
                       />
                       <GlanceRow
+                        icon={Flame}
+                        label="Prep Behind"
+                        value={behindPrep.length || 0}
+                        detail={behindPrep.length > 0 ? behindPrep.slice(0, 2).map(p => p.name).join(', ') : 'All on track'}
+                        href="/tasks?tab=prep"
+                        valueColor={behindPrep.length > 0 ? 'text-amber-400' : 'text-muted-foreground/40'}
+                      />
+                      <GlanceRow
                         icon={Activity}
                         label="Logs Today"
                         value={activity.length}
-                        detail="Recent entries"
+                        detail={activity.length > 0 ? 'Recent entries logged' : 'Nothing logged yet'}
                         href="/logs"
+                        valueColor={activity.length > 0 ? 'text-foreground' : 'text-muted-foreground/40'}
                       />
                       <GlanceRow
                         icon={AlertCircle}

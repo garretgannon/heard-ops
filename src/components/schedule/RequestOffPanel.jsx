@@ -208,15 +208,13 @@ export default function RequestOffPanel({ onClose, employees }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-border/30">
+        <div className="flex gap-1.5 overflow-x-auto px-4 pt-4 pb-2 scrollbar-hide">
           {['pending', 'approved', 'denied'].map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={cn('flex-1 py-2.5 text-xs font-bold capitalize transition-colors',
-                tab === t ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground hover:text-foreground')}>
+              className={cn('flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold capitalize whitespace-nowrap transition-all',
+                tab === t ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive')}>
               {t}
-              <span className={cn('ml-1 text-[10px]', tab === t ? 'text-primary' : 'text-muted-foreground')}>
-                ({counts[t]})
-              </span>
+              <span className="text-[10px] opacity-70">({counts[t]})</span>
             </button>
           ))}
         </div>

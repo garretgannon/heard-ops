@@ -14,7 +14,7 @@ const FILTERS = [
 
 export default function ApprovalFilters({ currentFilter, onFilterChange }) {
   return (
-    <div className="overflow-x-auto pb-1">
+    <div className="overflow-x-auto pb-1 pt-4 pl-1">
       <div className="flex gap-1.5">
         {FILTERS.map(filter => (
           <motion.button

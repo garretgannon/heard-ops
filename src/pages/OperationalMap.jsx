@@ -3,23 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import {
-  AlertTriangle,
-  CheckCircle2,
-  ChevronDown,
-  MapPin,
-  RefreshCw,
-  Search,
-  Thermometer,
-  Wrench,
-  X,
+  AlertTriangle, CheckCircle2, ExternalLink,
+  MapPin, RefreshCw, Search, Thermometer, Wrench, X,
+  Sparkles, Activity, Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// ─── Pure helpers ─────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const isActive = (item) => item?.isActive !== false;
-
-function normalizeText(v) { return String(v || '').trim().toLowerCase(); }
 
 function hasTempSchedule(item) {
   return Boolean(item.required_on_opening || item.required_on_closing || item.temp_check_frequency_minutes);
@@ -33,313 +25,509 @@ function isEquipmentConfigured(item) {
   );
 }
 
-function stationReadinessPct(station, stationEquipment) {
+function stationReadinessPct(station, eq) {
   if (!isActive(station)) return 0;
-  if (stationEquipment.length === 0) return 0;
-  return Math.round((stationEquipment.filter(isEquipmentConfigured).length / stationEquipment.length) * 100);
+  if (eq.length === 0) return 0;
+  return Math.round((eq.filter(isEquipmentConfigured).length / eq.length) * 100);
 }
 
-function stationNeedsSetup(station, stationEquipment) {
-  return stationReadinessPct(station, stationEquipment) < 100;
+function stationHealth(station, eq) {
+  if (!isActive(station)) return { color: 'neutral', pct: 0 };
+  const pct = stationReadinessPct(station, eq);
+  if (pct === 100) return { color: 'success', pct };
+  if (pct === 0)   return { color: 'critical', pct };
+  return { color: 'warning', pct };
 }
 
-function stationNeedsAttention(station, stationEquipment) {
-  const tempEquipment = stationEquipment.filter((item) => item.temp_enabled || item.requiresTemperatureLog);
-  return stationNeedsSetup(station, stationEquipment) ||
-    tempEquipment.some((item) => !hasTempSchedule(item));
+function getAttentionItems(station, eq) {
+  if (!station) return [];
+  const tempEq = eq.filter(e => e.temp_enabled || e.requiresTemperatureLog);
+  const issues = eq.filter(e => e.requiresMaintenanceChecklist).length;
+  return [
+    !isActive(station) && 'Station inactive',
+    eq.length === 0 && 'No equipment',
+    tempEq.some(e => !hasTempSchedule(e)) && `${tempEq.filter(e => !hasTempSchedule(e)).length} temp schedule${tempEq.filter(e => !hasTempSchedule(e)).length === 1 ? '' : 's'} missing`,
+    issues > 0 && `${issues} maintenance issue${issues === 1 ? '' : 's'}`,
+  ].filter(Boolean);
 }
 
-function stationHealth(station, equipment) {
-  if (!isActive(station)) return { status: 'inactive', color: 'neutral', pct: 0 };
-  const pct = stationReadinessPct(station, equipment);
-  if (pct === 100) return { status: 'ready', color: 'success', pct: 100 };
-  if (pct === 0) return { status: 'setup', color: 'critical', pct: 0 };
-  return { status: 'setup', color: 'warning', pct };
-}
+// ─── Color helpers ────────────────────────────────────────────────────────────
 
-function matchesSearch(station, stationEquipment, query) {
-  if (!query) return true;
-  return [station.name, station.department, station.area_name, ...stationEquipment.map((e) => e.name)]
-    .some((v) => normalizeText(v).includes(query));
-}
+const barColor  = { success: 'bg-green-500', warning: 'bg-amber-500', critical: 'bg-red-500', neutral: 'bg-slate-600' };
+const textColor = { success: 'text-green-400', warning: 'text-amber-400', critical: 'text-red-400', neutral: 'text-slate-400' };
+const glowColor = {
+  success: 'border-green-500/50 shadow-[0_0_0_1px_rgba(34,197,94,0.2),0_0_14px_rgba(34,197,94,0.15)]',
+  warning: 'border-amber-500/50 shadow-[0_0_0_1px_rgba(245,158,11,0.2),0_0_14px_rgba(245,158,11,0.15)]',
+  critical: 'border-red-500/50 shadow-[0_0_0_1px_rgba(239,68,68,0.2),0_0_14px_rgba(239,68,68,0.15)]',
+  neutral: 'border-slate-600/50',
+};
+const bgColor = {
+  success: 'rgba(34,197,94,0.05)',
+  warning: 'rgba(245,158,11,0.06)',
+  critical: 'rgba(239,68,68,0.08)',
+  neutral: 'rgba(11,17,24,0.9)',
+};
+const badgeStyle = {
+  success: 'bg-green-500/15 text-green-400 border-green-500/30',
+  warning: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+  critical: 'bg-red-500/15 text-red-400 border-red-500/30',
+  neutral:  'bg-slate-500/15 text-slate-400 border-slate-500/30',
+};
+const badgeLabel = { success: 'Ready', warning: 'Setup', critical: 'Critical', neutral: 'Inactive' };
 
-function stationAssignments(station) {
-  const assignments = station?.assignments || station?.assignedEmployees || station?.assigned_employees || [];
-  if (Array.isArray(assignments) && assignments.length > 0) {
-    return assignments.map((e, i) => ({
-      name: e.name || e.employeeName || e.employee_name || `Assignment ${i + 1}`,
-      role: e.role || e.jobCode || station.department || 'Station',
-      shift: e.shift || e.shiftTime || '',
-    }));
-  }
-  const assignedName = station?.assignedEmployeeName || station?.assigned_employee_name || station?.assigned_to;
-  if (assignedName) return [{ name: assignedName, role: station?.assignedRole || station?.department || 'Station', shift: station?.assignedShift || '' }];
-  return [];
-}
+// ─── Station grid card ────────────────────────────────────────────────────────
 
-// ─── Station mini card (inside area grid) ─────────────────────────────────────
-
-function StationMiniCard({ station, equipment, selected, onClick }) {
-  const { status, color, pct } = stationHealth(station, equipment);
-  const issueCount = equipment.filter((e) => e.requiresMaintenanceChecklist).length;
-  const tempCount = equipment.filter((e) => e.temp_enabled || e.requiresTemperatureLog).length;
-
-  const borderColor = color === 'success' ? 'border-green-500/40' : color === 'warning' ? 'border-amber-500/40' : color === 'critical' ? 'border-red-500/50' : 'border-border/40';
-  const accentBar  = color === 'success' ? 'bg-green-500' : color === 'warning' ? 'bg-amber-500' : color === 'critical' ? 'bg-red-500' : 'bg-slate-600';
-  const iconColor  = color === 'success' ? 'text-green-400' : color === 'warning' ? 'text-amber-400' : color === 'critical' ? 'text-red-400' : 'text-muted-foreground/50';
-  const StatusIcon = status === 'ready' ? CheckCircle2 : status === 'issues' ? AlertTriangle : status === 'setup' ? Wrench : X;
+function StationCard({ station, eq, isSelected, onClick }) {
+  const { color, pct } = stationHealth(station, eq);
+  const blockers = getAttentionItems(station, eq);
 
   return (
     <button
       onClick={onClick}
       className={cn(
-        'group relative flex flex-col gap-2 overflow-hidden rounded-xl border p-3 text-left transition-all duration-150 active:scale-[0.97]',
-        selected
-          ? 'border-primary/40 bg-primary/8'
-          : cn('border-border/40 bg-black/25 hover:border-border/60', borderColor.replace('border-', 'hover:border-'))
+        'relative w-full text-left rounded-xl border p-3 transition-all duration-150 active:scale-[0.97] flex flex-col gap-2',
+        isSelected ? glowColor[color] : 'border-border/40 hover:border-border/70'
       )}
-      style={selected ? { boxShadow: '0 0 0 1px rgba(230,106,31,0.25), 0 0 16px rgba(230,106,31,0.12)' } : undefined}
+      style={{ background: isSelected ? bgColor[color] : 'rgba(11,17,24,0.85)' }}
     >
-      <div className="flex items-start justify-between gap-1">
-        <p className="truncate text-xs font-black text-foreground leading-tight">{station.name}</p>
-        <StatusIcon className={cn('h-3.5 w-3.5 shrink-0 mt-px', iconColor)} />
+      {/* Status dot */}
+      <div className="flex items-start justify-between gap-1.5">
+        <p className="text-xs font-black text-foreground leading-tight truncate flex-1">{station.name}</p>
+        <span className={cn('shrink-0 h-2 w-2 rounded-full mt-1', barColor[color])} />
       </div>
 
+      {/* Readiness */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-black tabular-nums text-foreground">{pct}%</span>
-          <span className="text-[10px] font-bold text-muted-foreground">{equipment.length} equip</span>
+          <span className={cn('text-base font-black tabular-nums leading-none', textColor[color])}>{pct}%</span>
+          <span className="text-[10px] font-bold text-muted-foreground">{eq.length} equip</span>
         </div>
         <div className="h-1 w-full overflow-hidden rounded-full bg-black/40">
-          <div className={cn('h-full rounded-full transition-all duration-700', accentBar)} style={{ width: `${pct}%` }} />
+          <div className={cn('h-full rounded-full transition-all duration-700', barColor[color])} style={{ width: `${pct}%` }} />
         </div>
       </div>
 
-      {(tempCount > 0 || issueCount > 0) && (
-        <div className="flex items-center gap-1.5">
-          {tempCount > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px] font-bold text-blue-400/80">
-              <Thermometer className="h-2.5 w-2.5" />{tempCount}
-            </span>
-          )}
-          {issueCount > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-400">
-              <AlertTriangle className="h-2.5 w-2.5" />{issueCount}
-            </span>
-          )}
-        </div>
+      {/* Blockers */}
+      {blockers.length > 0 && (
+        <p className="text-[10px] font-semibold text-amber-400/80 leading-tight truncate">
+          ⚠ {blockers[0]}{blockers.length > 1 ? ` +${blockers.length - 1}` : ''}
+        </p>
       )}
     </button>
   );
 }
 
-// ─── Area card ────────────────────────────────────────────────────────────────
+// ─── Detail panel ─────────────────────────────────────────────────────────────
 
-function AreaCard({ area, stations, stationEquipmentFor, selectedStationId, onSelectStation }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const needsAttentionCount = stations.filter((s) => stationNeedsAttention(s, stationEquipmentFor(s))).length;
-  const allReady = needsAttentionCount === 0;
+function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
+  if (!station) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
+        <Activity className="h-8 w-8 text-muted-foreground/30 mb-3" />
+        <p className="text-sm font-bold text-muted-foreground">Select a station</p>
+        <p className="text-xs text-muted-foreground/60 mt-1">Click any card to see details</p>
+      </div>
+    );
+  }
+
+  const eq = allEquipment.filter(e => e.station_id === station.id || e.station_name === station.name);
+  const { color, pct } = stationHealth(station, eq);
+  const blockers = getAttentionItems(station, eq);
+  const tempEq = eq.filter(e => e.temp_enabled || e.requiresTemperatureLog);
+  const issueCount = eq.filter(e => e.requiresMaintenanceChecklist).length;
+  const configuredCount = eq.filter(isEquipmentConfigured).length;
 
   return (
-    <div
-      className="overflow-hidden rounded-2xl border border-border/50"
-      style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
-    >
-      <button
-        onClick={() => setCollapsed((c) => !c)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3.5"
-      >
-        <div className="flex items-center gap-2.5">
-          <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
-          <span className="text-sm font-black tracking-tight text-foreground">{area.name}</span>
-          <span className="text-[10px] font-bold text-muted-foreground">{stations.length} station{stations.length === 1 ? '' : 's'}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {needsAttentionCount > 0 ? (
-            <span className="flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-black text-amber-400">
-              <AlertTriangle className="h-2.5 w-2.5" />
-              {needsAttentionCount} need attention
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="p-4 border-b border-border/30 shrink-0" style={{ background: bgColor[color] }}>
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="min-w-0">
+            <p className="text-lg font-black text-foreground truncate">{station.name}</p>
+            {station.department && <p className="text-xs text-muted-foreground mt-0.5">{station.department}</p>}
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', badgeStyle[color])}>
+              {badgeLabel[color]}
             </span>
-          ) : (
-            <span className="flex items-center gap-1 rounded-full border border-green-500/25 bg-green-500/8 px-2 py-0.5 text-[10px] font-black text-green-400">
-              <CheckCircle2 className="h-2.5 w-2.5" />
-              All ready
-            </span>
-          )}
-          <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', collapsed && '-rotate-90')} />
+            {onClose && (
+              <button onClick={onClose} className="h-7 w-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground lg:hidden">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
         </div>
-      </button>
 
-      {!collapsed && (
-        <div className="grid grid-cols-2 gap-2 border-t border-border/30 px-3 pb-3 pt-3 sm:grid-cols-3">
-          {stations.map((station) => (
-            <StationMiniCard
-              key={station.id}
-              station={station}
-              equipment={stationEquipmentFor(station)}
-              selected={station.id === selectedStationId}
-              onClick={() => onSelectStation(station.id)}
-            />
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-muted-foreground">Setup readiness</span>
+            <span className={cn('font-black tabular-nums', textColor[color])}>{pct}%</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-black/30">
+            <div className={cn('h-full rounded-full transition-all duration-700', barColor[color])} style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        <div className="mt-3 grid grid-cols-3 gap-1.5">
+          {[
+            { label: 'Equipment', value: eq.length },
+            { label: 'Temp Checks', value: tempEq.length },
+            { label: 'Issues', value: issueCount, hi: issueCount > 0 },
+          ].map(m => (
+            <div key={m.label} className="rounded-lg p-2 text-center" style={{ background: 'rgba(0,0,0,0.3)' }}>
+              <p className={cn('text-base font-black', m.hi ? 'text-red-400' : 'text-foreground')}>{m.value}</p>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5 leading-tight">{m.label}</p>
+            </div>
           ))}
         </div>
-      )}
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" data-scrollable>
+        {blockers.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Issues</p>
+            {blockers.map(b => (
+              <div key={b} className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/8 px-2.5 py-2">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+                <p className="text-xs font-semibold text-foreground">{b}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {eq.length > 0 ? (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+              Equipment ({configuredCount}/{eq.length} configured)
+            </p>
+            <div className="space-y-1">
+              {eq.map(e => (
+                <div key={e.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2 border border-border/30" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                  {isEquipmentConfigured(e)
+                    ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-400" />
+                    : <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400/70" />}
+                  <p className="flex-1 text-xs font-semibold text-foreground truncate">{e.name}</p>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {(e.temp_enabled || e.requiresTemperatureLog) && <Thermometer className="h-3 w-3 text-blue-400/70" />}
+                    {e.requiresCleaningChecklist && <Sparkles className="h-3 w-3 text-green-400/70" />}
+                    {e.requiresMaintenanceChecklist && <Wrench className="h-3 w-3 text-amber-400/70" />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-border/40 p-4 text-center">
+            <p className="text-xs text-muted-foreground">No equipment assigned</p>
+          </div>
+        )}
+      </div>
+
+      {/* CTA */}
+      <div className="p-3 border-t border-border/30 shrink-0">
+        <button
+          onClick={() => onNavigate(station.id)}
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary/10 border border-primary/25 py-2.5 text-xs font-black text-primary hover:bg-primary/15 transition-all"
+        >
+          <ExternalLink className="h-3.5 w-3.5" /> Open Station Details
+        </button>
+      </div>
     </div>
   );
 }
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function OperationalMap() {
   const navigate = useNavigate();
   const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
   const [equipment, setEquipment] = useState([]);
-  const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activeAreaId, setActiveAreaId] = useState('all');
+  const [search, setSearch] = useState('');
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [areaData, stationData, equipmentData] = await Promise.all([
+      const [areaData, stationData, equipData] = await Promise.all([
         base44.entities.Area.list().catch(() => []),
         base44.entities.Station.list().catch(() => []),
         base44.entities.Equipment.list().catch(() => []),
       ]);
-      setAreas(areaData);
-      setStations(stationData);
-      setEquipment(equipmentData);
+      setAreas(areaData || []);
+      setStations(stationData || []);
+      setEquipment(equipData || []);
+
+      const activeEquip = (equipData || []).filter(isActive);
+      const sorted = [...(stationData || [])].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+      const firstBad = sorted.find(s => {
+        const eq = activeEquip.filter(e => e.station_id === s.id || e.station_name === s.name);
+        return getAttentionItems(s, eq).length > 0;
+      });
+      setSelectedStation(prev => prev || firstBad || sorted[0] || null);
     } catch (err) {
       console.error('Failed to load operational data:', err);
     }
     setLoading(false);
   };
 
-  const activeAreas = useMemo(() => areas.filter(isActive).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)), [areas]);
-  const sortedStations = useMemo(() => [...stations].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)), [stations]);
+  const activeAreas = useMemo(
+    () => areas.filter(isActive).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
+    [areas]
+  );
+  const sortedStations = useMemo(
+    () => [...stations].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)),
+    [stations]
+  );
   const activeEquipment = useMemo(() => equipment.filter(isActive), [equipment]);
 
-  const query = search.trim().toLowerCase();
-  const stationEquipmentFor = (station) => activeEquipment.filter((e) => e.station_id === station.id || e.station_name === station.name);
+  const eqFor = (s) => activeEquipment.filter(e => e.station_id === s.id || e.station_name === s.name);
 
-  const stationVisible = (station) => {
-    const eq = stationEquipmentFor(station);
-    if (!matchesSearch(station, eq, query)) return false;
-    if (filter === 'attention') return isActive(station) && stationNeedsAttention(station, eq);
-    if (filter === 'inactive') return !isActive(station);
-    return isActive(station);
+  // Build area tabs: "All" + each area + "Unassigned" if needed
+  const tabs = useMemo(() => {
+    const result = [{ id: 'all', name: 'All' }];
+    activeAreas.forEach(a => result.push({ id: a.id, name: a.name }));
+    const hasUnassigned = sortedStations.some(s =>
+      !activeAreas.some(a => s.area_id === a.id || s.area_name === a.name)
+    );
+    if (hasUnassigned) result.push({ id: '__unassigned', name: 'Other' });
+    return result;
+  }, [activeAreas, sortedStations]);
+
+  // Stations visible in the current tab + search
+  const visibleStations = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return sortedStations.filter(s => {
+      const eq = eqFor(s);
+      if (q && ![s.name, s.department, s.area_name, ...eq.map(e => e.name)].some(v => String(v || '').toLowerCase().includes(q))) return false;
+      if (activeAreaId === 'all') return true;
+      if (activeAreaId === '__unassigned') return !activeAreas.some(a => s.area_id === a.id || s.area_name === a.name);
+      return s.area_id === activeAreaId || s.area_name === activeAreas.find(a => a.id === activeAreaId)?.name;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortedStations, activeEquipment, activeAreaId, activeAreas, search]);
+
+  // Summary stats
+  const stats = useMemo(() => {
+    const all = sortedStations.filter(isActive);
+    return {
+      total: all.length,
+      ready: all.filter(s => stationReadinessPct(s, eqFor(s)) === 100).length,
+      attn:  all.filter(s => getAttentionItems(s, eqFor(s)).length > 0).length,
+      issues: all.filter(s => eqFor(s).some(e => e.requiresMaintenanceChecklist)).length,
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortedStations, activeEquipment]);
+
+  const syncedSelected = useMemo(
+    () => selectedStation ? (stations.find(s => s.id === selectedStation.id) || selectedStation) : null,
+    [selectedStation, stations]
+  );
+
+  const handleSelect = (station) => {
+    setSelectedStation(station);
+    setShowDetail(true);
   };
-
-  const visibleAreas = activeAreas.filter((area) => {
-    const areaStations = sortedStations.filter((s) => s.area_id === area.id || s.area_name === area.name);
-    return areaStations.some(stationVisible);
-  });
-
-  const unassignedStations = sortedStations.filter((s) => {
-    if (!stationVisible(s)) return false;
-    return !activeAreas.some((a) => s.area_id === a.id || s.area_name === a.name);
-  });
-
-  const allActiveStations = sortedStations.filter(isActive);
-  const attentionCount = allActiveStations.filter((s) => stationNeedsAttention(s, stationEquipmentFor(s))).length;
 
   return (
     <div className="app-screen">
-      <DesktopPageHeader title="Operations" subtitle="Station readiness, equipment, and area overview" />
-      <main className="app-page mx-auto max-w-[640px] lg:max-w-7xl space-y-4">
+      <DesktopPageHeader title="Stations" subtitle="Station readiness by area" />
 
-        <header className="lg:hidden flex items-start justify-between gap-4 pt-1">
+      {/* Mobile header */}
+      <div className="lg:hidden bg-card border-b border-border px-4 pt-4 pb-0 sticky top-0 z-10">
+        <div className="flex items-center justify-between gap-3 mb-3">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Stations</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {allActiveStations.length} station{allActiveStations.length !== 1 ? 's' : ''} · {activeAreas.length} area{activeAreas.length !== 1 ? 's' : ''}
-              {attentionCount > 0 && <span className="text-amber-400"> · {attentionCount} need attention</span>}
-            </p>
+            {stats.attn > 0
+              ? <p className="text-sm text-amber-400 mt-0.5">{stats.attn} need attention</p>
+              : <p className="text-sm text-muted-foreground mt-0.5">{stats.total} stations · all ready</p>}
           </div>
-          <button onClick={loadData} className="status-marker status-marker-md status-neutral mt-1" aria-label="Refresh">
+          <button onClick={loadData} className="h-9 w-9 rounded-xl border border-border/50 flex items-center justify-center text-muted-foreground">
             <RefreshCw className="h-4 w-4" />
           </button>
-        </header>
-
-        <div className="grid grid-cols-3 gap-2 lg:mt-0">
-          <div className="rounded-2xl border border-border/50 p-4 text-center" style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}>
-            <p className="text-2xl font-black text-foreground">{activeAreas.length}</p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Areas</p>
-          </div>
-          <div className="rounded-2xl border border-border/50 p-4 text-center" style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}>
-            <p className="text-2xl font-black text-foreground">{allActiveStations.length}</p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Stations</p>
-          </div>
-          <div className={cn('rounded-2xl border p-4 text-center', attentionCount > 0 ? 'border-amber-500/30' : 'border-border/50')} style={{ background: attentionCount > 0 ? 'rgba(245,158,11,0.06)' : 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}>
-            <p className={cn('text-2xl font-black', attentionCount > 0 ? 'text-amber-400' : 'text-green-400')}>{attentionCount}</p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Attention</p>
-          </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search areas, stations, equipment…" className="h-11 w-full rounded-xl border border-border/60 bg-card/70 pl-10 pr-4 text-sm text-foreground outline-none transition-all focus:border-primary/40" />
-            {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
-            {[
-              { id: 'all', label: 'All stations' },
-              { id: 'attention', label: `Needs attention${attentionCount > 0 ? ` (${attentionCount})` : ''}` },
-              { id: 'inactive', label: 'Inactive' },
-            ].map(({ id, label }) => (
-              <button key={id} type="button" onClick={() => setFilter(id)} className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filter === id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>
-                {label}
-              </button>
-            ))}
-          </div>
+        {/* Area tabs */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0 pt-1 pl-0.5 -mx-4 px-4">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveAreaId(tab.id)}
+              className={cn(
+                'shrink-0 px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all mb-3',
+                activeAreaId === tab.id ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
+              )}
+            >
+              {tab.name}
+            </button>
+          ))}
         </div>
+      </div>
 
+      <div className="app-page lg:max-w-none lg:px-6">
         {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => <div key={i} className="skeleton h-40 w-full rounded-2xl" />)}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
+            {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton h-24 rounded-xl" />)}
           </div>
         ) : (
-          <div className="space-y-3">
-            {visibleAreas.map((area) => {
-              const areaStations = sortedStations.filter((s) => (s.area_id === area.id || s.area_name === area.name) && stationVisible(s));
-              if (areaStations.length === 0) return null;
-              return (
-                <AreaCard
-                  key={area.id}
-                  area={area}
-                  stations={areaStations}
-                  stationEquipmentFor={stationEquipmentFor}
-                  selectedStationId={null}
-                  onSelectStation={(id) => navigate(`/station/${id}`)}
-                />
-              );
-            })}
+          <>
+            {/* Summary strip */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {[
+                { label: 'Total', value: stats.total, color: 'text-foreground', dotColor: 'bg-primary/60' },
+                { label: 'Ready', value: stats.ready, color: 'text-green-400', dotColor: 'bg-green-500' },
+                { label: 'Needs Attention', value: stats.attn, color: stats.attn > 0 ? 'text-amber-400' : 'text-foreground', dotColor: 'bg-amber-500' },
+                { label: 'Equip. Issues', value: stats.issues, color: stats.issues > 0 ? 'text-red-400' : 'text-foreground', dotColor: 'bg-red-500' },
+              ].map(({ label, value, color, dotColor }) => (
+                <div key={label} className="card-glass border border-border rounded-xl px-3 py-3 flex items-center gap-3">
+                  <span className={cn('h-2.5 w-2.5 rounded-full shrink-0', dotColor)} />
+                  <div>
+                    <p className={cn('text-xl font-black leading-none', color)}>{value}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-            {unassignedStations.length > 0 && (
-              <AreaCard
-                area={{ id: '__unassigned', name: 'Unassigned', sortOrder: 999 }}
-                stations={unassignedStations}
-                stationEquipmentFor={stationEquipmentFor}
-                selectedStationId={null}
-                onSelectStation={(id) => navigate(`/station/${id}`)}
-              />
-            )}
+            {/* Desktop 2-column */}
+            <div className="hidden lg:grid lg:grid-cols-[1fr_300px] gap-5 mt-1">
+              {/* Left column */}
+              <div className="space-y-3 min-w-0">
+                {/* Toolbar */}
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      value={search}
+                      onChange={e => setSearch(e.target.value)}
+                      placeholder="Search stations or equipment..."
+                      className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+                    />
+                    {search && (
+                      <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <button onClick={loadData} className="h-9 w-9 rounded-lg border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0">
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-9 px-3 rounded-lg bg-primary text-white text-xs font-bold flex items-center gap-1.5 shrink-0 hover:bg-primary/90 transition-all">
+                    <Plus className="h-3.5 w-3.5" /> Add Stations
+                  </button>
+                </div>
 
-            {visibleAreas.length === 0 && unassignedStations.length === 0 && (
-              <div className="rounded-2xl border border-border/50 py-14 text-center" style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}>
-                <MapPin className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
-                <p className="text-sm font-semibold text-muted-foreground">No stations match the current filter.</p>
-                <button onClick={() => { setFilter('all'); setSearch(''); }} className="mt-3 text-xs font-black text-primary">Clear filters</button>
+                {/* Area tabs */}
+                <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pt-1 pb-0.5 pl-0.5">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveAreaId(tab.id)}
+                      className={cn(
+                        'shrink-0 px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all',
+                        activeAreaId === tab.id ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
+                      )}
+                    >
+                      {tab.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Station grid */}
+                {visibleStations.length === 0 ? (
+                  <div className="py-14 text-center">
+                    <MapPin className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
+                    <p className="text-sm font-semibold text-muted-foreground">No stations here.</p>
+                    {search && <button onClick={() => setSearch('')} className="mt-2 text-xs font-black text-primary">Clear search</button>}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 xl:grid-cols-3 gap-2.5">
+                    {visibleStations.map(s => (
+                      <StationCard
+                        key={s.id}
+                        station={s}
+                        eq={eqFor(s)}
+                        isSelected={syncedSelected?.id === s.id}
+                        onClick={() => handleSelect(s)}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+
+              {/* Right: sticky detail panel */}
+              <div className="sticky top-[72px] self-start">
+                <div className="card-glass border border-border rounded-2xl overflow-hidden" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+                  <DetailPanel
+                    station={syncedSelected}
+                    allEquipment={activeEquipment}
+                    onNavigate={id => navigate(`/station/${id}`)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile: station grid */}
+            <div className="lg:hidden space-y-3 mt-1">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+                  />
+                </div>
+                <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-10 px-3 rounded-lg bg-primary text-white text-xs font-bold flex items-center gap-1.5 shrink-0">
+                  <Plus className="h-3.5 w-3.5" /> Add
+                </button>
+              </div>
+
+              {visibleStations.length === 0 ? (
+                <div className="py-12 text-center">
+                  <MapPin className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
+                  <p className="text-sm font-semibold text-muted-foreground">No stations here.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2.5">
+                  {visibleStations.map(s => (
+                    <StationCard
+                      key={s.id}
+                      station={s}
+                      eq={eqFor(s)}
+                      isSelected={syncedSelected?.id === s.id}
+                      onClick={() => handleSelect(s)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
         )}
-      </main>
+      </div>
+
+      {/* Mobile bottom sheet */}
+      {showDetail && syncedSelected && (
+        <div className="lg:hidden fixed inset-0 z-50 flex items-end">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDetail(false)} />
+          <div className="relative w-full card-glass border border-border rounded-t-2xl flex flex-col" style={{ maxHeight: '85vh' }}>
+            <div className="h-1 w-10 bg-muted-foreground/30 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+            <DetailPanel
+              station={syncedSelected}
+              allEquipment={activeEquipment}
+              onNavigate={id => { setShowDetail(false); navigate(`/station/${id}`); }}
+              onClose={() => setShowDetail(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

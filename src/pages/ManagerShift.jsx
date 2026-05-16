@@ -217,7 +217,7 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
     <div
       className={cn(
         "overflow-hidden rounded-xl border transition-colors duration-300",
-        viewed ? "border-border/50" : "border-border/40"
+        viewed ? "border-green-500/20" : count > 0 ? "border-amber-500/20" : "border-border/40"
       )}
       style={{
         background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
@@ -234,7 +234,10 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
           <span className={cn("text-sm lg:text-[15px] font-black transition-colors", viewed ? "text-foreground/70" : "text-foreground")}>{label}</span>
         </div>
         <div className="flex items-center gap-2">
-          {viewed && <Check className="h-3 w-3 text-green-400/60" />}
+          {viewed
+            ? <Check className="h-3 w-3 text-green-400/60" />
+            : count > 0 && <span className="text-[9px] font-black text-amber-400/80 uppercase tracking-wide">Review</span>
+          }
           <span className={cn("rounded-full border px-2 py-0.5 text-xs font-black tabular-nums", badgeStyle)}>{count}</span>
           <motion.div animate={{ rotate: open ? 0 : -90 }} transition={{ duration: 0.18 }}>
             <ArrowRight className="h-3.5 w-3.5 rotate-90 text-muted-foreground/50" />
@@ -1072,17 +1075,22 @@ export default function ManagerShift() {
 
                 {/* Progress before acknowledge */}
                 {!acknowledged && (
-                  <div className="flex items-center justify-between px-1">
-                    <p className="text-[11px] font-bold text-muted-foreground">
-                      {viewedIntelCards.size}/{INTEL_CARD_IDS.length} sections reviewed
+                  <div className="flex items-center justify-between px-1 py-1">
+                    <p className={cn(
+                      "text-[11px] font-black uppercase tracking-wide",
+                      viewedIntelCards.size === INTEL_CARD_IDS.length ? "text-green-400" : "text-amber-400/80"
+                    )}>
+                      {viewedIntelCards.size === INTEL_CARD_IDS.length
+                        ? "All sections reviewed — ready to acknowledge"
+                        : `${viewedIntelCards.size}/${INTEL_CARD_IDS.length} sections reviewed — open each to continue`}
                     </p>
                     <div className="flex gap-1">
                       {INTEL_CARD_IDS.map(cid => (
                         <div
                           key={cid}
                           className={cn(
-                            "h-1 w-6 rounded-full transition-all duration-300",
-                            viewedIntelCards.has(cid) ? "bg-green-400/60" : "bg-border/40"
+                            "h-1.5 w-7 rounded-full transition-all duration-300",
+                            viewedIntelCards.has(cid) ? "bg-green-400/70" : "bg-amber-500/20"
                           )}
                         />
                       ))}

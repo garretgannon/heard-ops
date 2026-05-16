@@ -543,14 +543,14 @@ export default function MyShifts() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-1.5 overflow-x-auto pb-2 pt-4 pl-1 scrollbar-hide">
           {TABS.map(t => (
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
               className={cn(
-                'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1',
-                activeTab === t.id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
+                'flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all',
+                activeTab === t.id ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
               )}
             >
               {t.label}

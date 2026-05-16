@@ -69,6 +69,7 @@ const OperationalMap = lazy(() => import('./pages/OperationalMap'));
 const StationPage = lazy(() => import('./pages/StationPage'));
 const LocationSetup = lazy(() => import('./pages/LocationSetup'));
 const SetupJourney = lazy(() => import('./pages/SetupJourney'));
+const RestaurantSetupWizard = lazy(() => import('./pages/RestaurantSetupWizard'));
 const AutomationRules = lazy(() => import('./pages/AutomationRules'));
 const ManagerShift = lazy(() => import('./pages/ManagerShift'));
 const AdminRoleSimulator = lazy(() => import('./pages/AdminRoleSimulator'));
@@ -180,6 +181,7 @@ const AuthenticatedApp = () => {
           <Route path="/station/:id" element={<StationPage />} />
           <Route path="/location-setup" element={<LocationSetup />} />
           <Route path="/setup-journey" element={<SetupJourney />} />
+          <Route path="/restaurant-setup-wizard" element={<RestaurantSetupWizard />} />
           <Route path="/notepad" element={<Notepad />} />
           <Route path="/cash-drawer" element={<CashDrawer />} />
           <Route path="/automation-rules" element={<AutomationRules />} />

@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell,
   DollarSign, Clock, Users, Filter, Grid3x3, LayoutTemplate,
-  RefreshCw, X, Check, RotateCcw, RotateCw, Plus, CalendarOff, Keyboard, AlertCircle, Expand, Minimize
+  RefreshCw, X, Check, RotateCcw, RotateCw, Plus, CalendarOff, Keyboard, AlertCircle, Expand, Minimize, ArrowDownAZ
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -56,6 +56,8 @@ export default function ScheduleCenter() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [groupBy, setGroupBy] = useState('employee');
+  const [sortBy, setSortBy] = useState('default');
+  const [showSortPanel, setShowSortPanel] = useState(false);
   const [filterDepts, setFilterDepts] = useState([]);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showGroupPanel, setShowGroupPanel] = useState(false);
@@ -373,19 +375,33 @@ export default function ScheduleCenter() {
   const conflictCount = Object.keys(shiftConflicts).length;
   const pendingTimeOff = timeOffRequests.filter(r => r.status === 'pending').length;
 
-  // ── Filtered employees ────────────────────────────────────────────────────
+  // ── Filtered + sorted employees ───────────────────────────────────────────
   const filteredEmployees = employees.filter(e => {
     const q = searchQuery.toLowerCase();
     const matchSearch = !searchQuery || e.name?.toLowerCase().includes(q) || e.role?.toLowerCase().includes(q);
     const empDept = shifts.find(s => s.employee_name === e.name || s.employee_email === e.email)?.department || '';
     const matchDept = filterDepts.length === 0 || filterDepts.includes(empDept);
     return matchSearch && matchDept;
+  }).sort((a, b) => {
+    if (sortBy === 'firstName') {
+      const aFirst = (a.name || '').split(' ')[0];
+      const bFirst = (b.name || '').split(' ')[0];
+      return aFirst.localeCompare(bFirst);
+    }
+    if (sortBy === 'lastName') {
+      const aParts = (a.name || '').split(' ');
+      const bParts = (b.name || '').split(' ');
+      const aLast = aParts[aParts.length - 1];
+      const bLast = bParts[bParts.length - 1];
+      return aLast.localeCompare(bLast);
+    }
+    return 0;
   });
 
   const DEPARTMENTS = ['FOH', 'BOH', 'Bar', 'Management'];
 
   return (
-    <div className="app-screen" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); }}>
+    <div className="app-screen" onClick={() => { setContextMenu(null); setShowFilterPanel(false); setShowGroupPanel(false); setShowSortPanel(false); }}>
 
       <DesktopPageHeader title="Schedule" subtitle="Staff shifts, assignments, and weekly planning" />
 
@@ -502,9 +518,27 @@ export default function ScheduleCenter() {
                   )}
                 </div>
 
+                {/* Sort */}
+                <div className="relative">
+                  <button onClick={(e) => { e.stopPropagation(); setShowSortPanel(p => !p); setShowGroupPanel(false); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', sortBy !== 'default' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                    <ArrowDownAZ className="h-3 w-3" />
+                    <span>Sort{sortBy !== 'default' ? `: ${sortBy === 'firstName' ? 'First' : 'Last'}` : ''}</span>
+                  </button>
+                  {showSortPanel && (
+                    <div className="absolute top-9 left-0 z-50 w-40 rounded-lg border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
+                      {[['default','Default order'],['firstName','First name'],['lastName','Last name']].map(([val, label]) => (
+                        <button key={val} onClick={() => { setSortBy(val); setShowSortPanel(false); }} className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors', sortBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
+                          {sortBy === val && <Check className="h-3 w-3" />}
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Filter */}
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                  <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); setShowSortPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <Filter className="h-3 w-3" />
                     <span>Filter {filterDepts.length > 0 && `(${filterDepts.length})`}</span>
                   </button>

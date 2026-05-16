@@ -70,10 +70,10 @@ export default function AddEmployeeModal({ onClose, onSuccess }) {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground'
+                    ? 'glow-active'
+                    : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
                 }`}
               >
                 <Icon className="h-4 w-4" />

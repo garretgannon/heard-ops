@@ -1175,7 +1175,24 @@ export default function MyRestaurant() {
         <div className="mb-5">
           <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Physical Layout</p>
           <div className="space-y-2">
-            <SectionCard icon={MapPin} title="Restaurant Layout" description="Areas, stations, and equipment hierarchy" count={counts.areas} complete={counts.areas > 0 && counts.stations > 0} needsSetup={!counts.areas} onClick={() => navigate('/restaurant-layout')} />
+            {!counts.areas ? (
+              <SectionCard icon={MapPin} title="Restaurant Layout" description="Areas, stations, and equipment hierarchy" needsSetup onClick={() => navigate('/restaurant-setup-wizard')} />
+            ) : (
+              <div className="card-glass border border-border rounded-xl p-3.5 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 bg-green-500/15">
+                  <MapPin className="h-5 w-5 text-green-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground">Restaurant Layout</p>
+                  <p className="text-xs text-muted-foreground truncate">Areas, stations, and equipment hierarchy</p>
+                  <p className="text-[10px] font-bold text-muted-foreground mt-0.5">{counts.areas} area{counts.areas !== 1 ? 's' : ''} · {counts.stations || 0} station{(counts.stations || 0) !== 1 ? 's' : ''}</p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <button onClick={() => navigate('/restaurant-layout')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+                  <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-7 px-2.5 rounded-lg bg-primary/15 text-xs font-bold text-primary hover:bg-primary/25 active:scale-95 whitespace-nowrap">+ Add More</button>
+                </div>
+              </div>
+            )}
             <SectionCard icon={Thermometer} title="Food Safety Settings" description="Temp targets, PPM ranges, corrective actions" complete={counts.foodSafety > 0} needsSetup={!counts.foodSafety} onClick={() => setModal('foodSafety')} />
           </div>
         </div>

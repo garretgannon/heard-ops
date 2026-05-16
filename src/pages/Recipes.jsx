@@ -680,9 +680,9 @@ function RecipeForm({ recipe, onSave, onClose }) {
       </div>
 
       {/* Mobile horizontal tabs */}
-      <div className="lg:hidden border-b border-border flex items-center gap-0 overflow-x-auto px-3 bg-card/30 shrink-0">
+      <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto px-3 pt-4 pb-2 shrink-0 scrollbar-hide" style={{ background: 'rgba(5,8,14,0.97)' }}>
         {tabs.map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={cn('text-[10px] font-bold px-3 py-2 border-b-2 transition-all capitalize whitespace-nowrap', activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground')}>
+          <button key={tab} onClick={() => setActiveTab(tab)} className={cn('flex-shrink-0 flex items-center px-3 py-1.5 rounded-lg border text-xs font-semibold capitalize whitespace-nowrap transition-all', activeTab === tab ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive')}>
             {tab}
           </button>
         ))}

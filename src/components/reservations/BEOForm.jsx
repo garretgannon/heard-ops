@@ -119,9 +119,9 @@ export default function BEOForm({ beo, onSave, onClose }) {
       </div>
 
       {/* Sub-tabs */}
-      <div className="flex max-w-full shrink-0 gap-0 overflow-x-auto border-b border-border bg-card">
+      <div className="flex max-w-full shrink-0 gap-1.5 overflow-x-auto px-4 pt-4 pb-2 scrollbar-hide bg-card">
         {TABS.map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`shrink-0 px-3 py-2 text-xs font-bold border-b-2 transition-all ${tab === t ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}>{t}</button>
+          <button key={t} onClick={() => setTab(t)} className={`shrink-0 flex items-center px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all ${tab === t ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'}`}>{t}</button>
         ))}
       </div>
 

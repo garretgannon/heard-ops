@@ -114,11 +114,13 @@ function NewThreadForm({ isAdmin, stations, onCreate }) {
         className="flex w-full items-center justify-between gap-3 text-left"
       >
         <div>
-          <p className="metric-label">Manager</p>
-          <h2 className="mt-1 text-lg font-black text-foreground">Create communication</h2>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Action</p>
+          <h2 className="mt-0.5 text-lg font-black text-foreground">Create Communication</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">Announcement · Station Note · Ack Request</p>
         </div>
-        <div className="status-marker status-marker-md status-info">
+        <div className={cn('flex items-center gap-2 rounded-xl px-3 py-2 border text-sm font-bold transition-colors', open ? 'bg-primary text-white border-primary' : 'btn-primary text-white border-primary')}>
           <Plus className="h-4 w-4" />
+          <span className="hidden sm:inline">{open ? 'Cancel' : 'New'}</span>
         </div>
       </button>
 
@@ -317,7 +319,7 @@ export default function CommsCenter() {
 
         <div className="grid min-w-0 max-w-full gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
           <section className="min-w-0 space-y-3">
-            <div className="flex gap-1.5 overflow-x-auto pb-1">
+            <div className="flex gap-1.5 overflow-x-auto pb-1 pt-4 pl-1">
               {[
                 ['open', 'Open'],
                 ['unread', 'Need Ack'],
@@ -337,9 +339,18 @@ export default function CommsCenter() {
 
             <div className="min-w-0 space-y-2">
               {visibleThreads.length === 0 ? (
-                <div className="app-card py-10 text-center">
-                  <MessageSquare className="mx-auto h-7 w-7 text-muted-foreground" />
-                  <p className="mt-3 text-sm font-semibold text-muted-foreground">No communications here.</p>
+                <div className="app-card py-10 text-center space-y-4">
+                  <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto">
+                    <MessageSquare className="h-6 w-6 text-primary/50" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">No communications yet</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 max-w-[220px] mx-auto leading-5">
+                      {isAdmin
+                        ? 'Create an announcement, station note, or acknowledgment request above.'
+                        : 'No messages have been posted for your team yet.'}
+                    </p>
+                  </div>
                 </div>
               ) : visibleThreads.map((thread) => (
                 <ThreadRow
@@ -418,9 +429,14 @@ export default function CommsCenter() {
                 </div>
               </>
             ) : (
-              <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
-                <MessageSquare className="h-9 w-9 text-muted-foreground" />
-                <p className="mt-3 text-sm font-semibold text-muted-foreground">Select a communication thread.</p>
+              <div className="flex min-h-[420px] flex-col items-center justify-center text-center space-y-4">
+                <div className="h-14 w-14 rounded-2xl bg-muted/30 border border-border/40 flex items-center justify-center">
+                  <MessageSquare className="h-7 w-7 text-muted-foreground/30" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-foreground">No thread selected</p>
+                  <p className="text-xs text-muted-foreground mt-1.5 max-w-[180px] mx-auto leading-5">Select a thread from the left to view messages and reply.</p>
+                </div>
               </div>
             )}
           </section>

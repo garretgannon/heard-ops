@@ -166,15 +166,15 @@ export default function ReservationsAndBEOs() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-0 overflow-x-auto px-4 pb-0">
+        <div className="flex gap-1.5 overflow-x-auto px-4 pb-2 pt-4 pl-4 scrollbar-hide">
           {TABS.map(tab => (
             <button
               key={tab}
               onClick={() => { setActiveTab(tab); haptics.light(); }}
-              className={`shrink-0 px-3 py-2.5 text-xs font-bold border-b-2 transition-all ${
+              className={`shrink-0 flex items-center px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                 activeTab === tab
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground'
+                  ? 'glow-active'
+                  : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
               }`}
             >
               {tab}

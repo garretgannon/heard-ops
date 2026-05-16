@@ -4,11 +4,12 @@ import { base44 } from '@/api/base44Client';
 import {
   AlertTriangle, Beaker, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight,
   ClipboardCheck, ListChecks, Package, Plus, RefreshCw, Search, Sparkles, Thermometer,
-  Wrench, X, BookOpen,
+  Wrench, X, BookOpen, Edit2, MapPin, Clock, User, Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BottomSheet from '@/components/BottomSheet';
 import { getEquipmentMeta } from '@/lib/equipmentConfig';
+import StationForm from '@/components/StationForm';
 
 function StationPrepTemplatesSection({ stationId, stationName }) {
   const navigate = useNavigate();
@@ -895,11 +896,48 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
   return null;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function relativeTime(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'Just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function CircularGauge({ pct, color, size = 80 }) {
+  const r = size * 0.41;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - Math.min(pct, 100) / 100);
+  const stroke = color === 'success' ? '#22c55e' : color === 'warning' ? '#f59e0b' : color === 'critical' ? '#ef4444' : '#475569';
+  return (
+    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)', position: 'absolute' }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={Math.round(size * 0.09)} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={stroke} strokeWidth={Math.round(size * 0.09)}
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.8s ease' }} />
+      </svg>
+      <span className="relative font-black tabular-nums text-foreground" style={{ fontSize: Math.round(size * 0.215) }}>{pct}%</span>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
+
+const CARD = {
+  background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)',
+};
 
 export default function StationPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [station, setStation] = useState(null);
   const [area, setArea] = useState(null);
   const [equipment, setEquipment] = useState([]);
@@ -908,18 +946,37 @@ export default function StationPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeWorkflow, setActiveWorkflow] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+
+  // Page-level operational data
+  const [prepItems, setPrepItems] = useState([]);
+  const [sideworkItems, setSideworkItems] = useState([]);
+  const [cleaningTasks, setCleaningTasks] = useState([]);
+  const [chemicals, setChemicals] = useState([]);
+  const [stationIssues, setStationIssues] = useState([]);
+  const [tempLogs, setTempLogs] = useState([]);
 
   useEffect(() => { loadData(); }, [id]);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [stations, areas, allEquipment, cleaningTemplateData, inventoryData] = await Promise.all([
+      const todayStr = new Date().toISOString().split('T')[0];
+      const [
+        stations, areas, allEquipment, cleaningTemplateData, inventoryData,
+        prepData, sideworkData, cleaningData, chemData, issueData, tempLogData,
+      ] = await Promise.all([
         base44.entities.Station.list().catch(() => []),
         base44.entities.Area.list().catch(() => []),
         base44.entities.Equipment.list().catch(() => []),
         base44.entities.CleaningTemplate.list().catch(() => []),
         base44.entities.InventoryItem.list().catch(() => []),
+        base44.entities.PrepItem.list('-updated_date', 200).catch(() => []),
+        base44.entities.DailySideWorkTask.list('-updated_date', 200).catch(() => []),
+        base44.entities.GeneratedTask.list('-created_date', 200).catch(() => []),
+        base44.entities.Chemical.list().catch(() => []),
+        base44.entities.Issue.filter({ status: 'open' }).catch(() => []),
+        base44.entities.TemperatureLog.list('-created_date', 50).catch(() => []),
       ]);
 
       const s = stations.find(st => st.id === id);
@@ -933,6 +990,25 @@ export default function StationPage() {
       setEquipment(eq);
       setCleaningTemplates(cleaningTemplateData.filter(isActive));
       setInventoryItems(inventoryData);
+
+      setPrepItems((prepData || []).filter(i => i.station_id === s.id || i.station_name === s.name));
+      setSideworkItems((sideworkData || []).filter(i =>
+        (i.station_id === s.id || i.station === s.name || i.station_name === s.name) &&
+        (i.date === todayStr || !i.date)
+      ));
+      setCleaningTasks((cleaningData || []).filter(t =>
+        (t.task_type === 'cleaning_task' || t.type === 'cleaning_task') &&
+        (t.station_id === s.id || t.station_name === s.name || t.stationId === s.id) &&
+        (t.due_date === todayStr || t.created_date?.startsWith(todayStr))
+      ));
+      setChemicals((chemData || []).filter(c => {
+        const ss = c.assigned_stations || c.assignedStations || [];
+        return ss.includes(s.id) || ss.includes(s.name) || c.station_id === s.id || c.station_name === s.name;
+      }));
+      setStationIssues((issueData || []).filter(i =>
+        i.location === a?.name || i.location === s.name || i.station_id === s.id || i.station_name === s.name
+      ));
+      setTempLogs((tempLogData || []).filter(l => l.station_id === s.id || l.station_name === s.name));
     } catch (err) {
       console.error('Failed to load station:', err);
     }
@@ -947,161 +1023,580 @@ export default function StationPage() {
     setSaving(false);
   };
 
+  // ── Computed values ────────────────────────────────────────────────────────
   const health = station ? stationHealth(station, equipment) : { color: 'neutral', pct: 0 };
   const tempEquipment = equipment.filter(e => e.temp_enabled || e.requiresTemperatureLog);
-  const issueCount = equipment.filter(e => e.requiresMaintenanceChecklist).length;
+  const maintenanceEquipment = equipment.filter(e => e.requiresMaintenanceChecklist);
   const assignedEmployees = station ? stationAssignments(station) : [];
+  const todayStr = new Date().toISOString().split('T')[0];
 
-  const attentionItems = station ? [
-    !isActive(station) && 'Station is inactive',
-    equipment.length === 0 && 'No equipment assigned',
-    tempEquipment.some(e => !hasTempSchedule(e)) && `${tempEquipment.filter(e => !hasTempSchedule(e)).length} temp schedule${tempEquipment.filter(e => !hasTempSchedule(e)).length === 1 ? '' : 's'} missing`,
-    issueCount > 0 && `${issueCount} maintenance issue${issueCount === 1 ? '' : 's'} flagged`,
-  ].filter(Boolean) : [];
+  const prepDone       = prepItems.filter(i => i.status === 'completed').length;
+  const sideworkDone   = sideworkItems.filter(i => i.status === 'completed').length;
+  const cleaningDone   = cleaningTasks.filter(t => t.status === 'completed').length;
+  const configuredEq   = equipment.filter(isEquipmentConfigured).length;
+  const tempWithSched  = tempEquipment.filter(e => hasTempSchedule(e)).length;
+  const totalIssues    = stationIssues.length + maintenanceEquipment.length;
 
   const accentBar = health.color === 'success' ? 'bg-green-500' : health.color === 'warning' ? 'bg-amber-500' : health.color === 'critical' ? 'bg-red-500' : 'bg-slate-600';
-  const headerBorderColor = health.color === 'success' ? 'border-green-500/30' : health.color === 'warning' ? 'border-amber-500/30' : health.color === 'critical' ? 'border-red-500/35' : 'border-border/40';
-  const headerBg = health.color === 'success' ? 'rgba(34,197,94,0.05)' : health.color === 'warning' ? 'rgba(245,158,11,0.05)' : health.color === 'critical' ? 'rgba(239,68,68,0.07)' : 'transparent';
+
+  const statusBadgeCls = health.color === 'success'
+    ? 'border-green-500/40 bg-green-500/15 text-green-400'
+    : health.color === 'warning'
+    ? 'border-amber-500/40 bg-amber-500/15 text-amber-400'
+    : health.color === 'critical'
+    ? 'border-red-500/40 bg-red-500/15 text-red-400'
+    : 'border-border/60 bg-muted/30 text-muted-foreground';
+
+  const statusLabel = !station || !isActive(station) ? 'Inactive'
+    : health.color === 'success' ? 'Active'
+    : health.color === 'warning' ? 'Needs Attention'
+    : 'Critical';
 
   const activeWorkflowDef = WORKFLOWS.find(w => w.id === activeWorkflow);
 
+  // Workflow completion data for cards
+  const wfData = {
+    prep:      { done: prepDone,      total: prepItems.length },
+    sidework:  { done: sideworkDone,  total: sideworkItems.length },
+    temps:     { done: tempWithSched, total: tempEquipment.length, altLabel: `${tempEquipment.length} tracked` },
+    cleaning:  { done: cleaningDone,  total: cleaningTasks.length },
+    chemicals: { done: chemicals.length, total: chemicals.length, altLabel: `${chemicals.length} assigned` },
+    equipment: { done: configuredEq,  total: equipment.length },
+  };
+
+  // Recent activity (temp logs + completed prep today)
+  const recentActivity = [
+    ...tempLogs.slice(0, 4).map(l => ({
+      icon: Thermometer, color: l.in_range === false ? 'text-red-400' : 'text-blue-400',
+      title: 'Temp logged', sub: `${l.equipment_name || 'Equipment'}: ${l.temperature}°F`, time: l.created_date,
+    })),
+    ...prepItems.filter(i => i.status === 'completed' && i.updated_date?.startsWith(todayStr)).slice(0, 3).map(i => ({
+      icon: CheckCircle2, color: 'text-green-400',
+      title: 'Prep completed', sub: i.name || i.itemName || '', time: i.updated_date,
+    })),
+  ].sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0)).slice(0, 5);
+
+  // 7-day temp compliance
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const tempLogDays = new Set(
+    tempLogs.filter(l => l.created_date && new Date(l.created_date) >= sevenDaysAgo)
+            .map(l => l.created_date?.split('T')[0])
+  ).size;
+
+  // ── Readiness breakdown rows ───────────────────────────────────────────────
+  const breakdownRows = [
+    { icon: Wrench,        label: 'Equipment',   wfId: 'equipment', done: configuredEq, total: equipment.length,      isCount: false },
+    { icon: Thermometer,   label: 'Temp Checks', wfId: 'temps',     done: tempWithSched, total: tempEquipment.length, isCount: false },
+    { icon: ClipboardCheck,label: 'Prep',        wfId: 'prep',      done: prepDone,      total: prepItems.length,     isCount: false },
+    { icon: ListChecks,    label: 'Sidework',    wfId: 'sidework',  done: sideworkDone,  total: sideworkItems.length, isCount: false },
+    { icon: Sparkles,      label: 'Cleaning',    wfId: 'cleaning',  done: cleaningDone,  total: cleaningTasks.length, isCount: false },
+    { icon: Beaker,        label: 'Chemicals',   wfId: 'chemicals', done: chemicals.length, total: chemicals.length,  isCount: true },
+    { icon: AlertTriangle, label: 'Issues',      wfId: null,        done: 0, total: totalIssues,                      isIssue: true },
+  ];
+
+  // ── Loading skeleton ───────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px]"
+          style={{ background: 'rgba(6,10,16,0.97)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50">
+            <ChevronLeft className="h-5 w-5 text-foreground" />
+          </button>
+          <div className="h-4 w-40 skeleton rounded flex-1" />
+        </header>
+        <div className="pt-[72px] lg:pt-8 px-4 lg:px-6 max-w-7xl mx-auto space-y-4">
+          <div className="skeleton h-8 w-52 rounded" />
+          <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-5 space-y-4 lg:space-y-0">
+            <div className="space-y-4">
+              {[160, 48, 120, 200, 160, 140].map((h, i) => <div key={i} className={`skeleton rounded-2xl`} style={{ height: h }} />)}
+            </div>
+            <div className="hidden lg:block space-y-3">
+              {[180, 200, 140, 160].map((h, i) => <div key={i} className={`skeleton rounded-2xl`} style={{ height: h }} />)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!station) return null;
+
   return (
-    <div className="min-h-screen max-w-full overflow-x-hidden bg-background">
-      {/* Fixed header */}
-      <header
-        className="fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px]"
-        style={{ background: 'linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-      >
-        <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 active:scale-95 transition-all shrink-0" style={{ background: 'rgba(255,255,255,0.04)' }}>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+
+      {/* ── Mobile fixed header ──────────────────────────────────────────────── */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px]"
+        style={{ background: 'rgba(6,10,16,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 active:scale-95">
           <ChevronLeft className="h-5 w-5 text-foreground" />
         </button>
         <div className="flex-1 min-w-0">
-          {loading ? (
-            <div className="h-4 w-32 skeleton rounded" />
-          ) : (
-            <>
-              <h1 className="text-base font-black tracking-tight text-foreground leading-none truncate">{station?.name || 'Station'}</h1>
-              {area && <p className="text-[11px] text-muted-foreground/70 mt-0.5 leading-none">{area.name}</p>}
-            </>
-          )}
+          <h1 className="text-base font-black tracking-tight text-foreground leading-none truncate">{station.name}</h1>
+          {area && <p className="text-[11px] text-muted-foreground/70 mt-0.5 leading-none">{area.name}</p>}
         </div>
-        <button onClick={loadData} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 active:scale-95 transition-all shrink-0" style={{ background: 'rgba(255,255,255,0.04)' }}>
+        <button onClick={loadData} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 active:scale-95">
           <RefreshCw className="h-4 w-4 text-muted-foreground" />
         </button>
       </header>
 
-      {/* Content */}
-      <main className="mx-auto max-w-2xl overflow-x-hidden px-4 pb-24 pt-[60px] lg:max-w-4xl lg:px-8">
-        {loading ? (
-          <div className="space-y-4 pt-4">
-            <div className="skeleton h-48 rounded-2xl" />
-            <div className="skeleton h-16 rounded-2xl" />
-            <div className="skeleton h-32 rounded-2xl" />
-          </div>
-        ) : !station ? null : (
-          <div className="space-y-4 pt-4">
+      {/* ── Main content ─────────────────────────────────────────────────────── */}
+      <main className="pt-[60px] pb-24 lg:pt-0 lg:pb-12 lg:max-w-7xl lg:mx-auto lg:px-6">
 
-            {/* Identity card */}
-            <div className={cn('rounded-2xl border p-4', headerBorderColor)} style={{ background: headerBg }}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{area?.name || 'Station'}</p>
-                  <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">{station.name}</h2>
-                  {station.department && <p className="mt-0.5 text-xs text-muted-foreground">{station.department}</p>}
-                </div>
-                <button type="button" onClick={toggleActive} disabled={saving}
-                  className={cn('shrink-0 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] transition-all',
-                    isActive(station) ? 'border-green-500/40 bg-green-500/15 text-green-400' : 'border-border/60 bg-muted/30 text-muted-foreground')}>
-                  {saving ? '…' : isActive(station) ? 'Active' : 'Inactive'}
+        {/* Desktop page header */}
+        <div className="hidden lg:block pt-7 pb-5">
+          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+            <button onClick={() => navigate('/operational-map')} className="hover:text-foreground transition-colors">Stations</button>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground font-semibold">{station.name}</span>
+          </nav>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-black tracking-tight text-foreground">{station.name}</h1>
+                <button onClick={toggleActive} disabled={saving}
+                  className={cn('rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-wide transition-all', statusBadgeCls)}>
+                  {saving ? '…' : statusLabel}
                 </button>
               </div>
+              <p className="text-sm text-muted-foreground mt-1">Station readiness, workflows, equipment, and daily actions</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button onClick={() => setShowEditForm(true)}
+                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground hover:bg-muted/50 transition-all"
+                style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <Edit2 className="h-3.5 w-3.5" /> Edit Station
+              </button>
+              <button onClick={() => setActiveWorkflow('equipment')}
+                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground hover:bg-muted/50 transition-all"
+                style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <Package className="h-3.5 w-3.5" /> Assign Items
+              </button>
+              <button onClick={() => setActiveWorkflow('prep')}
+                className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all"
+                style={{ boxShadow: '0 0 14px rgba(230,106,31,0.28)' }}>
+                <ClipboardCheck className="h-3.5 w-3.5" /> Start Checklist
+              </button>
+            </div>
+          </div>
+        </div>
 
-              {/* Readiness bar */}
-              <div className="mt-4 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-muted-foreground">Setup readiness</span>
-                  <span className="font-black tabular-nums text-foreground">{health.pct}%</span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-black/30">
-                  <div className={cn('h-full rounded-full transition-all duration-700', accentBar)} style={{ width: `${health.pct}%` }} />
-                </div>
-              </div>
+        {/* 2-column layout */}
+        <div className="px-4 lg:px-0 lg:grid lg:grid-cols-[1fr_300px] lg:gap-5 lg:items-start">
 
-              {/* Metrics */}
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {[
-                  { label: 'Equipment', value: equipment.length },
-                  { label: 'Temp checks', value: tempEquipment.length },
-                  { label: 'Issues', value: issueCount, highlight: issueCount > 0 },
-                ].map(({ label, value, highlight }) => (
-                  <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(0,0,0,0.3)', boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
-                    <p className={cn('text-lg font-black', highlight ? 'text-red-400' : 'text-foreground')}>{value}</p>
-                    <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{label}</p>
+          {/* ════ LEFT / MAIN COLUMN ════ */}
+          <div className="space-y-4 pt-4 lg:pt-0">
+
+            {/* ── Readiness Hero ───────────────────────────────────────────── */}
+            <div className="rounded-2xl border border-border/50 p-4 lg:p-5" style={CARD}>
+              <div className="flex items-start gap-4">
+                <CircularGauge pct={health.pct} color={health.color} size={88} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="text-base font-black text-foreground">Setup Readiness</h2>
+                    <span className={cn('shrink-0 text-[10px] font-black px-2.5 py-1 rounded-full border', statusBadgeCls)}>
+                      {health.color === 'success' ? 'READY' : health.color === 'warning' ? 'ATTENTION' : health.color === 'critical' ? 'CRITICAL' : 'INACTIVE'}
+                    </span>
                   </div>
-                ))}
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {health.pct === 100 ? 'All core areas ready to go.' : health.pct === 0 ? 'Setup required before service.' : 'Some areas need attention.'}
+                  </p>
+                  <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-black/40">
+                    <div className={cn('h-full rounded-full transition-all duration-700', accentBar)} style={{ width: `${health.pct}%` }} />
+                  </div>
+                  {/* Category counts */}
+                  <div className="mt-3.5 grid grid-cols-4 gap-x-3 gap-y-2.5">
+                    {[
+                      { icon: Wrench,         label: 'Equipment',   val: equipment.length === 0 ? '—' : `${configuredEq}/${equipment.length}` },
+                      { icon: Thermometer,    label: 'Temp Checks', val: tempEquipment.length === 0 ? '—' : `${tempWithSched}/${tempEquipment.length}` },
+                      { icon: ClipboardCheck, label: 'Prep',        val: prepItems.length === 0 ? '—' : `${prepDone}/${prepItems.length}` },
+                      { icon: ListChecks,     label: 'Sidework',    val: sideworkItems.length === 0 ? '—' : `${sideworkDone}/${sideworkItems.length}` },
+                      { icon: Sparkles,       label: 'Cleaning',    val: cleaningTasks.length === 0 ? '—' : `${cleaningDone}/${cleaningTasks.length}` },
+                      { icon: Beaker,         label: 'Chemicals',   val: String(chemicals.length) },
+                      { icon: AlertTriangle,  label: 'Issues',      val: String(totalIssues), isIssue: true },
+                    ].map(({ icon: Icon, label, val, isIssue }) => (
+                      <div key={label} className="flex items-center gap-1.5 min-w-0">
+                        <Icon className={cn('h-3.5 w-3.5 shrink-0', isIssue && totalIssues > 0 ? 'text-amber-400' : 'text-muted-foreground/60')} />
+                        <div className="min-w-0">
+                          <p className={cn('text-xs font-black leading-none', isIssue && totalIssues > 0 ? 'text-amber-400' : 'text-foreground')}>{val}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 leading-none truncate">{label}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Attention alerts */}
-            {attentionItems.length > 0 && (
-              <div className="space-y-1.5">
-                {attentionItems.map(item => (
-                  <div key={item} className="flex items-center gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/8 px-3 py-2.5">
-                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
-                    <p className="text-xs font-bold text-foreground">{item}</p>
-                  </div>
-                ))}
+            {/* ── Issue Alert ───────────────────────────────────────────────── */}
+            {totalIssues > 0 ? (
+              <div className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/8 px-4 py-3">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground">{totalIssues} issue{totalIssues !== 1 ? 's' : ''} flagged</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {maintenanceEquipment.length > 0 ? `${maintenanceEquipment.length} maintenance item${maintenanceEquipment.length > 1 ? 's' : ''} require attention.` : 'Review open issues below.'}
+                  </p>
+                </div>
+                <button onClick={() => setActiveWorkflow('equipment')}
+                  className="shrink-0 text-xs font-black text-amber-400 border border-amber-500/40 rounded-lg px-3 py-1.5 hover:bg-amber-500/10 transition-all flex items-center gap-1">
+                  View <ChevronRight className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 rounded-xl border border-green-500/25 bg-green-500/8 px-4 py-2.5">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-400" />
+                <p className="text-xs font-bold text-foreground">No open issues — station is ready for service.</p>
               </div>
             )}
 
-            {/* Assigned employees */}
-            {assignedEmployees.length > 0 && (
-              <div className="space-y-2">
-                <p className="metric-label">Assigned Today</p>
-                <div className="flex flex-wrap gap-2">
-                  {assignedEmployees.map(e => (
-                    <div key={e.name} className="flex items-center gap-2 rounded-full border border-border/40 py-1.5 pl-1.5 pr-3" style={{ background: 'rgba(11,17,24,0.95)', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
-                      <span className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center text-[9px] font-black text-primary">
-                        {e.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()}
+            {/* ── Today's Workflows ─────────────────────────────────────────── */}
+            <div>
+              <p className="text-sm font-black text-foreground mb-2.5">Today's Workflows</p>
+              <div className="grid grid-cols-3 gap-2 lg:grid-cols-6">
+                {WORKFLOWS.map(({ id: wid, label, icon: WIcon }) => {
+                  const wd = wfData[wid];
+                  const hasData = wd && wd.total > 0;
+                  const complete = hasData && wd.done === wd.total;
+                  const countLabel = wd?.altLabel || (hasData ? `${wd.done}/${wd.total}` : '—');
+                  return (
+                    <button key={wid} type="button" onClick={() => setActiveWorkflow(wid)}
+                      className="flex flex-col items-center gap-1.5 rounded-xl border border-border/40 px-2 py-3.5 text-center transition-all active:scale-[0.97] hover:border-primary/30 hover:bg-white/[0.02]"
+                      style={CARD}>
+                      <WIcon className={cn('h-4 w-4', complete ? 'text-green-400' : 'text-primary/70')} />
+                      <span className="text-[10px] font-black text-foreground/80 leading-none">{label}</span>
+                      <span className={cn('text-[10px] font-bold', complete ? 'text-green-400' : hasData ? 'text-amber-400/80' : 'text-muted-foreground')}>
+                        {countLabel}
                       </span>
-                      <span className="text-xs font-bold text-foreground">{e.name}</span>
-                      {e.shift && <span className="text-[10px] text-muted-foreground">{e.shift}</span>}
+                      {hasData && (
+                        <span className={cn('text-[9px] font-bold leading-none', complete ? 'text-green-400/70' : 'text-muted-foreground')}>
+                          {complete ? 'Complete' : 'In Progress'}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Readiness Breakdown ───────────────────────────────────────── */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Readiness Breakdown</h3>
+              </div>
+              <div className="divide-y divide-border/20">
+                {breakdownRows.map(({ icon: Icon, label, wfId, done, total, isCount, isIssue }) => {
+                  const ready = isIssue ? totalIssues === 0 : (total > 0 && done === total);
+                  const noData = !isIssue && total === 0;
+                  const statusPill = isIssue
+                    ? (totalIssues === 0 ? { t: 'None', c: 'bg-green-500/15 text-green-400 border-green-500/30' } : { t: `${totalIssues} Open`, c: 'bg-amber-500/15 text-amber-400 border-amber-500/30' })
+                    : noData ? { t: 'No Data', c: 'bg-muted/30 text-muted-foreground border-border/30' }
+                    : ready ? { t: 'Ready', c: 'bg-green-500/15 text-green-400 border-green-500/30' }
+                    : { t: 'Attention', c: 'bg-amber-500/15 text-amber-400 border-amber-500/30' };
+                  const countStr = isIssue
+                    ? (totalIssues > 0 ? `${totalIssues} open` : '0')
+                    : isCount ? `${total} assigned`
+                    : noData ? '—'
+                    : `${done}/${total}`;
+                  return (
+                    <button key={label} type="button"
+                      onClick={() => wfId ? setActiveWorkflow(wfId) : navigate('/issues')}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-white/[0.02] transition-colors">
+                      <Icon className={cn('h-3.5 w-3.5 shrink-0', isIssue && totalIssues > 0 ? 'text-amber-400' : 'text-muted-foreground/60')} />
+                      <span className="flex-1 text-xs font-bold text-foreground">{label}</span>
+                      <span className="text-xs font-bold text-muted-foreground mr-2">{countStr}</span>
+                      <span className={cn('text-[10px] font-black px-2 py-0.5 rounded-full border', statusPill.c)}>{statusPill.t}</span>
+                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30 shrink-0 ml-1" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Open Issues & Blockers ────────────────────────────────────── */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Open Issues & Blockers</h3>
+                {totalIssues > 0 && (
+                  <button onClick={() => navigate('/issues')} className="text-xs font-bold text-primary">View all →</button>
+                )}
+              </div>
+              {maintenanceEquipment.map(eq => (
+                <button key={eq.id} onClick={() => setActiveWorkflow('equipment')}
+                  className="flex w-full items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0 text-left hover:bg-white/[0.02]">
+                  <span className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                    <Wrench className="h-4 w-4 text-amber-400" />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-foreground truncate">{eq.name}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Maintenance required</p>
+                  </div>
+                  <span className="shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-400">Maintenance</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30 shrink-0" />
+                </button>
+              ))}
+              {stationIssues.map(issue => {
+                const pc = { critical: 'border-red-500/40 bg-red-500/15 text-red-400', high: 'border-red-500/30 bg-red-500/10 text-red-400', medium: 'border-amber-500/30 bg-amber-500/15 text-amber-400', low: 'border-slate-500/30 bg-slate-500/15 text-slate-400' }[issue.priority] || 'border-amber-500/30 bg-amber-500/15 text-amber-400';
+                const isHigh = issue.priority === 'critical' || issue.priority === 'high';
+                return (
+                  <div key={issue.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0">
+                    <span className={cn('h-8 w-8 rounded-lg flex items-center justify-center shrink-0', isHigh ? 'bg-red-500/15' : 'bg-amber-500/15')}>
+                      <AlertTriangle className={cn('h-4 w-4', isHigh ? 'text-red-400' : 'text-amber-400')} />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-foreground truncate">{issue.title}</p>
+                      {issue.notes && <p className="text-[10px] text-muted-foreground truncate">{issue.notes}</p>}
+                      {issue.created_date && <p className="text-[10px] text-muted-foreground/50 mt-0.5">Reported {relativeTime(issue.created_date)}</p>}
+                    </div>
+                    <span className={cn('shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full border capitalize', pc)}>{issue.priority || 'Medium'}</span>
+                  </div>
+                );
+              })}
+              {totalIssues === 0 && (
+                <div className="px-4 py-6 text-center">
+                  <CheckCircle2 className="h-6 w-6 text-green-400/40 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-muted-foreground">No blockers. This station is ready for service.</p>
+                </div>
+              )}
+            </div>
+
+            {/* ── Assigned Equipment ────────────────────────────────────────── */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Assigned Equipment</h3>
+                <button onClick={() => setActiveWorkflow('equipment')} className="text-xs font-bold text-primary">Manage →</button>
+              </div>
+              {equipment.length === 0 ? (
+                <div className="px-4 py-6 text-center">
+                  <Wrench className="h-6 w-6 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-muted-foreground">No equipment assigned yet.</p>
+                  <button onClick={() => setActiveWorkflow('equipment')} className="mt-2 text-xs font-black text-primary">Assign Equipment →</button>
+                </div>
+              ) : (
+                <>
+                  {equipment.slice(0, 6).map(eq => {
+                    const configured = isEquipmentConfigured(eq);
+                    const hasMaint = eq.requiresMaintenanceChecklist;
+                    const status = hasMaint ? { t: 'Attention', c: 'bg-amber-500/15 text-amber-400 border-amber-500/30' }
+                      : configured ? { t: 'Good', c: 'bg-green-500/15 text-green-400 border-green-500/30' }
+                      : { t: 'Setup', c: 'bg-muted/30 text-muted-foreground border-border/30' };
+                    const meta = getEquipmentMeta(eq.equipmentType);
+                    const EqIcon = meta.icon;
+                    return (
+                      <button key={eq.id} onClick={() => setActiveWorkflow('equipment')}
+                        className="flex w-full items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0 text-left hover:bg-white/[0.02]">
+                        <span className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: meta.bg }}>
+                          <EqIcon className={cn('h-4 w-4', meta.iconColor)} />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-foreground truncate">{eq.name}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{eq.equipmentType?.replace(/-/g, ' ') || 'Equipment'}</p>
+                        </div>
+                        <span className={cn('shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full border', status.c)}>{status.t}</span>
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30 shrink-0" />
+                      </button>
+                    );
+                  })}
+                  {equipment.length > 6 && (
+                    <button onClick={() => setActiveWorkflow('equipment')} className="w-full px-4 py-3 text-xs font-bold text-primary text-center hover:bg-white/[0.02]">
+                      +{equipment.length - 6} more →
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+
+          </div>
+
+          {/* ════ RIGHT SIDEBAR ════ */}
+          <div className="mt-4 lg:mt-0 space-y-3 lg:sticky lg:top-[72px] self-start">
+
+            {/* Station Snapshot */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Station Snapshot</h3>
+              </div>
+              <div className="p-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <CircularGauge pct={health.pct} color={health.color} size={56} />
+                  <div className="min-w-0">
+                    <p className={cn('text-base font-black leading-none', health.color === 'success' ? 'text-green-400' : health.color === 'warning' ? 'text-amber-400' : health.color === 'critical' ? 'text-red-400' : 'text-muted-foreground')}>
+                      {health.color === 'success' ? 'Ready' : health.color === 'warning' ? 'Needs Setup' : health.color === 'critical' ? 'Critical' : 'Inactive'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{equipment.length} equipment piece{equipment.length !== 1 ? 's' : ''}</p>
+                  </div>
+                </div>
+                <div className="space-y-2.5">
+                  {[
+                    { label: 'Area', value: area?.name || 'Unassigned', icon: MapPin },
+                    { label: 'Last updated', value: station.updated_date ? relativeTime(station.updated_date) : 'Unknown', icon: Clock },
+                    { label: 'Assigned to', value: assignedEmployees[0]?.name || 'Unassigned', icon: User },
+                    { label: 'Opening status', value: isActive(station) ? 'Open & Ready' : 'Inactive', icon: Activity, green: isActive(station) },
+                  ].map(({ label, value, icon: Icon, green }) => (
+                    <div key={label} className="flex items-start gap-2.5">
+                      <Icon className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground leading-none">{label}</p>
+                        <p className={cn('text-xs font-bold mt-0.5 truncate', green ? 'text-green-400' : 'text-foreground')}>{value}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Workflow grid */}
-            <div>
-              <p className="metric-label mb-2">Workflows</p>
-              <div className="grid grid-cols-3 gap-2 lg:grid-cols-6">
-                {WORKFLOWS.map(({ id: wid, label, icon: WorkflowIcon }) => (
-                  <button key={wid} type="button" onClick={() => setActiveWorkflow(wid)}
-                    className="flex flex-col items-center gap-2 rounded-2xl border border-border/40 px-2 py-4 text-center transition-all active:scale-[0.97] hover:border-primary/30"
-                    style={cardStyle}>
-                    <WorkflowIcon className="h-5 w-5 text-primary/70" />
-                    <span className="text-[10px] font-black text-foreground/70">{label}</span>
+            {/* Quick Actions */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Quick Actions</h3>
+              </div>
+              <div className="p-3 grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Open Checklist', icon: ClipboardCheck, onClick: () => setActiveWorkflow('prep'), primary: true },
+                  { label: 'Log Temps',      icon: Thermometer,    onClick: () => setActiveWorkflow('temps') },
+                  { label: 'Equipment',      icon: Wrench,          onClick: () => setActiveWorkflow('equipment') },
+                  { label: 'Resolve Issue',  icon: AlertTriangle,   onClick: () => navigate('/issues') },
+                  { label: 'Sidework',       icon: ListChecks,      onClick: () => setActiveWorkflow('sidework') },
+                  { label: 'Edit Station',   icon: Edit2,           onClick: () => setShowEditForm(true) },
+                ].map(({ label, icon: Icon, onClick, primary }) => (
+                  <button key={label} onClick={onClick}
+                    className={cn('flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-center transition-all hover:bg-white/[0.03] active:scale-95',
+                      primary ? 'border-primary/40 bg-primary/8 text-primary' : 'border-border/40 text-muted-foreground hover:text-foreground')}>
+                    <Icon className="h-4 w-4" />
+                    <span className="text-[10px] font-bold leading-tight">{label}</span>
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* Today's Summary */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Today's Summary</h3>
+              </div>
+              <div className="p-3 grid grid-cols-2 gap-2">
+                {(() => {
+                  const incompletePrepItems = prepItems.filter(i => i.status !== 'completed');
+                  const incompleteSidework  = sideworkItems.filter(i => i.status !== 'completed');
+                  const incompleteTotal     = incompletePrepItems.length + incompleteSidework.length;
+                  const nextTask = incompletePrepItems[0] || incompleteSidework[0];
+                  return [
+                    { label: 'Next task', value: nextTask ? (nextTask.name || nextTask.taskName || 'Pending').slice(0, 16) : 'All done', color: nextTask ? 'text-amber-400' : 'text-green-400' },
+                    { label: 'Incomplete', value: String(incompleteTotal), color: incompleteTotal > 0 ? 'text-amber-400' : 'text-green-400' },
+                    { label: 'Issues', value: String(totalIssues), color: totalIssues > 0 ? 'text-red-400' : 'text-green-400' },
+                    { label: 'Temp checks', value: String(tempEquipment.length), color: 'text-blue-400' },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} className="rounded-xl p-2.5" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                      <p className={cn('text-sm font-black truncate', color)}>{value}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">{label}</p>
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Recent Activity</h3>
+              </div>
+              {recentActivity.length === 0 ? (
+                <p className="px-4 py-5 text-xs text-muted-foreground text-center">No recent activity for this station.</p>
+              ) : (
+                <div className="divide-y divide-border/15">
+                  {recentActivity.map((item, i) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={i} className="flex items-start gap-2.5 px-4 py-2.5">
+                        <span className="h-6 w-6 rounded-full bg-muted/30 flex items-center justify-center shrink-0 mt-0.5">
+                          <Icon className={cn('h-3 w-3', item.color)} />
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-foreground truncate">{item.title}</p>
+                          {item.sub && <p className="text-[10px] text-muted-foreground truncate">{item.sub}</p>}
+                        </div>
+                        <span className="text-[10px] text-muted-foreground/50 shrink-0">{relativeTime(item.time)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Compliance — Last 7 Days */}
+            <div className="rounded-2xl border border-border/50 overflow-hidden" style={CARD}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+                <h3 className="text-sm font-black text-foreground">Compliance</h3>
+                <span className="text-[10px] text-muted-foreground">Last 7 Days</span>
+              </div>
+              <div className="p-4 space-y-3">
+                {tempEquipment.length > 0 && (
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-bold text-foreground flex items-center gap-1.5"><Thermometer className="h-3 w-3 text-blue-400" /> Temp Logs</span>
+                      <span className="text-xs font-black text-foreground">{tempLogDays}/7</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/30">
+                      <div className="h-full rounded-full bg-blue-500 transition-all duration-700" style={{ width: `${Math.round((tempLogDays / 7) * 100)}%` }} />
+                    </div>
+                  </div>
+                )}
+                {cleaningTasks.length > 0 && (
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-bold text-foreground flex items-center gap-1.5"><Sparkles className="h-3 w-3 text-green-400" /> Cleaning</span>
+                      <span className="text-xs font-black text-foreground">{cleaningDone}/{cleaningTasks.length}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/30">
+                      <div className="h-full rounded-full bg-green-500 transition-all duration-700" style={{ width: cleaningTasks.length > 0 ? `${Math.round((cleaningDone / cleaningTasks.length) * 100)}%` : '0%' }} />
+                    </div>
+                  </div>
+                )}
+                {prepItems.length > 0 && (
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-bold text-foreground flex items-center gap-1.5"><ClipboardCheck className="h-3 w-3 text-primary" /> Prep</span>
+                      <span className="text-xs font-black text-foreground">{prepDone}/{prepItems.length}</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/30">
+                      <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: prepItems.length > 0 ? `${Math.round((prepDone / prepItems.length) * 100)}%` : '0%' }} />
+                    </div>
+                  </div>
+                )}
+                {tempEquipment.length === 0 && cleaningTasks.length === 0 && prepItems.length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-1">Compliance history appears once logs are completed.</p>
+                )}
+              </div>
+            </div>
+
           </div>
-        )}
+        </div>
       </main>
 
+      {/* Edit Station Modal */}
+      {showEditForm && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
+              <h2 className="font-bold text-foreground">Edit Station</h2>
+              <button onClick={() => setShowEditForm(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto">
+              <StationForm station={station} onSave={async () => { await loadData(); setShowEditForm(false); }} onClose={() => setShowEditForm(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Workflow bottom sheet */}
-      <BottomSheet open={Boolean(activeWorkflow)} onClose={() => setActiveWorkflow(null)} title={activeWorkflowDef?.label || ''} className={cn('max-w-full overflow-hidden', activeWorkflow === 'equipment' && 'min-h-[75vh]')}>
+      <BottomSheet open={Boolean(activeWorkflow)} onClose={() => setActiveWorkflow(null)} title={activeWorkflowDef?.label || ''}
+        className={cn('max-w-full overflow-hidden', activeWorkflow === 'equipment' && 'min-h-[75vh]')}>
         {activeWorkflow && station && (
-          <WorkflowSheetContent
-            key={activeWorkflow}
-            workflow={activeWorkflow}
-            station={station}
-            equipment={equipment}
-            cleaningTemplates={cleaningTemplates}
-            inventoryItems={inventoryItems}
-            onEquipmentRefresh={loadData}
-          />
+          <WorkflowSheetContent key={activeWorkflow} workflow={activeWorkflow} station={station}
+            equipment={equipment} cleaningTemplates={cleaningTemplates} inventoryItems={inventoryItems}
+            onEquipmentRefresh={loadData} />
         )}
       </BottomSheet>
     </div>
