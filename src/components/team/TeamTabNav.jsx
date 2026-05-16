@@ -15,8 +15,8 @@ const ALL_TABS = [
 export default function TeamTabNav({ activeTab, onTabChange, isAdmin = false }) {
   const tabs = ALL_TABS.filter(t => !t.adminOnly || isAdmin);
   return (
-    <div className="border-b border-border/20 overflow-x-auto scrollbar-hide">
-      <div className="flex gap-1 px-4 lg:px-8 min-w-min">
+    <div className="border-b border-border/20 overflow-x-auto scrollbar-hide pt-2 lg:sticky lg:top-[112px] lg:z-20" style={{ background: 'rgba(5,8,14,0.97)' }}>
+      <div className="flex gap-1 px-4 lg:px-8 min-w-min pt-2">
         {tabs.map(({ id, label, icon: IconComponent }) => {
           const isActive = activeTab === id;
           return (

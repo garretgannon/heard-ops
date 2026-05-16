@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
@@ -140,6 +141,7 @@ function ItemCard({ item, onClick, isAdmin }) {
 
 export default function PurchasedItems() {
   const { isAdmin, user } = useCurrentUser();
+  const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -153,6 +155,11 @@ export default function PurchasedItems() {
     setLoading(true);
     const data = await base44.entities.PurchasedItem.list('-updated_date', 500).catch(() => []);
     setItems(data);
+    const deepLinkId = searchParams.get('id');
+    if (deepLinkId) {
+      const match = data.find(i => i.id === deepLinkId);
+      if (match) setSelected(match);
+    }
     setLoading(false);
   };
 

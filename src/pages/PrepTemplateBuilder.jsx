@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import StationPrepAssignments from '@/components/prep/StationPrepAssignments';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -260,6 +261,11 @@ export default function PrepTemplateBuilder() {
             </select>
           </div>
         </div>
+
+        {/* Station Assignments — only shown when editing an existing template */}
+        {id && (
+          <StationPrepAssignments templateId={id} templateName={template.template_name} />
+        )}
 
         {/* Prep Items Table */}
         <div className="card-glass border border-border rounded-2xl p-6 space-y-4">

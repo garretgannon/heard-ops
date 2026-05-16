@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Plus, Edit2, Trash2, Copy, Archive } from 'lucide-react';
+import { Plus, Edit2, Trash2, Copy, Archive, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import QuickAddPrepItemModal from '@/components/modals/QuickAddPrepItemModal';
+import PrepStationImport from '@/components/prep/PrepStationImport';
 
 export default function PrepPlanTemplatesManager() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function PrepPlanTemplatesManager() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     loadTemplates();
@@ -72,6 +74,9 @@ export default function PrepPlanTemplatesManager() {
           <div className="flex items-center gap-2">
             <button onClick={() => setShowQuickAdd(true)} className="btn-secondary text-xs h-8 px-3 flex items-center gap-1">
               ⚡ Quick Add
+            </button>
+            <button onClick={() => setShowImport(true)} className="btn-secondary text-xs h-8 px-3 flex items-center gap-1">
+              <Upload className="h-3.5 w-3.5" /> Import
             </button>
             <button onClick={() => navigate('/prep-plan-templates/new')} className="btn-primary text-xs h-8 px-3 flex items-center gap-1">
               <Plus className="h-3.5 w-3.5" /> New Template
@@ -162,6 +167,11 @@ export default function PrepPlanTemplatesManager() {
       </div>
 
       {showQuickAdd && <QuickAddPrepItemModal onClose={() => { setShowQuickAdd(false); loadTemplates(); }} />}
+      <PrepStationImport
+        isOpen={showImport}
+        onClose={() => setShowImport(false)}
+        onImportComplete={() => { loadTemplates(); setShowImport(false); }}
+      />
     </div>
   );
 }

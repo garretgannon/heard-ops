@@ -310,7 +310,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
   }
 
   return (
-    <div className="flex-1 flex flex-col lg:overflow-hidden">
+    <div className="flex-1 min-w-0 flex flex-col">
       {/* Desktop header */}
       <div
         className="hidden lg:flex items-center justify-between shrink-0 -mx-8 px-8 h-10"
@@ -353,7 +353,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex gap-1.5 overflow-x-auto pb-1 pt-4 pl-1 scrollbar-hide">
             {ADMIN_TABS.map(t => (
               <button
                 key={t.id}
@@ -760,7 +760,7 @@ export default function Training() {
 
   return (
     <div className="flex h-screen bg-background lg:overflow-hidden pb-40 lg:pb-0">
-      <div className="flex-1 flex flex-col lg:overflow-hidden">
+      <div className="flex-1 min-w-0 flex flex-col">
         <AdminView
           modules={modules}
           assignments={assignments}

@@ -80,7 +80,7 @@ const AppOverview = lazy(() => import('./pages/AppOverview'));
 
 function RouteFallback() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center">
+    <div className="fixed inset-0 flex items-center justify-center bg-background">
       <div className="heard-spinner" />
     </div>
   );
@@ -93,7 +93,7 @@ const AuthenticatedApp = () => {
 
   if (isLoadingPublicSettings || isLoadingAuth || userLoading) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-background">
         <div className="heard-spinner" />
       </div>
     );

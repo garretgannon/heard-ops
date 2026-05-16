@@ -235,7 +235,7 @@ export default function Layout() {
         {/* Logo / Brand */}
         <div className={cn(
           "flex shrink-0 pt-5",
-          collapsed ? "items-center justify-center px-3 pb-5" : "flex-col items-start px-5 pb-5"
+          collapsed ? "items-center justify-center px-3 pb-5" : "flex-col items-center px-5 pb-5"
         )}>
           <img
             src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.headerLogo}
@@ -247,8 +247,8 @@ export default function Layout() {
             style={{}}
           />
           {!collapsed && (
-            <div className="mt-1 min-w-0">
-              <p className="text-[10px] text-muted-foreground/70 mt-0.5 font-medium tracking-wide truncate">
+            <div className="mt-1.5 min-w-0 w-full text-center">
+              <p className="text-[10px] text-muted-foreground/70 font-medium tracking-wide truncate">
                 {restaurantName || 'Restaurant Ops'}
               </p>
             </div>

@@ -335,8 +335,8 @@ export default function ChemicalLibrary() {
       />
 
       {/* Filters */}
-      <div className="bg-card border-b border-border px-4 py-3 lg:mt-14">
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
+      <div className="bg-card border-b border-border px-4 py-3 lg:sticky lg:top-[112px] lg:z-20" style={{ background: 'rgba(5,8,14,0.97)' }}>
+        <div className="flex gap-1.5 overflow-x-auto pb-1 pt-4 pl-1">
           <button onClick={() => setFilterCat('all')} className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filterCat === 'all' ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>All</button>
           {Object.entries(CATEGORIES).map(([k, v]) => (
             <button key={k} onClick={() => setFilterCat(k)} className={cn('flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200', filterCat === k ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>

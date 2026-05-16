@@ -34,15 +34,10 @@ const STATUS_STYLE = {
   archived: 'bg-muted text-muted-foreground',
 };
 
-// Tabs configuration for multi-view system
 const RECIPE_TABS = [
   { id: 'overview', label: 'Overview', icon: BookOpen },
   { id: 'build', label: 'Build', icon: Flame },
-  { id: 'prep', label: 'Prep', icon: ChefHat },
-  { id: 'costing', label: 'Costing', icon: DollarSign },
-  { id: 'allergens', label: 'Allergens', icon: Shield },
-  { id: 'training', label: 'Training', icon: Users },
-  { id: 'station', label: 'Station', icon: MapPin },
+  { id: 'info', label: 'Info', icon: Shield },
 ];
 
 function RecipeCard({ recipe, onClick }) {
@@ -153,6 +148,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
   const [ingredients, setIngredients] = useState([]);
   const [steps, setSteps] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalCost, setTotalCost] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -228,221 +224,161 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto pb-8 px-4 py-4">
-        {/* OVERVIEW TAB */}
+      <div className="max-w-5xl mx-auto">
+
+        {/* OVERVIEW + COSTING */}
         {activeTab === 'overview' && (
-          <div className="space-y-4">
-            {recipe.photo_url && (
-              <div className="relative rounded-xl overflow-hidden border border-border/40 mx-auto lg:mx-0" style={{ width: 180, height: 180 }}>
-                <img src={recipe.photo_url} alt={recipe.name} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-3">
-                  <p className="text-base font-black text-white">{recipe.name}</p>
-                  {recipe.station && <p className="text-xs text-white/70 mt-0.5">📍 {recipe.station}</p>}
-                </div>
-              </div>
-            )}
-            <SectionBlock title="Quick Specs">
-              <div className="grid grid-cols-3 gap-2">
-                <SpecChip label="Yield" value={recipe.yieldAmount ? `${recipe.yieldAmount} ${recipe.yieldUnit || ''}` : null} />
-                <SpecChip label="Portion" value={recipe.portionSize} />
-                <SpecChip label="Prep Time" value={recipe.prepTime} />
-                <SpecChip label="Cook Time" value={recipe.cookTime} />
-                <SpecChip label="Shelf Life" value={recipe.shelfLife} />
-                <SpecChip label="Storage" value={recipe.storageLocation} />
-              </div>
-            </SectionBlock>
-
-            {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 && (
-              <SectionBlock title="Allergens & Dietary">
-                <div className="flex flex-wrap gap-1.5">
-                  {recipe.allergens.map(a => (
-                    <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
-                      <AlertTriangle className="h-3 w-3" />{a}
-                    </span>
-                  ))}
-                  {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.map(f => (
-                    <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
-                  ))}
-                </div>
-              </SectionBlock>
-            )}
-
-            {!loading && (
-              <SectionBlock title={`Ingredients (${ingredients.length})`}>
-                {ingredients.length === 0 ? (
-                  <p className="text-xs text-muted-foreground italic">No ingredients added.</p>
-                ) : (
-                  <div className="border border-border rounded-xl overflow-hidden">
-                    <div className="grid grid-cols-[1fr_auto_auto] bg-muted/40 px-3 py-1.5 gap-2">
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase">Ingredient</span>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase text-right w-14">Qty / Unit</span>
-                      <span className="text-[9px] font-bold text-muted-foreground uppercase w-20">Prep</span>
-                    </div>
-                    {ingredients.map((ing, i) => (
-                      <div key={ing.id} className={`grid grid-cols-[1fr_auto_auto] px-3 py-2 gap-2 items-center ${i % 2 === 0 ? '' : 'bg-muted/20'} border-t border-border/50`}>
-                        <span className="text-xs font-semibold text-foreground">{ing.ingredientName}</span>
-                        <span className="text-xs text-muted-foreground text-right w-14">{ing.quantity} {ing.unit}</span>
-                        <span className="text-[10px] text-muted-foreground w-20 truncate">{ing.prepNote || '—'}</span>
-                      </div>
-                    ))}
+          <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
+            {/* Left: overview info */}
+            <div className="space-y-4">
+              {recipe.photo_url && (
+                <div className="relative rounded-xl overflow-hidden border border-border/40" style={{ height: 180 }}>
+                  <img src={recipe.photo_url} alt={recipe.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <p className="text-base font-black text-white">{recipe.name}</p>
+                    {recipe.station && <p className="text-xs text-white/70 mt-0.5">📍 {recipe.station}</p>}
                   </div>
-                )}
-              </SectionBlock>
-            )}
-
-            {recipe.notes && (
-              <SectionBlock title="Notes">
-                <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-xl p-3">{recipe.notes}</p>
-              </SectionBlock>
-            )}
-          </div>
-        )}
-
-        {/* BUILD TAB (Service Mode) */}
-        {activeTab === 'build' && (
-          <div className="space-y-4">
-            <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
-              <p className="text-xs text-primary font-bold">🔥 Service Mode</p>
-              <p className="text-[10px] text-primary/80 mt-0.5">Fast execution view optimized for line during service</p>
-            </div>
-
-            {!loading && (
-              <>
-                {steps.length > 0 && (
-                  <SectionBlock title="Assembly Steps">
-                    <div className="space-y-2">
-                      {steps.map((step, i) => (
-                        <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-lg">
-                          <div className="h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-extrabold flex items-center justify-center shrink-0">{i + 1}</div>
-                          <p className="text-sm text-foreground flex-1">{step.instruction}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </SectionBlock>
-                )}
-
-                {recipe.platingNotes && (
-                  <SectionBlock title="Plating Instructions">
-                    <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.platingNotes}</p>
-                  </SectionBlock>
-                )}
-
-                {recipe.buildCardNotes && (
-                  <SectionBlock title="Assembly Notes">
-                    <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.buildCardNotes}</p>
-                  </SectionBlock>
-                )}
-              </>
-            )}
-          </div>
-        )}
-
-        {/* PREP TAB (Production Mode) */}
-        {activeTab === 'prep' && (
-          <div className="space-y-4">
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
-              <p className="text-xs text-amber-400 font-bold">🔪 Prep Mode</p>
-              <p className="text-[10px] text-amber-400/80 mt-0.5">Production workflow for kitchen prep and batch preparation</p>
-            </div>
-
-            <SectionBlock title="Batch Prep Info">
-              <div className="grid grid-cols-2 gap-2">
-                <SpecChip label="Yield" value={recipe.yieldAmount ? `${recipe.yieldAmount} ${recipe.yieldUnit || ''}` : 'Not set'} />
-                <SpecChip label="Prep Time" value={recipe.prepTime || 'Not set'} />
-                <SpecChip label="Storage" value={recipe.storageLocation || 'Not set'} />
-                <SpecChip label="Container" value={recipe.storageContainer || 'Not set'} />
-              </div>
-            </SectionBlock>
-
-            {!loading && ingredients.length > 0 && (
-              <SectionBlock title="Ingredients">
-                <div className="border border-border rounded-xl overflow-hidden">
-                  {ingredients.map((ing, i) => (
-                    <div key={ing.id} className={`grid grid-cols-[1fr_auto_auto] px-3 py-2 gap-2 items-center ${i % 2 === 0 ? '' : 'bg-muted/20'}`}>
-                      <span className="text-sm font-semibold text-foreground">{ing.ingredientName}</span>
-                      <span className="text-xs text-muted-foreground">{ing.quantity} {ing.unit}</span>
-                      <span className="text-xs text-muted-foreground text-right">{ing.prepNote || '—'}</span>
-                    </div>
-                  ))}
+                </div>
+              )}
+              <SectionBlock title="Quick Specs">
+                <div className="grid grid-cols-3 gap-2">
+                  <SpecChip label="Yield" value={recipe.yieldAmount ? `${recipe.yieldAmount} ${recipe.yieldUnit || ''}` : null} />
+                  <SpecChip label="Portion" value={recipe.portionSize} />
+                  <SpecChip label="Prep Time" value={recipe.prepTime} />
+                  <SpecChip label="Cook Time" value={recipe.cookTime} />
+                  <SpecChip label="Shelf Life" value={recipe.shelfLife} />
+                  <SpecChip label="Storage" value={recipe.storageLocation} />
+                  {isAdmin && totalCost !== null && (
+                    <SpecChip label="Total Cost" value={`$${totalCost.toFixed(2)}`} />
+                  )}
                 </div>
               </SectionBlock>
-            )}
-
-            {recipe.shelfLife && (
-              <SectionBlock title="Storage & Labeling">
-                <div className="bg-muted/30 border border-border rounded-xl p-3 space-y-1.5 text-sm">
-                  <p><span className="font-bold text-foreground">Shelf Life:</span> <span className="text-muted-foreground">{recipe.shelfLife}</span></p>
-                  {recipe.labelingInstructions && <p><span className="font-bold text-foreground">Label:</span> <span className="text-muted-foreground">{recipe.labelingInstructions}</span></p>}
-                </div>
-              </SectionBlock>
-            )}
-          </div>
-        )}
-
-        {/* COSTING TAB (Management Mode) */}
-        {activeTab === 'costing' && (
-          <div className="space-y-4">
-            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3">
-              <p className="text-xs text-green-400 font-bold">💰 Management Mode</p>
-              <p className="text-[10px] text-green-400/80 mt-0.5">Food cost analysis and inventory linkage</p>
-            </div>
-
-            {isAdmin && ingredients.length > 0 && (
-              <RecipeCosting recipe={recipe} ingredients={ingredients} />
-            )}
-
-            {!isAdmin && (
-              <div className="text-center py-6 text-muted-foreground text-sm">
-                <p>Costing data available to managers and admin only</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ALLERGENS TAB */}
-        {activeTab === 'allergens' && (
-          <div className="space-y-4">
-            {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 ? (
-              <>
-                <SectionBlock title="Allergens">
-                  <div className="flex flex-wrap gap-2">
+              {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 && (
+                <SectionBlock title="Allergens & Dietary">
+                  <div className="flex flex-wrap gap-1.5">
                     {recipe.allergens.map(a => (
-                      <span key={a} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1.5">
-                        <AlertTriangle className="h-4 w-4" /> {a}
+                      <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" />{a}
                       </span>
+                    ))}
+                    {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.map(f => (
+                      <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
                     ))}
                   </div>
                 </SectionBlock>
-
-                {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.length > 0 && (
-                  <SectionBlock title="Dietary Indicators">
-                    <div className="flex flex-wrap gap-2">
-                      {recipe.dietaryFlags.map(f => (
-                        <span key={f} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
-                      ))}
-                    </div>
-                  </SectionBlock>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <p>No allergens or dietary flags marked for this recipe</p>
-              </div>
-            )}
+              )}
+              {recipe.notes && (
+                <SectionBlock title="Notes">
+                  <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-xl p-3">{recipe.notes}</p>
+                </SectionBlock>
+              )}
+            </div>
+            {/* Right: costing */}
+            <div>
+              {!loading && isAdmin && (
+                <RecipeCosting recipe={recipe} ingredients={ingredients} onCostCalculated={setTotalCost} />
+              )}
+              {!loading && !isAdmin && (
+                <div className="text-center py-6 text-muted-foreground text-sm bg-muted/20 rounded-xl">
+                  <p>Costing data available to managers and admin only</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        {/* TRAINING TAB */}
-        {activeTab === 'training' && (
-          <div className="space-y-4">
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
-              <p className="text-xs text-blue-400 font-bold">📚 Training Materials</p>
-              <p className="text-[10px] text-blue-400/80 mt-0.5">SOPs, quality standards, and learning resources</p>
+        {/* INGREDIENTS + BUILD */}
+        {activeTab === 'build' && (
+          <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
+            {/* Left: ingredients + batch info */}
+            <div className="space-y-4">
+              {!loading && (
+                <SectionBlock title={`Ingredients (${ingredients.length})`}>
+                  {ingredients.length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic">No ingredients added.</p>
+                  ) : (
+                    <div className="border border-border rounded-xl overflow-hidden">
+                      <div className="grid grid-cols-[1fr_auto_auto] bg-muted/40 px-3 py-1.5 gap-2">
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase">Ingredient</span>
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase text-right w-14">Qty / Unit</span>
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase w-20">Prep</span>
+                      </div>
+                      {ingredients.map((ing, i) => (
+                        <div key={ing.id} className={`grid grid-cols-[1fr_auto_auto] px-3 py-2 gap-2 items-center ${i % 2 === 0 ? '' : 'bg-muted/20'} border-t border-border/50`}>
+                          <span className="text-xs font-semibold text-foreground">{ing.ingredientName}</span>
+                          <span className="text-xs text-muted-foreground text-right w-14">{ing.quantity} {ing.unit}</span>
+                          <span className="text-[10px] text-muted-foreground w-20 truncate">{ing.prepNote || '—'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </SectionBlock>
+              )}
+              <SectionBlock title="Batch Info">
+                <div className="grid grid-cols-2 gap-2">
+                  <SpecChip label="Yield" value={recipe.yieldAmount ? `${recipe.yieldAmount} ${recipe.yieldUnit || ''}` : null} />
+                  <SpecChip label="Prep Time" value={recipe.prepTime} />
+                  <SpecChip label="Storage" value={recipe.storageLocation} />
+                  <SpecChip label="Container" value={recipe.storageContainer} />
+                </div>
+              </SectionBlock>
+              {recipe.shelfLife && (
+                <SectionBlock title="Storage & Labeling">
+                  <div className="bg-muted/30 border border-border rounded-xl p-3 space-y-1.5 text-sm">
+                    <p><span className="font-bold text-foreground">Shelf Life:</span> <span className="text-muted-foreground">{recipe.shelfLife}</span></p>
+                    {recipe.labelingInstructions && <p><span className="font-bold text-foreground">Label:</span> <span className="text-muted-foreground">{recipe.labelingInstructions}</span></p>}
+                  </div>
+                </SectionBlock>
+              )}
             </div>
+            {/* Right: build card / service mode */}
+            <div className="space-y-4">
+              <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
+                <p className="text-xs text-primary font-bold">🔥 Build Card</p>
+                <p className="text-[10px] text-primary/80 mt-0.5">Assembly steps for service and line execution</p>
+              </div>
+              {!loading && (
+                <>
+                  {steps.length > 0 ? (
+                    <SectionBlock title="Assembly Steps">
+                      <div className="space-y-2">
+                        {steps.map((step, i) => (
+                          <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-lg">
+                            <div className="h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-extrabold flex items-center justify-center shrink-0">{i + 1}</div>
+                            <p className="text-sm text-foreground flex-1">{step.instruction}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </SectionBlock>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">No assembly steps defined</p>
+                  )}
+                  {recipe.platingNotes && (
+                    <SectionBlock title="Plating Instructions">
+                      <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.platingNotes}</p>
+                    </SectionBlock>
+                  )}
+                  {recipe.buildCardNotes && (
+                    <SectionBlock title="Assembly Notes">
+                      <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.buildCardNotes}</p>
+                    </SectionBlock>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
-            <SectionBlock title="Execution Steps">
+        {/* INFO — Training + Allergens + Station */}
+        {activeTab === 'info' && (
+          <div className="space-y-4">
+            <SectionBlock title="Training Materials">
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-3">
+                <p className="text-xs text-blue-400 font-bold">📚 SOPs & Quality Standards</p>
+              </div>
               {!loading && steps.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-2 mb-4">
                   {steps.map((step, i) => (
                     <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-lg">
                       <div className="h-6 w-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-extrabold flex items-center justify-center shrink-0">{i + 1}</div>
@@ -451,33 +387,43 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground italic">No execution steps defined</p>
+                <p className="text-xs text-muted-foreground italic mb-4">No execution steps defined</p>
               )}
-            </SectionBlock>
-
-            <SectionBlock title="Quality Standards">
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Quality Standards</p>
               <p className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-lg">
                 {recipe.notes || 'No quality standards documented'}
               </p>
             </SectionBlock>
-          </div>
-        )}
 
-        {/* STATION TAB */}
-        {activeTab === 'station' && (
-          <div className="space-y-4">
-            <SectionBlock title="Station Assignment">
-              {recipe.station ? (
-                <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
-                  <p className="text-sm font-bold text-primary">📍 {recipe.station}</p>
-                  <p className="text-xs text-primary/70 mt-1">This recipe is assigned to the {recipe.station} station</p>
+            <SectionBlock title="Allergens & Dietary">
+              {Array.isArray(recipe.allergens) && recipe.allergens.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {recipe.allergens.map(a => (
+                      <span key={a} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1.5">
+                        <AlertTriangle className="h-4 w-4" /> {a}
+                      </span>
+                    ))}
+                  </div>
+                  {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {recipe.dietaryFlags.map(f => (
+                        <span key={f} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground italic">No station assigned</p>
+                <p className="text-xs text-muted-foreground italic">No allergens or dietary flags marked</p>
               )}
             </SectionBlock>
 
-            <SectionBlock title="Recipe Metadata">
+            <SectionBlock title="Station & Metadata">
+              {recipe.station && (
+                <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 mb-3">
+                  <p className="text-sm font-bold text-primary">📍 {recipe.station}</p>
+                </div>
+              )}
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Category:</span>
@@ -497,6 +443,8 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
             </SectionBlock>
           </div>
         )}
+
+      </div>
       </div>
 
     </div>
@@ -607,9 +555,10 @@ function RecipeForm({ recipe, onSave, onClose }) {
   const addIngredient = () => setIngredients(p => [...p, { ingredientName: '', quantity: '', unit: '', prepNote: '', sortOrder: p.length, _new: true }]);
   const addStep = () => setSteps(p => [...p, { instruction: '', sortOrder: p.length, _new: true }]);
 
-  const linkIngredient = (idx, type, id, label, unit) => {
-    setIngredients(p => p.map((x, i) => i === idx ? {
+  const linkIngredient = (rawIdx, type, id, label, unit) => {
+    setIngredients(p => p.map((x, i) => i === rawIdx ? {
       ...x,
+      ingredientName: x.ingredientName || label,
       purchasedItemId: type === 'purchased_item' ? id : null,
       linkedRecipeId: type === 'recipe' ? id : null,
       linkedLabel: label,
@@ -621,8 +570,8 @@ function RecipeForm({ recipe, onSave, onClose }) {
     setLinkSearch('');
   };
 
-  const clearIngredientLink = (idx) => {
-    setIngredients(p => p.map((x, i) => i === idx ? {
+  const clearIngredientLink = (rawIdx) => {
+    setIngredients(p => p.map((x, i) => i === rawIdx ? {
       ...x, purchasedItemId: null, linkedRecipeId: null, linkedLabel: null, linkedType: null, _dirty: true,
     } : x));
   };
@@ -949,16 +898,18 @@ function RecipeForm({ recipe, onSave, onClose }) {
                     <div className="grid grid-cols-[1fr_80px_90px_32px] gap-2 px-3 py-2 bg-muted/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                       <span>Ingredient</span><span>Qty</span><span>Unit</span><span />
                     </div>
-                    {ingredients.filter(i => !i._deleted).map((ing, idx) => (
-                      <div key={idx} className={`border-t border-border/50 ${idx % 2 === 0 ? '' : 'bg-muted/10'}`}>
+                    {ingredients.filter(i => !i._deleted).map((ing, idx) => {
+                      const rawIdx = ingredients.indexOf(ing);
+                      return (
+                      <div key={rawIdx} className={`border-t border-border/50 ${idx % 2 === 0 ? '' : 'bg-muted/10'}`}>
                         <div className="grid grid-cols-[1fr_80px_90px_32px] gap-2 px-3 pt-2 pb-1 items-center">
-                          <input value={ing.ingredientName} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, ingredientName: e.target.value, _dirty: true} : x))} placeholder="Ingredient name" className="px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40" />
-                          <input type="number" value={ing.quantity} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty: true} : x))} placeholder="0" className="px-2 py-1.5 bg-background border border-border rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-primary/40" />
-                          <select value={ing.unit} onChange={e => setIngredients(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty: true} : x))} className="px-2 py-1.5 bg-background border border-border rounded text-sm focus:outline-none">
+                          <input value={ing.ingredientName} onChange={e => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, ingredientName: e.target.value, _dirty: true} : x))} placeholder="Ingredient name" className="px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                          <input type="number" value={ing.quantity} onChange={e => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, quantity: e.target.value, _dirty: true} : x))} placeholder="0" className="px-2 py-1.5 bg-background border border-border rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                          <select value={ing.unit} onChange={e => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, unit: e.target.value, _dirty: true} : x))} className="px-2 py-1.5 bg-background border border-border rounded text-sm focus:outline-none">
                             <option value="">—</option>
                             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                           </select>
-                          <button onClick={() => setIngredients(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="flex items-center justify-center text-red-400 hover:text-red-300">
+                          <button onClick={() => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, _deleted: true} : x))} className="flex items-center justify-center text-red-400 hover:text-red-300">
                             <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
@@ -970,17 +921,17 @@ function RecipeForm({ recipe, onSave, onClose }) {
                                 <Link2 className="h-2.5 w-2.5" />
                                 {ing.linkedType === 'recipe' ? '⚙️' : '📦'} {ing.linkedLabel}
                               </span>
-                              <button onClick={() => { setLinkingIdx(idx); setLinkSearch(''); }} className="text-[9px] text-muted-foreground hover:text-foreground underline">change</button>
-                              <button onClick={() => clearIngredientLink(idx)} className="text-[9px] text-red-400 hover:text-red-300 underline">remove</button>
+                              <button onClick={() => { setLinkingIdx(rawIdx); setLinkSearch(''); }} className="text-[9px] text-muted-foreground hover:text-foreground underline">change</button>
+                              <button onClick={() => clearIngredientLink(rawIdx)} className="text-[9px] text-red-400 hover:text-red-300 underline">remove</button>
                             </div>
                           ) : (
-                            <button onClick={() => { setLinkingIdx(linkingIdx === idx ? null : idx); setLinkSearch(''); }} className="text-[10px] text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
+                            <button onClick={() => { setLinkingIdx(linkingIdx === rawIdx ? null : rawIdx); setLinkSearch(''); }} className="text-[10px] text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors">
                               <Link2 className="h-2.5 w-2.5" /> Link to purchased item or sub-recipe
                             </button>
                           )}
                         </div>
                         {/* Picker dropdown */}
-                        {linkingIdx === idx && (
+                        {linkingIdx === rawIdx && (
                           <div className="mx-3 mb-3 border border-primary/30 bg-card rounded-xl overflow-hidden shadow-lg">
                             <div className="p-2 border-b border-border/50">
                               <input
@@ -996,7 +947,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                                 <>
                                   <p className="text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/60 px-3 pt-2 pb-1">📦 Purchased Items</p>
                                   {filteredPurchased.map(item => (
-                                    <button key={item.id} onClick={() => linkIngredient(idx, 'purchased_item', item.id, item.itemName, item.recipeUnit)}
+                                    <button key={item.id} onClick={() => linkIngredient(rawIdx, 'purchased_item', item.id, item.itemName, item.recipeUnit)}
                                       className="w-full text-left px-3 py-2 hover:bg-muted/40 flex items-center justify-between gap-2 transition-colors">
                                       <span className="text-sm font-semibold text-foreground">{item.itemName}</span>
                                       <span className="text-xs text-muted-foreground shrink-0">
@@ -1010,7 +961,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                                 <>
                                   <p className="text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/60 px-3 pt-2 pb-1">⚙️ Sub-Recipes</p>
                                   {filteredRecipes.map(r => (
-                                    <button key={r.id} onClick={() => linkIngredient(idx, 'recipe', r.id, r.name, r.yieldUnit)}
+                                    <button key={r.id} onClick={() => linkIngredient(rawIdx, 'recipe', r.id, r.name, r.yieldUnit)}
                                       className="w-full text-left px-3 py-2 hover:bg-muted/40 flex items-center justify-between gap-2 transition-colors">
                                       <span className="text-sm font-semibold text-foreground">{r.name}</span>
                                       <span className="text-xs text-muted-foreground capitalize shrink-0">{r.category || 'recipe'} · {r.yieldAmount}{r.yieldUnit ? ` ${r.yieldUnit}` : ''}</span>
@@ -1025,7 +976,8 @@ function RecipeForm({ recipe, onSave, onClose }) {
                           </div>
                         )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

@@ -4,11 +4,90 @@ import { base44 } from '@/api/base44Client';
 import {
   AlertTriangle, Beaker, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight,
   ClipboardCheck, ListChecks, Package, Plus, RefreshCw, Search, Sparkles, Thermometer,
-  Wrench, X,
+  Wrench, X, BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import BottomSheet from '@/components/BottomSheet';
 import { getEquipmentMeta } from '@/lib/equipmentConfig';
+
+function StationPrepTemplatesSection({ stationId, stationName }) {
+  const navigate = useNavigate();
+  const [assignments, setAssignments] = useState([]);
+  const [templates, setTemplates] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!stationId) { setLoading(false); return; }
+    (async () => {
+      setLoading(true);
+      const asgns = await base44.entities.StationPrepAssignment
+        .filter({ station_id: stationId }).catch(() => []);
+      const active = (asgns || []).filter(a => a.active !== false);
+      setAssignments(active);
+
+      if (active.length > 0) {
+        const templateIds = [...new Set(active.map(a => a.prep_template_id).filter(Boolean))];
+        const tmplMap = {};
+        await Promise.all(templateIds.map(async tid => {
+          try {
+            const t = await base44.entities.PrepPlanTemplate?.get?.(tid);
+            if (t) tmplMap[tid] = t;
+          } catch {}
+        }));
+        setTemplates(tmplMap);
+      }
+      setLoading(false);
+    })();
+  }, [stationId]);
+
+  if (loading) return null;
+  if (assignments.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-border/40 overflow-hidden mt-2">
+      <button
+        type="button"
+        onClick={() => setExpanded(e => !e)}
+        className="flex w-full items-center gap-2 px-3 py-2.5 text-left hover:bg-white/[0.03]"
+      >
+        <BookOpen className="h-3.5 w-3.5 text-primary shrink-0" />
+        <span className="flex-1 text-xs font-bold text-foreground">Prep Templates</span>
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">{assignments.length}</span>
+        {expanded ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
+      </button>
+      {expanded && (
+        <div className="border-t border-border/30 divide-y divide-border/20">
+          {assignments.map(a => {
+            const t = templates[a.prep_template_id];
+            return (
+              <div key={a.id} className="flex items-center gap-2 px-3 py-2.5">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-foreground truncate">{a.template_name || t?.template_name || '—'}</p>
+                  <div className="flex gap-2 mt-0.5 flex-wrap">
+                    {t?.shift && <span className="text-[10px] text-muted-foreground capitalize">{t.shift}</span>}
+                    {t?.items?.length > 0 && <span className="text-[10px] text-muted-foreground">{t.items.filter(i => !i.is_header).length} items</span>}
+                    {a.override_par != null && <span className="text-[10px] text-primary">Par: {a.override_par}{a.override_unit ? ` ${a.override_unit}` : ''}</span>}
+                    {a.override_notes && <span className="text-[10px] text-muted-foreground italic">"{a.override_notes}"</span>}
+                  </div>
+                </div>
+                {a.prep_template_id && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/prep-plan-templates/${a.prep_template_id}`)}
+                    className="text-[10px] font-bold text-primary hover:underline shrink-0"
+                  >
+                    Edit →
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const cardStyle = {
   background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
@@ -573,6 +652,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
             </span>
           </button>
         ))}
+        <StationPrepTemplatesSection stationId={station?.id} stationName={station?.name} />
         <button onClick={() => navigate('/tasks?tab=prep')} className="w-full text-xs font-black text-primary text-center py-2">View all prep →</button>
       </div>
     );
