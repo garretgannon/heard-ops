@@ -8,13 +8,16 @@ import {
   AlertTriangle,
   ArrowRight,
   CalendarClock,
+  Camera,
   Check,
   CheckCircle2,
+  ChevronRight,
   ClipboardCheck,
   Flame,
   Lock,
   MapPin,
   MessageSquareText,
+  Mic,
   RefreshCw,
   Save,
   ClipboardList,
@@ -538,7 +541,7 @@ export default function ManagerShift() {
     handoffs: [], managerLogs: [], eightySix: [],
     waste: [], events: [], issues: [], tasks: [], staff: [],
     shiftLogs: [], checklists: [], handoffPrompts: [],
-    prepNeeds: [], reservationsList: [],
+    prepNeeds: [], reservationsList: [], allStaff: [],
   });
   const [preShiftSaved, setPreShiftSaved] = useState(false);
   const [preShiftId, setPreShiftId]       = useState(null);
@@ -554,9 +557,17 @@ export default function ManagerShift() {
   const [submitting, setSubmitting]       = useState(false);
   const [shiftComplete, setShiftComplete] = useState(false);
   const [viewedIntelCards, setViewedIntelCards] = useState(new Set());
+  const [closeFilterTab, setCloseFilterTab]     = useState('all');
+  const [expandedImportRows, setExpandedImportRows] = useState(new Set());
 
   const INTEL_CARD_IDS = ["handoff", "eightySix", "issues", "events", "logs"];
   const allCardsViewed = INTEL_CARD_IDS.every(id => viewedIntelCards.has(id));
+
+  const toggleImportRow = (id) => setExpandedImportRows(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
 
   const markCardViewed = (id) => {
     setViewedIntelCards(prev => new Set([...prev, id]));
@@ -646,6 +657,7 @@ export default function ManagerShift() {
         handoffPrompts:   customPrompts.length ? customPrompts : DEFAULT_HANDOFF_PROMPTS,
         reservationsList: filteredReservations,
         prepNeeds:        filteredPrepNeeds,
+        allStaff:         staff.slice(0, 80),
       });
       setPreShiftSaved(Boolean(currentPreShift));
       setPreShiftId(currentPreShift?.id || null);
@@ -1119,214 +1131,371 @@ export default function ManagerShift() {
             {/* ── INTEL ──────────────────────────────────────────────── */}
             {activeStage === "start" && (
               <>
-                {/* ── Shift Context: profile selector or confirmed banner ── */}
+                {/* Context banner — shared */}
                 {needsSelection ? (
-                  <BriefingProfileSelector
-                    profiles={candidateProfiles}
-                    onSelect={selectProfile}
-                  />
+                  <BriefingProfileSelector profiles={candidateProfiles} onSelect={selectProfile} />
                 ) : shiftContext ? (
                   <BriefingContextBanner
                     context={shiftContext}
-                    counts={{
-                      staff:        briefing.staff.length,
-                      reservations: briefing.reservationsList.length,
-                      events:       briefing.events.length,
-                      prepNeeds:    briefing.prepNeeds.length,
-                      eightySix:    briefing.eightySix.length,
-                      issues:       briefing.issues.length,
-                      tasks:        briefing.checklists.length,
-                    }}
+                    counts={{ staff: briefing.staff.length, reservations: briefing.reservationsList.length, events: briefing.events.length, prepNeeds: briefing.prepNeeds.length, eightySix: briefing.eightySix.length, issues: briefing.issues.length, tasks: briefing.checklists.length }}
                     onReset={resetContext}
                   />
                 ) : null}
 
-                {/* Scorecard */}
-                <div
-                  className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  {[
-                    { label: "Critical", value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
-                    { label: "Warnings", value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
-                    { label: "Follow-Ups", value: briefing.managerLogs.length + briefing.tasks.length, color: "text-foreground/70" },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-4">
-                      <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Acknowledge banner */}
-                <div
-                  className={cn(
-                    "flex items-start gap-3 rounded-2xl border p-4",
-                    acknowledged ? "border-green-500/30" : "border-border/40"
-                  )}
-                  style={{
-                    background: acknowledged
-                      ? "rgba(34,197,94,0.05)"
-                      : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
-                  }}
-                >
-                  {acknowledged
-                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" />
-                    : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />
-                  }
-                  <div className="flex-1">
-                    <p className="text-sm lg:text-[15px] font-black text-foreground">
-                      {acknowledged
-                        ? totals.critical > 0
-                          ? `Briefing acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open`
-                          : "Briefing acknowledged — shift intel clear"
-                        : "Review shift intel before starting"
-                      }
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      Acknowledging logs a manager note and moves you to Ops. +20 XP
-                    </p>
-                  </div>
-                  {acknowledged && (
-                    <div className="flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-black text-green-400">
-                      <Zap className="h-2.5 w-2.5" /> 20
-                    </div>
-                  )}
-                </div>
-
-                <div className="lg:grid lg:grid-cols-3 lg:gap-3 space-y-3 lg:space-y-0">
-                  <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
-                    {briefing.handoffs.length === 0
-                      ? <EmptyIntel text="No unresolved handoff notes." detail="No carry-over items from the previous shift." />
-                      : briefing.handoffs.map(item => (
-                          <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"}
-                            meta={[item.department, item.urgency, item.logged_by].filter(Boolean).join(" — ")} />
-                        ))
-                    }
-                  </IntelCard>
-
-                  <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
-                    {briefing.eightySix.length === 0
-                      ? <EmptyIntel text="Nothing 86'd right now." detail="All menu items available." />
-                      : briefing.eightySix.map(item => (
-                          <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />
-                        ))
-                    }
-                  </IntelCard>
-
-                  <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
-                    {briefing.issues.length === 0
-                      ? <EmptyIntel text="No open issues — clear to go." />
-                      : briefing.issues.map(item => (
-                          <IntelRow key={item.id}
-                            title={item.title || item.description || "Open issue"}
-                            meta={[friendlyLogCategory(item.category), item.priority, item.area || item.station || item.location].filter(Boolean).join(" · ")}
-                            severity="critical" />
-                        ))
-                    }
-                  </IntelCard>
-
-                  <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
-                    {briefing.events.length === 0
-                      ? <EmptyIntel text="No events or private dining today." />
-                      : briefing.events.map(item => (
-                          <IntelRow key={item.id} title={item.eventName}
-                            meta={[item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ""].filter(Boolean).join(" · ")} severity="warning" />
-                        ))
-                    }
-                  </IntelCard>
-
-                  <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
-                    {[...briefing.managerLogs, ...briefing.waste].length === 0
-                      ? <EmptyIntel text="No manager notes or waste entries." detail="Nothing logged for this shift yet." />
-                      : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => (
-                          <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")}
-                            meta={[friendlyLogCategory(item.category || item.reason), recentDate(item)].filter(Boolean).join(" · ")} />
-                        ))
-                    }
-                  </IntelCard>
-                </div>
-
-                {/* Progress before acknowledge */}
-                {!acknowledged && (() => {
-                  const intelCardCounts = {
-                    handoff: briefing.handoffs.length,
-                    eightySix: briefing.eightySix.length,
-                    issues: briefing.issues.length,
-                    events: briefing.events.length,
-                    logs: briefing.managerLogs.length + briefing.waste.length,
-                  };
-                  const allReviewed = viewedIntelCards.size === INTEL_CARD_IDS.length;
-                  return (
-                    <div className="flex items-center justify-between px-1 py-1">
-                      <p className={cn(
-                        "text-[11px] font-black uppercase tracking-wide",
-                        allReviewed
-                          ? totals.critical > 0 ? "text-amber-400" : "text-green-400"
-                          : "text-amber-400/80"
-                      )}>
-                        {allReviewed
-                          ? totals.critical > 0
-                            ? `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} require awareness`
-                            : `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ready to acknowledge`
-                          : `${viewedIntelCards.size} of ${INTEL_CARD_IDS.length} sections reviewed — open each card to continue`}
-                      </p>
-                      <div className="flex gap-1">
-                        {INTEL_CARD_IDS.map(cid => {
-                          const isViewed = viewedIntelCards.has(cid);
-                          const hasItems = (intelCardCounts[cid] || 0) > 0;
-                          return (
-                            <div
-                              key={cid}
-                              className={cn(
-                                "h-1.5 w-7 rounded-full transition-all duration-300",
-                                isViewed
-                                  ? hasItems ? "bg-amber-400/70" : "bg-green-400/70"
-                                  : "bg-border/30"
-                              )}
-                            />
-                          );
-                        })}
+                {/* ── MOBILE ── */}
+                <div className="lg:hidden space-y-3">
+                  {/* Scorecard */}
+                  <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    {[
+                      { label: "CRITICAL", sub: "Needs immediate attention", value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
+                      { label: "WARNINGS", sub: "Keep an eye on these", value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
+                      { label: "FOLLOW-UPS", sub: "From last shift", value: briefing.managerLogs.length + briefing.tasks.length, color: "text-foreground/70" },
+                    ].map(({ label, sub, value, color }) => (
+                      <div key={label} className="flex flex-col items-center justify-center gap-0 px-1 py-3 text-center">
+                        <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground leading-tight mt-0.5">{label}</p>
+                        <p className="text-[9px] text-muted-foreground/60 leading-tight mt-0.5">{sub}</p>
                       </div>
-                    </div>
-                  );
-                })()}
+                    ))}
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={acknowledgeBriefing}
-                  disabled={acknowledged || !allCardsViewed}
-                  className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white transition-all active:scale-[0.98]"
-                  style={{
-                    background: acknowledged
-                      ? "linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.2) 100%)"
-                      : allCardsViewed
-                        ? "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)"
-                        : "rgba(255,255,255,0.04)",
-                    boxShadow: acknowledged
-                      ? "0 0 0 1px rgba(34,197,94,0.3)"
-                      : allCardsViewed
-                        ? "0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)"
-                        : "0 0 0 1px rgba(255,255,255,0.06)",
-                    opacity: !acknowledged && !allCardsViewed ? 0.5 : 1,
-                  }}
-                >
-                  {acknowledged
-                    ? <><CheckCircle2 className="h-5 w-5" />{totals.critical > 0 ? `Briefing Acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open` : "Intel Acknowledged — +20 XP"}</>
-                    : allCardsViewed
-                      ? totals.critical > 0
-                        ? <><Shield className="h-5 w-5" />Acknowledge — {totals.critical} open item{totals.critical !== 1 ? 's' : ''} require awareness</>
-                        : <><Shield className="h-5 w-5" />Acknowledge Briefing — Shift Intel Clear</>
-                      : <><Shield className="h-5 w-5" />Review all sections to continue</>
-                  }
-                </button>
+                  {/* Acknowledge banner — tap to acknowledge */}
+                  <button type="button" onClick={acknowledged ? undefined : acknowledgeBriefing}
+                    className={cn("flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all active:scale-[0.99]",
+                      acknowledged ? "border-green-500/30" : "border-border/40")}
+                    style={{ background: acknowledged ? "rgba(34,197,94,0.05)" : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    {acknowledged
+                      ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400" />
+                      : <Sparkles className="h-5 w-5 shrink-0 text-primary" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-foreground">
+                        {acknowledged ? "Briefing acknowledged" : "Review shift intel before starting"}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
+                        {acknowledged ? "Shift intel reviewed — you're on." : "Acknowledge logs, manager note and moves you to Ops."}
+                      </p>
+                    </div>
+                    {!acknowledged && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary">+20 XP</span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                      </div>
+                    )}
+                    {acknowledged && <div className="flex items-center gap-1 shrink-0 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-black text-green-400"><Zap className="h-2.5 w-2.5" /> 20</div>}
+                  </button>
+
+                  {/* Pre-Shift Checklist */}
+                  <div>
+                    <p className="mb-2 px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">YOUR PRE-SHIFT CHECKLIST</p>
+                    <div className="overflow-hidden rounded-2xl border border-border/40"
+                      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                      {[
+                        { id: "issues",   Icon: AlertTriangle,    label: "Open Issues",      sub: briefing.issues.length > 0 ? `${briefing.issues.length} critical issues need review` : "No open issues",          count: briefing.issues.length,    iconCls: "text-red-400",  bgCls: "bg-red-500/10 border-red-500/30",     review: briefing.issues.length > 0 },
+                        { id: "handoff",  Icon: MessageSquareText, label: "Previous Handoff", sub: briefing.handoffs.length > 0 ? `${briefing.handoffs.length} items from last shift` : "No carry-over items",       count: briefing.handoffs.length,  iconCls: "text-blue-400", bgCls: "bg-blue-500/10 border-blue-500/30",   review: briefing.handoffs.length > 0 },
+                        { id: "eightySix",Icon: Flame,            label: "86'd Items",       sub: briefing.eightySix.length > 0 ? `${briefing.eightySix.length} items today` : "0 items today",                    count: briefing.eightySix.length, iconCls: "text-primary",  bgCls: "bg-primary/10 border-primary/30",     review: false },
+                        { id: "events",   Icon: CalendarClock,    label: "BEOs / Events",    sub: briefing.events.length > 0 ? `${briefing.events.length} events today` : "0 events today",                         count: briefing.events.length,    iconCls: "text-teal-400", bgCls: "bg-teal-500/10 border-teal-500/30",   review: false },
+                      ].map((item, idx) => (
+                        <button key={item.id} type="button" onClick={() => markCardViewed(item.id)}
+                          className="flex w-full items-center gap-3 border-b border-border/15 px-4 py-3 text-left transition-all active:scale-[0.99]">
+                          <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border", item.bgCls)}>
+                            <item.Icon className={cn("h-4 w-4", item.iconCls)} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground truncate">{item.sub}</p>
+                          </div>
+                          {item.review && <span className="shrink-0 text-[10px] font-black text-amber-400 uppercase tracking-wide">REVIEW</span>}
+                          <span className="shrink-0 w-5 text-right text-sm font-black text-foreground">{item.count}</span>
+                          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />
+                        </button>
+                      ))}
+
+                      {/* Duties row */}
+                      <div className="border-b border-border/15 px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/10">
+                            <ClipboardCheck className="h-4 w-4 text-blue-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-sm font-bold text-foreground">Duties / Checklists</p>
+                              <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-primary")}>{checkedDuties.length}/{DUTIES.length}</span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/40">
+                              <div className="h-full rounded-full transition-all duration-500"
+                                style={{ width: `${dutiesPct}%`, background: dutiesPct === 100 ? "linear-gradient(90deg,#22c55e,#4ade80)" : "linear-gradient(90deg,hsl(22,76%,38%),hsl(22,76%,55%))" }} />
+                            </div>
+                            <p className="mt-0.5 text-xs text-muted-foreground">{checkedDuties.length}/{DUTIES.length} duties completed</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Manager Notes row */}
+                      <button type="button" onClick={() => markCardViewed("logs")}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-left active:scale-[0.99]">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border/40 bg-white/[0.04]">
+                          <Store className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-foreground">Manager Notes</p>
+                          <p className="text-xs text-muted-foreground">{briefing.managerLogs.length > 0 ? `${briefing.managerLogs.length} note from leadership` : "No notes from leadership"}</p>
+                        </div>
+                        <span className="shrink-0 w-5 text-right text-sm font-black text-foreground">{briefing.managerLogs.length}</span>
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── DESKTOP ── */}
+                <div className="hidden lg:flex lg:flex-col lg:gap-3">
+                  <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    {[
+                      { label: "Critical",   value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
+                      { label: "Warnings",   value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
+                      { label: "Follow-Ups", value: briefing.managerLogs.length + briefing.tasks.length, color: "text-foreground/70" },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-4">
+                        <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className={cn("flex items-start gap-3 rounded-2xl border p-4", acknowledged ? "border-green-500/30" : "border-border/40")}
+                    style={{ background: acknowledged ? "rgba(34,197,94,0.05)" : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    {acknowledged ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" /> : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />}
+                    <div className="flex-1">
+                      <p className="text-[15px] font-black text-foreground">{acknowledged ? totals.critical > 0 ? `Briefing acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open` : "Briefing acknowledged — shift intel clear" : "Review shift intel before starting"}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">Acknowledging logs a manager note and moves you to Ops. +20 XP</p>
+                    </div>
+                    {acknowledged && <div className="flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-black text-green-400"><Zap className="h-2.5 w-2.5" /> 20</div>}
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
+                      {briefing.handoffs.length === 0 ? <EmptyIntel text="No unresolved handoff notes." detail="No carry-over items from the previous shift." /> : briefing.handoffs.map(item => <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"} meta={[item.department, item.urgency, item.logged_by].filter(Boolean).join(" — ")} />)}
+                    </IntelCard>
+                    <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
+                      {briefing.eightySix.length === 0 ? <EmptyIntel text="Nothing 86'd right now." detail="All menu items available." /> : briefing.eightySix.map(item => <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />)}
+                    </IntelCard>
+                    <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
+                      {briefing.issues.length === 0 ? <EmptyIntel text="No open issues — clear to go." /> : briefing.issues.map(item => <IntelRow key={item.id} title={item.title || item.description || "Open issue"} meta={[friendlyLogCategory(item.category), item.priority, item.area || item.station || item.location].filter(Boolean).join(" · ")} severity="critical" />)}
+                    </IntelCard>
+                    <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
+                      {briefing.events.length === 0 ? <EmptyIntel text="No events or private dining today." /> : briefing.events.map(item => <IntelRow key={item.id} title={item.eventName} meta={[item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ""].filter(Boolean).join(" · ")} severity="warning" />)}
+                    </IntelCard>
+                    <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
+                      {[...briefing.managerLogs, ...briefing.waste].length === 0 ? <EmptyIntel text="No manager notes or waste entries." detail="Nothing logged for this shift yet." /> : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")} meta={[friendlyLogCategory(item.category || item.reason), recentDate(item)].filter(Boolean).join(" · ")} />)}
+                    </IntelCard>
+                  </div>
+                  {!acknowledged && (() => {
+                    const allReviewed = viewedIntelCards.size === INTEL_CARD_IDS.length;
+                    return (
+                      <div className="flex items-center justify-between px-1 py-1">
+                        <p className={cn("text-[11px] font-black uppercase tracking-wide", allReviewed ? totals.critical > 0 ? "text-amber-400" : "text-green-400" : "text-amber-400/80")}>
+                          {allReviewed ? totals.critical > 0 ? `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} require awareness` : `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ready to acknowledge` : `${viewedIntelCards.size} of ${INTEL_CARD_IDS.length} sections reviewed — open each card to continue`}
+                        </p>
+                        <div className="flex gap-1">
+                          {INTEL_CARD_IDS.map(cid => <div key={cid} className={cn("h-1.5 w-7 rounded-full transition-all duration-300", viewedIntelCards.has(cid) ? (briefing.handoffs.length + briefing.eightySix.length + briefing.issues.length + briefing.events.length > 0 ? "bg-amber-400/70" : "bg-green-400/70") : "bg-border/30")} />)}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  <button type="button" onClick={acknowledgeBriefing} disabled={acknowledged || !allCardsViewed}
+                    className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white transition-all active:scale-[0.98]"
+                    style={{ background: acknowledged ? "linear-gradient(135deg,rgba(34,197,94,0.3) 0%,rgba(34,197,94,0.2) 100%)" : allCardsViewed ? "linear-gradient(135deg,hsl(22,76%,44%) 0%,hsl(22,76%,36%) 100%)" : "rgba(255,255,255,0.04)", boxShadow: acknowledged ? "0 0 0 1px rgba(34,197,94,0.3)" : allCardsViewed ? "0 0 0 1px rgba(230,106,31,0.4),0 0 24px rgba(230,106,31,0.25),inset 0 1px 0 rgba(255,255,255,0.1)" : "0 0 0 1px rgba(255,255,255,0.06)", opacity: !acknowledged && !allCardsViewed ? 0.5 : 1 }}>
+                    {acknowledged ? <><CheckCircle2 className="h-5 w-5" />{totals.critical > 0 ? `Briefing Acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open` : "Intel Acknowledged — +20 XP"}</> : allCardsViewed ? totals.critical > 0 ? <><Shield className="h-5 w-5" />Acknowledge — {totals.critical} open item{totals.critical !== 1 ? 's' : ''} require awareness</> : <><Shield className="h-5 w-5" />Acknowledge Briefing — Shift Intel Clear</> : <><Shield className="h-5 w-5" />Review all sections to continue</>}
+                  </button>
+                </div>
               </>
             )}
 
             {/* ── OPS ────────────────────────────────────────────────── */}
             {activeStage === "run" && (
               <>
-                <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 space-y-3 lg:space-y-0">
+                {/* ── MOBILE RUN ── */}
+                <div className="lg:hidden space-y-3">
+                  <div
+                    className={cn("overflow-hidden rounded-2xl border", preShiftSaved ? "border-green-500/30" : "border-primary/30")}
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                  >
+                    {/* Card header */}
+                    <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <Users className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-black text-foreground">Pre-Shift Briefing</p>
+                      </div>
+                      <span className={cn("shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black",
+                        preShiftSaved ? "border-green-500/35 bg-green-500/12 text-green-400" : "border-primary/35 bg-primary/12 text-primary")}>
+                        {preShiftSaved ? "✓ Ready" : "Required"}
+                      </span>
+                    </div>
+
+                    {/* BRIEFING SCOPE */}
+                    <div className="border-t border-border/20 px-4 py-3">
+                      <p className="mb-2 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">BRIEFING SCOPE</p>
+                      {candidateProfiles.length > 1 ? (
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {candidateProfiles.map(p => {
+                            const isSelected = shiftContext?.profileId === p.id;
+                            const roles = p.importRules?.staffRoles || [];
+                            const cnt = roles.length > 0
+                              ? briefing.allStaff.filter(s => roles.some(r => (s.role || '').toLowerCase().includes(r.toLowerCase()))).length
+                              : briefing.allStaff.length;
+                            return (
+                              <button key={p.id} type="button"
+                                onClick={() => { selectProfile(p); load({ quiet: true }); }}
+                                className={cn(
+                                  "flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98]",
+                                  isSelected ? "border-primary/50 bg-primary/8" : "border-border/40"
+                                )}
+                                style={isSelected ? { boxShadow: "0 0 8px rgba(230,106,31,0.15)" } : undefined}
+                              >
+                                <span className={cn("text-xs font-black", isSelected ? "text-primary" : "text-foreground")}>
+                                  {p.shortName || p.name}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">{cnt} staff</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : shiftContext ? (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={cn("rounded-full border px-2.5 py-1 text-xs font-black",
+                            shiftContext.department === 'foh'     ? 'border-blue-500/30 text-blue-400' :
+                            shiftContext.department === 'boh'     ? 'border-amber-500/30 text-amber-400' :
+                            shiftContext.department === 'bar'     ? 'border-teal-500/30 text-teal-400' :
+                            shiftContext.department === 'banquet' ? 'border-cyan-500/30 text-cyan-400' :
+                                                                     'border-primary/30 text-primary'
+                          )}>
+                            {shiftContext.profileName}
+                          </span>
+                          <button type="button" onClick={resetContext}
+                            className="text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors">
+                            Change
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground/50">No scope — select a profile from the Pre-Shift tab.</p>
+                      )}
+                    </div>
+
+                    {/* AUTO-IMPORTED expandable rows */}
+                    <div className="border-t border-border/20">
+                      <div className="flex items-center justify-between px-4 pt-2.5 pb-1">
+                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">AUTO-IMPORTED</p>
+                        <button type="button" onClick={() => load({ quiet: true })}
+                          className="flex items-center gap-1 text-[9px] font-bold text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+                          <RefreshCw className={cn("h-2.5 w-2.5", refreshing && "animate-spin")} /> Refresh
+                        </button>
+                      </div>
+                      {[
+                        {
+                          id: 'roles',
+                          label: 'Roles & Assignments',
+                          count: briefing.staff.length,
+                          countCls: 'text-muted-foreground',
+                          renderContent: () => briefing.staff.length === 0
+                            ? <p className="text-xs text-muted-foreground/50">No shifts scheduled today</p>
+                            : <div className="space-y-1">{briefing.staff.slice(0, 12).map((p, i) => (
+                                <div key={p.id || i} className="flex items-center justify-between gap-2 text-xs">
+                                  <span className="font-semibold text-foreground truncate">{p.employee_name}</span>
+                                  <span className="shrink-0 text-muted-foreground">{[p.role, p.station, p.start_time].filter(Boolean).join(' · ')}</span>
+                                </div>
+                              ))}{briefing.staff.length > 12 && <p className="text-[10px] text-muted-foreground/50 mt-0.5">+{briefing.staff.length - 12} more</p>}</div>,
+                        },
+                        {
+                          id: 'reservations',
+                          label: 'Reservations / BEO',
+                          count: briefing.events.length + briefing.reservationsList.length,
+                          countCls: 'text-muted-foreground',
+                          renderContent: () => briefing.events.length + briefing.reservationsList.length === 0
+                            ? <p className="text-xs text-muted-foreground/50">No events or reservations today</p>
+                            : <div className="space-y-1">
+                                {briefing.events.map(e => (
+                                  <div key={e.id} className="flex items-start justify-between gap-2 text-xs">
+                                    <span className="font-semibold text-foreground">{e.eventName}</span>
+                                    <span className="shrink-0 text-muted-foreground">{[e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ''].filter(Boolean).join(' · ')}</span>
+                                  </div>
+                                ))}
+                                {briefing.reservationsList.map(r => (
+                                  <div key={r.id} className="flex items-start justify-between gap-2 text-xs">
+                                    <span className="font-semibold text-foreground">{r.guest_name || r.name || 'Reservation'}</span>
+                                    <span className="shrink-0 text-muted-foreground">{[r.arrival_time || r.time, r.party_size ? `${r.party_size} pax` : '', r.special_requests || r.dietary_notes].filter(Boolean).join(' · ')}</span>
+                                  </div>
+                                ))}
+                              </div>,
+                        },
+                        {
+                          id: 'eightySix',
+                          label: 'Out of Stock / 86',
+                          count: briefing.eightySix.length,
+                          countCls: briefing.eightySix.length > 0 ? 'text-red-400' : 'text-muted-foreground',
+                          renderContent: () => briefing.eightySix.length === 0
+                            ? <p className="text-xs text-muted-foreground/50 italic">All items available</p>
+                            : <div className="space-y-1">{briefing.eightySix.map(i => (
+                                <div key={i.id} className="flex items-center justify-between gap-2 text-xs">
+                                  <span className="font-bold text-red-400">{i.item_name}</span>
+                                  <span className="shrink-0 text-muted-foreground">{i.category || i.notes || ''}</span>
+                                </div>
+                              ))}</div>,
+                        },
+                      ].map(row => (
+                        <div key={row.id}>
+                          <button type="button" onClick={() => toggleImportRow(row.id)}
+                            className="flex w-full items-center gap-3 border-t border-border/15 px-4 py-3 text-left transition-all active:scale-[0.99]">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-foreground">{row.label}</p>
+                            </div>
+                            <span className={cn("text-xs font-black tabular-nums shrink-0", row.countCls)}>{row.count}</span>
+                            <ChevronRight className={cn("h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform duration-200", expandedImportRows.has(row.id) && "rotate-90")} />
+                          </button>
+                          {expandedImportRows.has(row.id) && (
+                            <div className="space-y-1.5 border-t border-border/10 bg-white/[0.01] px-4 pb-3 pt-2">
+                              {row.renderContent()}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Dept-specific fields */}
+                    <div className="border-t border-border/20 space-y-3 px-4 py-3">
+                      {((() => {
+                        const dept = shiftContext?.department || 'all';
+                        const keys = FIELD_ORDER_BY_DEPT[dept] || FIELD_ORDER_BY_DEPT.all;
+                        return keys.map(k => ({ field: k, ...PRE_SHIFT_FIELD_DEFS[k] }));
+                      })()).map(({ field, label, rows, placeholder }) => (
+                        <label key={field} className="block space-y-1.5">
+                          <span className="text-xs font-black text-foreground">
+                            {field === 'notes' ? 'Manager Notes / Talking Points' : label}
+                          </span>
+                          <textarea
+                            value={preShiftForm[field]}
+                            onChange={e => updatePreShiftField(field, e.target.value)}
+                            rows={field === 'notes' ? 5 : rows}
+                            placeholder={placeholder}
+                            className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                          />
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Save button */}
+                    <div className="px-4 pb-4">
+                      <button type="button" onClick={savePreShift}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white active:scale-[0.98] transition-all"
+                        style={{ background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)", boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                        <Save className="h-4 w-4" />
+                        Save Briefing — +25 XP
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── DESKTOP RUN ── */}
+                <div className="hidden lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6">
                   {/* Left: Pre-shift briefing form */}
                   <div>
                     <div
@@ -1567,177 +1736,344 @@ export default function ManagerShift() {
             )}
 
             {/* ── DEBRIEF ────────────────────────────────────────────── */}
-            {activeStage === "close" && (
+            {activeStage === "close" && (() => {
+              const closeTabDefs = [
+                { id: 'all',                    label: `All`,       count: debriefItems.length },
+                { id: 'Issues',                 label: `Issues`,    count: debriefItems.filter(i => i.group === 'Issues').length },
+                { id: 'Logs Created This Shift',label: `Logs`,      count: debriefItems.filter(i => i.group === 'Logs Created This Shift').length },
+                { id: "86'd Items",             label: `86 Items`,  count: debriefItems.filter(i => i.group === "86'd Items").length },
+              ];
+              const visibleDebriefItems = closeFilterTab === 'all'
+                ? debriefItems
+                : debriefItems.filter(i => i.group === closeFilterTab);
+              return (
               <>
-                {/* Shift recap */}
-                <div
-                  className="grid grid-cols-3 gap-2 overflow-hidden rounded-2xl border border-border/40"
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  {[
-                    { label: "Required", value: debriefItems.length, color: debriefItems.length > 0 ? "text-primary" : "text-green-400" },
-                    { label: "Reviewed", value: `${debriefCompleteCount}/${debriefItems.length}`, color: debriefCompleteCount === debriefItems.length ? "text-green-400" : "text-foreground" },
-                    { label: "Follow-Ups", value: debriefItems.filter(item => debriefReviews[item.key]?.status === "follow_up").length, color: "text-amber-400" },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-3 text-center">
-                      <p className={cn("text-2xl font-black", color)}>{value}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Required confirmations */}
-                <div
-                  className="overflow-hidden rounded-2xl border border-border/40"
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
-                    <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <div>
-                      <p className="text-sm lg:text-[15px] font-black text-foreground">Required Close Review</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">Every checklist, sidework item, issue, 86 item, and shift log needs a resolution or no-follow-up confirmation.</p>
-                    </div>
+                {/* ── MOBILE CLOSE ── */}
+                <div className="lg:hidden space-y-3">
+                  {/* Scorecard */}
+                  <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    {[
+                      { label: "REQUIRED",   sub: "Items needing review",   value: debriefItems.length,                                                          color: debriefItems.length > 0 ? "text-primary" : "text-green-400" },
+                      { label: "REVIEWED",   sub: "Resolved or cleared",    value: `${debriefCompleteCount}/${debriefItems.length}`,                             color: debriefCompleteCount === debriefItems.length ? "text-green-400" : "text-foreground" },
+                      { label: "FOLLOW-UPS", sub: "Needs next-shift action", value: debriefItems.filter(i => debriefReviews[i.key]?.status === "follow_up").length, color: "text-amber-400" },
+                    ].map(({ label, sub, value, color }) => (
+                      <div key={label} className="flex flex-col items-center justify-center gap-0 px-1 py-3 text-center">
+                        <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground leading-tight mt-0.5">{label}</p>
+                        <p className="text-[9px] text-muted-foreground/60 leading-tight mt-0.5">{sub}</p>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="space-y-3 border-t border-border/30 px-4 py-4">
-                    {debriefItems.length === 0 ? (
-                      <div className="rounded-xl border border-green-500/25 bg-green-500/6 px-3 py-3">
-                        <p className="text-sm font-black text-green-400">No required follow-up items found.</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">Add closing notes below before completing the shift.</p>
+                  {/* Required Close Review */}
+                  <div className="overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    {/* Header */}
+                    <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
+                      <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div>
+                        <p className="text-sm font-black text-foreground">Required Close Review</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">Resolve or clear every item before completing sign-off.</p>
                       </div>
-                    ) : (
-                      debriefItems.map(item => {
+                    </div>
+
+                    {/* Filter tabs */}
+                    <div className="border-t border-border/20 flex overflow-x-auto">
+                      {closeTabDefs.map(tab => (
+                        <button key={tab.id} type="button" onClick={() => setCloseFilterTab(tab.id)}
+                          className={cn(
+                            "flex-shrink-0 px-3 py-2 text-[10px] font-black whitespace-nowrap transition-colors",
+                            closeFilterTab === tab.id
+                              ? "text-primary border-b-2 border-primary"
+                              : "text-muted-foreground/60 border-b border-border/20"
+                          )}>
+                          {tab.label} ({tab.count})
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Issue cards */}
+                    <div className="divide-y divide-border/15">
+                      {visibleDebriefItems.length === 0 ? (
+                        <div className="px-4 py-4">
+                          <p className="text-sm font-black text-green-400">No items in this category.</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">Clear to proceed to sign-off.</p>
+                        </div>
+                      ) : visibleDebriefItems.map(item => {
                         const review = debriefReviews[item.key] || {};
                         const needsNote = item.requiresNote || review.status === "follow_up";
+                        const noteLen = (review.note || "").length;
                         return (
-                          <div key={item.key} className="rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                            <div className="flex items-start justify-between gap-3">
+                          <div key={item.key} className="px-4 py-3 space-y-2.5">
+                            {/* Title row */}
+                            <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">{item.group}</p>
-                                <p className="mt-1 text-sm font-black text-foreground">{item.title}</p>
-                                {item.meta && <p className="mt-0.5 text-xs text-muted-foreground">{item.meta}</p>}
+                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 mb-0.5">{item.group}</p>
+                                <p className="text-sm font-black text-foreground leading-snug">{item.title}</p>
+                                {item.meta && <p className="text-xs text-muted-foreground mt-0.5">{item.meta}</p>}
                               </div>
-                              {review.status && (
-                                <CheckCircle2 className={cn("h-4 w-4 shrink-0", review.status === "follow_up" ? "text-amber-400" : "text-green-400")} />
-                              )}
-                            </div>
-                            <div className="mt-3 grid grid-cols-2 gap-2">
-                              <button
-                                type="button"
-                                onClick={() => updateDebriefReview(item.key, { status: "no_follow_up", requiresNote: item.requiresNote })}
-                                className={cn(
-                                  "rounded-lg border px-3 py-2 text-xs font-black transition-all",
-                                  review.status === "no_follow_up" ? "border-green-500/40 bg-green-500/12 text-green-400" : "border-border/40 text-muted-foreground"
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <span className="text-[9px] font-black border border-border/40 rounded px-1.5 py-0.5 text-muted-foreground">Open</span>
+                                {review.status && (
+                                  <CheckCircle2 className={cn("h-3.5 w-3.5", review.status === "follow_up" ? "text-amber-400" : "text-green-400")} />
                                 )}
-                              >
+                              </div>
+                            </div>
+
+                            {/* Action buttons */}
+                            <div className="grid grid-cols-2 gap-2">
+                              <button type="button"
+                                onClick={() => updateDebriefReview(item.key, { status: "no_follow_up", requiresNote: item.requiresNote })}
+                                className={cn("rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                                  review.status === "no_follow_up" ? "border-green-500/40 bg-green-500/12 text-green-400" : "border-border/40 text-muted-foreground"
+                                )}>
                                 No Follow-Up
                               </button>
-                              <button
-                                type="button"
+                              <button type="button"
                                 onClick={() => updateDebriefReview(item.key, { status: "follow_up", requiresNote: true })}
-                                className={cn(
-                                  "rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                                className={cn("rounded-lg border px-3 py-2 text-xs font-black transition-all",
                                   review.status === "follow_up" ? "border-amber-500/40 bg-amber-500/12 text-amber-400" : "border-border/40 text-muted-foreground"
-                                )}
-                              >
+                                )}>
                                 Follow-Up Needed
                               </button>
                             </div>
+
+                            {/* Note textarea + media icons + char count */}
                             {(review.status || item.requiresNote) && (
-                              <textarea
-                                value={review.note || ""}
-                                onChange={e => updateDebriefReview(item.key, { note: e.target.value, requiresNote: needsNote })}
-                                rows={2}
-                                placeholder={needsNote ? "Resolution or next action required" : "Optional note"}
-                                className="mt-2 w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-                              />
+                              <div className="space-y-1.5">
+                                <textarea
+                                  value={review.note || ""}
+                                  onChange={e => updateDebriefReview(item.key, { note: e.target.value, requiresNote: needsNote })}
+                                  rows={2}
+                                  maxLength={500}
+                                  placeholder="Resolution or next action required..."
+                                  className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                                />
+                                <div className="flex items-center justify-between">
+                                  <div className="flex gap-1.5">
+                                    <button type="button" className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 text-muted-foreground/50 transition-colors hover:text-muted-foreground">
+                                      <Camera className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button type="button" className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 text-muted-foreground/50 transition-colors hover:text-muted-foreground">
+                                      <Mic className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                  <span className={cn("text-[10px] font-bold", noteLen > 450 ? "text-amber-400" : "text-muted-foreground/50")}>
+                                    {noteLen}/500
+                                  </span>
+                                </div>
+                              </div>
                             )}
                           </div>
                         );
-                      })
-                    )}
+                      })}
+                    </div>
                   </div>
+
+                  {/* Handoff notes */}
+                  <div className="overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
+                      <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div>
+                        <p className="text-sm font-black text-foreground">Handoff to Next Manager</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">What does the next manager need to know? +50 XP on submit.</p>
+                      </div>
+                    </div>
+                    <div className="px-4 pb-4">
+                      <textarea
+                        value={handoffNotes}
+                        onChange={e => setHandoffNotes(e.target.value)}
+                        rows={5}
+                        placeholder="Open items, guest issues, staffing notes, anything to watch…"
+                        className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Complete Sign-Off button */}
+                  <button type="button" onClick={completeHandoff} disabled={submitting}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
+                    style={{ background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)", boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
+                    <Trophy className="h-5 w-5" />
+                    {submitting ? "Saving…" : "Complete Sign-Off — +50 XP"}
+                  </button>
                 </div>
 
-                {/* Custom handoff prompts */}
-                <div
-                  className="overflow-hidden rounded-2xl border border-border/40"
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  <div className="flex items-start gap-2.5 px-4 py-4">
-                    <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <div>
-                      <p className="text-sm lg:text-[15px] font-black text-foreground">Handoff Requirements</p>
-                      <div className="mt-2 space-y-1.5">
-                        {briefing.handoffPrompts.map(prompt => (
-                          <div key={prompt} className="flex items-start gap-2 text-xs text-muted-foreground">
-                            <Check className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
-                            <span>{prompt}</span>
-                          </div>
-                        ))}
+                {/* ── DESKTOP CLOSE ── */}
+                <div className="hidden lg:block lg:space-y-3">
+                  {/* Shift recap */}
+                  <div
+                    className="grid grid-cols-3 gap-2 overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                  >
+                    {[
+                      { label: "Required", value: debriefItems.length, color: debriefItems.length > 0 ? "text-primary" : "text-green-400" },
+                      { label: "Reviewed", value: `${debriefCompleteCount}/${debriefItems.length}`, color: debriefCompleteCount === debriefItems.length ? "text-green-400" : "text-foreground" },
+                      { label: "Follow-Ups", value: debriefItems.filter(item => debriefReviews[item.key]?.status === "follow_up").length, color: "text-amber-400" },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-3 text-center">
+                        <p className={cn("text-2xl font-black", color)}>{value}</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Required confirmations */}
+                  <div
+                    className="overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                  >
+                    <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
+                      <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div>
+                        <p className="text-sm lg:text-[15px] font-black text-foreground">Required Close Review</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">Every checklist, sidework item, issue, 86 item, and shift log needs a resolution or no-follow-up confirmation.</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 border-t border-border/30 px-4 py-4">
+                      {debriefItems.length === 0 ? (
+                        <div className="rounded-xl border border-green-500/25 bg-green-500/6 px-3 py-3">
+                          <p className="text-sm font-black text-green-400">No required follow-up items found.</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">Add closing notes below before completing the shift.</p>
+                        </div>
+                      ) : (
+                        debriefItems.map(item => {
+                          const review = debriefReviews[item.key] || {};
+                          const needsNote = item.requiresNote || review.status === "follow_up";
+                          return (
+                            <div key={item.key} className="rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">{item.group}</p>
+                                  <p className="mt-1 text-sm font-black text-foreground">{item.title}</p>
+                                  {item.meta && <p className="mt-0.5 text-xs text-muted-foreground">{item.meta}</p>}
+                                </div>
+                                {review.status && (
+                                  <CheckCircle2 className={cn("h-4 w-4 shrink-0", review.status === "follow_up" ? "text-amber-400" : "text-green-400")} />
+                                )}
+                              </div>
+                              <div className="mt-3 grid grid-cols-2 gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => updateDebriefReview(item.key, { status: "no_follow_up", requiresNote: item.requiresNote })}
+                                  className={cn(
+                                    "rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                                    review.status === "no_follow_up" ? "border-green-500/40 bg-green-500/12 text-green-400" : "border-border/40 text-muted-foreground"
+                                  )}
+                                >
+                                  No Follow-Up
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => updateDebriefReview(item.key, { status: "follow_up", requiresNote: true })}
+                                  className={cn(
+                                    "rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                                    review.status === "follow_up" ? "border-amber-500/40 bg-amber-500/12 text-amber-400" : "border-border/40 text-muted-foreground"
+                                  )}
+                                >
+                                  Follow-Up Needed
+                                </button>
+                              </div>
+                              {(review.status || item.requiresNote) && (
+                                <textarea
+                                  value={review.note || ""}
+                                  onChange={e => updateDebriefReview(item.key, { note: e.target.value, requiresNote: needsNote })}
+                                  rows={2}
+                                  placeholder={needsNote ? "Resolution or next action required" : "Optional note"}
+                                  className="mt-2 w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                                />
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Custom handoff prompts */}
+                  <div
+                    className="overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                  >
+                    <div className="flex items-start gap-2.5 px-4 py-4">
+                      <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div>
+                        <p className="text-sm lg:text-[15px] font-black text-foreground">Handoff Requirements</p>
+                        <div className="mt-2 space-y-1.5">
+                          {briefing.handoffPrompts.map(prompt => (
+                            <div key={prompt} className="flex items-start gap-2 text-xs text-muted-foreground">
+                              <Check className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+                              <span>{prompt}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Handoff notes */}
-                <div
-                  className="overflow-hidden rounded-2xl border border-border/40"
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
-                    <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <div>
-                      <p className="text-sm lg:text-[15px] font-black text-foreground">Handoff to Next Manager</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">Summarize open items, guest issues, staffing notes. +50 XP on submit.</p>
+                  {/* Handoff notes */}
+                  <div
+                    className="overflow-hidden rounded-2xl border border-border/40"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                  >
+                    <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
+                      <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <div>
+                        <p className="text-sm lg:text-[15px] font-black text-foreground">Handoff to Next Manager</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">Summarize open items, guest issues, staffing notes. +50 XP on submit.</p>
+                      </div>
+                    </div>
+
+                    <div className="px-4 pb-4 space-y-3">
+                      <textarea
+                        value={handoffNotes}
+                        onChange={e => setHandoffNotes(e.target.value)}
+                        rows={7}
+                        placeholder="What does the next manager need to know?"
+                        className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={completeHandoff}
+                        disabled={submitting}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
+                        style={{
+                          background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+                          boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)",
+                        }}
+                      >
+                        <Trophy className="h-5 w-5" />
+                        {submitting ? "Saving…" : "Complete Shift — +50 XP"}
+                      </button>
                     </div>
                   </div>
 
-                  <div className="px-4 pb-4 space-y-3">
-                    <textarea
-                      value={handoffNotes}
-                      onChange={e => setHandoffNotes(e.target.value)}
-                      rows={7}
-                      placeholder="What does the next manager need to know?"
-                      className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-                    />
-
-                    <button
-                      type="button"
-                      onClick={completeHandoff}
-                      disabled={submitting}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
-                      style={{
-                        background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
-                        boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)",
-                      }}
-                    >
-                      <Trophy className="h-5 w-5" />
-                      {submitting ? "Saving…" : "Complete Shift — +50 XP"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Handoff history link */}
-                <button
-                  type="button"
-                  onClick={() => navigate("/logs?type=shift_handoff")}
-                  className="flex w-full items-center justify-between gap-3 rounded-2xl border border-border/40 px-4 py-3.5 text-left transition-all hover:border-border/60 active:scale-[0.99]"
-                  style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="status-marker status-marker-md status-neutral">
-                      <Star className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <p className="text-sm lg:text-[15px] font-black text-foreground">Shift Handoff Log</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">View all previous handoff notes and shift history</p>
+                  {/* Handoff history link */}
+                  <button
+                    type="button"
+                    onClick={() => navigate("/logs?type=shift_handoff")}
+                    className="flex w-full items-center justify-between gap-3 rounded-2xl border border-border/40 px-4 py-3.5 text-left transition-all hover:border-border/60 active:scale-[0.99]"
+                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="status-marker status-marker-md status-neutral">
+                        <Star className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-sm lg:text-[15px] font-black text-foreground">Shift Handoff Log</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">View all previous handoff notes and shift history</p>
+                      </div>
                     </div>
-                  </div>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                </button>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </button>
+                </div>
               </>
-            )}
+              );
+            })()}
 
           </motion.div>
         </AnimatePresence>

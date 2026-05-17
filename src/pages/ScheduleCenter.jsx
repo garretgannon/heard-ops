@@ -75,8 +75,8 @@ export default function ScheduleCenter() {
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i)), [currentWeek]);
 
   // ── Data Loading ──────────────────────────────────────────────────────────
-  const loadScheduleData = useCallback(async () => {
-    setLoading(true);
+  const loadScheduleData = useCallback(async ({ quiet = false } = {}) => {
+    if (!quiet) setLoading(true);
     const safeList = (entityName, sortBy, limit) => {
       const entity = base44.entities[entityName];
       if (!entity?.list) return Promise.resolve([]);
@@ -115,6 +115,10 @@ export default function ScheduleCenter() {
         name: e.data?.full_name || e.full_name || e.name || 'Unknown',
         email: e.data?.email || e.email || '',
         role: e.data?.primary_role || e.data?.job_code || e.primary_role || e.job_code || e.role || '',
+        primary_role: e.data?.primary_role || e.primary_role || '',
+        job_code: e.data?.job_code || e.job_code || '',
+        secondary_roles: e.data?.secondary_roles || e.secondary_roles || [],
+        job_codes: e.data?.job_codes || e.job_codes || [],
       }));
       const shiftNames = [...new Set(safeShifts.map(s => s.employee_name).filter(Boolean))];
       const extra = shiftNames
@@ -169,7 +173,7 @@ export default function ScheduleCenter() {
     const rev = reverseAction(action);
     setRedoStack(p => [...p, reverseAction(rev)]);
     await applyAction(rev);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.info('Undone');
   };
 
@@ -179,7 +183,7 @@ export default function ScheduleCenter() {
     setRedoStack(p => p.slice(0, -1));
     setUndoStack(p => [...p, reverseAction(action)]);
     await applyAction(action);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.info('Redone');
   };
 
@@ -220,7 +224,7 @@ export default function ScheduleCenter() {
     if (roleChanged) toast.info(`Role changed: ${originalRole} → ${assignedRole || 'Unassigned'} for ${destEmployee.name}.`);
 
     await base44.entities.StaffShift.update(shiftId, updates);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
   };
 
   // ── Add Shift ─────────────────────────────────────────────────────────────
@@ -228,7 +232,7 @@ export default function ScheduleCenter() {
     const created = await base44.entities.StaffShift.create({ ...data, status: 'draft' });
     pushUndo({ type: 'create', shiftId: created.id, data });
     setQuickAdd(null);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.success('Shift added');
   };
 
@@ -236,14 +240,14 @@ export default function ScheduleCenter() {
     const created = await Promise.all(shiftsToAdd.map(s => base44.entities.StaffShift.create({ ...s, status: 'draft' })));
     pushUndo({ type: 'bulk_create', shifts: shiftsToAdd, shiftIds: created.map(c => c.id) });
     setShowMassAdd(false);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.success(`Added ${created.length} shifts`);
   };
 
   const handleApplyTemplate = async (templateShifts) => {
     const created = await Promise.all(templateShifts.map(s => base44.entities.StaffShift.create(s)));
     pushUndo({ type: 'bulk_create', shifts: templateShifts, shiftIds: created.map(c => c.id) });
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.success(`Applied template — ${created.length} draft shifts added`);
   };
 
@@ -261,9 +265,10 @@ export default function ScheduleCenter() {
 
   // Returns the best role for the employee given a desired role from a copied shift.
   const resolveRole = (employee, desiredRole) => {
-    if (!desiredRole || isEligibleForRole(employee, desiredRole)) return { role: desiredRole, changed: false };
-    const fallback = employee.job_code || employee.primary_role || '';
-    return { role: fallback, changed: true, original: desiredRole };
+    const primary = employee.job_code || employee.primary_role || employee.role || '';
+    if (!desiredRole) return { role: primary, changed: false };
+    if (isEligibleForRole(employee, desiredRole)) return { role: desiredRole, changed: false };
+    return { role: primary, changed: true, original: desiredRole };
   };
 
   function fmtShortTime(t) {
@@ -281,12 +286,29 @@ export default function ScheduleCenter() {
 
   const handlePasteShift = useCallback(async (employee, day) => {
     if (!clipboard) return;
-    const { role: assignedRole, changed: roleChanged, original: originalRole } = resolveRole(employee, clipboard.role);
+
+    const isSameEmployee =
+      (clipboard.employee_email && clipboard.employee_email === employee.email) ||
+      clipboard.employee_name?.toLowerCase() === employee.name?.toLowerCase();
+
+    let role, station, roleChanged = false, originalRole;
+    if (isSameEmployee) {
+      // Same person: copy all details exactly
+      role = clipboard.role;
+      station = clipboard.station;
+    } else {
+      const resolved = resolveRole(employee, clipboard.role);
+      role = resolved.role;
+      station = resolved.changed ? '' : clipboard.station;
+      roleChanged = resolved.changed;
+      originalRole = resolved.original;
+    }
+
     const data = {
       start_time: clipboard.start_time,
       end_time: clipboard.end_time,
-      role: assignedRole,
-      station: roleChanged ? '' : clipboard.station,
+      role,
+      station,
       area: clipboard.area,
       notes: clipboard.notes,
       employee_name: employee.name,
@@ -297,12 +319,12 @@ export default function ScheduleCenter() {
     };
     const created = await base44.entities.StaffShift.create(data);
     pushUndo({ type: 'create', shiftId: created.id, data });
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     const t = `${fmtShortTime(clipboard.start_time)}–${fmtShortTime(clipboard.end_time)}`;
     if (roleChanged) {
-      toast.success(`Copied ${t} to ${employee.name}. Role changed: ${originalRole} → ${assignedRole || 'Unassigned'}.`);
+      toast.success(`Copied ${t} to ${employee.name} — role changed to ${role || 'primary role'} (was ${originalRole}).`);
     } else {
-      toast.success(`Copied ${assignedRole || 'shift'} ${t} to ${employee.name}.`);
+      toast.success(`Copied ${role || 'shift'} ${t} to ${employee.name}.`);
     }
   }, [clipboard, loadScheduleData, employees]);
 
@@ -322,7 +344,7 @@ export default function ScheduleCenter() {
     }));
     const created = await Promise.all(shiftsToCreate.map(s => base44.entities.StaffShift.create(s)));
     pushUndo({ type: 'bulk_create', shifts: shiftsToCreate, shiftIds: created.map(c => c.id) });
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.success(`Duplicated ${created.length} shift(s)`);
   };
 
@@ -337,7 +359,7 @@ export default function ScheduleCenter() {
     pushUndo({ type: 'bulk_delete', shiftIds: ids, shifts: toDelete });
     await Promise.all(ids.map(id => base44.entities.StaffShift.delete(id)));
     setSelectedShiftIds([]);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.success(`Deleted ${ids.length} shift(s)`);
   };
 
@@ -352,7 +374,7 @@ export default function ScheduleCenter() {
     if (!confirm(`Publish ${drafts.length} draft shifts?`)) { setPublishing(false); return; }
     await Promise.all(drafts.map(s => base44.entities.StaffShift.update(s.id, { status: 'published' })));
     toast.success(`Published ${drafts.length} shifts`);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     setPublishing(false);
   };
 
@@ -360,7 +382,7 @@ export default function ScheduleCenter() {
     const ids = selectedShiftIds;
     await Promise.all(ids.map(id => base44.entities.StaffShift.update(id, { status: 'published' })));
     setSelectedShiftIds([]);
-    await loadScheduleData();
+    await loadScheduleData({ quiet: true });
     toast.success(`Published ${ids.length} shifts`);
   };
 
@@ -372,7 +394,7 @@ export default function ScheduleCenter() {
       else if (meta && e.key === 'z' && e.shiftKey) { e.preventDefault(); handleRedo(); }
       else if (meta && e.key === 'c' && selectedShiftDetail) { e.preventDefault(); handleCopyShift(selectedShiftDetail); }
       else if (meta && e.key === 'd' && selectedShiftDetail) { e.preventDefault(); handleDuplicateShift(selectedShiftDetail); }
-      else if (e.key === 'Escape') { setSelectedShiftIds([]); setSelectedShiftDetail(null); setContextMenu(null); }
+      else if (e.key === 'Escape') { setSelectedShiftIds([]); setSelectedShiftDetail(null); setContextMenu(null); setClipboard(null); }
       else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedShiftIds.length > 0 && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
         e.preventDefault();
         handleDeleteShifts(selectedShiftIds);

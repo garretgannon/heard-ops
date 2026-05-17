@@ -10,13 +10,16 @@ const DEFAULT_PRESETS = [
   { label: 'Double', start: '09:00', end: '21:00' },
 ];
 
-const FALLBACK_ROLES = ['Manager', 'Bartender', 'Server', 'Host', 'Line Cook', 'Prep Cook', 'Dishwasher', 'Busser', 'Food Runner'];
-
 function getEligibleRoles(employee) {
   const roles = new Set();
   if (employee?.job_code) roles.add(employee.job_code);
   if (employee?.primary_role) roles.add(employee.primary_role);
-  (employee?.secondary_roles || []).forEach(r => roles.add(r));
+  if (employee?.role) roles.add(employee.role);
+  (employee?.secondary_roles || []).forEach(r => { if (r) roles.add(r); });
+  (employee?.job_codes || []).forEach(r => {
+    const code = typeof r === 'string' ? r : (r?.name || r?.code || '');
+    if (code) roles.add(code);
+  });
   return [...roles].filter(Boolean);
 }
 
@@ -33,24 +36,20 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
   });
   const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
-  const [jobCodes, setJobCodes] = useState([]);
   const [presets, setPresets] = useState(DEFAULT_PRESETS);
   const [loadingData, setLoadingData] = useState(false);
 
   const eligibleRoles = getEligibleRoles(employee);
-  const isRoleIneligible = form.role && eligibleRoles.length > 0 && !eligibleRoles.map(r => r.toLowerCase()).includes(form.role.toLowerCase());
 
   useEffect(() => {
     const loadData = async () => {
       setLoadingData(true);
-      const [areasData, stationsData, jcData] = await Promise.all([
+      const [areasData, stationsData] = await Promise.all([
         base44.entities.Area?.list?.().catch(() => []),
         base44.entities.Station?.list?.().catch(() => []),
-        base44.entities.JobCode?.list?.('-updated_date', 100).catch(() => []),
       ]);
       setAreas(areasData || []);
       setStations(stationsData || []);
-      setJobCodes((jcData || []).filter(j => j.isActive !== false));
       setLoadingData(false);
     };
     loadData();
@@ -143,32 +142,23 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
 
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">Role</label>
-            <select
-              value={form.role}
-              onChange={e => setForm(f => ({...f, role: e.target.value}))}
-              className={`w-full px-3 py-2 bg-background border rounded-lg text-sm text-foreground ${isRoleIneligible ? 'border-amber-500/60' : 'border-border'}`}
-            >
-              <option value="">Select role…</option>
-              {/* Employee's eligible roles first */}
-              {eligibleRoles.length > 0 && (
-                <optgroup label={`${employee?.name || 'Employee'}'s Roles`}>
-                  {eligibleRoles.map(r => <option key={r} value={r}>{r}</option>)}
-                </optgroup>
-              )}
-              {/* All job codes */}
-              {(jobCodes.length > 0 ? jobCodes : FALLBACK_ROLES.map(r => ({ name: r }))).filter(jc => !eligibleRoles.map(r => r.toLowerCase()).includes(jc.name.toLowerCase())).length > 0 && (
-                <optgroup label="Other Roles">
-                  {(jobCodes.length > 0 ? jobCodes : FALLBACK_ROLES.map(r => ({ name: r }))).filter(jc => !eligibleRoles.map(r => r.toLowerCase()).includes(jc.name.toLowerCase())).map(jc => (
-                    <option key={jc.name} value={jc.name}>{jc.name}</option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-            {isRoleIneligible && (
-              <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-amber-400 font-medium">
-                <AlertTriangle className="h-3 w-3 shrink-0" />
-                {employee?.name} isn't typically scheduled as {form.role}. Shift will save as draft.
+            {eligibleRoles.length === 0 ? (
+              <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/8 px-3 py-2.5">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+                <div>
+                  <p className="text-xs font-bold text-amber-400">No job codes assigned</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Go to Team → {employee?.name} → Edit to assign job codes before scheduling.</p>
+                </div>
               </div>
+            ) : (
+              <select
+                value={form.role}
+                onChange={e => setForm(f => ({...f, role: e.target.value}))}
+                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              >
+                <option value="">Select role…</option>
+                {eligibleRoles.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
             )}
           </div>
 
@@ -212,7 +202,10 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
 
           <div className="flex gap-2 pt-1">
             <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-border text-sm font-bold text-foreground hover:bg-secondary transition-colors">Cancel</button>
-            <button onClick={handleSave} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:brightness-110 transition-all">Add Shift</button>
+            <button onClick={handleSave} disabled={eligibleRoles.length === 0}
+              className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+              Add Shift
+            </button>
           </div>
         </div>
       </div>
