@@ -18,7 +18,7 @@ export default function TodayHeader() {
 
   return (
     <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/80 backdrop-blur-sm border-b border-border/20 px-4 py-3 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="w-full">
         <div className="flex items-end justify-between gap-3 mb-1">
           <div>
             <h1 className="text-2xl font-extrabold text-foreground">{greeting}</h1>

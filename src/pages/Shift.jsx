@@ -240,7 +240,7 @@ export default function Shift() {
           </div>
         ) : (
           /* Desktop Admin/Manager View */
-          <div className="max-w-7xl mx-auto w-full">
+          <div className="w-full">
             <AdminShiftDashboard
               tasks={tasks}
               stats={stats}

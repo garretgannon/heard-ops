@@ -107,7 +107,7 @@ export default function Reports() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Reports" subtitle="Today's operational summary" />
-      <main className="app-page mx-auto max-w-[720px] lg:max-w-6xl space-y-6 pb-28">
+      <main className="app-page space-y-6 pb-28">
         <header className="pt-1 lg:hidden">
           <p className="metric-label">Operations</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Reports</h1>
@@ -154,7 +154,7 @@ export default function Reports() {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
               <SectionCard eyebrow="This Week" title="Task completion">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">

@@ -67,7 +67,7 @@ export default function Cleaning() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Cleaning" />
-      <main className="app-page mx-auto max-w-[620px] lg:max-w-6xl space-y-5 pb-28">
+      <main className="app-page space-y-5 pb-28">
         <header className="pt-1 flex items-start justify-between gap-4 lg:hidden">
           <div>
             <p className="metric-label">Operations</p>
@@ -91,7 +91,7 @@ export default function Cleaning() {
             {[1, 2, 3].map(i => <div key={i} className="skeleton h-20 w-full rounded-2xl" />)}
           </div>
         ) : hasAnyTasks ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
             {tasks.map(task => (
               <button
                 key={task.id}
@@ -125,7 +125,7 @@ export default function Cleaning() {
             ))}
           </div>
         ) : hasTemplates ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {templates.map(tmpl => {
               const tmplItems = templateItems(tmpl.id);
               return (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Clock, Zap } from 'lucide-react';
+import { X, Clock, Zap, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 
@@ -10,13 +10,22 @@ const DEFAULT_PRESETS = [
   { label: 'Double', start: '09:00', end: '21:00' },
 ];
 
-const ROLES = ['Manager', 'Bartender', 'Server', 'Host', 'Line Cook', 'Prep Cook', 'Dishwasher', 'Busser', 'Food Runner'];
+const FALLBACK_ROLES = ['Manager', 'Bartender', 'Server', 'Host', 'Line Cook', 'Prep Cook', 'Dishwasher', 'Busser', 'Food Runner'];
+
+function getEligibleRoles(employee) {
+  const roles = new Set();
+  if (employee?.job_code) roles.add(employee.job_code);
+  if (employee?.primary_role) roles.add(employee.primary_role);
+  (employee?.secondary_roles || []).forEach(r => roles.add(r));
+  return [...roles].filter(Boolean);
+}
 
 export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
+  const empPrimaryRole = employee?.job_code || employee?.primary_role || employee?.role || '';
   const [form, setForm] = useState({
     start_time: '09:00',
     end_time: '17:00',
-    role: employee?.role || '',
+    role: empPrimaryRole,
     area: '',
     station: '',
     notes: '',
@@ -24,18 +33,24 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
   });
   const [areas, setAreas] = useState([]);
   const [stations, setStations] = useState([]);
+  const [jobCodes, setJobCodes] = useState([]);
   const [presets, setPresets] = useState(DEFAULT_PRESETS);
   const [loadingData, setLoadingData] = useState(false);
+
+  const eligibleRoles = getEligibleRoles(employee);
+  const isRoleIneligible = form.role && eligibleRoles.length > 0 && !eligibleRoles.map(r => r.toLowerCase()).includes(form.role.toLowerCase());
 
   useEffect(() => {
     const loadData = async () => {
       setLoadingData(true);
-      const [areasData, stationsData] = await Promise.all([
+      const [areasData, stationsData, jcData] = await Promise.all([
         base44.entities.Area?.list?.().catch(() => []),
         base44.entities.Station?.list?.().catch(() => []),
+        base44.entities.JobCode?.list?.('-updated_date', 100).catch(() => []),
       ]);
       setAreas(areasData || []);
       setStations(stationsData || []);
+      setJobCodes((jcData || []).filter(j => j.isActive !== false));
       setLoadingData(false);
     };
     loadData();
@@ -128,11 +143,33 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
 
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">Role</label>
-            <select value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select
+              value={form.role}
+              onChange={e => setForm(f => ({...f, role: e.target.value}))}
+              className={`w-full px-3 py-2 bg-background border rounded-lg text-sm text-foreground ${isRoleIneligible ? 'border-amber-500/60' : 'border-border'}`}
+            >
               <option value="">Select role…</option>
-              {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+              {/* Employee's eligible roles first */}
+              {eligibleRoles.length > 0 && (
+                <optgroup label={`${employee?.name || 'Employee'}'s Roles`}>
+                  {eligibleRoles.map(r => <option key={r} value={r}>{r}</option>)}
+                </optgroup>
+              )}
+              {/* All job codes */}
+              {(jobCodes.length > 0 ? jobCodes : FALLBACK_ROLES.map(r => ({ name: r }))).filter(jc => !eligibleRoles.map(r => r.toLowerCase()).includes(jc.name.toLowerCase())).length > 0 && (
+                <optgroup label="Other Roles">
+                  {(jobCodes.length > 0 ? jobCodes : FALLBACK_ROLES.map(r => ({ name: r }))).filter(jc => !eligibleRoles.map(r => r.toLowerCase()).includes(jc.name.toLowerCase())).map(jc => (
+                    <option key={jc.name} value={jc.name}>{jc.name}</option>
+                  ))}
+                </optgroup>
+              )}
             </select>
+            {isRoleIneligible && (
+              <div className="flex items-center gap-1.5 mt-1.5 text-[11px] text-amber-400 font-medium">
+                <AlertTriangle className="h-3 w-3 shrink-0" />
+                {employee?.name} isn't typically scheduled as {form.role}. Shift will save as draft.
+              </div>
+            )}
           </div>
 
           <div>

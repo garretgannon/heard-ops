@@ -39,7 +39,7 @@ export default function RoleSwitcher({ onBack }) {
         animate={{ opacity: 1, y: 0 }}
         className="sticky top-0 z-30 border-b border-border bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-sm px-4 py-3"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Users className="h-5 w-5 text-purple-400" />
             <div>

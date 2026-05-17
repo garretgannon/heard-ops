@@ -75,6 +75,168 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 218 29% 17%;
     --sidebar-ring: 22 76% 47%;
+
+    /* ── Semantic surface tokens ────────────────────────────────────────────── */
+    /* Full RGBA values for gradient & overlay usage.                           */
+    /* Dark values defined here (matches current look exactly).                 */
+    /* Light-mode overrides live in .light below — not yet exposed in UI.      */
+
+    /* Card & surface gradients */
+    --surface-card:           rgba(11, 17, 24, 0.98);
+    --surface-card-alt:       rgba(6, 9, 13, 0.98);
+    --surface-elevated:       rgba(13, 20, 27, 0.97);
+    --surface-elevated-alt:   rgba(6, 10, 14, 0.97);
+    --surface-glass:          rgba(13, 20, 27, 0.72);
+    --surface-glass-border:   rgba(255, 255, 255, 0.06);
+    --surface-header:         rgba(6, 10, 17, 0.97);
+    --surface-header-alt:     rgba(5, 8, 14, 0.95);
+
+    /* Overlays */
+    --overlay-modal:          rgba(0, 0, 0, 0.6);
+    --overlay-heavy:          rgba(0, 0, 0, 0.8);
+    --overlay-light:          rgba(0, 0, 0, 0.4);
+
+    /* White tints — inset highlights and subtle overlays */
+    --tint-xxs:               rgba(255, 255, 255, 0.02);
+    --tint-xs:                rgba(255, 255, 255, 0.025);
+    --tint-sm:                rgba(255, 255, 255, 0.04);
+    --tint-md:                rgba(255, 255, 255, 0.06);
+    --tint-lg:                rgba(255, 255, 255, 0.08);
+    --tint-xl:                rgba(255, 255, 255, 0.1);
+
+    /* Accent (orange #E66A1F) at named opacities */
+    --accent-full:            #E66A1F;
+    --accent-025:             rgba(230, 106, 31, 0.025);
+    --accent-065:             rgba(230, 106, 31, 0.065);
+    --accent-08:              rgba(230, 106, 31, 0.08);
+    --accent-10:              rgba(230, 106, 31, 0.10);
+    --accent-12:              rgba(230, 106, 31, 0.12);
+    --accent-14:              rgba(230, 106, 31, 0.14);
+    --accent-18:              rgba(230, 106, 31, 0.18);
+    --accent-22:              rgba(230, 106, 31, 0.22);
+    --accent-24:              rgba(230, 106, 31, 0.24);
+    --accent-25:              rgba(230, 106, 31, 0.25);
+    --accent-28:              rgba(230, 106, 31, 0.28);
+    --accent-32:              rgba(230, 106, 31, 0.32);
+    --accent-35:              rgba(230, 106, 31, 0.35);
+    --accent-50:              rgba(230, 106, 31, 0.5);
+    --accent-70:              rgba(230, 106, 31, 0.7);
+
+    /* Shadows */
+    --shadow-card:            0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025);
+    --shadow-card-lg:         0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
+    --shadow-elevated:        0 2px 6px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+    --shadow-float:           0 4px 12px rgba(0,0,0,0.45), 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+    --shadow-header:          0 1px 0 rgba(230,106,31,0.07), 0 8px 40px rgba(0,0,0,0.55);
+    --border-header-bottom:   rgba(255, 255, 255, 0.055);
+    --border-header-top:      rgba(230, 106, 31, 0.25);
+
+    /* Spinner */
+    --spinner-track:          rgba(230, 106, 31, 0.15);
+    --spinner-head:           rgba(230, 106, 31, 0.9);
+    --spinner-glow:           0 0 16px rgba(230, 106, 31, 0.18);
+
+    /* Scrollbar */
+    --scrollbar-thumb:        rgba(255, 255, 255, 0.1);
+    --scrollbar-thumb-hover:  rgba(255, 255, 255, 0.18);
+
+    /* Selection */
+    --selection-bg:           rgba(230, 106, 31, 0.32);
+    --selection-color:        #fff;
+
+    /* Body ambient gradient */
+    --body-gradient-top:      rgba(230, 106, 31, 0.065);
+    --body-gradient-bottom:   rgba(230, 106, 31, 0.025);
+
+    /* Skeleton shimmer */
+    --skeleton-shimmer:       rgba(255, 255, 255, 0.04);
+  }
+
+  /* ── Light mode — premium warm, not yet exposed in UI ─────────────────── */
+  /* To activate: add class="light" to <html>. Dark is still the default.    */
+  .light {
+    /* Tailwind color tokens */
+    --background: 32 33% 96%;          /* Warm off-white #f7f3ee */
+    --foreground: 220 25% 10%;         /* Near-black charcoal */
+    --card: 0 0% 100%;                 /* Pure white */
+    --card-foreground: 220 25% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+    --primary: 22 76% 47%;             /* HeardOS orange — unchanged */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 25% 92%;           /* Warm light gray */
+    --secondary-foreground: 220 20% 15%;
+    --muted: 30 25% 92%;
+    --muted-foreground: 220 10% 42%;   /* Mid charcoal */
+    --accent: 22 76% 47%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 85%;             /* Soft gray border */
+    --input: 220 13% 85%;
+    --ring: 22 76% 47%;
+    --sidebar-background: 30 25% 94%;
+    --sidebar-foreground: 220 25% 12%;
+    --sidebar-primary: 22 76% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 25% 89%;
+    --sidebar-accent-foreground: 220 20% 15%;
+    --sidebar-border: 220 13% 85%;
+    --sidebar-ring: 22 76% 47%;
+
+    /* Surface backgrounds — warm white */
+    --surface-card:           rgba(255, 255, 255, 0.99);
+    --surface-card-alt:       rgba(250, 246, 241, 0.99);
+    --surface-elevated:       rgba(255, 255, 255, 0.99);
+    --surface-elevated-alt:   rgba(248, 244, 239, 0.99);
+    --surface-glass:          rgba(255, 255, 255, 0.88);
+    --surface-glass-border:   rgba(0, 0, 0, 0.07);
+    --surface-header:         rgba(253, 251, 248, 0.97);
+    --surface-header-alt:     rgba(250, 247, 243, 0.95);
+
+    /* Overlays stay dark for sheets and modals */
+    --overlay-modal:          rgba(0, 0, 0, 0.45);
+    --overlay-heavy:          rgba(0, 0, 0, 0.65);
+    --overlay-light:          rgba(0, 0, 0, 0.25);
+
+    /* Tints flip — dark-on-light instead of white-on-dark */
+    --tint-xxs:               rgba(0, 0, 0, 0.01);
+    --tint-xs:                rgba(0, 0, 0, 0.02);
+    --tint-sm:                rgba(0, 0, 0, 0.03);
+    --tint-md:                rgba(0, 0, 0, 0.055);
+    --tint-lg:                rgba(0, 0, 0, 0.07);
+    --tint-xl:                rgba(0, 0, 0, 0.09);
+
+    /* Accent stays identical — heardOS orange is theme-agnostic */
+
+    /* Shadows — lighter on white */
+    --shadow-card:            0 1px 3px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.7);
+    --shadow-card-lg:         0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05), 0 1px 0 rgba(255,255,255,0.7);
+    --shadow-elevated:        0 2px 6px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+    --shadow-float:           0 4px 12px rgba(0,0,0,0.1), 0 16px 48px rgba(0,0,0,0.08);
+    --shadow-header:          0 1px 0 rgba(230,106,31,0.06), 0 4px 20px rgba(0,0,0,0.07);
+    --border-header-bottom:   rgba(0, 0, 0, 0.07);
+    --border-header-top:      rgba(230, 106, 31, 0.18);
+
+    /* Spinner */
+    --spinner-track:          rgba(230, 106, 31, 0.12);
+    --spinner-head:           rgba(230, 106, 31, 0.85);
+    --spinner-glow:           0 0 16px rgba(230, 106, 31, 0.14);
+
+    /* Scrollbar */
+    --scrollbar-thumb:        rgba(0, 0, 0, 0.12);
+    --scrollbar-thumb-hover:  rgba(0, 0, 0, 0.2);
+
+    /* Selection */
+    --selection-bg:           rgba(230, 106, 31, 0.22);
+    --selection-color:        #2d1408;
+
+    /* Body ambient gradient */
+    --body-gradient-top:      rgba(230, 106, 31, 0.035);
+    --body-gradient-bottom:   rgba(230, 106, 31, 0.015);
+
+    /* Skeleton shimmer */
+    --skeleton-shimmer:       rgba(0, 0, 0, 0.03);
   }
 
   .dark {
@@ -127,8 +289,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background:
-      radial-gradient(ellipse 80% 40% at 50% -5%, rgba(230, 106, 31, 0.065), transparent 55%),
-      radial-gradient(ellipse 40% 30% at 85% 100%, rgba(230, 106, 31, 0.025), transparent 40%),
+      radial-gradient(ellipse 80% 40% at 50% -5%, var(--body-gradient-top), transparent 55%),
+      radial-gradient(ellipse 40% 30% at 85% 100%, var(--body-gradient-bottom), transparent 40%),
       hsl(var(--background));
     overscroll-behavior: none;
   }
@@ -137,12 +299,12 @@
   }
 
   ::selection {
-    background: rgba(230, 106, 31, 0.32);
-    color: #fff;
+    background: var(--selection-bg);
+    color: var(--selection-color);
   }
   ::-moz-selection {
-    background: rgba(230, 106, 31, 0.32);
-    color: #fff;
+    background: var(--selection-bg);
+    color: var(--selection-color);
   }
 
   @media (max-width: 899px) {
@@ -195,8 +357,8 @@
   }
 
   input:focus, textarea:focus, select:focus {
-    border-color: rgba(230, 106, 31, 0.5) !important;
-    box-shadow: 0 0 0 3px rgba(230, 106, 31, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    border-color: var(--accent-50) !important;
+    box-shadow: 0 0 0 3px var(--accent-10), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
     outline: none;
   }
 
@@ -208,11 +370,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--scrollbar-thumb);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--scrollbar-thumb-hover);
   }
 }
 
@@ -234,7 +396,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, var(--skeleton-shimmer) 50%, transparent 100%);
     animation: skeleton-sweep 1.4s ease-in-out infinite;
   }
 
@@ -441,27 +603,27 @@
   /* Buttons - Unified Hierarchy */
   .btn-primary {
     @apply rounded-lg text-primary px-4 py-2.5 font-bold text-sm active:scale-95 transition-all duration-150;
-    background: rgba(230, 106, 31, 0.12);
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 14px rgba(230, 106, 31, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+    background: var(--accent-12);
+    box-shadow: 0 0 0 1px var(--accent-35), 0 0 14px var(--accent-18), inset 0 1px 2px var(--tint-md);
   }
 
   .btn-primary:hover,
   .btn-primary:focus-visible {
-    background: rgba(230, 106, 31, 0.2);
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.5), 0 0 20px rgba(230, 106, 31, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    background: var(--accent-18);
+    box-shadow: 0 0 0 1px var(--accent-50), 0 0 20px var(--accent-28), inset 0 1px 2px var(--tint-xl);
   }
 
   /* Global override: any <button> or <a> using bg-primary directly gets the glass style */
   button[class~="bg-primary"],
   a[class~="bg-primary"] {
-    background-color: rgba(230, 106, 31, 0.12) !important;
-    color: rgb(230, 106, 31) !important;
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 14px rgba(230, 106, 31, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+    background-color: var(--accent-12) !important;
+    color: var(--accent-full) !important;
+    box-shadow: 0 0 0 1px var(--accent-35), 0 0 14px var(--accent-18), inset 0 1px 2px var(--tint-md);
   }
   button[class~="bg-primary"]:hover,
   a[class~="bg-primary"]:hover {
-    background-color: rgba(230, 106, 31, 0.2) !important;
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.5), 0 0 20px rgba(230, 106, 31, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    background-color: var(--accent-18) !important;
+    box-shadow: 0 0 0 1px var(--accent-50), 0 0 20px var(--accent-28), inset 0 1px 2px var(--tint-xl);
   }
 
   .btn-secondary {
@@ -508,10 +670,10 @@
   [data-state="active"],
   [data-selected="true"],
   button[aria-pressed="true"] {
-    background: rgba(230, 106, 31, 0.14) !important;
-    border-color: rgba(230, 106, 31, 0.28) !important;
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.24), 0 0 14px rgba(230, 106, 31, 0.26), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
-    color: #E66A1F !important;
+    background: var(--accent-14) !important;
+    border-color: var(--accent-28) !important;
+    box-shadow: 0 0 0 1px var(--accent-24), 0 0 14px var(--accent-25), inset 0 1px 2px var(--tint-lg) !important;
+    color: var(--accent-full) !important;
   }
 
   .glow-interactive:hover,
@@ -520,10 +682,10 @@
   .btn-secondary:focus-visible,
   .btn-muted:hover,
   .btn-muted:focus-visible {
-    background: rgba(230, 106, 31, 0.075) !important;
-    border-color: rgba(230, 106, 31, 0.22) !important;
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.14), 0 0 10px rgba(230, 106, 31, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.06) !important;
-    color: #E66A1F !important;
+    background: var(--accent-08) !important;
+    border-color: var(--accent-22) !important;
+    box-shadow: 0 0 0 1px var(--accent-14), 0 0 10px var(--accent-14), inset 0 1px 2px var(--tint-md) !important;
+    color: var(--accent-full) !important;
     outline: none;
   }
 
@@ -531,8 +693,8 @@
   .app-screen button:not(:disabled):focus-visible,
   .app-screen [role="button"]:hover,
   .app-screen [role="button"]:focus-visible {
-    border-color: rgba(230, 106, 31, 0.22);
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.12), 0 0 10px rgba(230, 106, 31, 0.14), inset 0 1px 2px rgba(255, 255, 255, 0.04);
+    border-color: var(--accent-22);
+    box-shadow: 0 0 0 1px var(--accent-12), 0 0 10px var(--accent-14), inset 0 1px 2px var(--tint-sm);
     outline: none;
   }
 
@@ -590,16 +752,24 @@
   }
 
   .app-page {
-    @apply w-full max-w-7xl mx-auto px-4 py-5 pb-28;
+    @apply w-full max-w-[560px] mx-auto px-4 py-5 pb-28;
   }
 
   .app-page-narrow {
-    @apply w-full max-w-5xl mx-auto px-4 py-5 pb-28;
+    @apply w-full max-w-[560px] mx-auto px-4 py-5 pb-28;
   }
 
   @media (min-width: 1024px) {
-    .app-page,
+    .app-page {
+      max-width: none;
+      margin-left: 0 !important;
+      margin-right: 0;
+      padding-left: 2rem;
+      padding-top: 3.5rem;
+      padding-bottom: 2.5rem;
+    }
     .app-page-narrow {
+      max-width: 56rem;
       margin-left: 0 !important;
       margin-right: auto;
       padding-left: 2rem;
@@ -639,14 +809,14 @@
 
   .app-card {
     @apply rounded-xl border border-border/60 p-4;
-    background: linear-gradient(160deg, rgba(13, 20, 27, 0.97) 0%, rgba(6, 10, 14, 0.97) 100%);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
+    background: linear-gradient(160deg, var(--surface-elevated) 0%, var(--surface-elevated-alt) 100%);
+    box-shadow: var(--shadow-card-lg);
   }
 
   .app-card-lg {
     @apply rounded-xl border border-border/60 p-5 lg:p-6;
-    background: linear-gradient(160deg, rgba(13, 20, 27, 0.97) 0%, rgba(6, 10, 14, 0.97) 100%);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
+    background: linear-gradient(160deg, var(--surface-elevated) 0%, var(--surface-elevated-alt) 100%);
+    box-shadow: var(--shadow-card-lg);
   }
 
   .app-section-title {
@@ -655,8 +825,8 @@
 
   .metric-card {
     @apply rounded-xl border border-border/60 p-5;
-    background: linear-gradient(160deg, rgba(13, 20, 27, 0.97) 0%, rgba(6, 10, 14, 0.97) 100%);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
+    background: linear-gradient(160deg, var(--surface-elevated) 0%, var(--surface-elevated-alt) 100%);
+    box-shadow: var(--shadow-card-lg);
   }
 
   .metric-label {
@@ -669,24 +839,24 @@
 
   .status-marker {
     @apply inline-flex shrink-0 items-center justify-center rounded-full border font-extrabold leading-none tabular-nums;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--tint-xxs);
     font-size: clamp(0.52rem, 28%, 0.72rem);
     letter-spacing: -0.01em;
   }
 
   .status-marker-sm {
     @apply inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[8px] font-extrabold leading-none tabular-nums;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--tint-xxs);
   }
 
   .status-marker-md {
     @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-[9px] font-extrabold leading-none tabular-nums;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--tint-xxs);
   }
 
   .status-marker-lg {
     @apply inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-[10px] font-extrabold leading-none tabular-nums;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--tint-xxs);
   }
 
   .status-success {
@@ -706,7 +876,7 @@
 
   .status-info {
     @apply border-primary/55 text-primary;
-    box-shadow: 0 0 14px rgba(230, 106, 31, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 14px var(--accent-22), inset 0 1px 2px var(--tint-lg);
   }
 
   .status-neutral {
@@ -720,7 +890,7 @@
 
   .status-pill {
     @apply inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-2 py-1 text-[10px] font-extrabold leading-none text-muted-foreground;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--tint-xxs);
   }
 
   .status-pill::before {
@@ -734,10 +904,10 @@
 
   .action-tile:hover,
   .action-tile:focus-visible {
-    background: rgba(230, 106, 31, 0.075);
-    border-color: rgba(230, 106, 31, 0.22);
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.14), 0 0 10px rgba(230, 106, 31, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.06);
-    color: #E66A1F;
+    background: var(--accent-08);
+    border-color: var(--accent-22);
+    box-shadow: 0 0 0 1px var(--accent-14), 0 0 10px var(--accent-14), inset 0 1px 2px var(--tint-md);
+    color: var(--accent-full);
     outline: none;
   }
 
@@ -747,23 +917,23 @@
 
   .quick-link:hover,
   .quick-link:focus-visible {
-    background: rgba(230, 106, 31, 0.075);
-    border-color: rgba(230, 106, 31, 0.22);
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.14), 0 0 10px rgba(230, 106, 31, 0.16), inset 0 1px 2px rgba(255, 255, 255, 0.06);
-    color: #E66A1F;
+    background: var(--accent-08);
+    border-color: var(--accent-22);
+    box-shadow: 0 0 0 1px var(--accent-14), 0 0 10px var(--accent-14), inset 0 1px 2px var(--tint-md);
+    color: var(--accent-full);
     outline: none;
   }
 
   .quick-link-primary {
     @apply flex items-center justify-center rounded-lg border border-primary/35 bg-primary/15 px-4 py-2.5 text-xs font-extrabold text-primary transition-all duration-150 active:scale-[0.98];
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.24), 0 0 14px rgba(230, 106, 31, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 1px var(--accent-24), 0 0 14px var(--accent-22), inset 0 1px 2px var(--tint-lg);
   }
 
   .quick-link-primary:hover,
   .quick-link-primary:focus-visible {
-    background: rgba(230, 106, 31, 0.16);
-    border-color: rgba(230, 106, 31, 0.34);
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.34), 0 0 18px rgba(230, 106, 31, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    background: var(--accent-18);
+    border-color: var(--accent-35);
+    box-shadow: 0 0 0 1px var(--accent-35), 0 0 18px var(--accent-28), inset 0 1px 2px var(--tint-xl);
     outline: none;
   }
 
@@ -929,35 +1099,35 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    border: 2.5px solid rgba(230, 106, 31, 0.15);
-    border-top-color: rgba(230, 106, 31, 0.9);
+    border: 2.5px solid var(--spinner-track);
+    border-top-color: var(--spinner-head);
     animation: heard-spin 700ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    box-shadow: 0 0 16px rgba(230, 106, 31, 0.18);
+    box-shadow: var(--spinner-glow);
   }
 
-  /* ── Dark glass card surface — background + shadow only, no padding/radius ── */
+  /* ── Glass card surface — background + shadow only, no padding/radius ── */
   .card-glass {
-    background: linear-gradient(160deg, rgba(11, 17, 24, 0.98) 0%, rgba(6, 9, 13, 0.98) 100%);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025);
+    background: linear-gradient(160deg, var(--surface-card) 0%, var(--surface-card-alt) 100%);
+    box-shadow: var(--shadow-card);
   }
 
   /* ── Glass surface ── */
   .glass {
-    background: rgba(13, 20, 27, 0.72);
+    background: var(--surface-glass);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--surface-glass-border);
   }
 
   /* ── Elevation shadows ── */
   .elevation-1 {
-    box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.03);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 var(--tint-xxs);
   }
   .elevation-2 {
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+    box-shadow: var(--shadow-elevated);
   }
   .elevation-3 {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.45), 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+    box-shadow: var(--shadow-float);
   }
 
   /* ── Orange glow badge for active nav ── */
@@ -966,7 +1136,7 @@
     height: 4px;
     border-radius: 50%;
     background: hsl(var(--primary));
-    box-shadow: 0 0 6px rgba(230, 106, 31, 0.7);
+    box-shadow: 0 0 6px var(--accent-70);
   }
 
   /* ── Shimmer surface for premium cards ── */
@@ -988,16 +1158,16 @@
   /* ── Desktop header/page header polish ── */
   .app-header-band {
     @apply px-8 py-[18px] sticky top-0 z-20;
-    background: linear-gradient(180deg, rgba(6,10,17,0.97) 0%, rgba(5,8,14,0.95) 100%);
+    background: linear-gradient(180deg, var(--surface-header) 0%, var(--surface-header-alt) 100%);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-bottom: 1px solid rgba(255,255,255,0.055);
-    border-top: 1px solid rgba(230,106,31,0.25);
-    box-shadow: 0 1px 0 rgba(230,106,31,0.07), 0 8px 40px rgba(0,0,0,0.55);
+    border-bottom: 1px solid var(--border-header-bottom);
+    border-top: 1px solid var(--border-header-top);
+    box-shadow: var(--shadow-header);
   }
 
   /* ── Active/selected highlight ring for cards ── */
   .ring-primary-soft {
-    box-shadow: 0 0 0 1px rgba(230, 106, 31, 0.35), 0 0 16px rgba(230, 106, 31, 0.2);
+    box-shadow: 0 0 0 1px var(--accent-35), 0 0 16px var(--accent-18);
   }
 }

@@ -69,19 +69,28 @@ const BOTH_CANDIDATES = new Set(['Prep', 'Expo Area', 'Bar', 'Dish Pit', 'Bakery
 const DEPT_FOR_GROUP = { BOH: 'BOH', FOH: 'FOH', Bar: 'Bar' };
 
 const EQUIPMENT_SUGGESTIONS = {
-  'Fryer':         [{ name: 'Oil Filtration Unit', desc: 'Extend oil life and maintain quality.' }, { name: 'Breading Station', desc: 'For prepping and breading product.' }, { name: 'Holding Cabinet', desc: 'Keep fried items warm and ready.' }, { name: 'Grease Bin', desc: 'Safe grease collection and disposal.' }],
-  'Grill':         [{ name: 'Char Grill', desc: 'Primary grill unit.' }, { name: 'Flat Top', desc: 'Versatile flat surface.' }, { name: 'Lowboy Cooler', desc: 'Keep proteins at temp.' }, { name: 'Heat Lamp', desc: 'Hold cooked items at temp.' }],
-  'Sauté':         [{ name: 'Range', desc: 'Primary cooking burners.' }, { name: 'Lowboy Cooler', desc: 'Keep mise en place cold.' }, { name: 'Reach-In Cooler', desc: 'Quick access cold items.' }, { name: 'Sauté Pans', desc: 'Standard cookware.' }],
-  'Prep Table':    [{ name: 'Robot Coupe', desc: 'Food processor for bulk prep.' }, { name: 'Cutting Boards', desc: 'Color-coded for food safety.' }, { name: 'Scale', desc: 'Portion control.' }, { name: 'Reach-In Cooler', desc: 'Keep prepped items cold.' }],
-  'Pantry':        [{ name: 'Cold Plate', desc: 'Cold apps and salad station.' }, { name: 'Reach-In Cooler', desc: 'Quick access cold items.' }, { name: 'Under-counter Freezer', desc: 'Frozen item storage.' }],
-  'Broiler':       [{ name: 'Salamander', desc: 'Finishing and browning unit.' }, { name: 'Heat Lamp', desc: 'Hold finished items.' }],
-  'Well':          [{ name: 'Ice Well', desc: 'Primary ice storage.' }, { name: 'Speed Rail', desc: 'Quick-access bottles.' }, { name: 'POS Terminal', desc: 'Order entry and payment.' }],
-  'Service Bar':   [{ name: 'Ice Well', desc: 'Primary ice storage.' }, { name: 'Glass Washer', desc: 'Commercial glass cleaning.' }, { name: 'Beer Cooler', desc: 'Draft and bottle storage.' }],
-  'Bar':           [{ name: 'Ice Well', desc: 'Primary ice storage.' }, { name: 'Speed Rail', desc: 'Well liquor access.' }, { name: 'Beer Cooler', desc: 'Draft and bottle storage.' }, { name: 'Glass Washer', desc: 'Commercial glass cleaning.' }, { name: 'POS Terminal', desc: 'Order and payment.' }],
-  'Dish':          [{ name: 'Dish Machine', desc: 'High-temp commercial washer.' }, { name: 'Spray Arm', desc: 'Pre-rinse attachment.' }, { name: 'Drying Rack', desc: 'Air dry before storage.' }],
-  'Walk-In Cooler':[{ name: 'Shelving Units', desc: 'FIFO-organized storage.' }, { name: 'Thermometer', desc: 'Ambient temp monitoring.' }],
-  'Walk-In Freezer':[{ name: 'Shelving Units', desc: 'Organized frozen storage.' }, { name: 'Thermometer', desc: 'Ambient temp monitoring.' }],
-  'Host':          [{ name: 'POS Terminal', desc: 'Reservation management.' }, { name: 'Printer', desc: 'Ticket and receipt printer.' }, { name: 'Phone', desc: 'Guest communication.' }],
+  'Fryer':            [{ name: 'Commercial Fryer', desc: 'Primary frying unit.' }, { name: 'Oil Filtration Unit', desc: 'Extend oil life and maintain quality.' }, { name: 'Breading Station', desc: 'For prepping and breading product.' }, { name: 'Hot Holding Cabinet', desc: 'Keep fried items warm and ready.' }, { name: 'Grease Bin', desc: 'Safe grease collection and disposal.' }, { name: 'Heat Lamp', desc: 'Hold finished items at temp.' }],
+  'Grill':            [{ name: 'Char Grill', desc: 'Primary grill unit.' }, { name: 'Flat Top', desc: 'Versatile flat surface.' }, { name: 'Lowboy Cooler', desc: 'Keep proteins at temp under the line.' }, { name: 'Hot Holding Cabinet', desc: 'Hold cooked items warm between rushes.' }, { name: 'Heat Lamp', desc: 'Hold cooked items at temp.' }, { name: 'Thermometer', desc: 'Protein cook-temp verification.' }],
+  'Sauté':            [{ name: 'Range / Burners', desc: 'Primary cooking burners.' }, { name: 'Lowboy Cooler', desc: 'Keep mise en place cold.' }, { name: 'Reach-In Cooler', desc: 'Quick access cold items.' }, { name: 'Salamander', desc: 'Finishing and browning unit.' }, { name: 'Heat Lamp', desc: 'Hold plated items.' }],
+  'Flat Top':         [{ name: 'Flat Top Griddle', desc: 'Primary flat cooking surface.' }, { name: 'Lowboy Cooler', desc: 'Under-counter cold storage.' }, { name: 'Hot Holding Cabinet', desc: 'Keep cooked items warm.' }, { name: 'Thermometer', desc: 'Surface and protein temps.' }],
+  'Prep Table':       [{ name: 'Robot Coupe', desc: 'Food processor for bulk prep.' }, { name: 'Cutting Boards', desc: 'Color-coded for food safety.' }, { name: 'Scale', desc: 'Portion control.' }, { name: 'Reach-In Cooler', desc: 'Keep prepped items cold.' }, { name: 'Mixer', desc: 'Dough, batters, and bulk mixing.' }, { name: 'Vacuum Sealer', desc: 'Portion and preserve prep.' }, { name: 'Slicer', desc: 'Deli and meat slicing.' }],
+  'Pantry / Cold':    [{ name: 'Cold Plate', desc: 'Cold apps and salad station.' }, { name: 'Reach-In Cooler', desc: 'Quick access cold items.' }, { name: 'Under-counter Freezer', desc: 'Frozen item storage.' }, { name: 'Thermometer', desc: 'Cold-hold temp checks.' }],
+  'Expo':             [{ name: 'Heat Lamp', desc: 'Hold plated dishes at temp.' }, { name: 'Hot Holding Cabinet', desc: 'Staging and holding.' }, { name: 'Printer', desc: 'Ticket printer.' }, { name: 'POS Terminal', desc: 'Expo order management.' }],
+  'Dish Pit':         [{ name: 'Dish Machine', desc: 'High-temp commercial washer.' }, { name: 'Pre-Rinse Spray Arm', desc: 'Pre-rinse attachment.' }, { name: 'Drying Rack', desc: 'Air dry before storage.' }, { name: 'Chemical Dispenser', desc: 'Sanitizer and detergent dosing.' }, { name: 'PPM Test Strips', desc: 'Verify sanitizer concentration.' }],
+  'Broiler':          [{ name: 'Salamander', desc: 'Finishing and browning unit.' }, { name: 'Broiler Unit', desc: 'Overhead heat broiler.' }, { name: 'Heat Lamp', desc: 'Hold finished items.' }, { name: 'Thermometer', desc: 'Cook-temp verification.' }],
+  'Main Bar':         [{ name: 'Ice Machine', desc: 'Primary ice production.' }, { name: 'Ice Well', desc: 'Working ice storage.' }, { name: 'Speed Rail', desc: 'Well liquor quick access.' }, { name: 'Beer Cooler', desc: 'Draft and bottle storage.' }, { name: 'Glass Washer', desc: 'Commercial glass cleaning.' }, { name: 'POS Terminal', desc: 'Order entry and payment.' }, { name: 'Soda Machine / Gun', desc: 'Carbonated beverage dispenser.' }, { name: 'Blender', desc: 'Frozen drinks and cocktails.' }, { name: 'Reach-In Cooler', desc: 'Juice, mixer, and garnish cold storage.' }],
+  'Service Bar':      [{ name: 'Ice Machine', desc: 'Ice production for service.' }, { name: 'Ice Well', desc: 'Primary ice storage.' }, { name: 'Glass Washer', desc: 'Commercial glass cleaning.' }, { name: 'Beer Cooler', desc: 'Draft and bottle storage.' }, { name: 'Soda Machine / Gun', desc: 'Carbonated beverage dispenser.' }, { name: 'POS Terminal', desc: 'Server order entry.' }],
+  'Patio Bar':        [{ name: 'Ice Well', desc: 'Primary ice storage.' }, { name: 'Speed Rail', desc: 'Quick-access bottles.' }, { name: 'Reach-In Cooler', desc: 'Cold storage for patio bar.' }, { name: 'POS Terminal', desc: 'Order and payment.' }, { name: 'Soda Gun', desc: 'Carbonated beverage dispenser.' }],
+  'Well':             [{ name: 'Ice Well', desc: 'Primary ice storage.' }, { name: 'Speed Rail', desc: 'Quick-access bottles.' }, { name: 'POS Terminal', desc: 'Order entry and payment.' }, { name: 'Soda Gun', desc: 'Carbonated beverage dispenser.' }],
+  'Beer / Wine Station': [{ name: 'Beer Cooler', desc: 'Draft and bottle storage.' }, { name: 'Draft System', desc: 'Keg tap and lines.' }, { name: 'Wine Cooler', desc: 'Temperature-controlled wine storage.' }, { name: 'POS Terminal', desc: 'Order entry.' }],
+  'Host Stand':       [{ name: 'POS Terminal', desc: 'Reservation and seating management.' }, { name: 'Printer', desc: 'Ticket and reservation printer.' }, { name: 'Phone', desc: 'Guest communication.' }, { name: 'iPad / Tablet', desc: 'Digital waitlist or reservation app.' }],
+  'Server Section':   [{ name: 'POS Terminal', desc: 'Order entry and payment.' }, { name: 'Printer', desc: 'Ticket printer.' }, { name: 'Soda Machine', desc: 'Self-service beverage station.' }, { name: 'Coffee Machine', desc: 'Drip or espresso service.' }, { name: 'Ice Machine', desc: 'Drink ice supply.' }],
+  'To-Go Counter':    [{ name: 'POS Terminal', desc: 'Order entry and payment.' }, { name: 'Printer', desc: 'Order ticket printer.' }, { name: 'Hot Holding Cabinet', desc: 'Keep to-go orders warm.' }, { name: 'Heat Lamp', desc: 'Hold bagged orders.' }, { name: 'Refrigerator', desc: 'Cold to-go item storage.' }],
+  'Walk-In Cooler':   [{ name: 'Shelving Units', desc: 'FIFO-organized storage.' }, { name: 'Thermometer', desc: 'Ambient temp monitoring.' }, { name: 'Walk-In Refrigeration Unit', desc: 'Primary cooling system.' }, { name: 'Digital Temp Logger', desc: 'Automated temp recording.' }],
+  'Walk-In Freezer':  [{ name: 'Shelving Units', desc: 'Organized frozen storage.' }, { name: 'Thermometer', desc: 'Ambient temp monitoring.' }, { name: 'Walk-In Freezer Unit', desc: 'Primary freezer system.' }, { name: 'Digital Temp Logger', desc: 'Automated temp recording.' }],
+  'Dry Storage':      [{ name: 'Shelving Units', desc: 'Dry good organization.' }, { name: 'Scale', desc: 'Inventory weight tracking.' }, { name: 'Thermometer', desc: 'Ambient temp check.' }],
+  'Office':           [{ name: 'Computer / Desktop', desc: 'Scheduling and admin.' }, { name: 'Printer', desc: 'Schedule and document printing.' }, { name: 'Phone', desc: 'Office communication.' }, { name: 'Safe', desc: 'Cash and document security.' }, { name: 'POS Back Office', desc: 'Reporting and management terminal.' }],
+  'Dining Room':      [{ name: 'POS Terminal', desc: 'Tableside or server order entry.' }, { name: 'Coffee Machine', desc: 'Table-side coffee service.' }],
 };
 
 const DEFAULT_WORKFLOWS = [
@@ -404,14 +413,16 @@ function AreaCard({ name, icon: Icon, selected, existing, group, onToggle }) {
           'text-muted-foreground group-hover:text-foreground'
         }`} />
       </div>
-      <span className="text-[13px] font-semibold text-foreground/90 flex-1 leading-tight min-w-0">{name}</span>
-      {existing ? (
-        <span className="text-[10px] font-bold text-green-400 bg-green-500/10 border border-green-500/25 px-1.5 py-0.5 rounded-md shrink-0 whitespace-nowrap">Already added</span>
-      ) : sel ? (
-        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 flex items-center gap-1 whitespace-nowrap ${isBOH ? 'text-primary bg-primary/15 border border-primary/30' : 'text-blue-400 bg-blue-500/15 border border-blue-500/30'}`}>
-          <Check className="h-3 w-3" /> Selected
-        </span>
-      ) : (
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <span className="text-[13px] font-semibold text-foreground/90 leading-tight">{name}</span>
+        {existing && <span className="text-[10px] font-bold text-green-400">Already added</span>}
+        {!existing && sel && (
+          <span className={`text-[10px] font-bold flex items-center gap-1 ${isBOH ? 'text-primary' : 'text-blue-400'}`}>
+            <Check className="h-3 w-3" /> Selected
+          </span>
+        )}
+      </div>
+      {!existing && !sel && (
         <div className="h-5 w-5 rounded-full flex items-center justify-center shrink-0 border-[1.5px] border-border/50 group-hover:border-border transition-colors">
           <Plus className="h-3 w-3 text-muted-foreground/50" />
         </div>
@@ -571,18 +582,18 @@ export default function RestaurantSetupWizard() {
 
   // Equipment handlers
   const addEquipItem = (key, name) => setEquipmentPlan(prev => {
-    const p = getEquipPlan(key);
+    const p = prev[key] || { selected: new Set(), custom: [] };
     return { ...prev, [key]: { ...p, selected: new Set([...p.selected, name]) } };
   });
   const removeEquipItem = (key, name) => setEquipmentPlan(prev => {
-    const p = getEquipPlan(key);
+    const p = prev[key] || { selected: new Set(), custom: [] };
     return { ...prev, [key]: { ...p, selected: new Set([...p.selected].filter(n => n !== name)), custom: p.custom.filter(c => c !== name) } };
   });
   const addCustomEquip = (key) => {
     const val = equipCustomInput.trim();
-    if (!val) return;
+    if (!val || !key) return;
     setEquipmentPlan(prev => {
-      const p = getEquipPlan(key);
+      const p = prev[key] || { selected: new Set(), custom: [] };
       if (p.custom.includes(val) || p.selected.has(val)) return prev;
       return { ...prev, [key]: { ...p, custom: [...p.custom, val] } };
     });
@@ -591,22 +602,22 @@ export default function RestaurantSetupWizard() {
 
   // Workflow handlers
   const toggleWorkflow = (key, name) => setWorkflowPlan(prev => {
-    const p = getWfPlan(key);
+    const p = prev[key] || { selected: new Set(), custom: [], schedule: 'always' };
     const sel = new Set(p.selected);
     sel.has(name) ? sel.delete(name) : sel.add(name);
     return { ...prev, [key]: { ...p, selected: sel } };
   });
   const addCustomWf = (key) => {
     const val = wfCustomInput.trim();
-    if (!val) return;
+    if (!val || !key) return;
     setWorkflowPlan(prev => {
-      const p = getWfPlan(key);
+      const p = prev[key] || { selected: new Set(), custom: [], schedule: 'always' };
       if (p.custom.includes(val) || p.selected.has(val)) return prev;
       return { ...prev, [key]: { ...p, custom: [...p.custom, val] } };
     });
     setWfCustomInput('');
   };
-  const setSchedule = (key, schedule) => setWorkflowPlan(prev => ({ ...prev, [key]: { ...getWfPlan(key), schedule } }));
+  const setSchedule = (key, schedule) => setWorkflowPlan(prev => { const p = prev[key] || { selected: new Set(), custom: [], schedule: 'always' }; return { ...prev, [key]: { ...p, schedule } }; });
 
   const advanceToStep = (n) => {
     if (n === 3 || n === 4) {
@@ -700,6 +711,16 @@ export default function RestaurantSetupWizard() {
             created++;
           }
         }
+      }
+
+      // Mark restaurant setup as complete
+      const flagKey = 'restaurant_setup_completed';
+      const existingFlag = await base44.entities.Settings.filter({ key: flagKey }).catch(() => []);
+      const flagPayload = { key: flagKey, value: 'true' };
+      if (existingFlag && existingFlag.length > 0) {
+        await base44.entities.Settings.update(existingFlag[0].id, flagPayload).catch(() => {});
+      } else {
+        await base44.entities.Settings.create(flagPayload).catch(() => {});
       }
 
       toast.success(`Done! Created ${created} item${created !== 1 ? 's' : ''}.${skipped ? ` (${skipped} already existed)` : ''}`);
@@ -1119,14 +1140,26 @@ export default function RestaurantSetupWizard() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 mt-6 pb-8 lg:pb-0">
-          <button onClick={() => navigate('/setup-journey')} className="h-12 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors whitespace-nowrap">
-            Skip for now
+        <div className="sticky bottom-0 mt-6 -mx-4 lg:mx-0 px-4 py-3 bg-background/95 backdrop-blur-sm border-t border-border/40 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            {Object.values(equipmentPlan).some(p => p.selected.size + p.custom.length > 0) ? (
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-green-400 shrink-0" />
+                <span className="text-sm font-bold text-green-400">
+                  {Object.values(equipmentPlan).reduce((s, p) => s + p.selected.size + p.custom.length, 0)} items assigned
+                </span>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Add equipment above or skip for now</p>
+            )}
+          </div>
+          <button onClick={() => navigate('/setup-journey')} className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors shrink-0">
+            Skip
           </button>
-          <button onClick={() => setStep(2)} className="h-12 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-2">
+          <button onClick={() => setStep(2)} className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
-          <button onClick={() => advanceToStep(4)} className="flex-1 h-12 rounded-xl bg-primary text-white text-sm font-black flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98]">
+          <button onClick={() => advanceToStep(4)} className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-black flex items-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
             Save &amp; Continue <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -1322,11 +1355,23 @@ export default function RestaurantSetupWizard() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 mt-6 pb-8 lg:pb-0">
-          <button onClick={() => setStep(3)} className="h-12 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-2">
+        <div className="sticky bottom-0 mt-6 -mx-4 lg:mx-0 px-4 py-3 bg-background/95 backdrop-blur-sm border-t border-border/40 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            {Object.values(workflowPlan).some(p => p.selected.size + p.custom.length > 0) ? (
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-green-400 shrink-0" />
+                <span className="text-sm font-bold text-green-400">
+                  {Object.values(workflowPlan).reduce((s, p) => s + p.selected.size + p.custom.length, 0)} workflows assigned
+                </span>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Assign workflows above or continue</p>
+            )}
+          </div>
+          <button onClick={() => setStep(3)} className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
-          <button onClick={() => setStep(5)} className="flex-1 h-12 rounded-xl bg-primary text-white text-sm font-black flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98]">
+          <button onClick={() => setStep(5)} className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-black flex items-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
             Continue to Review <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -1468,7 +1513,7 @@ export default function RestaurantSetupWizard() {
       </div>
 
       {/* Desktop outer wrapper */}
-      <div className={`${is3Col ? 'lg:max-w-[1380px]' : 'lg:max-w-[1200px] lg:grid lg:grid-cols-[1fr_300px] lg:gap-8 lg:items-start'} lg:mx-auto lg:px-6 lg:py-8`}>
+      <div className={`${is3Col ? '' : 'lg:grid lg:grid-cols-[1fr_300px] lg:gap-8 lg:items-start'} lg:px-6 lg:py-8`}>
         <main className="px-4 pt-5 pb-4 lg:px-0 lg:pt-0 min-w-0 overflow-hidden">
           {/* Desktop header */}
           <div className="hidden lg:block mb-7">

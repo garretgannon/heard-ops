@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
@@ -14,9 +14,11 @@ import {
   Clock3,
   Flame,
   Radio,
+  Rocket,
   TrendingUp,
   UserRound,
   Wrench,
+  X,
 } from 'lucide-react';
 
 function useLiveClock() {
@@ -196,7 +198,8 @@ function GlanceRow({ icon: Icon, label, value, detail, href, progress, valueColo
 
 
 export default function AppOverview() {
-  const { user } = useCurrentUser();
+  const { user, isAdmin } = useCurrentUser();
+  const navigate = useNavigate();
   const [approvalQueue, setApprovalQueue] = useState([]);
   const [processedApprovals, setProcessedApprovals] = useState(0);
   const [denialDrawer, setDenialDrawer] = useState(null);
@@ -212,10 +215,34 @@ export default function AppOverview() {
   const [loading, setLoading] = useState(true);
   const [livePrepQueue, setLivePrepQueue] = useState([]);
   const [liveActivity, setLiveActivity] = useState([]);
+  const [setupProgress, setSetupProgress] = useState(null);
+  const [setupDismissed, setSetupDismissed] = useState(() => {
+    try { return sessionStorage.getItem('setup_banner_dismissed') === 'true'; } catch { return false; }
+  });
 
   useEffect(() => {
     loadMetrics();
-  }, []);
+    if (isAdmin) loadSetupProgress();
+  }, [isAdmin]);
+
+  const loadSetupProgress = async () => {
+    try {
+      const [stations, employees, roles] = await Promise.all([
+        base44.entities.Station.list('name', 1).catch(() => []),
+        base44.entities.Employee.list('name', 1).catch(() => []),
+        base44.entities.Role.list('name', 1).catch(() => []),
+      ]);
+      const checks = [
+        { label: 'Areas & Stations', done: stations.length >= 3, link: '/restaurant-setup-wizard' },
+        { label: 'Team Members', done: employees.length >= 3, link: '/people' },
+        { label: 'Roles', done: roles.length >= 4, link: '/team-structure-wizard' },
+      ];
+      const completedCount = checks.filter(c => c.done).length;
+      if (completedCount < checks.length) {
+        setSetupProgress({ checks, completedCount, total: checks.length });
+      }
+    } catch { /* silent */ }
+  };
 
   const loadMetrics = async () => {
     setLoading(true);
@@ -362,7 +389,7 @@ export default function AppOverview() {
   if (loading) {
     return (
       <div className="app-screen">
-        <div className="app-page max-w-[560px] space-y-5 lg:max-w-6xl">
+        <div className="app-page space-y-5">
           <div className="pt-1 space-y-2">
             <div className="skeleton h-8 w-48" />
             <div className="skeleton h-4 w-72" />
@@ -380,7 +407,44 @@ export default function AppOverview() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Dashboard" subtitle="Operations overview" />
-      <div className="app-page max-w-[560px] space-y-7 lg:max-w-6xl">
+      <div className="app-page space-y-7">
+
+        {/* Setup progress banner — admin only, hides when complete or dismissed */}
+        {isAdmin && setupProgress && !setupDismissed && (
+          <section className="rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3.5 flex items-center gap-4">
+            <div className="h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+              <Rocket className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">
+                Setup {setupProgress.completedCount}/{setupProgress.total} complete
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="h-1.5 flex-1 bg-muted/50 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all"
+                    style={{ width: `${Math.round((setupProgress.completedCount / setupProgress.total) * 100)}%` }}
+                  />
+                </div>
+                {setupProgress.checks.filter(c => !c.done).slice(0, 1).map(c => (
+                  <button key={c.link} onClick={() => navigate(c.link)} className="text-[11px] font-bold text-primary whitespace-nowrap hover:underline">
+                    Add {c.label} →
+                  </button>
+                ))}
+                <button onClick={() => navigate('/setup-journey')} className="text-[11px] font-bold text-muted-foreground whitespace-nowrap hover:text-foreground">
+                  Full checklist
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => { setSetupDismissed(true); try { sessionStorage.setItem('setup_banner_dismissed', 'true'); } catch {} }}
+              className="h-6 w-6 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors shrink-0"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </section>
+        )}
+
         <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
@@ -595,7 +659,7 @@ export default function AppOverview() {
               </div>
 
               {/* Two-col: main + glance panel */}
-              <div className="grid grid-cols-[1fr_296px] gap-5 items-start">
+              <div className="grid grid-cols-[1fr_296px] xl:grid-cols-[1fr_340px] 2xl:grid-cols-[1fr_380px] gap-5 items-start">
 
                 {/* Main column */}
                 <div className="space-y-5">

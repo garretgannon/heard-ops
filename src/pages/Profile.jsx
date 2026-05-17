@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Zap, Shield, LogOut, Settings, Trash2, ChevronLeft, ChevronRight, Bell, Link, Palette, Sliders, Info } from 'lucide-react';
+import { Zap, Shield, LogOut, Settings, Trash2, ChevronLeft, ChevronRight, Bell, Link, Palette, Sliders, Info, Utensils } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { isIndustryModeOn, setIndustryMode, isEasterEggFound } from '@/lib/microcopy';
 
 const SETTINGS_GROUPS = [
   {
@@ -34,6 +35,17 @@ export default function Profile() {
   const { user, isAdmin } = useCurrentUser();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [industryMode, setIndustryModeState] = useState(() => isIndustryModeOn());
+  const easterEggFound = isEasterEggFound();
+  const showIndustryMode = easterEggFound || industryMode;
+
+  const handleIndustryModeToggle = () => {
+    const next = !industryMode;
+    haptics.light();
+    setIndustryModeState(next);
+    setIndustryMode(next);
+    toast.success(next ? 'Industry Mode on. Welcome to the industry.' : 'Back to professional mode.');
+  };
 
   const handleLogout = async () => { await base44.auth.logout(); };
 
@@ -112,6 +124,37 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Industry Mode — hidden until easter egg is found */}
+        {showIndustryMode && (
+          <div className="overflow-hidden rounded-2xl border border-border/40 p-4 mb-4" style={cardStyle}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <Utensils className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-foreground">Industry Mode</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                    Adds restaurant-industry flavor to empty states and status messages. Won't appear in safety or compliance workflows.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleIndustryModeToggle}
+                className={cn(
+                  'shrink-0 relative h-6 w-11 rounded-full transition-colors duration-200',
+                  industryMode ? 'bg-primary' : 'bg-muted/60'
+                )}
+              >
+                <span className={cn(
+                  'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200',
+                  industryMode ? 'left-5' : 'left-0.5'
+                )} />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Account actions */}
         <div className="flex gap-3">
           <div className="flex-1 overflow-hidden rounded-2xl border border-border/40 p-3 flex items-center gap-3" style={cardStyle}>
@@ -157,6 +200,35 @@ export default function Profile() {
               {user?.role?.toUpperCase()}
             </div>
           </div>
+
+          {/* Industry Mode — mobile */}
+          {showIndustryMode && (
+            <div className="overflow-hidden rounded-2xl border border-border/40 p-4" style={cardStyle}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                    <Utensils className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-foreground">Industry Mode</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 truncate">Restaurant flavor in safe UI areas</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleIndustryModeToggle}
+                  className={cn(
+                    'shrink-0 relative h-6 w-11 rounded-full transition-colors duration-200',
+                    industryMode ? 'bg-primary' : 'bg-muted/60'
+                  )}
+                >
+                  <span className={cn(
+                    'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200',
+                    industryMode ? 'left-5' : 'left-0.5'
+                  )} />
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <button onClick={() => setShowDeleteConfirm(true)} className="flex w-full h-12 items-center justify-center gap-2 rounded-2xl border border-red-500/35 bg-red-500/10 text-sm font-black text-red-400 active:scale-[0.97] transition-all">

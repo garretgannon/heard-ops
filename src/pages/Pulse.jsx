@@ -71,7 +71,7 @@ export default function Pulse() {
 
   return (
     <div className="app-screen">
-      <main className="app-page mx-auto max-w-[640px] lg:max-w-6xl space-y-5">
+      <main className="app-page space-y-5">
 
         {/* Header */}
         <header className="flex items-start justify-between gap-4 pt-1">
@@ -110,7 +110,7 @@ export default function Pulse() {
         </div>
 
         {/* Metrics grid */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {METRIC_CONFIG.map(({ key, label, unit, icon: Icon, color, glow, border, bg, alertWhen, route }) => {
             const value = metrics[key];
             const isAlert = alertWhen?.(value);

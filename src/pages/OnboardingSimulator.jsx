@@ -70,7 +70,7 @@ export default function OnboardingSimulator() {
       <DesktopPageHeader title="Onboarding Simulator" subtitle="Admin testing — No live data affected" />
       {/* Top admin bar */}
       <div className="lg:hidden sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Onboarding Simulator</h1>
             <p className="text-xs text-muted-foreground">Admin testing — No live data affected</p>
@@ -104,7 +104,7 @@ export default function OnboardingSimulator() {
       )}
 
       {/* Main content */}
-      <div className="app-page max-w-7xl">
+      <div className="app-page">
         {page === PAGES.LANDING && (
           <SimulatorLanding
             onQuickStart={handleStartQuickStart}

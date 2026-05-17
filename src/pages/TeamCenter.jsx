@@ -58,6 +58,7 @@ const isMounted = useRef(true);
         prepTaskData,
         cleaningTaskData,
         tempTaskData,
+        shiftsData,
       ] = await Promise.all([
         Promise.race([
           base44.entities.Employee.list('full_name', 100).catch(() => []),
@@ -72,9 +73,30 @@ const isMounted = useRef(true);
         safeList('DailyPrepTask'),
         safeList('DailyCleaningTask'),
         safeList('DailyTemperatureLogTask'),
+        safeList('StaffShift', '-created_date', 500),
       ]);
       if (isMounted.current) {
-        setEmployees(Array.isArray(empData) ? empData : []);
+        const employeeRecords = Array.isArray(empData) ? empData : [];
+
+        // Merge in anyone on the schedule who doesn't have an Employee record
+        const safeShifts = Array.isArray(shiftsData) ? shiftsData : [];
+        const shiftNames = [...new Set(safeShifts.map(s => s.employee_name).filter(Boolean))];
+        const scheduleOnlyPeople = shiftNames
+          .filter(name => !employeeRecords.find(e =>
+            (e.full_name || '').toLowerCase() === name.toLowerCase()
+          ))
+          .map((name, i) => {
+            const shift = safeShifts.find(s => s.employee_name === name);
+            return {
+              id:            `schedule-only-${i}`,
+              full_name:     name,
+              primary_role:  shift?.role || '',
+              email:         shift?.employee_email || '',
+              _fromSchedule: true,
+            };
+          });
+
+        setEmployees([...employeeRecords, ...scheduleOnlyPeople]);
         setLinkedRecords({
           certifications: Array.isArray(certData) ? certData : [],
           availability: Array.isArray(availabilityData) ? availabilityData : [],

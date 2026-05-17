@@ -22,6 +22,7 @@ import QuickAddShiftModal from '@/components/schedule/QuickAddShiftModal';
 import MassAddModal from '@/components/schedule/MassAddModal';
 import ShiftContextMenu from '@/components/schedule/ShiftContextMenu';
 import RequestOffPanel from '@/components/schedule/RequestOffPanel';
+import ScheduleTemplateModal from '@/components/schedule/ScheduleTemplateModal';
 
 const FAKE_EMPLOYEES = [
   { id: '1', name: 'Alex R.', role: 'Manager', email: 'alex@heard.com' },
@@ -51,6 +52,7 @@ export default function ScheduleCenter() {
   const [quickAdd, setQuickAdd] = useState(null);
   const [showMassAdd, setShowMassAdd] = useState(false);
   const [showRequestOff, setShowRequestOff] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -193,19 +195,29 @@ export default function ScheduleCenter() {
     const destDay = weekDays[parseInt(destDayIdxStr)];
     if (!destEmployee || !destDay) return;
 
+    // Smart role mapping when dragging to a different employee
+    const [srcEmpId] = result.source.droppableId.split('__');
+    const movingToNewEmployee = destEmpId !== srcEmpId;
+    const { role: assignedRole, changed: roleChanged, original: originalRole } = movingToNewEmployee
+      ? resolveRole(destEmployee, shift.role)
+      : { role: shift.role, changed: false };
+
     const updates = {
       employee_name: destEmployee.name,
       employee_email: destEmployee.email,
       date: format(destDay, 'yyyy-MM-dd'),
+      ...(roleChanged ? { role: assignedRole, station: '', auto_mapped_role: true, original_role: originalRole } : {}),
     };
 
-    const prevData = { employee_name: shift.employee_name, employee_email: shift.employee_email, date: shift.date };
+    const prevData = { employee_name: shift.employee_name, employee_email: shift.employee_email, date: shift.date, role: shift.role };
     pushUndo({ type: 'update', shiftId, data: updates, prevData });
 
     // Check for time-off conflict
     const dateStr = format(destDay, 'yyyy-MM-dd');
     const hasApprovedOff = timeOffRequests.some(r => r.employee_email === destEmployee.email && r.status === 'approved' && dateStr >= r.start_date && dateStr <= r.end_date);
     if (hasApprovedOff) toast.warning(`${destEmployee.name} has approved time off on this day`);
+
+    if (roleChanged) toast.info(`Role changed: ${originalRole} → ${assignedRole || 'Unassigned'} for ${destEmployee.name}.`);
 
     await base44.entities.StaffShift.update(shiftId, updates);
     await loadScheduleData();
@@ -228,30 +240,71 @@ export default function ScheduleCenter() {
     toast.success(`Added ${created.length} shifts`);
   };
 
+  const handleApplyTemplate = async (templateShifts) => {
+    const created = await Promise.all(templateShifts.map(s => base44.entities.StaffShift.create(s)));
+    pushUndo({ type: 'bulk_create', shifts: templateShifts, shiftIds: created.map(c => c.id) });
+    await loadScheduleData();
+    toast.success(`Applied template — ${created.length} draft shifts added`);
+  };
+
   // ── Copy / Paste / Duplicate ──────────────────────────────────────────────
+
+  // Returns true if the employee is eligible to work the given role/job code.
+  const isEligibleForRole = (employee, role) => {
+    if (!role) return true;
+    const r = role.toLowerCase();
+    const jc = (employee.job_code || '').toLowerCase();
+    const pr = (employee.primary_role || '').toLowerCase();
+    const sec = (employee.secondary_roles || []).map(s => s.toLowerCase());
+    return r === jc || r === pr || sec.includes(r);
+  };
+
+  // Returns the best role for the employee given a desired role from a copied shift.
+  const resolveRole = (employee, desiredRole) => {
+    if (!desiredRole || isEligibleForRole(employee, desiredRole)) return { role: desiredRole, changed: false };
+    const fallback = employee.job_code || employee.primary_role || '';
+    return { role: fallback, changed: true, original: desiredRole };
+  };
+
+  function fmtShortTime(t) {
+    if (!t) return '';
+    const [h, m] = t.split(':').map(Number);
+    if (isNaN(h)) return t;
+    const ampm = h >= 12 ? 'p' : 'a';
+    return `${h % 12 || 12}${m ? `:${String(m).padStart(2, '0')}` : ''}${ampm}`;
+  }
+
   const handleCopyShift = useCallback((shift) => {
     setClipboard(shift);
-    toast.success('Shift copied');
+    toast.success('Shift copied — hover any empty cell to paste');
   }, []);
 
   const handlePasteShift = useCallback(async (employee, day) => {
     if (!clipboard) return;
+    const { role: assignedRole, changed: roleChanged, original: originalRole } = resolveRole(employee, clipboard.role);
     const data = {
       start_time: clipboard.start_time,
       end_time: clipboard.end_time,
-      role: clipboard.role,
-      station: clipboard.station,
+      role: assignedRole,
+      station: roleChanged ? '' : clipboard.station,
+      area: clipboard.area,
       notes: clipboard.notes,
       employee_name: employee.name,
       employee_email: employee.email,
       date: format(day, 'yyyy-MM-dd'),
       status: 'draft',
+      ...(roleChanged ? { auto_mapped_role: true, original_role: originalRole } : {}),
     };
     const created = await base44.entities.StaffShift.create(data);
     pushUndo({ type: 'create', shiftId: created.id, data });
     await loadScheduleData();
-    toast.success('Shift pasted');
-  }, [clipboard, loadScheduleData]);
+    const t = `${fmtShortTime(clipboard.start_time)}–${fmtShortTime(clipboard.end_time)}`;
+    if (roleChanged) {
+      toast.success(`Copied ${t} to ${employee.name}. Role changed: ${originalRole} → ${assignedRole || 'Unassigned'}.`);
+    } else {
+      toast.success(`Copied ${assignedRole || 'shift'} ${t} to ${employee.name}.`);
+    }
+  }, [clipboard, loadScheduleData, employees]);
 
   const handleDuplicateShift = async (shift, opts = {}) => {
     const { acrossWeek, nextDay } = opts;
@@ -485,7 +538,6 @@ export default function ScheduleCenter() {
               { label: 'Staff', value: weekShifts.length > 0 ? new Set(weekShifts.map(s => s.employee_email)).size : 0, suffix: '', color: 'text-foreground' },
               { label: 'Drafts', value: draftCount, suffix: '', color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
               { label: 'Time Off', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
-              { label: 'Conflicts', value: conflictCount, suffix: '', color: conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground/50' },
               { label: 'Labor', value: '$0', suffix: '', color: 'text-green-400' },
             ].map(({ label, value, suffix, color }) => (
               <div key={label} className="rounded-xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
@@ -493,6 +545,28 @@ export default function ScheduleCenter() {
                 <p className="mt-1 truncate text-[10px] text-muted-foreground">{label}</p>
               </div>
             ))}
+            {/* Conflicts — clickable to open first conflicted shift */}
+            <button
+              onClick={() => {
+                if (conflictCount === 0) return;
+                const firstId = Object.keys(shiftConflicts)[0];
+                const shift = shifts.find(s => s.id === firstId);
+                if (shift) { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); }
+              }}
+              className={cn(
+                'rounded-xl border px-2.5 py-2 text-left transition-all',
+                conflictCount > 0
+                  ? 'border-red-500/30 hover:border-red-500/50 hover:bg-red-500/5 cursor-pointer'
+                  : 'border-border/40 cursor-default'
+              )}
+              style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+            >
+              <p className={cn('text-sm font-extrabold leading-none tabular-nums', conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground/50')}>{conflictCount}</p>
+              <div className="mt-1 flex items-center justify-between gap-1">
+                <p className="truncate text-[10px] text-muted-foreground">Conflicts</p>
+                {conflictCount > 0 && <p className="text-[9px] font-bold text-red-400/70 shrink-0">Review →</p>}
+              </div>
+            </button>
           </div>
           )}
 
@@ -560,7 +634,7 @@ export default function ScheduleCenter() {
                 <div className="w-px h-4 bg-border/20" />
 
                 {/* Templates */}
-                <button onClick={() => navigate('/templates')} className="h-7 px-2.5 rounded-lg border border-border/50 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-card transition-colors">
+                <button onClick={() => setShowTemplateModal(true)} className="h-7 px-2.5 rounded-lg border border-border/50 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-card transition-colors">
                   <LayoutTemplate className="h-3 w-3" /> Templates
                 </button>
 
@@ -568,6 +642,14 @@ export default function ScheduleCenter() {
                 <button onClick={() => setShowShortcuts(p => !p)} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                   <Keyboard className="h-3 w-3" /> Shortcuts
                 </button>
+
+                {/* Clipboard indicator */}
+                {clipboard && (
+                  <div className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border border-green-500/30 bg-green-500/10 text-[11px] font-bold text-green-400">
+                    <span>Copied: {clipboard.role || 'Shift'}</span>
+                    <button onClick={() => setClipboard(null)} className="text-green-400/60 hover:text-green-400 ml-0.5" title="Clear clipboard">✕</button>
+                  </div>
+                )}
               </div>
 
               <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border/50 hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Refresh">
@@ -622,6 +704,8 @@ export default function ScheduleCenter() {
           availability={availability}
           onDragEnd={handleDragEnd}
           onAddShift={(emp, day) => setQuickAdd({ employee: emp, day })}
+          onPasteShift={handlePasteShift}
+          hasClipboard={!!clipboard}
           onShiftContextMenu={(shift, emp, day, x, y) => setContextMenu({ shift, employee: emp, day, x, y })}
           onEmptyCellContextMenu={(emp, day, x, y) => setContextMenu({ shift: null, employee: emp, day, x, y })}
           isMobile={isMobile}
@@ -695,6 +779,14 @@ export default function ScheduleCenter() {
       {showRequestOff && (
         <RequestOffPanel employees={employees} onClose={() => setShowRequestOff(false)} />
       )}
+
+      <ScheduleTemplateModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        weekShifts={weekShifts}
+        weekDays={weekDays}
+        onApply={handleApplyTemplate}
+      />
     </div>
   );
 }

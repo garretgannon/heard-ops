@@ -41,6 +41,7 @@ export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect,
   const hasConflicts = conflicts && conflicts.length > 0;
   const hasError = conflicts?.some(c => c.type === 'error');
   const timeStr = [startFmt, endFmt].filter(Boolean).join('–');
+  const isAutoMapped = !!shift.auto_mapped_role;
 
   if (variant === 'mobile') {
     return (
@@ -99,16 +100,18 @@ export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect,
       }}
       onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e); }}
       className={cn(
-        'relative group w-full text-left rounded-md border-l-[3px] px-2 py-2 cursor-pointer select-none transition-all duration-100',
+        'relative group w-full text-left rounded-md border-l-[3px] px-2 py-1.5 cursor-pointer select-none transition-all duration-100',
         colors.bg, colors.border,
         isSelected && 'ring-1 ring-white/60 ring-offset-1 ring-offset-transparent brightness-125',
         isDragging && 'opacity-50 scale-95 rotate-1',
         hasError && 'ring-1 ring-red-500/60',
         'hover:brightness-110 active:scale-[0.97]'
       )}
+      style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)' }}
     >
-      {/* Status dot */}
+      {/* Status + conflict indicators */}
       <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
+        {isAutoMapped && <div className="h-1.5 w-1.5 rounded-full bg-amber-400/70" title={`Auto-mapped from ${shift.original_role}`} />}
         {hasConflicts && (
           hasError
             ? <AlertCircle className="h-2.5 w-2.5 text-red-400" />
@@ -124,21 +127,21 @@ export default function ShiftBlock({ shift, isSelected, onSelect, onMultiSelect,
         </p>
       )}
 
-      {/* Role - Large & Color-Coded */}
-      <p className={cn('text-xs font-extrabold capitalize leading-tight pr-5', colors.text)}>
+      {/* Role — primary, color-coded */}
+      <p className={cn('text-[11px] font-extrabold capitalize leading-tight pr-5 truncate', colors.text)}>
         {shift.role || '—'}
       </p>
 
-      {/* Time */}
+      {/* Time — secondary */}
       {(startFmt || endFmt) && (
-        <p className="text-[10px] font-semibold text-muted-foreground leading-tight pr-5 mt-0.5">
+        <p className="text-[10px] font-bold text-foreground/70 leading-tight pr-4 mt-0.5 tabular-nums">
           {startFmt}{startFmt && endFmt ? '–' : ''}{endFmt}
         </p>
       )}
 
-      {/* Station if set and not already shown as lane header */}
+      {/* Station — tertiary */}
       {shift.station && !showEmployee && (
-        <p className="text-[9px] text-muted-foreground truncate mt-0.5">{shift.station}</p>
+        <p className="text-[9px] font-medium text-muted-foreground/70 truncate mt-0.5">{shift.station}</p>
       )}
     </div>
   );

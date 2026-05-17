@@ -34,6 +34,13 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { haptics } from "@/utils/haptics";
 import DesktopPageHeader from "@/components/DesktopPageHeader";
+import { useShiftContext } from "@/hooks/useShiftContext";
+import { BriefingContextBanner, BriefingProfileSelector } from "@/components/ShiftLaunch/BriefingContextPanel";
+import {
+  filterStaffForContext, filterIssuesForContext, filterLogsForContext,
+  filterEightySixForContext, filterWasteForContext,
+  filterReservationsForContext, generateTalkingPoints,
+} from "@/lib/briefingProfiles";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -128,6 +135,51 @@ function statusText(item) {
   return [item?.status, item?.priority, item?.area || item?.station || item?.location].filter(Boolean).join(" • ");
 }
 
+const LOG_CATEGORY_LABELS = {
+  shift_note:    "Shift Note",
+  waste:         "Waste",
+  incident:      "Incident",
+  maintenance:   "Maintenance",
+  cash_drawer:   "Cash Drawer",
+  cash_drop:     "Cash Drop",
+  complaint:     "Guest Complaint",
+  food_safety:   "Food Safety",
+  equipment:     "Equipment",
+  prep:          "Prep",
+  cleaning:      "Cleaning",
+};
+
+function friendlyLogCategory(raw) {
+  if (!raw) return "";
+  const key = raw.toLowerCase().replace(/[\s-]/g, "_");
+  return LOG_CATEGORY_LABELS[key] || raw;
+}
+
+// ─── Pre-shift form field definitions ─────────────────────────────────────────
+
+const PRE_SHIFT_FIELD_DEFS = {
+  roles:              { label: "Roles / Assignments",      rows: 4, placeholder: "Who is working, role changes, sections, stations, breaks…" },
+  reservations:       { label: "Reservations / BEOs",      rows: 3, placeholder: "Large parties, VIPs, private events, service timing…" },
+  outOfStock:         { label: "Out of Stock / 86",        rows: 3, placeholder: "86'd items, low stock, substitutions…" },
+  specials:           { label: "Specials",                 rows: 3, placeholder: "Food, drinks, promos, talking points…" },
+  specialCleaning:    { label: "Special Cleaning / Focus", rows: 2, placeholder: "Cleaning priorities, reset items, inspection focus…" },
+  notes:              { label: "Briefing Notes",           rows: 4, placeholder: "What you will say to the team before service…" },
+  sideworkPriorities: { label: "Sidework Priorities",      rows: 2, placeholder: "Sidework assignments, station duties, priority tasks…" },
+  prepNeeds:          { label: "Prep Needs",               rows: 3, placeholder: "Items needing prep, quantities, priority order…" },
+  lineCheckNotes:     { label: "Line Check Notes",         rows: 3, placeholder: "Station temps, product quality, readiness, equipment status…" },
+  tempCheckNotes:     { label: "Temperature Checks",       rows: 2, placeholder: "Walk-in, freezer, hot holding — any variances to note…" },
+  beverageNotes:      { label: "Beverage Notes",           rows: 2, placeholder: "Par levels, tap status, batch recipes, feature cocktails…" },
+  barPrepNotes:       { label: "Bar Prep",                 rows: 3, placeholder: "Garnish prep, batch cocktails, keg status, mise en place…" },
+};
+
+const FIELD_ORDER_BY_DEPT = {
+  foh:     ['sideworkPriorities', 'specials', 'specialCleaning', 'notes'],
+  boh:     ['prepNeeds', 'lineCheckNotes', 'tempCheckNotes', 'specials', 'notes'],
+  bar:     ['beverageNotes', 'barPrepNotes', 'specials', 'notes'],
+  banquet: ['specials', 'notes'],
+  all:     ['specials', 'specialCleaning', 'notes'],
+};
+
 // ─── XP Float ─────────────────────────────────────────────────────────────────
 
 function XpFloat({ amount, onDone }) {
@@ -196,6 +248,7 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
   const [open, setOpen] = useState(false);
   const [viewed, setViewed] = useState(false);
 
+  const isClear = count === 0;
   const iconColor = severity === "critical" ? "text-red-400" : severity === "warning" ? "text-amber-400" : "text-primary";
   const badgeStyle = severity === "critical" && count > 0
     ? "border-red-500/30 bg-red-500/10 text-red-400"
@@ -217,7 +270,9 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
     <div
       className={cn(
         "overflow-hidden rounded-xl border transition-colors duration-300",
-        viewed ? "border-green-500/20" : count > 0 ? "border-amber-500/20" : "border-border/40"
+        viewed
+          ? isClear ? "border-green-500/20" : "border-amber-500/25"
+          : count > 0 ? "border-amber-500/20" : "border-border/40"
       )}
       style={{
         background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)",
@@ -230,12 +285,17 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
         className="flex w-full items-center justify-between px-4 py-3 lg:px-5 lg:py-4 text-left"
       >
         <div className="flex items-center gap-2.5">
-          <Icon className={cn("h-4 w-4 lg:h-5 lg:w-5 shrink-0", viewed ? "text-green-400/70" : iconColor)} />
+          <Icon className={cn(
+            "h-4 w-4 lg:h-5 lg:w-5 shrink-0",
+            viewed ? (isClear ? "text-green-400/70" : "text-amber-400/70") : iconColor
+          )} />
           <span className={cn("text-sm lg:text-[15px] font-black transition-colors", viewed ? "text-foreground/70" : "text-foreground")}>{label}</span>
         </div>
         <div className="flex items-center gap-2">
           {viewed
-            ? <Check className="h-3 w-3 text-green-400/60" />
+            ? isClear
+              ? <Check className="h-3 w-3 text-green-400/60" />
+              : <span className="text-[9px] font-black text-amber-400/80 uppercase tracking-wide">Reviewed</span>
             : count > 0 && <span className="text-[9px] font-black text-amber-400/80 uppercase tracking-wide">Review</span>
           }
           <span className={cn("rounded-full border px-2 py-0.5 text-xs font-black tabular-nums", badgeStyle)}>{count}</span>
@@ -277,8 +337,13 @@ function IntelRow({ title, meta, severity = "neutral" }) {
   );
 }
 
-function EmptyIntel({ text }) {
-  return <p className="py-1 text-xs text-muted-foreground">{text}</p>;
+function EmptyIntel({ text, detail }) {
+  return (
+    <div className="py-1">
+      <p className="text-xs text-muted-foreground">{text}</p>
+      {detail && <p className="mt-0.5 text-[11px] text-muted-foreground/50">{detail}</p>}
+    </div>
+  );
 }
 
 // ─── Duty card ────────────────────────────────────────────────────────────────
@@ -456,6 +521,16 @@ export default function ManagerShift() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useCurrentUser();
+
+  // Shift Context Engine — detects role/dept/shift, drives data filtering
+  const {
+    context:          shiftContext,
+    candidateProfiles,
+    needsSelection,
+    selectProfile,
+    resetContext,
+  } = useShiftContext(user);
+
   const [loading, setLoading]       = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeStage, setActiveStage] = useState(() => stageFromLocation(location));
@@ -463,11 +538,14 @@ export default function ManagerShift() {
     handoffs: [], managerLogs: [], eightySix: [],
     waste: [], events: [], issues: [], tasks: [], staff: [],
     shiftLogs: [], checklists: [], handoffPrompts: [],
+    prepNeeds: [], reservationsList: [],
   });
   const [preShiftSaved, setPreShiftSaved] = useState(false);
   const [preShiftId, setPreShiftId]       = useState(null);
   const [preShiftForm, setPreShiftForm]   = useState({
     roles: "", specialCleaning: "", reservations: "", outOfStock: "", specials: "", notes: "",
+    sideworkPriorities: "", prepNeeds: "", lineCheckNotes: "", tempCheckNotes: "",
+    beverageNotes: "", barPrepNotes: "",
   });
   const [acknowledged, setAcknowledged]   = useState(false);
   const [checkedDuties, setCheckedDuties] = useState([]);
@@ -497,7 +575,7 @@ export default function ManagerShift() {
   const load = async ({ quiet = false } = {}) => {
     if (quiet) setRefreshing(true); else setLoading(true);
     try {
-      const [handoffs, managerLogs, eightySix, waste, events, issues, tasks, staff, preShifts, unifiedLogs, logEntries, sideWork, closing, opening, handoffTemplates, templateItems] = await Promise.all([
+      const [handoffs, managerLogs, eightySix, waste, events, issues, tasks, staff, preShifts, unifiedLogs, logEntries, sideWork, closing, opening, handoffTemplates, templateItems, prepCountsData, reservationsData] = await Promise.all([
         safeEntityCall(base44.entities.ShiftHandoff?.list?.("-created_date", 8)),
         safeEntityCall(base44.entities.ManagerLog?.list?.("-created_date", 12)),
         safeEntityCall(base44.entities.EightySixItem?.filter?.({ is_active: true })),
@@ -514,6 +592,8 @@ export default function ManagerShift() {
         safeEntityCall(base44.entities.OpeningChecklist?.filter?.({ date })),
         safeEntityCall(base44.entities.Template?.filter?.({ template_type: "handoff", is_active: true })),
         safeEntityCall(base44.entities.TemplateItem?.list?.("sort_order", 120)),
+        safeEntityCall(base44.entities.PrepInventoryCount?.list?.("-updated_date", 20)),
+        safeEntityCall(base44.entities.Reservation?.filter?.({ date })),
       ]);
 
       const upcomingEvents = events.filter(e => !e.eventDate || e.eventDate >= date).slice(0, 4);
@@ -537,28 +617,71 @@ export default function ManagerShift() {
         ...logEntries.filter(log => isForDate(log, date)),
       ].slice(0, 20);
 
+      // Apply Shift Context filtering — each filter is a no-op when context is null/all-house
+      const ctx = shiftContext;
+      const rawStaff        = staff.slice(0, 80);
+      const rawIssues       = issues.slice(0, 12);
+      const rawManagerLogs  = managerLogs.filter(l => l.status !== "resolved").slice(0, 12);
+      const rawWaste        = waste.slice(0, 8);
+      const rawReservations = Array.isArray(reservationsData) ? reservationsData : [];
+      const rawPrepCounts   = Array.isArray(prepCountsData)   ? prepCountsData   : [];
+
+      const filteredStaff        = filterStaffForContext(rawStaff, ctx);
+      const filteredReservations = filterReservationsForContext(rawReservations, ctx);
+      const filteredPrepNeeds    = ctx?.importRules?.includePrepNeeds
+        ? rawPrepCounts.filter(c => !['approved', 'complete'].includes(c.status)).slice(0, 15)
+        : [];
+
       setBriefing({
-        handoffs: handoffs.slice(0, 3),
-        managerLogs: managerLogs.filter(l => l.status !== "resolved").slice(0, 4),
-        eightySix: activeEightySix,
-        waste: waste.slice(0, 4),
-        events: upcomingEvents,
-        issues: issues.slice(0, 4),
-        tasks: tasks.filter(t => !["complete", "approved"].includes(t.status)).slice(0, 6),
-        staff: staff.slice(0, 60),
+        handoffs:         handoffs.slice(0, 3),
+        managerLogs:      filterLogsForContext(rawManagerLogs, ctx).slice(0, 6),
+        eightySix:        filterEightySixForContext(activeEightySix, ctx),
+        waste:            filterWasteForContext(rawWaste, ctx).slice(0, 4),
+        events:           upcomingEvents,
+        issues:           filterIssuesForContext(rawIssues, ctx).slice(0, 6),
+        tasks:            tasks.filter(t => !["complete", "approved"].includes(t.status)).slice(0, 6),
+        staff:            filteredStaff,
         shiftLogs,
-        checklists: requiredChecklistItems.slice(0, 20),
-        handoffPrompts: customPrompts.length ? customPrompts : DEFAULT_HANDOFF_PROMPTS,
+        checklists:       requiredChecklistItems.slice(0, 20),
+        handoffPrompts:   customPrompts.length ? customPrompts : DEFAULT_HANDOFF_PROMPTS,
+        reservationsList: filteredReservations,
+        prepNeeds:        filteredPrepNeeds,
       });
       setPreShiftSaved(Boolean(currentPreShift));
       setPreShiftId(currentPreShift?.id || null);
+
+      const beoLines = upcomingEvents.map(e =>
+        [e.eventName, e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ""].filter(Boolean).join(" - ")
+      );
+      const rsvLines = filteredReservations.slice(0, 6).map(r =>
+        [r.guest_name || r.name, r.arrival_time || r.time, r.party_size ? `${r.party_size} pax` : "", r.special_requests || r.dietary_notes].filter(Boolean).join(" - ")
+      );
+      const prepNeedLines = filteredPrepNeeds.slice(0, 8).map(c =>
+        [c.station || c.item_name || 'Station', c.status, c.notes].filter(Boolean).join(": ")
+      );
+
+      const suggestedTalkingPoints = generateTalkingPoints({
+        staff:        filteredStaff,
+        reservations: filteredReservations,
+        events:       upcomingEvents,
+        eightySix:    activeEightySix,
+        issues:       rawIssues,
+        prepNeeds:    filteredPrepNeeds,
+      }, ctx);
+
       setPreShiftForm({
-        roles: currentPreShift?.staffing_notes || staff.map(p => [p.employee_name, p.role, p.station].filter(Boolean).join(" - ")).join("\n"),
-        specialCleaning: currentPreShift?.issues || "",
-        reservations: currentPreShift?.reservations || upcomingEvents.map(e => [e.eventName, e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ""].filter(Boolean).join(" - ")).join("\n"),
-        outOfStock: currentPreShift?.items_86d || activeEightySix.map(i => [i.item_name, i.category].filter(Boolean).join(" - ")).join("\n"),
-        specials: currentPreShift?.specials || "",
-        notes: currentPreShift?.notes || "",
+        roles:              currentPreShift?.staffing_notes || filteredStaff.map(p => [p.employee_name, p.role, p.station].filter(Boolean).join(" - ")).join("\n"),
+        specialCleaning:    currentPreShift?.issues || "",
+        reservations:       currentPreShift?.reservations || [...beoLines, ...rsvLines].join("\n"),
+        outOfStock:         currentPreShift?.items_86d || activeEightySix.map(i => [i.item_name, i.category].filter(Boolean).join(" - ")).join("\n"),
+        specials:           currentPreShift?.specials || "",
+        notes:              currentPreShift?.notes || (suggestedTalkingPoints.length ? suggestedTalkingPoints.join("\n") : ""),
+        sideworkPriorities: currentPreShift?.sidework_priorities || "",
+        prepNeeds:          currentPreShift?.prep_needs || prepNeedLines.join("\n"),
+        lineCheckNotes:     currentPreShift?.line_check_notes || "",
+        tempCheckNotes:     currentPreShift?.temp_check_notes || "",
+        beverageNotes:      currentPreShift?.beverage_notes || "",
+        barPrepNotes:       currentPreShift?.bar_prep_notes || "",
       });
       setAcknowledged(localStorage.getItem(ackKey) === "true");
       if (currentPreShift) {
@@ -571,6 +694,13 @@ export default function ManagerShift() {
   };
 
   useEffect(() => { load(); }, [ackKey]);
+
+  // Re-filter when the shift context profile changes (user switches scope)
+  useEffect(() => {
+    if (shiftContext) load({ quiet: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shiftContext?.profileId]);
+
   useEffect(() => {
     setActiveStage(stageFromLocation(location));
   }, [location.pathname, location.search]);
@@ -678,24 +808,38 @@ export default function ManagerShift() {
   };
 
   const savePreShift = async () => {
-    if (!preShiftForm.roles.trim() || !preShiftForm.notes.trim()) {
-      toast.error("Add staff roles and briefing notes");
+    if (!preShiftForm.notes.trim()) {
+      toast.error("Add briefing notes before saving");
       return;
     }
     const talkingPoints = [
-      preShiftForm.reservations && `Reservations/BEO:\n${preShiftForm.reservations}`,
-      preShiftForm.outOfStock && `Out of stock / 86:\n${preShiftForm.outOfStock}`,
-      preShiftForm.specials && `Specials:\n${preShiftForm.specials}`,
-      preShiftForm.specialCleaning && `Special cleaning:\n${preShiftForm.specialCleaning}`,
-      preShiftForm.notes && `Briefing notes:\n${preShiftForm.notes}`,
+      preShiftForm.reservations       && `Reservations/BEO:\n${preShiftForm.reservations}`,
+      preShiftForm.outOfStock         && `Out of stock / 86:\n${preShiftForm.outOfStock}`,
+      preShiftForm.specials           && `Specials:\n${preShiftForm.specials}`,
+      preShiftForm.specialCleaning    && `Special cleaning:\n${preShiftForm.specialCleaning}`,
+      preShiftForm.sideworkPriorities && `Sidework priorities:\n${preShiftForm.sideworkPriorities}`,
+      preShiftForm.prepNeeds          && `Prep needs:\n${preShiftForm.prepNeeds}`,
+      preShiftForm.lineCheckNotes     && `Line check:\n${preShiftForm.lineCheckNotes}`,
+      preShiftForm.tempCheckNotes     && `Temperature checks:\n${preShiftForm.tempCheckNotes}`,
+      preShiftForm.beverageNotes      && `Beverage notes:\n${preShiftForm.beverageNotes}`,
+      preShiftForm.barPrepNotes       && `Bar prep:\n${preShiftForm.barPrepNotes}`,
+      preShiftForm.notes              && `Briefing notes:\n${preShiftForm.notes}`,
     ].filter(Boolean).join("\n\n");
 
     const payload = {
       date, shift: preShiftEntityShift,
-      staffing_notes: preShiftForm.roles,
-      specials: preShiftForm.specials,
-      issues: preShiftForm.specialCleaning,
-      notes: talkingPoints,
+      staffing_notes:      preShiftForm.roles,
+      specials:            preShiftForm.specials,
+      issues:              preShiftForm.specialCleaning,
+      reservations:        preShiftForm.reservations,
+      items_86d:           preShiftForm.outOfStock,
+      sidework_priorities: preShiftForm.sideworkPriorities,
+      prep_needs:          preShiftForm.prepNeeds,
+      line_check_notes:    preShiftForm.lineCheckNotes,
+      temp_check_notes:    preShiftForm.tempCheckNotes,
+      beverage_notes:      preShiftForm.beverageNotes,
+      bar_prep_notes:      preShiftForm.barPrepNotes,
+      notes:               talkingPoints,
     };
 
     const saved = preShiftId
@@ -975,6 +1119,28 @@ export default function ManagerShift() {
             {/* ── INTEL ──────────────────────────────────────────────── */}
             {activeStage === "start" && (
               <>
+                {/* ── Shift Context: profile selector or confirmed banner ── */}
+                {needsSelection ? (
+                  <BriefingProfileSelector
+                    profiles={candidateProfiles}
+                    onSelect={selectProfile}
+                  />
+                ) : shiftContext ? (
+                  <BriefingContextBanner
+                    context={shiftContext}
+                    counts={{
+                      staff:        briefing.staff.length,
+                      reservations: briefing.reservationsList.length,
+                      events:       briefing.events.length,
+                      prepNeeds:    briefing.prepNeeds.length,
+                      eightySix:    briefing.eightySix.length,
+                      issues:       briefing.issues.length,
+                      tasks:        briefing.checklists.length,
+                    }}
+                    onReset={resetContext}
+                  />
+                ) : null}
+
                 {/* Scorecard */}
                 <div
                   className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
@@ -1010,7 +1176,12 @@ export default function ManagerShift() {
                   }
                   <div className="flex-1">
                     <p className="text-sm lg:text-[15px] font-black text-foreground">
-                      {acknowledged ? "Intel reviewed — you're good to go" : "Review shift intel before starting"}
+                      {acknowledged
+                        ? totals.critical > 0
+                          ? `Briefing acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open`
+                          : "Briefing acknowledged — shift intel clear"
+                        : "Review shift intel before starting"
+                      }
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       Acknowledging logs a manager note and moves you to Ops. +20 XP
@@ -1026,17 +1197,17 @@ export default function ManagerShift() {
                 <div className="lg:grid lg:grid-cols-3 lg:gap-3 space-y-3 lg:space-y-0">
                   <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
                     {briefing.handoffs.length === 0
-                      ? <EmptyIntel text="No recent handoff found." />
+                      ? <EmptyIntel text="No unresolved handoff notes." detail="No carry-over items from the previous shift." />
                       : briefing.handoffs.map(item => (
                           <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"}
-                            meta={[item.department, item.urgency].filter(Boolean).join(" — ")} />
+                            meta={[item.department, item.urgency, item.logged_by].filter(Boolean).join(" — ")} />
                         ))
                     }
                   </IntelCard>
 
                   <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
                     {briefing.eightySix.length === 0
-                      ? <EmptyIntel text="Nothing 86'd right now." />
+                      ? <EmptyIntel text="Nothing 86'd right now." detail="All menu items available." />
                       : briefing.eightySix.map(item => (
                           <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />
                         ))
@@ -1045,58 +1216,81 @@ export default function ManagerShift() {
 
                   <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
                     {briefing.issues.length === 0
-                      ? <EmptyIntel text="No open issues." />
+                      ? <EmptyIntel text="No open issues — clear to go." />
                       : briefing.issues.map(item => (
-                          <IntelRow key={item.id} title={item.title} meta={item.category || item.priority} severity="critical" />
+                          <IntelRow key={item.id}
+                            title={item.title || item.description || "Open issue"}
+                            meta={[friendlyLogCategory(item.category), item.priority, item.area || item.station || item.location].filter(Boolean).join(" · ")}
+                            severity="critical" />
                         ))
                     }
                   </IntelCard>
 
                   <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
                     {briefing.events.length === 0
-                      ? <EmptyIntel text="No upcoming events." />
+                      ? <EmptyIntel text="No events or private dining today." />
                       : briefing.events.map(item => (
                           <IntelRow key={item.id} title={item.eventName}
-                            meta={[item.eventDate, item.startTime, item.room].filter(Boolean).join(" · ")} severity="warning" />
+                            meta={[item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ""].filter(Boolean).join(" · ")} severity="warning" />
                         ))
                     }
                   </IntelCard>
 
                   <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
                     {[...briefing.managerLogs, ...briefing.waste].length === 0
-                      ? <EmptyIntel text="No manager notes or recent waste." />
+                      ? <EmptyIntel text="No manager notes or waste entries." detail="Nothing logged for this shift yet." />
                       : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => (
                           <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")}
-                            meta={item.category || item.reason || recentDate(item)} />
+                            meta={[friendlyLogCategory(item.category || item.reason), recentDate(item)].filter(Boolean).join(" · ")} />
                         ))
                     }
                   </IntelCard>
                 </div>
 
                 {/* Progress before acknowledge */}
-                {!acknowledged && (
-                  <div className="flex items-center justify-between px-1 py-1">
-                    <p className={cn(
-                      "text-[11px] font-black uppercase tracking-wide",
-                      viewedIntelCards.size === INTEL_CARD_IDS.length ? "text-green-400" : "text-amber-400/80"
-                    )}>
-                      {viewedIntelCards.size === INTEL_CARD_IDS.length
-                        ? "All sections reviewed — ready to acknowledge"
-                        : `${viewedIntelCards.size}/${INTEL_CARD_IDS.length} sections reviewed — open each to continue`}
-                    </p>
-                    <div className="flex gap-1">
-                      {INTEL_CARD_IDS.map(cid => (
-                        <div
-                          key={cid}
-                          className={cn(
-                            "h-1.5 w-7 rounded-full transition-all duration-300",
-                            viewedIntelCards.has(cid) ? "bg-green-400/70" : "bg-amber-500/20"
-                          )}
-                        />
-                      ))}
+                {!acknowledged && (() => {
+                  const intelCardCounts = {
+                    handoff: briefing.handoffs.length,
+                    eightySix: briefing.eightySix.length,
+                    issues: briefing.issues.length,
+                    events: briefing.events.length,
+                    logs: briefing.managerLogs.length + briefing.waste.length,
+                  };
+                  const allReviewed = viewedIntelCards.size === INTEL_CARD_IDS.length;
+                  return (
+                    <div className="flex items-center justify-between px-1 py-1">
+                      <p className={cn(
+                        "text-[11px] font-black uppercase tracking-wide",
+                        allReviewed
+                          ? totals.critical > 0 ? "text-amber-400" : "text-green-400"
+                          : "text-amber-400/80"
+                      )}>
+                        {allReviewed
+                          ? totals.critical > 0
+                            ? `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} require awareness`
+                            : `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ready to acknowledge`
+                          : `${viewedIntelCards.size} of ${INTEL_CARD_IDS.length} sections reviewed — open each card to continue`}
+                      </p>
+                      <div className="flex gap-1">
+                        {INTEL_CARD_IDS.map(cid => {
+                          const isViewed = viewedIntelCards.has(cid);
+                          const hasItems = (intelCardCounts[cid] || 0) > 0;
+                          return (
+                            <div
+                              key={cid}
+                              className={cn(
+                                "h-1.5 w-7 rounded-full transition-all duration-300",
+                                isViewed
+                                  ? hasItems ? "bg-amber-400/70" : "bg-green-400/70"
+                                  : "bg-border/30"
+                              )}
+                            />
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 <button
                   type="button"
@@ -1118,9 +1312,11 @@ export default function ManagerShift() {
                   }}
                 >
                   {acknowledged
-                    ? <><CheckCircle2 className="h-5 w-5" />Intel Acknowledged — +20 XP</>
+                    ? <><CheckCircle2 className="h-5 w-5" />{totals.critical > 0 ? `Briefing Acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open` : "Intel Acknowledged — +20 XP"}</>
                     : allCardsViewed
-                      ? <><Shield className="h-5 w-5" />Acknowledge Briefing</>
+                      ? totals.critical > 0
+                        ? <><Shield className="h-5 w-5" />Acknowledge — {totals.critical} open item{totals.critical !== 1 ? 's' : ''} require awareness</>
+                        : <><Shield className="h-5 w-5" />Acknowledge Briefing — Shift Intel Clear</>
                       : <><Shield className="h-5 w-5" />Review all sections to continue</>
                   }
                 </button>
@@ -1157,33 +1353,122 @@ export default function ManagerShift() {
                       </div>
 
                       <div className="space-y-3 px-4 pb-4">
-                        {/* Staff list */}
-                        {briefing.staff.length > 0 && (
-                          <div className="rounded-xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                            <div className="mb-2 flex items-center justify-between">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Scheduled Today</p>
-                              <span className="text-xs font-black text-foreground">{briefing.staff.length}</span>
+                        {/* Briefing scope row — always visible on run stage */}
+                        <div className="flex items-center justify-between gap-2 rounded-xl border border-border/30 px-3 py-2"
+                          style={{ background: 'rgba(255,255,255,0.02)' }}>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground shrink-0">Briefing Scope</p>
+                          {shiftContext ? (
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className={cn(
+                                "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-black",
+                                shiftContext.department === 'foh'     ? 'border-blue-500/30 text-blue-400' :
+                                shiftContext.department === 'boh'     ? 'border-amber-500/30 text-amber-400' :
+                                shiftContext.department === 'bar'     ? 'border-teal-500/30 text-teal-400' :
+                                shiftContext.department === 'banquet' ? 'border-cyan-500/30 text-cyan-400' :
+                                                                        'border-primary/30 text-primary'
+                              )}>
+                                {shiftContext.profileName}
+                              </span>
+                              <button type="button" onClick={resetContext}
+                                className="text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                                Change
+                              </button>
                             </div>
-                            <div className="space-y-1">
-                              {briefing.staff.slice(0, 8).map(person => (
-                                <div key={person.id || person.employee_name} className="flex items-center justify-between gap-2 text-xs">
-                                  <span className="font-semibold text-foreground truncate">{person.employee_name}</span>
-                                  <span className="shrink-0 text-muted-foreground">{[person.role, person.station, person.start_time].filter(Boolean).join(" · ")}</span>
-                                </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-1 justify-end">
+                              {candidateProfiles.map(p => (
+                                <button key={p.id} type="button" onClick={() => { selectProfile(p); load({ quiet: true }); }}
+                                  className="rounded-full border border-border/40 px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:border-border/60 transition-all">
+                                  {p.shortName}
+                                </button>
                               ))}
-                              {briefing.staff.length > 8 && <p className="text-xs text-muted-foreground">+{briefing.staff.length - 8} more</p>}
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
 
-                        {[
-                          { field: "roles",           label: "Roles / Assignments",     rows: 4, placeholder: "Who is working, role changes, sections, stations, breaks…" },
-                          { field: "reservations",    label: "Reservations / BEO",      rows: 3, placeholder: "Large parties, VIPs, private events, service timing…" },
-                          { field: "outOfStock",      label: "Out of Stock / 86",       rows: 3, placeholder: "86'd items, low stock, substitutions…" },
-                          { field: "specials",        label: "Specials",                rows: 3, placeholder: "Food, drinks, promos, talking points…" },
-                          { field: "specialCleaning", label: "Special Cleaning / Focus",rows: 2, placeholder: "Cleaning priorities, reset items, inspection focus…" },
-                          { field: "notes",           label: "Briefing Notes",          rows: 4, placeholder: "What you will say to the team before service…" },
-                        ].map(({ field, label, rows, placeholder }) => (
+                        {/* Auto-imported data — read-only structured display */}
+                        <div className="overflow-hidden rounded-xl border border-border/40"
+                          style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                          <div className="flex items-center justify-between px-3 py-2 border-b border-border/20">
+                            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">Auto-Imported</p>
+                            <button type="button" onClick={() => load({ quiet: true })}
+                              className="flex items-center gap-1 text-[9px] font-bold text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+                              <RefreshCw className={cn("h-2.5 w-2.5", refreshing && "animate-spin")} /> Refresh
+                            </button>
+                          </div>
+
+                          {/* Roles & Assignments */}
+                          <div className="px-3 py-2.5 border-b border-border/15">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <p className="text-[10px] font-black uppercase tracking-wide text-foreground/70">Roles & Assignments</p>
+                              <span className="text-[10px] font-black text-muted-foreground">{briefing.staff.length}</span>
+                            </div>
+                            {briefing.staff.length === 0
+                              ? <p className="text-xs text-muted-foreground/50">No shifts scheduled for today</p>
+                              : <div className="space-y-1">
+                                  {briefing.staff.slice(0, 12).map((p, i) => (
+                                    <div key={p.id || p.employee_name || i} className="flex items-center justify-between gap-2 text-xs">
+                                      <span className="font-semibold text-foreground truncate">{p.employee_name}</span>
+                                      <span className="shrink-0 text-muted-foreground">{[p.role, p.station, p.start_time].filter(Boolean).join(' · ')}</span>
+                                    </div>
+                                  ))}
+                                  {briefing.staff.length > 12 && <p className="text-[10px] text-muted-foreground mt-0.5">+{briefing.staff.length - 12} more</p>}
+                                </div>
+                            }
+                          </div>
+
+                          {/* Reservations / BEOs */}
+                          <div className="px-3 py-2.5 border-b border-border/15">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <p className="text-[10px] font-black uppercase tracking-wide text-foreground/70">Reservations / BEO</p>
+                              <span className="text-[10px] font-black text-muted-foreground">{briefing.events.length + briefing.reservationsList.length}</span>
+                            </div>
+                            {briefing.events.length + briefing.reservationsList.length === 0
+                              ? <p className="text-xs text-muted-foreground/50">No events or reservations today</p>
+                              : <div className="space-y-1">
+                                  {briefing.events.map(e => (
+                                    <div key={e.id} className="flex items-start justify-between gap-2 text-xs">
+                                      <span className="font-semibold text-foreground">{e.eventName}</span>
+                                      <span className="shrink-0 text-muted-foreground text-right">{[e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ''].filter(Boolean).join(' · ')}</span>
+                                    </div>
+                                  ))}
+                                  {briefing.reservationsList.map(r => (
+                                    <div key={r.id} className="flex items-start justify-between gap-2 text-xs">
+                                      <span className="font-semibold text-foreground">{r.guest_name || r.name || 'Reservation'}</span>
+                                      <span className="shrink-0 text-muted-foreground text-right">{[r.arrival_time || r.time, r.party_size ? `${r.party_size} pax` : '', r.special_requests || r.dietary_notes].filter(Boolean).join(' · ')}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                            }
+                          </div>
+
+                          {/* Out of Stock / 86 */}
+                          <div className="px-3 py-2.5">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <p className="text-[10px] font-black uppercase tracking-wide text-foreground/70">Out of Stock / 86</p>
+                              <span className={cn("text-[10px] font-black", briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground")}>
+                                {briefing.eightySix.length}
+                              </span>
+                            </div>
+                            {briefing.eightySix.length === 0
+                              ? <p className="text-xs text-muted-foreground/50 italic">All items available</p>
+                              : <div className="space-y-1">
+                                  {briefing.eightySix.map(i => (
+                                    <div key={i.id} className="flex items-center justify-between gap-2 text-xs">
+                                      <span className="font-bold text-red-400">{i.item_name}</span>
+                                      <span className="shrink-0 text-muted-foreground">{i.category || i.notes || ''}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                            }
+                          </div>
+                        </div>
+
+                        {((() => {
+                          const dept = shiftContext?.department || 'all';
+                          const keys = FIELD_ORDER_BY_DEPT[dept] || FIELD_ORDER_BY_DEPT.all;
+                          return keys.map(k => ({ field: k, ...PRE_SHIFT_FIELD_DEFS[k] }));
+                        })()).map(({ field, label, rows, placeholder }) => (
                           <label key={field} className="block space-y-1.5">
                             <span className="text-xs font-black text-foreground">{label}</span>
                             <textarea

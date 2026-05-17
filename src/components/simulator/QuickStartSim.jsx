@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, CheckCircle2 } from 'lucide-react';
 import { useSimulator } from '@/lib/SimulatorContext';
+import { useNavigate } from 'react-router-dom';
 import { haptics } from '@/utils/haptics';
 import confetti from 'canvas-confetti';
 import OnboardingWelcome from '@/components/onboarding/OnboardingWelcome';
@@ -13,6 +14,7 @@ import OnboardingSuccess from '@/components/onboarding/OnboardingSuccess';
 
 export default function QuickStartSim({ onBack }) {
   const { setIsSimulating, setSimulationMode, setSimulatedRestaurantType, setSimulatedRole } = useSimulator();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [showPresets, setShowPresets] = useState(false);
   const [presets, setPresets] = useState({
@@ -30,8 +32,7 @@ export default function QuickStartSim({ onBack }) {
   };
 
   const handleWelcomeStart = () => {
-    // Show preset selector first
-    setShowPresets(true);
+    navigate('/team-structure-wizard');
   };
 
   const handleRestaurantType = (type) => {
@@ -68,6 +69,80 @@ export default function QuickStartSim({ onBack }) {
     setIsSimulating(false);
   };
 
+  const stepContent = (
+    <AnimatePresence mode="wait">
+      {step === 1 && (
+        <div key="welcome" className="h-full">
+          <OnboardingWelcome onBegin={handleWelcomeStart} />
+        </div>
+      )}
+
+      {step === 2 && showPresets && (
+        <div key="presets" className="text-center py-12">
+          <p className="text-muted-foreground">Configuring presets...</p>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div key="restaurant">
+          <OnboardingRestaurantType onBack={() => setStep(2)} onSelect={handleRestaurantType} />
+        </div>
+      )}
+
+      {step === 4 && (
+        <div key="role">
+          <OnboardingRoleSelection onBack={() => setStep(3)} onSelect={handleRole} />
+        </div>
+      )}
+
+      {step === 5 && (
+        <div key="team">
+          <OnboardingTeamSize onBack={() => setStep(4)} onSelect={handleTeamSize} />
+        </div>
+      )}
+
+      {step === 6 && (
+        <div key="build">
+          <OnboardingBuildAnimation onComplete={handleBuildComplete} />
+        </div>
+      )}
+
+      {step === 7 && (
+        <div key="success">
+          <OnboardingSuccess
+            onLaunchApp={handleSuccess}
+            onCustomize={handleSuccess}
+          />
+        </div>
+      )}
+
+      {step === 8 && (
+        <motion.div
+          key="done"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-12"
+        >
+          <motion.div
+            className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/20 mb-4"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 0.5, repeat: 1 }}
+          >
+            <CheckCircle2 className="h-8 w-8 text-primary" />
+          </motion.div>
+          <h3 className="text-2xl font-bold text-foreground mb-2">Simulation Complete</h3>
+          <p className="text-muted-foreground mb-6">Quick Start flow tested successfully</p>
+          <button
+            onClick={handleDone}
+            className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-bold"
+          >
+            Return to Simulator
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
     <div className="space-y-4">
       {/* Simulation banner */}
@@ -90,7 +165,7 @@ export default function QuickStartSim({ onBack }) {
         </motion.div>
       )}
 
-      {/* Preset selector */}
+      {/* Preset selector modal */}
       {showPresets && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -166,81 +241,68 @@ export default function QuickStartSim({ onBack }) {
         </motion.div>
       )}
 
-      {/* Onboarding flow */}
-      <AnimatePresence mode="wait">
-        {step === 1 && (
-          <div key="welcome">
-            <OnboardingWelcome
-              onStartSetup={handleWelcomeStart}
-              onExploreDemo={() => {}}
-            />
-          </div>
-        )}
+      {/* Mobile: render directly. Desktop: render inside phone frame */}
+      <div className="lg:hidden">
+        {stepContent}
+      </div>
 
-        {step === 2 && showPresets && (
-          <div key="presets" className="text-center py-12">
-            <p className="text-muted-foreground">Configuring presets...</p>
+      <div className="hidden lg:flex items-start justify-center gap-8 pt-2">
+        {/* Phone frame mockup */}
+        <div
+          className="relative shrink-0"
+          style={{
+            width: 375,
+            height: 720,
+            background: 'rgba(255,255,255,0.03)',
+            border: '2px solid rgba(255,255,255,0.12)',
+            borderRadius: 44,
+            boxShadow: '0 0 0 6px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.5)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Notch */}
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 z-10"
+            style={{
+              width: 126,
+              height: 34,
+              background: 'rgba(5,8,14,1)',
+              borderBottomLeftRadius: 18,
+              borderBottomRightRadius: 18,
+            }}
+          />
+          {/* Screen content */}
+          <div className="absolute inset-0 overflow-y-auto" style={{ paddingTop: 44 }}>
+            {stepContent}
           </div>
-        )}
+        </div>
 
-        {step === 3 && (
-          <div key="restaurant">
-            <OnboardingRestaurantType onBack={() => setStep(2)} onSelect={handleRestaurantType} />
+        {/* Desktop info panel */}
+        <div className="flex flex-col gap-4 pt-4 max-w-xs">
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-widest text-white/30 mb-1">Simulator</p>
+            <h3 className="text-lg font-bold text-white">Quick Start Flow</h3>
+            <p className="text-sm text-white/40 mt-1 leading-relaxed">
+              Preview the new user onboarding experience exactly as it appears on a real device.
+            </p>
           </div>
-        )}
-
-        {step === 4 && (
-          <div key="role">
-            <OnboardingRoleSelection onBack={() => setStep(3)} onSelect={handleRole} />
-          </div>
-        )}
-
-        {step === 5 && (
-          <div key="team">
-            <OnboardingTeamSize onBack={() => setStep(4)} onSelect={handleTeamSize} />
-          </div>
-        )}
-
-        {step === 6 && (
-          <div key="build">
-            <OnboardingBuildAnimation onComplete={handleBuildComplete} />
-          </div>
-        )}
-
-        {step === 7 && (
-          <div key="success">
-            <OnboardingSuccess
-              onLaunchApp={handleSuccess}
-              onCustomize={handleSuccess}
-            />
-          </div>
-        )}
-
-        {step === 8 && (
-          <motion.div
-            key="done"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
+          <div
+            className="p-4 rounded-xl flex flex-col gap-2"
+            style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}
           >
-            <motion.div
-              className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/20 mb-4"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 0.5, repeat: 1 }}
-            >
-              <CheckCircle2 className="h-8 w-8 text-primary" />
-            </motion.div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">Simulation Complete</h3>
-            <p className="text-muted-foreground mb-6">Quick Start flow tested successfully</p>
-            <button
-              onClick={handleDone}
-              className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-bold"
-            >
-              Return to Simulator
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <p className="text-xs font-semibold text-white/70">Step {step} of 8</p>
+            <div className="w-full h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
+              <div
+                className="h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${(step / 8) * 100}%`, background: '#E66A1F' }}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-white/30 leading-relaxed">
+            "Let's Build It" opens the Team Setup Wizard. Complete the wizard to see the full new-user flow.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

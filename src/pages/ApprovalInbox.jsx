@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { getMicrocopy } from '@/lib/microcopy';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -206,6 +207,7 @@ export default function ApprovalInbox() {
   const [detailSheet, setDetailSheet]   = useState(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showBurst, setShowBurst] = useState(false);
+  const [emptyApprovalsCopy] = useState(() => getMicrocopy('emptyApprovals', ''));
 
   // Gamification state
   const [score, setScore]   = useState(0);
@@ -366,7 +368,7 @@ export default function ApprovalInbox() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Approvals" />
-      <main className="app-page mx-auto flex min-h-[calc(100vh-150px)] max-w-[520px] lg:max-w-6xl flex-col gap-4">
+      <main className="app-page flex min-h-[calc(100vh-150px)] flex-col gap-4">
 
         {/* HUD */}
         <div
@@ -442,6 +444,9 @@ export default function ApprovalInbox() {
           <div className="app-card flex-1 py-12 text-center">
             <div className="status-marker status-marker-lg status-success mx-auto mb-4">0</div>
             <p className="text-sm font-semibold text-muted-foreground">No approvals to review</p>
+            {emptyApprovalsCopy && (
+              <p className="text-xs text-muted-foreground/40 mt-1.5">{emptyApprovalsCopy}</p>
+            )}
           </div>
         ) : (
           <div ref={cardAreaRef} className="relative flex flex-1 flex-col">

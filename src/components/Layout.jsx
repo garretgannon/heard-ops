@@ -19,6 +19,8 @@ import AdminRolePreview from '@/components/AdminRolePreview';
 import { usePermissions } from '@/hooks/usePermissions';
 import { desktopNavSections, moreNavSections } from '@/lib/routeConfig';
 import { BRAND_ASSETS } from '@/lib/brandAssets';
+import { toast } from 'sonner';
+import { markEasterEggFound, isEasterEggFound } from '@/lib/microcopy';
 
 // Build a flat path → label map from all nav sections
 const ALL_NAV_ITEMS = [
@@ -126,6 +128,25 @@ export default function Layout() {
     }
   }, [goBack]);
 
+  // Logo easter egg — tap 5 times within 3 seconds
+  const logoTapCount = useRef(0);
+  const logoTapTimer = useRef(null);
+  const handleLogoTap = () => {
+    logoTapCount.current += 1;
+    clearTimeout(logoTapTimer.current);
+    if (logoTapCount.current >= 5) {
+      logoTapCount.current = 0;
+      if (!isEasterEggFound()) {
+        markEasterEggFound();
+        toast('HEARD. Now go check the walk-in.', { duration: 4000 });
+      } else {
+        toast('HEARD. Now go check the walk-in.', { duration: 3000 });
+      }
+      return;
+    }
+    logoTapTimer.current = setTimeout(() => { logoTapCount.current = 0; }, 3000);
+  };
+
   const isStationView = location.pathname.startsWith("/station/");
   if (isStationView) {
     return <Outlet />;
@@ -191,7 +212,8 @@ export default function Layout() {
               <img
                 src={BRAND_ASSETS.headerLogo}
                 alt="HeardOS"
-                className="h-10 w-auto max-w-[220px] object-contain shrink-0"
+                className="h-10 w-auto max-w-[220px] object-contain shrink-0 cursor-pointer select-none"
+                onClick={handleLogoTap}
               />
             </div>
             <div className="flex items-center gap-1.5">
@@ -241,10 +263,10 @@ export default function Layout() {
             src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.headerLogo}
             alt="HeardOS"
             className={cn(
-              "object-contain shrink-0",
+              "object-contain shrink-0 cursor-pointer select-none",
               collapsed ? "h-8 w-8 rounded-lg" : "h-14 w-full max-w-[190px]"
             )}
-            style={{}}
+            onClick={handleLogoTap}
           />
           {!collapsed && (
             <div className="mt-1.5 min-w-0 w-full text-center">
@@ -468,7 +490,7 @@ export default function Layout() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -12 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-[430px] mx-auto lg:max-w-[1500px] lg:mx-0 px-4 pt-3 lg:px-8 lg:pt-0 lg:pb-10"
+              className="w-full max-w-[430px] mx-auto lg:max-w-none lg:mx-0 px-4 pt-3 lg:px-8 xl:px-10 2xl:px-12 lg:pt-0 lg:pb-10"
             >
               <Outlet />
             </motion.div>

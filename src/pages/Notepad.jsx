@@ -80,7 +80,7 @@ const TYPE_CONFIG = {
   issue:     { icon: AlertCircle, color: 'text-red-400/60' },
 };
 
-// ── Item card used in column 3 ────────────────────────────────────────────────
+// ── Item card ─────────────────────────────────────────────────────────────────
 function PendingItem({ item, onToggle, onDelete, onAssign, employees, assigningId, setAssigningId, empSearch, setEmpSearch }) {
   const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.note;
   const Icon = cfg.icon;
@@ -195,8 +195,7 @@ export default function Notepad() {
   const [empSearch, setEmpSearch] = useState('');
   const inputRef = useRef(null);
 
-  // Quick-action modal state
-  const [modal, setModal] = useState(null); // '86' | 'log' | 'prep' | 'waste' | null
+  const [modal, setModal] = useState(null);
 
   useEffect(() => {
     if (!user?.email) return;
@@ -291,65 +290,73 @@ export default function Notepad() {
         }
       />
 
-      <div className="app-page-narrow">
-        <div className="lg:grid lg:grid-cols-[280px_1fr_320px] lg:gap-6 space-y-4 lg:space-y-0">
+      {/* Full-width page wrapper — no max-width cap */}
+      <div className="app-page">
 
-          {/* ────────────────────────────────────────
-              COLUMN 1 — Add Item
-          ──────────────────────────────────────── */}
-          <aside className="space-y-4">
-            <p className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground px-0.5">Add Item</p>
-            <div className="app-card-lg space-y-3">
+        {/* ── Desktop 2-zone layout ────────────────────────────────────────
+            Mobile:  single column stack
+            lg+:     [left control panel] | [right workspace]
+            xl+:     left panel expands to 420px
+        ──────────────────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] xl:grid-cols-[420px_1fr] gap-6 xl:gap-8 items-start">
 
-              {/* Type toggle */}
-              <div className="grid grid-cols-2 gap-1.5">
-                {[
-                  { type: 'task',      icon: CheckSquare, label: 'Task',      active: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-                  { type: 'note',      icon: AlignLeft,   label: 'Note',      active: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-                  { type: 'follow_up', icon: ArrowRight,  label: 'Follow-up', active: 'bg-primary/15 text-primary border-primary/30' },
-                  { type: 'issue',     icon: AlertCircle, label: 'Issue',     active: 'bg-red-500/15 text-red-400 border-red-500/30' },
-                ].map(({ type, icon: Icon, label, active }) => (
-                  <button
-                    key={type}
-                    onClick={() => setNewType(type)}
-                    className={cn(
-                      'flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-colors border',
-                      newType === type ? active : 'text-muted-foreground/60 border-border hover:border-border/80'
-                    )}
-                  >
-                    <Icon className="h-3 w-3" /> {label}
-                  </button>
-                ))}
+          {/* ── LEFT PANEL: Add Item + Quick Add ─────────────────────── */}
+          <div className="space-y-5">
+
+            {/* Add Item */}
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground px-0.5 mb-3">Add Item</p>
+              <div className="app-card-lg space-y-3">
+
+                {/* Type toggle — 2×2 grid */}
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    { type: 'task',      icon: CheckSquare, label: 'Task',      active: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+                    { type: 'note',      icon: AlignLeft,   label: 'Note',      active: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+                    { type: 'follow_up', icon: ArrowRight,  label: 'Follow-up', active: 'bg-primary/15 text-primary border-primary/30' },
+                    { type: 'issue',     icon: AlertCircle, label: 'Issue',     active: 'bg-red-500/15 text-red-400 border-red-500/30' },
+                  ].map(({ type, icon: Icon, label, active }) => (
+                    <button
+                      key={type}
+                      onClick={() => setNewType(type)}
+                      className={cn(
+                        'flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-colors border',
+                        newType === type ? active : 'text-muted-foreground/60 border-border hover:border-border/80'
+                      )}
+                    >
+                      <Icon className="h-3 w-3" /> {label}
+                    </button>
+                  ))}
+                </div>
+
+                <textarea
+                  ref={inputRef}
+                  value={newText}
+                  onChange={e => setNewText(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addItem(); }
+                  }}
+                  placeholder={
+                    newType === 'task'      ? 'What needs doing?' :
+                    newType === 'follow_up' ? 'What needs a follow-up?' :
+                    newType === 'issue'     ? 'Describe the issue…' :
+                                             'Jot something down…'
+                  }
+                  rows={4}
+                  className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-amber-500/50 transition-colors resize-none"
+                />
+
+                <button
+                  onClick={addItem}
+                  disabled={!newText.trim()}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-bold disabled:opacity-30 transition-opacity"
+                >
+                  <Plus className="h-4 w-4" /> Add
+                </button>
               </div>
-
-              {/* Textarea — grows to fill remaining card height on desktop */}
-              <textarea
-                ref={inputRef}
-                value={newText}
-                onChange={e => setNewText(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addItem(); }
-                }}
-                placeholder={
-                  newType === 'task'      ? 'What needs doing?' :
-                  newType === 'follow_up' ? 'What needs a follow-up?' :
-                  newType === 'issue'     ? 'Describe the issue…' :
-                                           'Jot something down…'
-                }
-                rows={4}
-                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-amber-500/50 transition-colors resize-none"
-              />
-
-              <button
-                onClick={addItem}
-                disabled={!newText.trim()}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-bold disabled:opacity-30 transition-opacity"
-              >
-                <Plus className="h-4 w-4" /> Add
-              </button>
             </div>
 
-            {/* Stats — only show when there's something */}
+            {/* Summary — only when there's something */}
             {items.length > 0 && (
               <div className="app-card space-y-2">
                 <p className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Summary</p>
@@ -383,121 +390,137 @@ export default function Notepad() {
                 )}
               </div>
             )}
-          </aside>
 
-          {/* ────────────────────────────────────────
-              COLUMN 2 — Quick Actions
-          ──────────────────────────────────────── */}
-          <section className="space-y-3">
-            <p className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground px-0.5">Quick Add</p>
-            <div className="space-y-2">
-              {QUICK_ACTIONS.map(qa => {
-                const Icon = qa.icon;
-                return (
-                  <button
-                    key={qa.key}
-                    onClick={() => handleQuickAction(qa.key)}
-                    className={cn(
-                      'w-full rounded-xl border p-4 text-left flex items-center gap-4 transition-colors',
-                      qa.accent.wrap
-                    )}
-                  >
-                    <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', qa.accent.icon)}>
-                      <Icon className="h-4.5 w-4.5 h-[18px] w-[18px]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-foreground">{qa.label}</p>
-                      <p className="text-xs text-muted-foreground/70 mt-0.5 leading-snug">{qa.desc}</p>
-                    </div>
-                    <div className={cn(
-                      'h-8 w-8 rounded-lg border flex items-center justify-center shrink-0 transition-colors',
-                      qa.accent.btn
-                    )}>
-                      <Plus className="h-3.5 w-3.5" />
-                    </div>
-                  </button>
-                );
-              })}
+            {/* Quick Add */}
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground px-0.5 mb-3">Quick Add</p>
+              <div className="space-y-2">
+                {QUICK_ACTIONS.map(qa => {
+                  const Icon = qa.icon;
+                  return (
+                    <button
+                      key={qa.key}
+                      onClick={() => handleQuickAction(qa.key)}
+                      className={cn(
+                        'w-full rounded-xl border p-4 text-left flex items-center gap-4 transition-colors',
+                        qa.accent.wrap
+                      )}
+                    >
+                      <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', qa.accent.icon)}>
+                        <Icon className="h-[18px] w-[18px]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground">{qa.label}</p>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5 leading-snug">{qa.desc}</p>
+                      </div>
+                      <div className={cn(
+                        'h-8 w-8 rounded-lg border flex items-center justify-center shrink-0 transition-colors',
+                        qa.accent.btn
+                      )}>
+                        <Plus className="h-3.5 w-3.5" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </section>
 
-          {/* ────────────────────────────────────────
-              COLUMN 3 — Pending / Open Items
-          ──────────────────────────────────────── */}
-          <aside className="space-y-4">
+          </div>
+
+          {/* ── RIGHT PANEL: Open Items Workspace ───────────────────────── */}
+          <div className="space-y-4">
+
             <div className="flex items-center justify-between px-0.5">
               <p className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Open Items</p>
-              {unassignedOpen.length > 0 && (
+              {(unassignedOpen.length > 0 || delegated.length > 0) && (
                 <span className="text-[10px] font-bold text-muted-foreground/50 bg-muted/30 px-2 py-0.5 rounded-full">
-                  {unassignedOpen.length}
+                  {unassignedOpen.length + delegated.length}
                 </span>
               )}
             </div>
 
-            {loading ? (
-              <div className="text-center py-12 text-muted-foreground/50 text-sm">Loading…</div>
-            ) : unassignedOpen.length === 0 && delegated.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border/40 py-12 px-6 text-center space-y-3">
-                <div className="h-10 w-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto">
-                  <ClipboardList className="h-5 w-5 text-amber-400/50" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-foreground">Nothing open</p>
-                  <p className="text-xs text-muted-foreground mt-1">Items you add will appear here until completed or cleared.</p>
-                </div>
-                <button
-                  onClick={() => { setNewType('task'); inputRef.current?.focus(); }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-sm font-bold hover:bg-amber-500/25 transition-colors"
-                >
-                  <Plus className="h-4 w-4" /> Add first item
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Unassigned open items */}
-                {unassignedOpen.length > 0 && (
-                  <div className="space-y-2">
-                    {unassignedOpen.map(item => (
-                      <PendingItem key={item.id} item={item} {...sharedItemProps} />
-                    ))}
-                  </div>
-                )}
+            {/* Workspace panel */}
+            <div className="rounded-2xl border border-border/50 bg-card/30 min-h-[480px]">
 
-                {/* Delegated section */}
-                {delegated.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400/60 px-0.5">
-                      Delegated · {delegated.length}
+              {loading ? (
+                <div className="flex items-center justify-center h-64 text-muted-foreground/40 text-sm">
+                  Loading…
+                </div>
+
+              ) : unassignedOpen.length === 0 && delegated.length === 0 ? (
+                <div className="flex flex-col items-center justify-center min-h-[480px] text-center px-8 space-y-4">
+                  <div className="h-12 w-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <ClipboardList className="h-6 w-6 text-amber-400/50" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Nothing open</p>
+                    <p className="text-xs text-muted-foreground mt-1 max-w-[260px]">
+                      Items you add will appear here until completed or cleared.
                     </p>
-                    {delegated.map(item => (
-                      <div key={item.id} className="rounded-xl border border-violet-500/15 bg-violet-500/5">
-                        <div className="flex items-start gap-3 px-3.5 py-3">
-                          {(() => { const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.note; const Icon = cfg.icon; return (
-                            <div className="mt-0.5 h-5 w-5 shrink-0 flex items-center justify-center">
-                              <Icon className={cn('h-3.5 w-3.5', cfg.color)} />
+                  </div>
+                  <button
+                    onClick={() => { setNewType('task'); inputRef.current?.focus(); }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-sm font-bold hover:bg-amber-500/25 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" /> Add first item
+                  </button>
+                </div>
+
+              ) : (
+                <div className="p-4 space-y-5">
+
+                  {/* Unassigned open items */}
+                  {unassignedOpen.length > 0 && (
+                    <div className="space-y-2">
+                      {unassignedOpen.map(item => (
+                        <PendingItem key={item.id} item={item} {...sharedItemProps} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Delegated section */}
+                  {delegated.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400/60 px-0.5">
+                        Delegated · {delegated.length}
+                      </p>
+                      {delegated.map(item => (
+                        <div key={item.id} className="rounded-xl border border-violet-500/15 bg-violet-500/5">
+                          <div className="flex items-start gap-3 px-3.5 py-3">
+                            {(() => {
+                              const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.note;
+                              const Icon = cfg.icon;
+                              return (
+                                <div className="mt-0.5 h-5 w-5 shrink-0 flex items-center justify-center">
+                                  <Icon className={cn('h-3.5 w-3.5', cfg.color)} />
+                                </div>
+                              );
+                            })()}
+                            <p className="flex-1 text-sm leading-snug break-words min-w-0 text-foreground">{item.content}</p>
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                              <span className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-violet-500/15 text-violet-400 border border-violet-500/25">
+                                <User className="h-3 w-3" />
+                                <span className="max-w-[72px] truncate">{item.assigned_to_name}</span>
+                              </span>
+                              <button
+                                onClick={() => deleteItem(item.id)}
+                                className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-red-400 transition-colors"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
                             </div>
-                          ); })()}
-                          <p className="flex-1 text-sm leading-snug break-words min-w-0 text-foreground">{item.content}</p>
-                          <div className="flex items-center gap-1 shrink-0 ml-1">
-                            <span className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-violet-500/15 text-violet-400 border border-violet-500/25">
-                              <User className="h-3 w-3" />
-                              <span className="max-w-[72px] truncate">{item.assigned_to_name}</span>
-                            </span>
-                            <button
-                              onClick={() => deleteItem(item.id)}
-                              className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-red-400 transition-colors"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </aside>
+                      ))}
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+            </div>
+
+          </div>
 
         </div>
       </div>

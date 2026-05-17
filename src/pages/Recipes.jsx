@@ -224,7 +224,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto pb-8 px-4 py-4">
-      <div className="max-w-5xl mx-auto">
+      <div className="w-full">
 
         {/* OVERVIEW + COSTING */}
         {activeTab === 'overview' && (

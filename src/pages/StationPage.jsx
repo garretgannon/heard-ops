@@ -1105,7 +1105,7 @@ export default function StationPage() {
           </button>
           <div className="h-4 w-40 skeleton rounded flex-1" />
         </header>
-        <div className="pt-[72px] lg:pt-8 px-4 lg:px-6 max-w-7xl mx-auto space-y-4">
+        <div className="pt-[72px] lg:pt-8 px-4 lg:px-6 space-y-4">
           <div className="skeleton h-8 w-52 rounded" />
           <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-5 space-y-4 lg:space-y-0">
             <div className="space-y-4">
@@ -1141,7 +1141,7 @@ export default function StationPage() {
       </header>
 
       {/* ── Main content ─────────────────────────────────────────────────────── */}
-      <main className="pt-[60px] pb-24 lg:pt-0 lg:pb-12 lg:max-w-7xl lg:mx-auto lg:px-6">
+      <main className="pt-[60px] pb-24 lg:pt-0 lg:pb-12 lg:px-6">
 
         {/* Desktop page header */}
         <div className="hidden lg:block pt-7 pb-5">

@@ -1,19 +1,20 @@
 /*
-  UX Polish overrides — subtle, non-glowing hover states for routine interactive elements.
+  UX Polish overrides — calm hover states for routine interactive elements.
   Primary / active states keep the brand orange glow (defined in index.css).
-  Routine hover states use a calm white-tint lift so orange is reserved for focus/selection.
+  Routine hovers use a quiet surface lift so orange stays reserved for focus/selection.
+  All values reference CSS custom properties from index.css for theme portability.
 */
 
-/* Calm hover: white-tint surface lift, no orange bleed */
+/* Calm hover: surface lift, no orange bleed */
 .glow-interactive:hover,
 .glow-interactive:focus-visible,
 .btn-secondary:hover,
 .btn-secondary:focus-visible,
 .btn-muted:hover,
 .btn-muted:focus-visible {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  background: var(--tint-sm) !important;
+  border-color: var(--tint-lg) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3), inset 0 1px 0 var(--tint-sm) !important;
   color: hsl(var(--foreground)) !important;
   outline: none;
 }
@@ -23,8 +24,8 @@
 .app-screen button:not(:disabled):focus-visible,
 .app-screen [role="button"]:hover,
 .app-screen [role="button"]:focus-visible {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-color: var(--tint-lg);
+  box-shadow: inset 0 1px 0 var(--tint-sm);
   outline: none;
 }
 
@@ -35,11 +36,11 @@
 [data-state="active"],
 [data-selected="true"],
 button[aria-pressed="true"] {
-  color: #E66A1F;
+  color: var(--accent-full);
 }
 
 /* Slightly elevated card border on hover — no full glow */
 .card-lift:hover {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.38), 0 1px 0 rgba(255,255,255,0.04) !important;
+  border-color: var(--tint-lg) !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.38), 0 1px 0 var(--tint-sm) !important;
 }

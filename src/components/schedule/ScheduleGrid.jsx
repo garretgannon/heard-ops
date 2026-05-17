@@ -36,7 +36,7 @@ function StationLaneGrid({ shifts, stationsList, weekDays, selectedShiftIds, onS
       <div className={cn('overflow-auto', isExpanded ? 'max-h-[calc(100vh-52px)]' : 'max-h-[calc(100vh-300px)]')}>
         <div className="min-w-[860px]">
           {/* Header */}
-          <div className="grid sticky top-0 z-20 border-b border-border/50 bg-card/95 backdrop-blur-sm" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+          <div className="grid sticky top-0 z-20 border-b border-border/50 bg-card/95 backdrop-blur-sm" style={{ gridTemplateColumns: '240px repeat(7, 1fr)' }}>
             <div className="px-3 py-2.5 border-r border-border/30 sticky left-0 z-30 bg-card/95 flex items-center gap-1.5">
               <MapPin className="h-3 w-3 text-primary" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Station</p>
@@ -66,7 +66,7 @@ function StationLaneGrid({ shifts, stationsList, weekDays, selectedShiftIds, onS
               <div
                 key={stationName}
                 className={cn('grid border-t border-border/20', rowIdx % 2 === 0 ? 'bg-background/50' : 'bg-background/30')}
-                style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}
+                style={{ gridTemplateColumns: '240px repeat(7, 1fr)' }}
               >
                 {/* Station label cell */}
                 <div className="flex items-center gap-2 px-3 py-2 border-r border-border/30 sticky left-0 z-10 bg-inherit">
@@ -128,9 +128,9 @@ export default function ScheduleGrid({
   shifts, employees, weekDays,
   selectedShiftIds, onSelectShift, onSelectShifts,
   shiftConflicts, timeOffRequests, availability,
-  onDragEnd, onAddShift, onShiftContextMenu, onEmptyCellContextMenu,
+  onDragEnd, onAddShift, onPasteShift, onShiftContextMenu, onEmptyCellContextMenu,
   isMobile, groupBy = 'employee', isExpanded = false,
-  stationsList = [],
+  stationsList = [], hasClipboard = false,
 }) {
   if (isMobile) {
     return (
@@ -226,6 +226,8 @@ export default function ScheduleGrid({
         getTimeOffStatus={getTimeOffStatus}
         getAvailability={getAvailability}
         onAddShift={onAddShift}
+        onPasteShift={onPasteShift}
+        hasClipboard={hasClipboard}
         onShiftContextMenu={onShiftContextMenu}
         onEmptyCellContextMenu={onEmptyCellContextMenu}
         isEven={i % 2 === 0}
@@ -254,7 +256,7 @@ export default function ScheduleGrid({
 
           <div className="min-w-[860px]">
             {/* Premium Header */}
-            <div className="grid sticky top-0 z-20 border-b border-border/50 bg-card/95 backdrop-blur-sm" style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+            <div className="grid sticky top-0 z-20 border-b border-border/50 bg-card/95 backdrop-blur-sm" style={{ gridTemplateColumns: '240px repeat(7, 1fr)' }}>
               <div className="px-3 py-2.5 border-r border-border/30 sticky left-0 z-30 bg-card/95">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Employee</p>
               </div>
@@ -300,8 +302,12 @@ export default function ScheduleGrid({
   );
 }
 
-function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShift, onSelectShifts, shiftConflicts, getTimeOffStatus, getAvailability, onAddShift, onShiftContextMenu, onEmptyCellContextMenu, isEven }) {
-  const empShiftsThisWeek = shifts.filter(s => s.employee_email === employee.email || s.employee_name === employee.name);
+function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShift, onSelectShifts, shiftConflicts, getTimeOffStatus, getAvailability, onAddShift, onPasteShift, hasClipboard, onShiftContextMenu, onEmptyCellContextMenu, isEven }) {
+  const empShiftsThisWeek = shifts.filter(s =>
+    (employee.email && s.employee_email && s.employee_email === employee.email) ||
+    (!employee.email && s.employee_name === employee.name) ||
+    (employee.email && !s.employee_email && s.employee_name === employee.name)
+  );
   const totalHours = empShiftsThisWeek.reduce((sum, s) => {
     if (!s.start_time || !s.end_time) return sum;
     const [sh, sm] = s.start_time.split(':').map(Number);
@@ -311,7 +317,7 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
   }, 0);
 
   return (
-    <div className={cn('grid border-t border-border/20', isEven ? 'bg-background/50' : 'bg-background/30')} style={{ gridTemplateColumns: '180px repeat(7, 1fr)' }}>
+    <div className={cn('grid border-t border-border/20', isEven ? 'bg-background/50' : 'bg-background/30')} style={{ gridTemplateColumns: '240px repeat(7, 1fr)' }}>
       {/* Compact Employee Cell */}
       <div className="flex items-center gap-2 px-3 py-2 border-r border-border/30 sticky left-0 z-10 bg-inherit">
         <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-[10px] font-extrabold text-primary">
@@ -327,7 +333,14 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
       {weekDays.map((day, dayIdx) => {
         const today = isToday(day);
         const dayShifts = shifts.filter(s => {
-          try { return isSameDay(parseISO(s.date), day) && (s.employee_email === employee.email || s.employee_name === employee.name); }
+          try {
+            const sameDay = isSameDay(parseISO(s.date), day);
+            const sameEmp =
+              (employee.email && s.employee_email && s.employee_email === employee.email) ||
+              (!employee.email && s.employee_name === employee.name) ||
+              (employee.email && !s.employee_email && s.employee_name === employee.name);
+            return sameDay && sameEmp;
+          }
           catch { return false; }
         });
         const timeOffStatus = getTimeOffStatus(employee.email, day);
@@ -341,7 +354,7 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                onClick={() => { if (dayShifts.length === 0) onAddShift?.(employee, day); }}
+                onClick={() => { if (dayShifts.length === 0) { if (hasClipboard) onPasteShift?.(employee, day); else onAddShift?.(employee, day); } }}
                 onContextMenu={(e) => {
                   if (dayShifts.length === 0) { e.preventDefault(); onEmptyCellContextMenu?.(employee, day, e.clientX, e.clientY); }
                 }}
@@ -360,10 +373,18 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
                   <div className={cn('absolute top-1 right-1 h-1.5 w-1.5 rounded-full', timeOffStatus === 'approved' ? 'bg-red-400' : 'bg-amber-400')} title={`${timeOffStatus} time off`} />
                 )}
 
-                {/* Empty state + hover add button */}
+                {/* Empty state + hover affordance */}
                 {dayShifts.length === 0 && !snapshot.isDraggingOver && (
-                  <div className="flex items-center justify-center h-full opacity-0 group-hover/cell:opacity-100 transition-opacity">
-                    <Plus className="h-3.5 w-3.5 text-primary/50" />
+                  <div className="flex items-center justify-center h-full min-h-[56px] opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                    {hasClipboard ? (
+                      <span className="flex items-center gap-1 text-[10px] font-bold text-green-400/80 bg-green-500/10 border border-green-500/25 rounded-md px-1.5 py-0.5">
+                        Paste
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-[10px] font-bold text-primary/60 bg-primary/8 border border-primary/20 rounded-md px-1.5 py-0.5">
+                        <Plus className="h-3 w-3" /> Add
+                      </span>
+                    )}
                   </div>
                 )}
 

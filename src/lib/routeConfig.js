@@ -132,9 +132,20 @@ export const desktopNavSections = [
   {
     label: "RESOURCES",
     items: [
-      { path: "/inventory", label: "Inventory", icon: Warehouse, perm: "view_inventory" },
+      { path: "/receiving",       label: "Receiving",       icon: Truck },
+      { path: "/inventory",       label: "Inventory",       icon: Warehouse, perm: "view_inventory" },
       { path: "/purchased-items", label: "Purchased Items", icon: Package },
-      { path: "/vendors", label: "Vendors", icon: Truck, perm: "view_vendors" },
+      { path: "/vendors",         label: "Vendors",         icon: Truck, perm: "view_vendors" },
+    ],
+  },
+  {
+    label: "⚠️ DEV — DELETE BEFORE PUBLISH",
+    items: [
+      { path: "/team-structure-wizard", label: "Team Setup Wizard", icon: GitBranch },
+      { path: "/setup-journey", label: "Setup Journey", icon: Zap },
+      { path: "/restaurant-setup-wizard", label: "Station Wizard", icon: Map },
+      { path: "/admin/command-center", label: "Role Admin", icon: ShieldCheck },
+      { path: "/admin/onboarding-simulator", label: "Onboarding Sim", icon: Sparkles },
     ],
   },
   {
@@ -173,9 +184,10 @@ export const moreNavSections = [
   {
     title: "Supply Chain",
     items: [
-      { label: "Inventory",       detail: "Stock and counts",      path: "/inventory",       icon: Warehouse, status: "status-success" },
-      { label: "Purchased Items", detail: "Goods and prices",      path: "/purchased-items", icon: Package,   status: "status-success" },
-      { label: "Vendors",         detail: "Contacts and ordering", path: "/vendors",         icon: Truck,     status: "status-success" },
+      { label: "Receiving",       detail: "Invoices and deliveries", path: "/receiving",       icon: Truck,     status: "status-success" },
+      { label: "Inventory",       detail: "Stock and counts",        path: "/inventory",       icon: Warehouse, status: "status-success" },
+      { label: "Purchased Items", detail: "Goods and prices",        path: "/purchased-items", icon: Package,   status: "status-success" },
+      { label: "Vendors",         detail: "Contacts and ordering",   path: "/vendors",         icon: Truck,     status: "status-success" },
     ],
   },
   {

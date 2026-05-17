@@ -1,8 +1,9 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { lazy, Suspense, useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { OperationalProvider } from '@/lib/OperationalContext';
 import { UnifiedStateProvider } from '@/lib/UnifiedStateContext';
@@ -78,6 +79,8 @@ const OnboardingSimulator = lazy(() => import('./pages/OnboardingSimulator'));
 const Shift = lazy(() => import('./pages/Shift'));
 const TemplateManager = lazy(() => import('./pages/TemplateManager'));
 const AppOverview = lazy(() => import('./pages/AppOverview'));
+const TeamStructureWizard = lazy(() => import('./pages/TeamStructureWizard'));
+const Receiving = lazy(() => import('./pages/Receiving'));
 
 function RouteFallback() {
   return (
@@ -85,6 +88,39 @@ function RouteFallback() {
       <div className="heard-spinner" />
     </div>
   );
+}
+
+// Redirects new users to onboarding if they haven't completed it yet.
+function RootRedirect({ isAdmin }) {
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      // Non-admins go directly to their shift view
+      navigate('/station-shift', { replace: true });
+      return;
+    }
+    base44.entities.Settings.filter({ key: 'onboarding_complete' })
+      .then((rows) => {
+        if (!rows || rows.length === 0 || rows[0]?.value !== 'true') {
+          navigate('/onboarding', { replace: true });
+        } else {
+          navigate('/app/overview', { replace: true });
+        }
+      })
+      .catch(() => navigate('/app/overview', { replace: true }))
+      .finally(() => setChecking(false));
+  }, [isAdmin, navigate]);
+
+  if (checking) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="heard-spinner" />
+      </div>
+    );
+  }
+  return null;
 }
 
 const AuthenticatedApp = () => {
@@ -121,7 +157,7 @@ const AuthenticatedApp = () => {
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to={isAdmin ? "/app/overview" : "/station-shift"} replace />} />
+          <Route path="/" element={<RootRedirect isAdmin={isAdmin} />} />
           <Route path="/app/overview" element={<AppOverview />} />
           <Route path="/station-shift" element={<StaffShift />} />
           <Route path="/tasks" element={<PermissionGate permission={PERMISSIONS.COMPLETE_TASKS}><StaffTasks /></PermissionGate>} />
@@ -182,6 +218,7 @@ const AuthenticatedApp = () => {
           <Route path="/location-setup" element={<LocationSetup />} />
           <Route path="/setup-journey" element={<SetupJourney />} />
           <Route path="/restaurant-setup-wizard" element={<RestaurantSetupWizard />} />
+          <Route path="/team-structure-wizard" element={<TeamStructureWizard />} />
           <Route path="/notepad" element={<Notepad />} />
           <Route path="/cash-drawer" element={<CashDrawer />} />
           <Route path="/automation-rules" element={<AutomationRules />} />
@@ -189,6 +226,7 @@ const AuthenticatedApp = () => {
           <Route path="/my-restaurant" element={<MyRestaurant />} />
           <Route path="/notifications" element={<NotificationSettings />} />
           <Route path="/build-cards" element={<BuildCards />} />
+          <Route path="/receiving" element={<Receiving />} />
           <Route path="/schedule-import" element={<ScheduleImport />} />
           <Route path="/temperature-dashboard" element={<TemperatureDashboard />} />
           <Route path="/temperature-monitoring" element={<TemperatureMonitoring />} />
