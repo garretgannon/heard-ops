@@ -3,10 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
-import { Plus, Settings, Search, Wand2, Download, ClipboardList, CheckSquare, AlertCircle, ShieldCheck, Thermometer, AlertTriangle, Wrench, Trash2, MessageSquare, ArrowRightLeft, Wind, ChevronRight, Zap, TrendingUp } from 'lucide-react';
+import { Plus, Settings, Search, Wand2, Download, ClipboardList, CheckSquare, AlertCircle, ShieldCheck, Thermometer, AlertTriangle, Wrench, Trash2, MessageSquare, ArrowRightLeft, Wind, ChevronRight, Zap, TrendingUp, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
-import LogsInboxHeader from '@/components/logcenter/LogsInboxHeader';
 import LogsFeedView from '@/components/logcenter/LogsFeedView';
 import LogsDetailDrawer from '@/components/logcenter/LogsDetailDrawer';
 import LogsFilterSidebar from '@/components/logcenter/LogsFilterSidebar';
@@ -208,7 +207,7 @@ export default function LogsCenter() {
   }
 
   return (
-    <div className="flex h-screen bg-background lg:overflow-hidden pb-40 lg:pb-0">
+    <div className="flex flex-col bg-background lg:h-screen lg:overflow-hidden pb-40 lg:pb-0">
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:overflow-hidden">
         {/* Desktop page header — inline (no sticky) since parent is overflow-hidden flex column */}
@@ -316,19 +315,29 @@ export default function LogsCenter() {
           })}
         </div>
 
-        {/* Inbox Header with Stats */}
-        <LogsInboxHeader
-          logs={logs}
-          onStatClick={(statId) => {
-            const filterMap = {
-              today: 'all',
-              review: 'needs_attention',
-              temp_failed: 'temperature',
-              issues: 'incident',
-            };
-            setActiveFilter(filterMap[statId] || 'all');
-          }}
-        />
+        {/* Mobile stat chips */}
+        <div className="lg:hidden grid grid-cols-4 gap-2 px-4 py-3 border-b border-border/20">
+          {[
+            { id: 'all',             icon: Clock,         label: 'Today',  value: todaysLogs.length,                                                   color: 'text-blue-400'  },
+            { id: 'needs_attention', icon: CheckSquare,   label: 'Review', value: logs.filter(l => l.requires_review || l.status === 'open').length,    color: 'text-amber-400' },
+            { id: 'temperature',     icon: Thermometer,   label: 'Temps',  value: todayTemps.length,                                                    color: 'text-red-400'   },
+            { id: 'incident',        icon: AlertTriangle, label: 'Issues', value: openIssues.length,                                                    color: 'text-red-400'   },
+          ].map(stat => {
+            const Icon = stat.icon;
+            return (
+              <button
+                key={stat.id}
+                onClick={() => setActiveFilter(stat.id)}
+                className="flex flex-col items-center gap-1 p-2.5 rounded-xl border border-border/20 active:scale-95 transition-all"
+                style={{ background: 'rgba(255,255,255,0.04)' }}
+              >
+                <Icon className={`h-4 w-4 ${stat.color}`} />
+                <p className="text-sm font-black text-foreground">{stat.value}</p>
+                <p className="text-[9px] font-bold text-muted-foreground text-center leading-tight">{stat.label}</p>
+              </button>
+            );
+          })}
+        </div>
 
         {/* View Tabs */}
         <div className="border-b border-border/20 px-4 pt-4 pb-2.5 flex items-center gap-1 overflow-x-auto scrollbar-hide">

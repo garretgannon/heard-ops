@@ -17,23 +17,31 @@ export default function LogTypeSelector({ isOpen, onClose, onSelect }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end justify-center lg:items-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal */}
-      <div className="relative bg-card rounded-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+      {/* Sheet */}
+      <div className="relative w-full lg:max-w-2xl lg:mx-4 max-h-[85vh] overflow-hidden flex flex-col" style={{ background: '#0b1118', borderRadius: '20px 20px 0 0' }} >
+        {/* Handle bar (mobile only) */}
+        <div className="lg:hidden flex justify-center pt-3 pb-1">
+          <div className="h-1 w-10 rounded-full bg-white/20" />
+        </div>
+
         {/* Header */}
-        <div className="border-b border-border/20 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-foreground">Select Log Type</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-            <X className="h-5 w-5" />
+        <div className="border-b border-border/20 px-5 py-3 flex items-center justify-between">
+          <h2 className="text-[15px] font-black text-foreground">Select Log Type</h2>
+          <button
+            onClick={onClose}
+            className="h-7 w-7 flex items-center justify-center rounded-full bg-white/[0.06] border border-border/30"
+          >
+            <X className="h-3.5 w-3.5 text-foreground" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          <div className="grid grid-cols-2 gap-3">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="grid grid-cols-2 gap-2.5">
             {LOG_TYPES.map((type) => (
               <button
                 key={type.id}
@@ -41,10 +49,11 @@ export default function LogTypeSelector({ isOpen, onClose, onSelect }) {
                   onSelect?.(type.id);
                   onClose();
                 }}
-                className="p-4 rounded-lg border border-border/40 bg-background hover:border-primary hover:bg-primary/5 transition-all active:scale-95 text-left"
+                className="p-3.5 rounded-xl border border-border/30 text-left active:scale-95 transition-all"
+                style={{ background: 'rgba(255,255,255,0.04)' }}
               >
                 <div className="text-2xl mb-2">{type.icon}</div>
-                <div className="font-semibold text-sm text-foreground">{type.label}</div>
+                <div className="font-bold text-[13px] text-foreground leading-tight">{type.label}</div>
               </button>
             ))}
           </div>
