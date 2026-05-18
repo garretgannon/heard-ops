@@ -345,23 +345,6 @@ export default function CashDrawer() {
   return (
     <div className="app-screen">
 
-      {/* ══ MOBILE TOP BAR ══════════════════════════════════════════════ */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-background border-b border-border shrink-0">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted text-sm font-semibold text-foreground">
-          <ChevronLeft className="h-4 w-4" /> Back
-        </button>
-        <h1 className="text-base font-extrabold text-foreground">Cash Drawer</h1>
-        <div className="flex items-center gap-2">
-          <button className="relative h-9 w-9 flex items-center justify-center rounded-full bg-muted">
-            <Bell className="h-4 w-4 text-foreground" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
-          </button>
-          <button className="h-9 w-9 flex items-center justify-center rounded-full bg-muted">
-            <UserCircle className="h-5 w-5 text-foreground" />
-          </button>
-        </div>
-      </div>
-
       {/* Desktop header */}
       <div className="hidden lg:block">
         <DesktopPageHeader title="Cash Drawer" subtitle="Count and balance the drawer for the shift." />

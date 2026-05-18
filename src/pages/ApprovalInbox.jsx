@@ -10,7 +10,7 @@ import DenialReasonDrawer from '@/components/approval/DenialReasonDrawer';
 import ApprovalDetailSheet from '@/components/approval/ApprovalDetailSheet';
 import ApprovalFilters from '@/components/approval/ApprovalFilters';
 import ClearBurst from '@/components/approval/ClearBurst';
-import { Flame, Star, Trophy, Zap, Crown, ChefHat, Sparkles } from 'lucide-react';
+import { Flame, Star, Trophy, Zap, Crown, ChefHat, Sparkles, AlertTriangle, Eye, CheckCircle2, Settings, FileText, ClipboardList } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // ─── Gamification config ──────────────────────────────────────────────────────
@@ -367,8 +367,137 @@ export default function ApprovalInbox() {
   // ── Main ────────────────────────────────────────────────────────────────────
   return (
     <div className="app-screen">
-      <DesktopPageHeader title="Approvals" />
-      <main className="app-page flex min-h-[calc(100vh-150px)] flex-col gap-4">
+
+      {/* ═══════════════════════ DESKTOP ════════════════════════════════════ */}
+      <div className="hidden lg:flex flex-col gap-5 -mt-7">
+
+        {/* Page title */}
+        <div>
+          <h1 className="text-[30px] font-black text-foreground tracking-tight">Approvals</h1>
+          <p className="text-sm text-muted-foreground mt-1">Review submitted items, requests, and exceptions</p>
+        </div>
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-4 gap-4">
+          {[
+            { label: 'PENDING',      value: approvals.length,                                     Icon: ClipboardList, iconCls: 'text-muted-foreground', circleCls: 'bg-white/[0.05] border-border/30' },
+            { label: 'URGENT',       value: approvals.filter(a => a.priority === 'high').length,  Icon: AlertTriangle,  iconCls: 'text-amber-400',        circleCls: 'bg-amber-500/10 border-amber-500/20' },
+            { label: 'NEEDS REVIEW', value: approvals.filter(a => a.requires_review).length,      Icon: Eye,            iconCls: 'text-muted-foreground', circleCls: 'bg-white/[0.05] border-border/30' },
+          ].map(({ label, value, Icon, iconCls, circleCls }) => (
+            <div key={label} className="rounded-2xl border border-border/30 p-5 flex items-center gap-4" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+              <div className={`h-12 w-12 rounded-full border flex items-center justify-center shrink-0 ${circleCls}`}>
+                <Icon className={`h-5 w-5 ${iconCls}`} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+                <p className="text-[30px] font-black text-foreground leading-tight tabular-nums">{value}</p>
+              </div>
+            </div>
+          ))}
+          {/* Status card */}
+          <div className="rounded-2xl border border-border/30 p-5 flex items-center gap-4" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+            <div className="h-12 w-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-green-400" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">STATUS</p>
+              <p className={`text-lg font-black leading-tight ${isComplete ? 'text-green-400' : 'text-foreground'}`}>
+                {isComplete ? 'All Caught Up' : `${remaining.length} Pending`}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter chips */}
+        <ApprovalFilters currentFilter={filter} onFilterChange={setFilter} />
+
+        {/* 2-column: main content + sidebar */}
+        <div className="flex gap-4 items-start">
+
+          {/* Main content */}
+          <div className="flex-1">
+            {isComplete ? (
+              <div className="rounded-2xl border border-border/30 flex flex-col items-center justify-center py-16 px-8 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+                <div className="h-20 w-20 rounded-full border-2 border-green-500/30 flex items-center justify-center mb-6" style={{ background: 'rgba(34,197,94,0.07)' }}>
+                  <CheckCircle2 className="h-10 w-10 text-green-400" strokeWidth={1.5} />
+                </div>
+                <p className="text-[20px] font-black text-foreground mb-2">No approvals to review</p>
+                <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
+                  Completed checklists, prep photos, temp logs, schedule requests, and manager notes will appear here when they need review.
+                </p>
+                <div className="flex items-center gap-3 mt-8">
+                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border/40 bg-white/[0.04] text-sm font-semibold text-foreground hover:bg-white/[0.07] transition-all">
+                    <FileText className="h-4 w-4" /> View Completed
+                  </button>
+                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border/40 bg-white/[0.04] text-sm font-semibold text-foreground hover:bg-white/[0.07] transition-all">
+                    <Settings className="h-4 w-4" /> Approval Settings
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div ref={cardAreaRef} className="relative">
+                <div className="mb-2 flex items-center justify-between px-1">
+                  <PointBadge approval={currentApproval} combo={combo} />
+                  <span className="text-[10px] font-bold text-muted-foreground">{currentPosition} of {filteredApprovals.length}</span>
+                </div>
+                <ApprovalCard
+                  approval={currentApproval}
+                  index={currentPosition}
+                  total={filteredApprovals.length}
+                  onApprove={handleApprove}
+                  onDeny={handleDeny}
+                  onViewDetails={() => setDetailSheet(currentApproval)}
+                />
+                <div className="pointer-events-none absolute inset-0">
+                  <AnimatePresence>
+                    {xpFloats.map(f => (
+                      <XpFloat key={f.id} amount={f.amount} onDone={() => setXpFloats(prev => prev.filter(x => x.id !== f.id))} />
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Your Progress sidebar */}
+          <div className="w-[360px] shrink-0">
+            <div className="rounded-2xl border border-border/30 p-5" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+              <div className="flex items-center justify-between mb-5">
+                <p className="text-[15px] font-black text-foreground">Your Progress</p>
+                <Trophy className="h-5 w-5 text-muted-foreground/40" />
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">RANK</p>
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="h-12 w-12 rounded-full border border-border/40 bg-white/[0.05] flex items-center justify-center shrink-0"
+                  style={{ boxShadow: score > 0 ? `0 0 14px ${rank.glow}` : 'none' }}
+                >
+                  <RankIcon className={cn('h-6 w-6', rank.color)} />
+                </div>
+                <p className={cn('text-[22px] font-black', rank.color)}>{rank.title}</p>
+              </div>
+              <div className="mb-5">
+                <RankProgressBar score={score} />
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+                DAILY GOAL {processedToday}/{DAILY_GOAL}
+              </p>
+              <DailyDots count={processedToday} goal={DAILY_GOAL} />
+              <AnimatePresence>
+                {combo >= 2 && (
+                  <div className="mt-4">
+                    <ComboFlash key={`combo-${combo}`} combo={combo} />
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ═══════════════════════ MOBILE ═════════════════════════════════════ */}
+      <main className="app-page lg:hidden flex min-h-[calc(100vh-150px)] flex-col gap-4">
 
         {/* HUD */}
         <div
@@ -378,14 +507,9 @@ export default function ApprovalInbox() {
             boxShadow: score > 0 ? `0 0 0 1px rgba(230,106,31,0.15), 0 4px 24px rgba(0,0,0,0.4)` : '0 1px 3px rgba(0,0,0,0.4)',
           }}
         >
-          {/* Score row */}
           <div className="flex items-center justify-between gap-4">
-            {/* Rank badge */}
             <div className="flex items-center gap-2">
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50"
-                style={{ background: 'rgba(0,0,0,0.3)', boxShadow: score > 0 ? `0 0 12px ${rank.glow}` : 'none' }}
-              >
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50" style={{ background: 'rgba(0,0,0,0.3)', boxShadow: score > 0 ? `0 0 12px ${rank.glow}` : 'none' }}>
                 <RankIcon className={cn('h-4 w-4', rank.color)} />
               </div>
               <div>
@@ -393,71 +517,46 @@ export default function ApprovalInbox() {
                 <p className={cn('text-xs font-black leading-tight', rank.color)}>{rank.title}</p>
               </div>
             </div>
-
-            {/* Score */}
             <div className="text-center">
               <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Score</p>
               <ScoreCounter score={score} />
             </div>
-
-            {/* Streak */}
             <div className="text-right">
               <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Streak</p>
               <div className="flex items-center justify-end gap-1">
-                <Flame className={cn('h-4 w-4 transition-colors', combo >= 2 ? 'text-orange-400' : 'text-muted-foreground/40')}
-                  style={combo >= 2 ? { filter: 'drop-shadow(0 0 4px rgba(251,146,60,0.6))' } : undefined}
-                />
-                <span className={cn('text-2xl font-black tabular-nums', combo >= 2 ? 'text-orange-400' : 'text-muted-foreground/50')}>
-                  {combo}
-                </span>
+                <Flame className={cn('h-4 w-4 transition-colors', combo >= 2 ? 'text-orange-400' : 'text-muted-foreground/40')} style={combo >= 2 ? { filter: 'drop-shadow(0 0 4px rgba(251,146,60,0.6))' } : undefined} />
+                <span className={cn('text-2xl font-black tabular-nums', combo >= 2 ? 'text-orange-400' : 'text-muted-foreground/50')}>{combo}</span>
               </div>
             </div>
           </div>
-
-          {/* Rank progress bar */}
-          <div className="mt-3">
-            <RankProgressBar score={score} />
-          </div>
-
-          {/* Daily goal */}
+          <div className="mt-3"><RankProgressBar score={score} /></div>
           <div className="mt-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Trophy className="h-3 w-3 text-muted-foreground/60" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                Daily goal {processedToday}/{DAILY_GOAL}
-              </span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Daily goal {processedToday}/{DAILY_GOAL}</span>
             </div>
             <DailyDots count={processedToday} goal={DAILY_GOAL} />
           </div>
         </div>
 
-        {/* Combo flash */}
         <AnimatePresence>
           {combo >= 2 && <ComboFlash key={`combo-${combo}`} combo={combo} />}
         </AnimatePresence>
 
-        {/* Filters */}
         <ApprovalFilters currentFilter={filter} onFilterChange={setFilter} />
 
-        {/* Card area */}
         {remaining.length === 0 ? (
           <div className="app-card flex-1 py-12 text-center">
             <div className="status-marker status-marker-lg status-success mx-auto mb-4">0</div>
             <p className="text-sm font-semibold text-muted-foreground">No approvals to review</p>
-            {emptyApprovalsCopy && (
-              <p className="text-xs text-muted-foreground/40 mt-1.5">{emptyApprovalsCopy}</p>
-            )}
+            {emptyApprovalsCopy && <p className="text-xs text-muted-foreground/40 mt-1.5">{emptyApprovalsCopy}</p>}
           </div>
         ) : (
           <div ref={cardAreaRef} className="relative flex flex-1 flex-col">
-            {/* Point badge above card */}
             <div className="mb-2 flex items-center justify-between px-1">
               <PointBadge approval={currentApproval} combo={combo} />
-              <span className="text-[10px] font-bold text-muted-foreground">
-                {currentPosition} of {filteredApprovals.length}
-              </span>
+              <span className="text-[10px] font-bold text-muted-foreground">{currentPosition} of {filteredApprovals.length}</span>
             </div>
-
             <ApprovalCard
               approval={currentApproval}
               index={currentPosition}
@@ -466,16 +565,10 @@ export default function ApprovalInbox() {
               onDeny={handleDeny}
               onViewDetails={() => setDetailSheet(currentApproval)}
             />
-
-            {/* XP float animations */}
             <div className="pointer-events-none absolute inset-0">
               <AnimatePresence>
                 {xpFloats.map(f => (
-                  <XpFloat
-                    key={f.id}
-                    amount={f.amount}
-                    onDone={() => setXpFloats(prev => prev.filter(x => x.id !== f.id))}
-                  />
+                  <XpFloat key={f.id} amount={f.amount} onDone={() => setXpFloats(prev => prev.filter(x => x.id !== f.id))} />
                 ))}
               </AnimatePresence>
             </div>
