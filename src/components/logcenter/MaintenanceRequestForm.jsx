@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const PRIORITIES = ['Low', 'Medium', 'High', 'Urgent'];
 const STATUSES = ['Open', 'In Progress', 'Waiting on Vendor', 'Completed', 'Cancelled'];
@@ -101,7 +102,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
       photo_url: photoUrl,
     }).then(onSave).catch(err => {
       console.error('Failed to save maintenance request:', err);
-      alert('Failed to save maintenance request');
+      toast.error('Failed to save maintenance request');
     });
   };
 

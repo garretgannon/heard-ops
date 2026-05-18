@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const CATEGORIES = [
   'Guest injury',
@@ -106,7 +107,7 @@ export default function IncidentReportForm({ onSave, loading }) {
       resolution_notes: form.resolution_notes,
     }).then(onSave).catch(err => {
       console.error('Failed to save incident report:', err);
-      alert('Failed to save incident report');
+      toast.error('Failed to save incident report');
     });
   };
 

@@ -129,7 +129,7 @@ function PrivateRow({ item, onDelete }) {
           {meta.label} · Private · {formatTime(item.created_at)}
         </p>
       </div>
-      <button onClick={() => onDelete(item.id)} className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-red-400 transition-colors shrink-0">
+      <button onClick={() => onDelete(item.id)} className="h-10 w-10 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-red-400 transition-colors shrink-0">
         <X className="h-3.5 w-3.5" />
       </button>
     </div>
@@ -309,19 +309,16 @@ export default function NotesAndComms() {
   return (
     <div className="app-screen">
 
-      {/* Desktop header */}
-      <div className="hidden lg:block">
-        <DesktopPageHeader title="Notes & Comms" subtitle="Capture, share, and track everything from one place." />
-      </div>
+      <DesktopPageHeader title="Notes & Comms" subtitle="Capture, share, and track everything from one place." />
 
       {/* ══ TAB BAR ═════════════════════════════════════════════════════ */}
-      <div className="flex shrink-0 border-b border-border bg-background">
+      <div className="flex shrink-0 overflow-x-auto scrollbar-hide border-b border-border bg-background">
         {TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              'relative flex items-center gap-1.5 px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap',
+              'relative shrink-0 flex items-center gap-1.5 px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap',
               activeTab === tab ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
             )}
           >
@@ -551,11 +548,21 @@ export default function NotesAndComms() {
                   <MessageSquare className="h-7 w-7 text-muted-foreground/30" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Feed is empty</p>
-                  <p className="text-xs text-muted-foreground mt-1.5 max-w-[200px] mx-auto leading-5">
-                    Shared items you post will appear here.
+                  <p className="text-sm font-bold text-foreground">Nothing posted yet</p>
+                  <p className="text-xs text-muted-foreground mt-1.5 max-w-[220px] mx-auto leading-5">
+                    Share a note, announcement, or task with your team. It'll show up here for the whole shift.
                   </p>
                 </div>
+                <button
+                  onClick={() => setActiveTab('Capture')}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white active:scale-[0.97] transition-all"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+                    boxShadow: '0 0 0 1px rgba(230,106,31,0.3)',
+                  }}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Post Something
+                </button>
               </div>
             ) : (
               feedThreads.map(thread => (

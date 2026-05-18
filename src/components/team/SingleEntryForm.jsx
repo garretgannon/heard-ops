@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 
 const DEPARTMENTS = ['FOH', 'BOH', 'Bar', 'Management', 'Support'];
 const PAY_TYPES = ['/ hr', 'salary'];
@@ -107,6 +108,7 @@ export default function SingleEntryForm({ onSuccess }) {
       }, 1500);
     } catch (err) {
       console.error(err);
+      toast.error('Failed to add employee');
     }
     setIsSubmitting(false);
   };

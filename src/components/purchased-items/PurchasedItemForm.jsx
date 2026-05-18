@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
 import { X, Package, AlertTriangle, BookOpen, ChefHat, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const PURCHASE_UNITS = ['case','each','pound','ounce','gallon','quart','pint','cup','liter','milliliter','kilogram','gram','bottle','can','bag','box','sleeve','bunch','dozen','tray','pan','keg'];
 const RECIPE_UNITS = ['each','lb','oz','gal','qt','pt','cup','tbsp','tsp','liter','ml','kg','g'];
@@ -128,42 +129,48 @@ export default function PurchasedItemForm({ item, onSave, onClose }) {
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const save = async () => {
-    if (!form.itemName.trim()) { setNameError(true); return; }
+    if (!form.itemName.trim()) { setNameError(true); toast.error('Item name is required'); return; }
     setNameError(false);
     setSaving(true);
-    const payload = { ...form };
-    ['caseQuantity','innerPackQuantity','itemSize','caseCost','unitCost','conversionFactor',
-     'costPerRecipeUnit','edibleYieldPercent','trimWastePercent','parLevel','reorderPoint'].forEach(k => {
-      if (payload[k] !== '' && payload[k] !== undefined) payload[k] = parseFloat(payload[k]) || 0;
-    });
-    payload.normalizedName = form.itemName.toLowerCase().trim();
+    try {
+      const payload = { ...form };
+      ['caseQuantity','innerPackQuantity','itemSize','caseCost','unitCost','conversionFactor',
+       'costPerRecipeUnit','edibleYieldPercent','trimWastePercent','parLevel','reorderPoint'].forEach(k => {
+        if (payload[k] !== '' && payload[k] !== undefined) payload[k] = parseFloat(payload[k]) || 0;
+      });
+      payload.normalizedName = form.itemName.toLowerCase().trim();
 
-    if (item?.id) {
-      if (item.caseCost !== payload.caseCost || item.unitCost !== payload.unitCost) {
-        const changePercent = item.caseCost && payload.caseCost
-          ? ((payload.caseCost - item.caseCost) / item.caseCost * 100).toFixed(1)
-          : 0;
-        await base44.entities.PurchasedItemPriceHistory.create({
-          purchasedItemId: item.id,
-          vendorName: payload.vendorName,
-          oldCaseCost: item.caseCost,
-          newCaseCost: payload.caseCost,
-          oldUnitCost: item.unitCost,
-          newUnitCost: payload.unitCost,
-          changePercent,
-          source: 'manual',
-          changedAt: new Date().toISOString(),
-        }).catch(() => {});
+      if (item?.id) {
+        if (item.caseCost !== payload.caseCost || item.unitCost !== payload.unitCost) {
+          const changePercent = item.caseCost && payload.caseCost
+            ? ((payload.caseCost - item.caseCost) / item.caseCost * 100).toFixed(1)
+            : 0;
+          await base44.entities.PurchasedItemPriceHistory.create({
+            purchasedItemId: item.id,
+            vendorName: payload.vendorName,
+            oldCaseCost: item.caseCost,
+            newCaseCost: payload.caseCost,
+            oldUnitCost: item.unitCost,
+            newUnitCost: payload.unitCost,
+            changePercent,
+            source: 'manual',
+            changedAt: new Date().toISOString(),
+          }).catch(() => {});
+          payload.lastPriceUpdate = new Date().toISOString();
+        }
+        await base44.entities.PurchasedItem.update(item.id, payload);
+      } else {
         payload.lastPriceUpdate = new Date().toISOString();
+        await base44.entities.PurchasedItem.create(payload);
       }
-      await base44.entities.PurchasedItem.update(item.id, payload);
-    } else {
-      payload.lastPriceUpdate = new Date().toISOString();
-      await base44.entities.PurchasedItem.create(payload);
+      haptics.success();
+      onSave?.();
+    } catch (err) {
+      console.error('Failed to save item:', err);
+      toast.error('Failed to save item');
+    } finally {
+      setSaving(false);
     }
-    haptics.success();
-    setSaving(false);
-    onSave?.();
   };
 
   const packSentence = buildPackSentence(form);

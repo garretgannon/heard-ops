@@ -66,6 +66,9 @@ export default function TemplateFormModal({ template, isNew, onClose, onSuccess 
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [jobCodes, setJobCodes] = useState([]);
+  const [stations, setStations] = useState([]);
+  const [areas, setAreas] = useState([]);
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }));
   const type = form.template_type;
@@ -79,6 +82,11 @@ export default function TemplateFormModal({ template, isNew, onClose, onSuccess 
     } else {
       setLoadingItems(false);
     }
+    Promise.all([
+      base44.entities.JobCode.list('name', 200).catch(() => []),
+      base44.entities.Station.list('name', 200).catch(() => []),
+      base44.entities.Area.list('name', 200).catch(() => []),
+    ]).then(([jc, st, ar]) => { setJobCodes(jc); setStations(st); setAreas(ar); });
   }, []);
 
   const handleSubmit = async () => {
@@ -168,12 +176,27 @@ export default function TemplateFormModal({ template, isNew, onClose, onSuccess 
 
       <div className="grid grid-cols-2 gap-3">
         <Section label="Assigned Role">
-          <input type="text" value={form.assigned_role} onChange={e => set('assigned_role', e.target.value)}
-            placeholder="e.g., Kitchen Lead" className="input-base" />
+          <select value={form.assigned_role || ''} onChange={e => set('assigned_role', e.target.value)} className="input-base">
+            <option value="">Any role</option>
+            {jobCodes.map(jc => (
+              <option key={jc.id} value={jc.name}>{jc.name}</option>
+            ))}
+          </select>
         </Section>
         <Section label="Station / Area">
-          <input type="text" value={form.assigned_station} onChange={e => set('assigned_station', e.target.value)}
-            placeholder="e.g., Sauté" className="input-base" />
+          <select value={form.assigned_station || ''} onChange={e => set('assigned_station', e.target.value)} className="input-base">
+            <option value="">Any station</option>
+            {areas.length > 0 && (
+              <optgroup label="Areas">
+                {areas.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
+              </optgroup>
+            )}
+            {stations.length > 0 && (
+              <optgroup label="Stations">
+                {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+              </optgroup>
+            )}
+          </select>
         </Section>
       </div>
 

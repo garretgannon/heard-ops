@@ -345,10 +345,7 @@ export default function CashDrawer() {
   return (
     <div className="app-screen">
 
-      {/* Desktop header */}
-      <div className="hidden lg:block">
-        <DesktopPageHeader title="Cash Drawer" subtitle="Count and balance the drawer for the shift." />
-      </div>
+      <DesktopPageHeader title="Cash Drawer" subtitle="Count and balance the drawer for the shift." />
 
       <div className="app-page">
 

@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const LOG_CATEGORIES = [
   'Coaching', 'Praise', 'Attendance', 'Policy issue', 'Performance',
@@ -85,7 +86,7 @@ export default function EmployeeLogForm({ onSave, loading }) {
       photo_urls: photoUrl ? [photoUrl] : [],
     }).then(onSave).catch(err => {
       console.error('Failed to save employee log:', err);
-      alert('Failed to save employee log');
+      toast.error('Failed to save employee log');
     });
   };
 

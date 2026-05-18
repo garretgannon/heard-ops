@@ -511,15 +511,15 @@ export default function AppOverview() {
   };
 
   const hasLiveSignals = metrics.totalTasks > 0 || metrics.pendingApprovals > 0 || metrics.openAlerts > 0 || metrics.equipmentIssues > 0;
-  const completedPercent = metrics.totalTasks > 0 ? Math.round((metrics.completedTasks / metrics.totalTasks) * 100) : 82;
-  const readiness = hasLiveSignals ? Math.max(64, Math.min(94, completedPercent || 82)) : 82;
+  const completedPercent = metrics.totalTasks > 0 ? Math.round((metrics.completedTasks / metrics.totalTasks) * 100) : 0;
+  const readiness = hasLiveSignals ? Math.max(64, Math.min(94, completedPercent)) : 0;
   const ringRadius = 54;
   const ringCircumference = 2 * Math.PI * ringRadius;
   const ringOffset = ringCircumference - (readiness / 100) * ringCircumference;
-  const overdueTasks = metrics.totalTasks > 0 ? Math.max(metrics.totalTasks - metrics.completedTasks, 0) : (hasLiveSignals ? 0 : 4);
-  const pendingApprovals = hasLiveSignals ? metrics.pendingApprovals : 7;
-  const issueCount = metrics.equipmentIssues || metrics.openAlerts || (hasLiveSignals ? 0 : 2);
-  const firstName = user?.first_name || user?.full_name?.split(' ')?.[0] || 'Alex';
+  const overdueTasks = metrics.totalTasks > 0 ? Math.max(metrics.totalTasks - metrics.completedTasks, 0) : 0;
+  const pendingApprovals = metrics.pendingApprovals;
+  const issueCount = metrics.equipmentIssues || metrics.openAlerts || 0;
+  const firstName = user?.first_name || user?.full_name?.split(' ')?.[0] || 'there';
   const hasApprovalQueue = approvalQueue.length > 0;
 
   const prepQueue = livePrepQueue;

@@ -107,11 +107,31 @@ export default function Vendors() {
         {loading ? (
           <div className="flex items-center justify-center h-32"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 card-glass border border-border rounded-xl">
-            <Truck className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-            <p className="text-sm font-semibold text-foreground mb-1">No vendors found</p>
-            <p className="text-xs text-muted-foreground">Add your first vendor to get started</p>
-          </div>
+          vendors.length === 0 ? (
+            <div className="flex flex-col items-center text-center py-16 px-6 card-glass border border-border rounded-xl">
+              <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
+                <Truck className="h-8 w-8 text-primary/60" />
+              </div>
+              <h3 className="text-base font-black text-foreground mb-1">No vendors yet</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-[260px]">
+                Add vendors to track rep contacts, delivery windows, and link them to purchased items and equipment.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { haptics.medium(); setEditingVendor(null); setShowForm(true); }}
+                  className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Vendor
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-16 card-glass border border-border rounded-xl">
+              <Truck className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
+              <p className="text-sm font-semibold text-foreground mb-1">No vendors match</p>
+              <p className="text-xs text-muted-foreground">Try adjusting your search or filters</p>
+            </div>
+          )
         ) : (
           <>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Vendor Directory</p>
@@ -149,16 +169,16 @@ export default function Vendors() {
                     {/* Actions */}
                     <div className="flex gap-2 pt-2">
                       {vendor.phone && (
-                        <a href={`tel:${vendor.phone}`} className="flex-1 h-8 rounded-lg bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
+                        <a href={`tel:${vendor.phone}`} className="flex-1 h-10 rounded-lg bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
                           <Phone className="h-3.5 w-3.5" /> Call
                         </a>
                       )}
                       {vendor.email && (
-                        <a href={`mailto:${vendor.email}`} className="flex-1 h-8 rounded-lg bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
+                        <a href={`mailto:${vendor.email}`} className="flex-1 h-10 rounded-lg bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
                           <Mail className="h-3.5 w-3.5" /> Email
                         </a>
                       )}
-                      <button onClick={() => { haptics.light(); setEditingVendor(vendor); setShowForm(true); }} className="btn-secondary flex-1 h-8 text-xs flex items-center justify-center gap-1">
+                      <button onClick={() => { haptics.light(); setEditingVendor(vendor); setShowForm(true); }} className="btn-secondary flex-1 h-10 text-xs flex items-center justify-center gap-1">
                         <Edit2 className="h-3.5 w-3.5" /> Edit
                       </button>
                     </div>

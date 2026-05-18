@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const TEMP_CATEGORIES = [
   { id: 'cooling', label: 'Cooling Log', min: 41, max: 70 },
@@ -118,7 +119,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
       is_out_of_range: isFailed,
     }).then(onSave).catch(err => {
       console.error('Failed to save temperature log:', err);
-      alert('Failed to save temperature log');
+      toast.error('Failed to save temperature log');
     });
   };
 

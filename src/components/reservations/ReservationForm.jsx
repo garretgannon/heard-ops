@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import { toast } from 'sonner';
 
 const STATUSES = ['booked','confirmed','seated','completed','cancelled','no-show'];
 const SOURCES = ['phone','website','opentable','resy','toast-tables','walk-in','manual','other'];
@@ -19,7 +20,7 @@ export default function ReservationForm({ reservation, onSave, onClose }) {
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const save = async () => {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) { toast.error('Reservation name is required'); return; }
     setSaving(true);
     try {
       if (reservation?.id) {
@@ -29,6 +30,8 @@ export default function ReservationForm({ reservation, onSave, onClose }) {
       }
       haptics.success();
       onSave();
+    } catch {
+      toast.error('Failed to save reservation');
     } finally {
       setSaving(false);
     }
@@ -37,11 +40,11 @@ export default function ReservationForm({ reservation, onSave, onClose }) {
   return (
     <div className="fixed inset-0 z-[1100] flex max-w-full flex-col overflow-x-hidden bg-background">
       <div className="flex min-w-0 shrink-0 items-center gap-3 border-b border-border bg-card px-4 py-3">
-        <button type="button" onClick={onClose} disabled={saving} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center disabled:opacity-50">
+        <button type="button" onClick={onClose} disabled={saving} className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center disabled:opacity-50">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <h2 className="min-w-0 flex-1 truncate text-sm font-extrabold text-foreground">{reservation ? 'Edit Reservation' : 'New Reservation'}</h2>
-        <button type="button" onClick={save} disabled={saving || !form.name.trim()} className="btn-primary h-8 shrink-0 px-4 text-xs disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
+        <button type="button" onClick={save} disabled={saving || !form.name.trim()} className="btn-primary h-10 shrink-0 px-4 text-xs disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
       </div>
 
       <div className="min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto px-4 py-4 pb-10 [&_input]:min-w-0 [&_select]:min-w-0 [&_textarea]:min-w-0">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import {
@@ -165,7 +166,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
     <div className="fixed inset-0 bg-background z-50 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0 sticky top-0 z-10">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+        <button onClick={onClose} className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="flex-1 min-w-0">
@@ -187,13 +188,13 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
         </div>
         {isAdmin && (
           <div className="flex items-center gap-1.5 shrink-0">
-            <button onClick={() => onEdit(recipe)} className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5">
+            <button onClick={() => onEdit(recipe)} className="btn-primary h-10 px-3 text-xs flex items-center gap-1.5">
               <Edit2 className="h-3.5 w-3.5" /> Edit
             </button>
-            <button onClick={() => onDuplicate(recipe)} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title="Duplicate">
+            <button onClick={() => onDuplicate(recipe)} className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title="Duplicate">
               <Copy className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
-            <button onClick={() => onArchive(recipe)} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title={recipe.status === 'archived' ? 'Unarchive' : 'Archive'}>
+            <button onClick={() => onArchive(recipe)} className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title={recipe.status === 'archived' ? 'Unarchive' : 'Archive'}>
               <Archive className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </div>
@@ -588,71 +589,81 @@ function RecipeForm({ recipe, onSave, onClose }) {
   };
 
   const handleSaveDraft = async () => {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) { toast.error('Recipe name is required'); return; }
     setNameError('');
     setSaving(true);
-    if (await checkDuplicate()) {
-      setNameError('A recipe with this name already exists.');
+    try {
+      if (await checkDuplicate()) {
+        setNameError('A recipe with this name already exists.');
+        setActiveTab('basics');
+        return;
+      }
+      let recipeId = recipe?.id;
+      const payload = { ...form, status: 'draft' };
+      if (recipeId) {
+        await base44.entities.Recipe.update(recipeId, payload);
+      } else {
+        const created = await base44.entities.Recipe.create(payload);
+        recipeId = created.id;
+      }
+      for (const ing of ingredients) {
+        if (ing._new) { const { _new, id, ...data } = ing; await base44.entities.RecipeIngredient.create({ ...data, recipeId }); }
+        else if (ing._deleted && ing.id) { await base44.entities.RecipeIngredient.delete(ing.id); }
+        else if (ing.id && ing._dirty) { const { _dirty, ...data } = ing; await base44.entities.RecipeIngredient.update(ing.id, data); }
+      }
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        if (step._new) { const { _new, id, ...data } = step; await base44.entities.RecipeStep.create({ ...data, recipeId, stepNumber: i + 1 }); }
+        else if (step._deleted && step.id) { await base44.entities.RecipeStep.delete(step.id); }
+        else if (step.id && step._dirty) { const { _dirty, ...data } = step; await base44.entities.RecipeStep.update(step.id, { ...data, stepNumber: i + 1 }); }
+      }
+      haptics.success();
+      onSave?.();
+    } catch (err) {
+      console.error('Failed to save draft:', err);
+      toast.error('Failed to save draft');
+    } finally {
       setSaving(false);
-      setActiveTab('basics');
-      return;
     }
-    let recipeId = recipe?.id;
-    const payload = { ...form, status: 'draft' };
-    if (recipeId) {
-      await base44.entities.Recipe.update(recipeId, payload);
-    } else {
-      const created = await base44.entities.Recipe.create(payload);
-      recipeId = created.id;
-    }
-    for (const ing of ingredients) {
-      if (ing._new) { const { _new, id, ...data } = ing; await base44.entities.RecipeIngredient.create({ ...data, recipeId }); }
-      else if (ing._deleted && ing.id) { await base44.entities.RecipeIngredient.delete(ing.id); }
-      else if (ing.id && ing._dirty) { const { _dirty, ...data } = ing; await base44.entities.RecipeIngredient.update(ing.id, data); }
-    }
-    for (let i = 0; i < steps.length; i++) {
-      const step = steps[i];
-      if (step._new) { const { _new, id, ...data } = step; await base44.entities.RecipeStep.create({ ...data, recipeId, stepNumber: i + 1 }); }
-      else if (step._deleted && step.id) { await base44.entities.RecipeStep.delete(step.id); }
-      else if (step.id && step._dirty) { const { _dirty, ...data } = step; await base44.entities.RecipeStep.update(step.id, { ...data, stepNumber: i + 1 }); }
-    }
-    haptics.success();
-    setSaving(false);
-    onSave?.();
   };
 
   const save = async () => {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) { toast.error('Recipe name is required'); return; }
     setNameError('');
     setSaving(true);
-    if (await checkDuplicate()) {
-      setNameError('A recipe with this name already exists.');
+    try {
+      if (await checkDuplicate()) {
+        setNameError('A recipe with this name already exists.');
+        setActiveTab('basics');
+        return;
+      }
+      let recipeId = recipe?.id;
+      const payload = { ...form, status: 'approved' };
+      if (recipeId) {
+        await base44.entities.Recipe.update(recipeId, payload);
+      } else {
+        const created = await base44.entities.Recipe.create(payload);
+        recipeId = created.id;
+      }
+      for (const ing of ingredients) {
+        if (ing._new) { const { _new, id, ...data } = ing; await base44.entities.RecipeIngredient.create({ ...data, recipeId }); }
+        else if (ing._deleted && ing.id) { await base44.entities.RecipeIngredient.delete(ing.id); }
+        else if (ing.id && ing._dirty) { const { _dirty, ...data } = ing; await base44.entities.RecipeIngredient.update(ing.id, data); }
+      }
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        if (step._new) { const { _new, id, ...data } = step; await base44.entities.RecipeStep.create({ ...data, recipeId, stepNumber: i + 1 }); }
+        else if (step._deleted && step.id) { await base44.entities.RecipeStep.delete(step.id); }
+        else if (step.id && step._dirty) { const { _dirty, ...data } = step; await base44.entities.RecipeStep.update(step.id, { ...data, stepNumber: i + 1 }); }
+      }
+      haptics.success();
+      onSave?.();
+    } catch (err) {
+      console.error('Failed to save recipe:', err);
+      toast.error('Failed to save recipe');
+    } finally {
       setSaving(false);
-      setActiveTab('basics');
-      return;
     }
-    let recipeId = recipe?.id;
-    const payload = { ...form, status: 'approved' };
-    if (recipeId) {
-      await base44.entities.Recipe.update(recipeId, payload);
-    } else {
-      const created = await base44.entities.Recipe.create(payload);
-      recipeId = created.id;
-    }
-    for (const ing of ingredients) {
-      if (ing._new) { const { _new, id, ...data } = ing; await base44.entities.RecipeIngredient.create({ ...data, recipeId }); }
-      else if (ing._deleted && ing.id) { await base44.entities.RecipeIngredient.delete(ing.id); }
-      else if (ing.id && ing._dirty) { const { _dirty, ...data } = ing; await base44.entities.RecipeIngredient.update(ing.id, data); }
-    }
-    for (let i = 0; i < steps.length; i++) {
-      const step = steps[i];
-      if (step._new) { const { _new, id, ...data } = step; await base44.entities.RecipeStep.create({ ...data, recipeId, stepNumber: i + 1 }); }
-      else if (step._deleted && step.id) { await base44.entities.RecipeStep.delete(step.id); }
-      else if (step.id && step._dirty) { const { _dirty, ...data } = step; await base44.entities.RecipeStep.update(step.id, { ...data, stepNumber: i + 1 }); }
-    }
-    haptics.success();
-    setSaving(false);
-    onSave?.();
   };
 
   const fieldCls = "w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40";
@@ -895,21 +906,21 @@ function RecipeForm({ recipe, onSave, onClose }) {
                   </div>
                 ) : (
                   <div className="border border-border rounded-xl overflow-hidden">
-                    <div className="grid grid-cols-[1fr_80px_90px_32px] gap-2 px-3 py-2 bg-muted/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    <div className="grid grid-cols-[1fr_80px_90px_44px] gap-2 px-3 py-2 bg-muted/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                       <span>Ingredient</span><span>Qty</span><span>Unit</span><span />
                     </div>
                     {ingredients.filter(i => !i._deleted).map((ing, idx) => {
                       const rawIdx = ingredients.indexOf(ing);
                       return (
                       <div key={rawIdx} className={`border-t border-border/50 ${idx % 2 === 0 ? '' : 'bg-muted/10'}`}>
-                        <div className="grid grid-cols-[1fr_80px_90px_32px] gap-2 px-3 pt-2 pb-1 items-center">
+                        <div className="grid grid-cols-[1fr_80px_90px_44px] gap-2 px-3 pt-2 pb-1 items-center">
                           <input value={ing.ingredientName} onChange={e => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, ingredientName: e.target.value, _dirty: true} : x))} placeholder="Ingredient name" className="px-2 py-1.5 bg-background border border-border rounded text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40" />
                           <input type="number" value={ing.quantity} onChange={e => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, quantity: e.target.value, _dirty: true} : x))} placeholder="0" className="px-2 py-1.5 bg-background border border-border rounded text-sm text-center focus:outline-none focus:ring-1 focus:ring-primary/40" />
                           <select value={ing.unit} onChange={e => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, unit: e.target.value, _dirty: true} : x))} className="px-2 py-1.5 bg-background border border-border rounded text-sm focus:outline-none">
                             <option value="">—</option>
                             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                           </select>
-                          <button onClick={() => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, _deleted: true} : x))} className="flex items-center justify-center text-red-400 hover:text-red-300">
+                          <button onClick={() => setIngredients(p => p.map((x,i) => i===rawIdx ? {...x, _deleted: true} : x))} className="flex items-center justify-center min-h-[44px] text-red-400 hover:text-red-300">
                             <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
@@ -1344,10 +1355,32 @@ export default function Recipes() {
           {loading ? (
             <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-12">
-              <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-              <p className="text-sm text-muted-foreground">No recipes found</p>
-            </div>
+            recipes.length === 0 ? (
+              <div className="flex flex-col items-center text-center py-16 px-6">
+                <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
+                  <ChefHat className="h-8 w-8 text-primary/60" />
+                </div>
+                <h3 className="text-base font-black text-foreground mb-1">No recipes yet</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-[260px]">
+                  Add your first recipe to build your operational menu — ingredients, yield, allergens, and station instructions.
+                </p>
+                {isAdmin && (
+                  <div className="flex gap-2">
+                    <button onClick={() => { setEditing(null); setShowForm(true); }} className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5">
+                      <Plus className="h-3.5 w-3.5" /> Add Recipe
+                    </button>
+                    <button onClick={() => navigate('/recipe-bulk-import')} className="btn-secondary text-xs px-4 py-2 flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5" /> Bulk Import
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+                <p className="text-sm text-muted-foreground">No recipes match your search</p>
+              </div>
+            )
           ) : (
             <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2">
               {filtered.map(r => <RecipeCard key={r.id} recipe={r} onClick={() => { haptics.light(); setSelected(r); }} />)}
@@ -1366,10 +1399,10 @@ export default function Recipes() {
             </div>
             {isAdmin && (
               <div className="flex items-center gap-1.5">
-                <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-8 w-8 rounded-full bg-muted text-foreground flex items-center justify-center">
+                <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-10 w-10 rounded-full bg-muted text-foreground flex items-center justify-center">
                   <Sparkles className="h-4 w-4" />
                 </button>
-                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-8 w-8 rounded-full btn-primary flex items-center justify-center">
+                <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="h-10 w-10 rounded-full btn-primary flex items-center justify-center">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
@@ -1399,11 +1432,43 @@ export default function Recipes() {
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 card-glass border border-border rounded-xl">
-            <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-            <p className="text-sm text-muted-foreground">No recipes found</p>
-            {isAdmin && <button onClick={() => { setEditing(null); setShowForm(true); }} className="mt-3 btn-primary text-xs px-4 py-2 flex items-center gap-1 mx-auto"><Plus className="h-3.5 w-3.5" />Create Recipe</button>}
-          </div>
+          recipes.length === 0 ? (
+            <div className="flex flex-col items-center text-center py-14 px-4">
+              <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
+                <ChefHat className="h-8 w-8 text-primary/60" />
+              </div>
+              <h3 className="text-[18px] font-black text-foreground mb-2">No recipes yet</h3>
+              <p className="text-[13px] text-muted-foreground leading-relaxed mb-7 max-w-[260px]">
+                Add your first recipe to build your operational menu — ingredients, yield, allergens, and station instructions.
+              </p>
+              {isAdmin && (
+                <div className="flex flex-col gap-3 w-full max-w-xs">
+                  <button
+                    onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black text-white active:scale-[0.97] transition-all"
+                    style={{
+                      background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+                      boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.15)',
+                    }}
+                  >
+                    <Plus className="h-4 w-4" /> Add Recipe
+                  </button>
+                  <button
+                    onClick={() => { navigate('/recipe-bulk-import'); haptics.light(); }}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-foreground active:scale-[0.97] transition-all"
+                    style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'transparent' }}
+                  >
+                    <Sparkles className="h-4 w-4" /> Bulk Import
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12 card-glass border border-border rounded-xl">
+              <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+              <p className="text-sm text-muted-foreground">No recipes match your search</p>
+            </div>
+          )
         ) : (
           filtered.map(r => <RecipeCard key={r.id} recipe={r} onClick={() => { haptics.light(); setSelected(r); }} />)
         )}

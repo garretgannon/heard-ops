@@ -45,7 +45,7 @@ function SummaryCard({ items, isAdmin }) {
         </div>
         <Package className="h-5 w-5 text-primary shrink-0 mt-0.5" />
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         <div className="bg-muted/50 rounded-lg p-2 text-center">
           <p className="text-lg font-extrabold text-foreground">{items.length}</p>
           <p className="text-[9px] font-bold text-muted-foreground uppercase">Total</p>
@@ -291,20 +291,38 @@ export default function PurchasedItems() {
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 card-glass border border-border rounded-xl">
-            <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-            <p className="text-sm text-muted-foreground font-semibold">No items found</p>
-            {isAdmin && items.length === 0 && (
-              <div className="mt-3 flex flex-col items-center gap-2">
-                <button onClick={() => setShowImport(true)} className="btn-primary text-xs px-4 py-2 flex items-center gap-1">
-                  <Upload className="h-3.5 w-3.5" /> Import Items
-                </button>
-                <button onClick={() => { setEditingItem(null); setShowForm(true); }} className="btn-secondary text-xs px-4 py-2 flex items-center gap-1">
-                  <Plus className="h-3.5 w-3.5" /> Add Manually
-                </button>
+          items.length === 0 ? (
+            <div className="flex flex-col items-center text-center py-14 px-6 card-glass border border-border rounded-xl">
+              <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
+                <Package className="h-8 w-8 text-primary/60" />
               </div>
-            )}
-          </div>
+              <h3 className="text-base font-black text-foreground mb-1">No items in your database</h3>
+              {isAdmin ? (
+                <>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-[260px]">
+                    Import your invoice or add items manually to start tracking costs, counts, and vendor links.
+                  </p>
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowImport(true)} className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5">
+                      <Upload className="h-3.5 w-3.5" /> Import Items
+                    </button>
+                    <button onClick={() => { setEditingItem(null); setShowForm(true); }} className="btn-secondary text-xs px-4 py-2 flex items-center gap-1.5">
+                      <Plus className="h-3.5 w-3.5" /> Add Manually
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-[240px]">
+                  No items have been added yet. Ask your manager to import your inventory list.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12 card-glass border border-border rounded-xl">
+              <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+              <p className="text-sm text-muted-foreground font-semibold">No items match your search</p>
+            </div>
+          )
         ) : (
           <>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{filtered.length} item{filtered.length !== 1 ? 's' : ''}</p>

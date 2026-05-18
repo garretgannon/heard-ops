@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from 'sonner'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { lazy, Suspense, useState, useEffect } from 'react';
@@ -25,7 +26,6 @@ const Pulse = lazy(() => import('./pages/Pulse'));
 const StaffTasks = lazy(() => import('./pages/StaffTasks'));
 const StaffShift = lazy(() => import('./pages/StaffShift'));
 const LogsCenter = lazy(() => import('./pages/LogsCenter'));
-const CommsCenter = lazy(() => import('./pages/CommsCenter'));
 const MyShifts = lazy(() => import('./pages/MyShifts'));
 const More = lazy(() => import('./pages/More'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
@@ -59,7 +59,6 @@ const TemperatureLogTemplates = lazy(() => import('./pages/TemperatureLogTemplat
 const TemperatureDashboard = lazy(() => import('./pages/TemperatureDashboard'));
 const TemperatureMonitoring = lazy(() => import('./pages/TemperatureMonitoring'));
 const WasteTemplates = lazy(() => import('./pages/WasteTemplates'));
-const Notepad = lazy(() => import('./pages/Notepad'));
 const NotesAndComms = lazy(() => import('./pages/NotesAndComms'));
 const CashDrawer = lazy(() => import('./pages/CashDrawer'));
 const EightySixTemplates = lazy(() => import('./pages/86Templates'));
@@ -256,6 +255,7 @@ function App() {
               </Router>
             </TabHistoryProvider>
             <Toaster />
+            <SonnerToaster position="bottom-center" richColors />
           </QueryClientProvider>
         </RoleSimulationProvider>
         </SimulatorProvider>

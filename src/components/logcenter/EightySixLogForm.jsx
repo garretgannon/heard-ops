@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
 import LogTagManager from './LogTagManager';
 import { createLogTags } from '@/hooks/useLogTags';
+import { toast } from 'sonner';
 
 const NOTIFY_ROLES = [
   { id: 'managers', label: 'Managers' },
@@ -122,7 +123,7 @@ export default function EightySixLogForm({ onSave, loading }) {
       onSave();
     }).catch(err => {
       console.error('Failed to save 86 item:', err);
-      alert('Failed to save 86 item');
+      toast.error('Failed to save 86 item');
     });
   };
 

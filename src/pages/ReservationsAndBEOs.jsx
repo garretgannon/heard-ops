@@ -437,7 +437,7 @@ export default function ReservationsAndBEOs() {
                 if (activeTab === 'Reservations' || activeTab === 'Calendar') openReservationForm();
                 else openBEOForm();
               }}
-              className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-bold text-primary"
+              className="flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[13px] font-bold text-primary"
               style={{ border: '1px solid rgba(230,106,31,0.55)', background: 'transparent' }}
             >
               <Plus className="h-3.5 w-3.5" />
@@ -495,82 +495,36 @@ export default function ReservationsAndBEOs() {
           </div>
         ) : activeTab === 'Today' ? (
           todayEmpty ? (
-            <div className="space-y-3">
-              {/* Card 1: Today's Overview */}
-              <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-                <div className="px-4 pt-4 pb-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{"Today's Overview"}</p>
-                </div>
-                <div className="grid grid-cols-4 gap-2 px-3 pb-4">
-                  <div className="flex flex-col items-center bg-white/[0.04] rounded-xl p-3 gap-0.5">
-                    <User className="h-4 w-4 text-blue-400 mb-1" />
-                    <span className="text-xl font-extrabold text-foreground">{todayRes.length}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground text-center">Reservations</span>
+            <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+              <div className="flex flex-col items-center py-12 px-6 text-center gap-5">
+                <div className="relative">
+                  <div className="h-16 w-16 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+                    <Calendar className="h-8 w-8 text-muted-foreground/50" />
                   </div>
-                  <div className="flex flex-col items-center bg-white/[0.04] rounded-xl p-3 gap-0.5">
-                    <CalendarDays className="h-4 w-4 text-muted-foreground mb-1" />
-                    <span className="text-xl font-extrabold text-foreground">{todayBEOs.length}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground text-center">BEOs</span>
-                  </div>
-                  <div className="flex flex-col items-center bg-white/[0.04] rounded-xl p-3 gap-0.5">
-                    <Users className="h-4 w-4 text-muted-foreground mb-1" />
-                    <span className="text-xl font-extrabold text-foreground">{totalCovers}</span>
-                    <span className="text-[9px] font-bold text-muted-foreground text-center">Covers</span>
-                  </div>
-                  <div className="flex flex-col items-center bg-green-500/10 rounded-xl p-3 gap-0.5">
-                    <ChefHat className="h-4 w-4 text-green-400 mb-1" />
-                    <span className="text-sm font-extrabold text-green-400">{prepImpact}</span>
-                    <span className="text-[9px] font-bold text-green-400/80 text-center">Prep Impact</span>
+                  <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
+                    <X className="h-3 w-3 text-muted-foreground" />
                   </div>
                 </div>
-              </div>
-
-              {/* Card 2: Upcoming Today */}
-              <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-                <div className="px-4 pt-4 pb-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Upcoming Today</p>
+                <div>
+                  <p className="text-[16px] font-black text-foreground mb-1">Nothing booked for today</p>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[240px] mx-auto">
+                    Add a reservation or BEO to start tracking covers, prep impact, and service readiness.
+                  </p>
                 </div>
-                <div className="flex flex-col items-center py-6 px-4 gap-3">
-                  <div className="relative">
-                    <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
-                      <Calendar className="h-7 w-7 text-muted-foreground/50" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
-                      <X className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <p className="text-[13px] text-muted-foreground">Nothing scheduled for today</p>
-                  <div className="flex gap-2 w-full">
-                    <button
-                      onClick={() => { openBEOForm(); haptics.medium(); }}
-                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
-                      style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
-                    >
-                      <Plus className="h-3.5 w-3.5" /> Add Event
-                    </button>
-                    <button
-                      onClick={() => { setShowImportModal(true); haptics.medium(); }}
-                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
-                      style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
-                    >
-                      <Upload className="h-3.5 w-3.5" /> Import Events
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3: Recent Activity */}
-              <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-                <div className="px-4 pt-4 pb-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Recent Activity</p>
-                </div>
-                <div className="flex flex-col items-center py-5 px-4 gap-3">
-                  <p className="text-[12px] text-muted-foreground/60">No recent activity</p>
+                <div className="flex gap-2 w-full">
                   <button
-                    className="w-full rounded-xl py-2.5 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
-                    style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'transparent' }}
+                    onClick={() => { openBEOForm(); haptics.medium(); }}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
+                    style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
                   >
-                    View All Activity
+                    <Plus className="h-3.5 w-3.5" /> Add Event
+                  </button>
+                  <button
+                    onClick={() => { setActiveTab('Calendar'); haptics.light(); }}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                    style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+                  >
+                    <CalendarDays className="h-3.5 w-3.5" /> Full Calendar
                   </button>
                 </div>
               </div>

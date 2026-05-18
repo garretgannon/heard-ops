@@ -575,12 +575,12 @@ export default function ScheduleCenter() {
                 {pendingTimeOff > 0 && pendingTimeOff}
               </button>
               {isAdmin && (
-                <button onClick={() => setShowMassAdd(true)} className="h-8 px-3 rounded-lg bg-primary/10 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all">
+                <button onClick={() => setShowMassAdd(true)} className="h-10 px-3 rounded-lg bg-primary/10 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all">
                   <Plus className="h-3.5 w-3.5" /> Add
                 </button>
               )}
               <div className="w-px h-5 bg-border/30" />
-              <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border/50 text-muted-foreground hover:bg-card')}>
+              <button onClick={handlePublish} disabled={publishing} className={cn('h-10 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border/50 text-muted-foreground hover:bg-card')}>
                 <Download className="h-3.5 w-3.5" />
                 {publishing ? '…' : draftCount > 0 ? `Pub ${draftCount}` : 'Done'}
               </button>

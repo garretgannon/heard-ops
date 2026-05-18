@@ -368,14 +368,10 @@ export default function ApprovalInbox() {
   return (
     <div className="app-screen">
 
-      {/* ═══════════════════════ DESKTOP ════════════════════════════════════ */}
-      <div className="hidden lg:flex flex-col gap-5 -mt-7">
+      <DesktopPageHeader title="Approvals" subtitle="Review submitted items, requests, and exceptions" />
 
-        {/* Page title */}
-        <div>
-          <h1 className="text-[30px] font-black text-foreground tracking-tight">Approvals</h1>
-          <p className="text-sm text-muted-foreground mt-1">Review submitted items, requests, and exceptions</p>
-        </div>
+      {/* ═══════════════════════ DESKTOP ════════════════════════════════════ */}
+      <div className="hidden lg:flex flex-col gap-5 pt-14 pb-10">
 
         {/* Stat cards */}
         <div className="grid grid-cols-4 gap-4">
@@ -426,10 +422,10 @@ export default function ApprovalInbox() {
                   Completed checklists, prep photos, temp logs, schedule requests, and manager notes will appear here when they need review.
                 </p>
                 <div className="flex items-center gap-3 mt-8">
-                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border/40 bg-white/[0.04] text-sm font-semibold text-foreground hover:bg-white/[0.07] transition-all">
+                  <button className="flex items-center gap-2 px-5 h-10 rounded-xl border border-border/40 bg-white/[0.04] text-sm font-semibold text-foreground hover:bg-white/[0.07] transition-all">
                     <FileText className="h-4 w-4" /> View Completed
                   </button>
-                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border/40 bg-white/[0.04] text-sm font-semibold text-foreground hover:bg-white/[0.07] transition-all">
+                  <button className="flex items-center gap-2 px-5 h-10 rounded-xl border border-border/40 bg-white/[0.04] text-sm font-semibold text-foreground hover:bg-white/[0.07] transition-all">
                     <Settings className="h-4 w-4" /> Approval Settings
                   </button>
                 </div>

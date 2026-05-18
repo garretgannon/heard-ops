@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { TrendingUp, Clock, AlertCircle, CheckSquare, Users, ArrowRight, RefreshCw } from 'lucide-react';
+import { TrendingUp, Clock, AlertCircle, CheckSquare, Users, ArrowRight, RefreshCw, Activity, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BRAND_ASSETS } from '@/lib/brandAssets';
 
@@ -20,6 +20,7 @@ export default function Pulse() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasData, setHasData] = useState(false);
   const [metrics, setMetrics] = useState({ activeAlerts: 0, overdueItems: 0, completionRate: 0, teamOnDuty: 0, pendingApprovals: 0 });
 
   const loadMetrics = async ({ quiet = false } = {}) => {
@@ -32,6 +33,7 @@ export default function Pulse() {
         base44.entities.StaffShift?.list?.('-created_date', 20).catch(() => []),
       ]);
       const completedCount = tasks.filter(t => ['completed', 'approved'].includes(t.status)).length;
+      setHasData(tasks.length > 0 || logs.length > 0);
       setMetrics({
         activeAlerts:     logs.filter(l => l.priority === 'critical' || l.status === 'open').length,
         overdueItems:     tasks.filter(t => t.status === 'overdue').length,
@@ -68,6 +70,51 @@ export default function Pulse() {
   }
 
   const isHealthy = metrics.activeAlerts === 0 && metrics.overdueItems === 0;
+
+  if (!loading && !hasData) {
+    return (
+      <div className="app-screen flex flex-col items-center justify-center px-8 pt-16 pb-[calc(6rem+env(safe-area-inset-bottom))] text-center">
+        <div className="relative mb-8">
+          <span className="absolute -top-5 left-4 text-primary/30 text-sm select-none">✦</span>
+          <span className="absolute -top-1 -right-4 text-primary/20 text-xs select-none">✦</span>
+          <span className="absolute bottom-1 -left-5 text-primary/20 text-xs select-none">✦</span>
+          <span className="absolute -bottom-4 right-4 text-primary/30 text-sm select-none">✦</span>
+          <div
+            className="h-28 w-28 rounded-full flex items-center justify-center"
+            style={{
+              background: 'radial-gradient(circle, rgba(230,106,31,0.1) 0%, rgba(0,0,0,0.5) 70%)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 48px rgba(230,106,31,0.08)',
+            }}
+          >
+            <Activity className="h-12 w-12 text-primary" style={{ filter: 'drop-shadow(0 0 10px rgba(230,106,31,0.5))' }} />
+          </div>
+        </div>
+        <h2 className="text-[20px] font-black text-foreground mb-2">Pulse needs data to work</h2>
+        <p className="text-[14px] text-muted-foreground leading-relaxed mb-8 max-w-[280px]">
+          Set up your schedule, stations, and team to start tracking completion rates, alerts, and staff activity in real time.
+        </p>
+        <div className="w-full space-y-3 max-w-xs">
+          <button
+            onClick={() => navigate('/setup')}
+            className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
+            style={{
+              background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+              boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.18)',
+            }}
+          >
+            Go to Setup
+          </button>
+          <button
+            onClick={() => navigate('/logs')}
+            className="w-full rounded-xl py-4 text-[15px] font-semibold text-foreground active:scale-[0.97] transition-all"
+            style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'transparent' }}
+          >
+            View Logs
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-screen">

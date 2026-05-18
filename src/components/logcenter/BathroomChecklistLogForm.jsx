@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { toast } from 'sonner';
 
 const BATHROOM_LOCATIONS = ['Main Restroom', 'Patio Restroom', 'Staff Restroom', 'Other'];
 const CHECKLIST_ITEMS = [
@@ -58,12 +59,12 @@ export default function BathroomChecklistLogForm({ onSave, loading }) {
 
   const handleSave = async () => {
     if (!form.location) {
-      alert('Please select a bathroom location');
+      toast.error('Please select a bathroom location');
       return;
     }
 
     if (requiresAttention && !form.notes.trim()) {
-      alert('Bathroom checklist failed. Please provide notes about what needs attention.');
+      toast.error('Bathroom checklist failed — add notes about what needs attention');
       return;
     }
 
@@ -104,7 +105,7 @@ export default function BathroomChecklistLogForm({ onSave, loading }) {
       onSave?.();
     } catch (error) {
       console.error('Failed to save bathroom checklist:', error);
-      alert('Failed to save checklist');
+      toast.error('Failed to save checklist');
     }
   };
 

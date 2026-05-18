@@ -486,35 +486,37 @@ export default function PrepPlanning() {
             </button>
           </div>
 
-          {/* Today's Overview */}
-          <div className="space-y-3">
-            <h2 className="text-[16px] font-black text-foreground">Today's Overview</h2>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
-                <CheckCircle2 className={cn('h-5 w-5', belowParItems.length > 0 ? 'text-amber-400' : 'text-green-400')} />
-                <div>
-                  <p className="text-[20px] font-black text-foreground leading-none">{belowParItems.length}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">Below Par</p>
+          {/* Today's Overview — only shown once a count exists */}
+          {countSessions.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="text-[16px] font-black text-foreground">Today's Overview</h2>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
+                  <CheckCircle2 className={cn('h-5 w-5', belowParItems.length > 0 ? 'text-amber-400' : 'text-green-400')} />
+                  <div>
+                    <p className="text-[20px] font-black text-foreground leading-none">{belowParItems.length}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">Below Par</p>
+                  </div>
                 </div>
-              </div>
-              <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
-                <Zap className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-[20px] font-black text-foreground leading-none">{todayTasks.length}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">Tasks to Generate</p>
+                <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
+                  <Zap className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-[20px] font-black text-foreground leading-none">{todayTasks.length}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">Tasks to Generate</p>
+                  </div>
                 </div>
-              </div>
-              <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
-                <Calendar className="h-5 w-5 text-blue-400" />
-                <div>
-                  <p className="text-[20px] font-black text-foreground leading-none">
-                    {todayEvents.length > 0 ? todayEvents.length : 'None'}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">BEO Impact</p>
+                <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
+                  <Calendar className="h-5 w-5 text-blue-400" />
+                  <div>
+                    <p className="text-[20px] font-black text-foreground leading-none">
+                      {todayEvents.length > 0 ? todayEvents.length : 'None'}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">BEO Impact</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Station Prep Status */}
           <div className="space-y-3">
@@ -547,7 +549,7 @@ export default function PrepPlanning() {
                       <Icon className={cn('h-[18px] w-[18px]', sc.color)} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-bold text-foreground">{station.name}</p>
+                      <p className="text-[14px] font-bold text-foreground truncate">{station.name}</p>
                       <p className="text-[12px] text-muted-foreground">{bp} below par • {tsk} tasks</p>
                     </div>
                     <div className="flex items-center gap-0.5 shrink-0">
@@ -570,8 +572,8 @@ export default function PrepPlanning() {
           {/* ══ LEFT: Main content ══════════════════════════════════════════ */}
           <div className="space-y-4">
 
-            {/* Today's Status — 5 cards */}
-            <section>
+            {/* Today's Status — 5 cards (only when count data exists) */}
+            {countSessions.length > 0 && <section>
               <p className="metric-label px-1 mb-2">Today's Status</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
 
@@ -659,7 +661,7 @@ export default function PrepPlanning() {
                   } : undefined}
                 />
               </div>
-            </section>
+            </section>}
 
             {/* Station Prep Status */}
             <section>

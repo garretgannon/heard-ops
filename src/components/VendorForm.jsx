@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Save } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function VendorForm({ vendor, onClose, onSave }) {
   const [formData, setFormData] = useState(vendor || {
@@ -36,6 +37,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
   };
 
   const handleSave = async () => {
+    if (!formData.name.trim()) { toast.error('Vendor name is required'); return; }
     setSaving(true);
     try {
       const data = {
@@ -66,6 +68,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
       onSave();
     } catch (error) {
       console.error('Failed to save vendor:', error);
+      toast.error('Failed to save vendor');
       setSaving(false);
     }
   };

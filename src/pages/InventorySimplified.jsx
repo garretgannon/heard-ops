@@ -485,14 +485,14 @@ function ReviewCountView({ count, purchasedItems, onBack, onApprove, onSendBack,
         <button
           onClick={onSendBack}
           disabled={saving}
-          className="flex-1 h-10 rounded-xl border border-border/50 text-sm font-bold text-muted-foreground hover:text-foreground hover:border-border/70 transition-colors flex items-center justify-center gap-2"
+          className="flex-1 h-11 rounded-xl border border-border/50 text-sm font-bold text-muted-foreground hover:text-foreground hover:border-border/70 transition-colors flex items-center justify-center gap-2"
         >
           <Send className="h-3.5 w-3.5" /> Send Back
         </button>
         <button
           onClick={onApprove}
           disabled={saving}
-          className="flex-1 h-10 rounded-xl bg-green-500/80 hover:bg-green-500 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+          className="flex-1 h-11 rounded-xl bg-green-500/80 hover:bg-green-500 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
         >
           <ThumbsUp className="h-3.5 w-3.5" /> Approve
         </button>
@@ -620,7 +620,7 @@ function ExceptionsView({ todayCounts, onBack }) {
         className="shrink-0 px-4 py-4 border-t border-border/30"
         style={{ background: 'rgba(5,8,14,0.97)', paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}
       >
-        <button className="w-full btn-primary h-10 text-sm font-bold">
+        <button className="w-full btn-primary h-11 text-sm font-bold">
           Create Order Suggestion
         </button>
       </div>

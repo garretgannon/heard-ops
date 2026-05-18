@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { SYSTEM_ROLES } from '@/lib/roleVisibilityConfig';
+import { toast } from 'sonner';
 
 const departments = ['BOH', 'FOH', 'Bar', 'Management'];
 
@@ -21,7 +22,7 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      alert('Job code name is required');
+      toast.error('Job code name is required');
       return;
     }
     setSaving(true);
@@ -32,7 +33,7 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
       j.id !== jobCode?.id
     );
     if (isDuplicate) {
-      alert(`A job code named "${formData.name.trim()}" already exists.`);
+      toast.error(`A job code named "${formData.name.trim()}" already exists.`);
       setSaving(false);
       return;
     }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Plus, Trash2, ChevronLeft, Calendar, Clock, MapPin, Users, User, ConciergeBell, Star, Shield, Wine, Utensils, ArrowRight } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import { toast } from 'sonner';
 
 const EVENT_TYPES = ['private-dining','banquet','buyout','catering','tasting','meeting','wedding','corporate','holiday-party','other'];
 const SERVICE_STYLES = ['plated','buffet','family-style','passed-apps','stations','reception','bar-package','pickup-catering','drop-off-catering','other'];
@@ -62,7 +63,7 @@ export default function BEOForm({ beo, onSave, onClose }) {
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const save = async () => {
-    if (!form.eventName.trim()) return;
+    if (!form.eventName.trim()) { toast.error('Event name is required'); return; }
     setSaving(true);
     try {
       let beoId = beo?.id;
@@ -98,6 +99,8 @@ export default function BEOForm({ beo, onSave, onClose }) {
       }
       haptics.success();
       onSave();
+    } catch {
+      toast.error('Failed to save event');
     } finally {
       setSaving(false);
     }
@@ -145,20 +148,23 @@ export default function BEOForm({ beo, onSave, onClose }) {
       </div>
 
       {/* Tab bar */}
-      <div className="flex shrink-0 gap-2 overflow-x-auto px-4 pt-3 pb-2 scrollbar-hide bg-card border-b border-border">
-        {TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`shrink-0 px-3.5 py-1.5 rounded-full border text-xs font-semibold whitespace-nowrap transition-all ${
-              tab === t
-                ? 'bg-primary/10 border-primary/30 text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
+      <div className="relative shrink-0 bg-card border-b border-border">
+        <div className="flex gap-2 overflow-x-auto px-4 pt-3 pb-2 scrollbar-hide">
+          {TABS.map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`shrink-0 px-3.5 py-2 rounded-full border text-xs font-semibold whitespace-nowrap transition-all ${
+                tab === t
+                  ? 'bg-primary/10 border-primary/30 text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent" />
       </div>
 
       {/* Scrollable content */}
@@ -276,15 +282,15 @@ export default function BEOForm({ beo, onSave, onClose }) {
             {menuItems.filter(i => !i._deleted).map((item, idx) => (
               <div key={idx} className="card-glass max-w-full overflow-hidden rounded-xl border border-border p-3 space-y-2">
                 <div className="flex min-w-0 gap-2">
-                  <input value={item.itemName} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, itemName: e.target.value, _dirty:true} : x))} placeholder="Item name *" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input value={item.itemName} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, itemName: e.target.value, _dirty:true} : x))} placeholder="Item name *" className="flex-1 px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <button onClick={() => setMenuItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
                 <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
-                  <input value={item.course} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, course: e.target.value, _dirty:true} : x))} placeholder="Course" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <input type="number" value={item.quantity} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <input value={item.unit} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty:true} : x))} placeholder="Unit" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input value={item.course} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, course: e.target.value, _dirty:true} : x))} placeholder="Course" className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input type="number" value={item.quantity} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input value={item.unit} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty:true} : x))} placeholder="Unit" className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
                 </div>
-                <input value={item.notes} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, notes: e.target.value, _dirty:true} : x))} placeholder="Notes" className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input value={item.notes} onChange={e => setMenuItems(p => p.map((x,i) => i===idx ? {...x, notes: e.target.value, _dirty:true} : x))} placeholder="Notes" className="w-full px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
               </div>
             ))}
           </>
@@ -299,15 +305,15 @@ export default function BEOForm({ beo, onSave, onClose }) {
             {prepItems.filter(i => !i._deleted).map((item, idx) => (
               <div key={idx} className="card-glass max-w-full overflow-hidden rounded-xl border border-border p-3 space-y-2">
                 <div className="flex min-w-0 gap-2">
-                  <input value={item.prepItem} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, prepItem: e.target.value, _dirty:true} : x))} placeholder="Prep item *" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input value={item.prepItem} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, prepItem: e.target.value, _dirty:true} : x))} placeholder="Prep item *" className="flex-1 px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <button onClick={() => setPrepItems(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
                 <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
-                  <input type="number" value={item.quantity} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <input value={item.unit} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty:true} : x))} placeholder="Unit" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <input type="time" value={item.dueTime} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, dueTime: e.target.value, _dirty:true} : x))} className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input type="number" value={item.quantity} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input value={item.unit} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty:true} : x))} placeholder="Unit" className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input type="time" value={item.dueTime} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, dueTime: e.target.value, _dirty:true} : x))} className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
                 </div>
-                <input value={item.assignedStation} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, assignedStation: e.target.value, _dirty:true} : x))} placeholder="Assigned station" className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input value={item.assignedStation} onChange={e => setPrepItems(p => p.map((x,i) => i===idx ? {...x, assignedStation: e.target.value, _dirty:true} : x))} placeholder="Assigned station" className="w-full px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
               </div>
             ))}
           </>
@@ -321,8 +327,8 @@ export default function BEOForm({ beo, onSave, onClose }) {
             </button>
             {timeline.filter(i => !i._deleted).map((item, idx) => (
               <div key={idx} className="flex min-w-0 gap-2 items-start">
-                <input type="time" value={item.time} onChange={e => setTimeline(p => p.map((x,i) => i===idx ? {...x, time: e.target.value, _dirty:true} : x))} className="w-20 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground shrink-0" />
-                <input value={item.label} onChange={e => setTimeline(p => p.map((x,i) => i===idx ? {...x, label: e.target.value, _dirty:true} : x))} placeholder="Label" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input type="time" value={item.time} onChange={e => setTimeline(p => p.map((x,i) => i===idx ? {...x, time: e.target.value, _dirty:true} : x))} className="w-20 px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground shrink-0" />
+                <input value={item.label} onChange={e => setTimeline(p => p.map((x,i) => i===idx ? {...x, label: e.target.value, _dirty:true} : x))} placeholder="Label" className="flex-1 px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
                 <button onClick={() => setTimeline(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="mt-1.5 shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             ))}
@@ -338,16 +344,16 @@ export default function BEOForm({ beo, onSave, onClose }) {
             {dietary.filter(i => !i._deleted).map((item, idx) => (
               <div key={idx} className="card-glass max-w-full overflow-hidden rounded-xl border border-border p-3 space-y-2">
                 <div className="flex min-w-0 gap-2">
-                  <input value={item.guestName} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, guestName: e.target.value} : x))} placeholder="Guest name (optional)" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <input value={item.guestName} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, guestName: e.target.value} : x))} placeholder="Guest name (optional)" className="flex-1 px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
                   <button onClick={() => setDietary(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
                 <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                  <input value={item.restriction} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, restriction: e.target.value} : x))} placeholder="Restriction *" className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                  <select value={item.severity} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, severity: e.target.value} : x))} className="px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground">
+                  <input value={item.restriction} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, restriction: e.target.value} : x))} placeholder="Restriction *" className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
+                  <select value={item.severity} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, severity: e.target.value} : x))} className="px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground">
                     {['preference','intolerance','allergy','life-threatening'].map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
                   </select>
                 </div>
-                <input value={item.menuAdjustment} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, menuAdjustment: e.target.value} : x))} placeholder="Menu adjustment" className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input value={item.menuAdjustment} onChange={e => setDietary(p => p.map((x,i) => i===idx ? {...x, menuAdjustment: e.target.value} : x))} placeholder="Menu adjustment" className="w-full px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
               </div>
             ))}
             <div>
@@ -365,8 +371,8 @@ export default function BEOForm({ beo, onSave, onClose }) {
             </button>
             {equipment.filter(i => !i._deleted).map((item, idx) => (
               <div key={idx} className="flex min-w-0 gap-2 items-center">
-                <input value={item.equipmentName} onChange={e => setEquipment(p => p.map((x,i) => i===idx ? {...x, equipmentName: e.target.value, _dirty:true} : x))} placeholder="Equipment" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                <input type="number" value={item.quantity} onChange={e => setEquipment(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="w-14 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input value={item.equipmentName} onChange={e => setEquipment(p => p.map((x,i) => i===idx ? {...x, equipmentName: e.target.value, _dirty:true} : x))} placeholder="Equipment" className="flex-1 px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input type="number" value={item.quantity} onChange={e => setEquipment(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty:true} : x))} placeholder="Qty" className="w-14 px-2 py-2 bg-background border border-border rounded-lg text-xs text-foreground" />
                 <button onClick={() => setEquipment(p => p.map((x,i) => i===idx ? {...x, _deleted:true} : x))} className="shrink-0 text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             ))}

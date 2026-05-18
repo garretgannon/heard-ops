@@ -5,6 +5,7 @@ import { Plus, Edit2, Copy, Archive, Search, ChevronLeft, Save, X, Upload, Downl
 import { haptics } from '@/utils/haptics';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import PrepListImportFlow from '@/components/PrepListImportFlow';
+import { toast } from 'sonner';
 
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   return (
@@ -28,15 +29,15 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
       </div>
 
       <div className="flex gap-2 pt-2">
-        <button onClick={() => onEdit(template.id)} className="flex-1 btn-secondary text-xs h-8">
+        <button onClick={() => onEdit(template.id)} className="flex-1 btn-secondary text-xs h-10">
           <Edit2 className="h-3 w-3 inline mr-1" />
           Edit
         </button>
-        <button onClick={() => onDuplicate(template.id)} className="flex-1 btn-secondary text-xs h-8">
+        <button onClick={() => onDuplicate(template.id)} className="flex-1 btn-secondary text-xs h-10">
           <Copy className="h-3 w-3 inline mr-1" />
           Copy
         </button>
-        <button onClick={() => onArchive(template.id)} className="btn-secondary text-xs h-8 px-2">
+        <button onClick={() => onArchive(template.id)} className="btn-secondary text-xs h-10 px-2">
           <Archive className="h-3 w-3" />
         </button>
       </div>
@@ -115,7 +116,7 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
               onFocus={() => { setActivePickerIdx(idx); setPickerSearch(item.itemName); }}
               onBlur={() => setTimeout(() => setActivePickerIdx(null), 150)}
               onKeyDown={e => handleNameKeyDown(e, idx)}
-              className={`w-full h-8 px-2.5 bg-background border rounded-lg text-xs text-foreground focus:outline-none ${isDup ? 'border-amber-500/60' : item.linked_recipe_id ? 'border-primary/50' : 'border-border focus:border-primary'}`}
+              className={`w-full h-10 px-2.5 bg-background border rounded-lg text-xs text-foreground focus:outline-none ${isDup ? 'border-amber-500/60' : item.linked_recipe_id ? 'border-primary/50' : 'border-border focus:border-primary'}`}
               autoComplete="off"
             />
             {isDup && <span className="absolute right-1.5 top-1 text-[9px] text-amber-400 font-bold">DUP</span>}
@@ -146,14 +147,14 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
             value={item.quantity}
             onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value) || '')}
             onKeyDown={e => handleEnter(e, idx)}
-            className="w-full h-8 px-2 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none text-center"
+            className="w-full h-10 px-2 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none text-center"
           />
           <select
             data-field="unit"
             value={item.unit || 'lbs'}
             onChange={e => updateItem(idx, 'unit', e.target.value)}
             onKeyDown={e => handleEnter(e, idx)}
-            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            className="w-full h-10 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
           >
             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
           </select>
@@ -162,7 +163,7 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
             value={item.priority || 'medium'}
             onChange={e => updateItem(idx, 'priority', e.target.value)}
             onKeyDown={e => handleEnter(e, idx)}
-            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            className="w-full h-10 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
           >
             <option value="high">🔴 High</option>
             <option value="medium">🟡 Med</option>
@@ -190,7 +191,7 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
         </div>
         );
       })}
-      <button onClick={() => addRow(items.length - 1)} className="w-full h-8 mt-1 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1.5">
+      <button onClick={() => addRow(items.length - 1)} className="w-full h-10 mt-1 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1.5">
         <Plus className="h-3.5 w-3.5" /> Add item <span className="text-[10px] opacity-60">(or press Enter on any row)</span>
       </button>
     </div>
@@ -227,7 +228,7 @@ function TemplateForm({ template, onSave, onCancel }) {
 
   const handleSave = async () => {
     if (!name || !station || !jobCode) {
-      alert('Please fill in template name, station, and job code');
+      toast.error('Please fill in template name, station, and job code');
       return;
     }
 
@@ -266,7 +267,7 @@ function TemplateForm({ template, onSave, onCancel }) {
       // Save items
       const names = items.filter(i => i.itemName.trim()).map(i => i.itemName.trim().toLowerCase());
       const hasDups = names.some((n, i) => names.indexOf(n) !== i);
-      if (hasDups) { alert('Duplicate item names found. Please fix before saving.'); return; }
+      if (hasDups) { toast.error('Duplicate item names found. Please fix before saving.'); return; }
       for (const item of items) {
         if (item.id) {
           await base44.entities.PrepTemplateItem.update(item.id, { ...item, prepTemplateId: templateId });
@@ -278,7 +279,7 @@ function TemplateForm({ template, onSave, onCancel }) {
       onSave();
     } catch (error) {
       console.error('Failed to save template:', error);
-      alert('Failed to save template');
+      toast.error('Failed to save template');
     }
   };
 
@@ -457,14 +458,14 @@ export default function PrepTemplatesManager() {
         title="Prep Templates"
         subtitle="Create reusable prep list templates"
         actions={
-          <button onClick={() => setIsCreating(true)} className="btn-primary text-xs h-8 px-3 flex items-center gap-1.5">
+          <button onClick={() => setIsCreating(true)} className="btn-primary text-xs h-10 px-3 flex items-center gap-1.5">
             <Plus className="h-3.5 w-3.5" /> New Template
           </button>
         }
       />
       <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <div className="flex items-center gap-3 mb-3">
-          <button onClick={() => navigate(-1)} className="btn-secondary text-xs h-8 px-2">
+          <button onClick={() => navigate(-1)} className="btn-secondary text-xs h-10 px-2">
             <ChevronLeft className="h-4 w-4" />
           </button>
           <h1 className="text-2xl font-black tracking-tight text-foreground">Prep Templates</h1>
@@ -485,10 +486,10 @@ export default function PrepTemplatesManager() {
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowArchived(false)} className={`text-xs font-bold px-3 py-1.5 rounded-lg ${!showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <button onClick={() => setShowArchived(false)} className={`text-xs font-bold px-3 py-2 rounded-lg ${!showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 Active
               </button>
-              <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-1.5 rounded-lg ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-2 rounded-lg ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 Archived
               </button>
               <button
@@ -509,14 +510,14 @@ export default function PrepTemplatesManager() {
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
+                className="text-xs font-bold px-3 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
               >
                 <Download className="h-3 w-3" />
                 Template
               </button>
               <button
                 onClick={() => { haptics.light(); setShowImport(true); }}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
+                className="text-xs font-bold px-3 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
               >
                 <Upload className="h-3 w-3" />
                 Import
@@ -530,9 +531,38 @@ export default function PrepTemplatesManager() {
         {loading ? (
           <div className="text-center py-8 text-secondary-text">Loading...</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-8 text-secondary-text text-sm">
-            {templates.length === 0 ? 'No templates yet' : 'No templates match'}
-          </div>
+          templates.length === 0 ? (
+            <div className="flex flex-col items-center text-center py-16 px-6">
+              <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
+                <ChefHat className="h-8 w-8 text-primary/60" />
+              </div>
+              <h3 className="text-[18px] font-black text-foreground mb-2">No prep templates yet</h3>
+              <p className="text-[13px] text-muted-foreground leading-relaxed mb-7 max-w-[280px]">
+                Templates define what each station preps each shift — item, quantity, unit, and who's responsible. Create one to start generating daily prep tasks.
+              </p>
+              <div className="flex flex-col gap-3 w-full max-w-xs">
+                <button
+                  onClick={() => setIsCreating(true)}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black text-white active:scale-[0.97] transition-all"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+                    boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.15)',
+                  }}
+                >
+                  <Plus className="h-4 w-4" /> Create Template
+                </button>
+                <button
+                  onClick={() => setShowImport(true)}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-foreground active:scale-[0.97] transition-all"
+                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'transparent' }}
+                >
+                  <Upload className="h-4 w-4" /> Import from CSV
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-secondary-text text-sm">No templates match</div>
+          )
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
             {filtered.map(template => (

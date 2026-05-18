@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { haptics } from '@/utils/haptics';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
   Beaker, Search, Plus, Edit2, Trash2, X, Download, ChevronRight,
@@ -92,10 +93,10 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
           {chemical.vendor && <p className="text-[10px] text-muted-foreground/60 mt-0.5">Vendor {chemical.vendor}</p>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <button onClick={() => onEdit(chemical)} className="h-7 w-7 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
+          <button onClick={() => onEdit(chemical)} className="h-10 w-10 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
             <Edit2 className="h-3.5 w-3.5" />
           </button>
-          <button onClick={onClose} className="h-7 w-7 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
+          <button onClick={onClose} className="h-10 w-10 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -336,13 +337,13 @@ function ChemicalRow({ chemical, areas, stations, onSelect, onEdit, onDelete, is
         <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
           <button
             onClick={() => onSelect(chemical)}
-            className="h-7 px-2 rounded-lg bg-white/[0.05] border border-border/30 text-[10px] font-bold text-foreground hover:bg-white/[0.08] transition-colors"
+            className="h-9 px-2 rounded-lg bg-white/[0.05] border border-border/30 text-[10px] font-bold text-foreground hover:bg-white/[0.08] transition-colors"
           >
             View
           </button>
           <button
             onClick={() => onDelete(chemical.id)}
-            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground/40 hover:text-red-400 transition-colors"
+            className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground/40 hover:text-red-400 transition-colors"
           >
             <Trash2 className="h-3 w-3" />
           </button>
@@ -401,19 +402,19 @@ function EmptyChemicals({ onAdd, isAdmin }) {
               <span className="text-[11px] font-normal opacity-70">Manual entry</span>
             </button>
             {/* Upload SDS */}
-            <button className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+            <button onClick={onAdd} className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
               <Upload className="h-7 w-7 mb-0.5 text-muted-foreground" />
               <span className="text-[14px] font-black leading-tight">Upload SDS</span>
               <span className="text-[11px] text-muted-foreground font-normal">Attach PDF</span>
             </button>
             {/* Import List */}
-            <button className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+            <button onClick={onAdd} className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
               <ClipboardList className="h-7 w-7 mb-0.5 text-muted-foreground" />
               <span className="text-[14px] font-black leading-tight">Import List</span>
               <span className="text-[11px] text-muted-foreground font-normal">CSV or Spreadsheet</span>
             </button>
             {/* Link to Equipment */}
-            <button className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+            <button onClick={onAdd} className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
               <Link2 className="h-7 w-7 mb-0.5 text-muted-foreground" />
               <span className="text-[14px] font-black leading-tight">Link to Equipment</span>
               <span className="text-[11px] text-muted-foreground font-normal">Connect to stations</span>
@@ -535,7 +536,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
   const toggleArr = (k, v) => setForm(p => ({ ...p, [k]: p[k]?.includes(v) ? p[k].filter(x => x !== v) : [...(p[k] || []), v] }));
 
   const save = async () => {
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) { toast.error('Chemical name is required'); return; }
     setSaving(true);
     try {
       if (chemical?.id) {
@@ -547,8 +548,10 @@ function ChemicalForm({ chemical, onSave, onClose }) {
       onSave?.();
     } catch (err) {
       console.error('Save failed:', err);
+      toast.error('Failed to save chemical');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const inputCls = 'w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50';
@@ -556,12 +559,16 @@ function ChemicalForm({ chemical, onSave, onClose }) {
 
   return (
     <>
-      <div className="hidden lg:block fixed inset-0 bg-black/50 z-[49]" onClick={onClose} />
-      <div className="fixed inset-0 bg-background z-50 flex flex-col lg:inset-auto lg:right-0 lg:top-0 lg:bottom-0 lg:w-[520px] lg:bg-card lg:border-l lg:border-border"
+      <div className="hidden lg:block fixed inset-0 bg-black/50 z-[99]" onClick={onClose} />
+      <div className="fixed inset-0 bg-background z-[100] flex flex-col lg:inset-auto lg:right-0 lg:top-0 lg:bottom-0 lg:w-[520px] lg:bg-card lg:border-l lg:border-border"
         style={{ boxShadow: '-8px 0 48px rgba(0,0,0,0.5)' }}>
         <div className="bg-card border-b border-border px-4 py-3 flex items-center justify-between shrink-0">
+          <button onClick={onClose} className="flex items-center gap-1 h-8 px-3 rounded-full bg-muted text-sm font-semibold text-foreground lg:hidden">
+            <ChevronLeft className="h-4 w-4" /> Back
+          </button>
           <h2 className="text-sm font-extrabold text-foreground">{chemical ? 'Edit Chemical' : 'New Chemical'}</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hidden lg:flex"><X className="h-4 w-4" /></button>
+          <div className="w-16 lg:hidden" />
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-4">
           <div className="space-y-2"><label className={labelCls}>Name *</label><input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Chemical name" className={inputCls} /></div>
@@ -750,28 +757,13 @@ export default function ChemicalLibrary() {
         }
       />
 
-      {/* ── MOBILE STICKY HEADER ──────────────────────────────────────── */}
+      {/* ── MOBILE STICKY HEADER (search + filters only — Layout handles back/title) */}
       <div
-        className="lg:hidden sticky top-0 z-20"
+        className="lg:hidden sticky top-0 z-20 -mx-4"
         style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
       >
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-4 pt-3 pb-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 h-8 rounded-full bg-white/[0.06] border border-border/30 px-3"
-          >
-            <ChevronLeft className="h-3.5 w-3.5 text-foreground" />
-            <span className="text-[13px] font-semibold text-foreground">Back</span>
-          </button>
-          <span className="text-[15px] font-black text-foreground">Chemicals</span>
-          <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-muted-foreground" />
-            <UserCircle className="h-6 w-6 text-muted-foreground" />
-          </div>
-        </div>
         {/* Search */}
-        <div className="px-4 pb-2">
+        <div className="px-4 pt-2 pb-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
             <input

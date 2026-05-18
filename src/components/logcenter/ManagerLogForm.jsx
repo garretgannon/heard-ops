@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const MANAGER_LOG_TYPES = [
   { id: 'sales_notes', label: 'Sales Notes' },
@@ -35,11 +36,11 @@ export default function ManagerLogForm({ onSave, loading }) {
 
   const validate = () => {
     if (!form.manager_log_type) {
-      alert('Manager log type is required');
+      toast.error('Manager log type is required');
       return false;
     }
     if (!form.summary.trim()) {
-      alert('Summary is required');
+      toast.error('Summary is required');
       return false;
     }
     return true;
@@ -73,7 +74,7 @@ export default function ManagerLogForm({ onSave, loading }) {
       },
     }).then(onSave).catch(err => {
       console.error('Failed to save manager log:', err);
-      alert('Failed to save manager log');
+      toast.error('Failed to save manager log');
     });
   };
 

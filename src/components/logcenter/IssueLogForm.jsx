@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const DEPARTMENTS = ['BOH', 'FOH', 'Bar', 'Management'];
 const PRIORITIES = ['low', 'medium', 'high', 'critical'];
@@ -19,7 +20,7 @@ export default function IssueLogForm({ onSave, loading }) {
 
   const handleSave = () => {
     if (!form.title || !form.department) {
-      alert('Please fill in title and department');
+      toast.error('Please fill in title and department');
       return;
     }
     base44.entities.Issue.create({

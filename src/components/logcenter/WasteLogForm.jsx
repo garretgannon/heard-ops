@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import LogTagManager from './LogTagManager';
 import { createLogTags } from '@/hooks/useLogTags';
 
@@ -117,7 +118,7 @@ export default function WasteLogForm({ onSave, loading }) {
       onSave();
     }).catch(err => {
       console.error('Failed to save waste entry:', err);
-      alert('Failed to save waste entry');
+      toast.error('Failed to save waste entry');
     });
   };
 

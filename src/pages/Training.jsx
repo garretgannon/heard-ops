@@ -120,25 +120,25 @@ function ModuleCard({ mod, completions, assignments, onEdit, onDelete, onPlay, o
         <div className="flex gap-2 pt-1">
           <button
             onClick={() => onPlay(mod)}
-            className="flex-1 h-8 rounded-lg border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
+            className="flex-1 h-10 rounded-lg border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
           >
             <Play className="h-3 w-3" /> Preview
           </button>
           <button
             onClick={() => onAssign(mod)}
-            className="flex-1 h-8 rounded-lg border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
+            className="flex-1 h-10 rounded-lg border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
           >
             <Users className="h-3 w-3" /> Assign
           </button>
           <button
             onClick={() => onEdit(mod)}
-            className="h-8 px-3 rounded-lg border border-border/40 bg-card/60 text-muted-foreground hover:text-foreground hover:border-border/80 transition-all"
+            className="h-10 px-3 rounded-lg border border-border/40 bg-card/60 text-muted-foreground hover:text-foreground hover:border-border/80 transition-all"
           >
             <Edit2 className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => onDelete(mod.id)}
-            className="h-8 px-3 rounded-lg border border-border/40 bg-card/60 text-destructive hover:bg-destructive/10 hover:border-destructive/40 transition-all"
+            className="h-10 px-3 rounded-lg border border-border/40 bg-card/60 text-destructive hover:bg-destructive/10 hover:border-destructive/40 transition-all"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -342,7 +342,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
         <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/[0.06] border border-border/30"
+            className="h-10 w-10 flex items-center justify-center rounded-full bg-white/[0.06] border border-border/30"
           >
             <ChevronLeft className="h-4 w-4 text-foreground" />
           </button>
@@ -770,10 +770,16 @@ function EmployeeView({ modules, assignments, completions, user, onRefresh }) {
         )}
 
         {openAssignments.length === 0 && availableModules.length === 0 && doneAssignments.length === 0 && (
-          <div className="py-16 text-center space-y-2">
-            <BookOpen className="h-10 w-10 text-muted-foreground mx-auto" />
-            <p className="text-sm font-semibold text-muted-foreground">No training materials yet.</p>
-            <p className="text-xs text-muted-foreground">Check back once your manager has added modules.</p>
+          <div className="py-16 text-center space-y-4 px-6">
+            <div className="h-16 w-16 rounded-full bg-muted/30 border border-border/40 flex items-center justify-center mx-auto">
+              <BookOpen className="h-8 w-8 text-muted-foreground/50" />
+            </div>
+            <div>
+              <p className="text-base font-black text-foreground">No training assigned yet</p>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-[240px] mx-auto leading-relaxed">
+                Your manager hasn't assigned any modules. Check back later or ask them to set up your training plan.
+              </p>
+            </div>
           </div>
         )}
       </div>

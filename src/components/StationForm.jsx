@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 
 const departments = ['BOH', 'FOH', 'Bar', 'Management'];
 
@@ -57,7 +58,7 @@ export default function StationForm({ station, onSave, onClose }) {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      alert('Station name is required');
+      toast.error('Station name is required');
       return;
     }
 
@@ -106,7 +107,7 @@ export default function StationForm({ station, onSave, onClose }) {
       await onSave();
     } catch (error) {
       console.error('Failed to save station:', error);
-      alert('Error saving station');
+      toast.error('Failed to save station');
     } finally {
       setSaving(false);
     }

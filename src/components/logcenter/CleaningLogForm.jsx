@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Upload, X } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 const STATUS_OPTIONS = ['completed', 'incomplete', 'passed', 'failed'];
 
@@ -106,7 +107,7 @@ export default function CleaningLogForm({ onSave, loading }) {
       photo_urls: photoUrl ? [photoUrl] : [],
     }).then(onSave).catch(err => {
       console.error('Failed to save cleaning log:', err);
-      alert('Failed to save cleaning log');
+      toast.error('Failed to save cleaning log');
     });
   };
 
