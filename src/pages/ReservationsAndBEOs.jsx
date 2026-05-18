@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
-  Calendar, Plus, ChevronDown, Upload, X, FileText,
+  Calendar, Plus, ChevronDown, ChevronLeft, Upload, X, FileText,
   CalendarPlus, Users, FileSpreadsheet, Sparkles,
   User, Star, Heart, ChefHat, ConciergeBell, CalendarDays,
+  Bell, UserCircle,
 } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
@@ -19,7 +21,7 @@ import BEOForm from '@/components/reservations/BEOForm';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';
-const TABS = ['Today', 'Reservations', 'BEOs', 'Calendar', 'Prep Impact'];
+const TABS = ['Today', 'Reservations', 'BEOs', 'Calendar', 'Impact'];
 const todayStr = () => new Date().toISOString().split('T')[0];
 
 // ─── Impact helpers ───────────────────────────────────────────────────────────
@@ -308,6 +310,7 @@ function AddEventDropdown({ onAddReservation, onAddBEO }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ReservationsAndBEOs() {
+  const navigate = useNavigate();
   const { isAdmin, user } = useCurrentUser();
   const [activeTab,           setActiveTab]           = useState('Today');
   const [reservations,        setReservations]        = useState([]);
@@ -387,42 +390,86 @@ export default function ReservationsAndBEOs() {
   }
 
   // ── Main page ─────────────────────────────────────────────────────────────
+  const td           = todayStr();
+  const todayRes     = reservations.filter(r => r.date === td && r.status !== 'cancelled');
+  const todayBEOs    = beos.filter(b => b.eventDate === td && b.status !== 'cancelled');
+  const totalCovers  = todayRes.reduce((s, r) => s + (r.partySize || 0), 0)
+                     + todayBEOs.reduce((s, b) => s + (b.guestCount || 0), 0);
+  const largeParties = todayRes.filter(r => (r.partySize || 0) >= 8).length;
+  const { prep: prepImpact, service: serviceImpact } = impactLevel(todayBEOs.length, largeParties, totalCovers);
+  const todayEmpty   = todayRes.length === 0 && todayBEOs.length === 0;
+
   return (
     <div className="app-screen">
       {/* Desktop header */}
       <DesktopPageHeader
         title="Reservations & BEOs"
         subtitle="Events, reservations, and prep impact planning"
-        actions={
-          isAdmin && (
-            <AddEventDropdown
-              onAddReservation={openReservationForm}
-              onAddBEO={openBEOForm}
-            />
-          )
-        }
+        actions={isAdmin && <AddEventDropdown onAddReservation={openReservationForm} onAddBEO={openBEOForm} />}
       />
 
-      {/* Sticky tabs bar */}
-      <div className="bg-card border-b border-border sticky top-0 lg:top-[112px] z-10">
-        {/* Mobile title row */}
-        <div className="px-4 pt-4 pb-0 lg:hidden">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-primary" />
-              <h1 className="text-2xl font-black tracking-tight text-foreground">Reservations &amp; BEOs</h1>
-            </div>
-            {isAdmin && (
-              <AddEventDropdown
-                onAddReservation={openReservationForm}
-                onAddBEO={openBEOForm}
-              />
-            )}
+      {/* ── MOBILE HEADER ─────────────────────────────────────────── */}
+      <div
+        className="lg:hidden sticky top-0 z-10"
+        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 pt-3 pb-1">
+          <button
+            onClick={() => navigate(-1)}
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/[0.06] border border-border/30"
+          >
+            <ChevronLeft className="h-4 w-4 text-foreground" />
+          </button>
+          <span className="text-[15px] font-black text-foreground">BEOs / Events</span>
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <UserCircle className="h-6 w-6 text-muted-foreground" />
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1.5 overflow-x-auto pb-2 pt-4 scrollbar-hide">
+        {/* Context-aware add button */}
+        {isAdmin && activeTab !== 'Impact' && (
+          <div className="flex justify-end px-4 pt-1 pb-1">
+            <button
+              onClick={() => {
+                haptics.medium();
+                if (activeTab === 'Reservations' || activeTab === 'Calendar') openReservationForm();
+                else openBEOForm();
+              }}
+              className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-bold text-primary"
+              style={{ border: '1px solid rgba(230,106,31,0.55)', background: 'transparent' }}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {activeTab === 'Reservations' || activeTab === 'Calendar'
+                ? 'Add Reservation'
+                : activeTab === 'BEOs' ? 'Add BEO' : 'Add Event'}
+            </button>
+          </div>
+        )}
+
+        {/* Tabs — underline style */}
+        <div className="flex overflow-x-auto scrollbar-hide px-4">
+          {TABS.map(tab => (
+            <button
+              key={tab}
+              onClick={() => { setActiveTab(tab); haptics.light(); }}
+              className={cn(
+                'shrink-0 px-1 mr-6 pb-2.5 text-[14px] font-semibold whitespace-nowrap transition-colors border-b-2',
+                activeTab === tab
+                  ? 'text-primary border-primary'
+                  : 'text-muted-foreground/60 border-transparent'
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── DESKTOP TABS ──────────────────────────────────────────── */}
+      <div className="hidden lg:block bg-card border-b border-border sticky top-[112px] z-10">
+        <div className="flex gap-1.5 overflow-x-auto pb-2 pt-4 px-6 scrollbar-hide">
           {TABS.map(tab => (
             <button
               key={tab}
@@ -440,10 +487,148 @@ export default function ReservationsAndBEOs() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="w-full pt-3 lg:pt-14 pb-10 space-y-3">
-        {!loading && <OverviewCard reservations={reservations} beos={beos} />}
+      {/* ── MOBILE CONTENT ────────────────────────────────────────── */}
+      <div className="lg:hidden px-4 pt-4 pb-10">
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : activeTab === 'Today' ? (
+          todayEmpty ? (
+            <div className="space-y-3">
+              {/* Card 1: Today's Overview */}
+              <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+                <div className="px-4 pt-4 pb-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{"Today's Overview"}</p>
+                </div>
+                <div className="grid grid-cols-4 gap-2 px-3 pb-4">
+                  <div className="flex flex-col items-center bg-white/[0.04] rounded-xl p-3 gap-0.5">
+                    <User className="h-4 w-4 text-blue-400 mb-1" />
+                    <span className="text-xl font-extrabold text-foreground">{todayRes.length}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground text-center">Reservations</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-white/[0.04] rounded-xl p-3 gap-0.5">
+                    <CalendarDays className="h-4 w-4 text-muted-foreground mb-1" />
+                    <span className="text-xl font-extrabold text-foreground">{todayBEOs.length}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground text-center">BEOs</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-white/[0.04] rounded-xl p-3 gap-0.5">
+                    <Users className="h-4 w-4 text-muted-foreground mb-1" />
+                    <span className="text-xl font-extrabold text-foreground">{totalCovers}</span>
+                    <span className="text-[9px] font-bold text-muted-foreground text-center">Covers</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-green-500/10 rounded-xl p-3 gap-0.5">
+                    <ChefHat className="h-4 w-4 text-green-400 mb-1" />
+                    <span className="text-sm font-extrabold text-green-400">{prepImpact}</span>
+                    <span className="text-[9px] font-bold text-green-400/80 text-center">Prep Impact</span>
+                  </div>
+                </div>
+              </div>
 
+              {/* Card 2: Upcoming Today */}
+              <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+                <div className="px-4 pt-4 pb-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Upcoming Today</p>
+                </div>
+                <div className="flex flex-col items-center py-6 px-4 gap-3">
+                  <div className="relative">
+                    <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+                      <Calendar className="h-7 w-7 text-muted-foreground/50" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
+                      <X className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <p className="text-[13px] text-muted-foreground">Nothing scheduled for today</p>
+                  <div className="flex gap-2 w-full">
+                    <button
+                      onClick={() => { openBEOForm(); haptics.medium(); }}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
+                      style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Add Event
+                    </button>
+                    <button
+                      onClick={() => { setShowImportModal(true); haptics.medium(); }}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                      style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+                    >
+                      <Upload className="h-3.5 w-3.5" /> Import Events
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Recent Activity */}
+              <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+                <div className="px-4 pt-4 pb-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Recent Activity</p>
+                </div>
+                <div className="flex flex-col items-center py-5 px-4 gap-3">
+                  <p className="text-[12px] text-muted-foreground/60">No recent activity</p>
+                  <button
+                    className="w-full rounded-xl py-2.5 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                    style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'transparent' }}
+                  >
+                    View All Activity
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <TodayTab
+              reservations={reservations}
+              beos={beos}
+              isAdmin={isAdmin}
+              onSelectBEO={setSelectedBEO}
+              onEditReservation={(r) => { setEditingReservation(r); setShowReservationForm(true); }}
+              onAddReservation={openReservationForm}
+              onAddBEO={openBEOForm}
+              onImport={() => setShowImportModal(true)}
+              onViewCalendar={() => { setActiveTab('Calendar'); haptics.light(); }}
+            />
+          )
+        ) : activeTab === 'Reservations' ? (
+          <ReservationsTab
+            reservations={reservations}
+            isAdmin={isAdmin}
+            onEdit={(r) => { setEditingReservation(r); setShowReservationForm(true); }}
+            onRefresh={load}
+            onAdd={openReservationForm}
+            onImport={() => setShowImportModal(true)}
+          />
+        ) : activeTab === 'BEOs' ? (
+          <BEOsTab
+            beos={beos}
+            isAdmin={isAdmin}
+            onSelect={setSelectedBEO}
+            onEdit={(b) => { setEditingBEO(b); setShowBEOForm(true); }}
+            onRefresh={load}
+            onAdd={openBEOForm}
+            onImport={() => setShowImportModal(true)}
+          />
+        ) : activeTab === 'Calendar' ? (
+          <CalendarTab
+            reservations={reservations}
+            beos={beos}
+            onSelectBEO={setSelectedBEO}
+            onAddEvent={openReservationForm}
+          />
+        ) : activeTab === 'Impact' ? (
+          <PrepImpactTab
+            beos={beos}
+            reservations={reservations}
+            isAdmin={isAdmin}
+            onRefresh={load}
+            onAddBEO={openBEOForm}
+            onViewPrepPlanning={() => navigate('/prep-planning')}
+          />
+        ) : null}
+      </div>
+
+      {/* ── DESKTOP CONTENT ───────────────────────────────────────── */}
+      <div className="hidden lg:block w-full pt-14 pb-10 space-y-3">
+        {!loading && <OverviewCard reservations={reservations} beos={beos} />}
         {loading ? (
           <div className="flex items-center justify-center py-10">
             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -469,6 +654,8 @@ export default function ReservationsAndBEOs() {
                 isAdmin={isAdmin}
                 onEdit={(r) => { setEditingReservation(r); setShowReservationForm(true); }}
                 onRefresh={load}
+                onAdd={openReservationForm}
+                onImport={() => setShowImportModal(true)}
               />
             )}
             {activeTab === 'BEOs' && (
@@ -478,6 +665,8 @@ export default function ReservationsAndBEOs() {
                 onSelect={setSelectedBEO}
                 onEdit={(b) => { setEditingBEO(b); setShowBEOForm(true); }}
                 onRefresh={load}
+                onAdd={openBEOForm}
+                onImport={() => setShowImportModal(true)}
               />
             )}
             {activeTab === 'Calendar' && (
@@ -485,14 +674,17 @@ export default function ReservationsAndBEOs() {
                 reservations={reservations}
                 beos={beos}
                 onSelectBEO={setSelectedBEO}
+                onAddEvent={openReservationForm}
               />
             )}
-            {activeTab === 'Prep Impact' && (
+            {activeTab === 'Impact' && (
               <PrepImpactTab
                 beos={beos}
                 reservations={reservations}
                 isAdmin={isAdmin}
                 onRefresh={load}
+                onAddBEO={openBEOForm}
+                onViewPrepPlanning={() => navigate('/prep-planning')}
               />
             )}
           </>

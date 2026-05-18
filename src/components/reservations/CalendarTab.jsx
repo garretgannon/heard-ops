@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users, Calendar, X, Plus } from 'lucide-react';
+import { haptics } from '@/utils/haptics';
 
 const today = () => new Date().toISOString().split('T')[0];
 
@@ -11,7 +12,7 @@ function getFirstDayOfMonth(year, month) {
   return new Date(year, month, 1).getDay();
 }
 
-export default function CalendarTab({ reservations, beos, onSelectBEO }) {
+export default function CalendarTab({ reservations, beos, onSelectBEO, onAddEvent }) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -86,10 +87,40 @@ export default function CalendarTab({ reservations, beos, onSelectBEO }) {
 
       {/* Selected Day */}
       <div>
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{selectedDate}</p>
+        <p className="text-[11px] font-bold text-muted-foreground mb-2">
+          {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+        </p>
         {selectedRes.length === 0 && selectedBEOList.length === 0 ? (
-          <div className="text-center py-8 card-glass border border-border rounded-xl">
-            <p className="text-sm text-muted-foreground">Nothing scheduled</p>
+          <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+            <div className="flex flex-col items-center py-7 px-4 gap-3">
+              <div className="relative">
+                <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+                  <Calendar className="h-7 w-7 text-muted-foreground/50" />
+                </div>
+                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
+                  <X className="h-3 w-3 text-muted-foreground" />
+                </div>
+              </div>
+              <p className="text-[13px] text-muted-foreground">No events scheduled</p>
+              <div className="flex flex-col gap-2 w-full mt-1">
+                {onAddEvent && (
+                  <button
+                    onClick={() => { onAddEvent(); haptics.medium(); }}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
+                    style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add Event to This Date
+                  </button>
+                )}
+                <button
+                  onClick={() => { setSelectedDate(today()); haptics.light(); }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+                >
+                  Go to Today
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-2">

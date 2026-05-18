@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   AlertCircle, AlertTriangle, ArrowRight, BarChart3, BookOpen,
-  Calendar, CalendarClock, ChefHat, CheckCircle2, ClipboardCheck,
+  Calendar, CalendarClock, ChefHat, CheckCircle2, ChevronRight, ClipboardCheck,
   ClipboardList, Clock, FileStack, Flame, Layers, Package,
   RefreshCw, Settings, Store, TrendingDown, Upload, Users, Wine, Zap,
 } from 'lucide-react';
@@ -435,43 +435,137 @@ export default function PrepPlanning() {
     <div className="app-screen">
       <DesktopPageHeader title="Prep Planning" subtitle="Plan production and set par levels" />
 
-      {/* Mobile sticky header */}
-      <div
-        className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-3"
-        style={{
-          background: 'linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          boxShadow: '0 1px 16px rgba(0,0,0,0.5)',
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <ChefHat className="h-5 w-5 text-primary" />
-            <div>
-              <p className="metric-label">Kitchen</p>
-              <h1 className="text-2xl font-black tracking-tight text-foreground">Prep Planning</h1>
-            </div>
+      <div className="app-page lg:!pt-4">
+
+        {/* ── MOBILE ONLY ───────────────────────────────────────────────── */}
+        <div className="lg:hidden px-1 pt-2 pb-8 space-y-5">
+
+          {/* Date pill */}
+          <div
+            className="flex items-center gap-1.5 rounded-full border border-border/40 px-3 py-1.5 w-fit"
+            style={cardBg}
+          >
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-[12px] font-semibold text-muted-foreground">{dayLabel}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-lg border border-border/40 px-2.5 py-1.5" style={cardBg}>
-              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-[11px] font-bold text-muted-foreground">{dayLabel}</span>
+
+          {/* Start Count hero card */}
+          <div
+            className="rounded-2xl p-4 space-y-4"
+            style={{
+              background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
+              border: '1px solid rgba(230,106,31,0.35)',
+              boxShadow: '0 0 24px rgba(230,106,31,0.08)',
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0 space-y-1">
+                <p className="text-[11px] text-muted-foreground font-medium">Today's prep count</p>
+                <h2 className="text-[22px] font-black text-foreground leading-tight">Start Count</h2>
+                <p className="text-[13px] text-muted-foreground leading-relaxed">
+                  Count today's par levels to generate prep tasks.
+                </p>
+              </div>
+              <div
+                className="h-11 w-11 rounded-full shrink-0 flex items-center justify-center"
+                style={{ background: 'rgba(230,106,31,0.15)', border: '1px solid rgba(230,106,31,0.3)' }}
+              >
+                <ClipboardList className="h-5 w-5 text-primary" />
+              </div>
             </div>
             <button
-              onClick={() => { haptics.light(); loadData(); }}
-              className="h-8 w-8 flex items-center justify-center rounded-xl border border-border/50 transition-all"
-              style={cardBg}
+              onClick={startCount}
+              className="flex items-center justify-center gap-2 w-full rounded-xl py-3.5 text-[15px] font-black text-white active:scale-[0.97] transition-all"
+              style={{
+                background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+                boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.18)',
+              }}
             >
-              <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
+              <Zap className="h-4 w-4" />
+              Start Count
             </button>
           </div>
-        </div>
-      </div>
 
-      <div className="app-page lg:!pt-4">
-        {/* ── Desktop: main content + sidebar ─────────────────────────────── */}
-        <div className="lg:grid lg:grid-cols-[1fr_290px] lg:gap-5 space-y-4 lg:space-y-0">
+          {/* Today's Overview */}
+          <div className="space-y-3">
+            <h2 className="text-[16px] font-black text-foreground">Today's Overview</h2>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
+                <CheckCircle2 className={cn('h-5 w-5', belowParItems.length > 0 ? 'text-amber-400' : 'text-green-400')} />
+                <div>
+                  <p className="text-[20px] font-black text-foreground leading-none">{belowParItems.length}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">Below Par</p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
+                <Zap className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-[20px] font-black text-foreground leading-none">{todayTasks.length}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">Tasks to Generate</p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-border/30 p-3 flex flex-col gap-2.5" style={cardBg}>
+                <Calendar className="h-5 w-5 text-blue-400" />
+                <div>
+                  <p className="text-[20px] font-black text-foreground leading-none">
+                    {todayEvents.length > 0 ? todayEvents.length : 'None'}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">BEO Impact</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Station Prep Status */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[16px] font-black text-foreground">Station Prep Status</h2>
+              <button
+                onClick={() => { haptics.light(); navigate('/operational-map'); }}
+                className="text-[13px] font-bold text-primary"
+              >
+                View All
+              </button>
+            </div>
+            <div className="rounded-2xl border border-border/30 overflow-hidden" style={cardBg}>
+              {displayStations.map((station, i) => {
+                const sc   = STATION_COLORS[i % STATION_COLORS.length];
+                const Icon = STATION_ICONS[i % STATION_ICONS.length];
+                const bp   = belowParByStation[(station.id || '').toLowerCase()] || 0;
+                const tsk  = tasksByStation[(station.id || '').toLowerCase()] || 0;
+                const bad  = bp > 0 || tsk > 0;
+                return (
+                  <button
+                    key={station.id}
+                    onClick={() => { haptics.light(); navigate('/operational-map'); }}
+                    className={cn(
+                      'flex items-center gap-3 w-full px-4 py-3.5 text-left active:bg-white/[0.03] transition-colors',
+                      i > 0 && 'border-t border-border/20'
+                    )}
+                  >
+                    <div className={cn('h-9 w-9 rounded-full flex items-center justify-center shrink-0', sc.bg)}>
+                      <Icon className={cn('h-[18px] w-[18px]', sc.color)} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-bold text-foreground">{station.name}</p>
+                      <p className="text-[12px] text-muted-foreground">{bp} below par • {tsk} tasks</p>
+                    </div>
+                    <div className="flex items-center gap-0.5 shrink-0">
+                      <span className={cn('text-[12px] font-semibold', bad ? 'text-primary' : 'text-green-400')}>
+                        {bad ? 'Needs Attention' : 'On Track'}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/40" />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+
+        {/* ── DESKTOP ONLY ──────────────────────────────────────────────── */}
+        <div className="hidden lg:grid lg:grid-cols-[1fr_290px] lg:gap-5">
 
           {/* ══ LEFT: Main content ══════════════════════════════════════════ */}
           <div className="space-y-4">

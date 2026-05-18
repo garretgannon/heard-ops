@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Zap, CheckCircle2, Plus, Clock, AlertTriangle } from 'lucide-react';
+import { Zap, CheckCircle2, Plus, Clock, AlertTriangle, BarChart2, ChefHat, ConciergeBell } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 const today = () => new Date().toISOString().split('T')[0];
@@ -49,7 +49,7 @@ function PrepItemCard({ item, beoName, onStatusChange, isAdmin }) {
   );
 }
 
-export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }) {
+export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh, onAddBEO, onViewPrepPlanning }) {
   const [prepItems, setPrepItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(null);
@@ -105,6 +105,13 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }
 
   const upcomingBEOs = beos.filter(b => !['cancelled','completed'].includes(b.status) && b.eventDate >= todayStr);
 
+  const todayRes = reservations.filter(r => r.date === todayStr && r.status !== 'cancelled');
+  const todayBEOs = beos.filter(b => b.eventDate === todayStr && b.status !== 'cancelled');
+  const totalCovers = todayRes.reduce((s, r) => s + (r.partySize || 0), 0) + todayBEOs.reduce((s, b) => s + (b.guestCount || 0), 0);
+  const largeParties = todayRes.filter(r => (r.partySize || 0) >= 8).length;
+  const prepLevel = todayBEOs.length > 2 ? 'High' : todayBEOs.length > 0 ? 'Medium' : largeParties > 2 ? 'Medium' : 'Low';
+  const serviceLevel = totalCovers > 100 ? 'High' : totalCovers > 50 ? 'Medium' : 'Low';
+
   if (loading) return <div className="flex justify-center py-10"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
@@ -124,8 +131,33 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }
 
       {/* BEO sections with generate button */}
       {upcomingBEOs.length === 0 && (
-        <div className="text-center py-10 card-glass border border-border rounded-xl">
-          <p className="text-sm text-muted-foreground">No upcoming events with prep items</p>
+        <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+          <div className="flex flex-col items-center py-8 px-4 gap-3">
+            <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+              <BarChart2 className="h-7 w-7 text-muted-foreground/50" />
+            </div>
+            <p className="text-[14px] font-semibold text-foreground">No prep impact today</p>
+            <div className="flex flex-col gap-2 w-full mt-1">
+              {onAddBEO && (
+                <button
+                  onClick={() => { onAddBEO(); haptics.medium(); }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
+                  style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Event
+                </button>
+              )}
+              {onViewPrepPlanning && (
+                <button
+                  onClick={() => { onViewPrepPlanning(); haptics.medium(); }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+                >
+                  View Prep Planning
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
       {upcomingBEOs.map(beo => {
@@ -172,6 +204,28 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh }
           </div>
         );
       })}
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 gap-3 pt-1">
+        {[
+          { label: 'Prep Impact', level: prepLevel, Icon: ChefHat },
+          { label: 'Service Impact', level: serviceLevel, Icon: ConciergeBell },
+        ].map(({ label, level, Icon }) => {
+          const colorClass = level === 'High' ? 'text-red-400 bg-red-500/10' : level === 'Medium' ? 'text-amber-400 bg-amber-500/10' : 'text-green-400 bg-green-500/10';
+          const textColor = level === 'High' ? 'text-red-400' : level === 'Medium' ? 'text-amber-400' : 'text-green-400';
+          const iconColor = level === 'High' ? 'text-red-400' : level === 'Medium' ? 'text-amber-400' : 'text-green-400';
+          return (
+            <div key={label} className={`rounded-2xl border border-border/30 p-4 flex flex-col gap-1 ${colorClass.split(' ')[1]}`} style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+              <div className="flex items-center gap-1.5 mb-1">
+                <Icon className={`h-4 w-4 ${iconColor} shrink-0`} />
+                <span className="text-[11px] font-semibold text-muted-foreground">{label}</span>
+              </div>
+              <p className={`text-[22px] font-black leading-none ${textColor}`}>{level}</p>
+              {level === 'Low' && <p className="text-[11px] text-muted-foreground mt-0.5">No impact today</p>}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

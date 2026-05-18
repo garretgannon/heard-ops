@@ -8,6 +8,7 @@ import {
   AlertCircle,
   ArrowRight,
   Bell,
+  Check,
   CheckCircle2,
   ChevronRight,
   ClipboardList,
@@ -15,6 +16,7 @@ import {
   Flame,
   Radio,
   Rocket,
+  ShieldCheck,
   TrendingUp,
   UserRound,
   Wrench,
@@ -50,7 +52,7 @@ import ApprovalCard from '@/components/approval/ApprovalCard';
 import ApprovalDetailSheet from '@/components/approval/ApprovalDetailSheet';
 import DenialReasonDrawer from '@/components/approval/DenialReasonDrawer';
 import ClearBurst from '@/components/approval/ClearBurst';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
 const PREP_IMAGES = {
@@ -197,6 +199,146 @@ function GlanceRow({ icon: Icon, label, value, detail, href, progress, valueColo
 }
 
 
+const SWIPE_TYPE_MAP = {
+  prep:        { label: 'Prep Change',       statusClass: 'status-warning'  },
+  temperature: { label: 'Temperature Alert', statusClass: 'status-info'     },
+  maintenance: { label: 'Maintenance',       statusClass: 'status-warning'  },
+  employee:    { label: 'Employee Log',      statusClass: 'status-info'     },
+  waste:       { label: 'Waste / 86',        statusClass: 'status-critical' },
+  schedule:    { label: 'Schedule',          statusClass: 'status-info'     },
+  timeoff:     { label: 'Time Off',          statusClass: 'status-success'  },
+  trade:       { label: 'Shift Trade',       statusClass: 'status-info'     },
+};
+
+function SwipeApprovalCard({ approval, index, total, onApprove, onDeny, onViewDetails }) {
+  const [drag, setDrag] = useState(0);
+
+  const type = SWIPE_TYPE_MAP[approval.approval_type] || { label: 'Review', statusClass: 'status-info' };
+  const title = approval.name || approval.title || approval.summary || type.label;
+  const subtitle = approval.description || approval.summary || '';
+  const statusClass = approval.priority === 'high' ? 'status-critical' : type.statusClass;
+
+  const imageUrl = [
+    approval.photo_url, approval.completion_photo_url, approval.image_url, approval.master_photo_url,
+  ].find(v => typeof v === 'string' && v.trim()) || '';
+
+  const handleDragEnd = (_, info) => {
+    if (info.offset.x > 60 || info.velocity.x > 500) onApprove?.();
+    else if (info.offset.x < -60 || info.velocity.x < -500) onDeny?.();
+    setDrag(0);
+  };
+
+  const showApproveStamp = drag > 40;
+  const showDenyStamp = drag < -40;
+
+  return (
+    <div className="flex h-full flex-col gap-3">
+      {/* Direction hints */}
+      <div className="flex shrink-0 items-center justify-between">
+        <div className={cn(
+          'flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-widest transition-all duration-150',
+          showDenyStamp ? 'bg-red-500/25 text-red-300' : 'text-muted-foreground/35'
+        )}>
+          <X className="h-3 w-3" /> Send Back
+        </div>
+        <span className="text-[11px] font-bold text-muted-foreground">{index} of {total}</span>
+        <div className={cn(
+          'flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-widest transition-all duration-150',
+          showApproveStamp ? 'bg-green-500/25 text-green-300' : 'text-muted-foreground/35'
+        )}>
+          Approve <Check className="h-3 w-3" />
+        </div>
+      </div>
+
+      {/* Tinder card — full bleed, no background */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.18}
+        dragMomentum={false}
+        onDrag={(_, info) => setDrag(info.offset.x)}
+        onDragEnd={handleDragEnd}
+        animate={{ x: 0 }}
+        style={{ rotate: drag * 0.032 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+        className="relative flex-1 touch-pan-y cursor-grab overflow-hidden rounded-3xl active:cursor-grabbing"
+      >
+        <TaskVisual type="task" name={title} imageUrl={imageUrl} className="absolute inset-0 h-full w-full" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-black/10" />
+
+        {/* Color tint on swipe */}
+        <div className={cn(
+          'absolute inset-0 rounded-3xl transition-colors duration-100',
+          showApproveStamp ? 'bg-green-500/12' : showDenyStamp ? 'bg-red-500/12' : ''
+        )} />
+
+        {/* Tinder stamps */}
+        {showApproveStamp && (
+          <div className="absolute left-6 top-10 -rotate-12 rounded-xl px-4 py-2"
+            style={{ border: '3px solid rgba(74,222,128,0.85)' }}>
+            <span className="text-lg font-black uppercase tracking-[0.18em] text-green-400">Approve</span>
+          </div>
+        )}
+        {showDenyStamp && (
+          <div className="absolute right-6 top-10 rotate-12 rounded-xl px-4 py-2"
+            style={{ border: '3px solid rgba(248,113,113,0.85)' }}>
+            <span className="text-lg font-black uppercase tracking-[0.18em] text-red-400">Deny</span>
+          </div>
+        )}
+
+        {/* Top badges */}
+        <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
+          <span className={cn('status-pill bg-black/50 backdrop-blur-sm', statusClass)}>{type.label}</span>
+          {imageUrl && (
+            <div className="flex items-center gap-1 rounded-full bg-green-500/25 px-2.5 py-1 backdrop-blur-sm">
+              <ShieldCheck className="h-3 w-3 text-green-400" />
+              <span className="text-[10px] font-black text-green-300">Verified</span>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom content overlay */}
+        <div className="absolute bottom-0 left-0 right-0 px-5 pb-6 pt-20">
+          <h2 className="text-2xl font-black tracking-tight text-white">{title}</h2>
+          {subtitle && <p className="mt-1 text-sm leading-5 text-white/65">{subtitle}</p>}
+          {approval.submitted_by_name && (
+            <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-white/45">
+              From {approval.submitted_by_name}
+            </p>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Action buttons */}
+      <div className="grid shrink-0 grid-cols-2 gap-3">
+        <button
+          onPointerDown={e => e.stopPropagation()}
+          onClick={onDeny}
+          className="flex h-13 items-center justify-center gap-2 rounded-2xl text-sm font-black text-red-300 transition-all active:scale-[0.97]"
+          style={{
+            border: '1px solid rgba(239,68,68,0.3)',
+            background: 'linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(239,68,68,0.08) 100%)',
+          }}
+        >
+          <X className="h-4 w-4" /> Send Back
+        </button>
+        <button
+          onPointerDown={e => e.stopPropagation()}
+          onClick={onApprove}
+          className="flex h-13 items-center justify-center gap-2 rounded-2xl text-sm font-black text-green-300 transition-all active:scale-[0.97]"
+          style={{
+            border: '1px solid rgba(34,197,94,0.3)',
+            background: 'linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(34,197,94,0.1) 100%)',
+            boxShadow: '0 0 16px rgba(34,197,94,0.12)',
+          }}
+        >
+          <Check className="h-4 w-4" /> Approve
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AppOverview() {
   const { user, isAdmin } = useCurrentUser();
   const navigate = useNavigate();
@@ -219,6 +361,7 @@ export default function AppOverview() {
   const [setupDismissed, setSetupDismissed] = useState(() => {
     try { return sessionStorage.getItem('setup_banner_dismissed') === 'true'; } catch { return false; }
   });
+  const [showApprovalDeck, setShowApprovalDeck] = useState(false);
 
   useEffect(() => {
     loadMetrics();
@@ -322,6 +465,7 @@ export default function AppOverview() {
       if (remaining.length === 0) {
         confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
         setShowBurst(true);
+        setShowApprovalDeck(false);
         setTimeout(() => setShowBurst(false), 1100);
       } else {
         toast.success('Approved');
@@ -352,6 +496,7 @@ export default function AppOverview() {
       if (remaining.length === 0) {
         confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
         setShowBurst(true);
+        setShowApprovalDeck(false);
         setTimeout(() => setShowBurst(false), 1100);
       } else {
         toast.success('Sent back');
@@ -364,6 +509,9 @@ export default function AppOverview() {
   const hasLiveSignals = metrics.totalTasks > 0 || metrics.pendingApprovals > 0 || metrics.openAlerts > 0 || metrics.equipmentIssues > 0;
   const completedPercent = metrics.totalTasks > 0 ? Math.round((metrics.completedTasks / metrics.totalTasks) * 100) : 82;
   const readiness = hasLiveSignals ? Math.max(64, Math.min(94, completedPercent || 82)) : 82;
+  const ringRadius = 54;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringOffset = ringCircumference - (readiness / 100) * ringCircumference;
   const overdueTasks = metrics.totalTasks > 0 ? Math.max(metrics.totalTasks - metrics.completedTasks, 0) : (hasLiveSignals ? 0 : 4);
   const pendingApprovals = hasLiveSignals ? metrics.pendingApprovals : 7;
   const issueCount = metrics.equipmentIssues || metrics.openAlerts || (hasLiveSignals ? 0 : 2);
@@ -411,9 +559,9 @@ export default function AppOverview() {
 
         {/* Setup progress banner — admin only, hides when complete or dismissed */}
         {isAdmin && setupProgress && !setupDismissed && (
-          <section className="rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3.5 flex items-center gap-4">
-            <div className="h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-              <Rocket className="h-4 w-4 text-primary" />
+          <section className="rounded-2xl border border-primary/[0.15] bg-primary/[0.03] px-4 py-3 flex items-center gap-4">
+            <div className="h-8 w-8 rounded-xl bg-primary/[0.09] flex items-center justify-center shrink-0">
+              <Rocket className="h-3.5 w-3.5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-foreground">
@@ -445,125 +593,158 @@ export default function AppOverview() {
           </section>
         )}
 
-        <header className="flex items-start justify-between gap-4 pt-1 lg:hidden">
-          <div>
+        <header className="flex items-center justify-between gap-4 pt-1 lg:hidden">
+          <div className="min-w-0">
             <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {metrics.pendingApprovals > 0
-                ? `${metrics.pendingApprovals} approval${metrics.pendingApprovals === 1 ? '' : 's'} waiting${overdueTasks > 0 ? ` · ${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue` : ''}`
-                : overdueTasks > 0 ? `${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue — check the queue`
-                : 'All clear. Keep an eye on prep and temps.'}
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+              {overdueTasks > 0 ? `${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue` : 'All clear. Keep an eye on prep.'}
             </p>
           </div>
-          <LiveClock />
+          <div className="flex shrink-0 items-center gap-2.5">
+            <button
+              onClick={() => setShowApprovalDeck(true)}
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-card/80 transition-colors hover:bg-card active:scale-95"
+            >
+              <Bell className={cn('h-4 w-4', hasApprovalQueue ? 'text-foreground' : 'text-muted-foreground')} />
+              {hasApprovalQueue && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary">
+                  <span className="text-[9px] font-black text-white">{approvalQueue.length}</span>
+                </span>
+              )}
+            </button>
+            <LiveClock />
+          </div>
         </header>
 
-        {/* Mobile approval swipe stack */}
-        {hasApprovalQueue && (
-          <section className="space-y-3 lg:hidden">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Priority</p>
-                <h2 className="mt-1 text-xl font-black tracking-tight text-foreground">Approvals</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{approvalQueue.length} waiting</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-black text-foreground">{processedApprovals} cleared</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Today</p>
-              </div>
-            </div>
-            <div className="min-h-[650px] overflow-hidden">
-              <ApprovalCard
-                approval={currentApproval}
-                index={processedApprovals + 1}
-                total={processedApprovals + approvalQueue.length}
-                onApprove={handleApprove}
-                onDeny={() => setDenialDrawer({ approval: currentApproval })}
-                onViewDetails={() => setDetailSheet(currentApproval)}
-              />
-            </div>
-          </section>
-        )}
-
         {/* ── Mobile layout ─────────────────────────────────────── */}
-        <div className="space-y-7 lg:hidden">
-          <section className="relative overflow-hidden rounded-[28px] border border-border/60 bg-card/70 px-5 py-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
-            <div className="absolute inset-x-10 top-0 h-24 rounded-full bg-primary/10 blur-3xl" />
-            <div className="relative flex flex-col items-center text-center">
-              <PulseRing value={readiness} />
-              <div className="mt-1 space-y-1">
-                <p className="text-lg font-black tracking-tight text-foreground">Station Readiness</p>
-                <p className="mx-auto max-w-[280px] text-sm leading-5 text-muted-foreground">
-                  Pantry is tracking behind, but service readiness is still recoverable.
-                </p>
-              </div>
-              <div className="mt-5 grid w-full grid-cols-3 gap-2">
-                <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                  <p className="text-lg font-black text-primary">{overdueTasks}</p>
-                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Overdue</p>
-                </div>
-                <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                  <p className="text-lg font-black text-foreground">{pendingApprovals}</p>
-                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Approvals</p>
-                </div>
-                <div className="rounded-2xl border border-border/40 p-3" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                  <p className="text-lg font-black text-foreground">{issueCount}</p>
-                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Issues</p>
-                </div>
-              </div>
-            </div>
-          </section>
+        <div className="space-y-4 lg:hidden">
 
-          {metrics.openAlerts > 0 && (
-            <Link to="/operational-map" className="glow-interactive block rounded-2xl border border-primary/30 bg-primary/10 p-4">
-              <div className="flex items-start gap-3">
-                <span className="status-marker status-marker-md status-info"><Radio className="h-4 w-4" /></span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Next Action</p>
-                  <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Review open issues</h2>
-                  <p className="mt-1 text-sm leading-5 text-muted-foreground">{metrics.openAlerts} operational {metrics.openAlerts === 1 ? 'check' : 'checks'} need attention before service.</p>
-                </div>
-                <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-primary" />
-              </div>
-            </Link>
-          )}
-
-          <section className="space-y-3">
+          {/* 1. Service Risks — top priority */}
+          <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-black tracking-tight text-foreground">Needs Attention</h2>
-              <span className="text-xs font-bold text-muted-foreground">Today</span>
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Service Risks</h2>
+              </div>
+              <span className="text-[10px] font-bold text-muted-foreground">Today</span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {dynamicActions.map((item) => <ActionRow key={item.label} item={item} />)}
             </div>
           </section>
 
-          {prepQueue.length > 0 && (
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-black tracking-tight text-foreground">Prep Queue</h2>
-                <Link to="/tasks?tab=prep" className="text-xs font-black text-primary">View all</Link>
+          {/* 2. Readiness Snapshot — compact horizontal layout */}
+          <section
+            className="relative overflow-hidden rounded-2xl border border-border/50 px-4 py-4"
+            style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 8px 32px rgba(0,0,0,0.28)' }}
+          >
+            <div className="absolute inset-x-8 top-0 h-14 rounded-full bg-primary/[0.07] blur-3xl" />
+            <div className="relative flex items-center gap-4">
+              <div className="relative h-[88px] w-[88px] shrink-0">
+                <svg className="h-[88px] w-[88px] -rotate-90" viewBox="0 0 132 132">
+                  <circle cx="66" cy="66" r={ringRadius} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="10" />
+                  <circle
+                    cx="66" cy="66" r={ringRadius}
+                    fill="none" stroke="hsl(var(--primary))"
+                    strokeWidth="10" strokeLinecap="round"
+                    strokeDasharray={ringCircumference}
+                    strokeDashoffset={ringOffset}
+                    className="transition-all duration-700"
+                    style={{ filter: 'drop-shadow(0 0 10px rgba(230,106,31,0.26))' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-xl font-black tracking-tight text-foreground">{readiness}%</span>
+                  <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Stations</span>
+                </div>
               </div>
-              <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-                {prepQueue.map((item) => <PrepCard key={item.name} item={item} />)}
+              <div className="flex-1">
+                <p className="text-[9px] font-black uppercase tracking-[0.16em] text-muted-foreground mb-2">Readiness Snapshot</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { value: overdueTasks, label: 'Overdue', color: overdueTasks > 0 ? 'text-primary' : 'text-muted-foreground/40' },
+                    { value: pendingApprovals, label: 'Approvals', color: pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
+                    { value: issueCount, label: 'Issues', color: issueCount > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
+                  ].map(({ value, label, color }) => (
+                    <div key={label} className="rounded-xl border border-border/40 px-2 py-2 text-center" style={{ background: 'rgba(11,17,24,0.9)' }}>
+                      <p className={cn('text-base font-black', color)}>{value}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground leading-tight">{label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. Prep Queue — operational execution list */}
+          {prepQueue.length > 0 && (
+            <section className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black tracking-tight text-foreground">Prep Queue</h2>
+                <Link to="/tasks?tab=prep" className="text-[11px] font-black text-primary">View all</Link>
+              </div>
+              <div
+                className="overflow-hidden rounded-2xl border border-border/50 divide-y divide-border/20"
+                style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+              >
+                {prepQueue.map((item) => (
+                  <Link key={item.name} to="/tasks?tab=prep"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors">
+                    <span className={cn('h-2 w-2 rounded-full shrink-0',
+                      item.statusClass === 'status-critical' ? 'bg-red-400' :
+                      item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-blue-400'
+                    )} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-foreground truncate">{item.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {item.assignee && item.assignee !== '—' && (
+                          <span className="text-[11px] text-muted-foreground truncate">{item.assignee}</span>
+                        )}
+                        {item.due && (
+                          <span className="text-[11px] text-muted-foreground/60 shrink-0">{item.due}</span>
+                        )}
+                      </div>
+                      <div className="mt-1.5 h-1 bg-muted/40 rounded-full overflow-hidden">
+                        <div
+                          className={cn('h-full rounded-full transition-all duration-500',
+                            item.statusClass === 'status-critical' ? 'bg-red-400' :
+                            item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-primary'
+                          )}
+                          style={{ width: `${item.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs font-black text-muted-foreground shrink-0">{item.progress}%</span>
+                  </Link>
+                ))}
               </div>
             </section>
           )}
 
-          <section className="space-y-3 pb-2">
+          {/* 4. Live Ops Feed */}
+          <section className="space-y-2 pb-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-black tracking-tight text-foreground">Recent Activity</h2>
-              <Link to="/logs" className="text-xs font-black text-primary">Logs</Link>
+              <div className="flex items-center gap-1.5">
+                <Activity className="h-3 w-3 text-muted-foreground" />
+                <h2 className="text-sm font-black tracking-tight text-foreground">Live Ops Feed</h2>
+              </div>
+              <Link to="/logs" className="text-[11px] font-black text-primary">Logs</Link>
             </div>
-            <div className="app-card space-y-3">
+            <div
+              className="overflow-hidden rounded-2xl border border-border/50 divide-y divide-border/20"
+              style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+            >
               {activity.length > 0 ? activity.map((item) => (
-                <div key={item.label} className="flex items-center gap-3">
-                  <span className={cn('status-marker status-marker-sm', item.statusClass)}><CheckCircle2 className="h-3 w-3" /></span>
-                  <p className="min-w-0 flex-1 truncate text-sm font-bold text-foreground">{item.label}</p>
-                  <span className="text-xs font-semibold text-muted-foreground">{item.time}</span>
+                <div key={item.label} className="flex items-center gap-3 px-4 py-2.5">
+                  <span className={cn('h-1.5 w-1.5 rounded-full shrink-0',
+                    item.statusClass === 'status-critical' ? 'bg-red-400 animate-pulse' :
+                    item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-green-400'
+                  )} />
+                  <p className="min-w-0 flex-1 text-sm font-semibold text-foreground truncate">{item.label}</p>
+                  {item.time && <span className="text-[11px] font-semibold text-muted-foreground shrink-0">{item.time}</span>}
                 </div>
               )) : (
-                <p className="text-sm text-muted-foreground py-2">No recent activity logged today.</p>
+                <p className="px-4 py-4 text-sm text-muted-foreground">No activity logged yet.</p>
               )}
             </div>
           </section>
@@ -849,6 +1030,48 @@ export default function AppOverview() {
                 </div>
               </div>
         </div>
+
+        {/* ── Approval Deck Overlay — mobile only ─────────────────── */}
+        {showApprovalDeck && hasApprovalQueue && (
+          <div
+            className="fixed inset-0 z-50 flex flex-col lg:hidden"
+            style={{ background: 'rgba(0,0,0,0.93)', backdropFilter: 'blur(16px)' }}
+          >
+            {/* Header */}
+            <div
+              className="flex shrink-0 items-center justify-between border-b border-white/[0.06] px-5 py-4"
+              style={{ paddingTop: 'max(1.25rem, env(safe-area-inset-top))' }}
+            >
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Manager Priority</p>
+                <h2 className="mt-0.5 text-lg font-black text-foreground">
+                  Approvals <span className="font-bold text-muted-foreground">· {approvalQueue.length} waiting</span>
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowApprovalDeck(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.08] transition-colors hover:bg-white/[0.12]"
+              >
+                <X className="h-4 w-4 text-foreground" />
+              </button>
+            </div>
+
+            {/* Card */}
+            <div
+              className="flex flex-1 flex-col px-5 py-4"
+              style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+            >
+              <SwipeApprovalCard
+                approval={currentApproval}
+                index={processedApprovals + 1}
+                total={processedApprovals + approvalQueue.length}
+                onApprove={handleApprove}
+                onDeny={() => { setShowApprovalDeck(false); setDenialDrawer({ approval: currentApproval }); }}
+                onViewDetails={() => { setShowApprovalDeck(false); setDetailSheet(currentApproval); }}
+              />
+            </div>
+          </div>
+        )}
 
         {denialDrawer && (
           <DenialReasonDrawer

@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
 import {
   BookOpen, Plus, Search, Upload, CheckCircle2, Clock, AlertCircle,
   Play, Edit2, Trash2, Users, Award, BarChart3, ChevronRight, Filter,
+  ChevronLeft, Bell, UserCircle, Shield, TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TrainingBuilder from '@/components/training/TrainingBuilder';
@@ -248,6 +250,7 @@ const ADMIN_TABS = [
 ];
 
 function AdminView({ modules, assignments, completions, certifications, onRefresh }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState('all');
   const [search, setSearch] = useState('');
   const [showBuilder, setShowBuilder] = useState(false);
@@ -331,7 +334,85 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
         </div>
       </div>
 
-      <div className="flex-1 lg:overflow-y-auto">
+      {/* ── MOBILE TOP BAR ──────────────────────────────────────────────── */}
+      <div
+        className="lg:hidden sticky top-0 z-10"
+        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <div className="flex items-center justify-between px-4 py-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/[0.06] border border-border/30"
+          >
+            <ChevronLeft className="h-4 w-4 text-foreground" />
+          </button>
+          <span className="text-[15px] font-black text-foreground">Training</span>
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <UserCircle className="h-6 w-6 text-muted-foreground" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE PREMIUM EMPTY STATE ──────────────────────────────────── */}
+      {modules.length === 0 && !search && (
+        <div className="lg:hidden flex flex-col items-center px-6 pt-8 pb-16 text-center">
+          {/* Book icon with sparkle decorations */}
+          <div className="relative mb-6 mt-4">
+            <span className="absolute -top-6 right-0 text-primary/60 text-xl select-none">✦</span>
+            <span className="absolute -top-1 -left-6 text-primary/40 text-base select-none">✦</span>
+            <span className="absolute bottom-1 -right-5 text-primary/30 text-sm select-none">✦</span>
+            <BookOpen className="h-20 w-20 text-muted-foreground/40" strokeWidth={1.2} />
+          </div>
+          <h2 className="text-[22px] font-black text-foreground mb-2">No training modules yet</h2>
+          <p className="text-[14px] text-muted-foreground leading-relaxed mb-8 max-w-[280px]">
+            Create your first module to assign training by role, station, or job code.
+          </p>
+          <div className="w-full space-y-3 mb-10">
+            <button
+              onClick={() => setShowBuilder(true)}
+              className="w-full flex items-center justify-center gap-2 rounded-full py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
+              style={{
+                background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+                boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.18)',
+              }}
+            >
+              <Plus className="h-4 w-4" /> Create First Module
+            </button>
+            <button
+              onClick={openImport}
+              className="w-full flex items-center justify-center gap-2 rounded-full py-4 text-[15px] font-semibold text-foreground active:scale-[0.97] transition-all"
+              style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'transparent' }}
+            >
+              <Upload className="h-4 w-4" /> Import Existing Content
+            </button>
+          </div>
+          {/* Feature list */}
+          <div className="w-full text-left">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground mb-4">Once you start, you can</p>
+            <div className="space-y-4">
+              {[
+                { icon: Users,     label: 'Assign by Role or Station', desc: 'Target training to the right team members.' },
+                { icon: TrendingUp, label: 'Track Completions',        desc: 'See progress and completion status.' },
+                { icon: Award,     label: 'Issue Certifications',      desc: 'Validate skills and keep records.' },
+                { icon: Shield,    label: 'Stay Compliant',            desc: 'Keep training and certifications up to date.' },
+              ].map(({ icon: Icon, label, desc }) => (
+                <div key={label} className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-full bg-white/[0.05] border border-border/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Icon className="h-4 w-4 text-muted-foreground/60" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-bold text-foreground leading-snug">{label}</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={cn('flex-1 lg:overflow-y-auto', modules.length === 0 && !search ? 'hidden lg:flex lg:flex-col' : '')}>
         <div className="px-4 lg:px-8 py-4 space-y-4 pb-28 lg:pb-8">
 
           {/* Stats */}

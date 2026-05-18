@@ -480,123 +480,144 @@ export default function ScheduleCenter() {
 
       <DesktopPageHeader title="Schedule" subtitle="Staff shifts, assignments, and weekly planning" />
 
-      {/* ── Schedule Header ── */}
-      <div className="sticky top-0 lg:top-[112px] z-30 bg-background/95 backdrop-blur-lg border-b border-border/20 lg:mt-14">
-        <div className={cn('px-4 lg:px-6 space-y-3', isExpanded ? 'py-2' : 'py-4')}>
+      {/* ── MOBILE HEADER ─────────────────────────────────────────── */}
+      <div
+        className="lg:hidden sticky top-0 z-30"
+        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 1px 16px rgba(0,0,0,0.6)' }}
+      >
+        <div className="px-4 pt-3 pb-3 space-y-3">
 
-          {/* Header: Title + Week Navigation + Right Actions */}
+          {/* Date pill + action buttons */}
+          <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-1.5 rounded-full border border-border/40 px-3 py-1.5 shrink-0"
+              style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+            >
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-[12px] font-semibold text-muted-foreground">{format(new Date(), 'EEE, MMM d')}</span>
+            </div>
+            <button
+              onClick={() => setShowMassAdd(true)}
+              className="flex items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-bold text-primary flex-1"
+              style={{ border: '1px solid rgba(230,106,31,0.55)', background: 'transparent' }}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add Shift
+            </button>
+            <button
+              onClick={() => navigate('/schedule-import')}
+              className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-muted-foreground shrink-0"
+              style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+            >
+              Import
+            </button>
+          </div>
+
+          {/* Stats — unified single card with dividers */}
+          <div
+            className="flex rounded-xl border border-border/30 overflow-hidden"
+            style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+          >
+            {[
+              { label: 'Hours',     value: `${totalHours.toFixed(0)}h`, color: 'text-foreground' },
+              { label: 'Staff',     value: new Set(weekShifts.map(s => s.employee_email).filter(Boolean)).size || 0, color: 'text-foreground' },
+              { label: 'Labor',     value: '$0',          color: 'text-green-400' },
+              { label: 'Conflicts', value: conflictCount, color: conflictCount > 0 ? 'text-red-400' : 'text-foreground' },
+            ].map(({ label, value, color }, i) => (
+              <div key={label} className={cn('flex-1 py-2.5 text-center', i > 0 && 'border-l border-border/30')}>
+                <p className={cn('text-[15px] font-black leading-none tabular-nums', color)}>{value}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── DESKTOP HEADER ────────────────────────────────────────── */}
+      <div className="hidden lg:block sticky top-[112px] z-30 bg-background/95 backdrop-blur-lg border-b border-border/20 lg:mt-14">
+        <div className={cn('px-6 space-y-3', isExpanded ? 'py-2' : 'py-4')}>
+
           <div className="flex items-center justify-between">
-            {/* LEFT: Title + Week Nav + Expand */}
             <div className="flex items-center gap-4 min-w-0">
               <div className="flex items-center gap-2.5">
                 <h1 className="text-2xl font-black tracking-tight text-foreground shrink-0">Schedule</h1>
-                {!isMobile && (
-                  isExpanded ? (
-                    <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Collapse">
-                      <Minimize className="h-3.5 w-3.5" />
-                    </button>
-                  ) : (
-                    <button onClick={() => setIsExpanded(true)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Expand">
-                      <Expand className="h-3.5 w-3.5" />
-                    </button>
-                  )
-                )}
-              </div>
-              {!isMobile && (
-                <div className="flex items-center gap-1.5">
-                  <button onClick={() => setCurrentWeek(addDays(currentWeek, -7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Previous week">
-                    <ChevronLeft className="h-3.5 w-3.5" />
+                {isExpanded ? (
+                  <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                    <Minimize className="h-3.5 w-3.5" />
                   </button>
-                  <button onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))} className="h-8 px-2.5 rounded-lg border border-border/50 hover:bg-card text-xs font-bold text-muted-foreground transition-colors">
-                    Today
-                  </button>
-                  <button onClick={() => setCurrentWeek(addDays(currentWeek, 7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Next week">
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
-                  <div className="w-px h-5 bg-border/30" />
-                  <p className="text-xs font-semibold text-muted-foreground">{format(weekDays[0], 'MMM d')} – {format(weekDays[6], 'MMM d')}</p>
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT: Actions */}
-            {isMobile ? (
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button onClick={() => setShowMassAdd(true)} className="h-8 w-8 rounded-lg border border-border card-glass text-muted-foreground flex items-center justify-center">
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white' : 'border border-border card-glass text-muted-foreground')}>
-                  {publishing ? '…' : draftCount > 0 ? `${draftCount}` : '✓'}
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 shrink-0">
-                <button onClick={() => setShowSearch(s => !s)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Search">
-                  <Search className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }} className={cn('h-8 px-2.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-colors', pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border/50 text-muted-foreground hover:bg-card')}>
-                  <Bell className="h-3.5 w-3.5" />
-                  {pendingTimeOff > 0 && pendingTimeOff}
-                </button>
-                {isAdmin && (
-                  <button onClick={() => setShowMassAdd(true)} className="h-8 px-3 rounded-lg bg-primary/10 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all">
-                    <Plus className="h-3.5 w-3.5" /> Add
+                ) : (
+                  <button onClick={() => setIsExpanded(true)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                    <Expand className="h-3.5 w-3.5" />
                   </button>
                 )}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => setCurrentWeek(addDays(currentWeek, -7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))} className="h-8 px-2.5 rounded-lg border border-border/50 hover:bg-card text-xs font-bold text-muted-foreground transition-colors">
+                  Today
+                </button>
+                <button onClick={() => setCurrentWeek(addDays(currentWeek, 7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
                 <div className="w-px h-5 bg-border/30" />
-                <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border/50 text-muted-foreground hover:bg-card')}>
-                  <Download className="h-3.5 w-3.5" />
-                  {publishing ? '…' : draftCount > 0 ? `Pub ${draftCount}` : 'Done'}
-                </button>
+                <p className="text-xs font-semibold text-muted-foreground">{format(weekDays[0], 'MMM d')} – {format(weekDays[6], 'MMM d')}</p>
               </div>
-            )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button onClick={() => setShowSearch(s => !s)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                <Search className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }} className={cn('h-8 px-2.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-colors', pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                <Bell className="h-3.5 w-3.5" />
+                {pendingTimeOff > 0 && pendingTimeOff}
+              </button>
+              {isAdmin && (
+                <button onClick={() => setShowMassAdd(true)} className="h-8 px-3 rounded-lg bg-primary/10 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all">
+                  <Plus className="h-3.5 w-3.5" /> Add
+                </button>
+              )}
+              <div className="w-px h-5 bg-border/30" />
+              <button onClick={handlePublish} disabled={publishing} className={cn('h-8 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border/50 text-muted-foreground hover:bg-card')}>
+                <Download className="h-3.5 w-3.5" />
+                {publishing ? '…' : draftCount > 0 ? `Pub ${draftCount}` : 'Done'}
+              </button>
+            </div>
           </div>
 
-          {/* Operational Metrics Bar */}
           {!isExpanded && (
-          <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
-            {[
-              { label: 'Hours', value: totalHours.toFixed(0), suffix: 'h', color: 'text-blue-400' },
-              { label: 'Staff', value: weekShifts.length > 0 ? new Set(weekShifts.map(s => s.employee_email)).size : 0, suffix: '', color: 'text-foreground' },
-              { label: 'Drafts', value: draftCount, suffix: '', color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
-              { label: 'Time Off', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
-              { label: 'Labor', value: '$0', suffix: '', color: 'text-green-400' },
-            ].map(({ label, value, suffix, color }) => (
-              <div key={label} className="rounded-xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-                <p className={cn('text-sm font-extrabold leading-none tabular-nums', color)}>{value}{suffix}</p>
-                <p className="mt-1 truncate text-[10px] text-muted-foreground">{label}</p>
-              </div>
-            ))}
-            {/* Conflicts — clickable to open first conflicted shift */}
-            <button
-              onClick={() => {
-                if (conflictCount === 0) return;
-                const firstId = Object.keys(shiftConflicts)[0];
-                const shift = shifts.find(s => s.id === firstId);
-                if (shift) { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); }
-              }}
-              className={cn(
-                'rounded-xl border px-2.5 py-2 text-left transition-all',
-                conflictCount > 0
-                  ? 'border-red-500/30 hover:border-red-500/50 hover:bg-red-500/5 cursor-pointer'
-                  : 'border-border/40 cursor-default'
-              )}
-              style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
-            >
-              <p className={cn('text-sm font-extrabold leading-none tabular-nums', conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground/50')}>{conflictCount}</p>
-              <div className="mt-1 flex items-center justify-between gap-1">
-                <p className="truncate text-[10px] text-muted-foreground">Conflicts</p>
-                {conflictCount > 0 && <p className="text-[9px] font-bold text-red-400/70 shrink-0">Review →</p>}
-              </div>
-            </button>
-          </div>
+            <div className="grid grid-cols-6 gap-2">
+              {[
+                { label: 'Hours',    value: totalHours.toFixed(0), suffix: 'h', color: 'text-blue-400' },
+                { label: 'Staff',    value: weekShifts.length > 0 ? new Set(weekShifts.map(s => s.employee_email)).size : 0, suffix: '', color: 'text-foreground' },
+                { label: 'Drafts',   value: draftCount,    suffix: '', color: draftCount > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
+                { label: 'Time Off', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
+                { label: 'Labor',    value: '$0',          suffix: '', color: 'text-green-400' },
+              ].map(({ label, value, suffix, color }) => (
+                <div key={label} className="rounded-xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+                  <p className={cn('text-sm font-extrabold leading-none tabular-nums', color)}>{value}{suffix}</p>
+                  <p className="mt-1 truncate text-[10px] text-muted-foreground">{label}</p>
+                </div>
+              ))}
+              <button
+                onClick={() => { if (conflictCount === 0) return; const firstId = Object.keys(shiftConflicts)[0]; const shift = shifts.find(s => s.id === firstId); if (shift) { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); } }}
+                className={cn('rounded-xl border px-2.5 py-2 text-left transition-all', conflictCount > 0 ? 'border-red-500/30 hover:border-red-500/50 hover:bg-red-500/5 cursor-pointer' : 'border-border/40 cursor-default')}
+                style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+              >
+                <p className={cn('text-sm font-extrabold leading-none tabular-nums', conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground/50')}>{conflictCount}</p>
+                <div className="mt-1 flex items-center justify-between gap-1">
+                  <p className="truncate text-[10px] text-muted-foreground">Conflicts</p>
+                  {conflictCount > 0 && <p className="text-[9px] font-bold text-red-400/70 shrink-0">Review →</p>}
+                </div>
+              </button>
+            </div>
           )}
 
-          {/* Secondary Toolbar (Desktop) */}
-          {!isMobile && !isExpanded && (
+          {!isExpanded && (
             <div className="flex items-center justify-between pt-2 border-t border-border/20">
               <div className="flex items-center gap-2.5">
-                {/* Group By */}
                 <div className="relative">
                   <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <Grid3x3 className="h-3 w-3" />
@@ -613,8 +634,6 @@ export default function ScheduleCenter() {
                     </div>
                   )}
                 </div>
-
-                {/* Sort */}
                 <div className="relative">
                   <button onClick={(e) => { e.stopPropagation(); setShowSortPanel(p => !p); setShowGroupPanel(false); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', sortBy !== 'default' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <ArrowDownAZ className="h-3 w-3" />
@@ -631,8 +650,6 @@ export default function ScheduleCenter() {
                     </div>
                   )}
                 </div>
-
-                {/* Filter */}
                 <div className="relative">
                   <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); setShowSortPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <Filter className="h-3 w-3" />
@@ -652,37 +669,28 @@ export default function ScheduleCenter() {
                     </div>
                   )}
                 </div>
-
                 <div className="w-px h-4 bg-border/20" />
-
-                {/* Templates */}
                 <button onClick={() => setShowTemplateModal(true)} className="h-7 px-2.5 rounded-lg border border-border/50 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-card transition-colors">
                   <LayoutTemplate className="h-3 w-3" /> Templates
                 </button>
-
-                {/* Shortcuts */}
                 <button onClick={() => setShowShortcuts(p => !p)} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                   <Keyboard className="h-3 w-3" /> Shortcuts
                 </button>
-
-                {/* Clipboard indicator */}
                 {clipboard && (
                   <div className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border border-green-500/30 bg-green-500/10 text-[11px] font-bold text-green-400">
                     <span>Copied: {clipboard.role || 'Shift'}</span>
-                    <button onClick={() => setClipboard(null)} className="text-green-400/60 hover:text-green-400 ml-0.5" title="Clear clipboard">✕</button>
+                    <button onClick={() => setClipboard(null)} className="text-green-400/60 hover:text-green-400 ml-0.5">✕</button>
                   </div>
                 )}
               </div>
-
-              <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border/50 hover:bg-card flex items-center justify-center text-muted-foreground transition-colors" title="Refresh">
+              <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border/50 hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                 <RefreshCw className="h-3.5 w-3.5" />
               </button>
             </div>
           )}
         </div>
 
-        {/* Search (desktop) */}
-        {showSearch && !isMobile && (
+        {showSearch && (
           <div className="px-6 py-2 border-t border-border/20 flex items-center gap-2 bg-background/90">
             <Search className="h-3.5 w-3.5 text-muted-foreground" />
             <input autoFocus type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
@@ -690,9 +698,7 @@ export default function ScheduleCenter() {
             {searchQuery && <button onClick={() => setSearchQuery('')}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>}
           </div>
         )}
-
-        {/* Keyboard shortcuts */}
-        {showShortcuts && !isMobile && (
+        {showShortcuts && (
           <div className="px-6 py-3 border-t border-border/20 bg-card/50" onClick={e => e.stopPropagation()}>
             <div className="flex flex-wrap gap-x-6 gap-y-1.5">
               {[['⌘C','Copy'],['⌘V','Paste'],['⌘D','Duplicate'],['⌘Z','Undo'],['⌘⇧Z','Redo'],['Del','Delete'],['Esc','Clear']].map(([key, label]) => (
@@ -706,38 +712,117 @@ export default function ScheduleCenter() {
         )}
       </div>
 
-      {/* ── Main Content ── */}
-      <div className={cn('py-3', isExpanded ? 'px-0' : 'px-3 lg:px-6')}>
+      {/* ── MOBILE CONTENT ────────────────────────────────────────── */}
+      <div className="lg:hidden">
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : weekShifts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center px-8 pt-16 pb-12 text-center">
+            {/* Circle with sparkles */}
+            <div className="relative mb-8">
+              <span className="absolute -top-5 left-4 text-primary/30 text-sm select-none">✦</span>
+              <span className="absolute -top-1 -right-4 text-primary/20 text-xs select-none">✦</span>
+              <span className="absolute bottom-1 -left-5 text-primary/20 text-xs select-none">✦</span>
+              <span className="absolute -bottom-4 right-4 text-primary/30 text-sm select-none">✦</span>
+              <div
+                className="h-28 w-28 rounded-full flex items-center justify-center"
+                style={{
+                  background: 'radial-gradient(circle, rgba(230,106,31,0.1) 0%, rgba(0,0,0,0.5) 70%)',
+                  boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 48px rgba(230,106,31,0.08)',
+                }}
+              >
+                <Calendar
+                  className="h-12 w-12 text-primary"
+                  style={{ filter: 'drop-shadow(0 0 10px rgba(230,106,31,0.5))' }}
+                />
+              </div>
+            </div>
+            <h2 className="text-[20px] font-black text-foreground mb-2">No shifts scheduled</h2>
+            <p className="text-[14px] text-muted-foreground leading-relaxed mb-8 max-w-[280px]">
+              Add your first shift or import a schedule to start assigning roles and stations.
+            </p>
+            <div className="w-full space-y-3">
+              <button
+                onClick={() => setShowMassAdd(true)}
+                className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+                  boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.18)',
+                }}
+              >
+                Add Shift
+              </button>
+              <button
+                onClick={() => navigate('/schedule-import')}
+                className="w-full rounded-xl py-4 text-[15px] font-semibold text-foreground active:scale-[0.97] transition-all"
+                style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+              >
+                Import Schedule
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="py-3 px-3">
+            <ScheduleGrid
+              shifts={shifts}
+              employees={filteredEmployees}
+              weekDays={weekDays}
+              selectedShiftIds={selectedShiftIds}
+              onSelectShift={(shift) => { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); }}
+              onSelectShifts={setSelectedShiftIds}
+              shiftConflicts={shiftConflicts}
+              timeOffRequests={timeOffRequests}
+              availability={availability}
+              onDragEnd={handleDragEnd}
+              onAddShift={(emp, day) => setQuickAdd({ employee: emp, day })}
+              onPasteShift={handlePasteShift}
+              hasClipboard={!!clipboard}
+              onShiftContextMenu={(shift, emp, day, x, y) => setContextMenu({ shift, employee: emp, day, x, y })}
+              onEmptyCellContextMenu={(emp, day, x, y) => setContextMenu({ shift: null, employee: emp, day, x, y })}
+              isMobile={true}
+              groupBy={groupBy}
+              isExpanded={false}
+              stationsList={stationsList}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ── DESKTOP CONTENT ───────────────────────────────────────── */}
+      <div className={cn('hidden lg:block py-3', isExpanded ? 'px-0' : 'px-3 lg:px-6')}>
         {loading && (
           <div className="flex items-center justify-center py-16">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
-
-        {!loading && <ScheduleGrid
-          shifts={shifts}
-          employees={filteredEmployees}
-          weekDays={weekDays}
-          selectedShiftIds={selectedShiftIds}
-          onSelectShift={(shift) => { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); }}
-          onSelectShifts={setSelectedShiftIds}
-          shiftConflicts={shiftConflicts}
-          timeOffRequests={timeOffRequests}
-          availability={availability}
-          onDragEnd={handleDragEnd}
-          onAddShift={(emp, day) => setQuickAdd({ employee: emp, day })}
-          onPasteShift={handlePasteShift}
-          hasClipboard={!!clipboard}
-          onShiftContextMenu={(shift, emp, day, x, y) => setContextMenu({ shift, employee: emp, day, x, y })}
-          onEmptyCellContextMenu={(emp, day, x, y) => setContextMenu({ shift: null, employee: emp, day, x, y })}
-          isMobile={isMobile}
-          groupBy={groupBy}
-          isExpanded={isExpanded}
-          stationsList={stationsList}
-        />}
+        {!loading && (
+          <ScheduleGrid
+            shifts={shifts}
+            employees={filteredEmployees}
+            weekDays={weekDays}
+            selectedShiftIds={selectedShiftIds}
+            onSelectShift={(shift) => { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); }}
+            onSelectShifts={setSelectedShiftIds}
+            shiftConflicts={shiftConflicts}
+            timeOffRequests={timeOffRequests}
+            availability={availability}
+            onDragEnd={handleDragEnd}
+            onAddShift={(emp, day) => setQuickAdd({ employee: emp, day })}
+            onPasteShift={handlePasteShift}
+            hasClipboard={!!clipboard}
+            onShiftContextMenu={(shift, emp, day, x, y) => setContextMenu({ shift, employee: emp, day, x, y })}
+            onEmptyCellContextMenu={(emp, day, x, y) => setContextMenu({ shift: null, employee: emp, day, x, y })}
+            isMobile={false}
+            groupBy={groupBy}
+            isExpanded={isExpanded}
+            stationsList={stationsList}
+          />
+        )}
       </div>
 
-      {/* ── Overlays ── */}
+      {/* ── OVERLAYS + MODALS ─────────────────────────────────────── */}
       <AnimatePresence>
         {selectedShiftDetail && (
           <ShiftDetailDrawer

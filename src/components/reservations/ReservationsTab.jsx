@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Star, AlertTriangle, Users, Edit2, Trash2, Plus } from 'lucide-react';
+import { Search, Star, AlertTriangle, Users, Edit2, Trash2, Plus, Calendar, Upload, X } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 const STATUS_COLOR = {
@@ -51,7 +51,7 @@ function ReservationCard({ res, isAdmin, onEdit, onDelete }) {
   );
 }
 
-export default function ReservationsTab({ reservations, isAdmin, onEdit, onRefresh }) {
+export default function ReservationsTab({ reservations, isAdmin, onEdit, onRefresh, onAdd, onImport }) {
   const [search, setSearch] = useState('');
   const [filterDate, setFilterDate] = useState(today());
   const [filterStatus, setFilterStatus] = useState('all');
@@ -102,8 +102,38 @@ export default function ReservationsTab({ reservations, isAdmin, onEdit, onRefre
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-10 card-glass border border-border rounded-xl">
-          <p className="text-sm text-muted-foreground">No reservations found</p>
+        <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+          <div className="flex flex-col items-center py-8 px-4 gap-3">
+            <div className="relative">
+              <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+                <Calendar className="h-7 w-7 text-muted-foreground/50" />
+              </div>
+              <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
+                <X className="h-3 w-3 text-muted-foreground" />
+              </div>
+            </div>
+            <p className="text-[14px] font-semibold text-foreground">No reservations found</p>
+            <div className="flex flex-col gap-2 w-full mt-1">
+              {onAdd && (
+                <button
+                  onClick={() => { onAdd(); haptics.medium(); }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
+                  style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Reservation
+                </button>
+              )}
+              {onImport && (
+                <button
+                  onClick={() => { onImport(); haptics.medium(); }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+                >
+                  <Upload className="h-3.5 w-3.5" /> Import from Calendar
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">

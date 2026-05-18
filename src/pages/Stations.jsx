@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
+import { useNavigate } from 'react-router-dom';
 import StationForm from '@/components/StationForm';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 
@@ -52,13 +53,6 @@ function getAttentionItems(station, equipment) {
 const healthBar = { success: 'bg-green-500', warning: 'bg-amber-500', critical: 'bg-red-500', neutral: 'bg-slate-600' };
 const healthText = { success: 'text-green-400', warning: 'text-amber-400', critical: 'text-red-400', neutral: 'text-slate-400' };
 const healthBorder = { success: 'border-green-500/30', warning: 'border-amber-500/30', critical: 'border-red-500/30', neutral: 'border-border/30' };
-const healthBadge = {
-  success: 'bg-green-500/15 text-green-400 border-green-500/30',
-  warning: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  critical: 'bg-red-500/15 text-red-400 border-red-500/30',
-  neutral: 'bg-slate-500/15 text-slate-400 border-slate-500/30',
-};
-const healthLabel = { success: 'Ready', warning: 'Needs Setup', critical: 'Critical', neutral: 'Inactive' };
 
 // ─── Summary card ─────────────────────────────────────────────────────────────
 
@@ -98,9 +92,6 @@ function StationListCard({ station, equipment, isSelected, onClick }) {
             <p className="text-[10px] text-muted-foreground mt-0.5">{station.department}</p>
           )}
         </div>
-        <span className={cn('shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border', healthBadge[health.color])}>
-          {healthLabel[health.color]}
-        </span>
       </div>
 
       <div className="mt-2.5 space-y-1">
@@ -177,7 +168,7 @@ function AreaGroup({ areaName, stations, equipment, selectedId, onSelect, defaul
 
 // ─── Detail panel ─────────────────────────────────────────────────────────────
 
-function DetailPanel({ station, equipment, onEdit, onDelete, onClose }) {
+function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDetail }) {
   if (!station) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
@@ -202,7 +193,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose }) {
   ];
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 min-h-0">
       {/* Station header */}
       <div className={cn('p-4 border-b rounded-t-2xl', healthBorder[health.color])} style={{
         background: health.color === 'success' ? 'rgba(34,197,94,0.05)' : health.color === 'warning' ? 'rgba(245,158,11,0.05)' : health.color === 'critical' ? 'rgba(239,68,68,0.07)' : 'transparent'
@@ -213,9 +204,6 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose }) {
             {station.department && <p className="text-xs text-muted-foreground mt-0.5">{station.department}</p>}
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full border', healthBadge[health.color])}>
-              {healthLabel[health.color]}
-            </span>
             {onClose && (
               <button onClick={onClose} className="h-7 w-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground lg:hidden">
                 <X className="h-3.5 w-3.5" />
@@ -295,19 +283,29 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose }) {
       </div>
 
       {/* Quick actions */}
-      <div className="p-3 border-t border-border/30 flex gap-2 shrink-0">
-        <button
-          onClick={() => onEdit(station)}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-border/50 py-2 text-xs font-bold text-foreground hover:bg-muted/50 transition-all"
-        >
-          <Edit2 className="h-3.5 w-3.5" /> Edit
-        </button>
-        <button
-          onClick={() => onDelete(station.id)}
-          className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-500/30 py-2 text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all"
-        >
-          <Trash2 className="h-3.5 w-3.5" /> Delete
-        </button>
+      <div className="p-3 border-t border-border/30 space-y-2 shrink-0">
+        {onViewDetail && (
+          <button
+            onClick={onViewDetail}
+            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/8 py-2.5 text-xs font-bold text-primary hover:bg-primary/15 transition-all"
+          >
+            <ChevronRight className="h-3.5 w-3.5" /> View Full Station Detail
+          </button>
+        )}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onEdit(station)}
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-border/50 py-2 text-xs font-bold text-foreground hover:bg-muted/50 transition-all"
+          >
+            <Edit2 className="h-3.5 w-3.5" /> Edit
+          </button>
+          <button
+            onClick={() => onDelete(station.id)}
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-500/30 py-2 text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Delete
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -324,6 +322,7 @@ const FILTERS = [
 ];
 
 export default function Stations() {
+  const navigate = useNavigate();
   const [stations, setStations] = useState([]);
   const [areas, setAreas] = useState([]);
   const [equipment, setEquipment] = useState([]);
@@ -440,8 +439,13 @@ export default function Stations() {
 
   const handleSelect = (station) => {
     haptics.light();
-    setSelectedStation(station);
-    setShowDetail(true);
+    const isMobile = window.innerWidth < 900;
+    if (isMobile) {
+      navigate(`/station/${station.id}`);
+    } else {
+      setSelectedStation(station);
+      setShowDetail(true);
+    }
   };
 
   const handleEdit = (station) => {
@@ -585,12 +589,13 @@ export default function Stations() {
 
               {/* Right: sticky detail panel */}
               <div className="sticky top-[72px] self-start">
-                <div className="card-glass border border-border rounded-2xl overflow-hidden" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+                <div className="card-glass border border-border rounded-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
                   <DetailPanel
                     station={syncedSelected}
                     equipment={equipment}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onViewDetail={syncedSelected ? () => navigate(`/station/${syncedSelected.id}`) : undefined}
                   />
                 </div>
               </div>

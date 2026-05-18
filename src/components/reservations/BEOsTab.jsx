@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Users, ChevronRight, Edit2, Trash2, CheckCircle2 } from 'lucide-react';
+import { Search, Users, ChevronRight, Edit2, Trash2, CheckCircle2, ClipboardList, Plus, Upload } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 const STATUS_COLOR = {
@@ -61,7 +61,7 @@ function BEOCard({ beo, isAdmin, onSelect, onEdit, onDelete }) {
   );
 }
 
-export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh }) {
+export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh, onAdd, onImport }) {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
@@ -90,7 +90,7 @@ export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh }) 
           />
         </div>
         <div className="flex gap-1.5 overflow-x-auto pb-1">
-          {['all','tentative','confirmed','in-production','ready','completed'].map(s => (
+          {['all','tentative','confirmed','in-production','ready'].map(s => (
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
@@ -103,8 +103,33 @@ export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh }) 
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-10 card-glass border border-border rounded-xl">
-          <p className="text-sm text-muted-foreground">No BEOs found</p>
+        <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+          <div className="flex flex-col items-center py-8 px-4 gap-3">
+            <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+              <ClipboardList className="h-7 w-7 text-muted-foreground/50" />
+            </div>
+            <p className="text-[14px] font-semibold text-foreground">No BEOs found</p>
+            <div className="flex flex-col gap-2 w-full mt-1">
+              {onAdd && (
+                <button
+                  onClick={() => { onAdd(); haptics.medium(); }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
+                  style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Create BEO
+                </button>
+              )}
+              {onImport && (
+                <button
+                  onClick={() => { onImport(); haptics.medium(); }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+                >
+                  <Upload className="h-3.5 w-3.5" /> Upload PDF
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">

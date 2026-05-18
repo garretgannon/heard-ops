@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import {
   AlertTriangle, CheckCircle2, ExternalLink,
-  MapPin, RefreshCw, Search, Thermometer, Wrench, X,
+  Layers, MapPin, RefreshCw, Search, Thermometer, Wrench, X,
   Sparkles, Activity, Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -90,10 +90,8 @@ function StationCard({ station, eq, isSelected, onClick }) {
       )}
       style={{ background: isSelected ? bgColor[color] : 'rgba(11,17,24,0.85)' }}
     >
-      {/* Status dot */}
       <div className="flex items-start justify-between gap-1.5">
         <p className="text-xs font-black text-foreground leading-tight truncate flex-1">{station.name}</p>
-        <span className={cn('shrink-0 h-2 w-2 rounded-full mt-1', barColor[color])} />
       </div>
 
       {/* Readiness */}
@@ -138,7 +136,7 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
   const configuredCount = eq.filter(isEquipmentConfigured).length;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 min-h-0">
       {/* Header */}
       <div className="p-4 border-b border-border/30 shrink-0" style={{ background: bgColor[color] }}>
         <div className="flex items-start justify-between gap-2 mb-3">
@@ -377,16 +375,16 @@ export default function OperationalMap() {
           </div>
         ) : (
           <>
-            {/* Summary strip */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {/* Mobile-only summary strip */}
+            <div className="grid grid-cols-2 gap-2.5 lg:hidden">
               {[
-                { label: 'Total', value: stats.total, color: 'text-foreground', dotColor: 'bg-primary/60' },
-                { label: 'Ready', value: stats.ready, color: 'text-green-400', dotColor: 'bg-green-500' },
-                { label: 'Needs Attention', value: stats.attn, color: stats.attn > 0 ? 'text-amber-400' : 'text-foreground', dotColor: 'bg-amber-500' },
-                { label: 'Equip. Issues', value: stats.issues, color: stats.issues > 0 ? 'text-red-400' : 'text-foreground', dotColor: 'bg-red-500' },
-              ].map(({ label, value, color, dotColor }) => (
-                <div key={label} className="card-glass border border-border rounded-xl px-3 py-3 flex items-center gap-3">
-                  <span className={cn('h-2.5 w-2.5 rounded-full shrink-0', dotColor)} />
+                { label: 'Total', value: stats.total, color: 'text-foreground', iconColor: 'text-muted-foreground', icon: Layers },
+                { label: 'Ready', value: stats.ready, color: 'text-green-400', iconColor: 'text-green-400', icon: CheckCircle2 },
+                { label: 'Needs Attention', value: stats.attn, color: stats.attn > 0 ? 'text-amber-400' : 'text-foreground', iconColor: stats.attn > 0 ? 'text-amber-400' : 'text-muted-foreground', icon: AlertTriangle },
+                { label: 'Equip. Issues', value: stats.issues, color: stats.issues > 0 ? 'text-red-400' : 'text-foreground', iconColor: stats.issues > 0 ? 'text-red-400' : 'text-muted-foreground', icon: Wrench },
+              ].map(({ label, value, color, iconColor, icon: Icon }) => (
+                <div key={label} className="card-glass border border-border rounded-xl px-3 py-3 flex items-center gap-2.5">
+                  <Icon className={cn('h-4 w-4 shrink-0', iconColor)} />
                   <div>
                     <p className={cn('text-xl font-black leading-none', color)}>{value}</p>
                     <p className="text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</p>
@@ -395,10 +393,28 @@ export default function OperationalMap() {
               ))}
             </div>
 
-            {/* Desktop 2-column */}
-            <div className="hidden lg:grid lg:grid-cols-[1fr_300px] gap-5 mt-1">
+            {/* Desktop 2-column — summary inside left column so right panel aligns from top */}
+            <div className="hidden lg:flex lg:gap-5">
               {/* Left column */}
-              <div className="space-y-3 min-w-0">
+              <div className="flex-1 min-w-0 space-y-3">
+                {/* Desktop summary strip */}
+                <div className="grid grid-cols-4 gap-2.5">
+                  {[
+                    { label: 'Total', value: stats.total, color: 'text-foreground', iconColor: 'text-muted-foreground', icon: Layers },
+                    { label: 'Ready', value: stats.ready, color: 'text-green-400', iconColor: 'text-green-400', icon: CheckCircle2 },
+                    { label: 'Needs Attention', value: stats.attn, color: stats.attn > 0 ? 'text-amber-400' : 'text-foreground', iconColor: stats.attn > 0 ? 'text-amber-400' : 'text-muted-foreground', icon: AlertTriangle },
+                    { label: 'Equip. Issues', value: stats.issues, color: stats.issues > 0 ? 'text-red-400' : 'text-foreground', iconColor: stats.issues > 0 ? 'text-red-400' : 'text-muted-foreground', icon: Wrench },
+                  ].map(({ label, value, color, iconColor, icon: Icon }) => (
+                    <div key={label} className="card-glass border border-border rounded-xl px-3 py-3 flex items-center gap-2.5">
+                      <Icon className={cn('h-4 w-4 shrink-0', iconColor)} />
+                      <div>
+                        <p className={cn('text-xl font-black leading-none', color)}>{value}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Toolbar */}
                 <div className="flex items-center gap-3">
                   <div className="relative flex-1">
@@ -424,7 +440,7 @@ export default function OperationalMap() {
                 </div>
 
                 {/* Area tabs */}
-                <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pt-1 pb-0.5 pl-0.5">
+                <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5 pl-0.5">
                   {tabs.map(tab => (
                     <button
                       key={tab.id}
@@ -461,9 +477,9 @@ export default function OperationalMap() {
                 )}
               </div>
 
-              {/* Right: sticky detail panel */}
-              <div className="sticky top-[72px] self-start">
-                <div className="card-glass border border-border rounded-2xl overflow-hidden" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+              {/* Right: sticky detail panel — full height alongside left column */}
+              <div className="w-[300px] shrink-0 sticky top-[72px] self-start">
+                <div className="card-glass border border-border rounded-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 90px)' }}>
                   <DetailPanel
                     station={syncedSelected}
                     allEquipment={activeEquipment}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { base44 } from "@/api/base44Client";
@@ -543,8 +543,9 @@ export default function ManagerShift() {
     shiftLogs: [], checklists: [], handoffPrompts: [],
     prepNeeds: [], reservationsList: [], allStaff: [],
   });
-  const [preShiftSaved, setPreShiftSaved] = useState(false);
-  const [preShiftId, setPreShiftId]       = useState(null);
+  const [preShiftSaved, setPreShiftSaved]         = useState(false);
+  const [preShiftPublished, setPreShiftPublished] = useState(false);
+  const [preShiftId, setPreShiftId]               = useState(null);
   const [preShiftForm, setPreShiftForm]   = useState({
     roles: "", specialCleaning: "", reservations: "", outOfStock: "", specials: "", notes: "",
     sideworkPriorities: "", prepNeeds: "", lineCheckNotes: "", tempCheckNotes: "",
@@ -559,6 +560,18 @@ export default function ManagerShift() {
   const [viewedIntelCards, setViewedIntelCards] = useState(new Set());
   const [closeFilterTab, setCloseFilterTab]     = useState('all');
   const [expandedImportRows, setExpandedImportRows] = useState(new Set());
+  const [runPage, setRunPage] = useState(0);
+  const runScrollRef = useRef(null);
+  const handleRunScroll = () => {
+    const el = runScrollRef.current;
+    if (!el) return;
+    setRunPage(Math.round(el.scrollLeft / el.clientWidth));
+  };
+  const goToRunPage = (page) => {
+    const el = runScrollRef.current;
+    if (!el) return;
+    el.scrollTo({ left: page * el.clientWidth, behavior: 'smooth' });
+  };
 
   const INTEL_CARD_IDS = ["handoff", "eightySix", "issues", "events", "logs"];
   const allCardsViewed = INTEL_CARD_IDS.every(id => viewedIntelCards.has(id));
@@ -660,6 +673,7 @@ export default function ManagerShift() {
         allStaff:         staff.slice(0, 80),
       });
       setPreShiftSaved(Boolean(currentPreShift));
+      setPreShiftPublished(currentPreShift?.status === 'published');
       setPreShiftId(currentPreShift?.id || null);
 
       const beoLines = upcomingEvents.map(e =>
@@ -864,6 +878,57 @@ export default function ManagerShift() {
     setCheckedDuties(prev => prev.includes(PRE_SHIFT_DUTY) ? prev : [...prev, PRE_SHIFT_DUTY]);
     haptics.success();
     toast.success("Pre-shift briefing saved");
+  };
+
+  const publishBriefing = async () => {
+    if (!preShiftForm.notes.trim()) {
+      toast.error("Add briefing notes before publishing");
+      return;
+    }
+    const talkingPoints = [
+      preShiftForm.reservations       && `Reservations/BEO:\n${preShiftForm.reservations}`,
+      preShiftForm.outOfStock         && `Out of stock / 86:\n${preShiftForm.outOfStock}`,
+      preShiftForm.specials           && `Specials:\n${preShiftForm.specials}`,
+      preShiftForm.specialCleaning    && `Special cleaning:\n${preShiftForm.specialCleaning}`,
+      preShiftForm.sideworkPriorities && `Sidework priorities:\n${preShiftForm.sideworkPriorities}`,
+      preShiftForm.prepNeeds          && `Prep needs:\n${preShiftForm.prepNeeds}`,
+      preShiftForm.lineCheckNotes     && `Line check:\n${preShiftForm.lineCheckNotes}`,
+      preShiftForm.tempCheckNotes     && `Temperature checks:\n${preShiftForm.tempCheckNotes}`,
+      preShiftForm.beverageNotes      && `Beverage notes:\n${preShiftForm.beverageNotes}`,
+      preShiftForm.barPrepNotes       && `Bar prep:\n${preShiftForm.barPrepNotes}`,
+      preShiftForm.notes              && `Briefing notes:\n${preShiftForm.notes}`,
+    ].filter(Boolean).join("\n\n");
+
+    const payload = {
+      date, shift: preShiftEntityShift,
+      staffing_notes:      preShiftForm.roles,
+      specials:            preShiftForm.specials,
+      issues:              preShiftForm.specialCleaning,
+      reservations:        preShiftForm.reservations,
+      items_86d:           preShiftForm.outOfStock,
+      sidework_priorities: preShiftForm.sideworkPriorities,
+      prep_needs:          preShiftForm.prepNeeds,
+      line_check_notes:    preShiftForm.lineCheckNotes,
+      temp_check_notes:    preShiftForm.tempCheckNotes,
+      beverage_notes:      preShiftForm.beverageNotes,
+      bar_prep_notes:      preShiftForm.barPrepNotes,
+      notes:               talkingPoints,
+      status:              'published',
+      published_at:        new Date().toISOString(),
+      published_by:        user?.full_name || user?.email || 'Manager',
+    };
+
+    const saved = preShiftId
+      ? await base44.entities.PreShift?.update?.(preShiftId, payload).catch(() => null)
+      : await base44.entities.PreShift?.create?.(payload).catch(() => null);
+
+    if (saved?.id) setPreShiftId(saved.id);
+    setPreShiftSaved(true);
+    setPreShiftPublished(true);
+    addXp(25);
+    setCheckedDuties(prev => prev.includes(PRE_SHIFT_DUTY) ? prev : [...prev, PRE_SHIFT_DUTY]);
+    haptics.success();
+    toast.success("Briefing published to staff phones");
   };
 
   const acknowledgeBriefing = async () => {
@@ -1315,182 +1380,327 @@ export default function ManagerShift() {
             {activeStage === "run" && (
               <>
                 {/* ── MOBILE RUN ── */}
-                <div className="lg:hidden space-y-3">
+                <div className="lg:hidden">
+                  {/* 2-page swipeable container */}
                   <div
-                    className={cn("overflow-hidden rounded-2xl border", preShiftSaved ? "border-green-500/30" : "border-primary/30")}
-                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                    ref={runScrollRef}
+                    onScroll={handleRunScroll}
+                    className="flex snap-x snap-mandatory overflow-x-auto"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
                   >
-                    {/* Card header */}
-                    <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3">
-                      <div className="flex items-center gap-2.5">
-                        <Users className="h-4 w-4 text-primary" />
-                        <p className="text-sm font-black text-foreground">Pre-Shift Briefing</p>
+                    {/* ─ Page 1: Context (scope + auto-imported) ─ */}
+                    <div className="w-full shrink-0 snap-center">
+                      <div
+                        className="overflow-hidden rounded-2xl border border-border/40"
+                        style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                      >
+                        {/* Page 1 header */}
+                        <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5 border-b border-border/15">
+                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Pre-Shift Context</p>
+                          <button type="button" onClick={() => load({ quiet: true })}
+                            className="flex items-center gap-1 text-[9px] font-bold text-muted-foreground/50 hover:text-muted-foreground transition-colors">
+                            <RefreshCw className={cn("h-2.5 w-2.5", refreshing && "animate-spin")} /> Refresh
+                          </button>
+                        </div>
+
+                        {/* BRIEFING SCOPE */}
+                        <div className="px-4 py-3 border-b border-border/15">
+                          <p className="mb-2 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">Briefing Scope</p>
+                          {candidateProfiles.length > 1 ? (
+                            <div className="grid grid-cols-2 gap-1.5">
+                              {candidateProfiles.map(p => {
+                                const isSelected = shiftContext?.profileId === p.id;
+                                const roles = p.importRules?.staffRoles || [];
+                                const cnt = roles.length > 0
+                                  ? briefing.allStaff.filter(s => roles.some(r => (s.role || '').toLowerCase().includes(r.toLowerCase()))).length
+                                  : briefing.allStaff.length;
+                                return (
+                                  <button key={p.id} type="button"
+                                    onClick={() => { selectProfile(p); load({ quiet: true }); }}
+                                    className={cn(
+                                      "flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98]",
+                                      isSelected ? "border-primary/50 bg-primary/8" : "border-border/40"
+                                    )}
+                                    style={isSelected ? { boxShadow: "0 0 8px rgba(230,106,31,0.15)" } : undefined}
+                                  >
+                                    <span className={cn("text-xs font-black", isSelected ? "text-primary" : "text-foreground")}>
+                                      {p.shortName || p.name}
+                                    </span>
+                                    <span className="text-[10px] text-muted-foreground">{cnt} staff</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : shiftContext ? (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className={cn("rounded-full border px-2.5 py-1 text-xs font-black",
+                                shiftContext.department === 'foh'     ? 'border-blue-500/30 text-blue-400' :
+                                shiftContext.department === 'boh'     ? 'border-amber-500/30 text-amber-400' :
+                                shiftContext.department === 'bar'     ? 'border-teal-500/30 text-teal-400' :
+                                shiftContext.department === 'banquet' ? 'border-cyan-500/30 text-cyan-400' :
+                                                                         'border-primary/30 text-primary'
+                              )}>
+                                {shiftContext.profileName}
+                              </span>
+                              <button type="button" onClick={resetContext}
+                                className="text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors">
+                                Change
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground/50">No scope — select a profile from the Pre-Shift tab.</p>
+                          )}
+                        </div>
+
+                        {/* AUTO-IMPORTED expandable rows */}
+                        <div>
+                          <p className="px-4 pt-2.5 pb-1 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">Auto-Imported</p>
+                          {[
+                            {
+                              id: 'roles',
+                              label: 'Roles & Assignments',
+                              count: briefing.staff.length,
+                              countCls: 'text-muted-foreground',
+                              renderContent: () => briefing.staff.length === 0
+                                ? <p className="text-xs text-muted-foreground/50">No shifts scheduled today</p>
+                                : <div className="space-y-1">{briefing.staff.slice(0, 12).map((p, i) => (
+                                    <div key={p.id || i} className="flex items-center justify-between gap-2 text-xs">
+                                      <span className="font-semibold text-foreground truncate">{p.employee_name}</span>
+                                      <span className="shrink-0 text-muted-foreground">{[p.role, p.station, p.start_time].filter(Boolean).join(' · ')}</span>
+                                    </div>
+                                  ))}{briefing.staff.length > 12 && <p className="text-[10px] text-muted-foreground/50 mt-0.5">+{briefing.staff.length - 12} more</p>}</div>,
+                            },
+                            {
+                              id: 'reservations',
+                              label: 'Reservations / BEO',
+                              count: briefing.events.length + briefing.reservationsList.length,
+                              countCls: 'text-muted-foreground',
+                              renderContent: () => briefing.events.length + briefing.reservationsList.length === 0
+                                ? <p className="text-xs text-muted-foreground/50">No events or reservations today</p>
+                                : <div className="space-y-1">
+                                    {briefing.events.map(e => (
+                                      <div key={e.id} className="flex items-start justify-between gap-2 text-xs">
+                                        <span className="font-semibold text-foreground">{e.eventName}</span>
+                                        <span className="shrink-0 text-muted-foreground">{[e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ''].filter(Boolean).join(' · ')}</span>
+                                      </div>
+                                    ))}
+                                    {briefing.reservationsList.map(r => (
+                                      <div key={r.id} className="flex items-start justify-between gap-2 text-xs">
+                                        <span className="font-semibold text-foreground">{r.guest_name || r.name || 'Reservation'}</span>
+                                        <span className="shrink-0 text-muted-foreground">{[r.arrival_time || r.time, r.party_size ? `${r.party_size} pax` : '', r.special_requests || r.dietary_notes].filter(Boolean).join(' · ')}</span>
+                                      </div>
+                                    ))}
+                                  </div>,
+                            },
+                            {
+                              id: 'eightySix',
+                              label: 'Out of Stock / 86',
+                              count: briefing.eightySix.length,
+                              countCls: briefing.eightySix.length > 0 ? 'text-red-400' : 'text-muted-foreground',
+                              renderContent: () => briefing.eightySix.length === 0
+                                ? <p className="text-xs text-muted-foreground/50 italic">All items available</p>
+                                : <div className="space-y-1">{briefing.eightySix.map(i => (
+                                    <div key={i.id} className="flex items-center justify-between gap-2 text-xs">
+                                      <span className="font-bold text-red-400">{i.item_name}</span>
+                                      <span className="shrink-0 text-muted-foreground">{i.category || i.notes || ''}</span>
+                                    </div>
+                                  ))}</div>,
+                            },
+                          ].map(row => (
+                            <div key={row.id}>
+                              <button type="button" onClick={() => toggleImportRow(row.id)}
+                                className="flex w-full items-center gap-3 border-t border-border/15 px-4 py-3 text-left transition-all active:scale-[0.99]">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-bold text-foreground">{row.label}</p>
+                                </div>
+                                <span className={cn("text-xs font-black tabular-nums shrink-0", row.countCls)}>{row.count}</span>
+                                <ChevronRight className={cn("h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform duration-200", expandedImportRows.has(row.id) && "rotate-90")} />
+                              </button>
+                              {expandedImportRows.has(row.id) && (
+                                <div className="space-y-1.5 border-t border-border/10 bg-white/[0.01] px-4 pb-3 pt-2">
+                                  {row.renderContent()}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <span className={cn("shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black",
-                        preShiftSaved ? "border-green-500/35 bg-green-500/12 text-green-400" : "border-primary/35 bg-primary/12 text-primary")}>
-                        {preShiftSaved ? "✓ Ready" : "Required"}
-                      </span>
                     </div>
 
-                    {/* BRIEFING SCOPE */}
-                    <div className="border-t border-border/20 px-4 py-3">
-                      <p className="mb-2 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">BRIEFING SCOPE</p>
-                      {candidateProfiles.length > 1 ? (
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {candidateProfiles.map(p => {
-                            const isSelected = shiftContext?.profileId === p.id;
-                            const roles = p.importRules?.staffRoles || [];
-                            const cnt = roles.length > 0
-                              ? briefing.allStaff.filter(s => roles.some(r => (s.role || '').toLowerCase().includes(r.toLowerCase()))).length
-                              : briefing.allStaff.length;
-                            return (
-                              <button key={p.id} type="button"
-                                onClick={() => { selectProfile(p); load({ quiet: true }); }}
-                                className={cn(
-                                  "flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98]",
-                                  isSelected ? "border-primary/50 bg-primary/8" : "border-border/40"
-                                )}
-                                style={isSelected ? { boxShadow: "0 0 8px rgba(230,106,31,0.15)" } : undefined}
-                              >
-                                <span className={cn("text-xs font-black", isSelected ? "text-primary" : "text-foreground")}>
-                                  {p.shortName || p.name}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground">{cnt} staff</span>
+                    {/* ─ Page 2: Briefing form (fields + save) ─ */}
+                    <div className="w-full shrink-0 snap-center">
+                      <div
+                        className={cn("overflow-hidden rounded-2xl border", preShiftSaved ? "border-green-500/30" : "border-primary/30")}
+                        style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                      >
+                        {/* Page 2 header */}
+                        <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <Users className="h-4 w-4 text-primary" />
+                            <p className="text-sm font-black text-foreground">Pre-Shift Briefing</p>
+                          </div>
+                          <span className={cn("shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black",
+                            preShiftSaved ? "border-green-500/35 bg-green-500/12 text-green-400" : "border-primary/35 bg-primary/12 text-primary")}>
+                            {preShiftSaved ? "✓ Ready" : "Required"}
+                          </span>
+                        </div>
+
+                        {/* Dept-specific fields */}
+                        <div className="border-t border-border/20 space-y-3 px-4 py-3">
+                          {((() => {
+                            const dept = shiftContext?.department || 'all';
+                            const keys = FIELD_ORDER_BY_DEPT[dept] || FIELD_ORDER_BY_DEPT.all;
+                            return keys.map(k => ({ field: k, ...PRE_SHIFT_FIELD_DEFS[k] }));
+                          })()).map(({ field, label, rows, placeholder }) => (
+                            <label key={field} className="block space-y-1.5">
+                              <span className="text-xs font-black text-foreground">
+                                {field === 'notes' ? 'Manager Notes / Talking Points' : label}
+                              </span>
+                              <textarea
+                                value={preShiftForm[field]}
+                                onChange={e => updatePreShiftField(field, e.target.value)}
+                                rows={field === 'notes' ? 5 : rows}
+                                placeholder={placeholder}
+                                className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                              />
+                            </label>
+                          ))}
+                        </div>
+
+                        {/* Publish / save buttons */}
+                        <div className="space-y-2 px-4 pb-4">
+                          {preShiftPublished ? (
+                            <>
+                              <div className="flex items-center justify-center gap-2 rounded-xl border border-green-500/30 bg-green-500/8 py-3.5 text-sm font-black text-green-400">
+                                <CheckCircle2 className="h-4 w-4" />
+                                Published to Staff
+                              </div>
+                              <button type="button" onClick={publishBriefing}
+                                className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
+                                Re-publish with changes
                               </button>
+                            </>
+                          ) : (
+                            <>
+                              <button type="button" onClick={publishBriefing}
+                                className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white active:scale-[0.98] transition-all"
+                                style={{ background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)", boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                                <Zap className="h-4 w-4" />
+                                Publish to Staff — +25 XP
+                              </button>
+                              <button type="button" onClick={savePreShift}
+                                className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
+                                Save Draft Only
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ─ Page 3: Running Tasks (duty checklist) ─ */}
+                    <div className="w-full shrink-0 snap-center">
+                      <div
+                        className="overflow-hidden rounded-2xl border border-border/40"
+                        style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
+                      >
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <Target className="h-4 w-4 text-primary" />
+                            <p className="text-sm font-black text-foreground">Mission Objectives</p>
+                          </div>
+                          <div className="flex items-center gap-2.5">
+                            <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-foreground")}>
+                              {checkedDuties.length}/{DUTIES.length}
+                            </span>
+                            {dutiesPct === 100 && <CheckCircle2 className="h-4 w-4 text-green-400" />}
+                          </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="px-4 pb-3">
+                          <div className="h-1 w-full overflow-hidden rounded-full bg-black/40">
+                            <motion.div
+                              className="h-full rounded-full"
+                              animate={{ width: `${dutiesPct}%` }}
+                              transition={{ duration: 0.5, ease: "easeOut" }}
+                              style={{
+                                background: dutiesPct === 100
+                                  ? "linear-gradient(90deg,#22c55e,#4ade80)"
+                                  : "linear-gradient(90deg,hsl(22,76%,38%),hsl(22,76%,55%))",
+                                boxShadow: dutiesPct === 100 ? "0 0 8px rgba(34,197,94,0.5)" : "0 0 6px rgba(230,106,31,0.4)",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Duty list */}
+                        <div className="space-y-2 border-t border-border/20 px-3 pb-3 pt-3">
+                          {DUTIES_CONFIG.map((config) => {
+                            const locked = config.requiresPreShift && !preShiftSaved;
+                            const checked = checkedDuties.includes(config.text);
+                            const floatKey = xpFloats[xpFloats.length - 1];
+                            return (
+                              <DutyCard
+                                key={config.text}
+                                config={config}
+                                checked={checked}
+                                locked={locked}
+                                onToggle={() => toggleDuty(config)}
+                                xpFloat={!checked && floatKey}
+                                onXpDone={() => setXpFloats(prev => prev.slice(1))}
+                              />
                             );
                           })}
                         </div>
-                      ) : shiftContext ? (
-                        <div className="flex items-center justify-between gap-2">
-                          <span className={cn("rounded-full border px-2.5 py-1 text-xs font-black",
-                            shiftContext.department === 'foh'     ? 'border-blue-500/30 text-blue-400' :
-                            shiftContext.department === 'boh'     ? 'border-amber-500/30 text-amber-400' :
-                            shiftContext.department === 'bar'     ? 'border-teal-500/30 text-teal-400' :
-                            shiftContext.department === 'banquet' ? 'border-cyan-500/30 text-cyan-400' :
-                                                                     'border-primary/30 text-primary'
-                          )}>
-                            {shiftContext.profileName}
-                          </span>
-                          <button type="button" onClick={resetContext}
-                            className="text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors">
-                            Change
-                          </button>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-muted-foreground/50">No scope — select a profile from the Pre-Shift tab.</p>
-                      )}
-                    </div>
 
-                    {/* AUTO-IMPORTED expandable rows */}
-                    <div className="border-t border-border/20">
-                      <div className="flex items-center justify-between px-4 pt-2.5 pb-1">
-                        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">AUTO-IMPORTED</p>
-                        <button type="button" onClick={() => load({ quiet: true })}
-                          className="flex items-center gap-1 text-[9px] font-bold text-muted-foreground/50 hover:text-muted-foreground transition-colors">
-                          <RefreshCw className={cn("h-2.5 w-2.5", refreshing && "animate-spin")} /> Refresh
-                        </button>
+                        {/* Quick nav + admin note */}
+                        <div className="border-t border-border/15 px-3 pb-3 pt-3 space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            {[
+                              { label: "Floor Map",  sub: "Station readiness", path: "/operational-map", icon: MapPin },
+                              { label: "Approvals",  sub: "Pending reviews",   path: "/approvals",       icon: ClipboardCheck },
+                            ].map(({ label, sub, path, icon: Icon }) => (
+                              <button
+                                key={path}
+                                type="button"
+                                onClick={() => navigate(path)}
+                                className="flex items-center justify-between gap-2 rounded-xl border border-border/40 px-3 py-2.5 text-left transition-all active:scale-[0.98]"
+                                style={{ background: "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
+                              >
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <Icon className="h-3 w-3 text-primary" />
+                                    <span className="text-xs font-black text-foreground">{label}</span>
+                                  </div>
+                                  <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
+                                </div>
+                                <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground/50" />
+                              </button>
+                            ))}
+                          </div>
+                          <p className="text-center text-[10px] text-muted-foreground/40">
+                            Tasks customizable by Admin / GM in Settings
+                          </p>
+                        </div>
                       </div>
-                      {[
-                        {
-                          id: 'roles',
-                          label: 'Roles & Assignments',
-                          count: briefing.staff.length,
-                          countCls: 'text-muted-foreground',
-                          renderContent: () => briefing.staff.length === 0
-                            ? <p className="text-xs text-muted-foreground/50">No shifts scheduled today</p>
-                            : <div className="space-y-1">{briefing.staff.slice(0, 12).map((p, i) => (
-                                <div key={p.id || i} className="flex items-center justify-between gap-2 text-xs">
-                                  <span className="font-semibold text-foreground truncate">{p.employee_name}</span>
-                                  <span className="shrink-0 text-muted-foreground">{[p.role, p.station, p.start_time].filter(Boolean).join(' · ')}</span>
-                                </div>
-                              ))}{briefing.staff.length > 12 && <p className="text-[10px] text-muted-foreground/50 mt-0.5">+{briefing.staff.length - 12} more</p>}</div>,
-                        },
-                        {
-                          id: 'reservations',
-                          label: 'Reservations / BEO',
-                          count: briefing.events.length + briefing.reservationsList.length,
-                          countCls: 'text-muted-foreground',
-                          renderContent: () => briefing.events.length + briefing.reservationsList.length === 0
-                            ? <p className="text-xs text-muted-foreground/50">No events or reservations today</p>
-                            : <div className="space-y-1">
-                                {briefing.events.map(e => (
-                                  <div key={e.id} className="flex items-start justify-between gap-2 text-xs">
-                                    <span className="font-semibold text-foreground">{e.eventName}</span>
-                                    <span className="shrink-0 text-muted-foreground">{[e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ''].filter(Boolean).join(' · ')}</span>
-                                  </div>
-                                ))}
-                                {briefing.reservationsList.map(r => (
-                                  <div key={r.id} className="flex items-start justify-between gap-2 text-xs">
-                                    <span className="font-semibold text-foreground">{r.guest_name || r.name || 'Reservation'}</span>
-                                    <span className="shrink-0 text-muted-foreground">{[r.arrival_time || r.time, r.party_size ? `${r.party_size} pax` : '', r.special_requests || r.dietary_notes].filter(Boolean).join(' · ')}</span>
-                                  </div>
-                                ))}
-                              </div>,
-                        },
-                        {
-                          id: 'eightySix',
-                          label: 'Out of Stock / 86',
-                          count: briefing.eightySix.length,
-                          countCls: briefing.eightySix.length > 0 ? 'text-red-400' : 'text-muted-foreground',
-                          renderContent: () => briefing.eightySix.length === 0
-                            ? <p className="text-xs text-muted-foreground/50 italic">All items available</p>
-                            : <div className="space-y-1">{briefing.eightySix.map(i => (
-                                <div key={i.id} className="flex items-center justify-between gap-2 text-xs">
-                                  <span className="font-bold text-red-400">{i.item_name}</span>
-                                  <span className="shrink-0 text-muted-foreground">{i.category || i.notes || ''}</span>
-                                </div>
-                              ))}</div>,
-                        },
-                      ].map(row => (
-                        <div key={row.id}>
-                          <button type="button" onClick={() => toggleImportRow(row.id)}
-                            className="flex w-full items-center gap-3 border-t border-border/15 px-4 py-3 text-left transition-all active:scale-[0.99]">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-bold text-foreground">{row.label}</p>
-                            </div>
-                            <span className={cn("text-xs font-black tabular-nums shrink-0", row.countCls)}>{row.count}</span>
-                            <ChevronRight className={cn("h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform duration-200", expandedImportRows.has(row.id) && "rotate-90")} />
-                          </button>
-                          {expandedImportRows.has(row.id) && (
-                            <div className="space-y-1.5 border-t border-border/10 bg-white/[0.01] px-4 pb-3 pt-2">
-                              {row.renderContent()}
-                            </div>
-                          )}
-                        </div>
-                      ))}
                     </div>
+                  </div>
 
-                    {/* Dept-specific fields */}
-                    <div className="border-t border-border/20 space-y-3 px-4 py-3">
-                      {((() => {
-                        const dept = shiftContext?.department || 'all';
-                        const keys = FIELD_ORDER_BY_DEPT[dept] || FIELD_ORDER_BY_DEPT.all;
-                        return keys.map(k => ({ field: k, ...PRE_SHIFT_FIELD_DEFS[k] }));
-                      })()).map(({ field, label, rows, placeholder }) => (
-                        <label key={field} className="block space-y-1.5">
-                          <span className="text-xs font-black text-foreground">
-                            {field === 'notes' ? 'Manager Notes / Talking Points' : label}
-                          </span>
-                          <textarea
-                            value={preShiftForm[field]}
-                            onChange={e => updatePreShiftField(field, e.target.value)}
-                            rows={field === 'notes' ? 5 : rows}
-                            placeholder={placeholder}
-                            className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-                          />
-                        </label>
-                      ))}
-                    </div>
-
-                    {/* Save button */}
-                    <div className="px-4 pb-4">
-                      <button type="button" onClick={savePreShift}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white active:scale-[0.98] transition-all"
-                        style={{ background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)", boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                        <Save className="h-4 w-4" />
-                        Save Briefing — +25 XP
-                      </button>
-                    </div>
+                  {/* Pagination dots — 3 pages */}
+                  <div className="mt-3 flex items-center justify-center gap-2">
+                    {[0, 1, 2].map(i => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => goToRunPage(i)}
+                        className={cn(
+                          "h-1.5 rounded-full transition-all duration-300",
+                          i === runPage ? "w-5 bg-primary" : "w-1.5 bg-border/50 hover:bg-border"
+                        )}
+                      />
+                    ))}
                   </div>
                 </div>
 
@@ -1650,18 +1860,37 @@ export default function ManagerShift() {
                           </label>
                         ))}
 
-                        <button
-                          type="button"
-                          onClick={savePreShift}
-                          className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
-                          style={{
-                            background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
-                            boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
-                          }}
-                        >
-                          <Save className="h-4 w-4" />
-                          Save Briefing — +15 XP
-                        </button>
+                        {preShiftPublished ? (
+                          <>
+                            <div className="flex items-center justify-center gap-2 rounded-xl border border-green-500/30 bg-green-500/8 py-3 text-sm font-black text-green-400">
+                              <CheckCircle2 className="h-4 w-4" />
+                              Published to Staff
+                            </div>
+                            <button type="button" onClick={publishBriefing}
+                              className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
+                              Re-publish with changes
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={publishBriefing}
+                              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
+                              style={{
+                                background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
+                                boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
+                              }}
+                            >
+                              <Zap className="h-4 w-4" />
+                              Publish to Staff — +25 XP
+                            </button>
+                            <button type="button" onClick={savePreShift}
+                              className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
+                              Save Draft Only
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

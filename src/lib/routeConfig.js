@@ -101,63 +101,87 @@ export const bottomNavRoutes = [
 ];
 
 export const desktopNavSections = [
+  // ── OPERATIONS ──────────────────────────────────────────────────────────────
   {
-    label: "WORK",
+    label: "OPERATIONS",
     items: [
-      { path: "/app/overview", label: "Dashboard", icon: LayoutDashboard },
-      { path: "/shift", label: "Shift", icon: Sparkles },
-      { path: "/notepad", label: "Notepad", icon: Notebook },
-      { path: "/cash-drawer", label: "Cash Drawer", icon: DollarSign },
-      { path: "/logs", label: "Logs", icon: FileText, perm: "view_logs" },
-      { path: "/comms", label: "Comms", icon: MessageSquare },
+      { path: "/app/overview",  label: "Dashboard",    icon: LayoutDashboard },
+      { path: "/shift",         label: "Shift Command", icon: Sparkles },
+      { path: "/notes-comms",   label: "Notes & Comms", icon: MessageSquare },
+      { path: "/cash-drawer",   label: "Cash Drawer",  icon: DollarSign },
+      { path: "/logs",          label: "Logs",         icon: FileText,      perm: "view_logs" },
+      { path: "/approvals",     label: "Approvals",    icon: CheckSquare },
     ],
   },
+
+  // ── PLANNING ─────────────────────────────────────────────────────────────────
   {
     label: "PLANNING",
     items: [
+      { path: "/schedule",      label: "Schedule",     icon: Calendar,       perm: "view_schedule" },
       { path: "/prep-planning", label: "Prep Planning", icon: ClipboardList, perm: "edit_prep_lists" },
-      { path: "/schedule", label: "Schedule", icon: Calendar, perm: "view_schedule" },
-      { path: "/reservations", label: "BEOs / Events", icon: LayoutTemplate, perm: "view_beos" },
-      { path: "/approvals", label: "Approvals", icon: CheckSquare },
+      { path: "/reservations",  label: "BEOs / Events", icon: LayoutTemplate, perm: "view_beos" },
     ],
   },
+
+  // ── INVENTORY (expandable) ───────────────────────────────────────────────────
+  {
+    label: "INVENTORY",
+    expandable: true,
+    icon: Warehouse,
+    defaultPath: "/inventory",
+    items: [
+      { path: "/inventory",       label: "Inventory Counts", icon: ClipboardList, perm: "view_inventory" },
+      { path: "/receiving",       label: "Receiving",        icon: Truck },
+      { path: "/purchased-items", label: "Purchased Items",  icon: Package },
+      { path: "/vendors",         label: "Vendors",          icon: Store,         perm: "view_vendors" },
+      { path: "/recipes",         label: "Recipes",          icon: ChefHat,       perm: "view_recipes" },
+    ],
+  },
+
+  // ── KNOWLEDGE ────────────────────────────────────────────────────────────────
   {
     label: "KNOWLEDGE",
     items: [
-      { path: "/recipes", label: "Recipes", icon: ChefHat, perm: "view_recipes" },
-      { path: "/training", label: "Training", icon: BookOpen },
-      { path: "/chemical-library", label: "Chemicals", icon: AlertTriangle },
+      { path: "/training",         label: "Training",       icon: BookOpen },
+      { path: "/chemical-library", label: "Chemicals / SDS", icon: AlertTriangle },
     ],
   },
-  {
-    label: "RESOURCES",
-    items: [
-      { path: "/receiving",       label: "Receiving",       icon: Truck },
-      { path: "/inventory",       label: "Inventory",       icon: Warehouse, perm: "view_inventory" },
-      { path: "/purchased-items", label: "Purchased Items", icon: Package },
-      { path: "/vendors",         label: "Vendors",         icon: Truck, perm: "view_vendors" },
-    ],
-  },
-  {
-    label: "⚠️ DEV — DELETE BEFORE PUBLISH",
-    items: [
-      { path: "/team-structure-wizard", label: "Team Setup Wizard", icon: GitBranch },
-      { path: "/setup-journey", label: "Setup Journey", icon: Zap },
-      { path: "/restaurant-setup-wizard", label: "Station Wizard", icon: Map },
-      { path: "/admin/command-center", label: "Role Admin", icon: ShieldCheck },
-      { path: "/admin/onboarding-simulator", label: "Onboarding Sim", icon: Sparkles },
-    ],
-  },
+
+  // ── ADMIN ────────────────────────────────────────────────────────────────────
   {
     label: "ADMIN",
     items: [
-      { path: "/team", label: "Team", icon: Users, perm: "view_team" },
-      { path: "/operational-map", label: "Stations", icon: Map },
-      { path: "/templates", label: "Templates", icon: ClipboardList, perm: "view_templates" },
-      { path: "/automation-rules", label: "Automation", icon: Zap },
-      { path: "/reports", label: "Reports", icon: BarChart2, perm: "view_reports" },
-      { path: "/my-restaurant", label: "My Restaurant", icon: Building2 },
-      { path: "/profile", label: "Settings", icon: Settings },
+      { path: "/team",            label: "Team",         icon: Users,      perm: "view_team" },
+      { path: "/operational-map", label: "Stations",     icon: Map },
+      { path: "/templates",       label: "Templates",    icon: ClipboardList, perm: "view_templates" },
+      { path: "/automation-rules", label: "Automation",  icon: Zap },
+      { path: "/reports",         label: "Reports",      icon: BarChart2,  perm: "view_reports" },
+      { path: "/my-restaurant",   label: "My Restaurant", icon: Building2 },
+      { path: "/profile",         label: "Settings",     icon: Settings },
+    ],
+  },
+
+  // ── DEV / TESTING (expandable — keep, do not delete) ────────────────────────
+  {
+    label: "DEV / TESTING",
+    expandable: true,
+    isDev: true,
+    icon: GitBranch,
+    defaultPath: "/setup-journey",
+    items: [
+      { path: "/team-structure-wizard",    label: "Team Setup Wizard",  icon: GitBranch },
+      { path: "/setup-journey",            label: "Setup Journey",      icon: Zap },
+      { path: "/restaurant-setup-wizard",  label: "Station Wizard",     icon: Map },
+      { path: "/admin/command-center",     label: "Role Admin",         icon: ShieldCheck },
+      { path: "/admin/onboarding-simulator", label: "Onboarding Sim",  icon: Sparkles },
+      { path: "/admin/role-simulator",     label: "Role Simulator",     icon: ShieldCheck },
+      { path: "/build-cards",              label: "Build Cards",        icon: Package },
+      { path: "/station-readiness",        label: "Station Readiness",  icon: Map },
+      { path: "/temperature-monitoring",   label: "Temp Monitoring",    icon: Thermometer },
+      { path: "/temperature-dashboard",    label: "Temp Dashboard",     icon: Thermometer },
+      { path: "/job-codes",                label: "Job Codes",          icon: Users },
+      { path: "/schedule-import",          label: "Schedule Import",    icon: Calendar },
     ],
   },
 ];
@@ -175,10 +199,9 @@ export const moreNavSections = [
   {
     title: "Activity",
     items: [
-      { label: "Notepad",       detail: "Personal tasks and notes",       path: "/notepad",       icon: Notebook,      status: "status-neutral" },
+      { label: "Notes & Comms",  detail: "Capture, share, and track everything", path: "/notes-comms",  icon: MessageSquare, status: "status-neutral" },
       { label: "Cash Drawer",   detail: "Count drawers and log cash",     path: "/cash-drawer",   icon: DollarSign,    status: "status-neutral" },
       { label: "Logs",          detail: "History and records",            path: "/logs",          icon: FileText,      status: "status-warning" },
-      { label: "Comms",         detail: "Announcements and station notes", path: "/comms",         icon: MessageSquare, status: "status-warning" },
     ],
   },
   {

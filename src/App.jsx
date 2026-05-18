@@ -60,6 +60,7 @@ const TemperatureDashboard = lazy(() => import('./pages/TemperatureDashboard'));
 const TemperatureMonitoring = lazy(() => import('./pages/TemperatureMonitoring'));
 const WasteTemplates = lazy(() => import('./pages/WasteTemplates'));
 const Notepad = lazy(() => import('./pages/Notepad'));
+const NotesAndComms = lazy(() => import('./pages/NotesAndComms'));
 const CashDrawer = lazy(() => import('./pages/CashDrawer'));
 const EightySixTemplates = lazy(() => import('./pages/86Templates'));
 const StationReadiness = lazy(() => import('./pages/StationReadiness'));
@@ -163,7 +164,8 @@ const AuthenticatedApp = () => {
           <Route path="/tasks" element={<PermissionGate permission={PERMISSIONS.COMPLETE_TASKS}><StaffTasks /></PermissionGate>} />
           <Route path="/pulse" element={<PermissionGate permission={PERMISSIONS.VIEW_PULSE}><Pulse /></PermissionGate>} />
           <Route path="/logs" element={<PermissionGate permission={PERMISSIONS.VIEW_LOGS}><LogsCenter /></PermissionGate>} />
-          <Route path="/comms" element={<PermissionGate permission={PERMISSIONS.VIEW_COMMS}><CommsCenter /></PermissionGate>} />
+          <Route path="/notes-comms" element={<NotesAndComms />} />
+          <Route path="/comms" element={<Navigate to="/notes-comms" replace />} />
           <Route path="/team" element={<PermissionGate permission={PERMISSIONS.VIEW_TEAM}><TeamCenter /></PermissionGate>} />
           <Route path="/more" element={<More />} />
           <Route path="/cleaning" element={<Cleaning />} />
@@ -219,7 +221,7 @@ const AuthenticatedApp = () => {
           <Route path="/setup-journey" element={<SetupJourney />} />
           <Route path="/restaurant-setup-wizard" element={<RestaurantSetupWizard />} />
           <Route path="/team-structure-wizard" element={<TeamStructureWizard />} />
-          <Route path="/notepad" element={<Notepad />} />
+          <Route path="/notepad" element={<Navigate to="/notes-comms" replace />} />
           <Route path="/cash-drawer" element={<CashDrawer />} />
           <Route path="/automation-rules" element={<AutomationRules />} />
           <Route path="/profile" element={<Profile />} />

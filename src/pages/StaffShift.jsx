@@ -313,7 +313,7 @@ export default function StaffShift() {
       ]);
 
       setData({
-        preShift: preShifts?.[0] || null,
+        preShift: preShifts?.find(p => p.status === 'published') || null,
         eightySix: eightySix.slice(0, 10),
         events: beos.filter(e => !e.eventDate || e.eventDate >= date).slice(0, 8),
         announcements: threads.filter(t => t.type === 'announcement' || t.requires_acknowledgement).slice(0, 6),
@@ -551,6 +551,36 @@ export default function StaffShift() {
             {/* ── BRIEF ──────────────────────────────────────────── */}
             {activeStage === 'brief' && (
               <>
+                {/* Published briefing banner */}
+                {data.preShift ? (
+                  <div className="flex items-center gap-3 rounded-2xl border border-primary/25 px-4 py-3"
+                    style={{ background: 'linear-gradient(135deg, rgba(230,106,31,0.07) 0%, rgba(230,106,31,0.03) 100%)' }}>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+                      <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-black text-primary">Pre-Shift Briefing Ready</p>
+                      <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                        {data.preShift.published_by ? `Published by ${data.preShift.published_by}` : 'Published by management'}
+                        {data.preShift.published_at
+                          ? ` · ${new Date(data.preShift.published_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+                          : ''}
+                      </p>
+                    </div>
+                    <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary" />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 rounded-2xl border border-border/30 px-4 py-3" style={cardBg}>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-muted/40">
+                      <Sparkles className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-muted-foreground">No briefing published yet</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground/60">Your manager hasn't published today's briefing.</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick snapshot */}
                 <div
                   className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
@@ -569,19 +599,30 @@ export default function StaffShift() {
                 </div>
 
                 <div className="lg:grid lg:grid-cols-2 lg:gap-3 space-y-3 lg:space-y-0">
-                  {/* Pre-Shift Notes */}
-                  <BriefSection id="preshift" icon={Sparkles} label="Manager Notes" count={data.preShift ? 1 : 0} onViewed={markSectionViewed}>
+                  {/* Pre-Shift Notes — manager published content */}
+                  <BriefSection
+                    id="preshift"
+                    icon={Sparkles}
+                    label="Manager Briefing"
+                    count={data.preShift ? [data.preShift.notes, data.preShift.specials, data.preShift.staffing_notes, data.preShift.sidework_priorities, data.preShift.prep_needs].filter(Boolean).length : 0}
+                    onViewed={markSectionViewed}
+                  >
                     {data.preShift ? (
-                      <>
-                        {data.preShift.specials    && <BriefRow title={data.preShift.specials}        meta="Specials" />}
-                        {data.preShift.staffing_notes && <BriefRow title={data.preShift.staffing_notes} meta="Staffing" />}
-                        {data.preShift.notes       && <BriefRow title={data.preShift.notes}           meta="Briefing notes" />}
-                        {!data.preShift.specials && !data.preShift.staffing_notes && !data.preShift.notes && (
-                          <BriefRow title="Pre-shift submitted" meta={`${data.preShift.shift} shift`} />
+                      <div className="space-y-1.5">
+                        {data.preShift.notes              && <BriefRow title={data.preShift.notes}              meta="Talking Points" />}
+                        {data.preShift.specials            && <BriefRow title={data.preShift.specials}            meta="Specials" />}
+                        {data.preShift.staffing_notes      && <BriefRow title={data.preShift.staffing_notes}      meta="Staffing & Roles" />}
+                        {data.preShift.sidework_priorities && <BriefRow title={data.preShift.sidework_priorities} meta="Sidework Priorities" />}
+                        {data.preShift.prep_needs          && <BriefRow title={data.preShift.prep_needs}          meta="Prep Needs" />}
+                        {data.preShift.issues              && <BriefRow title={data.preShift.issues}              meta="Issues / Cleaning" />}
+                        {data.preShift.beverage_notes      && <BriefRow title={data.preShift.beverage_notes}      meta="Beverage Notes" />}
+                        {data.preShift.bar_prep_notes      && <BriefRow title={data.preShift.bar_prep_notes}      meta="Bar Prep" />}
+                        {![data.preShift.notes, data.preShift.specials, data.preShift.staffing_notes].some(Boolean) && (
+                          <BriefRow title="Briefing published" meta={`${data.preShift.shift} shift`} />
                         )}
-                      </>
+                      </div>
                     ) : (
-                      <EmptyBrief text="No manager notes yet — check back or ask your manager." />
+                      <EmptyBrief text="No briefing published yet — check back before service." />
                     )}
                   </BriefSection>
 

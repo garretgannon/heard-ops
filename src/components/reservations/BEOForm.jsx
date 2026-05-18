@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Trash2, ChevronLeft, Calendar, Clock, MapPin, Users, User, ConciergeBell, Star, Shield, Wine, Utensils, ArrowRight } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 const EVENT_TYPES = ['private-dining','banquet','buyout','catering','tasting','meeting','wedding','corporate','holiday-party','other'];
@@ -8,6 +8,22 @@ const SERVICE_STYLES = ['plated','buffet','family-style','passed-apps','stations
 const STATUSES = ['inquiry','tentative','confirmed','in-production','ready','completed','cancelled'];
 
 const TABS = ['Details','Menu','Prep','Timeline','Dietary','Equipment','Notes'];
+
+const SectionCard = ({ icon: Icon, title, children }) => (
+  <div className="rounded-2xl border border-border bg-card overflow-hidden">
+    <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border/40">
+      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+        <Icon className="h-3.5 w-3.5 text-primary" />
+      </div>
+      <span className="text-xs font-bold text-foreground tracking-wide">{title}</span>
+    </div>
+    <div className="p-4 space-y-3">{children}</div>
+  </div>
+);
+
+const FieldLabel = ({ children }) => (
+  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">{children}</label>
+);
 
 export default function BEOForm({ beo, onSave, onClose }) {
   const [tab, setTab] = useState('Details');
@@ -56,7 +72,6 @@ export default function BEOForm({ beo, onSave, onClose }) {
         const created = await base44.entities.BEO.create(form);
         beoId = created.id;
       }
-      // Save sub-entities
       for (const item of menuItems) {
         if (item._new) { const { _new, id, ...d } = item; await base44.entities.BEOMenuItem.create({ ...d, beoId }); }
         else if (item._deleted && item.id) { await base44.entities.BEOMenuItem.delete(item.id); }
@@ -88,13 +103,16 @@ export default function BEOForm({ beo, onSave, onClose }) {
     }
   };
 
-  const Input = ({ field, placeholder, type = 'text', half }) => (
+  const inputCls = 'w-full min-w-0 px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40';
+  const selectCls = 'w-full min-w-0 px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:outline-none focus:border-primary/40';
+
+  const Input = ({ field, placeholder, type = 'text' }) => (
     <input
       type={type}
       value={form[field]}
       onChange={e => set(field, e.target.value)}
       placeholder={placeholder}
-      className={`${half ? '' : 'w-full'} min-w-0 max-w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground`}
+      className={inputCls}
     />
   );
 
@@ -104,67 +122,148 @@ export default function BEOForm({ beo, onSave, onClose }) {
       onChange={e => set(field, e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full min-w-0 max-w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none"
+      className="w-full min-w-0 px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/40 resize-none"
     />
   );
 
   return (
-    <div className="fixed inset-0 z-[1100] flex max-w-full flex-col overflow-x-hidden bg-background">
-      <div className="flex min-w-0 shrink-0 items-center gap-3 border-b border-border bg-card px-4 py-3">
-        <button type="button" onClick={onClose} disabled={saving} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted disabled:opacity-50">
-          <X className="h-4 w-4 text-muted-foreground" />
+    <div className="fixed inset-0 z-[1100] flex flex-col overflow-hidden bg-background">
+      {/* Top bar */}
+      <div className="flex shrink-0 items-center gap-3 border-b border-border bg-card px-4 py-3">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted disabled:opacity-50"
+        >
+          <ChevronLeft className="h-5 w-5 text-foreground" />
         </button>
-        <h2 className="min-w-0 flex-1 truncate text-sm font-extrabold text-foreground">{beo ? 'Edit BEO' : 'New BEO'}</h2>
-        <button type="button" onClick={save} disabled={saving || !form.eventName.trim()} className="btn-primary h-8 shrink-0 px-4 text-xs disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
+        <h2 className="flex-1 text-center text-sm font-extrabold text-foreground">
+          {beo ? 'Edit Event' : 'New Event'}
+        </h2>
+        <div className="h-9 w-9 shrink-0" />
       </div>
 
-      {/* Sub-tabs */}
-      <div className="flex max-w-full shrink-0 gap-1.5 overflow-x-auto px-4 pt-4 pb-2 scrollbar-hide bg-card">
+      {/* Tab bar */}
+      <div className="flex shrink-0 gap-2 overflow-x-auto px-4 pt-3 pb-2 scrollbar-hide bg-card border-b border-border">
         {TABS.map(t => (
-          <button key={t} onClick={() => setTab(t)} className={`shrink-0 flex items-center px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all ${tab === t ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'}`}>{t}</button>
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`shrink-0 px-3.5 py-1.5 rounded-full border text-xs font-semibold whitespace-nowrap transition-all ${
+              tab === t
+                ? 'bg-primary/10 border-primary/30 text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {t}
+          </button>
         ))}
       </div>
 
-      <div className="min-w-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto px-4 py-4 pb-10 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
+      {/* Scrollable content */}
+      <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-4">
         {tab === 'Details' && (
           <>
-            <Input field="eventName" placeholder="Event name *" />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Input field="eventDate" type="date" placeholder="Event date" />
-              <div className="grid min-w-0 grid-cols-2 gap-1">
-                <Input field="startTime" type="time" half />
-                <Input field="endTime" type="time" half />
+            {/* Event Basics */}
+            <SectionCard icon={Calendar} title="Event Basics">
+              <div>
+                <FieldLabel>Event Name</FieldLabel>
+                <Input field="eventName" placeholder="e.g. Smith Wedding Reception" />
               </div>
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Input field="guestCount" type="number" placeholder="Guest count" />
-              <Input field="room" placeholder="Room / area" />
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <select value={form.eventType} onChange={e => set('eventType', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
-                {EVENT_TYPES.map(t => <option key={t} value={t} className="capitalize">{t.replace(/-/g, ' ')}</option>)}
-              </select>
-              <select value={form.serviceStyle} onChange={e => set('serviceStyle', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
-                {SERVICE_STYLES.map(s => <option key={s} value={s} className="capitalize">{s.replace(/-/g, ' ')}</option>)}
-              </select>
-            </div>
-            <select value={form.status} onChange={e => set('status', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
-              {STATUSES.map(s => <option key={s} value={s} className="capitalize">{s.replace(/-/g, ' ')}</option>)}
-            </select>
-            <Input field="clientName" placeholder="Client / host name" />
-            <Input field="internalEventOwner" placeholder="Internal event owner" />
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Input field="eventCaptain" placeholder="Event captain" />
-              <Input field="managerOnDuty" placeholder="Manager on duty" />
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Input field="serversNeeded" type="number" placeholder="Servers needed" />
-              <Input field="bartendersNeeded" type="number" placeholder="Bartenders needed" />
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Input field="cooksNeeded" type="number" placeholder="Cooks needed" />
-              <Input field="setupStaffNeeded" type="number" placeholder="Setup staff needed" />
-            </div>
+              <div>
+                <FieldLabel>Date</FieldLabel>
+                <Input field="eventDate" type="date" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <FieldLabel>Start Time</FieldLabel>
+                  <Input field="startTime" type="time" />
+                </div>
+                <div>
+                  <FieldLabel>End Time</FieldLabel>
+                  <Input field="endTime" type="time" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <FieldLabel>Guest Count</FieldLabel>
+                  <Input field="guestCount" type="number" placeholder="0" />
+                </div>
+                <div>
+                  <FieldLabel>Room / Area</FieldLabel>
+                  <Input field="room" placeholder="e.g. Main Hall" />
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* Service Details */}
+            <SectionCard icon={ConciergeBell} title="Service Details">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <FieldLabel>Event Type</FieldLabel>
+                  <select value={form.eventType} onChange={e => set('eventType', e.target.value)} className={selectCls}>
+                    {EVENT_TYPES.map(t => <option key={t} value={t}>{t.replace(/-/g, ' ')}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <FieldLabel>Status</FieldLabel>
+                  <select value={form.status} onChange={e => set('status', e.target.value)} className={selectCls}>
+                    {STATUSES.map(s => <option key={s} value={s}>{s.replace(/-/g, ' ')}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <FieldLabel>Service Style</FieldLabel>
+                <select value={form.serviceStyle} onChange={e => set('serviceStyle', e.target.value)} className={selectCls}>
+                  {SERVICE_STYLES.map(s => <option key={s} value={s}>{s.replace(/-/g, ' ')}</option>)}
+                </select>
+              </div>
+            </SectionCard>
+
+            {/* Team & Contacts */}
+            <SectionCard icon={Users} title="Team & Contacts">
+              <div>
+                <FieldLabel>Client / Host Name</FieldLabel>
+                <Input field="clientName" placeholder="e.g. Jane Smith" />
+              </div>
+              <div>
+                <FieldLabel>Internal Event Owner</FieldLabel>
+                <Input field="internalEventOwner" placeholder="Team member name" />
+              </div>
+              <div>
+                <FieldLabel>Event Captain</FieldLabel>
+                <Input field="eventCaptain" placeholder="FOH captain" />
+              </div>
+              <div>
+                <FieldLabel>Manager on Duty</FieldLabel>
+                <Input field="managerOnDuty" placeholder="Manager name" />
+              </div>
+            </SectionCard>
+
+            {/* Staffing */}
+            <SectionCard icon={Users} title="Staffing">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <FieldLabel>Servers</FieldLabel>
+                  <Input field="serversNeeded" type="number" placeholder="0" />
+                </div>
+                <div>
+                  <FieldLabel>Bartenders</FieldLabel>
+                  <Input field="bartendersNeeded" type="number" placeholder="0" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <FieldLabel>Cooks</FieldLabel>
+                  <Input field="cooksNeeded" type="number" placeholder="0" />
+                </div>
+                <div>
+                  <FieldLabel>Setup Staff</FieldLabel>
+                  <Input field="setupStaffNeeded" type="number" placeholder="0" />
+                </div>
+              </div>
+            </SectionCard>
           </>
         )}
 
@@ -306,6 +405,29 @@ export default function BEOForm({ beo, onSave, onClose }) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Sticky bottom action bar */}
+      <div
+        className="shrink-0 border-t border-border bg-card px-4 py-3 flex gap-3"
+        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+      >
+        <button
+          type="button"
+          onClick={save}
+          disabled={saving || !form.eventName.trim()}
+          className="flex-1 h-11 rounded-xl border border-border text-sm font-semibold text-foreground disabled:opacity-50 transition-opacity"
+        >
+          {saving ? 'Saving…' : 'Save Draft'}
+        </button>
+        <button
+          type="button"
+          onClick={() => { if (form.eventName.trim()) setTab('Menu'); }}
+          disabled={!form.eventName.trim()}
+          className="flex-1 h-11 rounded-xl bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2 transition-opacity"
+        >
+          Continue to Menu <ArrowRight className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );

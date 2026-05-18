@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
@@ -8,6 +9,7 @@ import {
   Beaker, Search, Plus, Edit2, Trash2, X, Download, ChevronRight,
   Upload, AlertTriangle, CheckCircle2, FileText, Shield, MapPin,
   ArrowRight, Wrench, ClipboardList, Package, Eye, MoreHorizontal,
+  ChevronLeft, Bell, UserCircle, Link2, Users,
 } from 'lucide-react';
 
 const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';
@@ -369,69 +371,136 @@ function ChemicalRow({ chemical, areas, stations, onSelect, onEdit, onDelete, is
 }
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
-const CONNECTIONS = [
-  { icon: MapPin,       label: 'Areas & Stations',   desc: 'Assign chemicals to the exact stations where they are used' },
-  { icon: Wrench,       label: 'Equipment',          desc: 'Link chemicals to dish machines, fryers, and other equipment' },
-  { icon: ClipboardList,label: 'Cleaning Checklists', desc: 'Cleaning tasks can reference required chemicals and SDS links' },
-  { icon: AlertTriangle,label: 'Safety Checks',      desc: 'PPE requirements and hazard warnings flow to safety tasks' },
-  { icon: Package,      label: 'Inventory',          desc: 'Track chemicals as purchased items with costs and par levels' },
-  { icon: FileText,     label: 'SDS / MSDS',         desc: 'Attach safety data sheets to every active chemical' },
-];
-
 function EmptyChemicals({ onAdd, isAdmin }) {
   return (
-    <div
-      className="overflow-hidden rounded-2xl border border-border/40"
-      style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
-    >
-      <div className="flex flex-col items-center px-5 py-8 text-center">
-        <div className="relative mb-4">
-          <div className="h-16 w-16 rounded-full bg-white/[0.04] border border-border/30 flex items-center justify-center">
-            <Beaker className="h-7 w-7 text-muted-foreground/40" />
-          </div>
-          <div className="absolute -top-1 -right-0.5 h-2 w-2 rounded-full bg-primary/60" />
-          <div className="absolute top-1 -left-2 h-1.5 w-1.5 rounded-full bg-primary/30" />
+    <>
+      {/* ── MOBILE empty state (matches screenshot) ─────────────────── */}
+      <div className="lg:hidden flex flex-col items-center px-4 pt-4 pb-16 text-center">
+        {/* Flask icon with orange diamond sparkle dots */}
+        <div className="relative mb-5 mt-3">
+          <span className="absolute -top-4 right-5 h-3 w-3 rotate-45 rounded-sm bg-primary/70" />
+          <span className="absolute -top-1 right-0 h-2 w-2 rotate-45 rounded-sm bg-primary/45" />
+          <Beaker className="h-24 w-24 text-muted-foreground/35" strokeWidth={1.2} />
         </div>
-        <h3 className="text-base font-black text-foreground mb-1">No chemicals added yet.</h3>
-        <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed mb-5">
+        <h2 className="text-[21px] font-black text-foreground mb-3">No chemicals added yet</h2>
+        <p className="text-[13px] text-muted-foreground leading-relaxed mb-7 max-w-[300px]">
           Add chemicals to connect SDS sheets, usage instructions, PPE requirements, and safety notes to the stations and equipment where they are used.
         </p>
+
+        {/* 2×2 action card grid */}
         {isAdmin && (
-          <div className="grid grid-cols-2 gap-2 w-full max-w-sm">
-            <button onClick={onAdd} className="btn-primary flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3">
-              <div className="flex items-center gap-1.5"><Plus className="h-3.5 w-3.5" /><span className="text-xs font-bold">Add Chemical</span></div>
-              <span className="text-[10px] opacity-70 font-normal">Manual entry</span>
+          <div className="grid grid-cols-2 gap-3 w-full mb-8">
+            {/* Add Chemical — orange */}
+            <button
+              onClick={onAdd}
+              className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-white active:scale-[0.97] transition-all"
+              style={{ background: 'linear-gradient(160deg, hsl(22,76%,36%) 0%, hsl(22,76%,28%) 100%)', border: '1px solid rgba(230,106,31,0.45)' }}
+            >
+              <Plus className="h-7 w-7 mb-0.5" />
+              <span className="text-[14px] font-black leading-tight">Add Chemical</span>
+              <span className="text-[11px] font-normal opacity-70">Manual entry</span>
             </button>
-            <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
-              <div className="flex items-center gap-1.5"><Upload className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Upload SDS</span></div>
-              <span className="text-[10px] text-muted-foreground font-normal">Attach PDF document</span>
+            {/* Upload SDS */}
+            <button className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+              <Upload className="h-7 w-7 mb-0.5 text-muted-foreground" />
+              <span className="text-[14px] font-black leading-tight">Upload SDS</span>
+              <span className="text-[11px] text-muted-foreground font-normal">Attach PDF</span>
             </button>
-            <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
-              <div className="flex items-center gap-1.5"><FileText className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Import Chemical List</span></div>
-              <span className="text-[10px] text-muted-foreground font-normal">CSV or spreadsheet</span>
+            {/* Import List */}
+            <button className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+              <ClipboardList className="h-7 w-7 mb-0.5 text-muted-foreground" />
+              <span className="text-[14px] font-black leading-tight">Import List</span>
+              <span className="text-[11px] text-muted-foreground font-normal">CSV or Spreadsheet</span>
             </button>
-            <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
-              <div className="flex items-center gap-1.5"><Wrench className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Link to Equipment</span></div>
-              <span className="text-[10px] text-muted-foreground font-normal">Connect to stations</span>
+            {/* Link to Equipment */}
+            <button className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-foreground active:scale-[0.97] transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+              <Link2 className="h-7 w-7 mb-0.5 text-muted-foreground" />
+              <span className="text-[14px] font-black leading-tight">Link to Equipment</span>
+              <span className="text-[11px] text-muted-foreground font-normal">Connect to stations</span>
             </button>
           </div>
         )}
-      </div>
-      <div className="border-t border-border/20 px-5 py-4">
-        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60 mb-3">Why This Matters</p>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3 lg:grid-cols-3">
-          {CONNECTIONS.map(({ icon: Icon, label, desc }) => (
-            <div key={label} className="flex items-start gap-2">
-              <Icon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-primary/70" />
-              <div>
-                <p className="text-[11px] font-bold text-foreground leading-tight">{label}</p>
-                <p className="text-[10px] text-muted-foreground/60 leading-tight mt-0.5">{desc}</p>
+
+        {/* WHY THIS MATTERS */}
+        <div className="w-full text-left">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground mb-4">Why this matters</p>
+          <div className="space-y-3.5">
+            {[
+              { icon: Shield,       label: 'Centralize SDS and safety documents' },
+              { icon: ClipboardList,label: 'Track usage and storage by location' },
+              { icon: Users,        label: 'Ensure compliance and team safety' },
+              { icon: Link2,        label: 'Connect to equipment and stations' },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex items-center gap-3">
+                <Icon className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+                <span className="text-[13px] text-foreground">{label}</span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* ── DESKTOP empty state (original card layout) ──────────────── */}
+      <div
+        className="hidden lg:block overflow-hidden rounded-2xl border border-border/40"
+        style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+      >
+        <div className="flex flex-col items-center px-5 py-8 text-center">
+          <div className="relative mb-4">
+            <div className="h-16 w-16 rounded-full bg-white/[0.04] border border-border/30 flex items-center justify-center">
+              <Beaker className="h-7 w-7 text-muted-foreground/40" />
+            </div>
+            <div className="absolute -top-1 -right-0.5 h-2 w-2 rounded-full bg-primary/60" />
+            <div className="absolute top-1 -left-2 h-1.5 w-1.5 rounded-full bg-primary/30" />
+          </div>
+          <h3 className="text-base font-black text-foreground mb-1">No chemicals added yet.</h3>
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed mb-5">
+            Add chemicals to connect SDS sheets, usage instructions, PPE requirements, and safety notes to the stations and equipment where they are used.
+          </p>
+          {isAdmin && (
+            <div className="grid grid-cols-2 gap-2 w-full max-w-sm">
+              <button onClick={onAdd} className="btn-primary flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3">
+                <div className="flex items-center gap-1.5"><Plus className="h-3.5 w-3.5" /><span className="text-xs font-bold">Add Chemical</span></div>
+                <span className="text-[10px] opacity-70 font-normal">Manual entry</span>
+              </button>
+              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+                <div className="flex items-center gap-1.5"><Upload className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Upload SDS</span></div>
+                <span className="text-[10px] text-muted-foreground font-normal">Attach PDF document</span>
+              </button>
+              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+                <div className="flex items-center gap-1.5"><FileText className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Import Chemical List</span></div>
+                <span className="text-[10px] text-muted-foreground font-normal">CSV or spreadsheet</span>
+              </button>
+              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+                <div className="flex items-center gap-1.5"><Wrench className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Link to Equipment</span></div>
+                <span className="text-[10px] text-muted-foreground font-normal">Connect to stations</span>
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="border-t border-border/20 px-5 py-4">
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60 mb-3">Why This Matters</p>
+          <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+            {[
+              { icon: MapPin,        label: 'Areas & Stations',    desc: 'Assign chemicals to the exact stations where they are used' },
+              { icon: Wrench,        label: 'Equipment',           desc: 'Link chemicals to dish machines, fryers, and other equipment' },
+              { icon: ClipboardList, label: 'Cleaning Checklists', desc: 'Cleaning tasks can reference required chemicals and SDS links' },
+              { icon: AlertTriangle, label: 'Safety Checks',       desc: 'PPE requirements and hazard warnings flow to safety tasks' },
+              { icon: Package,       label: 'Inventory',           desc: 'Track chemicals as purchased items with costs and par levels' },
+              { icon: FileText,      label: 'SDS / MSDS',          desc: 'Attach safety data sheets to every active chemical' },
+            ].map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="flex items-start gap-2">
+                <Icon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-primary/70" />
+                <div>
+                  <p className="text-[11px] font-bold text-foreground leading-tight">{label}</p>
+                  <p className="text-[10px] text-muted-foreground/60 leading-tight mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -567,6 +636,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
 const PAGE_SIZE = 10;
 
 export default function ChemicalLibrary() {
+  const navigate = useNavigate();
   const { isAdmin } = useCurrentUser();
   const [chemicals,  setChemicals]  = useState([]);
   const [areas,      setAreas]      = useState([]);
@@ -680,25 +750,62 @@ export default function ChemicalLibrary() {
         }
       />
 
-      {/* Mobile header */}
-      <div className="lg:hidden bg-card border-b border-border px-4 py-4">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-2xl font-black tracking-tight text-foreground">Chemical Safety</h1>
-          {isAdmin && (
-            <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="btn-primary text-xs h-8 px-3 flex items-center gap-1">
-              <Plus className="h-3.5 w-3.5" /> Add
-            </button>
-          )}
+      {/* ── MOBILE STICKY HEADER ──────────────────────────────────────── */}
+      <div
+        className="lg:hidden sticky top-0 z-20"
+        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 pt-3 pb-2">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 h-8 rounded-full bg-white/[0.06] border border-border/30 px-3"
+          >
+            <ChevronLeft className="h-3.5 w-3.5 text-foreground" />
+            <span className="text-[13px] font-semibold text-foreground">Back</span>
+          </button>
+          <span className="text-[15px] font-black text-foreground">Chemicals</span>
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <UserCircle className="h-6 w-6 text-muted-foreground" />
+          </div>
         </div>
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search chemicals…" className="w-full h-9 pl-8 pr-3 bg-background border border-border rounded-lg text-sm text-foreground" />
+        {/* Search */}
+        <div className="px-4 pb-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+            <input
+              value={search}
+              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search chemicals..."
+              className="w-full pl-10 pr-3 py-2.5 rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+            />
+          </div>
+        </div>
+        {/* Filter chips */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide px-4 pb-3">
+          <button
+            onClick={() => { setFilterCat('all'); setPage(1); }}
+            className={cn('shrink-0 h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all', filterCat === 'all' ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground')}
+          >
+            All
+          </button>
+          {Object.entries(CATEGORIES).map(([k, v]) => (
+            <button
+              key={k}
+              onClick={() => { setFilterCat(k); setPage(1); }}
+              className={cn('shrink-0 h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all', filterCat === k ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground')}
+            >
+              {v.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Sticky filter chips */}
+      {/* ── DESKTOP STICKY FILTER CHIPS ───────────────────────────────── */}
       <div
-        className="bg-card border-b border-border sticky top-0 lg:top-[112px] z-20 px-4 py-2.5"
+        className="hidden lg:block bg-card border-b border-border sticky top-[112px] z-20 px-4 py-2.5"
         style={{ background: 'rgba(5,8,14,0.97)', backdropFilter: 'blur(12px)' }}
       >
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">

@@ -3,6 +3,7 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell,
+  ChevronDown,
   ChevronLeft,
   ChevronRight as ChevronRightIcon,
   PanelLeftClose,
@@ -65,6 +66,38 @@ export default function Layout() {
   const [clockTime, setClockTime] = useState(() =>
     new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
   );
+
+  // Track which expandable nav sections are open
+  const [expandedSections, setExpandedSections] = useState(() => {
+    const open = new Set();
+    desktopNavSections.forEach(s => {
+      if (s.expandable && s.items.some(item =>
+        location.pathname === item.path ||
+        (item.path !== '/' && location.pathname.startsWith(item.path))
+      )) open.add(s.label);
+    });
+    return open;
+  });
+
+  const toggleSection = (label) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      next.has(label) ? next.delete(label) : next.add(label);
+      return next;
+    });
+  };
+
+  // Auto-expand the correct section when the route changes
+  useEffect(() => {
+    desktopNavSections.forEach(s => {
+      if (s.expandable && s.items.some(item =>
+        location.pathname === item.path ||
+        (item.path !== '/' && location.pathname.startsWith(item.path))
+      )) {
+        setExpandedSections(prev => prev.has(s.label) ? prev : new Set([...prev, s.label]));
+      }
+    });
+  }, [location.pathname]);
 
   const isSecondary = !isTabRoute(location.pathname);
   const swipeRef = useRef(null);
@@ -212,7 +245,7 @@ export default function Layout() {
               <img
                 src={BRAND_ASSETS.headerLogo}
                 alt="HeardOS"
-                className="h-10 w-auto max-w-[220px] object-contain shrink-0 cursor-pointer select-none"
+                className="h-10 w-auto max-w-[240px] object-contain shrink-0 cursor-pointer select-none"
                 onClick={handleLogoTap}
               />
             </div>
@@ -240,7 +273,7 @@ export default function Layout() {
       <aside
         className={cn(
           "hidden lg:flex fixed left-0 top-0 bottom-0 flex-col z-30 transition-all duration-200",
-          collapsed ? "w-[60px]" : "w-[220px]"
+          collapsed ? "w-[60px]" : "w-[240px]"
         )}
         style={{
           background: 'linear-gradient(180deg, #000000 0%, rgba(4,6,11,1) 40%)',
@@ -283,22 +316,135 @@ export default function Layout() {
         />
 
         {/* Nav items — grouped sections */}
-        <nav className="flex-1 overflow-y-auto py-1 px-2.5 space-y-0">
+        <nav className="flex-1 overflow-y-auto py-2 px-3">
           {desktopNavSections.map((section, si) => {
             const visibleItems = section.items.filter(item => !item.perm || can(item.perm));
             if (visibleItems.length === 0) return null;
+
+            // ── Expandable section (Inventory, Dev/Testing) ──────────────────
+            if (section.expandable) {
+              const SectionIcon = section.icon;
+              const hasActiveChild = visibleItems.some(item =>
+                location.pathname === item.path ||
+                (item.path !== '/' && location.pathname.startsWith(item.path))
+              );
+              const isExpanded = expandedSections.has(section.label) || hasActiveChild;
+
+              return (
+                <div key={section.label} className={cn(si > 0 ? "mt-3" : "")}>
+                  {/* Thin divider above expandable groups */}
+                  {si > 0 && (
+                    <div className={cn("mb-2", collapsed ? "mx-3" : "mx-1")}
+                      style={{ height: '1px', background: 'rgba(255,255,255,0.04)' }} />
+                  )}
+
+                  {/* Parent row */}
+                  <div className="relative group/navitem">
+                    <button
+                      onClick={() => collapsed
+                        ? navigate(section.defaultPath || visibleItems[0]?.path || '/')
+                        : toggleSection(section.label)
+                      }
+                      className={cn(
+                        "flex items-center w-full transition-all duration-150",
+                        collapsed ? "justify-center h-9 w-9 mx-auto rounded-xl" : "gap-2.5 px-3 h-9 rounded-xl",
+                        hasActiveChild
+                          ? "text-foreground"
+                          : section.isDev
+                            ? "text-muted-foreground/30 hover:text-muted-foreground/60 hover:bg-white/[0.03]"
+                            : "text-muted-foreground/55 hover:text-foreground hover:bg-white/[0.04]"
+                      )}
+                      style={hasActiveChild && !collapsed ? {
+                        background: 'rgba(230,106,31,0.08)',
+                        boxShadow: '0 0 0 1px rgba(230,106,31,0.18)',
+                      } : {}}
+                    >
+                      <SectionIcon
+                        className={cn("shrink-0", hasActiveChild ? "text-primary" : "")}
+                        style={{
+                          width: 16, height: 16,
+                          filter: hasActiveChild ? 'drop-shadow(0 0 4px rgba(230,106,31,0.5))' : undefined,
+                        }}
+                      />
+                      {!collapsed && (
+                        <>
+                          <span className={cn(
+                            "flex-1 text-left truncate text-[11px] font-extrabold uppercase tracking-[0.12em]",
+                            hasActiveChild ? "text-foreground/80" : section.isDev ? "text-muted-foreground/30" : "text-muted-foreground/45"
+                          )}>
+                            {section.label}
+                          </span>
+                          <ChevronDown
+                            className={cn("h-3 w-3 shrink-0 transition-transform duration-200", isExpanded ? "rotate-180" : "")}
+                            style={{ color: hasActiveChild ? 'rgba(230,106,31,0.7)' : 'rgba(148,163,184,0.25)' }}
+                          />
+                        </>
+                      )}
+                    </button>
+                    {/* Collapsed tooltip */}
+                    {collapsed && (
+                      <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-foreground whitespace-nowrap opacity-0 group-hover/navitem:opacity-100 pointer-events-none transition-opacity z-50"
+                        style={{ background: 'rgba(10,16,26,0.97)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }}>
+                        {section.label}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Children — only when expanded and not collapsed */}
+                  {isExpanded && !collapsed && (
+                    <div className="mt-1 ml-3 space-y-0.5" style={{ borderLeft: '1px solid rgba(255,255,255,0.07)', paddingLeft: '10px' }}>
+                      {visibleItems.map(item => {
+                        const isActive = location.pathname === item.path ||
+                          (item.path !== '/' && location.pathname.startsWith(item.path));
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={cn(
+                              "flex items-center gap-2.5 h-9 px-2.5 rounded-lg w-full transition-all duration-150",
+                              isActive
+                                ? "text-foreground bg-white/[0.07]"
+                                : "text-muted-foreground/45 hover:text-muted-foreground hover:bg-white/[0.04]"
+                            )}
+                          >
+                            {isActive ? (
+                              <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-primary"
+                                style={{ boxShadow: '0 0 6px rgba(230,106,31,0.8)' }} />
+                            ) : (
+                              <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-white/[0.14]" />
+                            )}
+                            <span className={cn(
+                              "text-[13px] truncate",
+                              isActive ? "font-semibold text-foreground" : "font-medium"
+                            )}>
+                              {item.label}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Thin divider below expandable groups */}
+                  <div className={cn("mt-2", collapsed ? "mx-3" : "mx-1")}
+                    style={{ height: '1px', background: 'rgba(255,255,255,0.04)' }} />
+                </div>
+              );
+            }
+
+            // ── Flat section (Operations, Planning, Knowledge, Admin) ─────────
             return (
-              <div key={section.label} className={cn(si > 0 ? "mt-4" : "")}>
+              <div key={section.label} className={cn(si > 0 ? "mt-10" : "")}>
                 {!collapsed && (
-                  <p className="text-[9px] font-extrabold uppercase tracking-[0.14em] px-3 mb-1.5"
-                    style={{ color: 'rgba(148,163,184,0.45)' }}>
+                  <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] px-3 mb-1"
+                    style={{ color: 'rgba(148,163,184,0.5)' }}>
                     {section.label}
                   </p>
                 )}
                 {collapsed && si > 0 && (
                   <div className="mx-auto mb-3 mt-1" style={{ height: '1px', width: '28px', background: 'rgba(255,255,255,0.06)' }} />
                 )}
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   {visibleItems.map(item => {
                     const Icon = item.icon;
                     const isActive = location.pathname === item.path ||
@@ -324,8 +470,7 @@ export default function Layout() {
                           <Icon
                             className={cn("shrink-0", isActive ? "text-primary" : "")}
                             style={{
-                              width: 15,
-                              height: 15,
+                              width: 16, height: 16,
                               filter: isActive ? 'drop-shadow(0 0 4px rgba(230,106,31,0.6))' : undefined,
                             }}
                           />
@@ -335,12 +480,7 @@ export default function Layout() {
                         </Link>
                         {collapsed && (
                           <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-foreground whitespace-nowrap opacity-0 group-hover/navitem:opacity-100 pointer-events-none transition-opacity z-50"
-                            style={{
-                              background: 'rgba(10,16,26,0.97)',
-                              border: '1px solid rgba(255,255,255,0.08)',
-                              boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-                            }}
-                          >
+                            style={{ background: 'rgba(10,16,26,0.97)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }}>
                             {item.label}
                           </div>
                         )}
@@ -423,7 +563,7 @@ export default function Layout() {
       <header
         className={cn(
           "hidden lg:flex fixed top-0 right-0 z-20 h-[72px] items-center px-8 gap-4",
-          collapsed ? "left-[60px]" : "left-[220px]"
+          collapsed ? "left-[60px]" : "left-[240px]"
         )}
         style={{
           background: 'linear-gradient(180deg, rgba(5,8,14,0.94) 0%, rgba(5,8,14,0.78) 100%)',
@@ -470,7 +610,7 @@ export default function Layout() {
           "transition-all duration-200",
           isMobile
             ? "fixed bottom-0 left-0 right-0 overflow-y-auto overscroll-contain"
-            : cn("min-h-screen", collapsed ? "lg:pl-[60px] lg:pt-[72px]" : "lg:pl-[220px] lg:pt-[72px]")
+            : cn("min-h-screen", collapsed ? "lg:pl-[60px] lg:pt-[72px]" : "lg:pl-[240px] lg:pt-[72px]")
         )}
         style={isMobile ? { top: "calc(72px + env(safe-area-inset-top, 0px))", WebkitOverflowScrolling: "touch" } : {}}
         onTouchStart={onSwipeStart}
