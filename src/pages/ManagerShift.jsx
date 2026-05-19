@@ -37,6 +37,8 @@ import confetti from "canvas-confetti";
 import { haptics } from "@/utils/haptics";
 import DesktopPageHeader from "@/components/DesktopPageHeader";
 import { ShiftNextActionCard, ShiftProgressStrip, ShiftStageNav } from "@/components/shift/ShiftWorkflowShell";
+import ManagerShiftDebriefDesktop from "@/components/shift/ManagerShiftDebriefDesktop";
+import ManagerShiftMobileClose from "@/components/shift/ManagerShiftMobileClose";
 import { useShiftContext } from "@/hooks/useShiftContext";
 import { BriefingContextBanner, BriefingProfileSelector } from "@/components/ShiftLaunch/BriefingContextPanel";
 import {
@@ -1926,18 +1928,9 @@ export default function ManagerShift() {
 
             {/* ── DEBRIEF ────────────────────────────────────────────── */}
             {activeStage === "close" && (() => {
-              const closeTabDefs = [
-                { id: 'all',                    label: `All`,       count: debriefItems.length },
-                { id: 'Issues',                 label: `Issues`,    count: debriefItems.filter(i => i.group === 'Issues').length },
-                { id: 'Logs Created This Shift',label: `Logs`,      count: debriefItems.filter(i => i.group === 'Logs Created This Shift').length },
-                { id: "86'd Items",             label: `86 Items`,  count: debriefItems.filter(i => i.group === "86'd Items").length },
-              ];
-              const visibleDebriefItems = closeFilterTab === 'all'
-                ? debriefItems
-                : debriefItems.filter(i => i.group === closeFilterTab);
-              return (
-              <>
-                <ManagerShiftMobileClose
+               return (
+               <>
+                 <ManagerShiftMobileClose
                   debriefItems={debriefItems}
                   debriefReviews={debriefReviews}
                   updateDebriefReview={updateDebriefReview}
