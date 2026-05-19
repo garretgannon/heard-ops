@@ -1294,62 +1294,121 @@ export default function ManagerShift() {
                 </div>
 
                 {/* ── DESKTOP ── */}
-                <div className="hidden lg:flex lg:flex-col lg:gap-3">
-                  <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
+                <div className="hidden lg:block">
+                  {/* KPI strip */}
+                  <div className="ops-metric-grid mb-4">
                     {[
-                      { label: "Critical",   value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
-                      { label: "Warnings",   value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
-                      { label: "Follow-Ups", value: briefing.managerLogs.length + briefing.tasks.length, color: "text-foreground/70" },
-                    ].map(({ label, value, color }) => (
-                      <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-4">
-                        <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{label}</p>
+                      { label: "Critical Items",  value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/30",   kickerText: briefing.issues.length + briefing.eightySix.length > 0 ? "Needs review" : "Clear",       kicker: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400/70" : "text-muted-foreground/50" },
+                      { label: "Events Today",    value: briefing.events.length,                              color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/30",                              kickerText: briefing.events.length > 0 ? "Upcoming" : "None",                                       kicker: briefing.events.length > 0 ? "text-amber-400/70" : "text-muted-foreground/50" },
+                      { label: "Follow-Ups",      value: briefing.managerLogs.length + briefing.tasks.length, color: briefing.managerLogs.length + briefing.tasks.length > 0 ? "text-foreground" : "text-muted-foreground/30", kickerText: "From last shift",                                                                       kicker: "text-muted-foreground/50" },
+                      { label: "Intel Sections",  value: `${viewedIntelCards.size}/${INTEL_CARD_IDS.length}`, color: viewedIntelCards.size === INTEL_CARD_IDS.length ? "text-green-400" : "text-primary",                     kickerText: viewedIntelCards.size === INTEL_CARD_IDS.length ? "All reviewed" : "In progress",         kicker: viewedIntelCards.size === INTEL_CARD_IDS.length ? "text-green-400/70" : "text-primary/70" },
+                    ].map(({ label, value, color, kicker, kickerText }) => (
+                      <div key={label} className="ops-metric-card">
+                        <span className={cn("ops-kicker", kicker)}>{kickerText}</span>
+                        <p className={cn("ops-metric-value", color)}>{value}</p>
+                        <p className="ops-metric-label">{label}</p>
                       </div>
                     ))}
                   </div>
-                  <div className={cn("ops-panel flex items-start gap-3 p-4", acknowledged && "ops-panel-success")}>
-                    {acknowledged ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" /> : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />}
-                    <div className="flex-1">
-                      <p className="text-[15px] font-black text-foreground">{acknowledged ? totals.critical > 0 ? `Briefing acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open` : "Briefing acknowledged — shift intel clear" : "Review shift intel before starting"}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">Acknowledging logs a manager note and moves you to Ops. +20 XP</p>
+
+                  {/* Two-column: intel cards + sticky side panel */}
+                  <div className="grid grid-cols-[1fr_296px] xl:grid-cols-[1fr_320px] gap-5 items-start">
+
+                    {/* Left: Intel cards */}
+                    <div className="space-y-3">
+                      <div className="ops-section-header">
+                        <div>
+                          <p className="ops-kicker text-primary">Pre-Shift</p>
+                          <h2 className="ops-section-title mt-0.5">Shift Intel</h2>
+                        </div>
+                        <span className="ops-section-meta">Open each card to review</span>
+                      </div>
+                      <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
+                        {briefing.handoffs.length === 0 ? <EmptyIntel text="No unresolved handoff notes." detail="No carry-over items from the previous shift." /> : briefing.handoffs.map(item => <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"} meta={[item.department, item.urgency, item.logged_by].filter(Boolean).join(" — ")} />)}
+                      </IntelCard>
+                      <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
+                        {briefing.issues.length === 0 ? <EmptyIntel text="No open issues — clear to go." /> : briefing.issues.map(item => <IntelRow key={item.id} title={item.title || item.description || "Open issue"} meta={[friendlyLogCategory(item.category), item.priority, item.area || item.station || item.location].filter(Boolean).join(" · ")} severity="critical" />)}
+                      </IntelCard>
+                      <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
+                        {briefing.eightySix.length === 0 ? <EmptyIntel text="Nothing 86'd right now." detail="All menu items available." /> : briefing.eightySix.map(item => <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />)}
+                      </IntelCard>
+                      <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
+                        {briefing.events.length === 0 ? <EmptyIntel text="No events or private dining today." /> : briefing.events.map(item => <IntelRow key={item.id} title={item.eventName} meta={[item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ""].filter(Boolean).join(" · ")} severity="warning" />)}
+                      </IntelCard>
+                      <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
+                        {[...briefing.managerLogs, ...briefing.waste].length === 0 ? <EmptyIntel text="No manager notes or waste entries." detail="Nothing logged for this shift yet." /> : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")} meta={[friendlyLogCategory(item.category || item.reason), recentDate(item)].filter(Boolean).join(" · ")} />)}
+                      </IntelCard>
                     </div>
-                    {acknowledged && <div className="flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-black text-green-400"><Zap className="h-2.5 w-2.5" /> 20</div>}
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <IntelCard id="handoff" icon={MessageSquareText} label="Previous Handoff" count={briefing.handoffs.length} onViewed={markCardViewed}>
-                      {briefing.handoffs.length === 0 ? <EmptyIntel text="No unresolved handoff notes." detail="No carry-over items from the previous shift." /> : briefing.handoffs.map(item => <IntelRow key={item.id} title={item.notes_for_next_manager || item.notes || "Handoff note"} meta={[item.department, item.urgency, item.logged_by].filter(Boolean).join(" — ")} />)}
-                    </IntelCard>
-                    <IntelCard id="eightySix" icon={Flame} label="86'd Items" count={briefing.eightySix.length} severity={briefing.eightySix.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
-                      {briefing.eightySix.length === 0 ? <EmptyIntel text="Nothing 86'd right now." detail="All menu items available." /> : briefing.eightySix.map(item => <IntelRow key={item.id} title={item.item_name} meta={item.category || item.notes} severity="critical" />)}
-                    </IntelCard>
-                    <IntelCard id="issues" icon={AlertTriangle} label="Open Issues" count={briefing.issues.length} severity={briefing.issues.length > 0 ? "critical" : "neutral"} onViewed={markCardViewed}>
-                      {briefing.issues.length === 0 ? <EmptyIntel text="No open issues — clear to go." /> : briefing.issues.map(item => <IntelRow key={item.id} title={item.title || item.description || "Open issue"} meta={[friendlyLogCategory(item.category), item.priority, item.area || item.station || item.location].filter(Boolean).join(" · ")} severity="critical" />)}
-                    </IntelCard>
-                    <IntelCard id="events" icon={CalendarClock} label="BEOs / Events" count={briefing.events.length} severity={briefing.events.length > 0 ? "warning" : "neutral"} onViewed={markCardViewed}>
-                      {briefing.events.length === 0 ? <EmptyIntel text="No events or private dining today." /> : briefing.events.map(item => <IntelRow key={item.id} title={item.eventName} meta={[item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ""].filter(Boolean).join(" · ")} severity="warning" />)}
-                    </IntelCard>
-                    <IntelCard id="logs" icon={Store} label="Manager Logs & Waste" count={briefing.managerLogs.length + briefing.waste.length} onViewed={markCardViewed}>
-                      {[...briefing.managerLogs, ...briefing.waste].length === 0 ? <EmptyIntel text="No manager notes or waste entries." detail="Nothing logged for this shift yet." /> : [...briefing.managerLogs, ...briefing.waste].slice(0, 6).map(item => <IntelRow key={`${item.id}-${recentDate(item)}`} title={titleFor(item, "Shift note")} meta={[friendlyLogCategory(item.category || item.reason), recentDate(item)].filter(Boolean).join(" · ")} />)}
-                    </IntelCard>
-                  </div>
-                  {!acknowledged && (() => {
-                    const allReviewed = viewedIntelCards.size === INTEL_CARD_IDS.length;
-                    return (
-                      <div className="flex items-center justify-between px-1 py-1">
-                        <p className={cn("text-[11px] font-black uppercase tracking-wide", allReviewed ? totals.critical > 0 ? "text-amber-400" : "text-green-400" : "text-amber-400/80")}>
-                          {allReviewed ? totals.critical > 0 ? `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} require awareness` : `${INTEL_CARD_IDS.length} of ${INTEL_CARD_IDS.length} sections reviewed — ready to acknowledge` : `${viewedIntelCards.size} of ${INTEL_CARD_IDS.length} sections reviewed — open each card to continue`}
-                        </p>
-                        <div className="flex gap-1">
-                          {INTEL_CARD_IDS.map(cid => <div key={cid} className={cn("h-1.5 w-7 rounded-full transition-all duration-300", viewedIntelCards.has(cid) ? (briefing.handoffs.length + briefing.eightySix.length + briefing.issues.length + briefing.events.length > 0 ? "bg-amber-400/70" : "bg-green-400/70") : "bg-border/30")} />)}
+
+                    {/* Right: Sticky action panel */}
+                    <div className="sticky top-[120px] space-y-3">
+                      <div className={cn("ops-panel p-4", acknowledged && "ops-panel-success")}>
+                        <div className="flex items-start gap-3">
+                          {acknowledged ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" /> : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-black text-foreground">
+                              {acknowledged ? "Briefing acknowledged" : "Acknowledge shift intel"}
+                            </p>
+                            <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
+                              {acknowledged
+                                ? totals.critical > 0 ? `${totals.critical} item${totals.critical !== 1 ? 's' : ''} remain open — monitor during shift.` : "Shift intel reviewed — you're on."
+                                : "Open all 5 intel cards, then acknowledge to move into Ops."}
+                            </p>
+                          </div>
+                          {acknowledged && <div className="flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-black text-green-400 shrink-0"><Zap className="h-2.5 w-2.5" /> 20</div>}
+                        </div>
+                        {!acknowledged && (
+                          <div className="mt-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <p className={cn("text-[10px] font-black uppercase tracking-wide", allCardsViewed ? "text-green-400" : "text-muted-foreground/60")}>
+                                {viewedIntelCards.size}/{INTEL_CARD_IDS.length} sections reviewed
+                              </p>
+                              <div className="flex gap-1">
+                                {INTEL_CARD_IDS.map(cid => (
+                                  <div key={cid} className={cn("h-1 w-5 rounded-full transition-all duration-300", viewedIntelCards.has(cid) ? "bg-green-400/70" : "bg-border/40")} />
+                                ))}
+                              </div>
+                            </div>
+                            <button type="button" onClick={acknowledgeBriefing} disabled={!allCardsViewed}
+                              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white transition-all active:scale-[0.98] disabled:opacity-40"
+                              style={allCardsViewed ? { background: "linear-gradient(135deg,hsl(22,76%,44%) 0%,hsl(22,76%,36%) 100%)", boxShadow: "0 0 0 1px rgba(230,106,31,0.4),0 0 20px rgba(230,106,31,0.2),inset 0 1px 0 rgba(255,255,255,0.1)" } : { background: "rgba(255,255,255,0.04)", boxShadow: "0 0 0 1px rgba(255,255,255,0.06)" }}>
+                              <Shield className="h-4 w-4" />
+                              {allCardsViewed ? "Acknowledge Briefing — +20 XP" : "Review all sections to continue"}
+                            </button>
+                          </div>
+                        )}
+                        {acknowledged && (
+                          <button type="button" onClick={() => setActiveStage("run")}
+                            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/8 py-2.5 text-sm font-black text-primary transition-all active:scale-[0.98]">
+                            <Activity className="h-4 w-4" /> Move to Ops
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Shift snapshot */}
+                      <div className="ops-panel">
+                        <div className="px-4 py-3 border-b border-border/30">
+                          <h2 className="text-sm font-black text-foreground">Shift Snapshot</h2>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
+                        </div>
+                        <div className="divide-y divide-border/20">
+                          {[
+                            { icon: Users,            label: "Staff on Shift",     value: briefing.staff.length,                              color: briefing.staff.length > 0 ? "text-foreground" : "text-muted-foreground/30" },
+                            { icon: Flame,            label: "86'd Items",         value: briefing.eightySix.length,                          color: briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/30" },
+                            { icon: CalendarClock,    label: "Events / BEOs",      value: briefing.events.length,                             color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/30" },
+                            { icon: AlertTriangle,    label: "Open Issues",        value: briefing.issues.length,                             color: briefing.issues.length > 0 ? "text-red-400" : "text-muted-foreground/30" },
+                            { icon: MessageSquareText, label: "Manager Follow-Ups", value: briefing.managerLogs.length + briefing.tasks.length, color: briefing.managerLogs.length + briefing.tasks.length > 0 ? "text-foreground" : "text-muted-foreground/30" },
+                          ].map(({ icon: Icon, label, value, color }) => (
+                            <div key={label} className="flex items-center gap-3 px-4 py-2.5">
+                              <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="text-xs font-semibold text-foreground flex-1">{label}</span>
+                              <span className={cn("text-sm font-black", color)}>{value}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    );
-                  })()}
-                  <button type="button" onClick={acknowledgeBriefing} disabled={acknowledged || !allCardsViewed}
-                    className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white transition-all active:scale-[0.98]"
-                    style={{ background: acknowledged ? "linear-gradient(135deg,rgba(34,197,94,0.3) 0%,rgba(34,197,94,0.2) 100%)" : allCardsViewed ? "linear-gradient(135deg,hsl(22,76%,44%) 0%,hsl(22,76%,36%) 100%)" : "rgba(255,255,255,0.04)", boxShadow: acknowledged ? "0 0 0 1px rgba(34,197,94,0.3)" : allCardsViewed ? "0 0 0 1px rgba(230,106,31,0.4),0 0 24px rgba(230,106,31,0.25),inset 0 1px 0 rgba(255,255,255,0.1)" : "0 0 0 1px rgba(255,255,255,0.06)", opacity: !acknowledged && !allCardsViewed ? 0.5 : 1 }}>
-                    {acknowledged ? <><CheckCircle2 className="h-5 w-5" />{totals.critical > 0 ? `Briefing Acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open` : "Intel Acknowledged — +20 XP"}</> : allCardsViewed ? totals.critical > 0 ? <><Shield className="h-5 w-5" />Acknowledge — {totals.critical} open item{totals.critical !== 1 ? 's' : ''} require awareness</> : <><Shield className="h-5 w-5" />Acknowledge Briefing — Shift Intel Clear</> : <><Shield className="h-5 w-5" />Review all sections to continue</>}
-                  </button>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
