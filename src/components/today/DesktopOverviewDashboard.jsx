@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, CheckCircle2, Clock, FileText, Users, Zap } from 'lucide-react';
 import MetricsCards from './MetricsCards';
 import DesktopGridLayout from './DesktopGridLayout';
 import ActivityFeed from './ActivityFeed';

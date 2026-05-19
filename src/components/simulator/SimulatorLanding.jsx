@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { PlayCircle, Zap, Users, RotateCcw } from 'lucide-react';
+import { PlayCircle, Zap, Users } from 'lucide-react';
 
 export default function SimulatorLanding({ onQuickStart, onAdvanced, onDemo, onReset }) {
   const modes = [

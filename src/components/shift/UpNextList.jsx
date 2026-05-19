@@ -1,6 +1,5 @@
 import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 
 const TASK_TYPE_CONFIG = {

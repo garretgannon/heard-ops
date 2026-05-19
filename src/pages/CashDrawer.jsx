@@ -6,8 +6,7 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import {
-  AlertTriangle, ArrowRight, Banknote, Bell, CalendarDays, CheckCircle2,
-  ChevronLeft, Clock, DollarSign, Lock, Minus, Moon, Pencil, Plus, Save, Sun, UserCircle,
+  AlertTriangle, ArrowRight, Banknote, CalendarDays, CheckCircle2, Clock, DollarSign, Lock, Minus, Moon, Pencil, Plus, Save, Sun,
 } from 'lucide-react';
 import { toast } from 'sonner';
 

@@ -1,13 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { X, Upload, AlertTriangle, CheckCircle2, Calendar, Edit2, AlertCircle } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import { X, Upload, AlertTriangle, CheckCircle2, Edit2, AlertCircle } from 'lucide-react';
 import {
-  detectLayout,
-  detectHeaderRow,
-  parseWeeklyGrid,
-  parseRowBased,
   mapRole,
   extractPDFText,
   parsePDFScheduleText,

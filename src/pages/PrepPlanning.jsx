@@ -6,8 +6,7 @@ import { motion } from 'framer-motion';
 import {
   AlertCircle, AlertTriangle, ArrowRight, BarChart3, BookOpen,
   Calendar, CalendarClock, ChefHat, CheckCircle2, ChevronRight, ClipboardCheck,
-  ClipboardList, Clock, FileStack, Flame, Layers, Package,
-  RefreshCw, Settings, Store, TrendingDown, Upload, Users, Wine, Zap,
+  ClipboardList, Clock, FileStack, Flame, Layers, Package, Settings, Store, TrendingDown, Upload, Users, Wine, Zap,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';

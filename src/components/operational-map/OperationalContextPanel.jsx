@@ -1,4 +1,4 @@
-import { X, Edit2, Zap, AlertTriangle, TrendingUp } from 'lucide-react';
+import { X, Edit2, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';

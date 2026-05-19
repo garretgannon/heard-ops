@@ -1,5 +1,4 @@
 import { X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 const TEMPLATE_TYPES = [
   { id: 'prep', label: 'Prep' },

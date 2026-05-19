@@ -308,7 +308,7 @@ export default function OperationalMap() {
       if (activeAreaId === '__unassigned') return !activeAreas.some(a => s.area_id === a.id || s.area_name === a.name);
       return s.area_id === activeAreaId || s.area_name === activeAreas.find(a => a.id === activeAreaId)?.name;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [sortedStations, activeEquipment, activeAreaId, activeAreas, search]);
 
   // Summary stats
@@ -320,7 +320,7 @@ export default function OperationalMap() {
       attn:  all.filter(s => getAttentionItems(s, eqFor(s)).length > 0).length,
       issues: all.filter(s => eqFor(s).some(e => e.requiresMaintenanceChecklist)).length,
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [sortedStations, activeEquipment]);
 
   const syncedSelected = useMemo(

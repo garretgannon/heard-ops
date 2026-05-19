@@ -8,10 +8,9 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday } from 'date-fns';
 import {
-  AlertCircle, AlignLeft, ArrowRight, Bell, Building2, CalendarDays, Check, CheckCircle2,
-  CheckSquare, ChevronLeft, ChevronRight, Clock, FileText, Lock, MapPin, Megaphone,
-  MessageSquare, Minus, Paperclip, Plus, Reply, Send, Shield, ShieldCheck, Sparkles,
-  UserCircle, Users, Users2, X, XCircle,
+  AlertCircle, AlignLeft, ArrowRight, Building2, CalendarDays, CheckCircle2,
+  CheckSquare, ChevronRight, Clock, FileText, Lock, MapPin, Megaphone,
+  MessageSquare, Paperclip, Plus, Reply, Send, Shield, Users2, X, XCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 

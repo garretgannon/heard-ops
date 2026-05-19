@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { X, Upload, AlertTriangle, CheckCircle2, ChevronRight, RefreshCw, Edit2 } from 'lucide-react';
+import { X, Upload, AlertTriangle, CheckCircle2, ChevronRight, Edit2 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { extractPDFText, parsePDFScheduleData, normalizeExtractedData } from '@/utils/pdfScheduleParser';
 

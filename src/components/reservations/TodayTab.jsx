@@ -1,6 +1,5 @@
 import {
-  Star, AlertTriangle, Users, Link, Calendar, CalendarPlus, CalendarDays,
-  Plus, Upload, ChefHat, ClipboardList, CheckSquare, BarChart2, Lightbulb,
+  Star, AlertTriangle, Users, Link, Calendar, CalendarPlus, CalendarDays, Upload, ChefHat, ClipboardList, CheckSquare, BarChart2, Lightbulb,
   ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';

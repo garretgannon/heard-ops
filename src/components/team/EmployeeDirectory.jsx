@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Plus, Filter, Eye, EyeOff, Mail, Phone, Hash } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Search, Plus, Eye, EyeOff, Mail, Phone } from 'lucide-react';
 
 const DEPARTMENTS = ['All', 'FOH', 'BOH', 'Bar', 'Management', 'Support'];
 const JOB_CODES = ['Manager', 'Server', 'Bartender', 'Host', 'Line Cook', 'Prep Cook', 'Dishwasher', 'Sous Chef', 'Chef', 'Support'];

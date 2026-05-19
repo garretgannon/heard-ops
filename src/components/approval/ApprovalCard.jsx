@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Check, ChevronUp, Eye, ShieldCheck, X } from 'lucide-react';
+import { Check, ChevronUp, Eye, ShieldCheck, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TaskVisual from '@/components/TaskVisual';
 

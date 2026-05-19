@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import {
   Layers, ChefHat, Wine, AlertTriangle, Package, Sliders,
-  ChevronLeft, ChevronRight, X, Check, Calendar, Clock,
+  ChevronLeft, ChevronRight, X, Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';

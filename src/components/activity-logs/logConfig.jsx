@@ -1,5 +1,4 @@
-import {
-  FileText, AlertTriangle, Thermometer, Utensils, Flame, Wind,
+import { AlertTriangle, Thermometer, Utensils, Flame, Wind,
   ClipboardList, ListFilter, Wrench, ShieldAlert, User, Coffee,
   ClipboardCheck, MessageSquareWarning, ArrowRightLeft, Droplets,
 } from "lucide-react";

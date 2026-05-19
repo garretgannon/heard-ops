@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Plus, Edit2, Trash2, Search, Copy, Eye, AlertCircle, Camera, ChefHat, Thermometer, Clock, User, MapPin } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Copy, Eye, AlertCircle, Camera, ChefHat, Thermometer } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import TemplateFormModal from '@/components/templates/TemplateFormModal';

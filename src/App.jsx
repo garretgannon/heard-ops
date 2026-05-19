@@ -152,6 +152,9 @@ const AuthenticatedApp = () => {
     );
   }
 
+  const managerShiftRoute = isAdmin ? <ManagerShift /> : <Navigate to="/station-shift" replace />;
+  const legacyShiftRoute = isAdmin ? <Shift /> : <Navigate to="/station-shift" replace />;
+
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
@@ -171,8 +174,8 @@ const AuthenticatedApp = () => {
           <Route path="/cleaning-templates" element={<CleaningTemplates />} />
           <Route path="/cleaning-templates/:id/edit" element={<CleaningTemplates />} />
           <Route path="/my-shifts" element={<MyShifts />} />
-          <Route path="/shift" element={<ManagerShift />} />
-          <Route path="/shift/:id" element={<Shift />} />
+          <Route path="/shift" element={managerShiftRoute} />
+          <Route path="/shift/:id" element={legacyShiftRoute} />
           <Route path="/approvals" element={<PermissionGate permission={PERMISSIONS.APPROVE_LOGS}><ApprovalInbox /></PermissionGate>} />
           <Route path="/temp-log-templates" element={<TemperatureLogTemplates />} />
           <Route path="/temp-log-templates/:id/edit" element={<TemperatureLogTemplates />} />
@@ -207,7 +210,7 @@ const AuthenticatedApp = () => {
           <Route path="/inventory" element={<PermissionGate permission={PERMISSIONS.VIEW_INVENTORY}><InventorySimplified /></PermissionGate>} />
           <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
           <Route path="/station-readiness" element={<PermissionGate permission={PERMISSIONS.VIEW_STATION_READINESS}><StationReadiness /></PermissionGate>} />
-          <Route path="/shift-handoff" element={<ManagerShift />} />
+          <Route path="/shift-handoff" element={managerShiftRoute} />
           <Route path="/admin/role-simulator" element={<AdminRoleSimulator />} />
           <Route path="/admin/command-center" element={<AdminCommandCenter />} />
           <Route path="/admin/onboarding-simulator" element={<OnboardingSimulator />} />

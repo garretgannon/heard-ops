@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ChevronRight, MapPin, User, Clock, Camera, Star } from "lucide-react";
+import { ChevronRight, User, Clock, Camera, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LOG_TYPES, STATUS_META } from "./logConfig";
 

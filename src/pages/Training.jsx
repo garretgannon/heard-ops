@@ -5,7 +5,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
 import {
   BookOpen, Plus, Search, Upload, CheckCircle2, Clock, AlertCircle,
-  Play, Edit2, Trash2, Users, Award, BarChart3, ChevronRight, Filter,
+  Play, Edit2, Trash2, Users, Award, ChevronRight,
   ChevronLeft, Bell, UserCircle, Shield, TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';

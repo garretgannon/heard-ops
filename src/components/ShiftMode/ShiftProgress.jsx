@@ -1,5 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { AlertTriangle } from 'lucide-react';
 
 export default function ShiftProgress({ shift }) {
   if (!shift || shift.status === 'not_started' || shift.status === 'setup') return null;

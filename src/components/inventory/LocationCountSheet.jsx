@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ChevronLeft, Search, MoreHorizontal, RefreshCw } from 'lucide-react';
+import { ChevronLeft, Search, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 import { toast } from 'sonner';

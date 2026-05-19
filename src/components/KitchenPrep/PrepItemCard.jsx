@@ -1,4 +1,4 @@
-import { ChevronRight, Camera, AlertCircle, Plus } from "lucide-react";
+import { Camera, AlertCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function PrepItemCard({

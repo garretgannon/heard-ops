@@ -1,4 +1,4 @@
-import { X, MapPin, User, Clock, FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, MapPin, User, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';

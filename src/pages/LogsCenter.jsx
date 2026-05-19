@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
-import { Plus, Settings, Search, Wand2, Download, ClipboardList, CheckSquare, AlertCircle, ShieldCheck, Thermometer, AlertTriangle, Wrench, Trash2, MessageSquare, ArrowRightLeft, Wind, ChevronRight, Zap, TrendingUp, Clock } from 'lucide-react';
+import { Plus, Settings, Search, Wand2, Download, ClipboardList, CheckSquare, AlertCircle, ShieldCheck, Thermometer, AlertTriangle, Wrench, Trash2, MessageSquare, ArrowRightLeft, Wind, ChevronRight, Zap, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 import LogsFeedView from '@/components/logcenter/LogsFeedView';

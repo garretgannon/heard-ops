@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Check, ChefHat, AlertCircle, Thermometer, Clock, Flame } from 'lucide-react';
+import { Check, ChefHat, AlertCircle, Thermometer, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 

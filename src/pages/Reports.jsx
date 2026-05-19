@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
-import { BarChart2, CheckCircle2, ClipboardList, Thermometer, Wrench } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Thermometer, Wrench } from 'lucide-react';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 
 const today = () => new Date().toISOString().split('T')[0];

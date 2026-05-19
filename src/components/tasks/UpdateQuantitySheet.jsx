@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/hooks/useToast";
 import { X, Plus, CheckCircle2 } from "lucide-react";

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 const PRESETS = [
   { slug: 'foh', name: 'FOH', description: 'Servers, Hosts, Runners, Bussers', icon: '🍽️', color: '#3b82f6' },

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Plus, Search, User, Phone, Mail, MapPin, Edit2, ChevronRight } from 'lucide-react';
+import { Plus, Search, User, MapPin, ChevronRight } from 'lucide-react';
 import EmployeeEditDrawer from './EmployeeEditDrawer';
 
 const ROLE_COLORS = {

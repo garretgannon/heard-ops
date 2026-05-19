@@ -2,13 +2,12 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { AnimatePresence } from 'framer-motion';
 import {
-  ChevronLeft, ChevronRight, Calendar, Zap, Download, Search, Bell,
-  DollarSign, Clock, Users, Filter, Grid3x3, LayoutTemplate,
-  RefreshCw, X, Check, RotateCcw, RotateCw, Plus, CalendarOff, Keyboard, AlertCircle, Expand, Minimize, ArrowDownAZ
+  ChevronLeft, ChevronRight, Calendar, Download, Search, Bell, Filter, Grid3x3, LayoutTemplate,
+  RefreshCw, X, Check, Plus, Keyboard, Expand, Minimize, ArrowDownAZ
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { addDays, startOfWeek, format, isSameDay, parseISO, isWithinInterval, getDay, differenceInDays } from 'date-fns';
+import { addDays, startOfWeek, format, isSameDay, parseISO } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
 
@@ -16,8 +15,6 @@ import ScheduleGrid from '@/components/schedule/ScheduleGrid';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import ShiftDetailDrawer from '@/components/schedule/ShiftDetailDrawer';
 import BulkActionToolbar from '@/components/schedule/BulkActionToolbar';
-import WeekSelector from '@/components/schedule/WeekSelector';
-import TodayShiftView from '@/components/schedule/TodayShiftView';
 import QuickAddShiftModal from '@/components/schedule/QuickAddShiftModal';
 import MassAddModal from '@/components/schedule/MassAddModal';
 import ShiftContextMenu from '@/components/schedule/ShiftContextMenu';

@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Video, Wand2, Expand, Play, Loader2, RefreshCw, PenLine } from "lucide-react";
+import { Camera, Video, Wand2, Expand, Loader2, RefreshCw, PenLine } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 

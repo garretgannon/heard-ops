@@ -7,9 +7,9 @@ import { toast } from 'sonner';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import {
-  ChefHat, Search, Plus, ChevronRight, Clock, Package, Archive,
-  AlertTriangle, Link2, Camera, Edit2, Copy, X, CheckCircle2, Utensils,
-  Flame, BookOpen, DollarSign, Shield, Users, MapPin, Sparkles
+  ChefHat, Search, Plus, Archive,
+  AlertTriangle, Link2, Camera, Edit2, Copy, X,
+  Flame, BookOpen, Shield, Sparkles
 } from 'lucide-react';
 import RecipeCosting from '@/components/recipes/RecipeCosting';
 

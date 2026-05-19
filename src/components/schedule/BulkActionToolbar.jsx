@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
-import { Copy, Trash2, X, CheckCircle, GitBranch, ChevronDown } from 'lucide-react';
+import { Copy, Trash2, X, CheckCircle, GitBranch } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 export default function BulkActionToolbar({ selectedCount, onClear, onCopy, onDuplicate, onDelete, onPublish, onClearUnpublished }) {
   const [confirmDelete, setConfirmDelete] = useState(false);

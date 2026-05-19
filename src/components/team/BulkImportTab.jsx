@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Download, Upload, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Download, Upload, AlertTriangle } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { base44 } from '@/api/base44Client';
 

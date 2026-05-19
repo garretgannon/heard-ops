@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Clock, AlertCircle, CheckCircle2, User } from 'lucide-react';
-import { format } from 'date-fns';
 
 const TODAY_SHIFTS = [
   { id: 1, employee: 'Sarah Chen', role: 'Manager', time: '10:00 AM - 6:00 PM', status: 'clocked_in' },

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Plus, Trash2, ChevronUp, ChevronDown, BookOpen, Star, ClipboardList, AlertTriangle, HelpCircle, CheckCircle2, Save, Eye } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';

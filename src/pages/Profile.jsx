@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { Zap, Shield, LogOut, Settings, Trash2, ChevronLeft, ChevronRight, Bell, Link, Palette, Sliders, Info, Utensils } from 'lucide-react';
+import { LogOut, Trash2, ChevronLeft, ChevronRight, Bell, Sliders, Info, Utensils } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useState } from 'react';
 import { toast } from 'sonner';

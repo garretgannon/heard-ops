@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { AlertTriangle, DollarSign, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 /**
  * BuildCardCosting — admin/chef-only cost panel shown inside BuildCardDetail.

@@ -19,7 +19,6 @@ import {
   MessageSquareText,
   Mic,
   RefreshCw,
-  Save,
   ClipboardList,
   Sparkles,
   Star,
@@ -37,6 +36,7 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { haptics } from "@/utils/haptics";
 import DesktopPageHeader from "@/components/DesktopPageHeader";
+import { ShiftNextActionCard, ShiftProgressStrip, ShiftStageNav } from "@/components/shift/ShiftWorkflowShell";
 import { useShiftContext } from "@/hooks/useShiftContext";
 import { BriefingContextBanner, BriefingProfileSelector } from "@/components/ShiftLaunch/BriefingContextPanel";
 import {
@@ -201,50 +201,6 @@ function XpFloat({ amount, onDone }) {
   );
 }
 
-// ─── Stage pipeline ───────────────────────────────────────────────────────────
-
-function StagePipeline({ active, acknowledged }) {
-  const activeIdx = STAGE_CONFIG.findIndex(s => s.id === active);
-
-  return (
-    <div className="flex items-center gap-0">
-      {STAGE_CONFIG.map((stage, i) => {
-        const Icon = stage.icon;
-        const isActive = stage.id === active;
-        const isDone = i < activeIdx;
-
-        return (
-          <div key={stage.id} className="flex items-center">
-            <div className={cn(
-              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-black transition-all duration-300",
-              isActive
-                ? "border border-primary/50 bg-primary/15 text-primary"
-                : isDone
-                  ? "border border-green-500/30 bg-green-500/8 text-green-400"
-                  : "border border-border/40 bg-transparent text-muted-foreground/50"
-            )}
-              style={isActive ? { boxShadow: "0 0 12px rgba(230,106,31,0.2)" } : undefined}
-            >
-              {isDone
-                ? <Check className="h-3 w-3" />
-                : <Icon className="h-3 w-3" />
-              }
-              <span className="hidden sm:inline">{stage.label}</span>
-              <span className="sm:hidden">{stage.num}</span>
-            </div>
-            {i < STAGE_CONFIG.length - 1 && (
-              <div className={cn(
-                "mx-1 h-px w-4 transition-colors",
-                i < activeIdx ? "bg-green-500/40" : "bg-border/30"
-              )} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ─── Intel card ───────────────────────────────────────────────────────────────
 
 function IntelCard({ id, icon: Icon, label, count, severity = "neutral", children, onViewed }) {
@@ -365,8 +321,10 @@ function DutyCard({ config, checked, locked, onToggle, xpFloat, onXpDone }) {
           backgroundColor: checked ? "rgba(34,197,94,0.06)" : "transparent",
         }}
         transition={{ duration: 0.25 }}
-        className="flex w-full items-center gap-3 overflow-hidden rounded-xl border border-border/25 px-4 py-3 lg:px-5 lg:py-3.5 text-left"
-        style={{ background: checked ? "rgba(34,197,94,0.06)" : "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
+        className={cn(
+          "ops-panel flex w-full items-center gap-3 px-4 py-3 text-left lg:px-5 lg:py-3.5",
+          checked && "ops-panel-success"
+        )}
       >
         {/* Status icon */}
         <motion.div
@@ -473,10 +431,7 @@ function ShiftComplete({ shiftXp, checkedDuties, shift, onDismiss }) {
         </div>
 
         {/* Stats */}
-        <div
-          className="overflow-hidden rounded-2xl border border-border/40"
-          style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-        >
+        <div className="ops-panel">
           <div
             className="border-b border-border/30 py-4"
             style={{ background: "linear-gradient(135deg, rgba(230,106,31,0.1) 0%, rgba(230,106,31,0.03) 100%)" }}
@@ -724,7 +679,7 @@ export default function ManagerShift() {
   // Re-filter when the shift context profile changes (user switches scope)
   useEffect(() => {
     if (shiftContext) load({ quiet: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [shiftContext?.profileId]);
 
   useEffect(() => {
@@ -1039,6 +994,73 @@ export default function ManagerShift() {
   }
 
   const dutiesPct = Math.round((checkedDuties.length / DUTIES.length) * 100);
+  const managerNextAction = (() => {
+    if (activeStage === "start") {
+      if (acknowledged) {
+        return {
+          label: "Move into Ops",
+          detail: totals.critical > 0
+            ? `${totals.critical} open item${totals.critical !== 1 ? "s" : ""} require awareness during the shift.`
+            : "Shift intel is clear. Move into active management.",
+          icon: Activity,
+          tone: "text-primary",
+          onClick: () => setActiveStage("run"),
+        };
+      }
+      return {
+        label: allCardsViewed ? "Acknowledge briefing" : "Review shift intel",
+        detail: allCardsViewed
+          ? "All sections reviewed. Acknowledge to move into Ops."
+          : `${viewedIntelCards.size}/${INTEL_CARD_IDS.length} sections reviewed before Ops.`,
+        icon: Shield,
+        tone: allCardsViewed ? "text-primary" : "text-muted-foreground",
+        onClick: allCardsViewed ? acknowledgeBriefing : undefined,
+      };
+    }
+
+    if (activeStage === "run") {
+      if (!preShiftSaved) {
+        return {
+          label: "Save the pre-shift briefing",
+          detail: "This is required before manager sign-off.",
+          icon: Users,
+          tone: "text-primary",
+        };
+      }
+      if (checkedDuties.length < DUTIES.length) {
+        return {
+          label: "Work the manager duties",
+          detail: `${DUTIES.length - checkedDuties.length} dut${DUTIES.length - checkedDuties.length !== 1 ? "ies" : "y"} left before sign-off.`,
+          icon: ClipboardCheck,
+          tone: "text-primary",
+        };
+      }
+      return {
+        label: "Prepare sign-off",
+        detail: "Duties are complete. Review follow-ups and write the next handoff.",
+        icon: LogOut,
+        tone: "text-primary",
+        onClick: () => setActiveStage("close"),
+      };
+    }
+
+    if (shiftComplete) {
+      return {
+        label: "Shift complete",
+        detail: "The next manager has a saved handoff.",
+        icon: CheckCircle2,
+        tone: "text-green-400",
+      };
+    }
+
+    return {
+      label: "Complete handoff",
+      detail: `${debriefCompleteCount}/${debriefItems.length} follow-up items reviewed. Add notes before submitting.`,
+      icon: LogOut,
+      tone: debriefCompleteCount === debriefItems.length && handoffNotes.trim() ? "text-primary" : "text-muted-foreground",
+      onClick: debriefCompleteCount === debriefItems.length && handoffNotes.trim() ? completeHandoff : undefined,
+    };
+  })();
 
   return (
     <div className="app-screen">
@@ -1095,94 +1117,54 @@ export default function ManagerShift() {
           </div>
         </div>
 
-        {/* Duty progress bar */}
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-black/40">
-          <motion.div
-            className="h-full rounded-full"
-            animate={{ width: `${dutiesPct}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            style={{
-              background: dutiesPct === 100
-                ? "linear-gradient(90deg, #22c55e, #4ade80)"
-                : "linear-gradient(90deg, hsl(22,76%,38%), hsl(22,76%,55%))",
-              boxShadow: dutiesPct === 100 ? "0 0 8px rgba(34,197,94,0.5)" : "0 0 6px rgba(230,106,31,0.4)",
-            }}
-          />
-        </div>
+        <ShiftProgressStrip
+          className="mt-2"
+          label={`${checkedDuties.length}/${DUTIES.length} duties`}
+          value={dutiesPct}
+          complete={dutiesPct === 100}
+        />
 
-        {/* Stage pipeline */}
-        <div className="mt-3 flex items-center justify-center">
-          <div className="flex gap-1">
-            {STAGE_CONFIG.map(stage => (
-              <button
-                key={stage.id}
-                type="button"
-                onClick={() => { haptics.light(); setActiveStage(stage.id); }}
-                className={cn(
-                  "whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-black transition-all duration-300 border",
-                  activeStage === stage.id
-                    ? "border-primary/50 bg-primary/15 text-primary"
-                    : "border-border/40 bg-transparent text-muted-foreground/50 hover:text-foreground hover:border-border/60"
-                )}
-                style={activeStage === stage.id ? { boxShadow: "0 0 12px rgba(230,106,31,0.2)" } : undefined}
-              >
-                {stage.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <ShiftStageNav
+          stages={STAGE_CONFIG}
+          activeStage={activeStage}
+          onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
+          compact
+          className="mt-3 justify-center"
+        />
       </div>
 
-      {/* Desktop stage nav — replaces the hidden mobile HUD tabs */}
-      <div className="hidden lg:flex items-center gap-2 px-8 py-3 lg:mt-7 border-b border-border/20 bg-card/30">
-        <div className="flex gap-1">
-          {STAGE_CONFIG.map(stage => {
-            const Icon = stage.icon;
-            const isActive = activeStage === stage.id;
-            const activeIdx = STAGE_CONFIG.findIndex(s => s.id === activeStage);
-            const isDone = STAGE_CONFIG.findIndex(s => s.id === stage.id) < activeIdx;
-            return (
-              <button
-                key={stage.id}
-                type="button"
-                onClick={() => { haptics.light(); setActiveStage(stage.id); }}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
-                  isActive
-                    ? 'glow-active'
-                    : isDone
-                      ? 'text-green-400 hover:bg-muted'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                )}
-              >
-                {isDone ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
-                {stage.label}
-              </button>
-            );
-          })}
-        </div>
-        <div className="ml-auto flex items-center gap-3">
-          <span className={cn('text-xs font-bold', totals.critical > 0 ? 'text-amber-400/80' : 'text-muted-foreground')}>
-            {totals.critical} critical
-          </span>
-          <span className={cn('text-xs font-bold', checkedDuties.length === DUTIES.length ? 'text-green-400' : 'text-muted-foreground')}>
-            {checkedDuties.length}/{DUTIES.length} duties
-          </span>
-          <span className={cn('text-xs font-bold', shiftXp > 0 ? 'text-primary' : 'text-muted-foreground')}>
-            {shiftXp} XP
-          </span>
-          <button
-            type="button"
-            onClick={() => load({ quiet: true })}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 hover:bg-muted transition-all"
-          >
-            <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
-          </button>
-        </div>
-      </div>
+      <ShiftStageNav
+        stages={STAGE_CONFIG}
+        activeStage={activeStage}
+        onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
+        className="hidden lg:flex border-b border-border/20 bg-card/30 px-8 py-3 lg:mt-7"
+        trailing={
+          <>
+            <span className={cn('text-xs font-bold', totals.critical > 0 ? 'text-amber-400/80' : 'text-muted-foreground')}>
+              {totals.critical} critical
+            </span>
+            <span className={cn('text-xs font-bold', checkedDuties.length === DUTIES.length ? 'text-green-400' : 'text-muted-foreground')}>
+              {checkedDuties.length}/{DUTIES.length} duties
+            </span>
+            <span className={cn('text-xs font-bold', shiftXp > 0 ? 'text-primary' : 'text-muted-foreground')}>
+              {shiftXp} XP
+            </span>
+            <button
+              type="button"
+              onClick={() => load({ quiet: true })}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 transition-all"
+            >
+              <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
+            </button>
+          </>
+        }
+      />
 
       {/* Stage content */}
       <div className="app-page lg:!pt-4">
+        <div className="lg:hidden mb-3">
+          <ShiftNextActionCard action={managerNextAction} />
+        </div>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
@@ -1210,8 +1192,7 @@ export default function ManagerShift() {
                 {/* ── MOBILE ── */}
                 <div className="lg:hidden space-y-3">
                   {/* Scorecard */}
-                  <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
-                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                  <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
                     {[
                       { label: "CRITICAL", sub: "Needs immediate attention", value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
                       { label: "WARNINGS", sub: "Keep an eye on these", value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
@@ -1227,9 +1208,8 @@ export default function ManagerShift() {
 
                   {/* Acknowledge banner — tap to acknowledge */}
                   <button type="button" onClick={acknowledged ? undefined : acknowledgeBriefing}
-                    className={cn("flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all active:scale-[0.99]",
-                      acknowledged ? "border-green-500/30" : "border-border/40")}
-                    style={{ background: acknowledged ? "rgba(34,197,94,0.05)" : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    className={cn("ops-panel flex w-full items-center gap-3 p-4 text-left transition-all active:scale-[0.99]",
+                      acknowledged && "ops-panel-success")}>
                     {acknowledged
                       ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400" />
                       : <Sparkles className="h-5 w-5 shrink-0 text-primary" />}
@@ -1253,8 +1233,7 @@ export default function ManagerShift() {
                   {/* Pre-Shift Checklist */}
                   <div>
                     <p className="mb-2 px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">YOUR PRE-SHIFT CHECKLIST</p>
-                    <div className="overflow-hidden rounded-2xl border border-border/40"
-                      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                    <div className="ops-panel">
                       {[
                         { id: "issues",   Icon: AlertTriangle,    label: "Open Issues",      sub: briefing.issues.length > 0 ? `${briefing.issues.length} critical issues need review` : "No open issues",          count: briefing.issues.length,    iconCls: "text-red-400",  bgCls: "bg-red-500/10 border-red-500/30",     review: briefing.issues.length > 0 },
                         { id: "handoff",  Icon: MessageSquareText, label: "Previous Handoff", sub: briefing.handoffs.length > 0 ? `${briefing.handoffs.length} items from last shift` : "No carry-over items",       count: briefing.handoffs.length,  iconCls: "text-blue-400", bgCls: "bg-blue-500/10 border-blue-500/30",   review: briefing.handoffs.length > 0 },
@@ -1315,8 +1294,7 @@ export default function ManagerShift() {
 
                 {/* ── DESKTOP ── */}
                 <div className="hidden lg:flex lg:flex-col lg:gap-3">
-                  <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
-                    style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                  <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
                     {[
                       { label: "Critical",   value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
                       { label: "Warnings",   value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
@@ -1328,8 +1306,7 @@ export default function ManagerShift() {
                       </div>
                     ))}
                   </div>
-                  <div className={cn("flex items-start gap-3 rounded-2xl border p-4", acknowledged ? "border-green-500/30" : "border-border/40")}
-                    style={{ background: acknowledged ? "rgba(34,197,94,0.05)" : "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+                  <div className={cn("ops-panel flex items-start gap-3 p-4", acknowledged && "ops-panel-success")}>
                     {acknowledged ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" /> : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />}
                     <div className="flex-1">
                       <p className="text-[15px] font-black text-foreground">{acknowledged ? totals.critical > 0 ? `Briefing acknowledged — ${totals.critical} open item${totals.critical !== 1 ? 's' : ''} remain open` : "Briefing acknowledged — shift intel clear" : "Review shift intel before starting"}</p>

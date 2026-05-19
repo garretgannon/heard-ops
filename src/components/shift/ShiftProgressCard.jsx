@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ShiftProgressCard({ completedCount, totalCount, status, nextDueTime }) {

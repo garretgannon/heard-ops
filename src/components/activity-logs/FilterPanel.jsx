@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { X, Bookmark, ChevronDown, ChevronUp, SlidersHorizontal, Check } from "lucide-react";
+import { X, ChevronDown, ChevronUp, SlidersHorizontal, Check } from "lucide-react";
 import { LOG_TYPES, STATUS_META } from "./logConfig";
 import { base44 } from "@/api/base44Client";
 

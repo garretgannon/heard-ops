@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, AlertCircle, Eye, XCircle, TrendingDown } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, Eye, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function ShiftMetricsBar({ stats, tasks, selectedMetric, onMetricClick }) {

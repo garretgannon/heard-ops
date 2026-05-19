@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Clock, Camera, ClipboardCheck, ChevronRight } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, ChevronRight } from "lucide-react";
 import StorageModule from "./StorageModule";
 import useHaptic from "@/hooks/useHaptic";
 

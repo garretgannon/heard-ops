@@ -3,10 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNavigate } from 'react-router-dom';
 import {
-  Package, Plus, ClipboardList, Upload, Warehouse, TrendingDown,
-  AlertTriangle, CheckCircle2, ArrowRight, Layers, RefreshCw,
-  BarChart2, ChefHat, ClipboardCheck, Zap, Sparkles, ChevronLeft,
-  ThumbsUp, Send, Filter, Search, MoreHorizontal, Eye,
+  Package, Plus, ClipboardList, Upload, Warehouse,
+  AlertTriangle, CheckCircle2, ArrowRight, Layers,
+  BarChart2, ChefHat, ClipboardCheck, Zap, ChevronLeft,
+  ThumbsUp, Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';

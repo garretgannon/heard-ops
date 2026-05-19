@@ -1,4 +1,3 @@
-import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
 
 export default function StatusSection({ title, items, icon: Icon, emptyMessage }) {
   if (items.length === 0) {

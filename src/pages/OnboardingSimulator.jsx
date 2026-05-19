@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useSimulator } from '@/lib/SimulatorContext';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
-import { RotateCcw, PlayCircle, Settings2, Users } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import SimulatorLanding from '@/components/simulator/SimulatorLanding';
 import QuickStartSim from '@/components/simulator/QuickStartSim';

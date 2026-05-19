@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { MapPin, Layers, User, ChevronDown, Save } from 'lucide-react';
+import { MapPin, Layers, ChevronDown } from 'lucide-react';
 
 export default function OwnershipTab() {
   const [areas, setAreas] = useState([]);

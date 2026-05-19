@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import {
-  Building2, MapPin, Users, Wrench,
+  Building2, MapPin, Users,
   Thermometer, Truck, Shield, Settings, Plus, Trash2, Save, Bell, X, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { getEquipmentMeta } from '@/lib/equipmentConfig';

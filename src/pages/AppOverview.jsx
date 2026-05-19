@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import {
   Activity,
   AlertCircle,
-  ArrowRight,
   Bell,
   Check,
   CheckCircle2,
@@ -48,7 +47,6 @@ function LiveClock() {
 import { cn } from '@/lib/utils';
 import TaskVisual from '@/components/TaskVisual';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
-import ApprovalCard from '@/components/approval/ApprovalCard';
 import ApprovalDetailSheet from '@/components/approval/ApprovalDetailSheet';
 import DenialReasonDrawer from '@/components/approval/DenialReasonDrawer';
 import ClearBurst from '@/components/approval/ClearBurst';
@@ -166,7 +164,7 @@ function PrepCard({ item }) {
 function ActionRow({ item }) {
   const Icon = item.icon;
   return (
-    <Link to={item.href} className="glow-interactive flex items-center gap-3 rounded-2xl border border-border/50 bg-card/60 px-4 py-3">
+    <Link to={item.href} className="ops-panel ops-panel-interactive flex items-center gap-3 px-4 py-3">
       <span className={cn('status-marker status-marker-md shrink-0', item.statusClass)}>
         <Icon className="h-4 w-4" />
       </span>
@@ -181,7 +179,7 @@ function ActionRow({ item }) {
 
 function GlanceRow({ icon: Icon, label, value, detail, href, progress, valueColor }) {
   return (
-    <Link to={href} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors group">
+    <Link to={href} className="ops-row group">
       <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-xs font-semibold text-foreground">{label}</p>
@@ -541,7 +539,7 @@ export default function AppOverview() {
   if (loading) {
     return (
       <div className="app-screen">
-        <div className="app-page space-y-5">
+        <div className="ops-page ops-stack">
           <div className="pt-1 space-y-2">
             <div className="skeleton h-8 w-48" />
             <div className="skeleton h-4 w-72" />
@@ -559,12 +557,12 @@ export default function AppOverview() {
   return (
     <div className="app-screen">
       <DesktopPageHeader title="Dashboard" subtitle="Operations overview" />
-      <div className="app-page space-y-7">
+      <div className="ops-page ops-stack">
 
         {/* Setup progress banner — admin only, hides when complete or dismissed */}
         {isAdmin && setupProgress && !setupDismissed && (
-          <section className="rounded-2xl border border-primary/[0.15] bg-primary/[0.03] px-4 py-3 flex items-center gap-4">
-            <div className="h-8 w-8 rounded-xl bg-primary/[0.09] flex items-center justify-center shrink-0">
+          <section className="ops-panel ops-panel-interactive flex items-center gap-4 px-4 py-3">
+            <div className="ops-icon-box ops-icon-box-accent shrink-0">
               <Rocket className="h-3.5 w-3.5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
@@ -607,7 +605,7 @@ export default function AppOverview() {
           <div className="flex shrink-0 items-center gap-2.5">
             <button
               onClick={() => setShowApprovalDeck(true)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-card/80 transition-colors hover:bg-card active:scale-95"
+              className="ops-toolbar-button relative w-10 px-0"
             >
               <Bell className={cn('h-4 w-4', hasApprovalQueue ? 'text-foreground' : 'text-muted-foreground')} />
               {hasApprovalQueue && (
@@ -638,10 +636,7 @@ export default function AppOverview() {
           </section>
 
           {/* 2. Readiness Snapshot — compact horizontal layout */}
-          <section
-            className="relative overflow-hidden rounded-2xl border border-border/50 px-4 py-4"
-            style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 8px 32px rgba(0,0,0,0.28)' }}
-          >
+          <section className="ops-panel relative px-4 py-4">
             <div className="absolute inset-x-8 top-0 h-14 rounded-full bg-primary/[0.07] blur-3xl" />
             <div className="relative flex items-center gap-4">
               <div className="relative h-[88px] w-[88px] shrink-0">
@@ -670,7 +665,7 @@ export default function AppOverview() {
                     { value: pendingApprovals, label: 'Approvals', color: pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
                     { value: issueCount, label: 'Issues', color: issueCount > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
                   ].map(({ value, label, color }) => (
-                    <div key={label} className="rounded-xl border border-border/40 px-2 py-2 text-center" style={{ background: 'rgba(11,17,24,0.9)' }}>
+                    <div key={label} className="ops-panel-soft px-2 py-2 text-center">
                       <p className={cn('text-base font-black', color)}>{value}</p>
                       <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground leading-tight">{label}</p>
                     </div>
@@ -687,13 +682,10 @@ export default function AppOverview() {
                 <h2 className="text-sm font-black tracking-tight text-foreground">Prep Queue</h2>
                 <Link to="/tasks?tab=prep" className="text-[11px] font-black text-primary">View all</Link>
               </div>
-              <div
-                className="overflow-hidden rounded-2xl border border-border/50 divide-y divide-border/20"
-                style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
-              >
+              <div className="ops-list">
                 {prepQueue.map((item) => (
                   <Link key={item.name} to="/tasks?tab=prep"
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors">
+                    className="ops-row">
                     <span className={cn('h-2 w-2 rounded-full shrink-0',
                       item.statusClass === 'status-critical' ? 'bg-red-400' :
                       item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-blue-400'
@@ -734,12 +726,9 @@ export default function AppOverview() {
               </div>
               <Link to="/logs" className="text-[11px] font-black text-primary">Logs</Link>
             </div>
-            <div
-              className="overflow-hidden rounded-2xl border border-border/50 divide-y divide-border/20"
-              style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
-            >
+            <div className="ops-list">
               {activity.length > 0 ? activity.map((item) => (
-                <div key={item.label} className="flex items-center gap-3 px-4 py-2.5">
+                <div key={item.label} className="ops-row py-2.5">
                   <span className={cn('h-1.5 w-1.5 rounded-full shrink-0',
                     item.statusClass === 'status-critical' ? 'bg-red-400 animate-pulse' :
                     item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-green-400'
@@ -755,12 +744,13 @@ export default function AppOverview() {
         </div>
 
         {/* ── Desktop layout ─────────────────────────────────────── */}
-        <div className="hidden lg:block space-y-5 lg:!mt-0">
+        <div className="hidden lg:block space-y-6 lg:!mt-0">
 
               {/* Greeting row */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
+                  <p className="ops-kicker">Command Center</p>
+                  <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
                   <p className="text-sm text-muted-foreground mt-0.5">
                     {pendingApprovals > 0 ? `${pendingApprovals} approval${pendingApprovals !== 1 ? 's' : ''} waiting` : 'Approvals clear'}{overdueTasks > 0 ? ` · ${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue` : ' · tasks on track'}
                   </p>
@@ -769,77 +759,77 @@ export default function AppOverview() {
               </div>
 
               {/* KPI strip */}
-              <div className="grid grid-cols-4 gap-3">
+              <div className="ops-metric-grid">
                 {/* Readiness */}
-                <div className="rounded-2xl border border-primary/25 p-4 space-y-3" style={{ background: 'rgba(230,106,31,0.07)' }}>
-                  <div className="flex items-center justify-between">
-                    <span className="p-1.5 rounded-lg bg-primary/15">
+                <div className="ops-metric-card ops-metric-card-accent">
+                  <div className="ops-metric-topline">
+                    <span className="ops-icon-box ops-icon-box-accent">
                       <TrendingUp className="h-3.5 w-3.5 text-primary" />
                     </span>
-                    <span className="text-[10px] font-bold text-primary/70 uppercase tracking-widest">Shift</span>
+                    <span className="ops-kicker text-primary/70">Shift</span>
                   </div>
                   <div>
-                    <p className="text-3xl font-black text-primary">{readiness}%</p>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mt-0.5">Station Readiness</p>
+                    <p className="ops-metric-value text-primary">{readiness}%</p>
+                    <p className="ops-metric-label">Station Readiness</p>
                   </div>
-                  <div className="h-1 rounded-full bg-primary/20 overflow-hidden">
-                    <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${readiness}%` }} />
+                  <div className="ops-progress-track bg-primary/20">
+                    <div className="ops-progress-fill bg-primary" style={{ width: `${readiness}%` }} />
                   </div>
                 </div>
 
                 {/* Tasks */}
-                <Link to="/tasks" className="block rounded-2xl border border-border/50 card-glass p-4 space-y-3 glow-interactive">
-                  <div className="flex items-center justify-between">
-                    <span className="p-1.5 rounded-lg bg-muted/60">
+                <Link to="/tasks" className="ops-metric-card ops-panel-interactive block">
+                  <div className="ops-metric-topline">
+                    <span className="ops-icon-box">
                       <CheckCircle2 className={cn('h-3.5 w-3.5', overdueTasks > 0 ? 'text-amber-400' : 'text-green-400')} />
                     </span>
-                    <span className={cn('text-[10px] font-bold uppercase tracking-widest', overdueTasks > 0 ? 'text-amber-400/70' : 'text-green-400/70')}>
+                    <span className={cn('ops-kicker', overdueTasks > 0 ? 'text-amber-400/70' : 'text-green-400/70')}>
                       {overdueTasks > 0 ? 'Behind' : 'On track'}
                     </span>
                   </div>
                   <div>
-                    <p className={cn('text-3xl font-black', overdueTasks > 0 ? 'text-amber-400' : 'text-foreground')}>
+                    <p className={cn('ops-metric-value', overdueTasks > 0 ? 'text-amber-400' : 'text-foreground')}>
                       {metrics.completedTasks}<span className="text-lg text-muted-foreground/60 font-semibold">/{metrics.totalTasks || '—'}</span>
                     </p>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mt-0.5">Tasks Complete</p>
+                    <p className="ops-metric-label">Tasks Complete</p>
                   </div>
-                  <div className="h-1 rounded-full bg-muted/60 overflow-hidden">
-                    <div className={cn('h-full rounded-full transition-all duration-700', overdueTasks > 0 ? 'bg-amber-400' : 'bg-green-400')} style={{ width: `${taskPct}%` }} />
+                  <div className="ops-progress-track">
+                    <div className={cn('ops-progress-fill', overdueTasks > 0 ? 'bg-amber-400' : 'bg-green-400')} style={{ width: `${taskPct}%` }} />
                   </div>
                 </Link>
 
                 {/* Approvals */}
-                <div className="rounded-2xl border border-border/50 card-glass p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="p-1.5 rounded-lg bg-muted/60">
+                <div className="ops-metric-card">
+                  <div className="ops-metric-topline">
+                    <span className="ops-icon-box">
                       <Bell className={cn('h-3.5 w-3.5', pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground')} />
                     </span>
-                    <span className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest">
+                    <span className="ops-kicker text-muted-foreground/70">
                       {pendingApprovals === 0 ? 'Clear' : 'Waiting'}
                     </span>
                   </div>
                   <div>
-                    <p className={cn('text-3xl font-black', pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground/30')}>{pendingApprovals}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mt-0.5">Pending Approvals</p>
+                    <p className={cn('ops-metric-value', pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground/30')}>{pendingApprovals}</p>
+                    <p className="ops-metric-label">Pending Approvals</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{processedApprovals > 0 ? `${processedApprovals} cleared today` : 'Awaiting review'}</p>
+                  <p className="mt-3 text-xs text-muted-foreground">{processedApprovals > 0 ? `${processedApprovals} cleared today` : 'Awaiting review'}</p>
                 </div>
 
                 {/* Issues */}
-                <Link to="/logs" className="block rounded-2xl border border-border/50 card-glass p-4 space-y-3 glow-interactive">
-                  <div className="flex items-center justify-between">
-                    <span className="p-1.5 rounded-lg bg-muted/60">
+                <Link to="/logs" className="ops-metric-card ops-panel-interactive block">
+                  <div className="ops-metric-topline">
+                    <span className="ops-icon-box">
                       <AlertCircle className={cn('h-3.5 w-3.5', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground')} />
                     </span>
-                    <span className={cn('text-[10px] font-bold uppercase tracking-widest', issueCount > 0 ? 'text-red-400/70' : 'text-muted-foreground/70')}>
+                    <span className={cn('ops-kicker', issueCount > 0 ? 'text-red-400/70' : 'text-muted-foreground/70')}>
                       {issueCount === 0 ? 'Clear' : 'Alert'}
                     </span>
                   </div>
                   <div>
-                    <p className={cn('text-3xl font-black', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/30')}>{issueCount}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground mt-0.5">Open Issues</p>
+                    <p className={cn('ops-metric-value', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/30')}>{issueCount}</p>
+                    <p className="ops-metric-label">Open Issues</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{issueCount === 0 ? 'No active alerts' : 'Needs resolution'}</p>
+                  <p className="mt-3 text-xs text-muted-foreground">{issueCount === 0 ? 'No active alerts' : 'Needs resolution'}</p>
                 </Link>
               </div>
 
@@ -852,19 +842,19 @@ export default function AppOverview() {
                   {/* Approvals */}
                   {hasApprovalQueue ? (
                     <section className="space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="ops-section-header">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Manager Priority</p>
-                          <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Approvals</h2>
+                          <p className="ops-kicker text-primary">Manager Priority</p>
+                          <h2 className="ops-section-title mt-0.5">Approvals</h2>
                         </div>
-                        <span className="text-xs font-bold text-muted-foreground">
+                        <span className="ops-section-meta">
                           {approvalQueue.length} waiting{processedApprovals > 0 ? ` · ${processedApprovals} cleared` : ''}
                         </span>
                       </div>
                       <div className="space-y-2">
                         {approvalQueue.slice(0, 8).map((approval) => (
                           <div key={`${approval.sourceModule}:${approval.sourceId || approval.id}`}
-                            className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 px-3 py-2.5">
+                            className="ops-panel flex items-center gap-3 px-3 py-2.5">
                             <span className={cn('status-marker status-marker-sm shrink-0',
                               approval.approval_type === 'temperature' ? 'status-warning' :
                               approval.approval_type === 'prep' ? 'status-info' :
@@ -885,7 +875,7 @@ export default function AppOverview() {
                       </div>
                     </section>
                   ) : (
-                    <div className="flex items-center gap-3 rounded-2xl border border-green-500/20 bg-green-500/5 px-5 py-4">
+                    <div className="ops-panel ops-panel-success flex items-center gap-3 px-5 py-4">
                       <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0" />
                       <div>
                         <p className="text-sm font-black text-foreground">Approval Queue Clear</p>
@@ -896,9 +886,9 @@ export default function AppOverview() {
 
                   {/* Needs Attention */}
                   <section className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-base font-black tracking-tight text-foreground">Needs Attention</h2>
-                      <span className="text-xs font-bold text-muted-foreground">Today</span>
+                    <div className="ops-section-header">
+                      <h2 className="ops-section-title">Needs Attention</h2>
+                      <span className="ops-section-meta">Today</span>
                     </div>
                     <div className="space-y-2">
                       {dynamicActions.map((item) => <ActionRow key={item.label} item={item} />)}
@@ -908,14 +898,14 @@ export default function AppOverview() {
                   {/* Prep Queue */}
                   {prepQueue.length > 0 && (
                     <section className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-base font-black tracking-tight text-foreground">Prep Queue</h2>
+                      <div className="ops-section-header">
+                        <h2 className="ops-section-title">Prep Queue</h2>
                         <Link to="/tasks?tab=prep" className="text-xs font-black text-primary">View all</Link>
                       </div>
                       <div className="space-y-2">
                         {prepQueue.slice(0, 4).map((item) => (
                           <Link key={item.name} to="/tasks?tab=prep"
-                            className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/60 px-3 py-2.5 glow-interactive">
+                            className="ops-panel ops-panel-interactive flex items-center gap-3 px-3 py-2.5">
                             <span className={cn('status-marker status-marker-sm shrink-0', item.statusClass)} />
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm font-bold text-foreground">{item.name}</p>
@@ -936,7 +926,7 @@ export default function AppOverview() {
                 <div className="sticky top-[120px] space-y-4">
 
                   {/* Today at a Glance */}
-                  <div className="rounded-2xl border border-border/50 card-glass overflow-hidden">
+                  <div className="ops-panel">
                     <div className="px-4 py-3 border-b border-border/30">
                       <h2 className="text-sm font-black text-foreground">Today at a Glance</h2>
                       <p className="text-[10px] text-muted-foreground mt-0.5">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
@@ -986,7 +976,7 @@ export default function AppOverview() {
                   </div>
 
                   {/* Recent Activity */}
-                  <div className="rounded-2xl border border-border/50 card-glass overflow-hidden">
+                  <div className="ops-panel">
                     <div className="px-4 py-3 border-b border-border/30 flex items-center justify-between">
                       <h2 className="text-sm font-black text-foreground">Recent Activity</h2>
                       <Link to="/logs" className="text-xs font-black text-primary">View all</Link>
@@ -1011,7 +1001,7 @@ export default function AppOverview() {
                   </div>
 
                   {/* Quick links */}
-                  <div className="rounded-2xl border border-border/50 card-glass overflow-hidden">
+                  <div className="ops-panel">
                     <div className="px-4 py-3 border-b border-border/30">
                       <h2 className="text-sm font-black text-foreground">Quick Access</h2>
                     </div>
@@ -1022,7 +1012,7 @@ export default function AppOverview() {
                         { label: 'Manager Logs', href: '/logs', icon: ClipboardList },
                         { label: 'Team', href: '/team', icon: UserRound },
                       ].map(({ label, href, icon: Icon }) => (
-                        <Link key={label} to={href} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/20 transition-colors group">
+                        <Link key={label} to={href} className="ops-row py-2.5 group">
                           <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                           <span className="text-xs font-semibold text-foreground flex-1">{label}</span>
                           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />

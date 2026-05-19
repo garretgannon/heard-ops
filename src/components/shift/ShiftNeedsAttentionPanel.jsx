@@ -1,4 +1,4 @@
-import { AlertCircle, Clock, Eye, XCircle } from 'lucide-react';
+import { Clock, Eye, XCircle } from 'lucide-react';
 
 export default function ShiftNeedsAttentionPanel({ tasks }) {
   const overdueTasks = tasks.filter((t) => t.status === 'overdue');

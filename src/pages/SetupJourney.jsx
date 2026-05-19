@@ -5,7 +5,7 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, MapPin, Shield, ClipboardList, Thermometer, ArrowLeftRight,
-  CheckCircle2, AlertTriangle, ChevronRight, Zap, Rocket, Star,
+  CheckCircle2, ChevronRight, Zap, Rocket, Star,
   ChevronDown, ChevronUp, Package, BookOpen
 } from 'lucide-react';
 

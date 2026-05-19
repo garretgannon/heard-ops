@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
-import { AlertCircle, CheckCircle2, Loader2, Calendar, Users } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 function detectConflicts(rows) {

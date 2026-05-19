@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function EmployeeSidebar({ employees, shifts, searchQuery }) {

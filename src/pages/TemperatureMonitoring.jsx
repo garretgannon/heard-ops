@@ -3,7 +3,6 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { toast } from 'sonner';
 import { Plus, Edit2, Trash2, Thermometer } from 'lucide-react';
-import { haptics } from '@/utils/haptics';
 import TemperatureMonitoringForm from '@/components/temperature/TemperatureMonitoringForm';
 
 export default function TemperatureMonitoring() {

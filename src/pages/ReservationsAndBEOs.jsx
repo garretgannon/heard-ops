@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
-  Calendar, Plus, ChevronDown, ChevronLeft, Upload, X, FileText,
+  Calendar, Plus, ChevronDown, ChevronLeft, X, FileText,
   CalendarPlus, Users, FileSpreadsheet, Sparkles,
   User, Star, Heart, ChefHat, ConciergeBell, CalendarDays,
   Bell, UserCircle,

@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
-import { Settings, Eye, Shield, Users } from 'lucide-react';
+import { Eye, Shield } from 'lucide-react';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
-import RolePermissionBuilder from '@/components/AdminDashboard/RolePermissionBuilder';
 import RolesManager from '@/components/AdminDashboard/RolesManager';
 import RolePreview from '@/components/AdminDashboard/RolePreview';
-import JobCodeManager from '@/components/AdminDashboard/JobCodeManager';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import AccessRestricted from '@/components/AccessRestricted';
 

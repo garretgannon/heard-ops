@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/utils/haptics';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { ShiftNextActionCard, ShiftProgressStrip, ShiftStageNav } from '@/components/shift/ShiftWorkflowShell';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -30,11 +31,6 @@ const SHIFT_META = {
 };
 
 const BRIEF_SECTION_IDS = ['preshift', 'eightysix', 'events', 'team', 'comms'];
-
-const cardBg = {
-  background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)',
-};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -78,41 +74,6 @@ function XpFloat({ amount, onDone }) {
   );
 }
 
-// ─── Stage pipeline ───────────────────────────────────────────────────────────
-
-function StagePipeline({ active }) {
-  const activeIdx = STAGE_CONFIG.findIndex(s => s.id === active);
-  return (
-    <div className="flex items-center gap-0">
-      {STAGE_CONFIG.map((stage, i) => {
-        const Icon = stage.icon;
-        const isActive = stage.id === active;
-        const isDone = i < activeIdx;
-        return (
-          <div key={stage.id} className="flex items-center">
-            <div
-              className={cn(
-                'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-black transition-all duration-300',
-                isActive ? 'border border-primary/50 bg-primary/15 text-primary'
-                  : isDone ? 'border border-green-500/30 bg-green-500/8 text-green-400'
-                  : 'border border-border/40 bg-transparent text-muted-foreground/50'
-              )}
-              style={isActive ? { boxShadow: '0 0 12px rgba(230,106,31,0.2)' } : undefined}
-            >
-              {isDone ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
-              <span className="hidden sm:inline">{stage.label}</span>
-              <span className="sm:hidden">{stage.num}</span>
-            </div>
-            {i < STAGE_CONFIG.length - 1 && (
-              <div className={cn('mx-1 h-px w-4 transition-colors', i < activeIdx ? 'bg-green-500/40' : 'bg-border/30')} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ─── Brief section (collapsible, tracks if viewed) ────────────────────────────
 
 function BriefSection({ id, icon: Icon, label, count = 0, children, onViewed }) {
@@ -130,7 +91,7 @@ function BriefSection({ id, icon: Icon, label, count = 0, children, onViewed }) 
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border/40" style={cardBg}>
+    <div className="ops-panel">
       <button type="button" onClick={toggle} className="flex w-full items-center justify-between px-4 py-3 text-left">
         <div className="flex items-center gap-2.5">
           <Icon className={cn('h-4 w-4 shrink-0', viewed ? 'text-green-400/70' : 'text-primary')} />
@@ -165,7 +126,7 @@ function BriefSection({ id, icon: Icon, label, count = 0, children, onViewed }) 
 
 function BriefRow({ title, meta }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border/20 px-3 py-2.5" style={{ background: 'rgba(255,255,255,0.02)' }}>
+    <div className="ops-panel-soft flex items-start gap-3 px-3 py-2.5">
       <div className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-border/60" />
       <div className="min-w-0">
         <p className="text-sm font-semibold text-foreground leading-snug">{title}</p>
@@ -236,7 +197,7 @@ function TaskCard({ item, checked, onToggle }) {
 
 function WorkSection({ icon: Icon, iconColor = 'text-primary', label, done, total, children }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border/40" style={cardBg}>
+    <div className="ops-panel">
       <div className="flex items-center justify-between border-b border-border/20 px-4 py-3.5">
         <div className="flex items-center gap-2.5">
           <Icon className={cn('h-4 w-4', iconColor)} />
@@ -407,6 +368,62 @@ export default function StaffShift() {
   const totalTasks = data.prepItems.length + data.sideworkTasks.length + data.equipment.length;
   const doneTasks  = checkedPrep.size + checkedSide.size + loggedTemps.size;
   const progressPct = totalTasks === 0 ? 100 : Math.round((doneTasks / totalTasks) * 100);
+  const staffNextAction = (() => {
+    if (activeStage === 'brief') {
+      if (briefDone) {
+        return {
+          label: 'Start your work',
+          detail: 'Briefing is complete. Move into prep, sidework, and checks.',
+          icon: ClipboardCheck,
+          tone: 'text-primary',
+          onClick: () => setActiveStage('work'),
+        };
+      }
+      return {
+        label: allSectionsViewed ? 'Start your shift' : 'Review the briefing',
+        detail: allSectionsViewed
+          ? 'You have reviewed every section. Acknowledge to begin work.'
+          : `${viewedSections.size}/${BRIEF_SECTION_IDS.length} sections reviewed before work starts.`,
+        icon: Sparkles,
+        tone: allSectionsViewed ? 'text-primary' : 'text-muted-foreground',
+        onClick: allSectionsViewed ? acknowledgeBriefing : undefined,
+      };
+    }
+
+    if (activeStage === 'work') {
+      if (totalTasks === 0) {
+        return {
+          label: 'No assigned tasks',
+          detail: 'Nothing is assigned yet. You can check back or close out.',
+          icon: CheckCircle2,
+          tone: 'text-green-400',
+          onClick: () => setActiveStage('close'),
+        };
+      }
+      if (progressPct === 100) {
+        return {
+          label: 'Close out your shift',
+          detail: 'All assigned work is complete. Finish with a sign-off note.',
+          icon: Trophy,
+          tone: 'text-primary',
+          onClick: () => setActiveStage('close'),
+        };
+      }
+      return {
+        label: 'Complete the next task',
+        detail: `${totalTasks - doneTasks} item${totalTasks - doneTasks !== 1 ? 's' : ''} left across prep, sidework, and checks.`,
+        icon: ClipboardCheck,
+        tone: 'text-primary',
+      };
+    }
+
+    return {
+      label: shiftDone ? 'Shift complete' : 'Complete sign-off',
+      detail: shiftDone ? 'You are all set.' : 'Add any handoff notes and complete your shift.',
+      icon: Trophy,
+      tone: shiftDone ? 'text-green-400' : 'text-primary',
+    };
+  })();
 
   if (loading) {
     return (
@@ -427,38 +444,23 @@ export default function StaffShift() {
 
       <DesktopPageHeader title="Shift" subtitle="Brief, work your tasks, and sign off" />
 
-      {/* Desktop stage nav */}
-      <div className="hidden lg:flex items-center gap-1 px-8 py-3 border-b border-border/20 bg-card/30 shrink-0">
-        {STAGE_CONFIG.map(stage => {
-          const Icon = stage.icon;
-          const isActive = activeStage === stage.id;
-          const activeIdx = STAGE_CONFIG.findIndex(s => s.id === activeStage);
-          const isDone = STAGE_CONFIG.findIndex(s => s.id === stage.id) < activeIdx;
-          return (
-            <button
-              key={stage.id}
-              type="button"
-              onClick={() => { haptics.light(); setActiveStage(stage.id); }}
-              className={cn(
-                'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
-                isActive ? 'glow-active' : isDone ? 'text-green-400 hover:bg-muted' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-              )}
-            >
-              {isDone ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
-              {stage.label}
+      <ShiftStageNav
+        stages={STAGE_CONFIG}
+        activeStage={activeStage}
+        onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
+        className="hidden lg:flex border-b border-border/20 bg-card/30 px-8 py-3"
+        trailing={
+          <>
+            <span className="text-xs font-bold text-primary">{shiftXp} XP</span>
+            <span className={cn('text-xs font-bold', progressPct === 100 ? 'text-green-400' : 'text-muted-foreground')}>
+              {doneTasks}/{totalTasks} tasks
+            </span>
+            <button type="button" onClick={() => load({ quiet: true })} className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 transition-all">
+              <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
             </button>
-          );
-        })}
-        <div className="ml-auto flex items-center gap-3">
-          <span className="text-xs font-bold text-primary">{shiftXp} XP</span>
-          <span className={cn('text-xs font-bold', progressPct === 100 ? 'text-green-400' : 'text-muted-foreground')}>
-            {doneTasks}/{totalTasks} tasks
-          </span>
-          <button type="button" onClick={() => load({ quiet: true })} className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 hover:bg-muted transition-all">
-            <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
-          </button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* ── Sticky HUD ── */}
       <div
@@ -494,50 +496,28 @@ export default function StaffShift() {
 
         {/* Work progress bar */}
         {activeStage === 'work' && (
-          <div className="mb-2.5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="text-muted-foreground">{doneTasks}/{totalTasks} tasks done</span>
-              <span className={progressPct === 100 ? 'text-green-400' : 'text-foreground'}>{progressPct}%</span>
-            </div>
-            <div className="h-1 w-full overflow-hidden rounded-full bg-black/40">
-              <motion.div
-                className="h-full rounded-full"
-                animate={{ width: `${progressPct}%` }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-                style={{
-                  background: progressPct === 100
-                    ? 'linear-gradient(90deg, #22c55e, #4ade80)'
-                    : 'linear-gradient(90deg, hsl(22,76%,38%), hsl(22,76%,55%))',
-                  boxShadow: progressPct === 100 ? '0 0 8px rgba(34,197,94,0.5)' : '0 0 6px rgba(230,106,31,0.4)',
-                }}
-              />
-            </div>
-          </div>
+          <ShiftProgressStrip
+            className="mb-2.5"
+            label={`${doneTasks}/${totalTasks} tasks done`}
+            value={progressPct}
+            complete={progressPct === 100}
+          />
         )}
 
-        {/* Stage pipeline + tab switcher */}
-        <div className="flex items-center justify-between">
-          <StagePipeline active={activeStage} />
-          <div className="flex gap-1">
-            {STAGE_CONFIG.map(stage => (
-              <button
-                key={stage.id}
-                type="button"
-                onClick={() => { haptics.light(); setActiveStage(stage.id); }}
-                className={cn(
-                  'rounded-lg px-3 py-1.5 text-xs font-bold transition-all',
-                  activeStage === stage.id ? 'glow-active' : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {stage.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <ShiftStageNav
+          stages={STAGE_CONFIG}
+          activeStage={activeStage}
+          onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
+          compact
+          className="justify-center"
+        />
       </div>
 
       {/* ── Stage content ── */}
       <div className="app-page">
+        <div className="lg:hidden mb-3">
+          <ShiftNextActionCard action={staffNextAction} />
+        </div>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
@@ -553,8 +533,7 @@ export default function StaffShift() {
               <>
                 {/* Published briefing banner */}
                 {data.preShift ? (
-                  <div className="flex items-center gap-3 rounded-2xl border border-primary/25 px-4 py-3"
-                    style={{ background: 'linear-gradient(135deg, rgba(230,106,31,0.07) 0%, rgba(230,106,31,0.03) 100%)' }}>
+                  <div className="ops-panel flex items-center gap-3 border-primary/25 px-4 py-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15">
                       <Sparkles className="h-3.5 w-3.5 text-primary" />
                     </div>
@@ -570,7 +549,7 @@ export default function StaffShift() {
                     <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary" />
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-2xl border border-border/30 px-4 py-3" style={cardBg}>
+                  <div className="ops-panel flex items-center gap-3 px-4 py-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-muted/40">
                       <Sparkles className="h-3.5 w-3.5 text-muted-foreground/50" />
                     </div>
@@ -582,10 +561,7 @@ export default function StaffShift() {
                 )}
 
                 {/* Quick snapshot */}
-                <div
-                  className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
-                  style={cardBg}
-                >
+                <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
                   {[
                     { label: "86'd",  value: data.eightySix.length,  color: data.eightySix.length > 0  ? 'text-red-400'      : 'text-muted-foreground/40' },
                     { label: 'Events', value: data.events.length,     color: data.events.length > 0     ? 'text-amber-400'    : 'text-muted-foreground/40' },
@@ -822,10 +798,7 @@ export default function StaffShift() {
 
                   {/* Empty state */}
                   {totalTasks === 0 && (
-                    <div
-                      className="flex flex-col items-center gap-3 rounded-2xl border border-border/30 py-12 text-center"
-                      style={cardBg}
-                    >
+                    <div className="ops-panel flex flex-col items-center gap-3 py-12 text-center">
                       <CheckCircle2 className="h-8 w-8 text-green-400/50" />
                       <p className="text-sm font-bold text-foreground">No tasks assigned yet</p>
                       <p className="text-xs text-muted-foreground">Check back or ask your manager.</p>
@@ -863,10 +836,7 @@ export default function StaffShift() {
             {activeStage === 'close' && (
               <>
                 {/* Shift summary scorecard */}
-                <div
-                  className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
-                  style={cardBg}
-                >
+                <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
                   {[
                     { label: 'Completed', value: doneTasks,             color: doneTasks > 0 ? 'text-green-400' : 'text-muted-foreground/40' },
                     { label: 'Remaining', value: totalTasks - doneTasks, color: totalTasks - doneTasks > 0 ? 'text-amber-400' : 'text-muted-foreground/40' },
@@ -880,7 +850,7 @@ export default function StaffShift() {
                 </div>
 
                 {/* Sign-off card */}
-                <div className="overflow-hidden rounded-2xl border border-border/40" style={cardBg}>
+                <div className="ops-panel">
                   <div className="flex items-start gap-2.5 border-b border-border/20 px-4 pt-4 pb-3">
                     <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <div>

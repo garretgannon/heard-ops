@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { TrendingUp, Clock, AlertCircle, CheckSquare, Users, ArrowRight, RefreshCw, Activity, Settings } from 'lucide-react';
+import { TrendingUp, Clock, AlertCircle, CheckSquare, Users, ArrowRight, RefreshCw, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BRAND_ASSETS } from '@/lib/brandAssets';
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { ChevronLeft, Plus, Trash2, Check } from 'lucide-react';
+import { ChevronLeft, Check } from 'lucide-react';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';

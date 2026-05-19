@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { ShiftModeContext } from '@/lib/ShiftModeContext';
-import { Clock, User, LogOut } from 'lucide-react';
+import { User } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function ShiftHeader() {

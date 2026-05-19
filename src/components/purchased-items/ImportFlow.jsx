@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { X, Upload, Download, ChevronRight, AlertTriangle, CheckCircle2, SkipForward, RefreshCw } from 'lucide-react';
+import { X, Upload, ChevronRight, AlertTriangle, CheckCircle2, RefreshCw } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const IMPORT_FIELDS = [

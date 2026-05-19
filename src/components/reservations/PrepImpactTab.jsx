@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Zap, CheckCircle2, Plus, Clock, AlertTriangle, BarChart2, ChefHat, ConciergeBell } from 'lucide-react';
+import { Zap, CheckCircle2, Plus, Clock, BarChart2, ChefHat, ConciergeBell } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 const today = () => new Date().toISOString().split('T')[0];

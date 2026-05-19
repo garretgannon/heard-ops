@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Check, XCircle, Clock, User } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { cn } from '@/lib/utils';
 
 const APPROVAL_TYPES = {
   prep: 'Prep Item Review',

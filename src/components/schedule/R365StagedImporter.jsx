@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { X, Upload, AlertCircle, CheckCircle2, ChevronRight, AlertTriangle } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const ROLE_MAPPING = {

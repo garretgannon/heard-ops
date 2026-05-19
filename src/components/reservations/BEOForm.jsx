@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Plus, Trash2, ChevronLeft, Calendar, Clock, MapPin, Users, User, ConciergeBell, Star, Shield, Wine, Utensils, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, ChevronLeft, Calendar, Users, ConciergeBell, ArrowRight } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import { toast } from 'sonner';
 

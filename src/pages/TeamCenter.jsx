@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { toast } from 'sonner';
 import { Search, Plus } from 'lucide-react';
 import TeamCommandHeader from '@/components/team/TeamCommandHeader';
 import TeamTabNav from '@/components/team/TeamTabNav';

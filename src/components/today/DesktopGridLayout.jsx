@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Plus, Zap, AlertCircle, Clock, Thermometer, TrendingDown } from 'lucide-react';
 import TemperatureComplianceCard from '@/components/temperature/TemperatureComplianceCard';
 
 export default function DesktopGridLayout({ stats, tasks, logs, onQuickAction }) {

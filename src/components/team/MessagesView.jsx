@@ -1,4 +1,4 @@
-import { MessageCircle, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 export default function MessagesView({ announcements, shiftNotes, managerMessages }) {
   const allMessages = [

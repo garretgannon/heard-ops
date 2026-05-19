@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ChevronRight, Check, AlertTriangle, Flame, Clock, Users, AlertCircle } from 'lucide-react';
+import { Check, AlertTriangle, Flame, Users, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 

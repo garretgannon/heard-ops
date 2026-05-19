@@ -1,5 +1,4 @@
 import { ChevronDown, ChevronRight, MapPin, Layers, Plus, MoreVertical } from 'lucide-react';
-import { useState } from 'react';
 import { getEquipmentMeta } from '@/lib/equipmentConfig';
 
 export default function OperationalTree({

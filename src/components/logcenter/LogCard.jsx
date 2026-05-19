@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertCircle, Flag, MapPin, Thermometer } from 'lucide-react';
+import { AlertCircle, Flag, MapPin, Thermometer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 

@@ -5,8 +5,8 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import {
-  CheckCircle2, AlertTriangle, Clock, Zap, Thermometer, ChevronRight,
-  AlertCircle, Plus, X, Filter
+  CheckCircle2, AlertTriangle, Clock, Zap,
+  AlertCircle
 } from 'lucide-react';
 
 const CHECK_TYPE_CONFIG = {

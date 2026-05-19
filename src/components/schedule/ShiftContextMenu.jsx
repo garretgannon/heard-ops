@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Edit2, Copy, Clipboard, GitBranch, CalendarDays, Trash2, User, Clock } from 'lucide-react';
+import { Edit2, Copy, Clipboard, GitBranch, CalendarDays, Trash2, Clock } from 'lucide-react';
 
 export default function ShiftContextMenu({ x, y, shift, hasClipboard, onEdit, onCopy, onPaste, onDuplicate, onDuplicateWeek, onDelete, onClose }) {
   const ref = useRef(null);

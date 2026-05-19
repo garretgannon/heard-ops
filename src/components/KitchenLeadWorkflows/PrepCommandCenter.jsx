@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Plus, Send } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
 

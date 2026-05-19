@@ -3,8 +3,8 @@ import { base44 } from '@/api/base44Client';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
-  Clock, CheckCircle2, ChevronRight, Calendar, Plus, X, MapPin,
-  ArrowRight, Repeat2, Gift, ChevronDown, ChevronUp, AlertCircle,
+  Clock, Calendar, Plus, X, MapPin,
+  ArrowRight, Repeat2, Gift, ChevronDown, ChevronUp,
   Briefcase,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

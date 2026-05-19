@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { X, Edit2, Archive, TrendingUp, TrendingDown, Minus, Clock, AlertTriangle } from 'lucide-react';
+import { X, Edit2, Archive, TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 
 const CATEGORY_LABELS = {
   protein: 'Protein', produce: 'Produce', dairy: 'Dairy',

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { AlertTriangle, Wrench, Thermometer, Plus } from 'lucide-react';
+import { AlertTriangle, Wrench, Thermometer } from 'lucide-react';
 
 
 export default function LogsQuickActionsSidebar({ logs, onLogClick, onCreateLog, currentUser }) {

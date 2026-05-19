@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronRight, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import Step1HandoffReview from './Step1HandoffReview';

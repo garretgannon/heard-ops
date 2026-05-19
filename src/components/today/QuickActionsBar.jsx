@@ -1,4 +1,4 @@
-import { Plus, Flame, Thermometer, Zap, CheckSquare2, AlertTriangle } from 'lucide-react';
+import { Plus, Thermometer, Zap, CheckSquare2, AlertTriangle } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 

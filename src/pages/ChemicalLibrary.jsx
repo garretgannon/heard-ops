@@ -8,9 +8,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
   Beaker, Search, Plus, Edit2, Trash2, X, Download, ChevronRight,
-  Upload, AlertTriangle, CheckCircle2, FileText, Shield, MapPin,
-  ArrowRight, Wrench, ClipboardList, Package, Eye, MoreHorizontal,
-  ChevronLeft, Bell, UserCircle, Link2, Users,
+  Upload, AlertTriangle, FileText, Shield, MapPin, Wrench, ClipboardList, Package,
+  ChevronLeft, Link2, Users,
 } from 'lucide-react';
 
 const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';

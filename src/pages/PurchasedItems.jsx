@@ -4,8 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
 import {
-  Package, Search, Plus, Upload, AlertTriangle, ChevronRight,
-  TrendingUp, CheckCircle2, XCircle, Filter, Download, RefreshCw
+  Package, Search, Plus, Upload, AlertTriangle, ChevronRight
 } from 'lucide-react';
 import PurchasedItemDetail from '@/components/purchased-items/PurchasedItemDetail';
 import PurchasedItemForm from '@/components/purchased-items/PurchasedItemForm';

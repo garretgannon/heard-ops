@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import LogCard from "./LogCard";
 import { CheckCircle2 } from "lucide-react";
 

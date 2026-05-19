@@ -46,7 +46,7 @@ function MoreRow({ item, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3 border-b border-border/35 px-1 py-3.5 text-left transition-all last:border-b-0 active:scale-[0.99] glow-interactive"
+      className="ops-row w-full border-b border-border/20 text-left last:border-b-0 active:scale-[0.99]"
     >
       <div className={cn('status-marker status-marker-md', item.status)}>
         <Icon className="h-4 w-4" />
@@ -65,8 +65,7 @@ function HubCard({ item, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="min-h-[100px] rounded-xl border border-border/60 p-4 text-left transition-all active:scale-[0.98] glow-interactive"
-      style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+      className="ops-panel ops-panel-interactive min-h-[100px] p-4 text-left"
     >
       <div className={cn('status-marker status-marker-md mb-3', item.status)}>
         <Icon className="h-4 w-4" />
@@ -88,9 +87,9 @@ export default function More() {
         <DesktopPageHeader title="Resources" subtitle="Tools and references for your shift" />
 
         {/* Mobile layout */}
-        <main className="app-page mx-auto max-w-[620px] lg:hidden space-y-5 pb-28">
+        <main className="ops-page mx-auto max-w-[620px] lg:hidden space-y-5 pb-28">
           <header className="pt-1">
-            <p className="metric-label">More</p>
+            <p className="ops-kicker">More</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Resources</h1>
             <p className="mt-1 text-sm text-muted-foreground">Tools and references for your shift.</p>
           </header>
@@ -100,8 +99,8 @@ export default function More() {
             if (visible.length === 0) return null;
             return (
               <section key={section.title} className="space-y-2">
-                <h2 className="px-1 text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">{section.title}</h2>
-                <div className="app-card py-1">
+                <h2 className="ops-kicker px-1">{section.title}</h2>
+                <div className="ops-list">
                   {visible.map((item) => (
                     <MoreRow key={item.path} item={item} onClick={() => navigate(item.path)} />
                   ))}
@@ -112,13 +111,13 @@ export default function More() {
         </main>
 
         {/* Desktop layout */}
-        <main className="hidden lg:block app-page space-y-8">
+        <main className="hidden lg:block ops-page space-y-8">
           {STAFF_SECTIONS.map((section) => {
             const visible = section.items.filter(item => !item.perm || can(item.perm));
             if (visible.length === 0) return null;
             return (
               <section key={section.title} className="space-y-3">
-                <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">{section.title}</h2>
+                <h2 className="ops-kicker">{section.title}</h2>
                 <div className="grid grid-cols-3 gap-3">
                   {visible.map((item) => (
                     <HubCard key={item.path} item={item} onClick={() => navigate(item.path)} />
@@ -137,17 +136,17 @@ export default function More() {
       <DesktopPageHeader title="Admin Tools" subtitle="Setup, resources, and configuration" />
 
       {/* Mobile layout */}
-      <main className="app-page mx-auto max-w-[720px] lg:hidden space-y-6">
+      <main className="ops-page mx-auto max-w-[720px] lg:hidden space-y-6">
         <header className="pt-1">
-          <p className="metric-label">More</p>
+          <p className="ops-kicker">More</p>
           <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">Admin Tools</h1>
           <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">Setup, resources, and admin tools for the restaurant.</p>
         </header>
 
         {moreNavSections.map((section) => (
           <section key={section.title} className="space-y-2">
-            <h2 className="px-1 text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">{section.title}</h2>
-            <div className="app-card py-1">
+            <h2 className="ops-kicker px-1">{section.title}</h2>
+            <div className="ops-list">
               {section.items.map((item) => (
                 <MoreRow key={item.path} item={item} onClick={() => navigate(item.path)} />
               ))}
@@ -155,10 +154,10 @@ export default function More() {
           </section>
         ))}
 
-        <section className="app-card-lg space-y-5">
+        <section className="ops-panel space-y-5 p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="metric-label">Admin</p>
+              <p className="ops-kicker">Admin</p>
               <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">Configure the system</h2>
             </div>
             <div className="status-marker status-marker-lg status-info">
@@ -173,8 +172,7 @@ export default function More() {
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className="min-h-[112px] rounded-xl border border-border/60 p-4 text-left transition-all active:scale-[0.98] glow-interactive"
-                  style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+                  className="ops-panel ops-panel-interactive min-h-[112px] p-4 text-left"
                 >
                   <div className={cn('status-marker status-marker-md mb-3', item.status)}>
                     <Icon className="h-4 w-4" />
@@ -189,11 +187,11 @@ export default function More() {
       </main>
 
       {/* Desktop admin hub */}
-      <main className="hidden lg:block app-page space-y-8">
+      <main className="hidden lg:block ops-page space-y-8">
 
         {/* Primary admin actions */}
         <section className="space-y-3">
-          <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Admin</h2>
+          <h2 className="ops-kicker">Admin</h2>
           <div className="grid grid-cols-4 gap-4">
             {morePrimaryActions.map((item) => {
               const Icon = item.icon;
@@ -201,8 +199,7 @@ export default function More() {
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className="min-h-[120px] rounded-xl border border-border/60 p-5 text-left transition-all active:scale-[0.98] glow-interactive"
-                  style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+                  className="ops-panel ops-panel-interactive min-h-[120px] p-5 text-left"
                 >
                   <div className={cn('status-marker status-marker-md mb-3', item.status)}>
                     <Icon className="h-4 w-4" />
@@ -218,7 +215,7 @@ export default function More() {
         {/* All nav sections as card grids */}
         {moreNavSections.map((section) => (
           <section key={section.title} className="space-y-3">
-            <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">{section.title}</h2>
+            <h2 className="ops-kicker">{section.title}</h2>
             <div className="grid grid-cols-3 gap-3">
               {section.items.map((item) => (
                 <HubCard key={item.path} item={item} onClick={() => navigate(item.path)} />

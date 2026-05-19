@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 

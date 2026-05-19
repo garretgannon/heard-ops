@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Edit2, Copy, Archive, Users, Clock, ChefHat, AlertTriangle, Star, Zap, CheckCircle2, Plus } from 'lucide-react';
-import { haptics } from '@/utils/haptics';
+import { X, Edit2, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 function SectionBlock({ title, children, color = '' }) {
   return (

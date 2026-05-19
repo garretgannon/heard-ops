@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Save, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import MobileModalWrapper from '@/components/MobileModalWrapper';
 

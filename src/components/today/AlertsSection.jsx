@@ -1,4 +1,4 @@
-import { AlertTriangle, Thermometer, Clock, CheckSquare2, Wrench, Zap } from 'lucide-react';
+import { AlertTriangle, Thermometer, CheckSquare2, Wrench, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { haptics } from '@/utils/haptics';
 

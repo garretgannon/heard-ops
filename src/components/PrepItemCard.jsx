@@ -1,11 +1,10 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import SwipeableCard from "./SwipeableCard";
 import useHaptic from "@/hooks/useHaptic";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle, ChevronDown, ChevronUp, ListChecks, ChefHat } from "lucide-react";
 import PriorityBadge from "./PriorityBadge";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import PhotoUpload from "./PhotoUpload";
 import PhotoPreviewDialog from "./PhotoPreviewDialog";

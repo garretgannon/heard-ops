@@ -4,7 +4,6 @@ import { format } from 'date-fns';
 import BottomSheet from '@/components/BottomSheet';
 import { base44 } from '@/api/base44Client';
 import { haptics } from '@/utils/haptics';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/useToast';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 

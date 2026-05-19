@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
-import { Upload, Calendar, History, ChevronRight } from 'lucide-react';
+import { Calendar, History, ChevronRight } from 'lucide-react';
 import ScheduleImportFlow from '@/components/schedule/ScheduleImportFlow';
 import R365StagedImporter from '@/components/schedule/R365StagedImporter';
 

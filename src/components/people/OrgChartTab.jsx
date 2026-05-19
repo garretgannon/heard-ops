@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Users, ChevronDown, ChevronRight, MapPin, Shield } from 'lucide-react';
+import { Users, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
 
 const ROLE_COLORS = {
   'Admin': 'border-purple-500/60 bg-purple-500/10',

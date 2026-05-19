@@ -1,4 +1,4 @@
-import { Clock, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
+import { FileText, CheckCircle2 } from 'lucide-react';
 
 export default function ActivityFeed({ logs, tasks }) {
   // Combine and sort by recent activity

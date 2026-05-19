@@ -1,4 +1,3 @@
-import { CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function CompletionCard({ title, completed, total, icon: Icon, color = "text-accent" }) {
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;

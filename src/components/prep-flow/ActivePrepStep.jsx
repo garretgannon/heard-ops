@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, List, Camera, CheckCircle2, Wand2, ChefHat } from "lucide-react";
+import { X, ChevronRight, List, CheckCircle2, Wand2, ChefHat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import IngredientSheet from "./IngredientSheet";
 import PhotoUploadModule from "./PhotoUploadModule";

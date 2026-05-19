@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { Upload, FileText, Loader2, AlertCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 

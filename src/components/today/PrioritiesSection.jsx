@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 

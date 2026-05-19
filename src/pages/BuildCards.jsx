@@ -4,7 +4,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { haptics } from '@/utils/haptics';
 import {
   Utensils, Search, Plus, ChevronRight, Camera, AlertTriangle,
-  Link2, Edit2, X, Package, Clock, AlertCircle, Copy, Archive
+  Link2, Edit2, X, Clock, AlertCircle, Copy, Archive
 } from 'lucide-react';
 import BuildCardCosting from '@/components/buildcards/BuildCardCosting';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
