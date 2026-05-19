@@ -39,6 +39,7 @@ import DesktopPageHeader from "@/components/DesktopPageHeader";
 import { ShiftNextActionCard, ShiftProgressStrip, ShiftStageNav } from "@/components/shift/ShiftWorkflowShell";
 import ManagerShiftDebriefDesktop from "@/components/shift/ManagerShiftDebriefDesktop";
 import ManagerShiftMobileClose from "@/components/shift/ManagerShiftMobileClose";
+import ManagerShiftDesktopRun from "@/components/shift/ManagerShiftDesktopRun";
 import { useShiftContext } from "@/hooks/useShiftContext";
 import { BriefingContextBanner, BriefingProfileSelector } from "@/components/ShiftLaunch/BriefingContextPanel";
 import {
@@ -1682,262 +1683,27 @@ export default function ManagerShift() {
                 </div>
 
                 {/* ── DESKTOP RUN ── */}
-                <div className="hidden lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6">
-                  {/* Left: Pre-shift briefing form */}
-                  <div>
-                    <div
-                      className={cn(
-                        "overflow-hidden rounded-2xl border",
-                        preShiftSaved ? "border-green-500/30" : "border-primary/30"
-                      )}
-                      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                    >
-                      <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
-                        <div className="flex items-start gap-2.5">
-                          <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                          <div>
-                            <p className="text-sm lg:text-[15px] font-black text-foreground">Pre-Shift Briefing</p>
-                            <p className="mt-0.5 text-xs text-muted-foreground">Required to unlock full duty XP. +25 XP on save.</p>
-                          </div>
-                        </div>
-                        <span className={cn(
-                          "shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black",
-                          preShiftSaved ? "border-green-500/35 bg-green-500/12 text-green-400" : "border-primary/35 bg-primary/12 text-primary"
-                        )}>
-                          {preShiftSaved ? "✓ Ready" : "Required"}
-                        </span>
-                      </div>
-
-                      <div className="space-y-3 px-4 pb-4">
-                        {/* Briefing scope row — always visible on run stage */}
-                        <div className="flex items-center justify-between gap-2 rounded-xl border border-border/30 px-3 py-2"
-                          style={{ background: 'rgba(255,255,255,0.02)' }}>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground shrink-0">Briefing Scope</p>
-                          {shiftContext ? (
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className={cn(
-                                "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-black",
-                                shiftContext.department === 'foh'     ? 'border-blue-500/30 text-blue-400' :
-                                shiftContext.department === 'boh'     ? 'border-amber-500/30 text-amber-400' :
-                                shiftContext.department === 'bar'     ? 'border-teal-500/30 text-teal-400' :
-                                shiftContext.department === 'banquet' ? 'border-cyan-500/30 text-cyan-400' :
-                                                                        'border-primary/30 text-primary'
-                              )}>
-                                {shiftContext.profileName}
-                              </span>
-                              <button type="button" onClick={resetContext}
-                                className="text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors shrink-0">
-                                Change
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex flex-wrap gap-1 justify-end">
-                              {candidateProfiles.map(p => (
-                                <button key={p.id} type="button" onClick={() => { selectProfile(p); load({ quiet: true }); }}
-                                  className="rounded-full border border-border/40 px-2 py-0.5 text-[10px] font-bold text-muted-foreground hover:text-foreground hover:border-border/60 transition-all">
-                                  {p.shortName}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Auto-imported data — read-only structured display */}
-                        <div className="overflow-hidden rounded-xl border border-border/40"
-                          style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
-                          <div className="flex items-center justify-between px-3 py-2 border-b border-border/20">
-                            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">Auto-Imported</p>
-                            <button type="button" onClick={() => load({ quiet: true })}
-                              className="flex items-center gap-1 text-[9px] font-bold text-muted-foreground/50 hover:text-muted-foreground transition-colors">
-                              <RefreshCw className={cn("h-2.5 w-2.5", refreshing && "animate-spin")} /> Refresh
-                            </button>
-                          </div>
-
-                          {/* Roles & Assignments */}
-                          <div className="px-3 py-2.5 border-b border-border/15">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <p className="text-[10px] font-black uppercase tracking-wide text-foreground/70">Roles & Assignments</p>
-                              <span className="text-[10px] font-black text-muted-foreground">{briefing.staff.length}</span>
-                            </div>
-                            {briefing.staff.length === 0
-                              ? <p className="text-xs text-muted-foreground/50">No shifts scheduled for today</p>
-                              : <div className="space-y-1">
-                                  {briefing.staff.slice(0, 12).map((p, i) => (
-                                    <div key={p.id || p.employee_name || i} className="flex items-center justify-between gap-2 text-xs">
-                                      <span className="font-semibold text-foreground truncate">{p.employee_name}</span>
-                                      <span className="shrink-0 text-muted-foreground">{[p.role, p.station, p.start_time].filter(Boolean).join(' · ')}</span>
-                                    </div>
-                                  ))}
-                                  {briefing.staff.length > 12 && <p className="text-[10px] text-muted-foreground mt-0.5">+{briefing.staff.length - 12} more</p>}
-                                </div>
-                            }
-                          </div>
-
-                          {/* Reservations / BEOs */}
-                          <div className="px-3 py-2.5 border-b border-border/15">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <p className="text-[10px] font-black uppercase tracking-wide text-foreground/70">Reservations / BEO</p>
-                              <span className="text-[10px] font-black text-muted-foreground">{briefing.events.length + briefing.reservationsList.length}</span>
-                            </div>
-                            {briefing.events.length + briefing.reservationsList.length === 0
-                              ? <p className="text-xs text-muted-foreground/50">No events or reservations today</p>
-                              : <div className="space-y-1">
-                                  {briefing.events.map(e => (
-                                    <div key={e.id} className="flex items-start justify-between gap-2 text-xs">
-                                      <span className="font-semibold text-foreground">{e.eventName}</span>
-                                      <span className="shrink-0 text-muted-foreground text-right">{[e.startTime, e.room, e.guestCount ? `${e.guestCount} guests` : ''].filter(Boolean).join(' · ')}</span>
-                                    </div>
-                                  ))}
-                                  {briefing.reservationsList.map(r => (
-                                    <div key={r.id} className="flex items-start justify-between gap-2 text-xs">
-                                      <span className="font-semibold text-foreground">{r.guest_name || r.name || 'Reservation'}</span>
-                                      <span className="shrink-0 text-muted-foreground text-right">{[r.arrival_time || r.time, r.party_size ? `${r.party_size} pax` : '', r.special_requests || r.dietary_notes].filter(Boolean).join(' · ')}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                            }
-                          </div>
-
-                          {/* Out of Stock / 86 */}
-                          <div className="px-3 py-2.5">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <p className="text-[10px] font-black uppercase tracking-wide text-foreground/70">Out of Stock / 86</p>
-                              <span className={cn("text-[10px] font-black", briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground")}>
-                                {briefing.eightySix.length}
-                              </span>
-                            </div>
-                            {briefing.eightySix.length === 0
-                              ? <p className="text-xs text-muted-foreground/50 italic">All items available</p>
-                              : <div className="space-y-1">
-                                  {briefing.eightySix.map(i => (
-                                    <div key={i.id} className="flex items-center justify-between gap-2 text-xs">
-                                      <span className="font-bold text-red-400">{i.item_name}</span>
-                                      <span className="shrink-0 text-muted-foreground">{i.category || i.notes || ''}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                            }
-                          </div>
-                        </div>
-
-                        {((() => {
-                          const dept = shiftContext?.department || 'all';
-                          const keys = FIELD_ORDER_BY_DEPT[dept] || FIELD_ORDER_BY_DEPT.all;
-                          return keys.map(k => ({ field: k, ...PRE_SHIFT_FIELD_DEFS[k] }));
-                        })()).map(({ field, label, rows, placeholder }) => (
-                          <label key={field} className="block space-y-1.5">
-                            <span className="text-xs font-black text-foreground">{label}</span>
-                            <textarea
-                              value={preShiftForm[field]}
-                              onChange={e => updatePreShiftField(field, e.target.value)}
-                              rows={rows}
-                              placeholder={placeholder}
-                              className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-                            />
-                          </label>
-                        ))}
-
-                        {preShiftPublished ? (
-                          <>
-                            <div className="flex items-center justify-center gap-2 rounded-xl border border-green-500/30 bg-green-500/8 py-3 text-sm font-black text-green-400">
-                              <CheckCircle2 className="h-4 w-4" />
-                              Published to Staff
-                            </div>
-                            <button type="button" onClick={publishBriefing}
-                              className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
-                              Re-publish with changes
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={publishBriefing}
-                              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
-                              style={{
-                                background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)",
-                                boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)",
-                              }}
-                            >
-                              <Zap className="h-4 w-4" />
-                              Publish to Staff — +25 XP
-                            </button>
-                            <button type="button" onClick={savePreShift}
-                              className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
-                              Save Draft Only
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Duties + Quick nav */}
-                  <div className="space-y-3">
-                    {/* Duties list */}
-                    <div
-                      className="overflow-hidden rounded-2xl border border-border/40"
-                      style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}
-                    >
-                      <div className="flex items-center justify-between px-4 py-3.5">
-                        <div className="flex items-center gap-2.5">
-                          <Target className="h-4 w-4 text-primary" />
-                          <span className="text-sm lg:text-[15px] font-black text-foreground">Mission Objectives</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-foreground")}>
-                            {checkedDuties.length}/{DUTIES.length}
-                          </span>
-                          {dutiesPct === 100 && <CheckCircle2 className="h-4 w-4 text-green-400" />}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 border-t border-border/30 px-3 pb-3 pt-3">
-                        {DUTIES_CONFIG.map((config) => {
-                          const locked = config.requiresPreShift && !preShiftSaved;
-                          const checked = checkedDuties.includes(config.text);
-                          const floatKey = xpFloats[xpFloats.length - 1];
-                          return (
-                            <DutyCard
-                              key={config.text}
-                              config={config}
-                              checked={checked}
-                              locked={locked}
-                              onToggle={() => toggleDuty(config)}
-                              xpFloat={!checked && floatKey}
-                              onXpDone={() => setXpFloats(prev => prev.slice(1))}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Quick nav */}
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { label: "Floor Map", sub: "Station readiness", path: "/operational-map", icon: MapPin },
-                        { label: "Approvals", sub: "Pending reviews",   path: "/approvals",       icon: ClipboardCheck },
-                      ].map(({ label, sub, path, icon: Icon }) => (
-                        <button
-                          key={path}
-                          type="button"
-                          onClick={() => navigate(path)}
-                          className="flex items-center justify-between gap-2 rounded-xl border border-border/40 px-3 py-3 text-left transition-all hover:border-border/60"
-                          style={{ background: "linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)" }}
-                        >
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <Icon className="h-3.5 w-3.5 text-primary" />
-                              <span className="text-xs font-black text-foreground">{label}</span>
-                            </div>
-                            <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>
-                          </div>
-                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ManagerShiftDesktopRun
+                  shiftContext={shiftContext}
+                  candidateProfiles={candidateProfiles}
+                  selectProfile={selectProfile}
+                  resetContext={resetContext}
+                  briefing={briefing}
+                  preShiftForm={preShiftForm}
+                  updatePreShiftField={updatePreShiftField}
+                  preShiftSaved={preShiftSaved}
+                  preShiftPublished={preShiftPublished}
+                  savePreShift={savePreShift}
+                  publishBriefing={publishBriefing}
+                  refreshing={refreshing}
+                  load={load}
+                  DUTIES_CONFIG={DUTIES_CONFIG}
+                  checkedDuties={checkedDuties}
+                  toggleDuty={toggleDuty}
+                  dutiesPct={dutiesPct}
+                  xpFloats={xpFloats}
+                  setXpFloats={setXpFloats}
+                />
               </>
             )}
 
