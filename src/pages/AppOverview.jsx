@@ -363,17 +363,20 @@ export default function AppOverview() {
 
   useEffect(() => {
     const init = async () => {
-      await loadMetrics();
-      if (isAdmin) await loadSetupProgress();
+      const promises = [loadMetrics()];
+      if (isAdmin) promises.push(loadSetupProgress());
+      await Promise.all(promises);
     };
     init();
   }, [isAdmin]);
 
   const loadSetupProgress = async () => {
     try {
-      const stations = await base44.entities.Station.list('name', 1).catch(() => []);
-      const employees = await base44.entities.Employee.list('name', 1).catch(() => []);
-      const roles = await base44.entities.Role.list('name', 1).catch(() => []);
+      const [stations, employees, roles] = await Promise.all([
+        base44.entities.Station.list('name', 1).catch(() => []),
+        base44.entities.Employee.list('name', 1).catch(() => []),
+        base44.entities.Role.list('name', 1).catch(() => []),
+      ]);
       const checks = [
         { label: 'Areas & Stations', done: stations.length >= 3, link: '/restaurant-setup-wizard' },
         { label: 'Team Members', done: employees.length >= 3, link: '/people' },
@@ -396,7 +399,7 @@ export default function AppOverview() {
       ]);
       // Batch 2
       const [tasks, recentLogs] = await Promise.all([
-        safeFilter(base44.entities.GeneratedTask, { status: { $in: ['completed', 'pending', 'in_progress'] } }, '-updated_date', 30),
+        safeFilter(base44.entities.GeneratedTask, {}, '-updated_date', 30),
         base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []),
       ]);
 
