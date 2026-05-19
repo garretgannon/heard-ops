@@ -264,10 +264,14 @@ export default function StaffShift() {
         safeList(base44.entities.BEO?.list?.('-eventDate', 5)),
       ]);
 
-      // Batch 2: task data (sequential to avoid rate limit burst)
-      const [threads, staff, prepItems, sidework, equip] = await Promise.all([
+      // Batch 2: staff & comms
+      const [threads, staff] = await Promise.all([
         safeList(base44.entities.MessageThread?.filter?.({ status: 'open' }, '-created_date', 10)),
         safeList(base44.entities.StaffShift?.filter?.({ date }, 'employee_name', 20)),
+      ]);
+
+      // Batch 3: task data
+      const [prepItems, sidework, equip] = await Promise.all([
         safeList(base44.entities.PrepItem?.filter?.({ date }, 'sort_order', 50)),
         safeList(base44.entities.DailySideWorkTask?.filter?.({ date }, 'sort_order', 30)),
         safeList(base44.entities.Equipment?.filter?.({ isActive: true }, 'name', 50)),
