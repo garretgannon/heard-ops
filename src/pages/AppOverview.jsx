@@ -371,9 +371,9 @@ export default function AppOverview() {
 
   const loadSetupProgress = async () => {
     try {
-      const stations = await base44.entities.Station.list('name', 1).catch(() => []);
+      const stations  = await base44.entities.Station.list('name', 1).catch(() => []);
       const employees = await base44.entities.Employee.list('name', 1).catch(() => []);
-      const roles = await base44.entities.Role.list('name', 1).catch(() => []);
+      const roles     = await base44.entities.Role.list('name', 1).catch(() => []);
       const checks = [
         { label: 'Areas & Stations', done: stations.length >= 3, link: '/restaurant-setup-wizard' },
         { label: 'Team Members', done: employees.length >= 3, link: '/people' },
@@ -389,16 +389,10 @@ export default function AppOverview() {
   const loadMetrics = async () => {
     setLoading(true);
     try {
-      // Batch 1
-      const [approvals, prepItems] = await Promise.all([
-        safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 30),
-        safeFilter(base44.entities.PrepItem, {}, '-updated_date', 20),
-      ]);
-      // Batch 2
-      const [tasks, recentLogs] = await Promise.all([
-        safeFilter(base44.entities.GeneratedTask, { status: { $in: ['completed', 'pending', 'in_progress'] } }, '-updated_date', 30),
-        base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []),
-      ]);
+      const approvals  = await safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 30);
+      const prepItems  = await safeFilter(base44.entities.PrepItem, {}, '-updated_date', 20);
+      const tasks      = await safeFilter(base44.entities.GeneratedTask, {}, '-updated_date', 30);
+      const recentLogs = await base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []);
 
       const pendingPrep = (prepItems || []).filter(p => p.status === 'pending_review');
 
