@@ -264,10 +264,10 @@ export default function StaffShift() {
       ]);
 
       // Batch 2
-      const [beos, threads] = await Promise.all([
+      const [beos] = await Promise.all([
         safeList(base44.entities.BEO?.list?.('-eventDate', 5)),
-        safeList(base44.entities.MessageThread?.filter?.({ status: 'open' }, '-created_date', 10)),
       ]);
+      const threads = [];
 
       // Batch 3
       const [staff, prepItems] = await Promise.all([
