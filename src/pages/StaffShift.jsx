@@ -13,14 +13,14 @@ import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import { haptics } from '@/utils/haptics';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
-import { ShiftNextActionCard, ShiftProgressStrip, ShiftStageNav } from '@/components/shift/ShiftWorkflowShell';
+import { ShiftMobileGuide, ShiftStageNav } from '@/components/shift/ShiftWorkflowShell';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STAGE_CONFIG = [
-  { id: 'brief', label: 'Brief', num: '01', icon: Sparkles },
-  { id: 'work',  label: 'Work',  num: '02', icon: ClipboardCheck },
-  { id: 'close', label: 'Close', num: '03', icon: Trophy },
+  { id: 'brief', label: 'Brief', num: '01', icon: Sparkles, description: 'Read the manager notes, 86 items, events, and team updates.' },
+  { id: 'work',  label: 'Work',  num: '02', icon: ClipboardCheck, description: 'Complete prep, sidework, and temperature checks assigned to you.' },
+  { id: 'close', label: 'Close', num: '03', icon: Trophy, description: 'Leave a quick note and sign off when your shift is done.' },
 ];
 
 const SHIFT_META = {
@@ -462,62 +462,24 @@ export default function StaffShift() {
         }
       />
 
-      {/* ── Sticky HUD ── */}
-      <div
-        className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-3"
-        style={{
-          background: 'linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          boxShadow: '0 1px 16px rgba(0,0,0,0.5)',
-        }}
-      >
-        {/* Title row */}
-        <div className="flex items-start justify-between gap-3 mb-2.5">
-          <div>
-            <p className={cn('text-[10px] font-black uppercase tracking-[0.2em]', meta.color)}>{greeting()}</p>
-            <h1 className="mt-0.5 text-2xl font-black tracking-tight text-foreground">{firstName}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/8 px-2.5 py-1 text-[11px] font-black text-primary">
-              <Zap className="h-3 w-3" />
-              {shiftXp} XP
-            </div>
-            <button
-              type="button"
-              onClick={() => load({ quiet: true })}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all"
-              style={{ background: 'rgba(255,255,255,0.04)' }}
-            >
-              <RefreshCw className={cn('h-4 w-4 text-muted-foreground', refreshing && 'animate-spin')} />
-            </button>
-          </div>
-        </div>
-
-        {/* Work progress bar */}
-        {activeStage === 'work' && (
-          <ShiftProgressStrip
-            className="mb-2.5"
-            label={`${doneTasks}/${totalTasks} tasks done`}
-            value={progressPct}
-            complete={progressPct === 100}
-          />
-        )}
-
-        <ShiftStageNav
-          stages={STAGE_CONFIG}
-          activeStage={activeStage}
-          onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
-          compact
-          className="justify-center"
-        />
-      </div>
+      <ShiftMobileGuide
+        eyebrow={greeting()}
+        title={firstName}
+        stages={STAGE_CONFIG}
+        activeStage={activeStage}
+        onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
+        onRefresh={() => load({ quiet: true })}
+        refreshing={refreshing}
+        nextAction={activeStage === 'brief' && !briefDone && !allSectionsViewed ? undefined : staffNextAction}
+        progress={activeStage === 'work' ? {
+          label: `${doneTasks}/${totalTasks} tasks done`,
+          value: progressPct,
+          complete: progressPct === 100,
+        } : undefined}
+      />
 
       {/* ── Stage content ── */}
       <div className="app-page">
-        <div className="lg:hidden mb-3">
-          <ShiftNextActionCard action={staffNextAction} />
-        </div>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
@@ -563,8 +525,8 @@ export default function StaffShift() {
                 {/* Quick snapshot */}
                 <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
                   {[
-                    { label: "86'd",  value: data.eightySix.length,  color: data.eightySix.length > 0  ? 'text-red-400'      : 'text-muted-foreground/40' },
-                    { label: 'Events', value: data.events.length,     color: data.events.length > 0     ? 'text-amber-400'    : 'text-muted-foreground/40' },
+                    { label: "86'd",  value: data.eightySix.length,  color: data.eightySix.length > 0  ? 'text-foreground' : 'text-muted-foreground/40' },
+                    { label: 'Events', value: data.events.length,     color: data.events.length > 0     ? 'text-foreground' : 'text-muted-foreground/40' },
                     { label: 'Tasks',  value: totalTasks,             color: totalTasks > 0             ? 'text-foreground/80' : 'text-muted-foreground/40' },
                   ].map(({ label, value, color }) => (
                     <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-4">
@@ -838,9 +800,9 @@ export default function StaffShift() {
                 {/* Shift summary scorecard */}
                 <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
                   {[
-                    { label: 'Completed', value: doneTasks,             color: doneTasks > 0 ? 'text-green-400' : 'text-muted-foreground/40' },
-                    { label: 'Remaining', value: totalTasks - doneTasks, color: totalTasks - doneTasks > 0 ? 'text-amber-400' : 'text-muted-foreground/40' },
-                    { label: 'XP Earned', value: shiftXp,               color: shiftXp > 0 ? 'text-primary' : 'text-muted-foreground/40' },
+                    { label: 'Completed', value: doneTasks,             color: doneTasks > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
+                    { label: 'Remaining', value: totalTasks - doneTasks, color: totalTasks - doneTasks > 0 ? 'text-primary' : 'text-muted-foreground/40' },
+                    { label: 'XP Earned', value: shiftXp,               color: shiftXp > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
                   ].map(({ label, value, color }) => (
                     <div key={label} className="flex flex-col items-center justify-center gap-0.5 py-4">
                       <p className={cn('text-2xl font-black tabular-nums', color)}>{value}</p>

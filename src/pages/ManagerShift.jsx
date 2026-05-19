@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { haptics } from "@/utils/haptics";
 import DesktopPageHeader from "@/components/DesktopPageHeader";
-import { ShiftNextActionCard, ShiftProgressStrip, ShiftStageNav } from "@/components/shift/ShiftWorkflowShell";
+import { ShiftMobileGuide, ShiftStageNav } from "@/components/shift/ShiftWorkflowShell";
 import { useShiftContext } from "@/hooks/useShiftContext";
 import { BriefingContextBanner, BriefingProfileSelector } from "@/components/ShiftLaunch/BriefingContextPanel";
 import {
@@ -69,9 +69,9 @@ const SHIFT_META = {
 };
 
 const STAGE_CONFIG = [
-  { id: "start", label: "Pre-Shift", num: "01", icon: ClipboardList },
-  { id: "run",   label: "Running",   num: "02", icon: Activity      },
-  { id: "close", label: "Sign-Off",  num: "03", icon: LogOut        },
+  { id: "start", label: "Pre-Shift", num: "01", icon: ClipboardList, description: "Review shift intel and publish the briefing your team needs." },
+  { id: "run",   label: "Running",   num: "02", icon: Activity, description: "Work manager duties, walk stations, and track active follow-ups." },
+  { id: "close", label: "Sign-Off",  num: "03", icon: LogOut, description: "Resolve the close review and leave the next manager a clear handoff." },
 ];
 
 function stageFromLocation(location) {
@@ -305,6 +305,29 @@ function EmptyIntel({ text, detail }) {
   );
 }
 
+function MobileIntelDetail({ title, empty, items, renderItem }) {
+  return (
+    <div>
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{title}</p>
+      {items.length === 0 ? (
+        <p className="mt-2 text-sm font-semibold text-foreground">{empty}</p>
+      ) : (
+        <div className="mt-3 space-y-2">
+          {items.map((item, index) => {
+            const row = renderItem(item);
+            return (
+              <div key={item.id || `${title}-${index}`} className="rounded-xl border border-border/35 bg-white/[0.025] px-3 py-2.5">
+                <p className="text-sm font-bold leading-snug text-foreground">{row.title}</p>
+                {row.meta && <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{row.meta}</p>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Duty card ────────────────────────────────────────────────────────────────
 
 function DutyCard({ config, checked, locked, onToggle, xpFloat, onXpDone }) {
@@ -513,6 +536,7 @@ export default function ManagerShift() {
   const [submitting, setSubmitting]       = useState(false);
   const [shiftComplete, setShiftComplete] = useState(false);
   const [viewedIntelCards, setViewedIntelCards] = useState(new Set());
+  const [mobileIntelFocus, setMobileIntelFocus] = useState(null);
   const [closeFilterTab, setCloseFilterTab]     = useState('all');
   const [expandedImportRows, setExpandedImportRows] = useState(new Set());
   const [runPage, setRunPage] = useState(0);
@@ -539,6 +563,81 @@ export default function ManagerShift() {
 
   const markCardViewed = (id) => {
     setViewedIntelCards(prev => new Set([...prev, id]));
+  };
+
+  const openMobileIntelCard = (id) => {
+    markCardViewed(id);
+    setMobileIntelFocus(prev => prev === id ? null : id);
+    haptics.light();
+  };
+
+  const renderMobileIntelDetail = (id) => {
+    if (id === "issues") {
+      return (
+        <MobileIntelDetail
+          title="Open Issues"
+          empty="No open issues. Clear to continue."
+          items={briefing.issues}
+          renderItem={(item) => ({
+            title: item.title || item.description || "Open issue",
+            meta: [friendlyLogCategory(item.category), item.priority, item.area || item.station || item.location].filter(Boolean).join(" · "),
+          })}
+        />
+      );
+    }
+    if (id === "handoff") {
+      return (
+        <MobileIntelDetail
+          title="Previous Handoff"
+          empty="No carry-over items from the previous shift."
+          items={briefing.handoffs}
+          renderItem={(item) => ({
+            title: item.notes_for_next_manager || item.notes || "Handoff note",
+            meta: [item.department, item.urgency, item.logged_by].filter(Boolean).join(" · "),
+          })}
+        />
+      );
+    }
+    if (id === "eightySix") {
+      return (
+        <MobileIntelDetail
+          title="86'd Items"
+          empty="Nothing 86'd right now."
+          items={briefing.eightySix}
+          renderItem={(item) => ({
+            title: item.item_name || "86'd item",
+            meta: item.category || item.notes,
+          })}
+        />
+      );
+    }
+    if (id === "events") {
+      return (
+        <MobileIntelDetail
+          title="BEOs / Events"
+          empty="No events or private dining today."
+          items={briefing.events}
+          renderItem={(item) => ({
+            title: item.eventName || item.name || "Event",
+            meta: [item.eventDate, item.startTime, item.room, item.guestCount ? `${item.guestCount} guests` : ""].filter(Boolean).join(" · "),
+          })}
+        />
+      );
+    }
+    if (id === "logs") {
+      return (
+        <MobileIntelDetail
+          title="Manager Notes"
+          empty="No manager notes or waste entries."
+          items={[...briefing.managerLogs, ...briefing.waste].slice(0, 6)}
+          renderItem={(item) => ({
+            title: titleFor(item, "Shift note"),
+            meta: [friendlyLogCategory(item.category || item.reason), recentDate(item)].filter(Boolean).join(" · "),
+          })}
+        />
+      );
+    }
+    return null;
   };
 
   // Gamification
@@ -1066,72 +1165,21 @@ export default function ManagerShift() {
     <div className="app-screen">
       <DesktopPageHeader title="Shift" subtitle="Manager briefing, duties, and handoff" />
 
-      {/* Sticky HUD header */}
-      <div
-        className="lg:hidden sticky top-0 z-30 px-4 pt-4 pb-3"
-        style={{
-          background: "linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "0 1px 16px rgba(0,0,0,0.5)",
+      <ShiftMobileGuide
+        eyebrow="Manager Shift"
+        title={meta.label}
+        stages={STAGE_CONFIG}
+        activeStage={activeStage}
+        onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
+        onRefresh={() => load({ quiet: true })}
+        refreshing={refreshing}
+        nextAction={activeStage === "start" && !acknowledged && !allCardsViewed ? undefined : managerNextAction}
+        progress={activeStage === "start" ? undefined : {
+          label: `${checkedDuties.length}/${DUTIES.length} duties`,
+          value: dutiesPct,
+          complete: dutiesPct === 100,
         }}
-      >
-        {/* Title row */}
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.2em]", meta.color)}>
-              Manager Shift
-            </p>
-            <h1 className="mt-0.5 text-2xl font-black tracking-tight text-foreground">{meta.label}</h1>
-          </div>
-          <button
-            type="button"
-            onClick={() => load({ quiet: true })}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all"
-            style={{ background: "rgba(255,255,255,0.04)" }}
-            aria-label="Refresh"
-          >
-            <RefreshCw className={cn("h-4 w-4 text-muted-foreground", refreshing && "animate-spin")} />
-          </button>
-        </div>
-
-        {/* Stats row */}
-        <div className="mt-2.5 flex items-center gap-3">
-          <div className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-black",
-            totals.critical > 0 ? "border-amber-500/25 text-amber-400/80" : "border-border/30 text-muted-foreground/60"
-          )}>
-            <AlertTriangle className="h-3 w-3" />
-            {totals.critical} critical
-          </div>
-          <div className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-black",
-            dutiesPct === 100 ? "border-green-500/30 bg-green-500/8 text-green-400" : "border-border/30 text-muted-foreground/60"
-          )}>
-            <ClipboardCheck className="h-3 w-3" />
-            {checkedDuties.length}/{DUTIES.length} duties
-          </div>
-          <div className={cn("flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-black",
-            shiftXp > 0 ? "border-primary/30 bg-primary/8 text-primary" : "border-border/30 text-muted-foreground/60"
-          )}>
-            <Zap className="h-3 w-3" />
-            {shiftXp} XP
-          </div>
-        </div>
-
-        <ShiftProgressStrip
-          className="mt-2"
-          label={`${checkedDuties.length}/${DUTIES.length} duties`}
-          value={dutiesPct}
-          complete={dutiesPct === 100}
-        />
-
-        <ShiftStageNav
-          stages={STAGE_CONFIG}
-          activeStage={activeStage}
-          onStageChange={(id) => { haptics.light(); setActiveStage(id); }}
-          compact
-          className="mt-3 justify-center"
-        />
-      </div>
+      />
 
       <ShiftStageNav
         stages={STAGE_CONFIG}
@@ -1162,9 +1210,6 @@ export default function ManagerShift() {
 
       {/* Stage content */}
       <div className="app-page lg:!pt-4">
-        <div className="lg:hidden mb-3">
-          <ShiftNextActionCard action={managerNextAction} />
-        </div>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStage}
@@ -1191,103 +1236,152 @@ export default function ManagerShift() {
 
                 {/* ── MOBILE ── */}
                 <div className="lg:hidden space-y-3">
-                  {/* Scorecard */}
-                  <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
-                    {[
-                      { label: "CRITICAL", sub: "Needs immediate attention", value: briefing.issues.length + briefing.eightySix.length, color: briefing.issues.length + briefing.eightySix.length > 0 ? "text-red-400" : "text-muted-foreground/40" },
-                      { label: "WARNINGS", sub: "Keep an eye on these", value: briefing.events.length, color: briefing.events.length > 0 ? "text-amber-400" : "text-muted-foreground/40" },
-                      { label: "FOLLOW-UPS", sub: "From last shift", value: briefing.managerLogs.length + briefing.tasks.length, color: "text-foreground/70" },
-                    ].map(({ label, sub, value, color }) => (
-                      <div key={label} className="flex flex-col items-center justify-center gap-0 px-1 py-3 text-center">
-                        <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
-                        <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground leading-tight mt-0.5">{label}</p>
-                        <p className="text-[9px] text-muted-foreground/60 leading-tight mt-0.5">{sub}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Acknowledge banner — tap to acknowledge */}
-                  <button type="button" onClick={acknowledged ? undefined : acknowledgeBriefing}
-                    className={cn("ops-panel flex w-full items-center gap-3 p-4 text-left transition-all active:scale-[0.99]",
-                      acknowledged && "ops-panel-success")}>
-                    {acknowledged
-                      ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400" />
-                      : <Sparkles className="h-5 w-5 shrink-0 text-primary" />}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-black text-foreground">
-                        {acknowledged ? "Briefing acknowledged" : "Review shift intel before starting"}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
-                        {acknowledged ? "Shift intel reviewed — you're on." : "Acknowledge logs, manager note and moves you to Ops."}
-                      </p>
-                    </div>
-                    {!acknowledged && (
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary">+20 XP</span>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                      </div>
-                    )}
-                    {acknowledged && <div className="flex items-center gap-1 shrink-0 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-black text-green-400"><Zap className="h-2.5 w-2.5" /> 20</div>}
-                  </button>
-
                   {/* Pre-Shift Checklist */}
                   <div>
-                    <p className="mb-2 px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">YOUR PRE-SHIFT CHECKLIST</p>
+                    <p className="mb-2 px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">Pre-Shift Checklist</p>
                     <div className="ops-panel">
                       {[
-                        { id: "issues",   Icon: AlertTriangle,    label: "Open Issues",      sub: briefing.issues.length > 0 ? `${briefing.issues.length} critical issues need review` : "No open issues",          count: briefing.issues.length,    iconCls: "text-red-400",  bgCls: "bg-red-500/10 border-red-500/30",     review: briefing.issues.length > 0 },
-                        { id: "handoff",  Icon: MessageSquareText, label: "Previous Handoff", sub: briefing.handoffs.length > 0 ? `${briefing.handoffs.length} items from last shift` : "No carry-over items",       count: briefing.handoffs.length,  iconCls: "text-blue-400", bgCls: "bg-blue-500/10 border-blue-500/30",   review: briefing.handoffs.length > 0 },
-                        { id: "eightySix",Icon: Flame,            label: "86'd Items",       sub: briefing.eightySix.length > 0 ? `${briefing.eightySix.length} items today` : "0 items today",                    count: briefing.eightySix.length, iconCls: "text-primary",  bgCls: "bg-primary/10 border-primary/30",     review: false },
-                        { id: "events",   Icon: CalendarClock,    label: "BEOs / Events",    sub: briefing.events.length > 0 ? `${briefing.events.length} events today` : "0 events today",                         count: briefing.events.length,    iconCls: "text-teal-400", bgCls: "bg-teal-500/10 border-teal-500/30",   review: false },
+                        { id: "issues",   Icon: AlertTriangle,    label: "Open Issues",      sub: briefing.issues.length > 0 ? `${briefing.issues.length} critical issues need review` : "No open issues",          count: briefing.issues.length,    iconCls: briefing.issues.length > 0 ? "text-primary" : "text-muted-foreground", bgCls: "bg-white/[0.04] border-border/40", review: briefing.issues.length > 0 },
+                        { id: "handoff",  Icon: MessageSquareText, label: "Previous Handoff", sub: briefing.handoffs.length > 0 ? `${briefing.handoffs.length} items from last shift` : "No carry-over items",       count: briefing.handoffs.length,  iconCls: "text-muted-foreground", bgCls: "bg-white/[0.04] border-border/40", review: briefing.handoffs.length > 0 },
+                        { id: "eightySix",Icon: Flame,            label: "86'd Items",       sub: briefing.eightySix.length > 0 ? `${briefing.eightySix.length} items today` : "0 items today",                    count: briefing.eightySix.length, iconCls: "text-muted-foreground", bgCls: "bg-white/[0.04] border-border/40", review: false },
+                        { id: "events",   Icon: CalendarClock,    label: "BEOs / Events",    sub: briefing.events.length > 0 ? `${briefing.events.length} events today` : "0 events today",                         count: briefing.events.length,    iconCls: "text-muted-foreground", bgCls: "bg-white/[0.04] border-border/40", review: false },
                       ].map((item, idx) => (
-                        <button key={item.id} type="button" onClick={() => markCardViewed(item.id)}
-                          className="flex w-full items-center gap-3 border-b border-border/15 px-4 py-3 text-left transition-all active:scale-[0.99]">
-                          <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border", item.bgCls)}>
-                            <item.Icon className={cn("h-4 w-4", item.iconCls)} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-foreground">{item.label}</p>
-                            <p className="text-xs text-muted-foreground truncate">{item.sub}</p>
-                          </div>
-                          {item.review && <span className="shrink-0 text-[10px] font-black text-amber-400 uppercase tracking-wide">REVIEW</span>}
-                          <span className="shrink-0 w-5 text-right text-sm font-black text-foreground">{item.count}</span>
-                          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />
-                        </button>
+                        <div key={item.id} className="border-b border-border/15">
+                          <button type="button" onClick={() => openMobileIntelCard(item.id)}
+                            aria-expanded={mobileIntelFocus === item.id}
+                            className={cn(
+                              "flex w-full items-center gap-3 px-4 py-3 text-left transition-all active:scale-[0.99]",
+                              mobileIntelFocus === item.id && "bg-white/[0.04]"
+                            )}>
+                            <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border", item.bgCls)}>
+                              {viewedIntelCards.has(item.id)
+                                ? <Check className="h-4 w-4 text-primary" />
+                                : <item.Icon className={cn("h-4 w-4", item.iconCls)} />
+                              }
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-foreground">{item.label}</p>
+                              <p className="text-xs text-muted-foreground truncate">{item.sub}</p>
+                            </div>
+                            {item.review && <span className="shrink-0 text-[10px] font-black uppercase tracking-wide text-primary">REVIEW</span>}
+                            <span className="shrink-0 w-5 text-right text-sm font-black text-foreground">{item.count}</span>
+                            <ChevronRight className={cn("h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform", mobileIntelFocus === item.id && "rotate-90")} />
+                          </button>
+                          <AnimatePresence initial={false}>
+                            {mobileIntelFocus === item.id && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.16 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="px-4 pb-4">
+                                  {renderMobileIntelDetail(item.id)}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       ))}
 
                       {/* Duties row */}
-                      <div className="border-b border-border/15 px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/10">
-                            <ClipboardCheck className="h-4 w-4 text-blue-400" />
+                      <div className="border-b border-border/15">
+                        <button
+                          type="button"
+                          onClick={() => setMobileIntelFocus(prev => prev === "duties" ? null : "duties")}
+                          aria-expanded={mobileIntelFocus === "duties"}
+                          className={cn(
+                            "flex w-full items-center gap-3 px-4 py-3 text-left transition-all active:scale-[0.99]",
+                            mobileIntelFocus === "duties" && "bg-white/[0.04]"
+                          )}
+                        >
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border/40 bg-white/[0.04]">
+                            {dutiesPct === 100
+                              ? <Check className="h-4 w-4 text-primary" />
+                              : <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+                            }
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                               <p className="text-sm font-bold text-foreground">Duties / Checklists</p>
-                              <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-primary")}>{checkedDuties.length}/{DUTIES.length}</span>
+                              <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-foreground" : "text-primary")}>{checkedDuties.length}/{DUTIES.length}</span>
                             </div>
                             <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/40">
                               <div className="h-full rounded-full transition-all duration-500"
-                                style={{ width: `${dutiesPct}%`, background: dutiesPct === 100 ? "linear-gradient(90deg,#22c55e,#4ade80)" : "linear-gradient(90deg,hsl(22,76%,38%),hsl(22,76%,55%))" }} />
+                                style={{ width: `${dutiesPct}%`, background: "linear-gradient(90deg,hsl(22,76%,38%),hsl(22,76%,55%))" }} />
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground">{checkedDuties.length}/{DUTIES.length} duties completed</p>
                           </div>
-                        </div>
+                          <ChevronRight className={cn("h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform", mobileIntelFocus === "duties" && "rotate-90")} />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {mobileIntelFocus === "duties" && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.16 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="space-y-2 px-4 pb-4">
+                                {DUTIES_CONFIG.map((config) => {
+                                  const checked = checkedDuties.includes(config.text);
+                                  const locked = config.requiresPreShift && !preShiftSaved;
+                                  return (
+                                    <DutyCard
+                                      key={config.text}
+                                      config={config}
+                                      checked={checked}
+                                      locked={locked}
+                                      onToggle={() => toggleDuty(config)}
+                                      xpFloat={null}
+                                    />
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
 
                       {/* Manager Notes row */}
-                      <button type="button" onClick={() => markCardViewed("logs")}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-left active:scale-[0.99]">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border/40 bg-white/[0.04]">
-                          <Store className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-foreground">Manager Notes</p>
-                          <p className="text-xs text-muted-foreground">{briefing.managerLogs.length > 0 ? `${briefing.managerLogs.length} note from leadership` : "No notes from leadership"}</p>
-                        </div>
-                        <span className="shrink-0 w-5 text-right text-sm font-black text-foreground">{briefing.managerLogs.length}</span>
-                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />
-                      </button>
+                      <div>
+                        <button type="button" onClick={() => openMobileIntelCard("logs")}
+                          aria-expanded={mobileIntelFocus === "logs"}
+                          className={cn(
+                            "flex w-full items-center gap-3 px-4 py-3 text-left active:scale-[0.99]",
+                            mobileIntelFocus === "logs" && "bg-white/[0.04]"
+                          )}>
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border/40 bg-white/[0.04]">
+                            {viewedIntelCards.has("logs")
+                              ? <Check className="h-4 w-4 text-primary" />
+                              : <Store className="h-4 w-4 text-muted-foreground" />
+                            }
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-foreground">Manager Notes</p>
+                            <p className="text-xs text-muted-foreground">{briefing.managerLogs.length > 0 ? `${briefing.managerLogs.length} note from leadership` : "No notes from leadership"}</p>
+                          </div>
+                          <span className="shrink-0 w-5 text-right text-sm font-black text-foreground">{briefing.managerLogs.length}</span>
+                          <ChevronRight className={cn("h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform", mobileIntelFocus === "logs" && "rotate-90")} />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {mobileIntelFocus === "logs" && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.16 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-4 pb-4">
+                                {renderMobileIntelDetail("logs")}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1960,9 +2054,9 @@ export default function ManagerShift() {
                   <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
                     style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
                     {[
-                      { label: "REQUIRED",   sub: "Items needing review",   value: debriefItems.length,                                                          color: debriefItems.length > 0 ? "text-primary" : "text-green-400" },
-                      { label: "REVIEWED",   sub: "Resolved or cleared",    value: `${debriefCompleteCount}/${debriefItems.length}`,                             color: debriefCompleteCount === debriefItems.length ? "text-green-400" : "text-foreground" },
-                      { label: "FOLLOW-UPS", sub: "Needs next-shift action", value: debriefItems.filter(i => debriefReviews[i.key]?.status === "follow_up").length, color: "text-amber-400" },
+                      { label: "REQUIRED",   sub: "Items needing review",   value: debriefItems.length,                                                          color: debriefItems.length > 0 ? "text-primary" : "text-foreground" },
+                      { label: "REVIEWED",   sub: "Resolved or cleared",    value: `${debriefCompleteCount}/${debriefItems.length}`,                             color: "text-foreground" },
+                      { label: "FOLLOW-UPS", sub: "Needs next-shift action", value: debriefItems.filter(i => debriefReviews[i.key]?.status === "follow_up").length, color: "text-foreground" },
                     ].map(({ label, sub, value, color }) => (
                       <div key={label} className="flex flex-col items-center justify-center gap-0 px-1 py-3 text-center">
                         <p className={cn("text-2xl font-black tabular-nums", color)}>{value}</p>
