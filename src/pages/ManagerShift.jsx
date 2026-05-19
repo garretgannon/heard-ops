@@ -556,9 +556,24 @@ export default function ManagerShift() {
   const load = async ({ quiet = false } = {}) => {
     if (quiet) setRefreshing(true); else setLoading(true);
     try {
-      const [handoffs,managerLogs,eightySix,waste,events,issues] = await Promise.all([safeEntityCall(base44.entities.ShiftHandoff?.list?.("-created_date",8)),safeEntityCall(base44.entities.ManagerLog?.list?.("-created_date",12)),safeEntityCall(base44.entities.EightySixItem?.filter?.({is_active:true})),safeEntityCall(base44.entities.WasteEntry?.list?.("-created_date",8)),safeEntityCall(base44.entities.BEO?.list?.("-eventDate",8)),safeEntityCall(base44.entities.Issue?.filter?.({status:"open"}))]);
-      const [tasks,staff,preShifts,unifiedLogs,logEntries,sideWork] = await Promise.all([safeEntityCall(base44.entities.Task?.list?.("-updated_date",20)),safeEntityCall(base44.entities.StaffShift?.filter?.({date})),safeEntityCall(base44.entities.PreShift?.filter?.({date,shift:preShiftEntityShift})),safeEntityCall(base44.entities.UnifiedLog?.list?.("-created_date",80)),safeEntityCall(base44.entities.LogEntry?.list?.("-completed_at",80)),safeEntityCall(base44.entities.DailySideWorkTask?.filter?.({date}))]);
-      const [closing,opening,handoffTemplates,templateItems,prepCountsData,reservationsData] = await Promise.all([safeEntityCall(base44.entities.ClosingChecklist?.filter?.({date})),safeEntityCall(base44.entities.OpeningChecklist?.filter?.({date})),safeEntityCall(base44.entities.Template?.filter?.({template_type:"handoff",is_active:true})),safeEntityCall(base44.entities.TemplateItem?.list?.("sort_order",120)),safeEntityCall(base44.entities.PrepInventoryCount?.list?.("-updated_date",20)),safeEntityCall(base44.entities.Reservation?.filter?.({date}))]);
+      const handoffs          = await safeEntityCall(base44.entities.ShiftHandoff?.list?.("-created_date", 8));
+      const managerLogs       = await safeEntityCall(base44.entities.ManagerLog?.list?.("-created_date", 12));
+      const eightySix         = await safeEntityCall(base44.entities.EightySixItem?.filter?.({ is_active: true }));
+      const waste             = await safeEntityCall(base44.entities.WasteEntry?.list?.("-created_date", 8));
+      const events            = await safeEntityCall(base44.entities.BEO?.list?.("-eventDate", 8));
+      const issues            = await safeEntityCall(base44.entities.Issue?.filter?.({ status: "open" }));
+      const tasks             = await safeEntityCall(base44.entities.Task?.list?.("-updated_date", 20));
+      const staff             = await safeEntityCall(base44.entities.StaffShift?.filter?.({ date }));
+      const preShifts         = await safeEntityCall(base44.entities.PreShift?.filter?.({ date, shift: preShiftEntityShift }));
+      const unifiedLogs       = await safeEntityCall(base44.entities.UnifiedLog?.list?.("-created_date", 80));
+      const logEntries        = await safeEntityCall(base44.entities.LogEntry?.list?.("-completed_at", 80));
+      const sideWork          = await safeEntityCall(base44.entities.DailySideWorkTask?.filter?.({ date }));
+      const closing           = await safeEntityCall(base44.entities.ClosingChecklist?.filter?.({ date }));
+      const opening           = await safeEntityCall(base44.entities.OpeningChecklist?.filter?.({ date }));
+      const handoffTemplates  = await safeEntityCall(base44.entities.Template?.filter?.({ template_type: "handoff", is_active: true }));
+      const templateItems     = await safeEntityCall(base44.entities.TemplateItem?.list?.("sort_order", 120));
+      const prepCountsData    = await safeEntityCall(base44.entities.PrepInventoryCount?.list?.("-updated_date", 20));
+      const reservationsData  = await safeEntityCall(base44.entities.Reservation?.filter?.({ date }));
 
       const upcomingEvents = events.filter(e => !e.eventDate || e.eventDate >= date).slice(0, 4);
       const activeEightySix = eightySix.slice(0, 4);
