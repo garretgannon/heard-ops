@@ -12,7 +12,7 @@ function SummaryCard({ title, count, detail, editLabel, onEdit }) {
           {count !== undefined && (
             <span
               className="text-xs font-bold px-2 py-0.5 rounded-full"
-              style={{ background: 'rgba(230,106,31,0.15)', color: '#E66A1F' }}
+              style={{ background: 'rgba(255,107,0,0.15)', color: '#FF6B00' }}
             >
               {count}
             </span>
@@ -23,7 +23,7 @@ function SummaryCard({ title, count, detail, editLabel, onEdit }) {
       <button
         onClick={onEdit}
         className="text-xs font-semibold shrink-0 transition-colors hover:opacity-80"
-        style={{ color: '#E66A1F' }}
+        style={{ color: '#FF6B00' }}
       >
         Edit
       </button>
@@ -100,7 +100,7 @@ export default function Step8_Review({ wizardData, onFinish, onGoToStep, finishi
           onClick={onFinish}
           disabled={finishing}
           className="flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-60 transition-opacity"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)', borderRadius: 10 }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)', borderRadius: 10 }}
         >
           {finishing && (
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -118,7 +118,7 @@ export default function Step8_Review({ wizardData, onFinish, onGoToStep, finishi
           onClick={onFinish}
           disabled={finishing}
           className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           {finishing && (
             <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">

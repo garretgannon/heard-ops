@@ -66,7 +66,7 @@ function XpFloat({ amount, onDone }) {
       transition={{ duration: 0.9, ease: 'easeOut' }}
       onAnimationComplete={onDone}
       className="pointer-events-none fixed bottom-40 left-1/2 z-[2000] -translate-x-1/2 text-2xl font-black text-primary"
-      style={{ textShadow: '0 0 16px rgba(230,106,31,0.9)' }}
+      style={{ textShadow: '0 0 16px rgba(255,107,0,0.9)' }}
     >
       +{amount} XP
     </motion.div>,
@@ -353,7 +353,7 @@ export default function StaffShift() {
       status: 'resolved',
       created_by: user?.email,
     }).catch(() => null);
-    confetti({ particleCount: 60, spread: 55, origin: { y: 0.6 }, colors: ['#E66A1F', '#FB923C', '#FCD34D'] });
+    confetti({ particleCount: 60, spread: 55, origin: { y: 0.6 }, colors: ['#FF6B00', '#FB923C', '#FCD34D'] });
     setShiftDone(true);
     setSigningOff(false);
   };
@@ -425,7 +425,7 @@ export default function StaffShift() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
           className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
-          style={{ boxShadow: '0 0 20px rgba(230,106,31,0.35)' }}
+          style={{ boxShadow: '0 0 20px rgba(255,107,0,0.35)' }}
         />
         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading your shift…</p>
       </div>
@@ -632,12 +632,12 @@ export default function StaffShift() {
                     background: briefDone
                       ? 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.2) 100%)'
                       : allSectionsViewed
-                        ? 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)'
+                        ? 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)'
                         : 'rgba(255,255,255,0.04)',
                     boxShadow: briefDone
                       ? '0 0 0 1px rgba(34,197,94,0.3)'
                       : allSectionsViewed
-                        ? '0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)'
+                        ? '0 0 0 1px rgba(255,107,0,0.4), 0 0 24px rgba(255,107,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)'
                         : '0 0 0 1px rgba(255,255,255,0.06)',
                     opacity: !briefDone && !allSectionsViewed ? 0.5 : 1,
                   }}
@@ -768,8 +768,8 @@ export default function StaffShift() {
                     onClick={() => { haptics.medium(); setActiveStage('close'); }}
                     className="flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white active:scale-[0.98] transition-all"
                     style={{
-                      background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-                      boxShadow: '0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
+                      background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+                      boxShadow: '0 0 0 1px rgba(255,107,0,0.4), 0 0 24px rgba(255,107,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
                     }}
                   >
                     <Trophy className="h-5 w-5" /> All done — Close Out
@@ -833,10 +833,10 @@ export default function StaffShift() {
                       style={{
                         background: shiftDone
                           ? 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.2) 100%)'
-                          : 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
+                          : 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
                         boxShadow: shiftDone
                           ? '0 0 0 1px rgba(34,197,94,0.3)'
-                          : '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+                          : '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
                       }}
                     >
                       {shiftDone

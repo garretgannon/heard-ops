@@ -212,9 +212,9 @@ export default function TeamStructureWizard() {
       {/* Mobile progress strip */}
       <div className="lg:hidden flex items-center justify-between py-2 mb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <span className="text-xs text-white/40 font-medium">Step {step + 1} of {TOTAL_STEPS}</span>
-        <span className="text-xs font-semibold" style={{ color: '#E66A1F' }}>{STEP_LABELS[step]}</span>
+        <span className="text-xs font-semibold" style={{ color: '#FF6B00' }}>{STEP_LABELS[step]}</span>
         <div className="w-20 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
-          <div className="h-1 rounded-full transition-all" style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%`, background: '#E66A1F' }} />
+          <div className="h-1 rounded-full transition-all" style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%`, background: '#FF6B00' }} />
         </div>
       </div>
 
@@ -329,7 +329,7 @@ export default function TeamStructureWizard() {
                   <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">Departments</p>
                   <div className="flex flex-wrap gap-1">
                     {wizardData.departments.map((d) => (
-                      <span key={d.id} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(230,106,31,0.12)', color: '#E66A1F' }}>
+                      <span key={d.id} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,107,0,0.12)', color: '#FF6B00' }}>
                         {d.name}
                       </span>
                     ))}

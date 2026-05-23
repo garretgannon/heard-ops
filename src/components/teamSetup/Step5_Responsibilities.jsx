@@ -69,11 +69,11 @@ export default function Step5_Responsibilities({ jobCodes, responsibilities, onC
       </div>
 
       {/* Concept callout */}
-      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}>
+      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.15)' }}>
         <span className="text-lg shrink-0 mt-0.5">📋</span>
         <div>
           <p className="text-sm font-semibold text-white/90 mb-0.5">
-            <span style={{ color: '#E66A1F' }}>Responsibilities</span> = what this position does every shift.
+            <span style={{ color: '#FF6B00' }}>Responsibilities</span> = what this position does every shift.
           </p>
           <p className="text-xs text-white/50 leading-relaxed">
             These connect directly to heardOS workflows. Enable "Opening duties" and a checklist gets assigned at open. Enable "Temp checks" and this job code gets scheduled food safety logs. Enable "Cash handling" and the drawer closeout flow gets routed here. You can always adjust these later per station or per template.
@@ -90,7 +90,7 @@ export default function Step5_Responsibilities({ jobCodes, responsibilities, onC
             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={
               selectedJC === jc.id
-                ? { background: '#E66A1F', color: 'white' }
+                ? { background: '#FF6B00', color: 'white' }
                 : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)' }
             }
           >
@@ -124,7 +124,7 @@ export default function Step5_Responsibilities({ jobCodes, responsibilities, onC
                       <span className="text-sm text-white/80">{item.label}</span>
                       <div
                         className="w-10 h-5 rounded-full relative transition-all duration-200 shrink-0"
-                        style={isOn ? { background: '#E66A1F' } : { background: 'rgba(255,255,255,0.1)' }}
+                        style={isOn ? { background: '#FF6B00' } : { background: 'rgba(255,255,255,0.1)' }}
                       >
                         <div
                           className="w-4 h-4 rounded-full absolute top-0.5 transition-all duration-200"
@@ -155,7 +155,7 @@ export default function Step5_Responsibilities({ jobCodes, responsibilities, onC
         <button
           onClick={onNext}
           className="px-6 py-2.5 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>
@@ -173,7 +173,7 @@ export default function Step5_Responsibilities({ jobCodes, responsibilities, onC
         <button
           onClick={onNext}
           className="flex-[2] py-3 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>

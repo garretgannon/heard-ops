@@ -24,7 +24,7 @@ export default function StepVisualCard({ step, isAdmin, onUpdate, onFullscreen }
       const prompt = `Dark cinematic commercial kitchen instructional illustration. 
 Step: "${step.instruction}". 
 Style: premium dark background (#0A0F14), clean stainless steel kitchen environment, 
-minimal clutter, dramatic top-down or 45-degree angle lighting, orange (#FF7A1A) accent 
+minimal clutter, dramatic top-down or 45-degree angle lighting, blue (#FF6B00) accent 
 highlight on the key action/object, photorealistic textures, modern restaurant kitchen 
 aesthetic. Show the action clearly with no text overlays. High contrast. Cinematic depth.`;
       const { url } = await base44.integrations.Core.GenerateImage({ prompt });

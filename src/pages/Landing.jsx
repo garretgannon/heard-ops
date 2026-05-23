@@ -91,19 +91,19 @@ function MockDashboard() {
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-white/[0.07] bg-[#070D14] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="h-2 w-2 rounded-full bg-[#E66A1F] shadow-[0_0_8px_rgba(230,106,31,0.7)]" />
-          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#E66A1F]">Shift Active</span>
+          <div className="h-2 w-2 rounded-full bg-[#FF6B00] shadow-[0_0_8px_rgba(255,107,0,0.7)]" />
+          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#FF6B00]">Shift Active</span>
         </div>
-        <div className="flex items-center gap-2 rounded-full border border-[#E66A1F]/30 bg-[#E66A1F]/10 px-3 py-1">
-          <Zap className="h-3 w-3 text-[#E66A1F]" />
-          <span className="text-[11px] font-black text-[#E66A1F]">82% Ready</span>
+        <div className="flex items-center gap-2 rounded-full border border-[#FF6B00]/30 bg-[#FF6B00]/10 px-3 py-1">
+          <Zap className="h-3 w-3 text-[#FF6B00]" />
+          <span className="text-[11px] font-black text-[#FF6B00]">82% Ready</span>
         </div>
       </div>
 
       {/* Metric row */}
       <div className="grid grid-cols-4 divide-x divide-white/[0.05] border-b border-white/[0.07]">
         {[
-          { label: 'Overdue', val: '4', color: 'text-[#E66A1F]' },
+          { label: 'Overdue', val: '4', color: 'text-[#FF6B00]' },
           { label: 'Approvals', val: '7', color: 'text-white' },
           { label: 'Issues', val: '2', color: 'text-red-400' },
           { label: 'Staff On', val: '14', color: 'text-white' },
@@ -119,10 +119,10 @@ function MockDashboard() {
       <div className="grid gap-px bg-white/[0.04] md:grid-cols-2">
         <div className="space-y-2 bg-[#060C11] p-4">
           <p className="mb-2 text-[9px] font-black uppercase tracking-[0.16em] text-slate-500">Next Action</p>
-          <div className="rounded-xl border border-[#E66A1F]/25 bg-[#E66A1F]/6 p-3">
+          <div className="rounded-xl border border-[#FF6B00]/25 bg-[#FF6B00]/6 p-3">
             <div className="mb-1.5 flex items-center justify-between">
               <p className="text-sm font-black text-white">Check Pantry station</p>
-              <ArrowRight className="h-3.5 w-3.5 text-[#E66A1F]" />
+              <ArrowRight className="h-3.5 w-3.5 text-[#FF6B00]" />
             </div>
             <p className="text-xs text-slate-400">Ranch in progress, pico not started. Both due before 11:00 AM.</p>
           </div>
@@ -183,7 +183,7 @@ export default function Landing() {
             <button onClick={login} className="px-3 py-1.5 text-sm font-bold text-slate-400 transition-colors hover:text-white">
               Sign In
             </button>
-            <button onClick={login} className="rounded-lg bg-[#E66A1F] px-4 py-1.5 text-sm font-bold text-white transition-all hover:bg-[#d45f18] active:scale-95">
+            <button onClick={login} className="rounded-lg bg-[#FF6B00] px-4 py-1.5 text-sm font-bold text-white transition-all hover:bg-[#CC4400] active:scale-95">
               Get Started
             </button>
           </div>
@@ -193,7 +193,7 @@ export default function Landing() {
       {/* ── Hero ── */}
       <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 pb-16 pt-24">
         {/* Glow */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_40%_at_50%_-5%,rgba(230,106,31,0.18),transparent)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_40%_at_50%_-5%,rgba(255,107,0,0.18),transparent)]" />
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#04080D] to-transparent" />
 
         <motion.div
@@ -201,10 +201,10 @@ export default function Landing() {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
-          className="mb-5 flex items-center gap-2 rounded-full border border-[#E66A1F]/30 bg-[#E66A1F]/10 px-3.5 py-1.5"
+          className="mb-5 flex items-center gap-2 rounded-full border border-[#FF6B00]/30 bg-[#FF6B00]/10 px-3.5 py-1.5"
         >
-          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#E66A1F]" />
-          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E66A1F]">Restaurant Operations</span>
+          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF6B00]" />
+          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF6B00]">Restaurant Operations</span>
         </motion.div>
 
         <motion.h1
@@ -214,7 +214,7 @@ export default function Landing() {
           className="mb-5 max-w-3xl text-center text-5xl font-black leading-[1.08] tracking-tight md:text-[64px]"
         >
           Run every shift<br />
-          <span style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #FF9A16 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <span style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #64D2FF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             like a machine.
           </span>
         </motion.h1>
@@ -237,7 +237,7 @@ export default function Landing() {
           <button
             onClick={login}
             className="flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-black text-white transition-all active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45f18 100%)', boxShadow: '0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25)' }}
+            style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)', boxShadow: '0 0 0 1px rgba(255,107,0,0.4), 0 0 24px rgba(255,107,0,0.25)' }}
           >
             Start Free <ArrowRight className="h-4 w-4" />
           </button>
@@ -279,7 +279,7 @@ export default function Landing() {
       <section id="pain" ref={painRef} className="border-t border-white/[0.06] px-5 py-24">
         <div className="mx-auto max-w-5xl">
           <motion.div variants={fadeUp} initial="hidden" animate={painIn ? 'show' : 'hidden'} className="mb-4 text-center">
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E66A1F]">The Problem</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF6B00]">The Problem</span>
           </motion.div>
           <motion.h2 variants={fadeUp} initial="hidden" animate={painIn ? 'show' : 'hidden'} className="mb-3 text-center text-3xl font-black md:text-4xl">
             Restaurant operations break down daily.
@@ -297,11 +297,11 @@ export default function Landing() {
       <section id="features" ref={featRef} className="border-t border-white/[0.06] px-5 py-24">
         <div
           className="pointer-events-none absolute left-0 right-0 h-96 opacity-30"
-          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(230,106,31,0.12), transparent)' }}
+          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,107,0,0.12), transparent)' }}
         />
         <div className="relative mx-auto max-w-5xl">
           <motion.div variants={fadeUp} initial="hidden" animate={featIn ? 'show' : 'hidden'} className="mb-4 text-center">
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E66A1F]">The Platform</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF6B00]">The Platform</span>
           </motion.div>
           <motion.h2 variants={fadeUp} initial="hidden" animate={featIn ? 'show' : 'hidden'} className="mb-3 text-center text-3xl font-black md:text-4xl">
             One system for the entire shift.
@@ -325,10 +325,10 @@ export default function Landing() {
             {/* Manager flow */}
             <motion.div variants={fadeUp} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
               <div className="mb-4 flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E66A1F]/30 bg-[#E66A1F]/10">
-                  <Shield className="h-4 w-4 text-[#E66A1F]" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#FF6B00]/30 bg-[#FF6B00]/10">
+                  <Shield className="h-4 w-4 text-[#FF6B00]" />
                 </div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#E66A1F]">Manager Flow</p>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#FF6B00]">Manager Flow</p>
               </div>
               <div className="space-y-3">
                 {[
@@ -338,7 +338,7 @@ export default function Landing() {
                   { step: '04', text: 'Write closing handoff for next manager' },
                 ].map(item => (
                   <div key={item.step} className="flex items-center gap-3 rounded-lg border border-white/[0.05] bg-white/[0.02] px-4 py-3">
-                    <span className="text-[10px] font-black tabular-nums text-[#E66A1F]/70">{item.step}</span>
+                    <span className="text-[10px] font-black tabular-nums text-[#FF6B00]/70">{item.step}</span>
                     <p className="text-sm font-semibold text-slate-300">{item.text}</p>
                   </div>
                 ))}
@@ -381,7 +381,7 @@ export default function Landing() {
               <motion.div
                 key={item}
                 variants={fadeUp}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 text-sm font-bold text-slate-300 transition-all hover:border-[#E66A1F]/35 hover:text-white"
+                className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 text-sm font-bold text-slate-300 transition-all hover:border-[#FF6B00]/35 hover:text-white"
               >
                 {item}
               </motion.div>
@@ -395,10 +395,10 @@ export default function Landing() {
 
       {/* ── CTA ── */}
       <section ref={ctaRef} className="relative overflow-hidden border-t border-white/[0.06] px-5 py-28">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(230,106,31,0.14),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,107,0,0.14),transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={ctaIn ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-            <p className="mb-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#E66A1F]">Get started today</p>
+            <p className="mb-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#FF6B00]">Get started today</p>
             <h2 className="mb-5 text-4xl font-black leading-tight md:text-5xl">
               Make every shift<br />easier to run.
             </h2>
@@ -407,7 +407,7 @@ export default function Landing() {
               <button
                 onClick={login}
                 className="flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-base font-black text-white transition-all active:scale-95"
-                style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45f18 100%)', boxShadow: '0 0 0 1px rgba(230,106,31,0.4), 0 0 32px rgba(230,106,31,0.3)' }}
+                style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)', boxShadow: '0 0 0 1px rgba(255,107,0,0.4), 0 0 32px rgba(255,107,0,0.3)' }}
               >
                 Start Free <ArrowRight className="h-4 w-4" />
               </button>
@@ -427,7 +427,7 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
           <div className="flex items-center gap-2.5">
             <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-7 w-7 rounded-lg object-contain" />
-            <span className="text-sm font-extrabold">heard<span className="text-[#FF9A16]">OS</span></span>
+            <span className="text-sm font-extrabold">heard<span className="text-[#64D2FF]">OS</span></span>
             <span className="ml-2 text-xs text-slate-600">Restaurant shift operations</span>
           </div>
           <p className="text-xs text-slate-600">&copy; 2026 heardOS. All rights reserved.</p>

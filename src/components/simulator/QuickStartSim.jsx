@@ -59,7 +59,7 @@ export default function QuickStartSim({ onBack }) {
       particleCount: 50,
       spread: 60,
       origin: { y: 0.6 },
-      colors: ['#E66A1F', '#22C55E', '#3B82F6'],
+      colors: ['#FF6B00', '#22C55E', '#3B82F6'],
     });
     setStep(7);
   };
@@ -288,13 +288,13 @@ export default function QuickStartSim({ onBack }) {
           </div>
           <div
             className="p-4 rounded-xl flex flex-col gap-2"
-            style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}
+            style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.15)' }}
           >
             <p className="text-xs font-semibold text-white/70">Step {step} of 8</p>
             <div className="w-full h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
               <div
                 className="h-1.5 rounded-full transition-all duration-500"
-                style={{ width: `${(step / 8) * 100}%`, background: '#E66A1F' }}
+                style={{ width: `${(step / 8) * 100}%`, background: '#FF6B00' }}
               />
             </div>
           </div>

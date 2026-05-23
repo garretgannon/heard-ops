@@ -114,7 +114,7 @@ export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh, on
                 <button
                   onClick={() => { onAdd(); haptics.medium(); }}
                   className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
-                  style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
+                  style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
                 >
                   <Plus className="h-3.5 w-3.5" /> Create BEO
                 </button>

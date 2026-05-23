@@ -18,8 +18,11 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 const ALLOWED_ROLES = ['admin', 'manager', 'chef', 'kitchen_lead'];
 
 const cardBg = {
-  background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)',
+  background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)',
+  border: '1px solid rgba(255,255,255,0.10)',
+  backdropFilter: 'blur(22px) saturate(160%)',
+  WebkitBackdropFilter: 'blur(22px) saturate(160%)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)',
 };
 
 // Station display config — used if Station entity is empty
@@ -389,7 +392,7 @@ export default function PrepPlanning() {
         animate={{ rotate: 360 }}
         transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
         className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
-        style={{ boxShadow: '0 0 20px rgba(230,106,31,0.35)' }}
+        style={{ boxShadow: '0 0 20px rgba(255,107,0,0.35)' }}
       />
       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading prep data…</p>
     </div>
@@ -404,7 +407,7 @@ export default function PrepPlanning() {
     },
     {
       icon: FileStack, label: 'Templates', sub: 'Manage prep templates and production guides',
-      color: 'text-primary', border: 'border-primary/25', bg: 'rgba(230,106,31,0.06)',
+      color: 'text-primary', border: 'border-primary/25', bg: 'rgba(255,107,0,0.06)',
       onClick: () => { haptics.light(); navigate('/prep-plan-templates'); },
     },
     {
@@ -424,7 +427,7 @@ export default function PrepPlanning() {
     },
     {
       icon: Zap, label: 'Generated Tasks', sub: 'View and assign prep tasks',
-      color: 'text-primary', border: 'border-primary/20', bg: 'rgba(230,106,31,0.05)',
+      color: 'text-primary', border: 'border-primary/20', bg: 'rgba(255,107,0,0.05)',
       onClick: () => { haptics.light(); navigate('/tasks?tab=prep'); },
     },
   ];
@@ -452,9 +455,9 @@ export default function PrepPlanning() {
           <div
             className="rounded-2xl p-4 space-y-4"
             style={{
-              background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
-              border: '1px solid rgba(230,106,31,0.35)',
-              boxShadow: '0 0 24px rgba(230,106,31,0.08)',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)',
+              border: '1px solid rgba(255,107,0,0.35)',
+              boxShadow: '0 0 24px rgba(255,107,0,0.08)',
             }}
           >
             <div className="flex items-start justify-between gap-3">
@@ -467,7 +470,7 @@ export default function PrepPlanning() {
               </div>
               <div
                 className="h-11 w-11 rounded-full shrink-0 flex items-center justify-center"
-                style={{ background: 'rgba(230,106,31,0.15)', border: '1px solid rgba(230,106,31,0.3)' }}
+                style={{ background: 'rgba(255,107,0,0.15)', border: '1px solid rgba(255,107,0,0.3)' }}
               >
                 <ClipboardList className="h-5 w-5 text-primary" />
               </div>
@@ -476,8 +479,8 @@ export default function PrepPlanning() {
               onClick={startCount}
               className="flex items-center justify-center gap-2 w-full rounded-xl py-3.5 text-[15px] font-black text-white active:scale-[0.97] transition-all"
               style={{
-                background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-                boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.18)',
+                background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+                boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.18)',
               }}
             >
               <Zap className="h-4 w-4" />
@@ -818,8 +821,8 @@ export default function PrepPlanning() {
                     onClick={startCount}
                     className="mt-3.5 flex items-center justify-center gap-1.5 w-full rounded-xl py-2 text-xs font-black text-white active:scale-[0.97] transition-all"
                     style={{
-                      background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-                      boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 12px rgba(230,106,31,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
+                      background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+                      boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
                     }}
                   >
                     <Zap className="h-3.5 w-3.5" /> Start Count

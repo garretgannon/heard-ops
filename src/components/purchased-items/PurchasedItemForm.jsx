@@ -318,7 +318,7 @@ export default function PurchasedItemForm({ item, onSave, onClose }) {
                 </div>
 
                 {!isNaN(derivedUnitCost) && derivedUnitCost > 0 && (
-                  <div className="rounded-xl border border-primary/25 bg-primary/8 px-4 py-3 flex items-center justify-between" style={{ background: 'rgba(230,106,31,0.07)' }}>
+                  <div className="rounded-xl border border-primary/25 bg-primary/8 px-4 py-3 flex items-center justify-between" style={{ background: 'rgba(255,107,0,0.07)' }}>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Estimated Unit Cost</p>
                       <p className="text-xl font-black text-primary mt-0.5">

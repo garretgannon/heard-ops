@@ -56,7 +56,7 @@ export default function Step7_ViewAs({ jobCodes, roles, access, responsibilities
             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={
               activeRole === r.key
-                ? { background: '#E66A1F', color: 'white' }
+                ? { background: '#FF6B00', color: 'white' }
                 : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)' }
             }
           >
@@ -99,7 +99,7 @@ export default function Step7_ViewAs({ jobCodes, roles, access, responsibilities
                 <span
                   key={mod}
                   className="px-1.5 py-0.5 rounded text-[9px] font-medium"
-                  style={{ background: 'rgba(230,106,31,0.15)', color: '#E66A1F' }}
+                  style={{ background: 'rgba(255,107,0,0.15)', color: '#FF6B00' }}
                 >
                   {mod}
                 </span>
@@ -152,7 +152,7 @@ export default function Step7_ViewAs({ jobCodes, roles, access, responsibilities
             <ul className="flex flex-col gap-1">
               {tasks.map((t, i) => (
                 <li key={i} className="text-sm text-white/70 flex items-center gap-2">
-                  <span style={{ color: '#E66A1F' }}>›</span> {t}
+                  <span style={{ color: '#FF6B00' }}>›</span> {t}
                 </li>
               ))}
             </ul>
@@ -172,7 +172,7 @@ export default function Step7_ViewAs({ jobCodes, roles, access, responsibilities
         <button
           onClick={onNext}
           className="px-6 py-2.5 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>
@@ -190,7 +190,7 @@ export default function Step7_ViewAs({ jobCodes, roles, access, responsibilities
         <button
           onClick={onNext}
           className="flex-[2] py-3 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Review Setup →
         </button>

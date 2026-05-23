@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight, Check, CheckCircle2, ClipboardCheck,
-  MapPin, RefreshCw, Target, Users, Zap,
+  MapPin, RefreshCw, Target, Users,
 } from "lucide-react";
 
 const PRE_SHIFT_FIELD_DEFS = {
@@ -12,7 +12,7 @@ const PRE_SHIFT_FIELD_DEFS = {
   outOfStock:         { label: "Out of Stock / 86",        rows: 3, placeholder: "86'd items, low stock, substitutions…" },
   specials:           { label: "Specials",                 rows: 3, placeholder: "Food, drinks, promos, talking points…" },
   specialCleaning:    { label: "Special Cleaning / Focus", rows: 2, placeholder: "Cleaning priorities, reset items, inspection focus…" },
-  notes:              { label: "Briefing Notes",           rows: 4, placeholder: "What you will say to the team before service…" },
+  notes:              { label: "Shift Notes",              rows: 4, placeholder: "What you will say to the team before service…" },
   sideworkPriorities: { label: "Sidework Priorities",      rows: 2, placeholder: "Sidework assignments, station duties, priority tasks…" },
   prepNeeds:          { label: "Prep Needs",               rows: 3, placeholder: "Items needing prep, quantities, priority order…" },
   lineCheckNotes:     { label: "Line Check Notes",         rows: 3, placeholder: "Station temps, product quality, readiness, equipment status…" },
@@ -60,14 +60,9 @@ function DutyCard({ config, checked, locked, onToggle }) {
         <p className={cn("text-sm font-bold leading-snug", checked ? "text-muted-foreground line-through" : locked ? "text-muted-foreground/50" : "text-foreground")}>
           {config.text}
         </p>
-        {locked && <p className="mt-0.5 text-[10px] text-amber-400/70">Save pre-shift briefing first</p>}
+        {locked && <p className="mt-0.5 text-[10px] text-amber-400/70">Save pre-shift notes first</p>}
       </div>
-      <div className={cn(
-        "flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-black",
-        checked ? "border-green-500/30 bg-green-500/10 text-green-400" : locked ? "border-border/20 text-muted-foreground/30" : "border-primary/25 bg-primary/8 text-primary"
-      )}>
-        <Zap className="h-2.5 w-2.5" /> {config.xp}
-      </div>
+      {checked && <Check className="h-3.5 w-3.5 shrink-0 text-green-400/60" />}
     </motion.button>
   );
 }
@@ -106,7 +101,7 @@ export default function ManagerShiftDesktopRun({
         <div className="ops-section-header">
           <div>
             <p className="ops-kicker text-primary">Running</p>
-            <h2 className="ops-section-title mt-0.5">Pre-Shift Briefing</h2>
+            <h2 className="ops-section-title mt-0.5">Pre-Shift Notes</h2>
           </div>
           <span className={cn("ops-section-meta rounded-full border px-2.5 py-0.5 text-[10px] font-black",
             preShiftSaved ? "border-green-500/35 bg-green-500/10 text-green-400" : "border-primary/35 bg-primary/10 text-primary"
@@ -119,7 +114,7 @@ export default function ManagerShiftDesktopRun({
         <div className="ops-panel overflow-hidden">
           {/* Scope row */}
           <div className="flex items-center justify-between gap-3 border-b border-border/20 px-4 py-3">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground shrink-0">Briefing Scope</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground shrink-0">Shift Scope</p>
             {shiftContext ? (
               <div className="flex items-center gap-2">
                 <span className={cn("rounded-full border px-2 py-0.5 text-[10px] font-black",
@@ -199,8 +194,8 @@ export default function ManagerShiftDesktopRun({
               <>
                 <button type="button" onClick={publishBriefing}
                   className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
-                  style={{ background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)", boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.2), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                  <Zap className="h-4 w-4" /> Publish to Staff — +25 XP
+                  style={{ background: "linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)", boxShadow: "0 0 0 1px rgba(255,107,0,0.35), 0 0 16px rgba(255,107,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                  Publish to Staff
                 </button>
                 <button type="button" onClick={savePreShift} className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
                   Save Draft Only
@@ -218,7 +213,7 @@ export default function ManagerShiftDesktopRun({
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/20">
             <div className="flex items-center gap-2.5">
               <Target className="h-4 w-4 text-primary" />
-              <span className="text-sm font-black text-foreground">Mission Objectives</span>
+              <span className="text-sm font-black text-foreground">Shift Duties</span>
             </div>
             <div className="flex items-center gap-2">
               <span className={cn("text-sm font-black tabular-nums", dutiesPct === 100 ? "text-green-400" : "text-foreground")}>
@@ -236,8 +231,8 @@ export default function ManagerShiftDesktopRun({
                 animate={{ width: `${dutiesPct}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 style={{
-                  background: dutiesPct === 100 ? "linear-gradient(90deg,#22c55e,#4ade80)" : "linear-gradient(90deg,hsl(22,76%,38%),hsl(22,76%,55%))",
-                  boxShadow: dutiesPct === 100 ? "0 0 8px rgba(34,197,94,0.5)" : "0 0 6px rgba(230,106,31,0.4)",
+                  background: dutiesPct === 100 ? "linear-gradient(90deg,#22c55e,#4ade80)" : "linear-gradient(90deg,#FF6B00,#64D2FF)",
+                  boxShadow: dutiesPct === 100 ? "0 0 8px rgba(34,197,94,0.5)" : "0 0 6px rgba(255,107,0,0.4)",
                 }}
               />
             </div>

@@ -17,6 +17,7 @@ import { haptics } from "@/utils/haptics";
 import SwipeTabContainer, { isTabRoute } from "@/components/SwipeTabContainer";
 import AdminSimulationBar from '@/components/AdminSimulationBar';
 import AdminRolePreview from '@/components/AdminRolePreview';
+import ApprovalDeckOverlay, { useApprovalCount } from '@/components/approval/ApprovalDeckOverlay';
 import { usePermissions } from '@/hooks/usePermissions';
 import { desktopNavSections, moreNavSections } from '@/lib/routeConfig';
 import { BRAND_ASSETS } from '@/lib/brandAssets';
@@ -50,6 +51,26 @@ function getPageTitle(pathname) {
   // Fallback: format the last path segment
   const seg = pathname.split('/').filter(Boolean).pop() || '';
   return seg.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// ── Bell button with badge ─────────────────────────────────────────────────────
+function BellButton({ count, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative h-10 w-10 flex items-center justify-center rounded-xl transition-all active:scale-90"
+      style={{ background: count > 0 ? 'rgba(255,107,0,0.12)' : 'rgba(255,107,0,0.08)' }}
+      aria-label={`Approvals${count > 0 ? ` (${count} pending)` : ''}`}
+    >
+      <Bell style={{ color: count > 0 ? '#FF6B00' : '#94A3B8', width: 19, height: 19 }} />
+      {count > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary"
+          style={{ fontSize: '9px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
+          {count > 9 ? '9+' : count}
+        </span>
+      )}
+    </button>
+  );
 }
 
 export default function Layout() {
@@ -180,6 +201,11 @@ export default function Layout() {
     logoTapTimer.current = setTimeout(() => { logoTapCount.current = 0; }, 3000);
   };
 
+
+  // ── Approval deck (global bell) ───────────────────────────────────────────
+  const [showApprovalDeck, setShowApprovalDeck] = useState(false);
+  const approvalCount = useApprovalCount();
+
   const isStationView = location.pathname.startsWith("/station/");
   if (isStationView) {
     return <Outlet />;
@@ -193,15 +219,21 @@ export default function Layout() {
       <AdminSimulationBar />
       <AdminRolePreview />
 
+      {/* Global approval deck — triggered by bell icon */}
+      <ApprovalDeckOverlay
+        isOpen={showApprovalDeck}
+        onClose={() => setShowApprovalDeck(false)}
+      />
+
       {/* Mobile header — frosted glass */}
       <header
         className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-end px-4 pb-3"
         style={{
           paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)",
           height: "calc(72px + env(safe-area-inset-top, 0px))",
-          background: "#000000",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          boxShadow: "0 1px 20px rgba(0,0,0,0.8)",
+          background: "rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
         }}
       >
         {isMobile && isSecondary ? (
@@ -222,45 +254,29 @@ export default function Layout() {
             </p>
 
             <div className="flex items-center gap-1.5 shrink-0">
-              <Link
-                to="/logs"
-                className="relative h-10 w-10 flex items-center justify-center rounded-xl transition-colors"
-                style={{ background: 'rgba(230,106,31,0.08)' }}
-              >
-                <Bell style={{ color: '#94A3B8', width: 19, height: 19 }} />
-              </Link>
+              <BellButton count={approvalCount} onClick={() => setShowApprovalDeck(true)} />
               <Link
                 to="/profile"
                 className="h-10 w-10 flex items-center justify-center rounded-xl transition-colors"
-                style={{ background: 'rgba(230,106,31,0.08)' }}
+                style={{ background: 'rgba(255,107,0,0.08)' }}
               >
                 <UserCircle style={{ color: '#94A3B8', width: 19, height: 19 }} />
               </Link>
             </div>
           </>
         ) : (
-          /* Tab route header: Logo | Actions */
+          /* Tab route header: Title + Actions */
           <>
-            <div className="flex min-w-0 flex-1 items-center">
-              <img
-                src={BRAND_ASSETS.headerLogo}
-                alt="HeardOS"
-                className="h-10 w-auto max-w-[240px] object-contain shrink-0 cursor-pointer select-none"
-                onClick={handleLogoTap}
-              />
-            </div>
+            <div className="w-10 shrink-0" />
+            <p className="flex-1 text-center text-[13px] font-black tracking-[0.1em] uppercase text-foreground">
+              {pageTitle}
+            </p>
             <div className="flex items-center gap-1.5">
-              <Link
-                to="/logs"
-                className="relative h-10 w-10 flex items-center justify-center rounded-xl transition-colors"
-                style={{ background: 'rgba(230,106,31,0.08)' }}
-              >
-                <Bell style={{ color: '#94A3B8', width: 19, height: 19 }} />
-              </Link>
+              <BellButton count={approvalCount} onClick={() => setShowApprovalDeck(true)} />
               <Link
                 to="/profile"
                 className="h-10 w-10 flex items-center justify-center rounded-xl transition-colors"
-                style={{ background: 'rgba(230,106,31,0.08)' }}
+                style={{ background: 'rgba(255,107,0,0.08)' }}
               >
                 <UserCircle style={{ color: '#94A3B8', width: 19, height: 19 }} />
               </Link>
@@ -276,15 +292,16 @@ export default function Layout() {
           collapsed ? "w-[60px]" : "w-[240px]"
         )}
         style={{
-          background: 'linear-gradient(180deg, #000000 0%, rgba(4,6,11,1) 40%)',
-          borderRight: '1px solid rgba(255,255,255,0.055)',
-          boxShadow: '4px 0 32px rgba(0,0,0,0.6), 1px 0 0 rgba(230,106,31,0.04)',
+          background: 'rgba(0,0,0,0.3)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          borderRight: '1px solid rgba(255,255,255,0.07)',
         }}
       >
         {/* Orange brand accent line at top */}
         <div
           className="absolute top-0 left-0 right-0 h-px shrink-0"
-          style={{ background: 'linear-gradient(90deg, rgba(230,106,31,0.7) 0%, rgba(230,106,31,0.05) 70%, transparent 100%)' }}
+          style={{ background: 'linear-gradient(90deg, rgba(255,107,0,0.7) 0%, rgba(255,107,0,0.05) 70%, transparent 100%)' }}
         />
 
         {/* Logo / Brand */}
@@ -355,15 +372,15 @@ export default function Layout() {
                             : "text-muted-foreground/55 hover:text-foreground hover:bg-white/[0.04]"
                       )}
                       style={hasActiveChild && !collapsed ? {
-                        background: 'rgba(230,106,31,0.08)',
-                        boxShadow: '0 0 0 1px rgba(230,106,31,0.18)',
+                        background: 'rgba(255,107,0,0.08)',
+                        boxShadow: '0 0 0 1px rgba(255,107,0,0.18)',
                       } : {}}
                     >
                       <SectionIcon
                         className={cn("shrink-0", hasActiveChild ? "text-primary" : "")}
                         style={{
                           width: 16, height: 16,
-                          filter: hasActiveChild ? 'drop-shadow(0 0 4px rgba(230,106,31,0.5))' : undefined,
+                          filter: hasActiveChild ? 'drop-shadow(0 0 4px rgba(255,107,0,0.5))' : undefined,
                         }}
                       />
                       {!collapsed && (
@@ -376,7 +393,7 @@ export default function Layout() {
                           </span>
                           <ChevronDown
                             className={cn("h-3 w-3 shrink-0 transition-transform duration-200", isExpanded ? "rotate-180" : "")}
-                            style={{ color: hasActiveChild ? 'rgba(230,106,31,0.7)' : 'rgba(148,163,184,0.25)' }}
+                            style={{ color: hasActiveChild ? 'rgba(255,107,0,0.7)' : 'rgba(148,163,184,0.25)' }}
                           />
                         </>
                       )}
@@ -409,7 +426,7 @@ export default function Layout() {
                           >
                             {isActive ? (
                               <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-primary"
-                                style={{ boxShadow: '0 0 6px rgba(230,106,31,0.8)' }} />
+                                style={{ boxShadow: '0 0 6px rgba(255,107,0,0.8)' }} />
                             ) : (
                               <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-white/[0.14]" />
                             )}
@@ -463,15 +480,15 @@ export default function Layout() {
                               : "text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.04]"
                           )}
                           style={isActive ? {
-                            background: 'rgba(230,106,31,0.14)',
-                            boxShadow: '0 0 0 1px rgba(230,106,31,0.28), 0 0 16px rgba(230,106,31,0.28), inset 0 1px 0 rgba(255,255,255,0.08)',
+                            background: 'rgba(255,107,0,0.14)',
+                            boxShadow: '0 0 0 1px rgba(255,107,0,0.28), 0 0 16px rgba(255,107,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08)',
                           } : {}}
                         >
                           <Icon
                             className={cn("shrink-0", isActive ? "text-primary" : "")}
                             style={{
                               width: 16, height: 16,
-                              filter: isActive ? 'drop-shadow(0 0 4px rgba(230,106,31,0.6))' : undefined,
+                              filter: isActive ? 'drop-shadow(0 0 4px rgba(255,107,0,0.6))' : undefined,
                             }}
                           />
                           {!collapsed && (
@@ -502,9 +519,9 @@ export default function Layout() {
                 <Link to="/profile"
                   className="h-8 w-8 rounded-xl flex items-center justify-center transition-all hover:brightness-110"
                   style={{
-                    background: 'rgba(230,106,31,0.15)',
-                    border: '1px solid rgba(230,106,31,0.3)',
-                    boxShadow: '0 0 10px rgba(230,106,31,0.12)',
+                    background: 'rgba(255,107,0,0.15)',
+                    border: '1px solid rgba(255,107,0,0.3)',
+                    boxShadow: '0 0 10px rgba(255,107,0,0.12)',
                   }}
                 >
                   <span className="text-[11px] font-black text-primary">
@@ -520,9 +537,9 @@ export default function Layout() {
                 <div
                   className="h-7 w-7 rounded-full flex items-center justify-center shrink-0"
                   style={{
-                    background: 'rgba(230,106,31,0.15)',
-                    border: '1px solid rgba(230,106,31,0.3)',
-                    boxShadow: '0 0 10px rgba(230,106,31,0.1)',
+                    background: 'rgba(255,107,0,0.15)',
+                    border: '1px solid rgba(255,107,0,0.3)',
+                    boxShadow: '0 0 10px rgba(255,107,0,0.1)',
                   }}
                 >
                   <span className="text-[10px] font-black text-primary">
@@ -566,9 +583,9 @@ export default function Layout() {
           collapsed ? "left-[60px]" : "left-[240px]"
         )}
         style={{
-          background: 'linear-gradient(180deg, rgba(5,8,14,0.94) 0%, rgba(5,8,14,0.78) 100%)',
-          backdropFilter: 'blur(12px) saturate(140%)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: "rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
         }}
       >
         <div className="flex-1 min-w-0">
@@ -588,12 +605,18 @@ export default function Layout() {
           >
             {collapsed ? <PanelLeftOpen className="h-4 w-4 mx-auto" /> : <PanelLeftClose className="h-4 w-4 mx-auto" />}
           </button>
-          <Link
-            to="/logs"
+          <button
+            onClick={() => setShowApprovalDeck(true)}
             className="relative h-10 w-10 flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] transition"
           >
             <Bell className="h-4 w-4" />
-          </Link>
+            {approvalCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary"
+                style={{ fontSize: '9px', fontWeight: 900, color: 'white' }}>
+                {approvalCount > 9 ? '9+' : approvalCount}
+              </span>
+            )}
+          </button>
           <Link
             to="/profile"
             className="h-10 px-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] transition"
@@ -607,10 +630,10 @@ export default function Layout() {
       {/* Main content area */}
       <main
         className={cn(
-          "transition-all duration-200",
+          "relative transition-all duration-200",
           isMobile
-            ? "fixed bottom-0 left-0 right-0 overflow-y-auto overscroll-contain"
-            : cn("min-h-screen", collapsed ? "lg:pl-[60px] lg:pt-[72px]" : "lg:pl-[240px] lg:pt-[72px]")
+            ? "fixed bottom-0 left-0 right-0 overflow-y-auto overscroll-contain z-10"
+            : cn("min-h-screen z-10", collapsed ? "lg:pl-[60px] lg:pt-[72px]" : "lg:pl-[240px] lg:pt-[72px]")
         )}
         style={isMobile ? { top: "calc(72px + env(safe-area-inset-top, 0px))", WebkitOverflowScrolling: "touch" } : {}}
         onTouchStart={onSwipeStart}

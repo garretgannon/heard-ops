@@ -30,7 +30,7 @@ export default function LogsAnalyticsView({ logs }) {
   // Needs review
   const needsReview = logs.filter((l) => l.requires_review).length;
 
-  const COLORS = ['#E66A1F', '#22C55E', '#FACC15', '#EF4444', '#38BDF8', '#A78BFA'];
+  const COLORS = ['#FF6B00', '#22C55E', '#FACC15', '#EF4444', '#38BDF8', '#A78BFA'];
 
   return (
     <div className="space-y-6">
@@ -85,7 +85,7 @@ export default function LogsAnalyticsView({ logs }) {
                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
                 <YAxis stroke="hsl(var(--muted-foreground))" />
                 <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: `1px solid hsl(var(--border))` }} />
-                <Bar dataKey="value" fill="#E66A1F" />
+                <Bar dataKey="value" fill="#FF6B00" />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -338,33 +338,73 @@ export default function OperationalMap() {
       <DesktopPageHeader title="Stations" subtitle="Station readiness by area" />
 
       {/* Mobile header */}
-      <div className="lg:hidden bg-card border-b border-border px-4 pt-4 pb-0 sticky top-0 z-10">
-        <div className="flex items-center justify-between gap-3 mb-3">
+      <div
+        className="lg:hidden px-5 pt-6 pb-4 flex flex-col gap-4"
+        style={{
+          background: "rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+        }}
+      >
+        {/* Title row */}
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-foreground">Stations</h1>
+            <h1 style={{
+              fontSize: '40px',
+              fontWeight: 700,
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              color: 'rgba(255,255,255,0.95)',
+            }}>
+              Stations
+            </h1>
             {stats.attn > 0
-              ? <p className="text-sm text-amber-400 mt-0.5">{stats.attn} need attention</p>
-              : <p className="text-sm text-muted-foreground mt-0.5">{stats.total} stations · all ready</p>}
+              ? <p style={{ fontSize: '13px', fontWeight: 600, color: '#FF6B00', marginTop: '2px' }}>{stats.attn} need attention</p>
+              : <p style={{ fontSize: '13px', fontWeight: 500, color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{stats.total} stations · all ready</p>}
           </div>
-          <button onClick={loadData} className="h-9 w-9 rounded-xl border border-border/50 flex items-center justify-center text-muted-foreground">
+          <button
+            onClick={loadData}
+            className="flex items-center justify-center active:scale-95 transition-all"
+            style={{
+              width: '40px', height: '40px',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: 'rgba(255,255,255,0.4)',
+            }}
+          >
             <RefreshCw className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Area tabs */}
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0 pt-1 pl-0.5 -mx-4 px-4">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveAreaId(tab.id)}
-              className={cn(
-                'shrink-0 px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all mb-3',
-                activeAreaId === tab.id ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
-              )}
-            >
-              {tab.name}
-            </button>
-          ))}
+        {/* Area filter chips */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {tabs.map(tab => {
+            const isActive = activeAreaId === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveAreaId(tab.id)}
+                className="flex items-center whitespace-nowrap transition-all active:scale-95"
+                style={{
+                  height: '32px',
+                  paddingLeft: '14px',
+                  paddingRight: '14px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  letterSpacing: '0.01em',
+                  background: isActive ? 'rgba(255,107,0,0.15)' : 'rgba(255,255,255,0.06)',
+                  border: isActive ? '1px solid rgba(255,107,0,0.35)' : '1px solid rgba(255,255,255,0.08)',
+                  color: isActive ? '#FF6B00' : 'rgba(255,255,255,0.45)',
+                  boxShadow: isActive ? '0 0 12px rgba(255,107,0,0.15)' : 'none',
+                  flexShrink: 0,
+                }}
+              >
+                {tab.name}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -216,7 +216,7 @@ function AssignmentRow({ assignment: a, onRemove, onToggleActive, onUpdateOverri
   return (
     <div className={cn('rounded-xl border border-border/40 overflow-hidden', !a.active && 'opacity-50')}>
       <div className="flex items-center gap-3 px-3 py-3">
-        <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(230,106,31,0.12)' }}>
+        <div className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(255,107,0,0.12)' }}>
           <MapPin className="h-3.5 w-3.5 text-primary" />
         </div>
         <div className="flex-1 min-w-0">

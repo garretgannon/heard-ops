@@ -394,7 +394,7 @@ function EmptyChemicals({ onAdd, isAdmin }) {
             <button
               onClick={onAdd}
               className="flex flex-col items-center justify-center gap-1.5 rounded-2xl py-5 px-3 text-white active:scale-[0.97] transition-all"
-              style={{ background: 'linear-gradient(160deg, hsl(22,76%,36%) 0%, hsl(22,76%,28%) 100%)', border: '1px solid rgba(230,106,31,0.45)' }}
+              style={{ background: 'linear-gradient(160deg, #CC4400 0%, #0055AA 100%)', border: '1px solid rgba(255,107,0,0.45)' }}
             >
               <Plus className="h-7 w-7 mb-0.5" />
               <span className="text-[14px] font-black leading-tight">Add Chemical</span>

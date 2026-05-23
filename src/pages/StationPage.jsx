@@ -1174,7 +1174,7 @@ export default function StationPage() {
               </button>
               <button onClick={() => setActiveWorkflow('prep')}
                 className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all"
-                style={{ boxShadow: '0 0 14px rgba(230,106,31,0.28)' }}>
+                style={{ boxShadow: '0 0 14px rgba(255,107,0,0.28)' }}>
                 <ClipboardCheck className="h-3.5 w-3.5" /> Start Checklist
               </button>
             </div>

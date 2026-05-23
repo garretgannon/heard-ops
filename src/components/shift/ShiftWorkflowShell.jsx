@@ -26,7 +26,7 @@ export function ShiftStageNav({ stages, activeStage, onStageChange, trailing, cl
                     ? 'border-border/50 bg-white/[0.04] text-foreground'
                     : 'border-border/40 bg-transparent text-muted-foreground hover:border-border/70 hover:text-foreground'
               )}
-              style={isActive ? { boxShadow: '0 0 12px rgba(230,106,31,0.18)' } : undefined}
+              style={isActive ? { boxShadow: '0 0 12px rgba(255,107,0,0.18)' } : undefined}
             >
               {isDone ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
               <span className={compact ? 'hidden min-[380px]:inline' : ''}>{stage.label}</span>
@@ -53,9 +53,9 @@ export function ShiftProgressStrip({ label, value, complete = false, className }
           style={{
             width: `${value}%`,
             background: complete
-              ? 'linear-gradient(90deg, hsl(22,76%,32%), hsl(22,76%,48%))'
-              : 'linear-gradient(90deg, hsl(22,76%,32%), hsl(22,76%,48%))',
-            boxShadow: '0 0 6px rgba(230,106,31,0.28)',
+              ? 'linear-gradient(90deg, #CC4400, #FF6B00)'
+              : 'linear-gradient(90deg, #CC4400, #FF6B00)',
+            boxShadow: '0 0 6px rgba(255,107,0,0.28)',
           }}
         />
       </div>
@@ -105,10 +105,9 @@ export function ShiftMobileGuide({
     <div
       className="lg:hidden sticky top-0 z-30 px-4 pt-3 pb-2.5"
       style={{
-        background: 'linear-gradient(180deg, rgba(6,10,16,0.98) 0%, rgba(8,13,20,0.96) 100%)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 1px 16px rgba(0,0,0,0.5)',
+        background: "rgba(0, 0, 0, 0.2)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
       }}
     >
       <div className="flex items-start justify-between gap-3">
@@ -131,8 +130,44 @@ export function ShiftMobileGuide({
         )}
       </div>
 
-      <div className="mt-2">
-        <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${stages.length}, minmax(0, 1fr))` }}>
+      {/* ── Liquid glass pill slider ── */}
+      <div className="mt-2.5">
+        <div
+          style={{
+            height: '60px',
+            borderRadius: '999px',
+            background: 'rgba(255,255,255,0.055)',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            padding: '5px',
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+          }}
+        >
+          {/* Sliding orange pill */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 5,
+              bottom: 5,
+              left: activeIdx === 0
+                ? '5px'
+                : `calc(${(activeIdx / stages.length) * 100}% + 2px)`,
+              width: activeIdx === 0 || activeIdx === stages.length - 1
+                ? `calc(${100 / stages.length}% - 7px)`
+                : `calc(${100 / stages.length}% - 4px)`,
+              borderRadius: '999px',
+              background: 'linear-gradient(180deg, rgba(255,106,0,0.28) 0%, rgba(255,106,0,0.10) 100%)',
+              border: '1px solid rgba(255,106,0,0.50)',
+              boxShadow: '0 0 22px rgba(255,106,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20)',
+              transition: 'left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1)',
+              zIndex: 0,
+            }}
+          />
+
+          {/* Step buttons */}
           {stages.map((stage, index) => {
             const isActive = stage.id === activeStage;
             const isDone = index < activeIdx;
@@ -141,17 +176,20 @@ export function ShiftMobileGuide({
                 key={stage.id}
                 type="button"
                 onClick={() => onStageChange(stage.id)}
-                className={cn(
-                  'min-w-0 rounded-lg border px-2 py-1.5 text-center transition-all active:scale-[0.98]',
-                  isActive
-                    ? 'border-primary/45 bg-primary/12 text-primary'
-                    : isDone
-                      ? 'border-border/50 bg-white/[0.04] text-foreground'
-                      : 'border-border/35 bg-transparent text-muted-foreground'
-                )}
+                style={{ flex: 1, zIndex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px', borderRadius: '999px', padding: '6px 4px', background: 'none', border: 'none' }}
               >
-                <span className="block text-[10px] font-black">{stage.num || index + 1}</span>
-                <span className="mt-0.5 block truncate text-[10px] font-bold">{stage.label}</span>
+                <span className={cn(
+                  'text-[10px] font-black uppercase tracking-wider leading-none',
+                  isActive ? 'text-primary' : isDone ? 'text-foreground/65' : 'text-muted-foreground/40'
+                )}>
+                  {stage.num || `0${index + 1}`} {stage.label}
+                </span>
+                <div style={{
+                  width: 4, height: 4, borderRadius: '50%',
+                  background: isActive ? '#FF6B00' : isDone ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.18)',
+                  boxShadow: isActive ? '0 0 7px rgba(255,107,0,0.7)' : 'none',
+                  transition: 'all 0.3s ease',
+                }} />
               </button>
             );
           })}

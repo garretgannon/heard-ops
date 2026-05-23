@@ -186,6 +186,7 @@ const isMounted = useRef(true);
           onSearch={setSearchQuery}
           onAddEmployee={() => setShowAddEmployee(true)}
           canAdd={isAdmin}
+          employeeCount={employees.length}
         />
       </div>
 

@@ -74,7 +74,7 @@ export default function UpdateQuantitySheet({ task, onClose, onSuccess }) {
           <div className={`rounded-xl p-4 text-center transition-all duration-300 ${celebrating ? 'bg-green-500/10 border border-green-500/30' : 'bg-muted'}`}>
             <motion.p
               key={current}
-              initial={{ scale: 1.2, color: '#FF7A1A' }}
+              initial={{ scale: 1.2, color: '#FF6B00' }}
               animate={{ scale: 1, color: 'inherit' }}
               transition={{ type: 'spring', stiffness: 500, damping: 20 }}
               className="text-3xl font-bold text-foreground"

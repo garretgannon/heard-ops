@@ -58,7 +58,7 @@ const healthBorder = { success: 'border-green-500/30', warning: 'border-amber-50
 
 function SummaryCard({ label, value, icon: Icon, color }) {
   return (
-    <div className="card-glass border border-border rounded-xl p-3 flex flex-col gap-1">
+    <div className="p-3 flex flex-col gap-1.5" style={GLASS_BASE}>
       <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center', color === 'green' && 'bg-green-500/15', color === 'amber' && 'bg-amber-500/15', color === 'red' && 'bg-red-500/15', color === 'default' && 'bg-primary/15')}>
         <Icon className={cn('h-3.5 w-3.5', color === 'green' && 'text-green-400', color === 'amber' && 'text-amber-400', color === 'red' && 'text-red-400', color === 'default' && 'text-primary')} />
       </div>
@@ -70,6 +70,25 @@ function SummaryCard({ label, value, icon: Icon, color }) {
 
 // ─── Station card (list item) ─────────────────────────────────────────────────
 
+// Exact liquid-card values — applied inline on <button> so no CSS class or
+// browser preflight can stomp them. Dashboard cards are <section>/<a> and pick
+// these values up automatically from .liquid-card; buttons need inline forcing.
+const GLASS_BASE = {
+  background: 'linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.055) 100%)',
+  backdropFilter: 'blur(24px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+  border: '1px solid rgba(255,255,255,0.16)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.45)',
+  borderRadius: '20px',
+};
+
+const HEALTH_SELECTED = {
+  success:  { borderColor: 'rgba(34,197,94,0.5)',   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.45), 0 0 22px rgba(34,197,94,0.22)' },
+  warning:  { borderColor: 'rgba(245,158,11,0.5)',  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.45), 0 0 22px rgba(245,158,11,0.22)' },
+  critical: { borderColor: 'rgba(239,68,68,0.5)',   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.45), 0 0 22px rgba(239,68,68,0.22)' },
+  neutral:  { borderColor: 'rgba(255,255,255,0.28)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.45)' },
+};
+
 function StationListCard({ station, equipment, isSelected, onClick }) {
   const eq = equipment.filter(e => e.station_id === station.id || e.station_name === station.name);
   const health = stationHealth(station, eq);
@@ -78,12 +97,8 @@ function StationListCard({ station, equipment, isSelected, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={cn(
-        'w-full text-left rounded-xl border p-3 transition-all duration-200',
-        isSelected
-          ? cn('glow-active', healthBorder[health.color])
-          : 'border-border/40 hover:border-border/70 card-glass'
-      )}
+      className="w-full text-left p-3 transition-all duration-200 active:scale-[0.99] hover:brightness-110"
+      style={{ ...GLASS_BASE, ...(isSelected ? HEALTH_SELECTED[health.color] : {}) }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -99,7 +114,7 @@ function StationListCard({ station, equipment, isSelected, onClick }) {
           <span className="text-muted-foreground font-semibold">Setup</span>
           <span className={cn('font-black tabular-nums', healthText[health.color])}>{health.pct}%</span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/30">
+        <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
           <div className={cn('h-full rounded-full transition-all duration-700', healthBar[health.color])} style={{ width: `${health.pct}%` }} />
         </div>
       </div>
@@ -195,8 +210,10 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
   return (
     <div className="flex flex-col flex-1 min-h-0">
       {/* Station header */}
-      <div className={cn('p-4 border-b rounded-t-2xl', healthBorder[health.color])} style={{
-        background: health.color === 'success' ? 'rgba(34,197,94,0.05)' : health.color === 'warning' ? 'rgba(245,158,11,0.05)' : health.color === 'critical' ? 'rgba(239,68,68,0.07)' : 'transparent'
+      <div className={cn('p-4 border-b', healthBorder[health.color])} style={{
+        borderTopLeftRadius: '16px', borderTopRightRadius: '16px',
+        background: health.color === 'success' ? 'rgba(34,197,94,0.07)' : health.color === 'warning' ? 'rgba(245,158,11,0.07)' : health.color === 'critical' ? 'rgba(239,68,68,0.09)' : 'rgba(255,255,255,0.04)',
+        borderBottomColor: 'rgba(255,255,255,0.08)',
       }}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -218,7 +235,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
             <span className="font-bold text-muted-foreground">Setup readiness</span>
             <span className={cn('font-black tabular-nums', healthText[health.color])}>{health.pct}%</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-black/30">
+          <div className="h-2 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
             <div className={cn('h-full rounded-full transition-all duration-700', healthBar[health.color])} style={{ width: `${health.pct}%` }} />
           </div>
         </div>
@@ -226,7 +243,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
         {/* Mini metrics */}
         <div className="mt-3 grid grid-cols-3 gap-1.5">
           {metrics.map(m => (
-            <div key={m.label} className="rounded-lg p-2 text-center" style={{ background: 'rgba(0,0,0,0.3)' }}>
+            <div key={m.label} className="rounded-lg p-2 text-center" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <p className={cn('text-base font-black', m.color === 'red' ? 'text-red-400' : 'text-foreground')}>{m.value}</p>
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">{m.label}</p>
             </div>
@@ -258,7 +275,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
               {eq.map(e => {
                 const configured = isEquipmentConfigured(e);
                 return (
-                  <div key={e.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2 border border-border/30" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                  <div key={e.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                     {configured
                       ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-400" />
                       : <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400/70" />}
@@ -283,11 +300,12 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
       </div>
 
       {/* Quick actions */}
-      <div className="p-3 border-t border-border/30 space-y-2 shrink-0">
+      <div className="p-3 space-y-2 shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
         {onViewDetail && (
           <button
             onClick={onViewDetail}
-            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/8 py-2.5 text-xs font-bold text-primary hover:bg-primary/15 transition-all"
+            className="w-full flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black text-primary transition-all active:scale-[0.98]"
+            style={{ background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.3)' }}
           >
             <ChevronRight className="h-3.5 w-3.5" /> View Full Station Detail
           </button>
@@ -295,13 +313,15 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(station)}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-border/50 py-2 text-xs font-bold text-foreground hover:bg-muted/50 transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-foreground transition-all active:scale-[0.98]"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)' }}
           >
             <Edit2 className="h-3.5 w-3.5" /> Edit
           </button>
           <button
             onClick={() => onDelete(station.id)}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-500/30 py-2 text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-red-400 transition-all active:scale-[0.98]"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}
           >
             <Trash2 className="h-3.5 w-3.5" /> Delete
           </button>
@@ -491,31 +511,61 @@ export default function Stations() {
       <DesktopPageHeader title="Stations" subtitle="Kitchen and service station readiness" />
 
       {/* Mobile header */}
-      <div className="lg:hidden bg-card border-b border-border px-4 pt-4 pb-3 sticky top-0 z-10">
-        <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Stations</h1>
+      <div className="lg:hidden px-4 pt-5 pb-4 flex flex-col gap-3">
+        {/* Title row — matches dashboard */}
+        <div className="px-1">
+          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+          <h1 className="text-[32px] font-black tracking-tight text-foreground leading-none mt-1">Stations</h1>
+        </div>
+
+        {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search stations..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+            className="w-full h-11 pl-10 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none rounded-2xl"
+            style={{
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              backdropFilter: 'blur(22px)',
+              WebkitBackdropFilter: 'blur(22px)',
+            }}
           />
         </div>
-        <div className="flex gap-1.5 mt-2.5 overflow-x-auto scrollbar-hide pt-1 pb-0.5 pl-0.5">
-          {FILTERS.map(f => (
-            <button
-              key={f.id}
-              onClick={() => setActiveFilter(f.id)}
-              className={cn(
-                'shrink-0 px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all',
-                activeFilter === f.id ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+
+        {/* Filter chips */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {FILTERS.map(f => {
+            const isActive = activeFilter === f.id;
+            return (
+              <button
+                key={f.id}
+                onClick={() => { haptics.light?.(); setActiveFilter(f.id); }}
+                className="flex items-center whitespace-nowrap transition-all active:scale-95"
+                style={{
+                  height: '30px',
+                  paddingLeft: '12px',
+                  paddingRight: '12px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.01em',
+                  background: isActive ? 'rgba(255,107,0,0.15)' : 'rgba(255,255,255,0.06)',
+                  border: isActive ? '1px solid rgba(255,107,0,0.35)' : '1px solid rgba(255,255,255,0.08)',
+                  color: isActive ? '#FF6B00' : 'rgba(255,255,255,0.45)',
+                  boxShadow: isActive ? '0 0 12px rgba(255,107,0,0.15)' : 'none',
+                  flexShrink: 0,
+                }}
+              >
+                {f.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -589,7 +639,7 @@ export default function Stations() {
 
               {/* Right: sticky detail panel */}
               <div className="sticky top-[72px] self-start">
-                <div className="card-glass border border-border rounded-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
+                <div className="overflow-hidden flex flex-col" style={{ ...GLASS_BASE, height: 'calc(100vh - 120px)' }}>
                   <DetailPanel
                     station={syncedSelected}
                     equipment={equipment}
@@ -626,18 +676,20 @@ export default function Stations() {
       </div>
 
       {/* FAB */}
-      <div className="fixed bottom-20 right-4 flex flex-col gap-2 items-end lg:bottom-6">
+      <div className="fixed bottom-24 right-4 flex flex-col gap-2 items-end lg:bottom-8">
         <button
           onClick={() => { setShowBulk(true); setShowForm(false); }}
-          className="h-10 px-3 rounded-full card-glass border border-border text-xs font-bold text-foreground flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
+          className="h-9 px-4 rounded-full text-xs font-black text-foreground flex items-center gap-1.5 active:scale-95 transition-all"
+          style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
         >
-          <Layers className="h-4 w-4" /> Bulk Add
+          <Layers className="h-3.5 w-3.5" /> Bulk Add
         </button>
         <button
           onClick={() => { haptics.medium(); setEditingStation(null); setShowForm(true); }}
-          className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg active:scale-95 transition-all"
+          className="h-13 w-13 rounded-full text-white flex items-center justify-center active:scale-90 transition-all"
+          style={{ width: 52, height: 52, background: 'linear-gradient(145deg, #FF8A30 0%, #FF6B00 55%, #CC4400 100%)', boxShadow: '0 0 24px rgba(255,107,0,0.55), 0 0 6px rgba(255,107,0,0.35), inset 0 1px 0 rgba(255,255,255,0.25)', border: '1px solid rgba(255,140,60,0.5)' }}
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5" strokeWidth={2.4} />
         </button>
       </div>
 
@@ -646,8 +698,8 @@ export default function Stations() {
         <div className="lg:hidden fixed inset-0 z-50 flex items-end" onClick={e => { if (e.target === e.currentTarget) setShowDetail(false); }}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDetail(false)} />
           <div
-            className="relative w-full card-glass border border-border rounded-t-2xl flex flex-col"
-            style={{ maxHeight: '85vh' }}
+            className="relative w-full flex flex-col"
+            style={{ maxHeight: '85vh', background: 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.035) 100%)', backdropFilter: 'blur(28px) saturate(160%)', WebkitBackdropFilter: 'blur(28px) saturate(160%)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px 24px 0 0', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 -18px 45px rgba(0,0,0,0.38)' }}
           >
             <div className="h-1 w-10 bg-muted-foreground/30 rounded-full mx-auto mt-3 mb-1 shrink-0" />
             <DetailPanel
@@ -664,9 +716,9 @@ export default function Stations() {
       {/* Bulk add modal */}
       {showBulk && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-card rounded-2xl overflow-hidden max-h-[85vh] flex flex-col">
-            <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
-              <h2 className="font-bold text-foreground">Bulk Add Stations</h2>
+          <div className="w-full max-w-lg rounded-2xl overflow-hidden max-h-[85vh] flex flex-col" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(20,20,22,0.97) 100%)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 32px 64px rgba(0,0,0,0.6)' }}>
+            <div className="p-4 flex items-center justify-between shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <h2 className="font-black text-foreground">Bulk Add Stations</h2>
               <button onClick={() => setShowBulk(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
             </div>
             <div className="overflow-y-auto p-4 space-y-2 flex-1">
@@ -697,7 +749,7 @@ export default function Stations() {
                 <Plus className="h-3.5 w-3.5" /> Add Row
               </button>
             </div>
-            <div className="p-4 border-t border-border flex gap-2 shrink-0">
+            <div className="p-4 flex gap-2 shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <button onClick={handleBulkSave} disabled={bulkSaving} className="flex-1 btn-primary text-sm disabled:opacity-50">
                 {bulkSaving ? 'Saving...' : `Save ${bulkRows.filter(r => r.name.trim()).length} Station(s)`}
               </button>
@@ -710,9 +762,9 @@ export default function Stations() {
       {/* Edit / Create form modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-card rounded-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="bg-card border-b border-border p-4 flex items-center justify-between shrink-0">
-              <h2 className="font-bold text-foreground">{editingStation ? 'Edit Station' : 'Create Station'}</h2>
+          <div className="w-full max-w-md rounded-2xl overflow-hidden max-h-[90vh] flex flex-col" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(20,20,22,0.97) 100%)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 32px 64px rgba(0,0,0,0.6)' }}>
+            <div className="p-4 flex items-center justify-between shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <h2 className="font-black text-foreground">{editingStation ? 'Edit Station' : 'Create Station'}</h2>
               <button onClick={() => { setShowForm(false); setEditingStation(null); }} className="text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>

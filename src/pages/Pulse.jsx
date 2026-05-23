@@ -13,7 +13,7 @@ const METRIC_CONFIG = [
   { key: 'activeAlerts',     label: 'Alerts',       unit: '',  icon: AlertCircle, color: 'text-red-400',    glow: 'rgba(239,68,68,0.25)',    border: 'border-red-500/25',    bg: 'rgba(239,68,68,0.05)', alertWhen: v => v > 0 },
   { key: 'overdueItems',     label: 'Overdue',      unit: '',  icon: Clock,       color: 'text-amber-400',  glow: 'rgba(245,158,11,0.25)',   border: 'border-amber-500/25',  bg: 'rgba(245,158,11,0.05)', alertWhen: v => v > 0 },
   { key: 'teamOnDuty',       label: 'Staff Active', unit: '',  icon: Users,       color: 'text-blue-400',   glow: 'rgba(96,165,250,0.25)',   border: 'border-blue-500/25',   bg: 'rgba(96,165,250,0.05)' },
-  { key: 'pendingApprovals', label: 'Approvals',    unit: '',  icon: CheckSquare, color: 'text-primary',    glow: 'rgba(230,106,31,0.3)',    border: 'border-primary/25',    bg: 'rgba(230,106,31,0.05)', alertWhen: v => v > 0, route: '/approvals' },
+  { key: 'pendingApprovals', label: 'Approvals',    unit: '',  icon: CheckSquare, color: 'text-primary',    glow: 'rgba(255,107,0,0.3)',    border: 'border-primary/25',    bg: 'rgba(255,107,0,0.05)', alertWhen: v => v > 0, route: '/approvals' },
 ];
 
 export default function Pulse() {
@@ -62,7 +62,7 @@ export default function Pulse() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
           className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
-          style={{ boxShadow: '0 0 20px rgba(230,106,31,0.35)' }}
+          style={{ boxShadow: '0 0 20px rgba(255,107,0,0.35)' }}
         />
         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading pulse…</p>
       </div>
@@ -82,11 +82,11 @@ export default function Pulse() {
           <div
             className="h-28 w-28 rounded-full flex items-center justify-center"
             style={{
-              background: 'radial-gradient(circle, rgba(230,106,31,0.1) 0%, rgba(0,0,0,0.5) 70%)',
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 48px rgba(230,106,31,0.08)',
+              background: 'radial-gradient(circle, rgba(255,107,0,0.1) 0%, rgba(0,0,0,0.5) 70%)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 48px rgba(255,107,0,0.08)',
             }}
           >
-            <Activity className="h-12 w-12 text-primary" style={{ filter: 'drop-shadow(0 0 10px rgba(230,106,31,0.5))' }} />
+            <Activity className="h-12 w-12 text-primary" style={{ filter: 'drop-shadow(0 0 10px rgba(255,107,0,0.5))' }} />
           </div>
         </div>
         <h2 className="text-[20px] font-black text-foreground mb-2">Pulse needs data to work</h2>
@@ -98,8 +98,8 @@ export default function Pulse() {
             onClick={() => navigate('/setup')}
             className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
             style={{
-              background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-              boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.18)',
+              background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+              boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.18)',
             }}
           >
             Go to Setup
@@ -125,7 +125,7 @@ export default function Pulse() {
           <div className="flex items-center gap-3">
             <div
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 shrink-0"
-              style={{ background: 'rgba(230,106,31,0.1)', boxShadow: '0 0 16px rgba(230,106,31,0.15)' }}
+              style={{ background: 'rgba(255,107,0,0.1)', boxShadow: '0 0 16px rgba(255,107,0,0.15)' }}
             >
               <img src={PULSE_ICON_URL} alt="Pulse" className="h-6 w-6 object-contain" />
             </div>
@@ -169,8 +169,11 @@ export default function Pulse() {
                 onClick={route ? () => navigate(route) : undefined}
                 className={cn('relative overflow-hidden rounded-2xl border p-4 space-y-3', route && 'cursor-pointer active:scale-[0.97] transition-all', isAlert ? border : 'border-border/40')}
                 style={{
-                  background: isAlert ? bg : 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
-                  boxShadow: isAlert ? `0 0 20px ${glow}` : '0 1px 3px rgba(0,0,0,0.4)',
+                  background: isAlert ? bg : 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)',
+                  border: isAlert ? undefined : '1px solid rgba(255,255,255,0.10)',
+                  backdropFilter: 'blur(22px) saturate(160%)',
+                  WebkitBackdropFilter: 'blur(22px) saturate(160%)',
+                  boxShadow: isAlert ? `inset 0 1px 0 rgba(255,255,255,0.10), 0 0 20px ${glow}` : 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 20px rgba(0,0,0,0.28)',
                 }}
               >
                 <div className="flex items-center justify-between">
@@ -203,7 +206,7 @@ export default function Pulse() {
                 key={path}
                 onClick={() => navigate(path)}
                 className="rounded-xl border border-border/40 px-3 py-3 text-left transition-all active:scale-[0.97]"
-                style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)' }}
               >
                 <p className="text-sm font-black text-foreground">{label}</p>
                 <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>

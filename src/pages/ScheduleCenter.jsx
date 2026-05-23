@@ -496,7 +496,7 @@ export default function ScheduleCenter() {
             <button
               onClick={() => setShowMassAdd(true)}
               className="flex items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-bold text-primary flex-1"
-              style={{ border: '1px solid rgba(230,106,31,0.55)', background: 'transparent' }}
+              style={{ border: '1px solid rgba(255,107,0,0.55)', background: 'transparent' }}
             >
               <Plus className="h-3.5 w-3.5" />
               Add Shift
@@ -726,13 +726,13 @@ export default function ScheduleCenter() {
               <div
                 className="h-28 w-28 rounded-full flex items-center justify-center"
                 style={{
-                  background: 'radial-gradient(circle, rgba(230,106,31,0.1) 0%, rgba(0,0,0,0.5) 70%)',
-                  boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 48px rgba(230,106,31,0.08)',
+                  background: 'radial-gradient(circle, rgba(255,107,0,0.1) 0%, rgba(0,0,0,0.5) 70%)',
+                  boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 48px rgba(255,107,0,0.08)',
                 }}
               >
                 <Calendar
                   className="h-12 w-12 text-primary"
-                  style={{ filter: 'drop-shadow(0 0 10px rgba(230,106,31,0.5))' }}
+                  style={{ filter: 'drop-shadow(0 0 10px rgba(255,107,0,0.5))' }}
                 />
               </div>
             </div>
@@ -745,8 +745,8 @@ export default function ScheduleCenter() {
                 onClick={() => setShowMassAdd(true)}
                 className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
                 style={{
-                  background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-                  boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 20px rgba(230,106,31,0.18)',
+                  background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+                  boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.18)',
                 }}
               >
                 Add Shift

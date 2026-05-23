@@ -130,7 +130,7 @@ function PulseRing({ value }) {
           strokeDasharray={circumference}
           strokeDashoffset={progressOffset}
           className="transition-all duration-700"
-          style={{ filter: 'drop-shadow(0 0 16px rgba(230, 106, 31, 0.32))' }}
+          style={{ filter: 'drop-shadow(0 0 16px rgba(255, 107, 0, 0.32))' }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -459,7 +459,7 @@ export default function AppOverview() {
       setMetrics((current) => ({ ...current, pendingApprovals: Math.max(current.pendingApprovals - 1, 0) }));
       setDetailSheet(null);
       if (remaining.length === 0) {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#FF6B00', '#FCD34D'] });
         setShowBurst(true);
         setShowApprovalDeck(false);
         setTimeout(() => setShowBurst(false), 1100);
@@ -490,7 +490,7 @@ export default function AppOverview() {
       setDenialDrawer(null);
       setDetailSheet(null);
       if (remaining.length === 0) {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#FF6B00', '#FCD34D'] });
         setShowBurst(true);
         setShowApprovalDeck(false);
         setTimeout(() => setShowBurst(false), 1100);
@@ -589,152 +589,276 @@ export default function AppOverview() {
           </section>
         )}
 
-        <header className="flex items-center justify-between gap-4 pt-1 lg:hidden">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-black tracking-tight text-foreground">Morning, {firstName}</h1>
-            <p className="mt-1 truncate text-sm text-muted-foreground">
-              {overdueTasks > 0 ? `${overdueTasks} task${overdueTasks !== 1 ? 's' : ''} overdue` : 'All clear. Keep an eye on prep.'}
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2.5">
-            <button
-              onClick={() => setShowApprovalDeck(true)}
-              className="ops-toolbar-button relative w-10 px-0"
-            >
-              <Bell className={cn('h-4 w-4', hasApprovalQueue ? 'text-foreground' : 'text-muted-foreground')} />
-              {hasApprovalQueue && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary">
-                  <span className="text-[9px] font-black text-white">{approvalQueue.length}</span>
-                </span>
-              )}
-            </button>
-            <LiveClock />
-          </div>
-        </header>
-
         {/* ── Mobile layout ─────────────────────────────────────── */}
-        <div className="space-y-4 lg:hidden">
+        <div className="space-y-3 lg:hidden">
 
-          {/* 1. Service Risks — top priority */}
-          <section className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                <h2 className="text-[10px] font-black uppercase tracking-[0.18em] text-primary">Service Risks</h2>
-              </div>
-              <span className="text-[10px] font-bold text-muted-foreground">Today</span>
+          {/* Page title */}
+          <div className="px-1 pb-1">
+            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </p>
+            <h1 className="text-[32px] font-black tracking-tight text-foreground leading-none mt-1">Today</h1>
+          </div>
+
+          {/* 1 ── Shift Pulse Card */}
+          <section className="liquid-card flex items-center gap-4 px-4 py-4">
+            {/* Pulse SVG icon */}
+            <div className="shrink-0 h-[68px] w-[68px]">
+              <svg viewBox="0 0 68 68" className="h-full w-full">
+                {Array.from({ length: 24 }).map((_, i) => {
+                  const angle = (i * 360) / 24;
+                  const rad = (angle * Math.PI) / 180;
+                  const isMajor = i % 6 === 0;
+                  const isMid = i % 3 === 0;
+                  const r1 = 32;
+                  const r2 = isMajor ? 25 : isMid ? 27 : 28.5;
+                  return (
+                    <line
+                      key={i}
+                      x1={34 + r2 * Math.cos(rad)} y1={34 + r2 * Math.sin(rad)}
+                      x2={34 + r1 * Math.cos(rad)} y2={34 + r1 * Math.sin(rad)}
+                      stroke="#FF6B00"
+                      strokeWidth={isMajor ? 2 : 1}
+                      strokeLinecap="round"
+                      opacity={isMajor ? 1 : isMid ? 0.7 : 0.4}
+                    />
+                  );
+                })}
+                <polyline
+                  points="14,34 20,34 24,25 29,43 33,30 37,38 41,34 54,34"
+                  fill="none" stroke="#FF6B00" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round"
+                  style={{ filter: 'drop-shadow(0 0 3px rgba(255,107,0,0.6))' }}
+                />
+              </svg>
             </div>
-            <div className="space-y-1.5">
-              {dynamicActions.map((item) => <ActionRow key={item.label} item={item} />)}
+
+            {/* Text + bar */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[15px] font-black text-white leading-snug">
+                Shift pulse: <span className="text-primary">{readiness}%</span> on track
+              </p>
+              {/* Progress bar */}
+              <div className="relative mt-2.5 h-2 rounded-full overflow-visible" style={{ background: 'rgba(255,255,255,0.1)' }}>
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${readiness}%`, background: 'linear-gradient(90deg, #CC4400, #FF6B00)', boxShadow: '0 0 8px rgba(255,107,0,0.5)', transition: 'width 0.7s ease' }}
+                />
+                <div
+                  className="absolute top-1/2 h-4 w-4 rounded-full -translate-y-1/2 border-2 border-white bg-primary"
+                  style={{ left: `calc(${readiness}% - 8px)`, boxShadow: '0 0 8px rgba(255,107,0,0.8)', transition: 'left 0.7s ease' }}
+                />
+              </div>
+              {/* Meta */}
+              <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
+                {issueCount > 0 ? `${issueCount} temp log${issueCount !== 1 ? 's' : ''} overdue` : 'Temp logs current'}
+                {pendingApprovals > 0 ? ` · ${pendingApprovals} approval${pendingApprovals !== 1 ? 's' : ''} waiting` : ''}
+              </p>
             </div>
           </section>
 
-          {/* 2. Readiness Snapshot — compact horizontal layout */}
-          <section className="ops-panel relative px-4 py-4">
-            <div className="absolute inset-x-8 top-0 h-14 rounded-full bg-primary/[0.07] blur-3xl" />
-            <div className="relative flex items-center gap-4">
-              <div className="relative h-[88px] w-[88px] shrink-0">
-                <svg className="h-[88px] w-[88px] -rotate-90" viewBox="0 0 132 132">
-                  <circle cx="66" cy="66" r={ringRadius} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="10" />
-                  <circle
-                    cx="66" cy="66" r={ringRadius}
-                    fill="none" stroke="hsl(var(--primary))"
-                    strokeWidth="10" strokeLinecap="round"
-                    strokeDasharray={ringCircumference}
-                    strokeDashoffset={ringOffset}
-                    className="transition-all duration-700"
-                    style={{ filter: 'drop-shadow(0 0 10px rgba(230,106,31,0.26))' }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-black tracking-tight text-foreground">{readiness}%</span>
-                  <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Stations</span>
+          {/* 2 ── 2×2 Metric Grid */}
+          <section className="grid grid-cols-2 gap-3">
+
+            {/* Shift Readiness */}
+            <Link to="/operational-map" className="liquid-card p-4 flex flex-col gap-3 active:scale-[0.97] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <UserRound className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Shift Readiness</span>
+                </div>
+                <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+              </div>
+              <div>
+                <p className="text-[30px] font-black text-foreground leading-none">{readiness}%</p>
+                <p className="text-[11px] text-muted-foreground mt-1">Ready</p>
+              </div>
+              {/* Segmented bar */}
+              <div className="flex gap-1">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="h-1.5 flex-1 rounded-full"
+                    style={{ background: i < Math.round(readiness / 10) ? '#FF6B00' : 'rgba(255,255,255,0.12)', boxShadow: i < Math.round(readiness / 10) ? '0 0 4px rgba(255,107,0,0.4)' : 'none' }} />
+                ))}
+              </div>
+              {/* Mini stats */}
+              <div className="grid grid-cols-3 gap-1">
+                <div className="rounded-lg py-1.5 text-center" style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.18)' }}>
+                  <p className="text-sm font-black text-green-400">{metrics.completedTasks}</p>
+                  <p className="text-[8px] text-muted-foreground mt-0.5">Done</p>
+                </div>
+                <div className="rounded-lg py-1.5 text-center" style={{ background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.18)' }}>
+                  <p className="text-sm font-black text-primary">{pendingApprovals}</p>
+                  <p className="text-[8px] text-muted-foreground mt-0.5">Pending</p>
+                </div>
+                <div className="rounded-lg py-1.5 text-center" style={{ background: issueCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.05)', border: issueCount > 0 ? '1px solid rgba(239,68,68,0.18)' : '1px solid rgba(255,255,255,0.07)' }}>
+                  <p className={cn('text-sm font-black', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/40')}>{issueCount}</p>
+                  <p className="text-[8px] text-muted-foreground mt-0.5">Issues</p>
                 </div>
               </div>
-              <div className="flex-1">
-                <p className="text-[9px] font-black uppercase tracking-[0.16em] text-muted-foreground mb-2">Readiness Snapshot</p>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {[
-                    { value: overdueTasks, label: 'Overdue', color: overdueTasks > 0 ? 'text-primary' : 'text-muted-foreground/40' },
-                    { value: pendingApprovals, label: 'Approvals', color: pendingApprovals > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
-                    { value: issueCount, label: 'Issues', color: issueCount > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
-                  ].map(({ value, label, color }) => (
-                    <div key={label} className="ops-panel-soft px-2 py-2 text-center">
-                      <p className={cn('text-base font-black', color)}>{value}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground leading-tight">{label}</p>
+            </Link>
+
+            {/* Prep Progress */}
+            <Link to="/tasks" className="liquid-card p-4 flex flex-col gap-3 active:scale-[0.97] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Flame className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Prep Progress</span>
+                </div>
+                <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+              </div>
+              {/* Donut + label */}
+              <div className="flex items-center gap-3">
+                <div className="relative h-[52px] w-[52px] shrink-0">
+                  <svg className="h-full w-full -rotate-90" viewBox="0 0 52 52">
+                    <circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+                    <circle cx="26" cy="26" r="20" fill="none" stroke="#FF6B00" strokeWidth="5" strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 20}
+                      strokeDashoffset={2 * Math.PI * 20 * (1 - taskPct / 100)}
+                      style={{ filter: 'drop-shadow(0 0 4px rgba(255,107,0,0.6))', transition: 'stroke-dashoffset 0.7s ease' }} />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-[11px] font-black text-foreground">{taskPct}%</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-black text-foreground">{overdueTasks > 0 ? 'Behind' : 'On Track'}</p>
+                  <p className="text-[10px] text-muted-foreground leading-snug mt-0.5">Prep tasks<br/>completed</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-primary">{metrics.completedTasks} of {metrics.totalTasks || 0} tasks</p>
+                <div className="mt-1 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <div className="h-full rounded-full" style={{ width: `${taskPct}%`, background: '#FF6B00', boxShadow: '0 0 4px rgba(255,107,0,0.4)', transition: 'width 0.7s ease' }} />
+                </div>
+              </div>
+            </Link>
+
+            {/* Compliance */}
+            <Link to="/logs" className="liquid-card p-4 flex flex-col gap-3 active:scale-[0.97] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Compliance</span>
+                </div>
+                <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+              </div>
+              {/* Donut + label */}
+              {(() => {
+                const compliancePct = issueCount === 0 ? 98 : Math.max(72, 98 - issueCount * 6);
+                const complianceColor = issueCount === 0 ? '#22c55e' : '#f59e0b';
+                return (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-[52px] w-[52px] shrink-0">
+                        <svg className="h-full w-full -rotate-90" viewBox="0 0 52 52">
+                          <circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+                          <circle cx="26" cy="26" r="20" fill="none" stroke={complianceColor} strokeWidth="5" strokeLinecap="round"
+                            strokeDasharray={2 * Math.PI * 20}
+                            strokeDashoffset={2 * Math.PI * 20 * (1 - compliancePct / 100)}
+                            style={{ transition: 'stroke-dashoffset 0.7s ease' }} />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-[11px] font-black text-foreground">{compliancePct}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-foreground">{issueCount === 0 ? 'Compliant' : 'Review Needed'}</p>
+                        <p className="text-[10px] text-muted-foreground leading-snug mt-0.5">
+                          {issueCount === 0 ? 'All critical checks' : `${issueCount} open issue${issueCount !== 1 ? 's' : ''}`}<br/>
+                          {issueCount === 0 ? 'up to date' : 'unresolved'}
+                        </p>
+                      </div>
                     </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+                      <p className="text-[10px] text-muted-foreground">{issueCount === 0 ? 'All checks passed' : 'Action needed'}</p>
+                    </div>
+                  </>
+                );
+              })()}
+            </Link>
+
+            {/* Reservations / BEOs */}
+            <Link to="/reservations" className="liquid-card p-4 flex flex-col gap-2 active:scale-[0.97] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Clock3 className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground leading-tight">Reservations / BEOs</span>
+                </div>
+                <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+              </div>
+              <div className="flex items-center gap-3 py-1">
+                <div>
+                  <p className="text-2xl font-black text-foreground">0</p>
+                  <p className="text-[10px] text-muted-foreground">Reservations</p>
+                </div>
+                <div className="w-px h-8 bg-white/10 shrink-0" />
+                <div>
+                  <p className="text-2xl font-black text-foreground">0</p>
+                  <p className="text-[10px] text-muted-foreground">BEOs</p>
+                </div>
+              </div>
+              {/* Bar chart */}
+              <div className="mt-auto">
+                <div className="flex items-end gap-1 h-7">
+                  {[30, 55, 40, 85, 20].map((h, i) => (
+                    <div key={i} className="flex-1 rounded-sm transition-all"
+                      style={{ height: `${h}%`, background: i === 3 ? '#FF6B00' : 'rgba(255,255,255,0.14)', boxShadow: i === 3 ? '0 0 6px rgba(255,107,0,0.4)' : 'none' }} />
+                  ))}
+                </div>
+                <div className="flex mt-1">
+                  {['9A','12P','3P','6P','9P'].map(l => (
+                    <span key={l} className="flex-1 text-center text-[8px] text-muted-foreground/50">{l}</span>
                   ))}
                 </div>
               </div>
-            </div>
+            </Link>
+
           </section>
 
-          {/* 3. Prep Queue — operational execution list */}
-          {prepQueue.length > 0 && (
-            <section className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-black tracking-tight text-foreground">Prep Queue</h2>
-                <Link to="/tasks?tab=prep" className="text-[11px] font-black text-primary">View all</Link>
-              </div>
-              <div className="ops-list">
-                {prepQueue.map((item) => (
-                  <Link key={item.name} to="/tasks?tab=prep"
-                    className="ops-row">
-                    <span className={cn('h-2 w-2 rounded-full shrink-0',
-                      item.statusClass === 'status-critical' ? 'bg-red-400' :
-                      item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-blue-400'
-                    )} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-black text-foreground truncate">{item.name}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        {item.assignee && item.assignee !== '—' && (
-                          <span className="text-[11px] text-muted-foreground truncate">{item.assignee}</span>
-                        )}
-                        {item.due && (
-                          <span className="text-[11px] text-muted-foreground/60 shrink-0">{item.due}</span>
-                        )}
-                      </div>
-                      <div className="mt-1.5 h-1 bg-muted/40 rounded-full overflow-hidden">
-                        <div
-                          className={cn('h-full rounded-full transition-all duration-500',
-                            item.statusClass === 'status-critical' ? 'bg-red-400' :
-                            item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-primary'
-                          )}
-                          style={{ width: `${item.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                    <span className="text-xs font-black text-muted-foreground shrink-0">{item.progress}%</span>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+          {/* 3 ── Approvals action banner — always visible */}
+          {(() => {
+            const count = approvalQueue.length;
+            const isClear  = count === 0;
+            const isCrit   = count > 5;
+            const accent   = isClear ? '#22c55e' : isCrit ? '#ef4444' : '#FF6B00';
+            const accentBg = isClear ? 'rgba(34,197,94,0.08)'  : isCrit ? 'rgba(239,68,68,0.08)'  : 'rgba(255,107,0,0.08)';
+            const accentBd = isClear ? 'rgba(34,197,94,0.32)'  : isCrit ? 'rgba(239,68,68,0.32)'  : 'rgba(255,107,0,0.32)';
+            const accentGl = isClear ? 'rgba(34,197,94,0.08)'  : isCrit ? 'rgba(239,68,68,0.08)'  : 'rgba(255,107,0,0.08)';
+            const btnGlow  = isClear ? 'rgba(34,197,94,0.45)'  : isCrit ? 'rgba(239,68,68,0.45)'  : 'rgba(255,107,0,0.45)';
+            const label    = isClear ? 'All clear' : `${count} approval${count !== 1 ? 's' : ''} waiting`;
+            const sub      = isClear
+              ? 'No pending approvals right now'
+              : approvalQueue.slice(0, 2).map(a => a.title || a.name || 'Approval').join(' · ');
+            const btnLabel = isClear ? 'All Clear' : 'Review Now';
+            return (
+              <section>
+                <button
+                  onClick={() => !isClear && setShowApprovalDeck(true)}
+                  disabled={isClear}
+                  className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl active:scale-[0.98] transition-all text-left disabled:active:scale-100"
+                  style={{ background: accentBg, border: `1px solid ${accentBd}`, boxShadow: `0 0 24px ${accentGl}` }}
+                >
+                  <div className="relative shrink-0">
+                    <ClipboardList className="h-8 w-8" style={{ color: accent }} />
+                    {!isClear && <AlertCircle className="absolute -bottom-1 -right-1 h-4 w-4" style={{ color: accent }} />}
+                    {isClear && <CheckCircle2 className="absolute -bottom-1 -right-1 h-4 w-4 text-green-400" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black text-foreground">{label}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{sub}</p>
+                  </div>
+                  <span
+                    className="shrink-0 px-4 py-2 rounded-xl text-xs font-black text-white whitespace-nowrap"
+                    style={{ background: accent, boxShadow: `0 0 16px ${btnGlow}` }}
+                  >
+                    {btnLabel}
+                  </span>
+                </button>
+              </section>
+            );
+          })()}
 
-          {/* 4. Live Ops Feed */}
-          <section className="space-y-2 pb-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Activity className="h-3 w-3 text-muted-foreground" />
-                <h2 className="text-sm font-black tracking-tight text-foreground">Live Ops Feed</h2>
-              </div>
-              <Link to="/logs" className="text-[11px] font-black text-primary">Logs</Link>
-            </div>
-            <div className="ops-list">
-              {activity.length > 0 ? activity.map((item) => (
-                <div key={item.label} className="ops-row py-2.5">
-                  <span className={cn('h-1.5 w-1.5 rounded-full shrink-0',
-                    item.statusClass === 'status-critical' ? 'bg-red-400 animate-pulse' :
-                    item.statusClass === 'status-warning' ? 'bg-amber-400' : 'bg-green-400'
-                  )} />
-                  <p className="min-w-0 flex-1 text-sm font-semibold text-foreground truncate">{item.label}</p>
-                  {item.time && <span className="text-[11px] font-semibold text-muted-foreground shrink-0">{item.time}</span>}
-                </div>
-              )) : (
-                <p className="px-4 py-4 text-sm text-muted-foreground">No activity logged yet.</p>
-              )}
-            </div>
-          </section>
         </div>
 
         {/* ── Desktop layout ─────────────────────────────────────── */}

@@ -545,8 +545,8 @@ export default function PrepTemplatesManager() {
                   onClick={() => setIsCreating(true)}
                   className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black text-white active:scale-[0.97] transition-all"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-                    boxShadow: '0 0 0 1px rgba(230,106,31,0.35), 0 0 16px rgba(230,106,31,0.15)',
+                    background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+                    boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 16px rgba(255,107,0,0.15)',
                   }}
                 >
                   <Plus className="h-4 w-4" /> Create Template

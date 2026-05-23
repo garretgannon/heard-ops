@@ -29,7 +29,7 @@ export default function Step0_Intro({ onNext }) {
     >
       <div className="flex flex-col gap-3">
         <h1 className="text-3xl lg:text-4xl font-extrabold text-white leading-tight">
-          Let's build your <span style={{ color: '#E66A1F' }}>operating system.</span>
+          Let's build your <span style={{ color: '#FF6B00' }}>operating system.</span>
         </h1>
         <p className="text-base text-white/50 leading-relaxed max-w-xl">
           We'll set up departments, job codes, roles, station links, and permissions — so your
@@ -59,7 +59,7 @@ export default function Step0_Intro({ onNext }) {
           onClick={onNext}
           className="px-8 py-3 text-sm font-bold rounded-xl transition-opacity hover:opacity-90 active:scale-95"
           style={{
-            background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)',
+            background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
             color: 'white',
             borderRadius: 10,
           }}

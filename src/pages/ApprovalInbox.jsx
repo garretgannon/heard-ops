@@ -24,7 +24,7 @@ const RANKS = [
   { min: 0,   title: 'Prep Cook',        icon: ChefHat,  color: 'text-slate-400',  glow: 'rgba(148,163,184,0.3)' },
   { min: 50,  title: 'Line Cook',         icon: Flame,    color: 'text-amber-400',  glow: 'rgba(251,191,36,0.3)' },
   { min: 150, title: 'Sous Chef',         icon: Zap,      color: 'text-orange-400', glow: 'rgba(251,146,60,0.35)' },
-  { min: 300, title: 'Chef de Cuisine',   icon: Star,     color: 'text-primary',    glow: 'rgba(230,106,31,0.4)' },
+  { min: 300, title: 'Chef de Cuisine',   icon: Star,     color: 'text-primary',    glow: 'rgba(255,107,0,0.4)' },
   { min: 500, title: 'Executive Chef',    icon: Crown,    color: 'text-yellow-400', glow: 'rgba(250,204,21,0.4)' },
 ];
 
@@ -48,7 +48,7 @@ function getComboMultiplier(combo) {
 function getComboStyle(combo) {
   if (combo >= 10) return { label: 'LEGENDARY', color: 'text-yellow-300', border: 'border-yellow-400/40', bg: 'bg-yellow-400/10', glow: '0 0 24px rgba(250,204,21,0.3)' };
   if (combo >= 5)  return { label: 'ON FIRE',   color: 'text-orange-300', border: 'border-orange-400/40', bg: 'bg-orange-400/12', glow: '0 0 20px rgba(251,146,60,0.3)' };
-  if (combo >= 2)  return { label: 'COMBO',     color: 'text-primary',    border: 'border-primary/40',    bg: 'bg-primary/10',    glow: '0 0 16px rgba(230,106,31,0.25)' };
+  if (combo >= 2)  return { label: 'COMBO',     color: 'text-primary',    border: 'border-primary/40',    bg: 'bg-primary/10',    glow: '0 0 16px rgba(255,107,0,0.25)' };
   return null;
 }
 
@@ -74,7 +74,7 @@ function RankProgressBar({ score }) {
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/40">
         <motion.div
           className="h-full rounded-full"
-          style={{ background: `linear-gradient(90deg, hsl(22,76%,40%), hsl(22,76%,60%))`, boxShadow: `0 0 8px ${rank.glow}` }}
+          style={{ background: `linear-gradient(90deg, #FF6B00, #64D2FF)`, boxShadow: `0 0 8px ${rank.glow}` }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -113,7 +113,7 @@ function XpFloat({ amount, onDone }) {
       transition={{ duration: 0.75, ease: 'easeOut' }}
       onAnimationComplete={onDone}
       className="pointer-events-none absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 text-xl font-black text-primary"
-      style={{ textShadow: '0 0 12px rgba(230,106,31,0.8)' }}
+      style={{ textShadow: '0 0 12px rgba(255,107,0,0.8)' }}
     >
       +{amount} XP
     </motion.div>
@@ -157,7 +157,7 @@ function ScoreCounter({ score }) {
         exit={{ y: 12, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 600, damping: 30 }}
         className="text-3xl font-black tabular-nums tracking-tight text-foreground"
-        style={{ textShadow: score > 0 ? '0 0 20px rgba(230,106,31,0.4)' : 'none' }}
+        style={{ textShadow: score > 0 ? '0 0 20px rgba(255,107,0,0.4)' : 'none' }}
       >
         {String(score).padStart(4, '0')}
       </motion.span>
@@ -180,7 +180,7 @@ function PointBadge({ approval, combo }) {
             ? 'border border-amber-400/40 bg-amber-400/15 text-amber-300'
             : 'border border-primary/30 bg-primary/10 text-primary'
         )}
-        style={{ boxShadow: isUrgent ? '0 0 10px rgba(251,191,36,0.2)' : '0 0 8px rgba(230,106,31,0.15)' }}
+        style={{ boxShadow: isUrgent ? '0 0 10px rgba(251,191,36,0.2)' : '0 0 8px rgba(255,107,0,0.15)' }}
       >
         <Zap className="h-2.5 w-2.5" />
         {total} XP
@@ -262,7 +262,7 @@ export default function ApprovalInbox() {
     if (prevRank.title !== nextRank.title) {
       setRankUp(nextRank);
       setTimeout(() => setRankUp(null), 2200);
-      confetti({ particleCount: 60, spread: 50, origin: { y: 0.5 }, colors: ['#E66A1F', '#FB923C', '#FCD34D'] });
+      confetti({ particleCount: 60, spread: 50, origin: { y: 0.5 }, colors: ['#FF6B00', '#FB923C', '#FCD34D'] });
     }
   };
 
@@ -295,7 +295,7 @@ export default function ApprovalInbox() {
       setProcessedToday(p => p + 1);
 
       if (filteredApprovals.slice(currentIndex + 1).length === 0) {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#FF6B00', '#FCD34D'] });
         setShowBurst(true);
         setTimeout(() => { setShowBurst(false); setShowCelebration(true); }, 1100);
       }
@@ -325,7 +325,7 @@ export default function ApprovalInbox() {
       setDenialDrawer(null);
 
       if (filteredApprovals.slice(currentIndex + 1).length === 0) {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#E66A1F', '#FCD34D'] });
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.55 }, colors: ['#22c55e', '#4ade80', '#86efac', '#FF6B00', '#FCD34D'] });
         setShowBurst(true);
         setTimeout(() => { setShowBurst(false); setShowCelebration(true); }, 1100);
       }
@@ -345,7 +345,7 @@ export default function ApprovalInbox() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
           className="h-10 w-10 rounded-full border-2 border-primary border-t-transparent"
-          style={{ boxShadow: '0 0 24px rgba(230,106,31,0.4)' }}
+          style={{ boxShadow: '0 0 24px rgba(255,107,0,0.4)' }}
         />
         <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Loading queue…</p>
       </div>
@@ -500,7 +500,7 @@ export default function ApprovalInbox() {
           className="rounded-2xl border border-border/40 p-4"
           style={{
             background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
-            boxShadow: score > 0 ? `0 0 0 1px rgba(230,106,31,0.15), 0 4px 24px rgba(0,0,0,0.4)` : '0 1px 3px rgba(0,0,0,0.4)',
+            boxShadow: score > 0 ? `0 0 0 1px rgba(255,107,0,0.15), 0 4px 24px rgba(0,0,0,0.4)` : '0 1px 3px rgba(0,0,0,0.4)',
           }}
         >
           <div className="flex items-center justify-between gap-4">
@@ -585,7 +585,7 @@ export default function ApprovalInbox() {
           >
             <div
               className="flex items-center gap-3 rounded-2xl border border-primary/40 bg-background px-5 py-3"
-              style={{ boxShadow: '0 0 40px rgba(230,106,31,0.35), 0 8px 32px rgba(0,0,0,0.6)' }}
+              style={{ boxShadow: '0 0 40px rgba(255,107,0,0.35), 0 8px 32px rgba(0,0,0,0.6)' }}
             >
               <rankUp.icon className={cn('h-6 w-6', rankUp.color)} style={{ filter: `drop-shadow(0 0 6px ${rankUp.glow})` }} />
               <div>
@@ -628,8 +628,8 @@ function GameOver({ score, rank, processedToday, onReset }) {
 
   useEffect(() => {
     setTimeout(() => {
-      confetti({ particleCount: 60, angle: 60,  spread: 55, origin: { x: 0 }, colors: ['#E66A1F', '#FCD34D', '#22c55e'] });
-      confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#E66A1F', '#FCD34D', '#22c55e'] });
+      confetti({ particleCount: 60, angle: 60,  spread: 55, origin: { x: 0 }, colors: ['#FF6B00', '#FCD34D', '#22c55e'] });
+      confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#FF6B00', '#FCD34D', '#22c55e'] });
     }, 200);
   }, []);
 
@@ -651,13 +651,13 @@ function GameOver({ score, rank, processedToday, onReset }) {
           >
             <div
               className="absolute inset-0 rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(230,106,31,0.25) 0%, transparent 70%)', animation: 'pulse 2s ease-in-out infinite' }}
+              style={{ background: 'radial-gradient(circle, rgba(255,107,0,0.25) 0%, transparent 70%)', animation: 'pulse 2s ease-in-out infinite' }}
             />
             <div
               className="flex h-full w-full items-center justify-center rounded-full border border-primary/40"
-              style={{ background: 'linear-gradient(135deg, rgba(230,106,31,0.2) 0%, rgba(230,106,31,0.08) 100%)', boxShadow: '0 0 40px rgba(230,106,31,0.3)' }}
+              style={{ background: 'linear-gradient(135deg, rgba(255,107,0,0.2) 0%, rgba(255,107,0,0.08) 100%)', boxShadow: '0 0 40px rgba(255,107,0,0.3)' }}
             >
-              <Trophy className="h-10 w-10 text-primary" style={{ filter: 'drop-shadow(0 0 8px rgba(230,106,31,0.6))' }} />
+              <Trophy className="h-10 w-10 text-primary" style={{ filter: 'drop-shadow(0 0 8px rgba(255,107,0,0.6))' }} />
             </div>
           </motion.div>
 
@@ -678,12 +678,12 @@ function GameOver({ score, rank, processedToday, onReset }) {
           {/* Score banner */}
           <div
             className="border-b border-border/30 px-5 py-4 text-center"
-            style={{ background: 'linear-gradient(135deg, rgba(230,106,31,0.12) 0%, rgba(230,106,31,0.04) 100%)' }}
+            style={{ background: 'linear-gradient(135deg, rgba(255,107,0,0.12) 0%, rgba(255,107,0,0.04) 100%)' }}
           >
             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/70">Final Score</p>
             <p
               className="mt-1 text-5xl font-black tabular-nums text-foreground"
-              style={{ textShadow: '0 0 30px rgba(230,106,31,0.5)' }}
+              style={{ textShadow: '0 0 30px rgba(255,107,0,0.5)' }}
             >
               {String(score).padStart(4, '0')}
             </p>
@@ -720,8 +720,8 @@ function GameOver({ score, rank, processedToday, onReset }) {
           onClick={onReset}
           className="w-full rounded-2xl py-3.5 text-sm font-black text-white transition-all active:scale-[0.97]"
           style={{
-            background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-            boxShadow: '0 0 0 1px rgba(230,106,31,0.4), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
+            background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+            boxShadow: '0 0 0 1px rgba(255,107,0,0.4), 0 0 24px rgba(255,107,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
           }}
         >
           Check Again

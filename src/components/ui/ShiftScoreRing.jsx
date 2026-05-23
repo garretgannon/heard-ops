@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 const RADIUS = 44;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-export default function ShiftScoreRing({ percent = 0, score = null, label = 'Complete', size = 120, strokeWidth = 8, color = '#FF7A1A' }) {
+export default function ShiftScoreRing({ percent = 0, score = null, label = 'Complete', size = 120, strokeWidth = 8, color = '#FF6B00' }) {
   const circleRef = useRef(null);
   const prevPercent = useRef(0);
 

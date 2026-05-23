@@ -2,10 +2,17 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// Liquid Glass card — backdrop-blur(30px) + diagonal gradient border + refractive edges
 const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("rounded-xl border bg-card text-card-foreground shadow", className)}
+    className={cn("rounded-lg text-card-foreground", className)}
+    style={{
+      background: "rgba(26, 26, 26, 0.6) padding-box, linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%) border-box",
+      border: "1px solid transparent",
+      backdropFilter: "blur(30px) saturate(120%)",
+      WebkitBackdropFilter: "blur(30px) saturate(120%)",
+    }}
     {...props} />
 ))
 Card.displayName = "Card"
@@ -21,7 +28,7 @@ CardHeader.displayName = "CardHeader"
 const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
+    className={cn("text-[17px] font-extrabold leading-none tracking-normal", className)}
     {...props} />
 ))
 CardTitle.displayName = "CardTitle"
@@ -29,7 +36,7 @@ CardTitle.displayName = "CardTitle"
 const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm font-bold text-muted-foreground", className)}
     {...props} />
 ))
 CardDescription.displayName = "CardDescription"

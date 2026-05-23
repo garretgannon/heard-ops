@@ -7,16 +7,17 @@ export default function NavItem({ icon: Icon = Home, label, isActive, isAdd, onC
       <button
         onClick={onClick}
         aria-label={label}
-        className="relative -mt-8 flex flex-1 flex-col items-center justify-center gap-1 rounded-full transition-all duration-200 active:scale-95"
+        className="relative -mt-9 flex flex-1 flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-90"
       >
         <span
-          className="flex h-14 w-14 items-center justify-center rounded-full border border-primary/45 text-primary-foreground"
+          className="flex h-14 w-14 items-center justify-center rounded-full text-white"
           style={{
-            background: 'linear-gradient(180deg, rgba(230, 106, 31, 0.82), rgba(154, 61, 16, 0.9))',
-            boxShadow: '0 0 0 6px rgba(230, 106, 31, 0.055), 0 0 18px rgba(230, 106, 31, 0.38), inset 0 1px 2px rgba(255,255,255,0.18)',
+            background: 'linear-gradient(145deg, #FF8A30 0%, #FF6B00 55%, #CC4400 100%)',
+            boxShadow: '0 0 24px rgba(255,107,0,0.55), 0 0 6px rgba(255,107,0,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
+            border: '1px solid rgba(255,140,60,0.5)',
           }}
         >
-          <Icon className="h-7 w-7" strokeWidth={2.2} />
+          <Icon className="h-6 w-6" strokeWidth={2.4} />
         </span>
       </button>
     );
@@ -34,7 +35,7 @@ export default function NavItem({ icon: Icon = Home, label, isActive, isAdd, onC
         <Icon
           className={cn('h-6 w-6 transition-all duration-200', isActive ? 'text-primary' : 'text-muted-foreground')}
           strokeWidth={isActive ? 2.2 : 1.75}
-          style={isActive ? { filter: 'drop-shadow(0 0 6px rgba(230, 106, 31, 0.55))' } : undefined}
+          style={undefined}
         />
         {isActive && (
           <span

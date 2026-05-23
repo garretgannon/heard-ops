@@ -12,7 +12,7 @@ const ROLE_PRESETS = [
 const LEVEL_COLORS = {
   staff: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa' },
   lead: { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-  manager: { bg: 'rgba(230,106,31,0.15)', text: '#E66A1F' },
+  manager: { bg: 'rgba(255,107,0,0.15)', text: '#FF6B00' },
   admin: { bg: 'rgba(239,68,68,0.15)', text: '#f87171' },
 };
 
@@ -62,11 +62,11 @@ export default function Step3_Roles({ roles, onChange, onNext, onBack }) {
       </div>
 
       {/* Concept callout */}
-      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}>
+      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.15)' }}>
         <span className="text-lg shrink-0 mt-0.5">🛡️</span>
         <div>
           <p className="text-sm font-semibold text-white/90 mb-0.5">
-            <span style={{ color: '#E66A1F' }}>Role</span> = what someone can see and do in heardOS.
+            <span style={{ color: '#FF6B00' }}>Role</span> = what someone can see and do in heardOS.
           </p>
           <p className="text-xs text-white/50 leading-relaxed">
             Roles are different from job codes. A "Line Cook" is a job code (what they do). "Staff" is a role (what they can access). A Line Cook might have the Staff role — meaning they can complete tasks and submit logs, but can't edit schedules or approve requests.
@@ -85,7 +85,7 @@ export default function Step3_Roles({ roles, onChange, onNext, onBack }) {
               className="flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 active:scale-[0.98] w-full"
               style={
                 isSelected
-                  ? { background: 'rgba(230,106,31,0.08)', border: '1px solid rgba(230,106,31,0.4)', borderRadius: 12 }
+                  ? { background: 'rgba(255,107,0,0.08)', border: '1px solid rgba(255,107,0,0.4)', borderRadius: 12 }
                   : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }
               }
             >
@@ -105,7 +105,7 @@ export default function Step3_Roles({ roles, onChange, onNext, onBack }) {
                 className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
                 style={
                   isSelected
-                    ? { background: '#E66A1F', borderColor: '#E66A1F' }
+                    ? { background: '#FF6B00', borderColor: '#FF6B00' }
                     : { background: 'transparent', borderColor: 'rgba(255,255,255,0.2)' }
                 }
               >
@@ -127,7 +127,7 @@ export default function Step3_Roles({ roles, onChange, onNext, onBack }) {
           <div
             key={r.id}
             className="flex items-center gap-3 px-4 py-3 rounded-xl"
-            style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.25)', borderRadius: 12 }}
+            style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.25)', borderRadius: 12 }}
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -184,7 +184,7 @@ export default function Step3_Roles({ roles, onChange, onNext, onBack }) {
             <button
               onClick={addCustom}
               className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-              style={{ background: '#E66A1F' }}
+              style={{ background: '#FF6B00' }}
             >
               Add Role
             </button>
@@ -219,7 +219,7 @@ export default function Step3_Roles({ roles, onChange, onNext, onBack }) {
         <button
           onClick={onNext}
           className="px-6 py-2.5 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>
@@ -237,7 +237,7 @@ export default function Step3_Roles({ roles, onChange, onNext, onBack }) {
         <button
           onClick={onNext}
           className="flex-[2] py-3 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>

@@ -4,7 +4,7 @@ export default function EmptyState({ icon: Icon, title, description, action, act
       {Icon && (
         <div className="animate-empty-float mb-5">
           <div className="h-16 w-16 rounded-2xl flex items-center justify-center"
-            style={{ background: 'rgba(230,106,31,0.12)', boxShadow: '0 0 0 1px rgba(230,106,31,0.2)' }}>
+            style={{ background: 'rgba(255,107,0,0.12)', boxShadow: '0 0 0 1px rgba(255,107,0,0.2)' }}>
             <Icon className="h-8 w-8 text-primary" />
           </div>
         </div>

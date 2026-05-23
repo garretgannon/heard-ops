@@ -8,15 +8,17 @@ module.exports = {
         lg: '900px',
       },
       fontFamily: {
-        sans: ['var(--font-sans)'],
+        sans: ['Public Sans', 'var(--font-sans)'],
         mono: ['JetBrains Mono', 'monospace'],
       },
   		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)',
-  			xl: 'calc(var(--radius) + 4px)',
-  			'2xl': 'calc(var(--radius) + 8px)'
+  			sm:      '0.25rem',   /* 4px  — chips, badges                  */
+  			DEFAULT: '0.5rem',    /* 8px  — buttons, inputs                 */
+  			md:      '0.75rem',   /* 12px — cards, modals                   */
+  			lg:      '1rem',      /* 16px — large sections                  */
+  			xl:      '1.5rem',    /* 24px — extra-large / feature surfaces  */
+  			'2xl':   '2rem',      /* 32px — hero cards (dashboard)          */
+  			full:    '9999px',
   		},
   		colors: {
   			background: 'hsl(var(--background))',
@@ -90,8 +92,8 @@ module.exports = {
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		},
   		boxShadow: {
-  			'glow': '0 0 20px rgba(230, 106, 31, 0.2)',
-  			'glow-lg': '0 0 30px rgba(230, 106, 31, 0.3)',
+  			'glow': '0 0 20px rgba(255, 107, 0, 0.2)',
+  			'glow-lg': '0 0 30px rgba(255, 107, 0, 0.3)',
   			'card': '0 1px 3px 0 rgba(0,0,0,0.3)',
   			'card-hover': '0 4px 12px 0 rgba(0,0,0,0.4)',
   		}

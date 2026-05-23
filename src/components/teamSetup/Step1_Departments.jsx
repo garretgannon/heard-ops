@@ -31,7 +31,7 @@ export default function Step1_Departments({ departments, onChange, onNext, onBac
     const slug = customName.trim().toLowerCase().replace(/\s+/g, '_') + '_' + genId();
     onChange([
       ...departments,
-      { id: genId(), name: customName.trim(), slug, description: customDesc.trim(), icon: '🏷️', color: '#E66A1F' },
+      { id: genId(), name: customName.trim(), slug, description: customDesc.trim(), icon: '🏷️', color: '#FF6B00' },
     ]);
     setCustomName('');
     setCustomDesc('');
@@ -48,11 +48,11 @@ export default function Step1_Departments({ departments, onChange, onNext, onBac
       </div>
 
       {/* Concept callout */}
-      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}>
+      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.15)' }}>
         <span className="text-lg shrink-0 mt-0.5">📂</span>
         <div>
           <p className="text-sm font-semibold text-white/90 mb-0.5">
-            <span style={{ color: '#E66A1F' }}>Department</span> = a group of related positions.
+            <span style={{ color: '#FF6B00' }}>Department</span> = a group of related positions.
           </p>
           <p className="text-xs text-white/50 leading-relaxed">
             FOH (front of house) covers servers and hosts. BOH (back of house) covers cooks and prep. Bar and Leadership are their own groups. Departments let you filter job codes, assign tasks, and organize your team in heardOS.
@@ -70,7 +70,7 @@ export default function Step1_Departments({ departments, onChange, onNext, onBac
               className="flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-150 active:scale-[0.98]"
               style={
                 isSelected
-                  ? { background: 'rgba(230,106,31,0.08)', border: '1px solid rgba(230,106,31,0.4)', borderRadius: 12 }
+                  ? { background: 'rgba(255,107,0,0.08)', border: '1px solid rgba(255,107,0,0.4)', borderRadius: 12 }
                   : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }
               }
             >
@@ -82,7 +82,7 @@ export default function Step1_Departments({ departments, onChange, onNext, onBac
                 <p className="text-xs text-white/40 truncate">{preset.description}</p>
               </div>
               {isSelected && (
-                <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: '#E66A1F' }}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: '#FF6B00' }}>
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                     <path d="M2 5l2 2 4-4" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -94,7 +94,7 @@ export default function Step1_Departments({ departments, onChange, onNext, onBac
       </div>
 
       {departments.filter((d) => !PRESETS.some((p) => p.slug === d.slug)).map((d) => (
-        <div key={d.id} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.25)', borderRadius: 12 }}>
+        <div key={d.id} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.25)', borderRadius: 12 }}>
           <span className="text-lg">{d.icon}</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white">{d.name}</p>
@@ -111,7 +111,7 @@ export default function Step1_Departments({ departments, onChange, onNext, onBac
           <input autoFocus value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="Department name" className="w-full px-3 py-2 rounded-lg text-sm text-white placeholder-white/30 outline-none" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }} onKeyDown={(e) => e.key === 'Enter' && addCustom()} />
           <input value={customDesc} onChange={(e) => setCustomDesc(e.target.value)} placeholder="Short description (optional)" className="w-full px-3 py-2 rounded-lg text-sm text-white placeholder-white/30 outline-none" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }} onKeyDown={(e) => e.key === 'Enter' && addCustom()} />
           <div className="flex gap-2">
-            <button onClick={addCustom} className="px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ background: '#E66A1F' }}>Add</button>
+            <button onClick={addCustom} className="px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ background: '#FF6B00' }}>Add</button>
             <button onClick={() => { setShowCustomForm(false); setCustomName(''); setCustomDesc(''); }} className="px-4 py-2 rounded-lg text-sm font-medium text-white/50" style={{ background: 'rgba(255,255,255,0.05)' }}>Cancel</button>
           </div>
         </div>
@@ -123,13 +123,13 @@ export default function Step1_Departments({ departments, onChange, onNext, onBac
 
       <div className="hidden lg:flex items-center gap-3 mt-2">
         <button onClick={onBack} className="px-5 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-white/80 transition-colors" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>Back</button>
-        <button onClick={onNext} disabled={!canContinue} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-opacity disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}>Continue →</button>
+        <button onClick={onNext} disabled={!canContinue} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-opacity disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}>Continue →</button>
         {!canContinue && <p className="text-xs text-white/30">Select at least one department.</p>}
       </div>
 
       <div className="lg:hidden fixed bottom-16 left-0 right-0 p-4 flex gap-3 z-20" style={{ background: 'rgba(5,8,14,0.97)', backdropFilter: 'blur(12px)' }}>
         <button onClick={onBack} className="flex-1 py-3 rounded-xl text-sm font-medium text-white/60" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>Back</button>
-        <button onClick={onNext} disabled={!canContinue} className="flex-[2] py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}>Continue →</button>
+        <button onClick={onNext} disabled={!canContinue} className="flex-[2] py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}>Continue →</button>
       </div>
     </div>
   );

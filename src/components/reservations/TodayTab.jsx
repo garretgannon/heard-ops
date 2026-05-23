@@ -144,10 +144,10 @@ function EmptyToday({ reservations, beos, onAddReservation, onAddBEO, onImport, 
               <Calendar className="h-11 w-11 lg:h-14 lg:w-14 text-muted-foreground/35" />
             </div>
             {/* Sparkle decorations */}
-            <span className="absolute -top-5 right-3 text-2xl leading-none select-none" style={{ color: 'rgba(230,106,31,0.55)' }}>✦</span>
-            <span className="absolute -top-1 -left-5 text-base leading-none select-none" style={{ color: 'rgba(230,106,31,0.25)' }}>+</span>
+            <span className="absolute -top-5 right-3 text-2xl leading-none select-none" style={{ color: 'rgba(255,107,0,0.55)' }}>✦</span>
+            <span className="absolute -top-1 -left-5 text-base leading-none select-none" style={{ color: 'rgba(255,107,0,0.25)' }}>+</span>
             <span className="absolute top-3 -left-7 text-xs leading-none select-none text-muted-foreground/20">◇</span>
-            <span className="absolute -bottom-4 left-1 text-base leading-none select-none" style={{ color: 'rgba(230,106,31,0.3)' }}>+</span>
+            <span className="absolute -bottom-4 left-1 text-base leading-none select-none" style={{ color: 'rgba(255,107,0,0.3)' }}>+</span>
             <span className="absolute bottom-2 -right-5 text-xs leading-none select-none text-muted-foreground/20">◇</span>
           </div>
 

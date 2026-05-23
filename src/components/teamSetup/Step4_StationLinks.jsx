@@ -112,11 +112,11 @@ export default function Step4_StationLinks({
       </div>
 
       {/* Concept callout */}
-      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}>
+      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.15)' }}>
         <span className="text-lg shrink-0 mt-0.5">📍</span>
         <div>
           <p className="text-sm font-semibold text-white/90 mb-0.5">
-            <span style={{ color: '#E66A1F' }}>Station</span> = a physical location or workstation in your restaurant.
+            <span style={{ color: '#FF6B00' }}>Station</span> = a physical location or workstation in your restaurant.
           </p>
           <p className="text-xs text-white/50 leading-relaxed">
             Examples: Grill, Main Bar, Host Stand, Patio. Tasks, temperature logs, cleaning checklists, and sidework are all tied to stations — so when you assign someone to a station, heardOS knows exactly what needs to happen there. Linking a job code (like "Bartender") to a station (like "Main Bar") routes all bar tasks to that person automatically.
@@ -137,7 +137,7 @@ export default function Step4_StationLinks({
             onClick={() => setActiveGroup(null)}
             className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all"
             style={activeGroup === null
-              ? { background: '#E66A1F', color: 'white' }
+              ? { background: '#FF6B00', color: 'white' }
               : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}
           >
             All
@@ -148,7 +148,7 @@ export default function Step4_StationLinks({
               onClick={() => setActiveGroup(activeGroup === g.group ? null : g.group)}
               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all"
               style={activeGroup === g.group
-                ? { background: '#E66A1F', color: 'white' }
+                ? { background: '#FF6B00', color: 'white' }
                 : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}
             >
               {g.icon} {g.group}
@@ -175,7 +175,7 @@ export default function Step4_StationLinks({
                         disabled={isAdded}
                         className="px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
                         style={isAdded
-                          ? { background: 'rgba(230,106,31,0.12)', color: 'rgba(230,106,31,0.7)', border: '1px solid rgba(230,106,31,0.2)', cursor: 'default' }
+                          ? { background: 'rgba(255,107,0,0.12)', color: 'rgba(255,107,0,0.7)', border: '1px solid rgba(255,107,0,0.2)', cursor: 'default' }
                           : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
                       >
                         {isAdded ? '✓ ' : '+ '}{name}
@@ -199,7 +199,7 @@ export default function Step4_StationLinks({
                 style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
                 onKeyDown={(e) => { if (e.key === 'Enter') addCustomStation(); if (e.key === 'Escape') { setShowAddStation(false); setNewStationName(''); } }}
               />
-              <button onClick={addCustomStation} className="px-3 py-2 rounded-lg text-sm font-semibold text-white shrink-0" style={{ background: '#E66A1F' }}>Add</button>
+              <button onClick={addCustomStation} className="px-3 py-2 rounded-lg text-sm font-semibold text-white shrink-0" style={{ background: '#FF6B00' }}>Add</button>
               <button onClick={() => { setShowAddStation(false); setNewStationName(''); }} className="px-3 py-2 rounded-lg text-sm text-white/40">✕</button>
             </div>
           ) : (
@@ -221,7 +221,7 @@ export default function Step4_StationLinks({
                 <div
                   key={s.id}
                   className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium"
-                  style={{ background: 'rgba(230,106,31,0.08)', border: '1px solid rgba(230,106,31,0.2)' }}
+                  style={{ background: 'rgba(255,107,0,0.08)', border: '1px solid rgba(255,107,0,0.2)' }}
                 >
                   <span className="text-white/80">{s.name}</span>
                   {isCustom && (
@@ -252,10 +252,10 @@ export default function Step4_StationLinks({
                     key={jc.id}
                     onClick={() => setSelectedJobCode(jc.id)}
                     className="px-2 py-2 rounded-lg text-left transition-all"
-                    style={isActive ? { background: 'rgba(230,106,31,0.15)', color: 'white' } : { color: 'rgba(255,255,255,0.5)' }}
+                    style={isActive ? { background: 'rgba(255,107,0,0.15)', color: 'white' } : { color: 'rgba(255,255,255,0.5)' }}
                   >
                     <p className="text-xs font-medium leading-tight">{jc.name}</p>
-                    {linked > 0 && <p className="text-[10px] mt-0.5" style={{ color: '#E66A1F' }}>{linked} linked</p>}
+                    {linked > 0 && <p className="text-[10px] mt-0.5" style={{ color: '#FF6B00' }}>{linked} linked</p>}
                   </button>
                 );
               })}
@@ -277,10 +277,10 @@ export default function Step4_StationLinks({
                       onClick={() => toggleStation(station.id)}
                       className="flex items-center gap-2 p-2.5 rounded-xl text-left transition-all"
                       style={isLinked
-                        ? { background: 'rgba(230,106,31,0.1)', border: '1px solid rgba(230,106,31,0.35)', borderRadius: 10 }
+                        ? { background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.35)', borderRadius: 10 }
                         : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10 }}
                     >
-                      <div className="w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all" style={isLinked ? { background: '#E66A1F', borderColor: '#E66A1F' } : { background: 'transparent', borderColor: 'rgba(255,255,255,0.2)' }}>
+                      <div className="w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all" style={isLinked ? { background: '#FF6B00', borderColor: '#FF6B00' } : { background: 'transparent', borderColor: 'rgba(255,255,255,0.2)' }}>
                         {isLinked && (
                           <svg width="7" height="7" viewBox="0 0 8 8" fill="none">
                             <path d="M1.5 4l1.5 1.5 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -308,14 +308,14 @@ export default function Step4_StationLinks({
       {/* Desktop CTAs */}
       <div className="hidden lg:flex items-center gap-3 mt-2">
         <button onClick={onBack} className="px-5 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-white/80 transition-colors" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>Back</button>
-        <button onClick={onNext} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}>Continue →</button>
+        <button onClick={onNext} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}>Continue →</button>
         {allStations.length === 0 && <p className="text-xs text-white/30">You can link stations later — or add them above first.</p>}
       </div>
 
       {/* Mobile sticky CTA */}
       <div className="lg:hidden fixed bottom-16 left-0 right-0 p-4 flex gap-3 z-20" style={{ background: 'rgba(5,8,14,0.97)', backdropFilter: 'blur(12px)' }}>
         <button onClick={onBack} className="flex-1 py-3 rounded-xl text-sm font-medium text-white/60" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>Back</button>
-        <button onClick={onNext} className="flex-[2] py-3 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}>Continue →</button>
+        <button onClick={onNext} className="flex-[2] py-3 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}>Continue →</button>
       </div>
     </motion.div>
   );

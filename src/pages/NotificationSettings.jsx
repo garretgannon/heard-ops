@@ -7,8 +7,8 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { toast } from 'sonner';
 
 const cardStyle = {
-  background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)',
+  background: '#1C1C1E',
+  boxShadow: 'none',
 };
 
 const CATEGORIES = [
@@ -55,18 +55,17 @@ function Toggle({ checked, onChange }) {
     <button
       onClick={() => onChange(!checked)}
       className={cn(
-        'relative h-6 w-11 rounded-full border transition-all duration-200 active:scale-95',
-        checked ? 'border-primary/50 bg-primary/20' : 'border-border/50 bg-white/5'
+        'relative h-[31px] w-[51px] rounded-full border-0 p-0.5 transition-colors duration-200 active:scale-95',
+        checked ? 'bg-[#30D158]' : 'bg-[#636366]'
       )}
     >
       <motion.div
         layout
         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
         className={cn(
-          'absolute top-0.5 h-5 w-5 rounded-full border',
-          checked ? 'left-[22px] border-primary/70 bg-primary' : 'left-0.5 border-border/50 bg-muted-foreground/40'
+          'absolute top-0.5 h-[27px] w-[27px] rounded-full bg-white shadow-[0_2px_4px_rgba(0,0,0,0.32)]',
+          checked ? 'left-[22px]' : 'left-0.5'
         )}
-        style={checked ? { boxShadow: '0 0 8px rgba(230,106,31,0.5)' } : undefined}
       />
     </button>
   );
@@ -153,7 +152,7 @@ export default function NotificationSettings() {
       <div
         className="sticky top-0 z-40 px-4 py-3.5 lg:hidden"
         style={{
-          background: 'linear-gradient(180deg, rgba(6,10,16,0.97) 0%, rgba(8,13,20,0.95) 100%)',
+          background: '#000',
           backdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
@@ -199,7 +198,7 @@ export default function NotificationSettings() {
             <div className="flex items-center gap-3">
               <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', prefs.enabled ? 'bg-primary/15' : 'bg-white/5 border border-border/40')}>
                 {prefs.enabled
-                  ? <Bell className="h-5 w-5 text-primary" style={{ filter: 'drop-shadow(0 0 4px rgba(230,106,31,0.5))' }} />
+                  ? <Bell className="h-5 w-5 text-primary" style={{ filter: 'drop-shadow(0 0 4px rgba(255,107,0,0.5))' }} />
                   : <BellOff className="h-5 w-5 text-muted-foreground" />
                 }
               </div>

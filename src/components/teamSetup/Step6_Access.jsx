@@ -17,7 +17,7 @@ const STATES = ['visible', 'locked', 'hidden'];
 
 const STATE_STYLES = {
   visible: { label: '✓', bg: 'rgba(34,197,94,0.15)', border: 'rgba(34,197,94,0.3)', text: '#22c55e' },
-  locked: { label: '🔒', bg: 'rgba(230,106,31,0.15)', border: 'rgba(230,106,31,0.3)', text: '#E66A1F' },
+  locked: { label: '🔒', bg: 'rgba(255,107,0,0.15)', border: 'rgba(255,107,0,0.3)', text: '#FF6B00' },
   hidden: { label: '—', bg: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.2)' },
 };
 
@@ -50,14 +50,14 @@ export default function Step6_Access({ access, roles, onChange, onNext, onBack }
       </div>
 
       {/* Concept callout */}
-      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}>
+      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.15)' }}>
         <span className="text-lg shrink-0 mt-0.5">🔐</span>
         <div>
           <p className="text-sm font-semibold text-white/90 mb-0.5">
-            <span style={{ color: '#E66A1F' }}>Access</span> = what your team sees when they open heardOS.
+            <span style={{ color: '#FF6B00' }}>Access</span> = what your team sees when they open heardOS.
           </p>
           <p className="text-xs text-white/50 leading-relaxed">
-            <span className="text-green-400">Visible</span> — anyone can access. <span style={{ color: '#E66A1F' }}>Locked</span> — only managers and admins. <span className="text-white/40">Hidden</span> — not shown at all. Click each module to cycle through states. Staff typically see Tasks, Logs, and Training. Keep Reports, People, and Settings locked.
+            <span className="text-green-400">Visible</span> — anyone can access. <span style={{ color: '#FF6B00' }}>Locked</span> — only managers and admins. <span className="text-white/40">Hidden</span> — not shown at all. Click each module to cycle through states. Staff typically see Tasks, Logs, and Training. Keep Reports, People, and Settings locked.
           </p>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function Step6_Access({ access, roles, onChange, onNext, onBack }
         <button
           onClick={onNext}
           className="px-6 py-2.5 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>
@@ -151,7 +151,7 @@ export default function Step6_Access({ access, roles, onChange, onNext, onBack }
         <button
           onClick={onNext}
           className="flex-[2] py-3 rounded-xl text-sm font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>

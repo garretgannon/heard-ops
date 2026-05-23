@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function XPBar({ percent = 0, label = '', color = '#FF7A1A', height = 8 }) {
+export default function XPBar({ percent = 0, label = '', color = '#FF6B00', height = 8 }) {
   const barRef = useRef(null);
 
   useEffect(() => {

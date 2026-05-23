@@ -52,11 +52,11 @@ export default function Step2_JobCodes({ jobCodes, departments, onChange, onNext
       </div>
 
       {/* Concept callout */}
-      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(230,106,31,0.06)', border: '1px solid rgba(230,106,31,0.15)' }}>
+      <div className="flex gap-3 p-4 rounded-xl" style={{ background: 'rgba(255,107,0,0.06)', border: '1px solid rgba(255,107,0,0.15)' }}>
         <span className="text-lg shrink-0 mt-0.5">🏷️</span>
         <div>
           <p className="text-sm font-semibold text-white/90 mb-0.5">
-            <span style={{ color: '#E66A1F' }}>Job code</span> = a specific position at your restaurant.
+            <span style={{ color: '#FF6B00' }}>Job code</span> = a specific position at your restaurant.
           </p>
           <p className="text-xs text-white/50 leading-relaxed">
             Like "Line Cook," "Bartender," or "Server." Job codes control how shifts are scheduled, how tasks get routed, and how labor is reported. One person can hold multiple job codes (e.g., a server who also trains).
@@ -73,7 +73,7 @@ export default function Step2_JobCodes({ jobCodes, departments, onChange, onNext
             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={
               activeDept === dept.slug
-                ? { background: '#E66A1F', color: 'white' }
+                ? { background: '#FF6B00', color: 'white' }
                 : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)' }
             }
           >
@@ -102,7 +102,7 @@ export default function Step2_JobCodes({ jobCodes, departments, onChange, onNext
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={
                     added
-                      ? { background: 'rgba(230,106,31,0.15)', color: 'rgba(230,106,31,0.6)', border: '1px solid rgba(230,106,31,0.25)' }
+                      ? { background: 'rgba(255,107,0,0.15)', color: 'rgba(255,107,0,0.6)', border: '1px solid rgba(255,107,0,0.25)' }
                       : { background: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }
                   }
                 >
@@ -125,7 +125,7 @@ export default function Step2_JobCodes({ jobCodes, departments, onChange, onNext
             <button
               onClick={() => addCustom(activeDept)}
               className="px-3 py-2 rounded-lg text-sm font-semibold text-white"
-              style={{ background: '#E66A1F' }}
+              style={{ background: '#FF6B00' }}
             >
               Add
             </button>
@@ -146,7 +146,7 @@ export default function Step2_JobCodes({ jobCodes, departments, onChange, onNext
                 <div
                   key={jc.id}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium"
-                  style={{ background: 'rgba(230,106,31,0.08)', border: '1px solid rgba(230,106,31,0.25)', borderRadius: 8 }}
+                  style={{ background: 'rgba(255,107,0,0.08)', border: '1px solid rgba(255,107,0,0.25)', borderRadius: 8 }}
                 >
                   <span className="text-white">{jc.name}</span>
                   {dept && <span className="text-white/30 text-[10px]">{dept.name}</span>}
@@ -176,7 +176,7 @@ export default function Step2_JobCodes({ jobCodes, departments, onChange, onNext
           onClick={onNext}
           disabled={!canContinue}
           className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-opacity disabled:opacity-40"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>
@@ -196,7 +196,7 @@ export default function Step2_JobCodes({ jobCodes, departments, onChange, onNext
           onClick={onNext}
           disabled={!canContinue}
           className="flex-[2] py-3 rounded-xl text-sm font-bold text-white disabled:opacity-40"
-          style={{ background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
         >
           Continue →
         </button>

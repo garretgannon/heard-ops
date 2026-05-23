@@ -33,7 +33,7 @@ export default function WizardProgress({ step }) {
                       isDone
                         ? { background: '#16a34a', color: 'white' }
                         : isActive
-                        ? { background: 'linear-gradient(135deg, #E66A1F 0%, #d45a14 100%)', color: 'white' }
+                        ? { background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)', color: 'white' }
                         : { background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.3)' }
                     }
                   >

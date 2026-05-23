@@ -3,11 +3,9 @@ export default function DesktopPageHeader({ title, subtitle, actions }) {
     <div
       className="hidden lg:flex items-center justify-between -mx-8 px-8 h-12 shrink-0 sticky top-[72px] z-10 -mt-9"
       style={{
-        background: 'linear-gradient(180deg, rgba(5,8,14,0.98), rgba(5,8,14,0.9))',
-        backdropFilter: 'blur(16px) saturate(140%)',
-        WebkitBackdropFilter: 'blur(16px) saturate(140%)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 8px 28px rgba(0,0,0,0.26)',
+        background: "rgba(0, 0, 0, 0.2)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
       }}
     >
       <div className="flex min-w-0 items-baseline gap-3">

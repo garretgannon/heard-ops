@@ -54,32 +54,27 @@ export default function GlobalBottomNav() {
     <>
       <nav
         className="fixed bottom-0 left-0 right-0 z-[999] pointer-events-none"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
       >
-        <div
-          className="pointer-events-auto px-2 border-t flex justify-between items-center transition-all duration-300"
-          style={{
-            height: '58px',
-            background: 'linear-gradient(180deg, rgba(3, 7, 10, 0.86), rgba(0, 3, 6, 0.98))',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            borderColor: 'rgba(230, 106, 31, 0.13)',
-            boxShadow: '0 -18px 44px rgba(0, 0, 0, 0.72), 0 -1px 16px rgba(230, 106, 31, 0.09)',
-          }}
-        >
-          {navConfig.map(({ label, path, icon, id, isAdd }) => {
-            const isActive = activeId === id;
-            return (
-              <NavItem
-                key={id}
-                icon={icon}
-                label={label}
-                isActive={isActive}
-                isAdd={isAdd}
-                onClick={() => isAdd ? setShowQuickAdd(true) : navigate(path)}
-              />
-            );
-          })}
+        <div className="px-4 pointer-events-auto">
+          <div
+            className="liquid-nav flex justify-between items-center px-3"
+            style={{ height: '62px' }}
+          >
+            {navConfig.map(({ label, path, icon, id, isAdd }) => {
+              const isActive = activeId === id;
+              return (
+                <NavItem
+                  key={id}
+                  icon={icon}
+                  label={label}
+                  isActive={isActive}
+                  isAdd={isAdd}
+                  onClick={() => isAdd ? setShowQuickAdd(true) : navigate(path)}
+                />
+              );
+            })}
+          </div>
         </div>
       </nav>
 

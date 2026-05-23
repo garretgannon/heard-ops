@@ -438,7 +438,7 @@ export default function ReservationsAndBEOs() {
                 else openBEOForm();
               }}
               className="flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[13px] font-bold text-primary"
-              style={{ border: '1px solid rgba(230,106,31,0.55)', background: 'transparent' }}
+              style={{ border: '1px solid rgba(255,107,0,0.55)', background: 'transparent' }}
             >
               <Plus className="h-3.5 w-3.5" />
               {activeTab === 'Reservations' || activeTab === 'Calendar'
@@ -515,7 +515,7 @@ export default function ReservationsAndBEOs() {
                   <button
                     onClick={() => { openBEOForm(); haptics.medium(); }}
                     className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
-                    style={{ background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)' }}
+                    style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
                   >
                     <Plus className="h-3.5 w-3.5" /> Add Event
                   </button>

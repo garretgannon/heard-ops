@@ -1,27 +1,21 @@
-import { Phone, Mail, ShieldCheck, CalendarDays, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/haptics';
 
-const SHIFT_STATUS_CONFIG = {
-  'on_shift': { label: 'On Shift', color: 'bg-green-500/15 text-green-400', icon: '🟢' },
-  'off_shift': { label: 'Off', color: 'bg-slate-500/15 text-slate-400', icon: '⚫' },
-  'on_break': { label: 'On Break', color: 'bg-yellow-500/15 text-yellow-400', icon: '🟡' },
-  'scheduled_later': { label: 'Scheduled Later', color: 'bg-blue-500/15 text-blue-400', icon: '🔵' },
+// Status config extracted from design source
+const STATUS = {
+  on_shift:        { label: 'ON SHIFT',  dot: true,  muted: false },
+  off_shift:       { label: 'OFF',       dot: false, muted: true  },
+  on_break:        { label: 'BREAK',     dot: false, muted: true, icon: 'local_cafe' },
+  scheduled_later: { label: 'LATER',     dot: false, muted: true  },
 };
 
-export default function EmployeeCard({ employee, linkedRecords = {}, onSelect, canContact, canManage, showManagerDetails }) {
-  const initials = employee.full_name
-    ?.split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase() || '?';
+export default function EmployeeCard({ employee, linkedRecords = {}, onSelect }) {
+  const initials = (employee.full_name || '?')
+    .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   const shiftStatus = employee.shiftStatus || 'off_shift';
-  const statusConfig = SHIFT_STATUS_CONFIG[shiftStatus] || SHIFT_STATUS_CONFIG.off_shift;
-  const activeCerts = (linkedRecords.certifications || []).filter(cert => cert.status !== 'expired');
-  const pendingTimeOff = (linkedRecords.timeOff || []).filter(request => request.status === 'pending');
-  const openLogs = (linkedRecords.managerLogs || []).filter(log => log.status !== 'resolved' && log.status !== 'archived');
-  const availabilityCount = (linkedRecords.availability || []).filter(slot => slot.is_available !== false).length;
+  const cfg = STATUS[shiftStatus] || STATUS.off_shift;
+  const isOnShift = shiftStatus === 'on_shift';
 
   return (
     <div
@@ -29,104 +23,77 @@ export default function EmployeeCard({ employee, linkedRecords = {}, onSelect, c
       role="button"
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onSelect?.(employee.id)}
-      className="w-full text-left p-4 rounded-xl border border-border/40 card-glass hover:border-border/60 transition-all active:scale-95 cursor-pointer"
+      className="relative overflow-hidden flex items-center gap-4 p-4 cursor-pointer transition-colors active:scale-[0.99] select-none"
+      style={{
+        background: 'rgba(28, 28, 30, 0.6)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        borderRadius: '24px',
+      }}
     >
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          {/* Avatar */}
-          {employee.profile_photo_url ? (
-            <img
-              src={employee.profile_photo_url}
-              alt={employee.full_name || 'Employee'}
-              className="h-12 w-12 rounded-lg object-cover border border-border/40 flex-shrink-0"
-            />
-          ) : (
-            <div className="h-12 w-12 rounded-lg bg-primary/20 text-primary font-bold text-sm flex items-center justify-center flex-shrink-0">
-              {initials}
-            </div>
-          )}
+      {/* Orange left-edge accent — ON SHIFT only */}
+      {isOnShift && (
+        <div
+          className="absolute top-0 left-0 w-1 h-full bg-[#FF6B00]"
+          style={{ boxShadow: '0 0 10px rgba(255,107,0,0.5)' }}
+        />
+      )}
 
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-foreground truncate">{employee.full_name}</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">{employee.primary_role || 'Staff'}</p>
-          </div>
-
-          {/* Status Badge */}
-          <div className={cn('px-2 py-1 rounded-lg text-[10px] font-bold flex-shrink-0', statusConfig.color)}>
-            {statusConfig.icon}
-          </div>
-        </div>
-
-        {/* Details */}
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          {employee.job_code && <span>{employee.job_code}</span>}
-          {employee.department && (
-            <>
-              <span>•</span>
-              <span>{employee.department}</span>
-            </>
-          )}
-          {employee.manager_name && (
-            <>
-              <span>•</span>
-              <span>Mgr: {employee.manager_name}</span>
-            </>
-          )}
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-lg bg-secondary/40 border border-border/30 px-2 py-2">
-            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase">
-              <ShieldCheck className="h-3 w-3" /> Certs
-            </div>
-            <p className="mt-1 text-sm font-black text-foreground">{activeCerts.length}</p>
-          </div>
-          <div className="rounded-lg bg-secondary/40 border border-border/30 px-2 py-2">
-            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase">
-              <Clock className="h-3 w-3" /> Avail
-            </div>
-            <p className="mt-1 text-sm font-black text-foreground">{availabilityCount || '—'}</p>
-          </div>
-          <div className="rounded-lg bg-secondary/40 border border-border/30 px-2 py-2">
-            <div className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground uppercase">
-              <CalendarDays className="h-3 w-3" /> PTO
-            </div>
-            <p className={`mt-1 text-sm font-black ${pendingTimeOff.length ? 'text-amber-400' : 'text-foreground'}`}>{pendingTimeOff.length}</p>
-          </div>
-        </div>
-
-        {showManagerDetails && openLogs.length > 0 && (
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2">
-            <p className="text-[10px] font-black uppercase tracking-wider text-amber-300">
-              {openLogs.length} linked manager log{openLogs.length !== 1 ? 's' : ''}
-            </p>
-          </div>
+      {/* Avatar */}
+      <div className={cn(
+        'w-12 h-12 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center',
+        cfg.muted && 'grayscale opacity-60'
+      )}
+        style={{ background: 'rgba(255,255,255,0.06)' }}
+      >
+        {employee.profile_photo_url ? (
+          <img
+            src={employee.profile_photo_url}
+            alt={employee.full_name || 'Employee'}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-sm font-bold text-white/60">{initials}</span>
         )}
+      </div>
 
-        {/* Action Buttons */}
-        {(canContact || canManage) && (
-          <div className="flex gap-2 pt-2 border-t border-border/20">
-            {canContact && employee.phone && (
-              <a href={`tel:${employee.phone}`} onClick={e => e.stopPropagation()} className="flex-1 h-8 rounded-lg bg-primary/10 text-primary font-semibold text-xs hover:bg-primary/20 transition-all active:scale-95 flex items-center justify-center gap-1">
-                <Phone className="h-3 w-3" />
-                Call
-              </a>
-            )}
-            {canContact && employee.email && (
-              <a href={`mailto:${employee.email}`} onClick={e => e.stopPropagation()} className="flex-1 h-8 rounded-lg bg-primary/10 text-primary font-semibold text-xs hover:bg-primary/20 transition-all active:scale-95 flex items-center justify-center gap-1">
-                <Mail className="h-3 w-3" />
-                Email
-              </a>
-            )}
-            {canManage && (
-              <button onClick={e => { e.stopPropagation(); onSelect?.(employee.id); }} className="flex-1 h-8 rounded-lg border border-border/40 text-muted-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95">
-                Manage
-              </button>
-            )}
-          </div>
-        )}
+      {/* Name + Role */}
+      <div className="flex-grow min-w-0">
+        <div className={cn(
+          'text-[20px] font-bold leading-[1.2] tracking-[-0.01em] truncate text-white',
+          cfg.muted && 'opacity-50'
+        )}>
+          {employee.full_name}
+        </div>
+        <div className={cn(
+          'text-[13px] font-medium leading-[1.5] tracking-[0.02em] text-white/40 truncate mt-0.5',
+          cfg.muted && 'opacity-60'
+        )}>
+          {employee.primary_role || 'Staff'}
+        </div>
+      </div>
+
+      {/* Status pill */}
+      <div className="flex-shrink-0">
+        <div
+          className="px-3 py-1.5 rounded-full flex items-center gap-1.5"
+          style={{
+            border: '1px solid rgba(255,255,255,0.1)',
+            fontSize: '9px',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            color: cfg.muted ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.9)',
+          }}
+        >
+          {cfg.dot && (
+            <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B00] animate-pulse flex-shrink-0" />
+          )}
+          {cfg.icon && (
+            <span className="material-symbols-outlined" style={{ fontSize: 12 }}>{cfg.icon}</span>
+          )}
+          {cfg.label}
+        </div>
       </div>
     </div>
   );

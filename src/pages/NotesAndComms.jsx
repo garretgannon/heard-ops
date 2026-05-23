@@ -556,8 +556,8 @@ export default function NotesAndComms() {
                   onClick={() => setActiveTab('Capture')}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white active:scale-[0.97] transition-all"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)',
-                    boxShadow: '0 0 0 1px rgba(230,106,31,0.3)',
+                    background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
+                    boxShadow: '0 0 0 1px rgba(255,107,0,0.3)',
                   }}
                 >
                   <Plus className="h-3.5 w-3.5" /> Post Something

@@ -118,7 +118,7 @@ export default function ManagerShiftMobileClose({
           <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div>
             <p className="text-sm font-black text-foreground">Handoff to Next Manager</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">What does the next manager need to know? +50 XP on submit.</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">What does the next manager need to know?</p>
           </div>
         </div>
         <div className="px-4 pb-4">
@@ -134,9 +134,9 @@ export default function ManagerShiftMobileClose({
 
       <button type="button" onClick={completeHandoff} disabled={submitting}
         className="flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
-        style={{ background: "linear-gradient(135deg, hsl(22,76%,44%) 0%, hsl(22,76%,36%) 100%)", boxShadow: "0 0 0 1px rgba(230,106,31,0.35), 0 0 24px rgba(230,106,31,0.25), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
+        style={{ background: "linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)", boxShadow: "0 0 0 1px rgba(255,107,0,0.35), 0 0 24px rgba(255,107,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
         <Trophy className="h-5 w-5" />
-        {submitting ? "Saving…" : "Complete Sign-Off — +50 XP"}
+        {submitting ? "Saving…" : "Complete Sign-Off"}
       </button>
     </div>
   );
