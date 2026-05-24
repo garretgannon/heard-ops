@@ -357,6 +357,8 @@ export default function AppOverview() {
   const [showApprovalDeck, setShowApprovalDeck] = useState(false);
 
   useEffect(() => {
+    // Wait until isAdmin is resolved (not undefined) before fetching
+    if (isAdmin === undefined || isAdmin === null) return;
     const init = async () => {
       await loadMetrics();
       if (isAdmin) await loadSetupProgress();

@@ -22,7 +22,8 @@ export function useCurrentUser() {
     return () => window.removeEventListener('focus', fetchUser);
   }, [fetchUser]);
 
-  const isAdmin = !user?.role || user?.role === "admin" || !!user?.collaborator_role;
+  // Only resolve isAdmin once we have a user; return undefined while loading to prevent premature effects
+  const isAdmin = loading ? undefined : (!user?.role || user?.role === "admin" || !!user?.collaborator_role);
   const FOH_ROLES = ["server", "bartender", "host", "busser", "food_runner", "expo"];
   const isFOH = isAdmin || FOH_ROLES.includes(user?.role);
   return { user, loading, isAdmin, isFOH };
