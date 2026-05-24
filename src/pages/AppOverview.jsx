@@ -83,6 +83,10 @@ const safeFilter = (entity, filter, sort, limit) => (
   entity?.filter?.(filter, sort, limit)?.catch?.(() => []) || Promise.resolve([])
 );
 
+// Simple in-memory cache to prevent rate-limit bursts on re-mounts
+const _metricsCache = { data: null, ts: 0 };
+const CACHE_TTL_MS = 30_000; // 30 seconds
+
 function normalizeApprovalQueueItem(item) {
   const type = APPROVAL_QUEUE_TYPES[item.submission_type] || 'employee';
 
@@ -362,9 +366,11 @@ export default function AppOverview() {
 
   const loadSetupProgress = async () => {
     try {
-      const stations  = await base44.entities.Station.list('name', 1).catch(() => []);
-      const employees = await base44.entities.Employee.list('name', 1).catch(() => []);
-      const roles     = await base44.entities.Role.list('name', 1).catch(() => []);
+      const [stations, employees, roles] = await Promise.all([
+        base44.entities.Station.list('name', 1).catch(() => []),
+        base44.entities.Employee.list('name', 1).catch(() => []),
+        base44.entities.Role.list('name', 1).catch(() => []),
+      ]);
       const checks = [
         { label: 'Areas & Stations', done: stations.length >= 3, link: '/restaurant-setup-wizard' },
         { label: 'Team Members', done: employees.length >= 3, link: '/people' },
@@ -378,12 +384,25 @@ export default function AppOverview() {
   };
 
   const loadMetrics = async () => {
+    // Return cached data if fresh enough
+    if (_metricsCache.data && Date.now() - _metricsCache.ts < CACHE_TTL_MS) {
+      const c = _metricsCache.data;
+      setApprovalQueue(c.approvalQueue);
+      setMetrics(c.metrics);
+      setLivePrepQueue(c.prepQueue);
+      setLiveActivity(c.activity);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const approvals  = await safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 30);
-      const prepItems  = await safeFilter(base44.entities.PrepItem, {}, '-updated_date', 20);
-      const tasks      = await safeFilter(base44.entities.GeneratedTask, {}, '-updated_date', 30);
-      const recentLogs = await base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []);
+      const [approvals, prepItems, tasks, recentLogs] = await Promise.all([
+        safeFilter(base44.entities.ApprovalQueue, { status: 'pending' }, '-submitted_at', 30),
+        safeFilter(base44.entities.PrepItem, {}, '-updated_date', 20),
+        safeFilter(base44.entities.GeneratedTask, {}, '-updated_date', 30),
+        base44.entities.UnifiedLog?.list?.('-created_date', 10).catch(() => []),
+      ]);
 
       const pendingPrep = (prepItems || []).filter(p => p.status === 'pending_review');
 
@@ -424,6 +443,10 @@ export default function AppOverview() {
         statusClass: log.severity === 'critical' ? 'status-critical' : log.severity === 'warning' ? 'status-warning' : 'status-success',
       }));
       setLiveActivity(activity);
+
+      // Cache results
+      _metricsCache.data = { approvalQueue: allApprovals, metrics: { completedTasks: completed, totalTasks: total, pendingApprovals: allApprovals.length, openAlerts: overdue, equipmentIssues: overdue }, prepQueue, activity };
+      _metricsCache.ts = Date.now();
     } catch (err) {
       console.error('Failed to load metrics:', err);
     }
