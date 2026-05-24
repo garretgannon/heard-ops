@@ -174,7 +174,7 @@ export default function Landing() {
       {/* ── Nav ── */}
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-white/[0.06] bg-[#04080D]/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <img src={BRAND_ASSETS.headerLogo} alt="HeardOS" className="h-10 w-auto object-contain" />
+          <img src={BRAND_ASSETS.headerLogo} alt="heardOS" className="h-11 w-auto max-w-[148px] object-contain sm:h-12 sm:max-w-[176px]" />
           <div className="hidden items-center gap-6 text-sm font-semibold text-slate-400 md:flex">
             <a href="#pain" className="transition-colors hover:text-white">Problem</a>
             <a href="#features" className="transition-colors hover:text-white">Product</a>
@@ -195,6 +195,20 @@ export default function Landing() {
         {/* Glow */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_40%_at_50%_-5%,rgba(255,107,0,0.18),transparent)]" />
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#04080D] to-transparent" />
+
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.88 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-6 flex justify-center"
+        >
+          <img
+            src={BRAND_ASSETS.appIcon}
+            alt="heardOS"
+            className="h-auto w-40 object-contain drop-shadow-[0_0_28px_rgba(255,107,0,0.22)] md:w-48"
+          />
+        </motion.div>
 
         <motion.div
           ref={heroRef}
@@ -426,8 +440,7 @@ export default function Landing() {
       <footer className="border-t border-white/[0.06] px-5 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
           <div className="flex items-center gap-2.5">
-            <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-7 w-7 rounded-lg object-contain" />
-            <span className="text-sm font-extrabold">heard<span className="text-[#64D2FF]">OS</span></span>
+            <img src={BRAND_ASSETS.appIcon} alt="heardOS" className="h-7 w-auto object-contain" />
             <span className="ml-2 text-xs text-slate-600">Restaurant shift operations</span>
           </div>
           <p className="text-xs text-slate-600">&copy; 2026 heardOS. All rights reserved.</p>

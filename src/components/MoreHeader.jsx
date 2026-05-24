@@ -13,7 +13,7 @@ export default function MoreHeader({ onSettings }) {
         <div className="flex min-h-[60px] items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <img src={BRAND_ASSETS.headerLogo} alt="HeardOS" className="h-14 w-auto max-w-[240px] object-contain" />
+            <img src={BRAND_ASSETS.headerLogo} alt="heardOS" className="h-16 w-auto max-w-[280px] object-contain" />
           </div>
 
           {/* Settings Icon */}

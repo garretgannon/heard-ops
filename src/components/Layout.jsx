@@ -237,19 +237,26 @@ export default function Layout() {
         }}
       >
         {isMobile && isSecondary ? (
-          /* Secondary page header: Back | Title | Actions */
+          /* Secondary page: logo + Back | Title | Actions */
           <>
-            <button
-              onClick={goBack}
-              className="flex items-center gap-0.5 h-10 pl-1 pr-3 rounded-xl active:scale-95 transition-all shrink-0"
-              style={{ background: 'rgba(255,255,255,0.06)' }}
-              aria-label="Go back"
-            >
-              <ChevronLeft className="h-5 w-5 text-foreground" />
-              <span className="text-[13px] font-bold text-muted-foreground">Back</span>
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <img
+                src={BRAND_ASSETS.logoMark}
+                alt="heardOS"
+                className="h-9 w-auto max-w-[132px] object-contain shrink-0 select-none"
+              />
+              <button
+                onClick={goBack}
+                className="flex items-center gap-0.5 h-8 pl-1 pr-2.5 rounded-lg active:scale-95 transition-all"
+                style={{ background: 'rgba(255,255,255,0.06)' }}
+                aria-label="Go back"
+              >
+                <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                <span className="text-[12px] font-bold text-muted-foreground">Back</span>
+              </button>
+            </div>
 
-            <p className="flex-1 text-center text-[17px] font-extrabold text-foreground truncate px-2">
+            <p className="flex-1 text-center text-[15px] font-extrabold text-foreground truncate px-2">
               {pageTitle}
             </p>
 
@@ -265,12 +272,19 @@ export default function Layout() {
             </div>
           </>
         ) : (
-          /* Tab route header: Title + Actions */
+          /* Tab route: logo left | Actions right */
           <>
-            <div className="w-10 shrink-0" />
-            <p className="flex-1 text-center text-[13px] font-black tracking-[0.1em] uppercase text-foreground">
-              {pageTitle}
-            </p>
+            {/* Wordmark: prominent, left-aligned */}
+            <Link to="/" onClick={handleLogoTap} className="shrink-0 flex items-center gap-2.5 select-none" aria-label="heardOS home">
+              <img
+                src={BRAND_ASSETS.logoMark}
+                alt="heardOS"
+                className="h-12 w-auto max-w-[188px] object-contain shrink-0"
+              />
+            </Link>
+
+            <div className="flex-1" />
+
             <div className="flex items-center gap-1.5">
               <BellButton count={approvalCount} onClick={() => setShowApprovalDeck(true)} />
               <Link
@@ -305,24 +319,29 @@ export default function Layout() {
         />
 
         {/* Logo / Brand */}
-        <div className={cn(
-          "flex shrink-0 pt-5",
-          collapsed ? "items-center justify-center px-3 pb-5" : "flex-col items-center px-5 pb-5"
-        )}>
+        <div
+          className={cn(
+            "flex shrink-0 items-center gap-2.5 pt-5 pb-4 cursor-pointer select-none",
+            collapsed ? "justify-center px-3" : "px-4"
+          )}
+          onClick={handleLogoTap}
+        >
+          {/* Logo mark: always visible */}
           <img
-            src={collapsed ? BRAND_ASSETS.appIcon : BRAND_ASSETS.headerLogo}
-            alt="HeardOS"
+            src={BRAND_ASSETS.logoMark}
+            alt="heardOS"
             className={cn(
-              "object-contain shrink-0 cursor-pointer select-none",
-              collapsed ? "h-8 w-8 rounded-lg" : "h-14 w-full max-w-[190px]"
+              "object-contain shrink-0",
+              collapsed ? "h-9 w-auto max-w-[48px]" : "h-12 w-auto max-w-[170px]"
             )}
-            onClick={handleLogoTap}
           />
           {!collapsed && (
-            <div className="mt-1.5 min-w-0 w-full text-center">
-              <p className="text-[10px] text-muted-foreground/70 font-medium tracking-wide truncate">
-                {restaurantName || 'Restaurant Ops'}
-              </p>
+            <div className="min-w-0">
+              {restaurantName && (
+                <p className="text-[10px] text-muted-foreground/60 font-medium tracking-wide truncate mt-0.5">
+                  {restaurantName}
+                </p>
+              )}
             </div>
           )}
         </div>

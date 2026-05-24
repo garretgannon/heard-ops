@@ -9,16 +9,12 @@ export default function NavItem({ icon: Icon = Home, label, isActive, isAdd, onC
         aria-label={label}
         className="relative -mt-9 flex flex-1 flex-col items-center justify-center gap-1 transition-all duration-200 active:scale-90"
       >
-        <span
-          className="flex h-14 w-14 items-center justify-center rounded-full text-white"
-          style={{
-            background: 'linear-gradient(145deg, #FF8A30 0%, #FF6B00 55%, #CC4400 100%)',
-            boxShadow: '0 0 24px rgba(255,107,0,0.55), 0 0 6px rgba(255,107,0,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
-            border: '1px solid rgba(255,140,60,0.5)',
-          }}
-        >
-          <Icon className="h-6 w-6" strokeWidth={2.4} />
-        </span>
+        <img
+          src="/brand/app-icon-h-pulse.png"
+          alt="HeardOS"
+          className="h-14 w-14 rounded-2xl"
+          style={{ filter: 'drop-shadow(0 0 8px rgba(255,107,0,0.7))' }}
+        />
       </button>
     );
   }

@@ -624,12 +624,23 @@ export default function AppOverview() {
                     />
                   );
                 })}
-                <polyline
-                  points="14,34 20,34 24,25 29,43 33,30 37,38 41,34 54,34"
-                  fill="none" stroke="#FF6B00" strokeWidth="2.5"
-                  strokeLinecap="round" strokeLinejoin="round"
-                  style={{ filter: 'drop-shadow(0 0 3px rgba(255,107,0,0.6))' }}
-                />
+                {/* HeardOS logo — inline so it renders transparent */}
+                <g style={{ filter: 'drop-shadow(0 0 3px rgba(255,107,0,0.5))' }}>
+                  {/* Left dot */}
+                  <circle cx="17" cy="34" r="1.8" fill="#FF6B00" />
+                  {/* Left medium bar */}
+                  <line x1="23" y1="27" x2="23" y2="41" stroke="#FF6B00" strokeWidth="3" strokeLinecap="round" />
+                  {/* H left leg */}
+                  <line x1="29" y1="22" x2="29" y2="46" stroke="#FF6B00" strokeWidth="3.5" strokeLinecap="round" />
+                  {/* H crossbar */}
+                  <line x1="29" y1="34" x2="39" y2="34" stroke="#FF6B00" strokeWidth="3.5" strokeLinecap="round" />
+                  {/* H right leg */}
+                  <line x1="39" y1="22" x2="39" y2="46" stroke="#FF6B00" strokeWidth="3.5" strokeLinecap="round" />
+                  {/* Right medium bar */}
+                  <line x1="45" y1="27" x2="45" y2="41" stroke="#FF6B00" strokeWidth="3" strokeLinecap="round" />
+                  {/* Right dot */}
+                  <circle cx="51" cy="34" r="1.8" fill="#FF6B00" />
+                </g>
               </svg>
             </div>
 

@@ -1,3 +1,5 @@
+import { BRAND_ASSETS } from '@/lib/brandAssets';
+
 export default function DesktopPageHeader({ title, subtitle, actions }) {
   return (
     <div
@@ -8,14 +10,22 @@ export default function DesktopPageHeader({ title, subtitle, actions }) {
         WebkitBackdropFilter: "blur(12px)",
       }}
     >
-      <div className="flex min-w-0 items-baseline gap-3">
-        <h1 className="truncate text-[15px] font-black text-foreground tracking-tight">{title}</h1>
-        {subtitle && (
-          <>
-            <span className="text-muted-foreground/25 text-sm">/</span>
-            <p className="truncate text-[13px] font-medium text-muted-foreground/65">{subtitle}</p>
-          </>
-        )}
+      <div className="flex min-w-0 items-center gap-3">
+        <img
+          src={BRAND_ASSETS.logoMark}
+          alt=""
+          className="h-9 w-auto max-w-[156px] shrink-0 object-contain select-none"
+          aria-hidden="true"
+        />
+        <div className="flex min-w-0 items-baseline gap-3">
+          <h1 className="truncate text-[15px] font-black text-foreground tracking-tight">{title}</h1>
+          {subtitle && (
+            <>
+              <span className="text-muted-foreground/25 text-sm">/</span>
+              <p className="truncate text-[13px] font-medium text-muted-foreground/65">{subtitle}</p>
+            </>
+          )}
+        </div>
       </div>
 
       {actions && (

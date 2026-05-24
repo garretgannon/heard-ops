@@ -1,5 +1,5 @@
 const CACHE = 'heardos-v1';
-const APP_ICON = '/brand/heardos-app-icon-512.png';
+const APP_ICON = '/brand/app-icon-512.png';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));

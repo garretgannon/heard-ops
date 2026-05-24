@@ -58,7 +58,7 @@ const healthBorder = { success: 'border-green-500/30', warning: 'border-amber-50
 
 function SummaryCard({ label, value, icon: Icon, color }) {
   return (
-    <div className="p-3 flex flex-col gap-1.5" style={GLASS_BASE}>
+    <div className="ops-panel px-4 py-4 flex flex-col gap-1.5">
       <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center', color === 'green' && 'bg-green-500/15', color === 'amber' && 'bg-amber-500/15', color === 'red' && 'bg-red-500/15', color === 'default' && 'bg-primary/15')}>
         <Icon className={cn('h-3.5 w-3.5', color === 'green' && 'text-green-400', color === 'amber' && 'text-amber-400', color === 'red' && 'text-red-400', color === 'default' && 'text-primary')} />
       </div>
@@ -97,7 +97,7 @@ function StationListCard({ station, equipment, isSelected, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left p-3 transition-all duration-200 active:scale-[0.99] hover:brightness-110"
+      className="ops-panel w-full text-left px-4 py-3 transition-all duration-200 active:scale-[0.99] hover:brightness-110"
       style={{ ...GLASS_BASE, ...(isSelected ? HEALTH_SELECTED[health.color] : {}) }}
     >
       <div className="flex items-start justify-between gap-2">
@@ -569,9 +569,9 @@ export default function Stations() {
         </div>
       </div>
 
-      <div className="app-page lg:max-w-none lg:px-6">
+      <div className="ops-page ops-stack">
         {loading ? (
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3">
             {[1, 2, 3].map(i => <div key={i} className="skeleton h-24 rounded-xl" />)}
           </div>
         ) : (
@@ -585,7 +585,7 @@ export default function Stations() {
             </div>
 
             {/* Desktop: 2-column layout */}
-            <div className="hidden lg:grid lg:grid-cols-[1fr_320px] gap-5 mt-1">
+            <div className="hidden lg:grid lg:grid-cols-[1fr_320px] gap-5">
               {/* Left: station list */}
               <div className="space-y-4">
                 {/* Desktop toolbar */}
@@ -597,7 +597,8 @@ export default function Stations() {
                       placeholder="Search stations..."
                       value={search}
                       onChange={e => setSearch(e.target.value)}
-                      className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+                      className="w-full pl-10 pr-3 py-2 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                      style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)' }}
                     />
                   </div>
                   <div className="flex gap-1.5 pt-1 pl-0.5">
@@ -639,7 +640,7 @@ export default function Stations() {
 
               {/* Right: sticky detail panel */}
               <div className="sticky top-[72px] self-start">
-                <div className="overflow-hidden flex flex-col" style={{ ...GLASS_BASE, height: 'calc(100vh - 120px)' }}>
+                <div className="ops-panel overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
                   <DetailPanel
                     station={syncedSelected}
                     equipment={equipment}
@@ -652,7 +653,7 @@ export default function Stations() {
             </div>
 
             {/* Mobile: list only */}
-            <div className="lg:hidden space-y-5 mt-1">
+            <div className="lg:hidden space-y-5">
               {grouped.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground text-sm">
                   {stations.length === 0 ? 'No stations yet' : 'No stations match your filters'}

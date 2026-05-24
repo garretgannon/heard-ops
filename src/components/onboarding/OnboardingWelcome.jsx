@@ -20,7 +20,7 @@ export default function OnboardingWelcome({ onBegin }) {
         className="mb-6"
       >
         <div className="relative inline-flex">
-          <img src={BRAND_ASSETS.appIcon} alt="HeardOS" className="h-20 w-20 rounded-2xl object-contain shadow-glow-lg" />
+          <img src={BRAND_ASSETS.appIcon} alt="heardOS" className="h-20 w-auto max-w-[180px] object-contain shadow-glow-lg" />
           <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-green-400 border-2 border-background flex items-center justify-center">
             <Zap className="h-3 w-3 text-green-900" />
           </div>
