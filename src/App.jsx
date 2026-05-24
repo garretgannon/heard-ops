@@ -123,34 +123,9 @@ function RootRedirect({ isAdmin }) {
   return null;
 }
 
-const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
-  const { user, isAdmin, loading: userLoading } = useCurrentUser();
+// Separate component so hooks only run when user is authenticated
+function AuthenticatedRoutes({ user, isAdmin }) {
   usePushAlerts();
-
-  if (isLoadingPublicSettings || isLoadingAuth || userLoading) {
-    return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-background">
-        <div className="heard-spinner" />
-      </div>
-    );
-  }
-
-  if (authError?.type === 'user_not_registered') {
-    return <UserNotRegisteredError />;
-  }
-
-  if (!user) {
-    // If not logged in, show Landing page
-    return (
-      <Suspense fallback={<RouteFallback />}>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    );
-  }
 
   const managerShiftRoute = isAdmin ? <ManagerShift /> : <Navigate to="/station-shift" replace />;
   const legacyShiftRoute = isAdmin ? <Shift /> : <Navigate to="/station-shift" replace />;
@@ -239,6 +214,36 @@ const AuthenticatedApp = () => {
       </Routes>
     </Suspense>
   );
+}
+
+const AuthenticatedApp = () => {
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
+  const { user, isAdmin, loading: userLoading } = useCurrentUser();
+
+  if (isLoadingPublicSettings || isLoadingAuth || userLoading) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-background">
+        <div className="heard-spinner" />
+      </div>
+    );
+  }
+
+  if (authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
+  }
+
+  if (!user) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
+  return <AuthenticatedRoutes user={user} isAdmin={isAdmin} />;
 };
 
 function App() {
