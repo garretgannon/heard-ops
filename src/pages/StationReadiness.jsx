@@ -160,19 +160,19 @@ export default function StationReadiness() {
 
       {/* Stats Bar */}
       <div className="bg-card border-b border-border px-4 py-3 grid grid-cols-4 gap-2 lg:mt-14">
-        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
           <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
           <p className="text-[9px] text-muted-foreground">Completed</p>
         </div>
-        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
           <p className="text-2xl font-bold text-amber-400">{stats.total - stats.completed}</p>
           <p className="text-[9px] text-muted-foreground">Pending</p>
         </div>
-        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
           <p className="text-2xl font-bold text-orange-400">{stats.overdue}</p>
           <p className="text-[9px] text-muted-foreground">Overdue</p>
         </div>
-        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+        <div className="rounded-lg p-2 text-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
           <p className="text-2xl font-bold text-red-400">{stats.failed}</p>
           <p className="text-[9px] text-muted-foreground">Failed</p>
         </div>

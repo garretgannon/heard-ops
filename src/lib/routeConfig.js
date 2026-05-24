@@ -65,16 +65,7 @@ export const bottomNavRoutes = [
     module: "management",
     activePaths: ["/operational-map", "/stations"],
   },
-  {
-    id: "add",
-    label: "Add",
-    path: "/logs",
-    icon: Plus,
-    description: "Quick add logs and issues",
-    module: "compliance",
-    perm: "view_logs",
-    isAdd: true,
-  },
+
   {
     id: "shift",
     label: "Shift",

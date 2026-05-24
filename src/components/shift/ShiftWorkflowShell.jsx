@@ -52,10 +52,7 @@ export function ShiftProgressStrip({ label, value, complete = false, className }
           className="h-full rounded-full transition-all duration-500"
           style={{
             width: `${value}%`,
-            background: complete
-              ? 'linear-gradient(90deg, #CC4400, #FF6B00)'
-              : 'linear-gradient(90deg, #CC4400, #FF6B00)',
-            boxShadow: '0 0 6px rgba(255,107,0,0.28)',
+            background: 'hsl(var(--primary))',
           }}
         />
       </div>
@@ -102,14 +99,7 @@ export function ShiftMobileGuide({
   const active = stages[activeIdx] || stages[0];
 
   return (
-    <div
-      className="lg:hidden sticky top-0 z-30 px-4 pt-3 pb-2.5"
-      style={{
-        background: "rgba(0, 0, 0, 0.2)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-      }}
-    >
+    <div className="lg:hidden sticky top-0 z-30 px-4 pt-3 pb-2.5 glass-header">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</p>
@@ -159,9 +149,8 @@ export function ShiftMobileGuide({
                 ? `calc(${100 / stages.length}% - 7px)`
                 : `calc(${100 / stages.length}% - 4px)`,
               borderRadius: '999px',
-              background: 'linear-gradient(180deg, rgba(255,106,0,0.28) 0%, rgba(255,106,0,0.10) 100%)',
-              border: '1px solid rgba(255,106,0,0.50)',
-              boxShadow: '0 0 22px rgba(255,106,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20)',
+              background: 'hsl(var(--primary) / 0.12)',
+              border: '1px solid hsl(var(--primary) / 0.3)',
               transition: 'left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1)',
               zIndex: 0,
             }}

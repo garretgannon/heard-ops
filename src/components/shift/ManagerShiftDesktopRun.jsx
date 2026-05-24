@@ -193,8 +193,8 @@ export default function ManagerShiftDesktopRun({
             ) : (
               <>
                 <button type="button" onClick={publishBriefing}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
-                  style={{ background: "linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)", boxShadow: "0 0 0 1px rgba(255,107,0,0.35), 0 0 16px rgba(255,107,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
+                  className="btn-primary flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
+                >
                   Publish to Staff
                 </button>
                 <button type="button" onClick={savePreShift} className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
@@ -231,8 +231,7 @@ export default function ManagerShiftDesktopRun({
                 animate={{ width: `${dutiesPct}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 style={{
-                  background: dutiesPct === 100 ? "linear-gradient(90deg,#22c55e,#4ade80)" : "linear-gradient(90deg,#FF6B00,#64D2FF)",
-                  boxShadow: dutiesPct === 100 ? "0 0 8px rgba(34,197,94,0.5)" : "0 0 6px rgba(255,107,0,0.4)",
+                  background: dutiesPct === 100 ? "hsl(var(--status-success))" : "hsl(var(--primary))",
                 }}
               />
             </div>

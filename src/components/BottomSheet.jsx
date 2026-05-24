@@ -63,9 +63,9 @@ export default function BottomSheet({ open, onClose, title, children, className 
             )}
             style={{
               paddingBottom: "env(safe-area-inset-bottom, 16px)",
-              background: "linear-gradient(180deg, rgba(16, 23, 32, 0.98) 0%, rgba(8, 12, 18, 0.99) 100%)",
-              borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-              boxShadow: "0 -8px 40px rgba(0, 0, 0, 0.6), 0 -1px 0 rgba(255, 255, 255, 0.05)",
+              background: "hsl(var(--card))",
+              borderTop: "1px solid hsl(var(--border))",
+              boxShadow: "0 -8px 40px rgba(0, 0, 0, 0.5)",
             }}
           >
             {/* Drag handle + header row */}

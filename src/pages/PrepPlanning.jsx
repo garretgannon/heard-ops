@@ -392,7 +392,7 @@ export default function PrepPlanning() {
         animate={{ rotate: 360 }}
         transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
         className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
-        style={{ boxShadow: '0 0 20px rgba(255,107,0,0.35)' }}
+        style={{ boxShadow: '0 0 12px rgba(255,107,0,0.18)' }}
       />
       <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading prep data…</p>
     </div>
@@ -480,7 +480,7 @@ export default function PrepPlanning() {
               className="flex items-center justify-center gap-2 w-full rounded-xl py-3.5 text-[15px] font-black text-white active:scale-[0.97] transition-all"
               style={{
                 background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
-                boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.18)',
+                boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.12)',
               }}
             >
               <Zap className="h-4 w-4" />
@@ -609,7 +609,7 @@ export default function PrepPlanning() {
                   icon={todayPlan ? CheckCircle2 : Clock}
                   iconClass={todayPlan ? 'bg-blue-500/15 text-blue-400' : 'bg-border/20 text-muted-foreground/40'}
                   border={todayPlan ? 'border-blue-500/30' : 'border-border/40'}
-                  bg={todayPlan ? 'rgba(96,165,250,0.06)' : 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)'}
+                  bg={todayPlan ? 'rgba(96,165,250,0.06)' : 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)'}
                   action={todayPlan ? {
                     label: 'Review Plan', icon: ArrowRight,
                     onClick: () => navigate(`/prep-plan/${todayPlan.id}`),
@@ -626,7 +626,7 @@ export default function PrepPlanning() {
                   icon={belowParItems.length > 0 ? TrendingDown : CheckCircle2}
                   iconClass={belowParItems.length > 0 ? 'bg-red-500/15 text-red-400' : 'bg-green-500/15 text-green-400'}
                   border={belowParItems.length > 0 ? 'border-red-500/25' : 'border-border/40'}
-                  bg={belowParItems.length > 0 ? 'rgba(239,68,68,0.05)' : 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)'}
+                  bg={belowParItems.length > 0 ? 'rgba(239,68,68,0.05)' : 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)'}
                   action={belowParItems.length > 0 ? {
                     label: 'View Details', icon: ArrowRight,
                     onClick: () => todayPlan ? navigate(`/prep-plan/${todayPlan.id}`) : toast.info('Submit a count to see par details'),
@@ -643,7 +643,7 @@ export default function PrepPlanning() {
                   icon={todayTasks.length > 0 ? Zap : ClipboardList}
                   iconClass={todayTasks.length > 0 ? 'bg-primary/15 text-primary' : 'bg-border/20 text-muted-foreground/40'}
                   border={todayTasks.length > 0 ? 'border-primary/25' : 'border-border/40'}
-                  bg="linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)"
+                  bg="linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)"
                 />
 
                 {/* BEO / Event Impact */}
@@ -654,7 +654,7 @@ export default function PrepPlanning() {
                   icon={CalendarClock}
                   iconClass={todayEvents.length > 0 ? 'bg-cyan-500/15 text-cyan-400' : 'bg-border/20 text-muted-foreground/40'}
                   border={todayEvents.length > 0 ? 'border-cyan-500/25' : 'border-border/40'}
-                  bg={todayEvents.length > 0 ? 'rgba(6,182,212,0.05)' : 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)'}
+                  bg={todayEvents.length > 0 ? 'rgba(6,182,212,0.05)' : 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)'}
                   action={todayEvents.length > 0 ? {
                     label: 'View Details', icon: ArrowRight,
                     onClick: () => navigate('/reservations-beos'),

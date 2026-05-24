@@ -15,7 +15,8 @@ import DesktopPageHeader from '@/components/DesktopPageHeader';
 import StartCountWizard from '@/components/inventory/StartCountWizard';
 import LocationCountSheet from '@/components/inventory/LocationCountSheet';
 
-const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';
+const CARD_BG = 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)';
+const CARD_GLASS = { background: CARD_BG, backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' };
 const todayStr = () => new Date().toISOString().split('T')[0];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -71,7 +72,7 @@ function KpiCard({ label, value, sub, labelColor = 'text-muted-foreground', colo
         borderColor,
         onClick && 'hover:bg-white/[0.03] active:scale-[0.98]',
       )}
-      style={{ background: CARD_BG }}
+      style={{ ...CARD_GLASS }}
     >
       <p className={cn('text-[9px] font-black uppercase tracking-[0.18em] mb-1', labelColor)}>{label}</p>
       <p className={cn('font-extrabold leading-tight', large ? 'text-3xl' : 'text-xl', color)}>{value}</p>
@@ -86,7 +87,7 @@ function SessionKpiCard({ name, due, status }) {
   return (
     <div
       className="card-glass border border-border/60 rounded-xl px-3.5 py-3 text-left"
-      style={{ background: CARD_BG }}
+      style={{ ...CARD_GLASS }}
     >
       <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground mb-1">Active Count Session</p>
       <p className="text-sm font-black text-foreground leading-tight truncate">{name || "Today's Count"}</p>
@@ -210,7 +211,7 @@ function EmptyInventory({ onStartSession, onViewPurchasedItems }) {
     <div className="space-y-3">
       <div
         className="overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+        style={{ ...CARD_GLASS }}
       >
         <div className="flex flex-col items-center px-5 py-8 text-center">
           <div className="relative mb-4">
@@ -320,7 +321,7 @@ function CountTasksView({ todayCounts, sessionMeta, currentUser, onOpenCount, on
 
       {/* Active Session Banner */}
       {sessionMeta.name && (
-        <div className="shrink-0 mx-4 mt-3 px-4 py-3 rounded-xl border border-border/40 flex items-center gap-3" style={{ background: CARD_BG }}>
+        <div className="shrink-0 mx-4 mt-3 px-4 py-3 rounded-xl border border-border/40 flex items-center gap-3" style={{ ...CARD_GLASS }}>
           <div className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-black text-foreground">Active Session</p>
@@ -337,7 +338,7 @@ function CountTasksView({ todayCounts, sessionMeta, currentUser, onOpenCount, on
       <div className="flex-1 overflow-y-auto mt-3">
         <div
           className="overflow-hidden rounded-2xl border border-border/40 mx-4"
-          style={{ background: CARD_BG }}
+          style={{ ...CARD_GLASS }}
         >
           {displayed.length === 0 ? (
             <div className="px-4 py-8 text-center">
@@ -915,7 +916,7 @@ export default function InventorySimplified() {
             </div>
 
             {/* ── Count Progress Table ──────────────────────────── */}
-            <div className="overflow-hidden rounded-2xl border border-border/40" style={{ background: CARD_BG }}>
+            <div className="overflow-hidden rounded-2xl border border-border/40" style={{ ...CARD_GLASS }}>
               <div className="px-4 pt-4 pb-2">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">
                   Today's Count Progress
@@ -997,7 +998,7 @@ export default function InventorySimplified() {
             {/* ── Needs Attention + Quick Actions ──────────────── */}
             <div className="grid gap-4 lg:grid-cols-2">
               {/* Needs Attention */}
-              <div className="overflow-hidden rounded-2xl border border-border/40" style={{ background: CARD_BG }}>
+              <div className="overflow-hidden rounded-2xl border border-border/40" style={{ ...CARD_GLASS }}>
                 <div className="flex items-center justify-between px-4 pt-4 pb-3">
                   <div className="flex items-center gap-1.5">
                     <Zap className="h-3.5 w-3.5 text-primary" />
@@ -1040,7 +1041,7 @@ export default function InventorySimplified() {
               </div>
 
               {/* Quick Actions */}
-              <div className="overflow-hidden rounded-2xl border border-border/40" style={{ background: CARD_BG }}>
+              <div className="overflow-hidden rounded-2xl border border-border/40" style={{ ...CARD_GLASS }}>
                 <div className="px-4 pt-4 pb-2">
                   <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Quick Actions</p>
                 </div>

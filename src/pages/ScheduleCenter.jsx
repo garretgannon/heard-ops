@@ -488,7 +488,7 @@ export default function ScheduleCenter() {
           <div className="flex items-center gap-2">
             <div
               className="flex items-center gap-1.5 rounded-full border border-border/40 px-3 py-1.5 shrink-0"
-              style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+              style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
             >
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-[12px] font-semibold text-muted-foreground">{format(new Date(), 'EEE, MMM d')}</span>
@@ -513,7 +513,7 @@ export default function ScheduleCenter() {
           {/* Stats — unified single card with dividers */}
           <div
             className="flex rounded-xl border border-border/30 overflow-hidden"
-            style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+            style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
           >
             {[
               { label: 'Hours',     value: `${totalHours.toFixed(0)}h`, color: 'text-foreground' },
@@ -593,7 +593,7 @@ export default function ScheduleCenter() {
                 { label: 'Time Off', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
                 { label: 'Labor',    value: '$0',          suffix: '', color: 'text-green-400' },
               ].map(({ label, value, suffix, color }) => (
-                <div key={label} className="rounded-xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+                <div key={label} className="rounded-xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
                   <p className={cn('text-sm font-extrabold leading-none tabular-nums', color)}>{value}{suffix}</p>
                   <p className="mt-1 truncate text-[10px] text-muted-foreground">{label}</p>
                 </div>
@@ -601,7 +601,7 @@ export default function ScheduleCenter() {
               <button
                 onClick={() => { if (conflictCount === 0) return; const firstId = Object.keys(shiftConflicts)[0]; const shift = shifts.find(s => s.id === firstId); if (shift) { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); } }}
                 className={cn('rounded-xl border px-2.5 py-2 text-left transition-all', conflictCount > 0 ? 'border-red-500/30 hover:border-red-500/50 hover:bg-red-500/5 cursor-pointer' : 'border-border/40 cursor-default')}
-                style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
               >
                 <p className={cn('text-sm font-extrabold leading-none tabular-nums', conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground/50')}>{conflictCount}</p>
                 <div className="mt-1 flex items-center justify-between gap-1">
@@ -732,7 +732,7 @@ export default function ScheduleCenter() {
               >
                 <Calendar
                   className="h-12 w-12 text-primary"
-                  style={{ filter: 'drop-shadow(0 0 10px rgba(255,107,0,0.5))' }}
+                  style={{ filter: 'drop-shadow(0 0 6px rgba(255,107,0,0.28))' }}
                 />
               </div>
             </div>
@@ -746,7 +746,7 @@ export default function ScheduleCenter() {
                 className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
                 style={{
                   background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
-                  boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.18)',
+                  boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.12)',
                 }}
               >
                 Add Shift

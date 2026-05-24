@@ -66,7 +66,7 @@ function XpFloat({ amount, onDone }) {
       transition={{ duration: 0.9, ease: 'easeOut' }}
       onAnimationComplete={onDone}
       className="pointer-events-none fixed bottom-40 left-1/2 z-[2000] -translate-x-1/2 text-2xl font-black text-primary"
-      style={{ textShadow: '0 0 16px rgba(255,107,0,0.9)' }}
+      style={{ textShadow: '0 0 8px rgba(255,107,0,0.4)' }}
     >
       +{amount} XP
     </motion.div>,
@@ -156,8 +156,8 @@ function TaskCard({ item, checked, onToggle }) {
       style={{
         background: checked
           ? 'rgba(34,197,94,0.06)'
-          : 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)',
+          : 'hsl(var(--card))',
+        boxShadow: 'none',
       }}
     >
       <motion.div
@@ -425,7 +425,7 @@ export default function StaffShift() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
           className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
-          style={{ boxShadow: '0 0 20px rgba(255,107,0,0.35)' }}
+          style={{ boxShadow: '0 0 12px rgba(255,107,0,0.18)' }}
         />
         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading your shift…</p>
       </div>
@@ -627,18 +627,23 @@ export default function StaffShift() {
                   type="button"
                   onClick={acknowledgeBriefing}
                   disabled={briefDone || !allSectionsViewed}
-                  className="flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white transition-all active:scale-[0.98]"
+                  className="flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black transition-all active:scale-[0.98]"
                   style={{
                     background: briefDone
-                      ? 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.2) 100%)'
+                      ? 'rgba(34,197,94,0.15)'
                       : allSectionsViewed
-                        ? 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)'
+                        ? 'hsl(var(--primary))'
                         : 'rgba(255,255,255,0.04)',
-                    boxShadow: briefDone
-                      ? '0 0 0 1px rgba(34,197,94,0.3)'
+                    border: briefDone
+                      ? '1px solid rgba(34,197,94,0.3)'
                       : allSectionsViewed
-                        ? '0 0 0 1px rgba(255,107,0,0.4), 0 0 24px rgba(255,107,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)'
-                        : '0 0 0 1px rgba(255,255,255,0.06)',
+                        ? '1px solid hsl(var(--primary))'
+                        : '1px solid rgba(255,255,255,0.06)',
+                    color: briefDone
+                      ? 'rgb(74, 222, 128)'
+                      : allSectionsViewed
+                        ? '#fff'
+                        : 'rgba(255,255,255,0.4)',
                     opacity: !briefDone && !allSectionsViewed ? 0.5 : 1,
                   }}
                 >
@@ -692,11 +697,9 @@ export default function StaffShift() {
                         return (
                           <div
                             key={eq.id}
-                            className="flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors"
+                            className="flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors border-border"
                             style={{
-                              borderColor: logged ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.08)',
-                              background: logged ? 'rgba(34,197,94,0.06)' : 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+                              background: logged ? 'rgba(34,197,94,0.06)' : 'hsl(var(--card))',
                             }}
                           >
                             <motion.div
@@ -766,11 +769,7 @@ export default function StaffShift() {
                   <button
                     type="button"
                     onClick={() => { haptics.medium(); setActiveStage('close'); }}
-                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white active:scale-[0.98] transition-all"
-                    style={{
-                      background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
-                      boxShadow: '0 0 0 1px rgba(255,107,0,0.4), 0 0 24px rgba(255,107,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
-                    }}
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-black text-white bg-primary hover:bg-primary-dark active:scale-[0.98] transition-all"
                   >
                     <Trophy className="h-5 w-5" /> All done — Close Out
                   </button>
@@ -778,8 +777,7 @@ export default function StaffShift() {
                   <button
                     type="button"
                     onClick={() => { haptics.light(); setActiveStage('close'); }}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/40 py-3 text-xs font-black text-muted-foreground transition-all"
-                    style={{ background: 'rgba(255,255,255,0.02)' }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/40 py-3 text-xs font-black text-muted-foreground bg-secondary/35 active:scale-95 transition-all"
                   >
                     Skip to Close-Out
                   </button>
@@ -829,14 +827,17 @@ export default function StaffShift() {
                       type="button"
                       onClick={signOff}
                       disabled={signingOff || shiftDone}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black disabled:opacity-60 active:scale-[0.98] transition-all"
                       style={{
                         background: shiftDone
-                          ? 'linear-gradient(135deg, rgba(34,197,94,0.3) 0%, rgba(34,197,94,0.2) 100%)'
-                          : 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
-                        boxShadow: shiftDone
-                          ? '0 0 0 1px rgba(34,197,94,0.3)'
-                          : '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+                          ? 'rgba(34,197,94,0.15)'
+                          : 'hsl(var(--primary))',
+                        border: shiftDone
+                          ? '1px solid rgba(34,197,94,0.3)'
+                          : '1px solid hsl(var(--primary))',
+                        color: shiftDone
+                          ? 'rgb(74, 222, 128)'
+                          : '#fff',
                       }}
                     >
                       {shiftDone

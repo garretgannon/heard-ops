@@ -3,12 +3,7 @@ import { BRAND_ASSETS } from '@/lib/brandAssets';
 export default function DesktopPageHeader({ title, subtitle, actions }) {
   return (
     <div
-      className="hidden lg:flex items-center justify-between -mx-8 px-8 h-12 shrink-0 sticky top-[72px] z-10 -mt-9"
-      style={{
-        background: "rgba(0, 0, 0, 0.2)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-      }}
+      className="hidden lg:flex items-center justify-between -mx-8 px-8 h-12 shrink-0 sticky top-[72px] z-10 -mt-9 glass-header"
     >
       <div className="flex min-w-0 items-center gap-3">
         <img

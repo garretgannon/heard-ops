@@ -52,7 +52,7 @@ function RecipeCard({ recipe, onClick }) {
   const costStatus = getCostStatus();
 
   return (
-    <button onClick={onClick} className="w-full text-left border border-border rounded-lg overflow-hidden hover:border-border/60 hover:brightness-105 transition-all active:scale-[0.98]" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+    <button onClick={onClick} className="w-full text-left border border-border rounded-lg overflow-hidden hover:border-border/60 hover:brightness-105 transition-all active:scale-[0.98]" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
       <div className="flex gap-0">
         {/* Photo thumbnail */}
         {recipe.photo_url ? (

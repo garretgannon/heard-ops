@@ -34,8 +34,10 @@ function stationReadinessPct(station, eq) {
 function stationHealth(station, eq) {
   if (!isActive(station)) return { color: 'neutral', pct: 0 };
   const pct = stationReadinessPct(station, eq);
+  const hasMaintenanceIssues = eq.some(e => e.requiresMaintenanceChecklist);
+  if (hasMaintenanceIssues) return { color: 'critical', pct };
   if (pct === 100) return { color: 'success', pct };
-  if (pct === 0)   return { color: 'critical', pct };
+  if (pct === 0)   return { color: 'setup', pct };
   return { color: 'warning', pct };
 }
 
@@ -43,37 +45,45 @@ function getAttentionItems(station, eq) {
   if (!station) return [];
   const tempEq = eq.filter(e => e.temp_enabled || e.requiresTemperatureLog);
   const issues = eq.filter(e => e.requiresMaintenanceChecklist).length;
+  const missing = tempEq.filter(e => !hasTempSchedule(e)).length;
   return [
-    !isActive(station) && 'Station inactive',
-    eq.length === 0 && 'No equipment',
-    tempEq.some(e => !hasTempSchedule(e)) && `${tempEq.filter(e => !hasTempSchedule(e)).length} temp schedule${tempEq.filter(e => !hasTempSchedule(e)).length === 1 ? '' : 's'} missing`,
-    issues > 0 && `${issues} maintenance issue${issues === 1 ? '' : 's'}`,
+    !isActive(station) && { text: 'Station inactive',  severity: 'neutral' },
+    eq.length === 0    && { text: 'No equipment',       severity: 'setup' },
+    missing > 0        && { text: `${missing} temp schedule${missing === 1 ? '' : 's'} missing`, severity: 'warning' },
+    issues > 0         && { text: `${issues} maintenance issue${issues === 1 ? '' : 's'}`,       severity: 'critical' },
   ].filter(Boolean);
 }
 
 // ─── Color helpers ────────────────────────────────────────────────────────────
 
-const barColor  = { success: 'bg-green-500', warning: 'bg-amber-500', critical: 'bg-red-500', neutral: 'bg-slate-600' };
-const textColor = { success: 'text-green-400', warning: 'text-amber-400', critical: 'text-red-400', neutral: 'text-slate-400' };
+const barColor  = { success: 'bg-green-500', warning: 'bg-amber-500', critical: 'bg-red-500', neutral: 'bg-slate-600', setup: 'bg-slate-500' };
+const textColor = { success: 'text-green-400', warning: 'text-amber-400', critical: 'text-red-400', neutral: 'text-slate-400', setup: 'text-slate-400' };
 const glowColor = {
-  success: 'border-green-500/50 shadow-[0_0_0_1px_rgba(34,197,94,0.2),0_0_14px_rgba(34,197,94,0.15)]',
-  warning: 'border-amber-500/50 shadow-[0_0_0_1px_rgba(245,158,11,0.2),0_0_14px_rgba(245,158,11,0.15)]',
-  critical: 'border-red-500/50 shadow-[0_0_0_1px_rgba(239,68,68,0.2),0_0_14px_rgba(239,68,68,0.15)]',
-  neutral: 'border-slate-600/50',
+  success:  'border-green-500/30  shadow-[0_0_0_1px_rgba(34,197,94,0.12),0_0_12px_rgba(34,197,94,0.09)]',
+  warning:  'border-amber-500/30  shadow-[0_0_0_1px_rgba(245,158,11,0.12),0_0_12px_rgba(245,158,11,0.09)]',
+  critical: 'border-red-500/30    shadow-[0_0_0_1px_rgba(239,68,68,0.12),0_0_12px_rgba(239,68,68,0.09)]',
+  neutral:  'border-slate-600/40',
+  setup:    'border-slate-500/25',
 };
 const bgColor = {
-  success: 'rgba(34,197,94,0.05)',
-  warning: 'rgba(245,158,11,0.06)',
-  critical: 'rgba(239,68,68,0.08)',
-  neutral: 'rgba(11,17,24,0.9)',
+  success:  'rgba(34, 197, 94, 0.05)',
+  warning:  'rgba(245, 158, 11, 0.05)',
+  critical: 'rgba(239, 68, 68, 0.05)',
+  neutral:  'hsl(var(--card))',
+  setup:    'hsl(var(--card))',
+};
+
+const GLASS = {
+  boxShadow: '0 1px 3px 0 rgba(0,0,0,0.2)',
 };
 const badgeStyle = {
-  success: 'bg-green-500/15 text-green-400 border-green-500/30',
-  warning: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  critical: 'bg-red-500/15 text-red-400 border-red-500/30',
-  neutral:  'bg-slate-500/15 text-slate-400 border-slate-500/30',
+  success:  'bg-green-500/12  text-green-400  border-green-500/25',
+  warning:  'bg-amber-500/12  text-amber-400  border-amber-500/25',
+  critical: 'bg-red-500/12    text-red-400    border-red-500/25',
+  neutral:  'bg-slate-500/12  text-slate-400  border-slate-500/25',
+  setup:    'bg-slate-500/10  text-slate-400  border-slate-500/20',
 };
-const badgeLabel = { success: 'Ready', warning: 'Setup', critical: 'Critical', neutral: 'Inactive' };
+const badgeLabel = { success: 'Ready', warning: 'Needs attention', critical: 'Critical', neutral: 'Inactive', setup: 'Setup needed' };
 
 // ─── Station grid card ────────────────────────────────────────────────────────
 
@@ -85,30 +95,32 @@ function StationCard({ station, eq, isSelected, onClick }) {
     <button
       onClick={onClick}
       className={cn(
-        'relative w-full text-left rounded-xl border p-3 transition-all duration-150 active:scale-[0.97] flex flex-col gap-2',
+        'relative w-full text-left rounded-xl border bg-card border-border p-3 transition-all duration-150 active:scale-[0.97] flex flex-col gap-2',
         isSelected ? glowColor[color] : 'border-border/40 hover:border-border/70'
       )}
-      style={{ background: isSelected ? bgColor[color] : 'rgba(11,17,24,0.85)' }}
+      style={{
+        ...GLASS,
+        background: isSelected ? bgColor[color] : 'hsl(var(--card))',
+      }}
     >
       <div className="flex items-start justify-between gap-1.5">
         <p className="text-xs font-black text-foreground leading-tight truncate flex-1">{station.name}</p>
       </div>
 
-      {/* Readiness */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <span className={cn('text-base font-black tabular-nums leading-none', textColor[color])}>{pct}%</span>
-          <span className="text-[10px] font-bold text-muted-foreground">{eq.length} equip</span>
-        </div>
-        <div className="h-1 w-full overflow-hidden rounded-full bg-black/40">
-          <div className={cn('h-full rounded-full transition-all duration-700', barColor[color])} style={{ width: `${pct}%` }} />
-        </div>
+      {/* Status */}
+      <div className="flex items-center justify-between">
+        <span className={cn('text-xs font-bold leading-none', textColor[color])}>{badgeLabel[color]}</span>
+        <span className="text-[10px] font-medium text-muted-foreground">{eq.length} equip</span>
       </div>
 
       {/* Blockers */}
       {blockers.length > 0 && (
-        <p className="text-[10px] font-semibold text-amber-400/80 leading-tight truncate">
-          ⚠ {blockers[0]}{blockers.length > 1 ? ` +${blockers.length - 1}` : ''}
+        <p className={cn('text-[10px] font-semibold leading-tight truncate',
+          blockers[0].severity === 'critical' ? 'text-red-400/80' :
+          blockers[0].severity === 'warning'  ? 'text-amber-400/80' :
+          'text-slate-400/70'
+        )}>
+          {(blockers[0].severity === 'critical' || blockers[0].severity === 'warning') ? '⚠ ' : '· '}{blockers[0].text}{blockers.length > 1 ? ` +${blockers.length - 1}` : ''}
         </p>
       )}
     </button>
@@ -185,10 +197,18 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
         {blockers.length > 0 && (
           <div className="space-y-1.5">
             <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Issues</p>
-            {blockers.map(b => (
-              <div key={b} className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/8 px-2.5 py-2">
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-                <p className="text-xs font-semibold text-foreground">{b}</p>
+            {blockers.map((b, idx) => (
+              <div key={idx} className={cn('flex items-center gap-2 rounded-lg px-2.5 py-2',
+                b.severity === 'critical' ? 'border border-red-500/20 bg-red-500/8' :
+                b.severity === 'warning'  ? 'border border-amber-500/20 bg-amber-500/8' :
+                'border border-slate-500/15 bg-slate-500/8'
+              )}>
+                <AlertTriangle className={cn('h-3.5 w-3.5 shrink-0',
+                  b.severity === 'critical' ? 'text-red-400' :
+                  b.severity === 'warning'  ? 'text-amber-400' :
+                  'text-slate-400'
+                )} />
+                <p className="text-xs font-semibold text-foreground">{b.text}</p>
               </div>
             ))}
           </div>
@@ -341,7 +361,7 @@ export default function OperationalMap() {
       <div
         className="lg:hidden px-5 pt-6 pb-4 flex flex-col gap-4"
         style={{
-          background: "rgba(0, 0, 0, 0.2)",
+          background: "rgba(19, 22, 31, 0.35)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
@@ -378,7 +398,7 @@ export default function OperationalMap() {
         </div>
 
         {/* Area filter chips */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
           {tabs.map(tab => {
             const isActive = activeAreaId === tab.id;
             return (
@@ -387,17 +407,16 @@ export default function OperationalMap() {
                 onClick={() => setActiveAreaId(tab.id)}
                 className="flex items-center whitespace-nowrap transition-all active:scale-95"
                 style={{
-                  height: '32px',
-                  paddingLeft: '14px',
-                  paddingRight: '14px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
+                  height: '24px',
+                  paddingLeft: '10px',
+                  paddingRight: '10px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
                   fontWeight: 600,
                   letterSpacing: '0.01em',
                   background: isActive ? 'rgba(255,107,0,0.15)' : 'rgba(255,255,255,0.06)',
-                  border: isActive ? '1px solid rgba(255,107,0,0.35)' : '1px solid rgba(255,255,255,0.08)',
-                  color: isActive ? '#FF6B00' : 'rgba(255,255,255,0.45)',
-                  boxShadow: isActive ? '0 0 12px rgba(255,107,0,0.15)' : 'none',
+                  border: isActive ? '1px solid rgba(255,107,0,0.30)' : '1px solid rgba(255,255,255,0.07)',
+                  color: isActive ? '#FF6B00' : 'rgba(255,255,255,0.4)',
                   flexShrink: 0,
                 }}
               >
@@ -408,27 +427,24 @@ export default function OperationalMap() {
         </div>
       </div>
 
-      <div className="app-page lg:max-w-none lg:px-6">
+      <div className="ops-page ops-stack">
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
             {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton h-24 rounded-xl" />)}
           </div>
         ) : (
           <>
-            {/* Mobile-only summary strip */}
-            <div className="grid grid-cols-2 gap-2.5 lg:hidden">
+            {/* Mobile-only summary strip — single pill row */}
+            <div className="lg:hidden flex items-center rounded-2xl overflow-hidden border border-border bg-card shadow-sm">
               {[
-                { label: 'Total', value: stats.total, color: 'text-foreground', iconColor: 'text-muted-foreground', icon: Layers },
-                { label: 'Ready', value: stats.ready, color: 'text-green-400', iconColor: 'text-green-400', icon: CheckCircle2 },
-                { label: 'Needs Attention', value: stats.attn, color: stats.attn > 0 ? 'text-amber-400' : 'text-foreground', iconColor: stats.attn > 0 ? 'text-amber-400' : 'text-muted-foreground', icon: AlertTriangle },
-                { label: 'Equip. Issues', value: stats.issues, color: stats.issues > 0 ? 'text-red-400' : 'text-foreground', iconColor: stats.issues > 0 ? 'text-red-400' : 'text-muted-foreground', icon: Wrench },
-              ].map(({ label, value, color, iconColor, icon: Icon }) => (
-                <div key={label} className="card-glass border border-border rounded-xl px-3 py-3 flex items-center gap-2.5">
-                  <Icon className={cn('h-4 w-4 shrink-0', iconColor)} />
-                  <div>
-                    <p className={cn('text-xl font-black leading-none', color)}>{value}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground mt-0.5 uppercase tracking-wide">{label}</p>
-                  </div>
+                { label: 'Total',     value: stats.total,  color: 'text-foreground' },
+                { label: 'Ready',     value: stats.ready,  color: 'text-green-400' },
+                { label: 'Attention', value: stats.attn,   color: stats.attn > 0 ? 'text-amber-400' : 'text-foreground' },
+                { label: 'Issues',    value: stats.issues, color: stats.issues > 0 ? 'text-red-400' : 'text-foreground' },
+              ].map(({ label, value, color }, i, arr) => (
+                <div key={label} className="flex-1 flex flex-col items-center justify-center py-2.5" style={i < arr.length - 1 ? { borderRight: '1px solid rgba(255,255,255,0.08)' } : {}}>
+                  <span className={cn('text-[15px] font-bold leading-none tabular-nums', color)}>{value}</span>
+                  <span className="text-[10px] font-medium text-muted-foreground mt-0.5 leading-none">{label}</span>
                 </div>
               ))}
             </div>
@@ -445,7 +461,7 @@ export default function OperationalMap() {
                     { label: 'Needs Attention', value: stats.attn, color: stats.attn > 0 ? 'text-amber-400' : 'text-foreground', iconColor: stats.attn > 0 ? 'text-amber-400' : 'text-muted-foreground', icon: AlertTriangle },
                     { label: 'Equip. Issues', value: stats.issues, color: stats.issues > 0 ? 'text-red-400' : 'text-foreground', iconColor: stats.issues > 0 ? 'text-red-400' : 'text-muted-foreground', icon: Wrench },
                   ].map(({ label, value, color, iconColor, icon: Icon }) => (
-                    <div key={label} className="card-glass border border-border rounded-xl px-3 py-3 flex items-center gap-2.5">
+                    <div key={label} className="ops-panel px-3 py-3 flex items-center gap-2.5">
                       <Icon className={cn('h-4 w-4 shrink-0', iconColor)} />
                       <div>
                         <p className={cn('text-xl font-black leading-none', color)}>{value}</p>
@@ -463,7 +479,7 @@ export default function OperationalMap() {
                       value={search}
                       onChange={e => setSearch(e.target.value)}
                       placeholder="Search stations or equipment..."
-                      className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+                      className="w-full pl-10 pr-3 py-2 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border bg-secondary"
                     />
                     {search && (
                       <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -519,7 +535,7 @@ export default function OperationalMap() {
 
               {/* Right: sticky detail panel — full height alongside left column */}
               <div className="w-[300px] shrink-0 sticky top-[72px] self-start">
-                <div className="card-glass border border-border rounded-2xl overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 90px)' }}>
+                <div className="ops-panel overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 90px)' }}>
                   <DetailPanel
                     station={syncedSelected}
                     allEquipment={activeEquipment}
@@ -538,7 +554,7 @@ export default function OperationalMap() {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder="Search..."
-                    className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+                    className="w-full pl-10 pr-3 py-2 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border bg-secondary"
                   />
                 </div>
                 <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-10 px-3 rounded-lg bg-primary text-white text-xs font-bold flex items-center gap-1.5 shrink-0">
@@ -573,7 +589,7 @@ export default function OperationalMap() {
       {showDetail && syncedSelected && (
         <div className="lg:hidden fixed inset-0 z-50 flex items-end">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowDetail(false)} />
-          <div className="relative w-full card-glass border border-border rounded-t-2xl flex flex-col" style={{ maxHeight: '85vh' }}>
+          <div className="relative w-full ops-panel rounded-t-2xl flex flex-col border border-border bg-card" style={{ maxHeight: '85vh' }}>
             <div className="h-1 w-10 bg-muted-foreground/30 rounded-full mx-auto mt-3 mb-1 shrink-0" />
             <DetailPanel
               station={syncedSelected}

@@ -48,7 +48,7 @@ function getComboMultiplier(combo) {
 function getComboStyle(combo) {
   if (combo >= 10) return { label: 'LEGENDARY', color: 'text-yellow-300', border: 'border-yellow-400/40', bg: 'bg-yellow-400/10', glow: '0 0 24px rgba(250,204,21,0.3)' };
   if (combo >= 5)  return { label: 'ON FIRE',   color: 'text-orange-300', border: 'border-orange-400/40', bg: 'bg-orange-400/12', glow: '0 0 20px rgba(251,146,60,0.3)' };
-  if (combo >= 2)  return { label: 'COMBO',     color: 'text-primary',    border: 'border-primary/40',    bg: 'bg-primary/10',    glow: '0 0 16px rgba(255,107,0,0.25)' };
+  if (combo >= 2)  return { label: 'COMBO',     color: 'text-primary',    border: 'border-primary/40',    bg: 'bg-primary/10',    glow: '0 0 10px rgba(255,107,0,0.14)' };
   return null;
 }
 
@@ -96,7 +96,7 @@ function DailyDots({ count, goal }) {
           className={cn(
             'rounded-full transition-all',
             i < count
-              ? i === count - 1 ? 'h-2.5 w-2.5 bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.6)]' : 'h-2 w-2 bg-green-500/70'
+              ? i === count - 1 ? 'h-2.5 w-2.5 bg-green-400 shadow-[0_0_4px_rgba(74,222,128,0.3)]' : 'h-2 w-2 bg-green-500/70'
               : 'h-1.5 w-1.5 bg-white/10'
           )}
         />
@@ -113,7 +113,7 @@ function XpFloat({ amount, onDone }) {
       transition={{ duration: 0.75, ease: 'easeOut' }}
       onAnimationComplete={onDone}
       className="pointer-events-none absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 text-xl font-black text-primary"
-      style={{ textShadow: '0 0 12px rgba(255,107,0,0.8)' }}
+      style={{ textShadow: '0 0 6px rgba(255,107,0,0.35)' }}
     >
       +{amount} XP
     </motion.div>
@@ -157,7 +157,7 @@ function ScoreCounter({ score }) {
         exit={{ y: 12, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 600, damping: 30 }}
         className="text-3xl font-black tabular-nums tracking-tight text-foreground"
-        style={{ textShadow: score > 0 ? '0 0 20px rgba(255,107,0,0.4)' : 'none' }}
+        style={{ textShadow: score > 0 ? '0 0 10px rgba(255,107,0,0.2)' : 'none' }}
       >
         {String(score).padStart(4, '0')}
       </motion.span>
@@ -380,7 +380,7 @@ export default function ApprovalInbox() {
             { label: 'URGENT',       value: approvals.filter(a => a.priority === 'high').length,  Icon: AlertTriangle,  iconCls: 'text-amber-400',        circleCls: 'bg-amber-500/10 border-amber-500/20' },
             { label: 'NEEDS REVIEW', value: approvals.filter(a => a.requires_review).length,      Icon: Eye,            iconCls: 'text-muted-foreground', circleCls: 'bg-white/[0.05] border-border/30' },
           ].map(({ label, value, Icon, iconCls, circleCls }) => (
-            <div key={label} className="rounded-2xl border border-border/30 p-5 flex items-center gap-4" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+            <div key={label} className="rounded-2xl border border-border/30 p-5 flex items-center gap-4" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
               <div className={`h-12 w-12 rounded-full border flex items-center justify-center shrink-0 ${circleCls}`}>
                 <Icon className={`h-5 w-5 ${iconCls}`} />
               </div>
@@ -391,7 +391,7 @@ export default function ApprovalInbox() {
             </div>
           ))}
           {/* Status card */}
-          <div className="rounded-2xl border border-border/30 p-5 flex items-center gap-4" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+          <div className="rounded-2xl border border-border/30 p-5 flex items-center gap-4" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
             <div className="h-12 w-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0">
               <CheckCircle2 className="h-5 w-5 text-green-400" />
             </div>
@@ -413,7 +413,7 @@ export default function ApprovalInbox() {
           {/* Main content */}
           <div className="flex-1">
             {isComplete ? (
-              <div className="rounded-2xl border border-border/30 flex flex-col items-center justify-center py-16 px-8 text-center" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+              <div className="rounded-2xl border border-border/30 flex flex-col items-center justify-center py-16 px-8 text-center" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
                 <div className="h-20 w-20 rounded-full border-2 border-green-500/30 flex items-center justify-center mb-6" style={{ background: 'rgba(34,197,94,0.07)' }}>
                   <CheckCircle2 className="h-10 w-10 text-green-400" strokeWidth={1.5} />
                 </div>
@@ -457,7 +457,7 @@ export default function ApprovalInbox() {
 
           {/* Your Progress sidebar */}
           <div className="w-[360px] shrink-0">
-            <div className="rounded-2xl border border-border/30 p-5" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+            <div className="rounded-2xl border border-border/30 p-5" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
               <div className="flex items-center justify-between mb-5">
                 <p className="text-[15px] font-black text-foreground">Your Progress</p>
                 <Trophy className="h-5 w-5 text-muted-foreground/40" />
@@ -499,7 +499,7 @@ export default function ApprovalInbox() {
         <div
           className="rounded-2xl border border-border/40 p-4"
           style={{
-            background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)',
             boxShadow: score > 0 ? `0 0 0 1px rgba(255,107,0,0.15), 0 4px 24px rgba(0,0,0,0.4)` : '0 1px 3px rgba(0,0,0,0.4)',
           }}
         >
@@ -657,7 +657,7 @@ function GameOver({ score, rank, processedToday, onReset }) {
               className="flex h-full w-full items-center justify-center rounded-full border border-primary/40"
               style={{ background: 'linear-gradient(135deg, rgba(255,107,0,0.2) 0%, rgba(255,107,0,0.08) 100%)', boxShadow: '0 0 40px rgba(255,107,0,0.3)' }}
             >
-              <Trophy className="h-10 w-10 text-primary" style={{ filter: 'drop-shadow(0 0 8px rgba(255,107,0,0.6))' }} />
+              <Trophy className="h-10 w-10 text-primary" style={{ filter: 'drop-shadow(0 0 4px rgba(255,107,0,0.3))' }} />
             </div>
           </motion.div>
 
@@ -673,7 +673,7 @@ function GameOver({ score, rank, processedToday, onReset }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="overflow-hidden rounded-2xl border border-border/40"
-          style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+          style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
         >
           {/* Score banner */}
           <div
@@ -683,7 +683,7 @@ function GameOver({ score, rank, processedToday, onReset }) {
             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/70">Final Score</p>
             <p
               className="mt-1 text-5xl font-black tabular-nums text-foreground"
-              style={{ textShadow: '0 0 30px rgba(255,107,0,0.5)' }}
+              style={{ textShadow: '0 0 15px rgba(255,107,0,0.25)' }}
             >
               {String(score).padStart(4, '0')}
             </p>
@@ -706,7 +706,7 @@ function GameOver({ score, rank, processedToday, onReset }) {
               <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Reviewed</p>
             </div>
             <div className="flex flex-col items-center justify-center gap-1 px-3 py-4 text-center">
-              <p className="text-3xl font-black text-green-400" style={{ textShadow: '0 0 12px rgba(34,197,94,0.4)' }}>0</p>
+              <p className="text-3xl font-black text-green-400" style={{ textShadow: '0 0 7px rgba(34,197,94,0.22)' }}>0</p>
               <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Remaining</p>
             </div>
           </div>

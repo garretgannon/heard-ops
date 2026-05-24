@@ -10,6 +10,8 @@ import QuickAddEightySixModal from '@/components/QuickAddEightySixModal';
 import QuickActionModal from '@/components/quickactions/QuickActionModal';
 import { usePermissions } from '@/hooks/usePermissions';
 import { bottomNavRoutes } from '@/lib/routeConfig';
+import { Plus } from 'lucide-react';
+import { BRAND_ASSETS } from '@/lib/brandAssets';
 
 export default function GlobalBottomNav() {
   const { pathname } = useLocation();
@@ -53,27 +55,37 @@ export default function GlobalBottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-[999] pointer-events-none"
-        style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+        className="fixed bottom-0 left-0 right-0 z-[999] pointer-events-none flex justify-center"
+        style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}
       >
-        <div className="px-4 pointer-events-auto">
-          <div
-            className="liquid-nav flex justify-between items-center px-3"
-            style={{ height: '62px' }}
+        <div className="w-full max-w-[400px] px-4 flex flex-col items-end gap-4 pointer-events-none">
+          {/* Floating Add Button */}
+          <button
+            onClick={() => setShowQuickAdd(true)}
+            className="w-[52px] h-[52px] rounded-full flex items-center justify-center glass-fab pointer-events-auto interactive-button overflow-hidden hover:scale-105 active:scale-95 transition-transform"
+            aria-label="Quick Add"
           >
-            {navConfig.map(({ label, path, icon, id, isAdd }) => {
-              const isActive = activeId === id;
-              return (
-                <NavItem
-                  key={id}
-                  icon={icon}
-                  label={label}
-                  isActive={isActive}
-                  isAdd={isAdd}
-                  onClick={() => isAdd ? setShowQuickAdd(true) : navigate(path)}
-                />
-              );
-            })}
+            <img src="/brand/quick-add-logo.png" alt="Quick Add" className="w-8 h-8 object-contain" />
+          </button>
+
+          <div className="w-full pointer-events-auto">
+            <div
+              className="glass-nav rounded-2xl flex justify-between items-center px-2"
+              style={{ height: '64px' }}
+            >
+              {navConfig.map(({ label, path, icon, id }) => {
+                const isActive = activeId === id;
+                return (
+                  <NavItem
+                    key={id}
+                    icon={icon}
+                    label={label}
+                    isActive={isActive}
+                    onClick={() => navigate(path)}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       </nav>

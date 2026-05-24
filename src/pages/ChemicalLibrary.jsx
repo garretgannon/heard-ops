@@ -12,7 +12,8 @@ import {
   ChevronLeft, Link2, Users,
 } from 'lucide-react';
 
-const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';
+const CARD_BG = 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)';
+const CARD_GLASS = { background: CARD_BG, backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' };
 
 // ─── Categories (no purple) ───────────────────────────────────────────────────
 const CATEGORIES = {
@@ -74,7 +75,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
   return (
     <div
       className="flex flex-col h-full border-l border-border/30"
-      style={{ background: CARD_BG }}
+      style={{ ...CARD_GLASS }}
     >
       {/* Header */}
       <div className="flex items-start gap-3 px-4 pt-4 pb-3 border-b border-border/20 shrink-0">
@@ -443,7 +444,7 @@ function EmptyChemicals({ onAdd, isAdmin }) {
       {/* ── DESKTOP empty state (original card layout) ──────────────── */}
       <div
         className="hidden lg:block overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+        style={{ ...CARD_GLASS }}
       >
         <div className="flex flex-col items-center px-5 py-8 text-center">
           <div className="relative mb-4">
@@ -797,7 +798,7 @@ export default function ChemicalLibrary() {
       {/* ── DESKTOP STICKY FILTER CHIPS ───────────────────────────────── */}
       <div
         className="hidden lg:block bg-card border-b border-border sticky top-[112px] z-20 px-4 py-2.5"
-        style={{ background: 'rgba(5,8,14,0.97)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
       >
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           <button onClick={() => { setFilterCat('all'); setPage(1); }} className={cn('shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all', filterCat === 'all' ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>All</button>
@@ -830,7 +831,7 @@ export default function ChemicalLibrary() {
                   { label: 'Assigned Stations', value: stats.assigned,sub: 'Across all areas',    color: stats.assigned > 0 ? 'text-blue-400' : 'text-foreground' },
                   { label: 'Safety Checks Due', value: stats.expiring + stats.missing > 3 ? Math.floor((stats.expiring + stats.missing) / 3) : stats.expiring, sub: 'This week', color: 'text-muted-foreground' },
                 ].map(({ label, value, sub, color }) => (
-                  <div key={label} className="card-glass border border-border/60 rounded-xl px-3 py-3" style={{ background: CARD_BG }}>
+                  <div key={label} className="card-glass border border-border/60 rounded-xl px-3 py-3" style={{ ...CARD_GLASS }}>
                     <p className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground mb-0.5">{label}</p>
                     <p className={cn('text-xl font-extrabold', color)}>{value}</p>
                     <p className="text-[9px] text-muted-foreground mt-0.5">{sub}</p>
@@ -839,7 +840,7 @@ export default function ChemicalLibrary() {
               </div>
 
               {/* Table */}
-              <div className="overflow-hidden rounded-2xl border border-border/40" style={{ background: CARD_BG }}>
+              <div className="overflow-hidden rounded-2xl border border-border/40" style={{ ...CARD_GLASS }}>
                 {/* Desktop table header */}
                 <div className="hidden lg:grid px-4 py-2.5 border-b border-border/20"
                   style={{ gridTemplateColumns: '3fr 110px 130px 160px 140px 80px 90px' }}>
@@ -887,7 +888,7 @@ export default function ChemicalLibrary() {
               {/* Bottom sections */}
               <div className="grid gap-4 lg:grid-cols-2">
                 {/* Recently Added */}
-                <div className="overflow-hidden rounded-2xl border border-border/40" style={{ background: CARD_BG }}>
+                <div className="overflow-hidden rounded-2xl border border-border/40" style={{ ...CARD_GLASS }}>
                   <div className="flex items-center justify-between px-4 pt-4 pb-2">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Recently Added Chemicals</p>
                     <button onClick={() => setFilterCat('all')} className="text-[10px] font-bold text-primary hover:underline">View All</button>
@@ -920,7 +921,7 @@ export default function ChemicalLibrary() {
                 </div>
 
                 {/* Top Stations */}
-                <div className="overflow-hidden rounded-2xl border border-border/40" style={{ background: CARD_BG }}>
+                <div className="overflow-hidden rounded-2xl border border-border/40" style={{ ...CARD_GLASS }}>
                   <div className="flex items-center justify-between px-4 pt-4 pb-2">
                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Top Stations Using Chemicals</p>
                     <button className="text-[10px] font-bold text-primary hover:underline">View All</button>
@@ -953,7 +954,7 @@ export default function ChemicalLibrary() {
 
             {/* ── Right: detail panel ───────────────────────────── */}
             {selected && (
-              <div className="hidden lg:flex flex-col rounded-2xl border border-border/40 overflow-hidden sticky top-[160px] max-h-[calc(100vh-180px)]" style={{ background: CARD_BG }}>
+              <div className="hidden lg:flex flex-col rounded-2xl border border-border/40 overflow-hidden sticky top-[160px] max-h-[calc(100vh-180px)]" style={{ ...CARD_GLASS }}>
                 <ChemicalDetailPanel
                   chemical={selected}
                   areas={areas}

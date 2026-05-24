@@ -144,7 +144,7 @@ export default function ApprovalCard({ approval, index, total, onApprove, onDeny
       transition={{ type: 'spring', stiffness: 420, damping: 34 }}
       className={cn('relative flex flex-1 touch-pan-y flex-col', isDragging && 'cursor-grabbing')}
     >
-      <div className="app-card flex flex-1 flex-col overflow-hidden p-0 shadow-[0_24px_70px_rgba(0,0,0,0.38)]">
+      <div className="glass-panel flex flex-1 flex-col overflow-hidden p-0">
         <div className="relative h-56 overflow-hidden">
           <TaskVisual
             type={visualType}

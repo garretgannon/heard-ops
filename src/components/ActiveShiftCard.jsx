@@ -28,7 +28,7 @@ export default function ActiveShiftCard({
     : "Shift";
 
   return (
-    <div className="bg-gradient-to-br from-card via-card to-card/80 border border-border/50 rounded-2xl p-4 space-y-4 shadow-lg">
+    <div className="glass-panel rounded-2xl p-4 space-y-4">
       {/* Header: Status + Name + Time */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">

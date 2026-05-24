@@ -2,17 +2,10 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-// Liquid Glass card — backdrop-blur(30px) + diagonal gradient border + refractive edges
 const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("rounded-lg text-card-foreground", className)}
-    style={{
-      background: "rgba(26, 26, 26, 0.6) padding-box, linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%) border-box",
-      border: "1px solid transparent",
-      backdropFilter: "blur(30px) saturate(120%)",
-      WebkitBackdropFilter: "blur(30px) saturate(120%)",
-    }}
+    className={cn("rounded-lg border border-border bg-card text-card-foreground shadow-sm", className)}
     {...props} />
 ))
 Card.displayName = "Card"

@@ -12,14 +12,14 @@ const DEPT_STYLE = {
   all:     { color: 'text-primary',     bg: 'bg-primary/8',     border: 'border-primary/25',     dot: 'bg-primary' },
 };
 
-const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';
+const CARD_BG = 'hsl(var(--card))';
 
 // ─── Profile selector ─────────────────────────────────────────────────────────
 export function BriefingProfileSelector({ profiles, onSelect }) {
   return (
     <div
       className="overflow-hidden rounded-2xl border border-border/40"
-      style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+      style={{ background: CARD_BG }}
     >
       <div className="px-5 pt-5 pb-4">
         <p className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">Pre-Shift Briefing</p>
@@ -71,7 +71,7 @@ export function BriefingContextBanner({ context, counts, onReset }) {
   return (
     <div
       className={cn('overflow-hidden rounded-2xl border transition-colors', style.border)}
-      style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+      style={{ background: CARD_BG }}
     >
       {/* Header row */}
       <div className="flex items-start justify-between gap-3 px-4 py-3.5">

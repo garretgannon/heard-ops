@@ -62,7 +62,7 @@ export default function Pulse() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
           className="h-9 w-9 rounded-full border-2 border-primary border-t-transparent"
-          style={{ boxShadow: '0 0 20px rgba(255,107,0,0.35)' }}
+          style={{ boxShadow: '0 0 12px rgba(255,107,0,0.18)' }}
         />
         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading pulse…</p>
       </div>
@@ -86,7 +86,7 @@ export default function Pulse() {
               boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 0 48px rgba(255,107,0,0.08)',
             }}
           >
-            <Activity className="h-12 w-12 text-primary" style={{ filter: 'drop-shadow(0 0 10px rgba(255,107,0,0.5))' }} />
+            <Activity className="h-12 w-12 text-primary" style={{ filter: 'drop-shadow(0 0 6px rgba(255,107,0,0.28))' }} />
           </div>
         </div>
         <h2 className="text-[20px] font-black text-foreground mb-2">Pulse needs data to work</h2>
@@ -99,7 +99,7 @@ export default function Pulse() {
             className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
             style={{
               background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
-              boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.18)',
+              boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.12)',
             }}
           >
             Go to Setup
@@ -149,7 +149,7 @@ export default function Pulse() {
           style={{ background: isHealthy ? 'rgba(34,197,94,0.06)' : 'rgba(245,158,11,0.06)' }}
         >
           <div className={cn('h-2 w-2 rounded-full', isHealthy ? 'bg-green-400' : 'bg-amber-400')}
-            style={{ boxShadow: isHealthy ? '0 0 8px rgba(74,222,128,0.7)' : '0 0 8px rgba(251,191,36,0.7)', animation: 'pulse 2s ease-in-out infinite' }} />
+            style={{ boxShadow: isHealthy ? '0 0 5px rgba(74,222,128,0.35)' : '0 0 5px rgba(251,191,36,0.35)', animation: 'pulse 2s ease-in-out infinite' }} />
           <p className={cn('text-sm font-black', isHealthy ? 'text-green-400' : 'text-amber-400')}>
             {isHealthy ? 'All systems operational' : `${metrics.activeAlerts + metrics.overdueItems} item${metrics.activeAlerts + metrics.overdueItems === 1 ? '' : 's'} need attention`}
           </p>

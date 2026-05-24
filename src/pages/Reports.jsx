@@ -14,7 +14,7 @@ const thisWeekStart = () => {
 
 function MetricTile({ label, value, sub, color = 'text-foreground' }) {
   return (
-    <div className="rounded-2xl border border-border/40 p-4 space-y-1" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+    <div className="rounded-2xl border border-border/40 p-4 space-y-1" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
       <p className={cn('text-2xl font-black tabular-nums', color)}>{value}</p>
       <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
       {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
@@ -25,7 +25,7 @@ function MetricTile({ label, value, sub, color = 'text-foreground' }) {
 function SectionCard({ eyebrow, title, children }) {
   return (
     <section className="rounded-2xl border border-border/50 overflow-hidden"
-      style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
     >
       <div className="px-4 py-3 border-b border-border/30">
         <p className="metric-label">{eyebrow}</p>
@@ -170,7 +170,7 @@ export default function Reports() {
                   {Object.entries(data.tasksByType).length > 0 && (
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       {Object.entries(data.tasksByType).slice(0, 6).map(([type, counts]) => (
-                        <div key={type} className="flex items-center justify-between rounded-xl border border-border/30 px-3 py-2" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)', boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}>
+                        <div key={type} className="flex items-center justify-between rounded-xl border border-border/30 px-3 py-2" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
                           <span className="text-xs text-muted-foreground capitalize">{type.replace(/_/g, ' ')}</span>
                           <span className="text-xs font-black text-foreground">{counts.done}/{counts.total}</span>
                         </div>

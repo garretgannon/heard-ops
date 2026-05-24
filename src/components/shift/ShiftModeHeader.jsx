@@ -17,7 +17,7 @@ export default function ShiftModeHeader() {
     : null;
 
   return (
-    <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/80 backdrop-blur-sm border-b border-border/20 px-4 py-4 lg:px-8">
+    <div className="sticky top-0 z-30 glass-header px-4 py-4 lg:px-8">
       <div className="flex items-center justify-between gap-4 mb-3">
         <button
           onClick={() => navigate('/')}

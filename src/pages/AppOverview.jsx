@@ -143,7 +143,7 @@ function PulseRing({ value }) {
 
 function PrepCard({ item }) {
   return (
-    <Link to="/tasks?tab=prep" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-2xl border border-border/60 card-glass">
+    <Link to="/tasks?tab=prep" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-xl border border-border bg-card">
       <TaskVisual type="prep" name={item.name} imageUrl={item.image} className="h-full w-full" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
       <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-2">
@@ -273,7 +273,7 @@ function SwipeApprovalCard({ approval, index, total, onApprove, onDeny, onViewDe
         {/* Tinder stamps */}
         {showApproveStamp && (
           <div className="absolute left-6 top-10 -rotate-12 rounded-xl px-4 py-2"
-            style={{ border: '3px solid rgba(74,222,128,0.85)' }}>
+            style={{ border: '3px solid rgba(74,222,128,0.45)' }}>
             <span className="text-lg font-black uppercase tracking-[0.18em] text-green-400">Approve</span>
           </div>
         )}
@@ -312,23 +312,14 @@ function SwipeApprovalCard({ approval, index, total, onApprove, onDeny, onViewDe
         <button
           onPointerDown={e => e.stopPropagation()}
           onClick={onDeny}
-          className="flex h-13 items-center justify-center gap-2 rounded-2xl text-sm font-black text-red-300 transition-all active:scale-[0.97]"
-          style={{
-            border: '1px solid rgba(239,68,68,0.3)',
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(239,68,68,0.08) 100%)',
-          }}
+          className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-extrabold text-red-400 border border-red-500/30 bg-red-500/10 hover:bg-red-500/15 transition-all active:scale-[0.97]"
         >
           <X className="h-4 w-4" /> Send Back
         </button>
         <button
           onPointerDown={e => e.stopPropagation()}
           onClick={onApprove}
-          className="flex h-13 items-center justify-center gap-2 rounded-2xl text-sm font-black text-green-300 transition-all active:scale-[0.97]"
-          style={{
-            border: '1px solid rgba(34,197,94,0.3)',
-            background: 'linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(34,197,94,0.1) 100%)',
-            boxShadow: '0 0 16px rgba(34,197,94,0.12)',
-          }}
+          className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-extrabold text-green-400 border border-green-500/30 bg-green-500/15 hover:bg-green-500/20 transition-all active:scale-[0.97]"
         >
           <Check className="h-4 w-4" /> Approve
         </button>
@@ -625,7 +616,7 @@ export default function AppOverview() {
                   );
                 })}
                 {/* HeardOS logo — inline so it renders transparent */}
-                <g style={{ filter: 'drop-shadow(0 0 3px rgba(255,107,0,0.5))' }}>
+                <g style={{ filter: 'drop-shadow(0 0 2px rgba(255,107,0,0.3))' }}>
                   {/* Left dot */}
                   <circle cx="17" cy="34" r="1.8" fill="#FF6B00" />
                   {/* Left medium bar */}
@@ -647,17 +638,17 @@ export default function AppOverview() {
             {/* Text + bar */}
             <div className="flex-1 min-w-0">
               <p className="text-[15px] font-black text-white leading-snug">
-                Shift pulse: <span className="text-primary">{readiness}%</span> on track
+                Shift pulse: <span style={{ color: 'rgba(255,107,0,0.75)' }}>{readiness}%</span> on track
               </p>
               {/* Progress bar */}
               <div className="relative mt-2.5 h-2 rounded-full overflow-visible" style={{ background: 'rgba(255,255,255,0.1)' }}>
                 <div
-                  className="h-full rounded-full"
-                  style={{ width: `${readiness}%`, background: 'linear-gradient(90deg, #CC4400, #FF6B00)', boxShadow: '0 0 8px rgba(255,107,0,0.5)', transition: 'width 0.7s ease' }}
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: `${readiness}%`, transition: 'width 0.7s ease' }}
                 />
                 <div
-                  className="absolute top-1/2 h-4 w-4 rounded-full -translate-y-1/2 border-2 border-white bg-primary"
-                  style={{ left: `calc(${readiness}% - 8px)`, boxShadow: '0 0 8px rgba(255,107,0,0.8)', transition: 'left 0.7s ease' }}
+                  className="absolute top-1/2 h-3.5 w-3.5 rounded-full -translate-y-1/2 border-2 border-white bg-primary"
+                  style={{ left: `calc(${readiness}% - 7px)`, transition: 'left 0.7s ease' }}
                 />
               </div>
               {/* Meta */}
@@ -688,22 +679,25 @@ export default function AppOverview() {
               <div className="flex gap-1">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div key={i} className="h-1.5 flex-1 rounded-full"
-                    style={{ background: i < Math.round(readiness / 10) ? '#FF6B00' : 'rgba(255,255,255,0.12)', boxShadow: i < Math.round(readiness / 10) ? '0 0 4px rgba(255,107,0,0.4)' : 'none' }} />
+                    style={{ background: i < Math.round(readiness / 10) ? '#FF6B00' : 'rgba(255,255,255,0.12)', boxShadow: i < Math.round(readiness / 10) ? '0 0 3px rgba(255,107,0,0.25)' : 'none' }} />
                 ))}
               </div>
               {/* Mini stats */}
               <div className="grid grid-cols-3 gap-1">
-                <div className="rounded-lg py-1.5 text-center" style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.18)' }}>
-                  <p className="text-sm font-black text-green-400">{metrics.completedTasks}</p>
-                  <p className="text-[8px] text-muted-foreground mt-0.5">Done</p>
+                <div className="rounded-xl py-1.5 text-center bg-green-500/10 border border-green-500/20">
+                  <p className="text-sm font-extrabold text-green-400">{metrics.completedTasks}</p>
+                  <p className="text-[9px] font-medium text-muted-foreground/75 mt-0.5">Done</p>
                 </div>
-                <div className="rounded-lg py-1.5 text-center" style={{ background: 'rgba(255,107,0,0.1)', border: '1px solid rgba(255,107,0,0.18)' }}>
-                  <p className="text-sm font-black text-primary">{pendingApprovals}</p>
-                  <p className="text-[8px] text-muted-foreground mt-0.5">Pending</p>
+                <div className="rounded-xl py-1.5 text-center bg-primary/10 border border-primary/20">
+                  <p className="text-sm font-extrabold text-primary">{pendingApprovals}</p>
+                  <p className="text-[9px] font-medium text-muted-foreground/75 mt-0.5">Pending</p>
                 </div>
-                <div className="rounded-lg py-1.5 text-center" style={{ background: issueCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.05)', border: issueCount > 0 ? '1px solid rgba(239,68,68,0.18)' : '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className={cn('text-sm font-black', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/40')}>{issueCount}</p>
-                  <p className="text-[8px] text-muted-foreground mt-0.5">Issues</p>
+                <div className={cn(
+                  "rounded-xl py-1.5 text-center border transition-colors",
+                  issueCount > 0 ? "bg-red-500/10 border-red-500/20" : "bg-muted/30 border-border"
+                )}>
+                  <p className={cn('text-sm font-extrabold', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/40')}>{issueCount}</p>
+                  <p className="text-[9px] font-medium text-muted-foreground/75 mt-0.5">Issues</p>
                 </div>
               </div>
             </Link>
@@ -725,7 +719,7 @@ export default function AppOverview() {
                     <circle cx="26" cy="26" r="20" fill="none" stroke="#FF6B00" strokeWidth="5" strokeLinecap="round"
                       strokeDasharray={2 * Math.PI * 20}
                       strokeDashoffset={2 * Math.PI * 20 * (1 - taskPct / 100)}
-                      style={{ filter: 'drop-shadow(0 0 4px rgba(255,107,0,0.6))', transition: 'stroke-dashoffset 0.7s ease' }} />
+                      style={{ filter: 'drop-shadow(0 0 3px rgba(255,107,0,0.35))', transition: 'stroke-dashoffset 0.7s ease' }} />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-[11px] font-black text-foreground">{taskPct}%</span>
@@ -833,10 +827,10 @@ export default function AppOverview() {
             const isClear  = count === 0;
             const isCrit   = count > 5;
             const accent   = isClear ? '#22c55e' : isCrit ? '#ef4444' : '#FF6B00';
-            const accentBg = isClear ? 'rgba(34,197,94,0.08)'  : isCrit ? 'rgba(239,68,68,0.08)'  : 'rgba(255,107,0,0.08)';
-            const accentBd = isClear ? 'rgba(34,197,94,0.32)'  : isCrit ? 'rgba(239,68,68,0.32)'  : 'rgba(255,107,0,0.32)';
-            const accentGl = isClear ? 'rgba(34,197,94,0.08)'  : isCrit ? 'rgba(239,68,68,0.08)'  : 'rgba(255,107,0,0.08)';
-            const btnGlow  = isClear ? 'rgba(34,197,94,0.45)'  : isCrit ? 'rgba(239,68,68,0.45)'  : 'rgba(255,107,0,0.45)';
+            const accentBg = isClear ? 'rgba(34,197,94,0.06)'  : isCrit ? 'rgba(239,68,68,0.08)'  : 'rgba(255,107,0,0.08)';
+            const accentBd = isClear ? 'rgba(34,197,94,0.16)'  : isCrit ? 'rgba(239,68,68,0.25)'  : 'rgba(255,107,0,0.28)';
+            const accentGl = isClear ? 'rgba(34,197,94,0.05)'  : isCrit ? 'rgba(239,68,68,0.08)'  : 'rgba(255,107,0,0.08)';
+            const btnGlow  = isClear ? 'rgba(34,197,94,0.20)'  : isCrit ? 'rgba(239,68,68,0.35)'  : 'rgba(255,107,0,0.35)';
             const label    = isClear ? 'All clear' : `${count} approval${count !== 1 ? 's' : ''} waiting`;
             const sub      = isClear
               ? 'No pending approvals right now'

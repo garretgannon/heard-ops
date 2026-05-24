@@ -130,7 +130,7 @@ export default function Cleaning() {
               const tmplItems = templateItems(tmpl.id);
               return (
                 <div key={tmpl.id} className="rounded-2xl border border-border/50 overflow-hidden"
-                  style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+                  style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
                 >
                   <div className="px-4 py-3 border-b border-border/30 flex items-center justify-between">
                     <div>
@@ -159,7 +159,7 @@ export default function Cleaning() {
         ) : (
           <div
             className="rounded-2xl border border-border/50 p-8 text-center space-y-3"
-            style={{ background: 'linear-gradient(160deg, rgba(13,20,27,0.97) 0%, rgba(6,10,14,0.97) 100%)' }}
+            style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
           >
             <span className="status-marker status-marker-lg status-neutral mx-auto">
               <Sparkles className="h-5 w-5" />

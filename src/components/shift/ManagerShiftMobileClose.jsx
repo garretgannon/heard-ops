@@ -18,7 +18,7 @@ export default function ManagerShiftMobileClose({
     <div className="lg:hidden space-y-3">
       {/* Scorecard */}
       <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+        style={{ background: "hsl(var(--card))" }}>
         {[
           { label: "REQUIRED",   sub: "Items needing review",    value: debriefItems.length,                                                            color: debriefItems.length > 0 ? "text-primary" : "text-green-400" },
           { label: "REVIEWED",   sub: "Resolved or cleared",     value: `${debriefCompleteCount}/${debriefItems.length}`,                               color: debriefCompleteCount === debriefItems.length ? "text-green-400" : "text-foreground" },
@@ -34,7 +34,7 @@ export default function ManagerShiftMobileClose({
 
       {/* Required Close Review */}
       <div className="overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+        style={{ background: "hsl(var(--card))" }}>
         <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
           <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div>
@@ -113,7 +113,7 @@ export default function ManagerShiftMobileClose({
 
       {/* Handoff notes */}
       <div className="overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: "linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)" }}>
+        style={{ background: "hsl(var(--card))" }}>
         <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
           <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div>
@@ -133,8 +133,8 @@ export default function ManagerShiftMobileClose({
       </div>
 
       <button type="button" onClick={completeHandoff} disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
-        style={{ background: "linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)", boxShadow: "0 0 0 1px rgba(255,107,0,0.35), 0 0 24px rgba(255,107,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
+        className="btn-primary flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black text-white disabled:opacity-60 active:scale-[0.98] transition-all"
+      >
         <Trophy className="h-5 w-5" />
         {submitting ? "Saving…" : "Complete Sign-Off"}
       </button>

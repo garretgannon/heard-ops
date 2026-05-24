@@ -91,11 +91,9 @@ function StationPrepTemplatesSection({ stationId, stationName }) {
 }
 
 const GLASS = {
-  background: 'linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.055) 100%)',
-  backdropFilter: 'blur(24px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-  border: '1px solid rgba(255,255,255,0.16)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 0 rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.45)',
+  background: 'hsl(var(--card))',
+  border: '1px solid hsl(var(--border))',
+  borderRadius: '12px',
 };
 
 const EQUIPMENT_TYPES = [
@@ -1098,8 +1096,7 @@ export default function StationPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px]"
-          style={{ background: 'rgba(6,10,16,0.97)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px] bg-card border-b border-border">
           <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50">
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
@@ -1126,8 +1123,7 @@ export default function StationPage() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
 
       {/* ── Mobile fixed header ──────────────────────────────────────────────── */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px]"
-        style={{ background: 'rgba(6,10,16,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px] bg-card border-b border-border/50 backdrop-blur-md">
         <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 active:scale-95">
           <ChevronLeft className="h-5 w-5 text-foreground" />
         </button>
@@ -1163,18 +1159,15 @@ export default function StationPage() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button onClick={() => setShowEditForm(true)}
-                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground hover:bg-muted/50 transition-all"
-                style={{ background: 'rgba(255,255,255,0.03)' }}>
+                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground bg-secondary hover:bg-secondary/80 transition-all">
                 <Edit2 className="h-3.5 w-3.5" /> Edit Station
               </button>
               <button onClick={() => setActiveWorkflow('equipment')}
-                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground hover:bg-muted/50 transition-all"
-                style={{ background: 'rgba(255,255,255,0.03)' }}>
+                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground bg-secondary hover:bg-secondary/80 transition-all">
                 <Package className="h-3.5 w-3.5" /> Assign Items
               </button>
               <button onClick={() => setActiveWorkflow('prep')}
-                className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all"
-                style={{ boxShadow: '0 0 14px rgba(255,107,0,0.28)' }}>
+                className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all">
                 <ClipboardCheck className="h-3.5 w-3.5" /> Start Checklist
               </button>
             </div>
@@ -1486,7 +1479,7 @@ export default function StationPage() {
                     { label: 'Issues', value: String(totalIssues), color: totalIssues > 0 ? 'text-red-400' : 'text-green-400' },
                     { label: 'Temp checks', value: String(tempEquipment.length), color: 'text-blue-400' },
                   ].map(({ label, value, color }) => (
-                    <div key={label} className="rounded-xl p-2.5" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                    <div key={label} className="rounded-xl p-2.5 bg-secondary/40 border border-border/40">
                       <p className={cn('text-sm font-black truncate', color)}>{value}</p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">{label}</p>
                     </div>

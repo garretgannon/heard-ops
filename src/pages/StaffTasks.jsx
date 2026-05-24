@@ -367,7 +367,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
       </div>
       <div className="flex border-t border-border">
         <label className={cn(
-          "px-3 h-10 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer",
+          "px-3 h-11 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer",
           photoUrl ? "text-green-400" : task.requires_photo ? "text-primary" : "text-muted-foreground",
           "active:bg-muted/50"
         )}>
@@ -382,7 +382,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
             <button
               onClick={() => setShowChefSignOff(true)}
               className={cn(
-                "px-3 h-10 text-xs font-bold flex items-center gap-1 transition-all active:bg-muted/50",
+                "px-3 h-11 text-xs font-bold flex items-center gap-1 transition-all active:bg-muted/50",
                 chefApproved ? "text-emerald-400" : "text-amber-400"
               )}
             >
@@ -395,7 +395,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
         <button
           onClick={() => { haptics.medium(); onComplete(task, photoUrl ? [photoUrl] : []); }}
           disabled={completing || !canComplete}
-          className="flex-1 h-10 text-xs font-bold text-green-400 flex items-center justify-center gap-1.5 active:bg-green-500/10 transition-all disabled:opacity-40"
+          className="flex-1 h-11 text-xs font-bold text-green-400 flex items-center justify-center gap-1.5 active:bg-green-500/10 transition-all disabled:opacity-40"
         >
           <CheckCircle2 className="h-3.5 w-3.5" />
           {completing ? "Saving…" : "Complete"}
@@ -403,7 +403,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
         <div className="w-px bg-border" />
         <button
           onClick={() => navigate(task._entity === "GeneratedTask" ? "/station-shift" : "/tasks?tab=sidework")}
-          className="px-4 h-10 text-xs font-bold text-muted-foreground flex items-center gap-1 active:bg-muted/50 transition-all"
+          className="px-4 h-11 text-xs font-bold text-muted-foreground flex items-center gap-1 active:bg-muted/50 transition-all"
         >
           Open <ArrowRight className="h-3 w-3" />
         </button>

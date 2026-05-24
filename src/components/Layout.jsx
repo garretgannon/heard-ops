@@ -231,7 +231,7 @@ export default function Layout() {
         style={{
           paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)",
           height: "calc(72px + env(safe-area-inset-top, 0px))",
-          background: "rgba(0, 0, 0, 0.2)",
+          background: "rgba(19, 22, 31, 0.35)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
@@ -306,10 +306,10 @@ export default function Layout() {
           collapsed ? "w-[60px]" : "w-[240px]"
         )}
         style={{
-          background: 'rgba(0,0,0,0.3)',
+          background: 'rgba(19, 22, 31, 0.45)',
           backdropFilter: 'blur(40px) saturate(180%)',
           WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          borderRight: '1px solid rgba(255,255,255,0.07)',
+          borderRight: '1px solid hsl(var(--border))',
         }}
       >
         {/* Orange brand accent line at top */}
@@ -602,7 +602,7 @@ export default function Layout() {
           collapsed ? "left-[60px]" : "left-[240px]"
         )}
         style={{
-          background: "rgba(0, 0, 0, 0.2)",
+          background: "rgba(19, 22, 31, 0.35)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}

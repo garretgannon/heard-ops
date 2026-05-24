@@ -67,7 +67,7 @@ function ModuleCard({ mod, completions, assignments, onEdit, onDelete, onPlay, o
   return (
     <div
       className="rounded-2xl border border-border/30 overflow-hidden transition-all hover:border-border/60"
-      style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
     >
       <div className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
@@ -374,7 +374,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
               className="w-full flex items-center justify-center gap-2 rounded-full py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
               style={{
                 background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
-                boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 20px rgba(255,107,0,0.18)',
+                boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.12)',
               }}
             >
               <Plus className="h-4 w-4" /> Create First Module

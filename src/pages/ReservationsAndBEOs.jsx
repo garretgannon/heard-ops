@@ -20,7 +20,8 @@ import ReservationForm from '@/components/reservations/ReservationForm';
 import BEOForm from '@/components/reservations/BEOForm';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 
-const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';
+const CARD_BG = 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)';
+const CARD_GLASS = { background: CARD_BG, backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' };
 const TABS = ['Today', 'Reservations', 'BEOs', 'Calendar', 'Impact'];
 const todayStr = () => new Date().toISOString().split('T')[0];
 
@@ -157,7 +158,7 @@ function ImportModal({ onClose, onManualReservation, onManualBEO }) {
     >
       <div
         className="w-full max-w-sm rounded-2xl border border-border/50 overflow-hidden"
-        style={{ background: CARD_BG, boxShadow: '0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)' }}
+        style={{ ...CARD_GLASS }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
@@ -282,7 +283,7 @@ function AddEventDropdown({ onAddReservation, onAddBEO }) {
       {open && (
         <div
           className="absolute right-0 top-full mt-1.5 w-56 rounded-xl border border-border/50 shadow-xl overflow-hidden z-50"
-          style={{ background: CARD_BG, boxShadow: '0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)' }}
+          style={{ ...CARD_GLASS }}
         >
           <p className="px-3.5 pt-3 pb-2 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">
             Event type
@@ -495,7 +496,7 @@ export default function ReservationsAndBEOs() {
           </div>
         ) : activeTab === 'Today' ? (
           todayEmpty ? (
-            <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+            <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
               <div className="flex flex-col items-center py-12 px-6 text-center gap-5">
                 <div className="relative">
                   <div className="h-16 w-16 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">

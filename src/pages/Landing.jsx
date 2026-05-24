@@ -91,7 +91,7 @@ function MockDashboard() {
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-white/[0.07] bg-[#070D14] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="h-2 w-2 rounded-full bg-[#FF6B00] shadow-[0_0_8px_rgba(255,107,0,0.7)]" />
+          <div className="h-2 w-2 rounded-full bg-[#FF6B00] shadow-[0_0_6px_rgba(255,107,0,0.35)]" />
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-[#FF6B00]">Shift Active</span>
         </div>
         <div className="flex items-center gap-2 rounded-full border border-[#FF6B00]/30 bg-[#FF6B00]/10 px-3 py-1">

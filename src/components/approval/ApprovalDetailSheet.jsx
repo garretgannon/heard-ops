@@ -74,7 +74,7 @@ export default function ApprovalDetailSheet({ approval, onApprove, onDeny, onClo
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
-        className="absolute bottom-0 left-0 right-0 z-50 max-h-[90vh] bg-card rounded-t-3xl border-t border-border/30 flex flex-col overflow-hidden"
+        className="absolute bottom-0 left-0 right-0 z-50 max-h-[90vh] glass-panel rounded-t-3xl border-t flex flex-col overflow-hidden"
       >
         {/* Sticky header */}
         <div className="sticky top-0 flex items-center justify-between px-6 py-4 border-b border-border/20 bg-card/95 backdrop-blur-sm">

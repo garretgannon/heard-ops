@@ -194,7 +194,7 @@ function MyShiftCard({ shift, myUpcomingShifts, user, onOfferPickup, onNavigate,
         isOffered ? 'border-amber-500/40' : 'border-border/40',
         accent,
       )}
-      style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
     >
       {/* Main row */}
       <button
@@ -302,7 +302,7 @@ function OpenShiftCard({ shift, user, onPickUp }) {
   return (
     <div
       className={cn('rounded-2xl border border-l-4 px-4 py-3.5', 'border-border/40', accent)}
-      style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
     >
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
@@ -530,7 +530,7 @@ export default function MyShifts() {
               <h1 className="mt-1 text-2xl font-black tracking-tight text-foreground">My Shifts</h1>
             </div>
             <div className="rounded-2xl border border-border/40 px-4 py-2.5 text-right"
-              style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.97) 0%, rgba(6,9,13,0.97) 100%)' }}>
+              style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
               <p className="text-lg font-black text-foreground">{myUpcoming.length}</p>
               <p className="text-[10px] font-bold text-muted-foreground">Upcoming</p>
             </div>
