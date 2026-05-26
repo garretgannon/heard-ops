@@ -172,7 +172,7 @@ export default function SideWorkTaskCard({ assignment, currentUser, isManager, o
             <label className={cn("flex items-center gap-2 h-8 px-3 rounded-lg text-xs font-medium cursor-pointer transition-colors bg-primary text-primary-foreground hover:bg-primary/90", (uploading || saving) && "opacity-60 pointer-events-none")}>
               {uploading || saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
               {uploading ? "Uploading..." : "Take Photo & Complete"}
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoAndComplete} />
+              <input type="file" accept="image/*" capture="environment" className="ops-input hidden" onChange={handlePhotoAndComplete} />
             </label>
           ) : (
             <Button size="sm" className="h-8 text-xs" onClick={() => handleComplete(null)} disabled={saving}>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { Plus, Search, User, MapPin, ChevronRight } from 'lucide-react';
 import EmployeeEditDrawer from './EmployeeEditDrawer';
@@ -74,20 +75,18 @@ export default function EmployeeDirectoryTab() {
       </div>
 
       {/* Dept filter chips */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1">
-        {depts.map(d => (
-          <button
-            key={d}
-            onClick={() => setDeptFilter(d)}
-            className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-              deptFilter === d
-                ? 'glow-active'
-                : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
-            }`}
-          >
-            {d === 'all' ? 'All' : d}
-          </button>
-        ))}
+      <div className="w-full overflow-x-auto no-scrollbar pb-1">
+        <div className="pill-slider-container">
+          {depts.map(d => (
+            <button
+              key={d}
+              onClick={() => setDeptFilter(d)}
+              className={cn('glass-pill transition-all active:scale-95', deptFilter === d && 'glow-active')}
+            >
+              {d === 'all' ? 'All' : d}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (

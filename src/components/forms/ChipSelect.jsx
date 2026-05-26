@@ -93,7 +93,7 @@ export function BigInput({ label, placeholder, value, onChange, type = "text", r
         placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full h-14 px-4 rounded-xl border-2 border-input bg-card text-base font-medium placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+        className="liquid-card w-full h-14 px-4 -2 -input text-base font-medium placeholder:text-muted-foreground focus:outline-none focus:-primary transition-colors"
       />
     </div>
   );
@@ -108,7 +108,7 @@ export function BigTextarea({ label, placeholder, value, onChange }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         rows={4}
-        className="w-full px-4 py-3.5 rounded-xl border-2 border-input bg-card text-base font-medium placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none"
+        className="liquid-card w-full px-4 py-3.5 -2 -input text-base font-medium placeholder:text-muted-foreground focus:outline-none focus:-primary transition-colors resize-none"
       />
       <p className="text-xs text-muted-foreground">💡 Tap and hold to use voice dictation</p>
     </div>

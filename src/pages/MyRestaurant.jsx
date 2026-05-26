@@ -111,7 +111,7 @@ function DepartmentModal({ onClose }) {
       </div>
       <div className="space-y-2 mb-4">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2.5">
+          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-2xl px-3 py-2.5">
             <span className="flex-1 text-sm font-semibold text-foreground">{item.name}</span>
             <button onClick={() => del(item.id)} className="text-red-400 p-1"><Trash2 className="h-3.5 w-3.5" /></button>
           </div>
@@ -120,7 +120,7 @@ function DepartmentModal({ onClose }) {
       {adding ? (
         <div className="flex gap-2">
           <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="Department name"
-            className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="flex-1 px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <button onClick={save} className="btn-primary text-sm px-3">Save</button>
           <button onClick={() => setAdding(false)} className="btn-secondary text-sm px-3">Cancel</button>
         </div>
@@ -152,7 +152,7 @@ function AreaModal({ onClose }) {
     <CenteredModal title="Areas" onClose={onClose}>
       <div className="space-y-2 mb-4">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2.5">
+          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-2xl px-3 py-2.5">
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">{item.name}</p>
               {item.department && <p className="text-xs text-muted-foreground">{item.department}</p>}
@@ -164,9 +164,9 @@ function AreaModal({ onClose }) {
       {adding ? (
         <div className="space-y-2">
           <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Area name (e.g. Line, Prep, Dining Room)"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <input value={form.department} onChange={e => setForm(p => ({ ...p, department: e.target.value }))} placeholder="Department (optional)"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <div className="flex gap-2">
             <button onClick={save} className="flex-1 btn-primary text-sm">Save</button>
             <button onClick={() => setAdding(false)} className="flex-1 btn-secondary text-sm">Cancel</button>
@@ -261,9 +261,9 @@ function EquipmentModal({ onClose }) {
   };
 
   const EquipmentForm = ({ stationName }) => (
-    <div className="space-y-3 mt-2 p-3 bg-background border border-border rounded-xl">
+    <div className="space-y-3 mt-2 p-3 bg-background border border-border rounded-2xl">
       <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Equipment name *"
-        className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground" />
       <div className="space-y-1">
         <label className="text-[10px] font-bold text-muted-foreground uppercase">Type *</label>
         {EQUIPMENT_CATEGORIES.map(cat => (
@@ -289,14 +289,14 @@ function EquipmentModal({ onClose }) {
       </div>
       <div className="grid grid-cols-2 gap-2">
         <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
-          className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground" />
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
-          className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground" />
       </div>
       <select value={form.vendorId} onChange={e => {
         const vendor = vendors.find(v => v.id === e.target.value);
         setForm(p => ({ ...p, vendorId: e.target.value, vendorName: vendor?.name || '' }));
-      }} className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground">
+      }} className="w-full px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground">
         <option value="">Select Vendor (optional)</option>
         {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
       </select>
@@ -360,7 +360,7 @@ function EquipmentModal({ onClose }) {
           const hasAlerts = group.items.some(i => i.requiresTemperatureLog || i.requiresCleaningChecklist);
           const tags = summaryTags(group.items);
           return (
-            <div key={group.key} className="border border-border rounded-xl overflow-hidden">
+            <div key={group.key} className="border border-border rounded-2xl overflow-hidden">
               {/* Station Header */}
               <button
                 onClick={() => setExpandedStation(isExpanded ? null : group.key)}
@@ -403,7 +403,7 @@ function EquipmentModal({ onClose }) {
                         {editingId === item.id ? (
                           <EquipmentForm stationName={group.key !== '__unassigned' ? group.key : ''} />
                         ) : (
-                          <div className="card-glass border border-border/50 rounded-xl mt-2 overflow-hidden">
+                          <div className="card-glass border border-border/50 rounded-2xl mt-2 overflow-hidden">
                             {/* Clickable summary row */}
                             <button
                               onClick={() => {
@@ -463,7 +463,7 @@ function EquipmentModal({ onClose }) {
                                         <button
                                           key={field}
                                           onClick={() => toggleField(item, field)}
-                                          className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-bold transition-all active:scale-[0.97] ${isOn ? activeColor : 'border-border/40 bg-transparent text-muted-foreground/60 hover:border-border/70'}`}
+                                          className={`flex items-center gap-2 rounded-2xl border px-2.5 py-2 text-xs font-bold transition-all active:scale-[0.97] ${isOn ? activeColor : 'border-border/40 bg-transparent text-muted-foreground/60 hover:border-border/70'}`}
                                         >
                                           <span>{icon}</span>
                                           <span className="flex-1 text-left">{label}</span>
@@ -503,10 +503,10 @@ function EquipmentModal({ onClose }) {
                                         value={itemSearch}
                                         onChange={e => setItemSearch(e.target.value)}
                                         placeholder="Search items to add…"
-                                        className="w-full pl-3 pr-3 py-2 card-glass border border-border/50 rounded-lg text-xs text-foreground"
+                                        className="w-full pl-3 pr-3 py-2 card-glass border border-border/50 rounded-2xl text-xs text-foreground"
                                       />
                                       {filteredSearch.length > 0 && (
-                                        <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-xl shadow-2xl z-20 max-h-44 overflow-y-auto">
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-2xl shadow-2xl z-20 max-h-44 overflow-y-auto">
                                           {filteredSearch.map(pi => (
                                             <button
                                               key={pi.id}
@@ -534,7 +534,7 @@ function EquipmentModal({ onClose }) {
                                 {COLD_TYPES.includes(item.equipmentType) && (
                                   <button
                                     onClick={() => { onClose(); navigate('/temperature-dashboard'); }}
-                                    className="w-full text-[10px] bg-cyan-500/10 text-cyan-400 px-2.5 py-1.5 rounded-lg font-bold border border-cyan-500/20 hover:bg-cyan-500/15 transition-all text-left"
+                                    className="w-full text-[10px] bg-cyan-500/10 text-cyan-400 px-2.5 py-1.5 rounded-2xl font-bold border border-cyan-500/20 hover:bg-cyan-500/15 transition-all text-left"
                                   >
                                     View Temperature History →
                                   </button>
@@ -554,7 +554,7 @@ function EquipmentModal({ onClose }) {
                     editingId === null && (
                       <button
                         onClick={() => { setAddingToStation(group.key); setForm({ ...emptyForm, station: group.key !== '__unassigned' ? group.key : '' }); }}
-                        className="mt-2 w-full h-8 rounded-lg border border-dashed border-border text-xs font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1"
+                        className="mt-2 w-full h-8 rounded-2xl border border-dashed border-border text-xs font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1"
                       >
                         <Plus className="h-3.5 w-3.5" /> Add Equipment to {group.key !== '__unassigned' ? group.label : 'Station'}
                       </button>
@@ -608,7 +608,7 @@ function FoodSafetyModal({ onClose }) {
     <div>
       <label className="text-xs font-bold text-muted-foreground block mb-1">{label}{unit ? ` (°${unit})` : ''}</label>
       <input type="number" value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: parseFloat(e.target.value) }))}
-        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
     </div>
   );
 
@@ -623,7 +623,7 @@ function FoodSafetyModal({ onClose }) {
     <CenteredModal title="Food Safety Settings" onClose={onClose}>
       <div className="space-y-4">
         <p className="text-xs text-muted-foreground">Configure defaults for all 3 temperature log categories.</p>
-        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">Cooling Logs</p>
           <p className="text-[10px] text-muted-foreground">Food must cool 135F to 70F (2 hrs) to 41F (6 hrs total)</p>
           <div className="grid grid-cols-2 gap-2">
@@ -635,7 +635,7 @@ function FoodSafetyModal({ onClose }) {
             <Toggle field="coolingRequiresManagerReview" label="Manager Review" />
           </div>
         </div>
-        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Refrigerators / Freezers</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Cooler Min" field="coolerMin" unit="F" />
@@ -648,7 +648,7 @@ function FoodSafetyModal({ onClose }) {
             <Toggle field="fridgeRequiresManagerReview" label="Manager Review" />
           </div>
         </div>
-        <div className="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-orange-400 uppercase tracking-widest">Hot Holding</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Holding Minimum" field="hotHoldingMin" unit="F" />
@@ -687,7 +687,7 @@ function VendorModal({ onClose }) {
     <CenteredModal title="Vendor Directory" onClose={onClose}>
       <div className="space-y-2 mb-4">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2.5">
+          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-2xl px-3 py-2.5">
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">{item.name}</p>
               <p className="text-xs text-muted-foreground">{item.category}{item.contactPerson ? ` · ${item.contactPerson}` : ''}</p>
@@ -699,22 +699,22 @@ function VendorModal({ onClose }) {
       {adding ? (
         <div className="space-y-2">
           <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Vendor name *"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
             <option value="">Select category</option>
             {VENDOR_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
           <div className="grid grid-cols-2 gap-2">
             <input value={form.contactPerson} onChange={e => setForm(p => ({ ...p, contactPerson: e.target.value }))} placeholder="Contact name"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
             <input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="Phone"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           </div>
           <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="Email"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <input value={form.emergencyPhone} onChange={e => setForm(p => ({ ...p, emergencyPhone: e.target.value }))} placeholder="Emergency phone"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <div className="flex gap-2">
             <button onClick={save} className="flex-1 btn-primary text-sm">Save Vendor</button>
             <button onClick={() => setAdding(false)} className="flex-1 btn-secondary text-sm">Cancel</button>
@@ -755,7 +755,7 @@ function QRCodeModal({ onClose }) {
       )}
       <div className="space-y-2 mb-4">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-lg px-3 py-2.5">
+          <div key={item.id} className="flex items-center gap-2 bg-background border border-border rounded-2xl px-3 py-2.5">
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">{item.name}</p>
               <p className="text-xs text-muted-foreground">{item.linkedItemType}{item.location ? ` · ${item.location}` : ''}</p>
@@ -767,16 +767,16 @@ function QRCodeModal({ onClose }) {
       {adding ? (
         <div className="space-y-2">
           <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="QR code name *"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <select value={form.linkedItemType} onChange={e => setForm(p => ({ ...p, linkedItemType: e.target.value }))}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
             <option value="">Linked to *</option>
             {QR_ITEM_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
           <input value={form.linkedItemName} onChange={e => setForm(p => ({ ...p, linkedItemName: e.target.value }))} placeholder="Linked item name"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <input value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} placeholder="Physical location"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <div className="flex gap-2">
             <button onClick={save} className="flex-1 btn-primary text-sm">Save QR Code</button>
             <button onClick={() => setAdding(false)} className="flex-1 btn-secondary text-sm">Cancel</button>
@@ -812,14 +812,14 @@ function EmergencyContactsModal({ onClose }) {
     <div>
       <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">{label}</label>
       <input value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))} placeholder={label}
-        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
     </div>
   );
 
   return (
     <CenteredModal title="Emergency Contacts" onClose={onClose}>
       <div className="space-y-4">
-        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-red-400 uppercase tracking-widest">Internal Contacts</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Primary Contact Name" field="primaryName" />
@@ -828,7 +828,7 @@ function EmergencyContactsModal({ onClose }) {
             <Field label="Alternate Phone" field="altPhone" />
           </div>
         </div>
-        <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-amber-400 uppercase tracking-widest">Emergency Services</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Health Department" field="healthDept" />
@@ -837,7 +837,7 @@ function EmergencyContactsModal({ onClose }) {
             <Field label="Poison Control" field="poison" />
           </div>
         </div>
-        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">Utilities and Vendors</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Gas Company" field="gasCompany" />
@@ -875,14 +875,14 @@ function OperatingInfoModal({ onClose }) {
     <div>
       <label className="text-[10px] font-bold text-muted-foreground uppercase block mb-1">{label}</label>
       <input type={type} value={form[field]} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))} placeholder={label}
-        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
     </div>
   );
 
   return (
     <CenteredModal title="Operating Information" onClose={onClose}>
       <div className="space-y-4">
-        <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 space-y-2">
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-primary uppercase tracking-widest">Hours of Operation</p>
           <div className="space-y-2">
             <Field label="Mon - Fri Hours" field="hoursMonFri" />
@@ -890,7 +890,7 @@ function OperatingInfoModal({ onClose }) {
             <Field label="Sunday Hours" field="hoursSun" />
           </div>
         </div>
-        <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-green-400 uppercase tracking-widest">Capacity and Staffing</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Seating Capacity" field="seatingCapacity" />
@@ -898,7 +898,7 @@ function OperatingInfoModal({ onClose }) {
             <Field label="Open Date" field="openDate" type="date" />
           </div>
         </div>
-        <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 space-y-2">
+        <div className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">Licenses and Permits</p>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Business License #" field="licenseNumber" />
@@ -953,17 +953,17 @@ function ProfileModal({ onClose, onSaved }) {
     <CenteredModal title="Restaurant Profile" onClose={onClose}>
       <div className="space-y-3">
         <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Restaurant name *"
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
         <input value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} placeholder="Address"
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
         <div className="grid grid-cols-2 gap-2">
           <input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} placeholder="Phone"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           <input value={form.locationCount} type="number" onChange={e => setForm(p => ({ ...p, locationCount: parseInt(e.target.value) }))} placeholder="Locations"
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
         </div>
         <input value={form.conceptType} onChange={e => setForm(p => ({ ...p, conceptType: e.target.value }))} placeholder="Concept type (e.g. Casual Dining, QSR)"
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
         <button onClick={save} className="w-full btn-primary text-sm flex items-center justify-center gap-2">
           <Save className="h-4 w-4" /> Save Profile
         </button>
@@ -1035,10 +1035,10 @@ export default function MyRestaurant() {
           <p className="text-xs text-muted-foreground mt-0.5">Manage your restaurant profile, locations, equipment and key information.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/app/overview')} className="h-8 px-3 rounded-lg border border-border card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
+          <button onClick={() => navigate('/app/overview')} className="h-8 px-3 rounded-2xl border border-border card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
             Today's Plan
           </button>
-          <button onClick={() => navigate('/notifications')} className="h-8 w-8 rounded-lg border border-border card-glass flex items-center justify-center hover:bg-muted active:scale-95">
+          <button onClick={() => navigate('/notifications')} className="h-8 w-8 rounded-2xl border border-border card-glass flex items-center justify-center hover:bg-muted active:scale-95">
             <Bell className="h-3.5 w-3.5 text-muted-foreground" />
           </button>
         </div>
@@ -1053,13 +1053,13 @@ export default function MyRestaurant() {
       {/* Desktop 2-col Card Grid */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 lg:py-6">
         {/* Restaurant Profile */}
-        <div className="card-glass border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Restaurant Profile</p>
-            <button onClick={() => setModal('profile')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+            <button onClick={() => setModal('profile')} className="h-7 px-2.5 rounded-2xl bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
           </div>
           <div className="flex items-start gap-3">
-            <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+            <div className="h-12 w-12 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
               <Building2 className="h-6 w-6 text-primary" />
             </div>
             <div>
@@ -1070,10 +1070,10 @@ export default function MyRestaurant() {
         </div>
 
         {/* Restaurant Layout */}
-        <div className="card-glass border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Restaurant Layout</p>
-            <button onClick={() => navigate('/restaurant-layout')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+            <button onClick={() => navigate('/restaurant-layout')} className="h-7 px-2.5 rounded-2xl bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
           </div>
           <div className="space-y-1.5">
             {[{label:'Areas',count:counts.areas||0},{label:'Stations',count:counts.stations||0},{label:'Equipment',count:counts.equipment||0}].map(i=>(
@@ -1086,10 +1086,10 @@ export default function MyRestaurant() {
         </div>
 
         {/* Food Safety */}
-        <div className="card-glass border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Food Safety Systems</p>
-            <button onClick={() => setModal('foodSafety')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+            <button onClick={() => setModal('foodSafety')} className="h-7 px-2.5 rounded-2xl bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
           </div>
           <div className="space-y-1.5">
             {['Temperature Monitoring','Cooling Logs','HACCP Plan','Allergen Tracking'].map(s=>(
@@ -1102,10 +1102,10 @@ export default function MyRestaurant() {
         </div>
 
         {/* Emergency Contacts */}
-        <div className="card-glass border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Emergency Contacts</p>
-            <button onClick={() => setModal('emergencyContacts')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+            <button onClick={() => setModal('emergencyContacts')} className="h-7 px-2.5 rounded-2xl bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
           </div>
           <div className="space-y-2">
             {['Primary Contact','Alternate Contact','Health Department','Fire Department','Utilities'].map(c=>(
@@ -1118,10 +1118,10 @@ export default function MyRestaurant() {
         </div>
 
         {/* Key Operating Info */}
-        <div className="card-glass border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Key Operating Information</p>
-            <button onClick={() => setModal('operatingInfo')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
+            <button onClick={() => setModal('operatingInfo')} className="h-7 px-2.5 rounded-2xl bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Edit</button>
           </div>
           <div className="space-y-1.5">
             {['Operating Hours','Employee Count','Seating Capacity','License Number','Last Health Inspection'].map(k=>(
@@ -1133,10 +1133,10 @@ export default function MyRestaurant() {
         </div>
 
         {/* Team & Access */}
-        <div className="card-glass border border-border/60 rounded-xl p-4">
+        <div className="card-glass border border-border/60 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Team & Access</p>
-            <button onClick={() => navigate('/team')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+            <button onClick={() => navigate('/team')} className="h-7 px-2.5 rounded-2xl bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
           </div>
           <div className="space-y-1.5">
             {['Staff Directory','Roles & Permissions','Job Codes','Org Chart'].map(k=>(
@@ -1178,8 +1178,8 @@ export default function MyRestaurant() {
             {!counts.areas ? (
               <SectionCard icon={MapPin} title="Restaurant Layout" description="Areas, stations, and equipment hierarchy" needsSetup onClick={() => navigate('/restaurant-setup-wizard')} />
             ) : (
-              <div className="card-glass border border-border rounded-xl p-3.5 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 bg-green-500/15">
+              <div className="card-glass border border-border rounded-2xl p-3.5 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 bg-green-500/15">
                   <MapPin className="h-5 w-5 text-green-400" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -1188,8 +1188,8 @@ export default function MyRestaurant() {
                   <p className="text-[10px] font-bold text-muted-foreground mt-0.5">{counts.areas} area{counts.areas !== 1 ? 's' : ''} · {counts.stations || 0} station{(counts.stations || 0) !== 1 ? 's' : ''}</p>
                 </div>
                 <div className="flex flex-col gap-1.5 shrink-0">
-                  <button onClick={() => navigate('/restaurant-layout')} className="h-7 px-2.5 rounded-lg bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
-                  <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-7 px-2.5 rounded-lg bg-primary/15 text-xs font-bold text-primary hover:bg-primary/25 active:scale-95 whitespace-nowrap">+ Add More</button>
+                  <button onClick={() => navigate('/restaurant-layout')} className="h-7 px-2.5 rounded-2xl bg-muted text-xs font-bold text-foreground hover:bg-muted/80 active:scale-95">Manage</button>
+                  <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-7 px-2.5 rounded-2xl bg-primary/15 text-xs font-bold text-primary hover:bg-primary/25 active:scale-95 whitespace-nowrap">+ Add More</button>
                 </div>
               </div>
             )}

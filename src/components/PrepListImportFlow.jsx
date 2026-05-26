@@ -198,7 +198,7 @@ export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }
                   placeholder="e.g. Morning Prep List"
                   value={templateName}
                   onChange={(e) => setTemplateName(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
                 />
               </div>
 
@@ -219,7 +219,7 @@ export default function PrepListImportFlow({ isOpen, onClose, onImportComplete }
                   type="file"
                   accept=".csv,.xlsx,.xls"
                   onChange={handleFileSelect}
-                  className="hidden"
+                  className="ops-input hidden"
                   id="file-input"
                 />
                 <button

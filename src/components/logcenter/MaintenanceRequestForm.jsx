@@ -152,14 +152,14 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Priority *</label>
           <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })}
-            className="w-full h-9 px-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             {PRIORITIES.map(p => <option key={p}>{p}</option>)}
           </select>
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Status *</label>
           <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
-            className="w-full h-9 px-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             {STATUSES.map(s => <option key={s}>{s}</option>)}
           </select>
         </div>
@@ -171,13 +171,13 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Reported By</label>
           <input type="text" value={form.reported_by}
             onChange={e => setForm({ ...form, reported_by: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Date / Time Reported</label>
           <input type="datetime-local" value={form.reported_at}
             onChange={e => setForm({ ...form, reported_at: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -186,7 +186,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Equipment Tag</label>
           <select value={form.equipment_tag} onChange={e => setForm({ ...form, equipment_tag: e.target.value })}
-            className="w-full h-9 px-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             <option value="">Select equipment...</option>
             {equipment.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
           </select>
@@ -194,7 +194,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Vendor Tag</label>
           <select value={form.vendor_tag} onChange={e => setForm({ ...form, vendor_tag: e.target.value })}
-            className="w-full h-9 px-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             <option value="">Select vendor...</option>
             {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
@@ -207,13 +207,13 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Assigned Person</label>
           <input type="text" placeholder="Name or email..." value={form.assigned_person}
             onChange={e => setForm({ ...form, assigned_person: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Due Date</label>
           <input type="date" value={form.due_date}
             onChange={e => setForm({ ...form, due_date: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -222,7 +222,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Estimated Cost ($)</label>
         <input type="number" min="0" step="0.01" placeholder="0.00" value={form.estimated_cost}
           onChange={e => setForm({ ...form, estimated_cost: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Photo Upload */}
@@ -241,7 +241,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
               <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground font-bold">Click to upload photo</p>
             </div>
-            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="ops-input hidden" />
           </label>
         )}
       </div>
@@ -251,7 +251,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Notes</label>
         <textarea placeholder="Details about the issue..." value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Resolution Notes */}
@@ -259,7 +259,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Resolution Notes</label>
         <textarea placeholder="How was this resolved?..." value={form.resolution_notes}
           onChange={e => setForm({ ...form, resolution_notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Follow-up Date */}
@@ -267,7 +267,7 @@ export default function MaintenanceRequestForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Follow-up Date</label>
         <input type="date" value={form.follow_up_date}
           onChange={e => setForm({ ...form, follow_up_date: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Save Button */}

@@ -334,7 +334,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                       setForm(INITIAL_FORM);
                       setFiles([]);
                     }}
-                    className="w-full flex items-center gap-3 bg-background border border-border rounded-xl px-4 py-3 hover:border-primary/40 active:scale-[0.98] transition-all text-left"
+                    className="w-full flex items-center gap-3 liquid-card rounded-xl px-4 py-3 hover:border-primary/40 active:scale-[0.98] transition-all text-left"
                   >
                     <div className={`h-3 w-3 rounded-full shrink-0 ${logType.color}`} />
                     <div>
@@ -386,7 +386,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                       placeholder="Enter title..."
                       value={form.title}
                       onChange={e => set('title', e.target.value)}
-                      className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                      className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                     />
                   </div>
                 )}
@@ -402,7 +402,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                         const option = linkedOptions.find(item => `${item.type}:${item.id}` === e.target.value);
                         setForm(prev => ({ ...prev, linkedId: e.target.value, linkedType: option?.type || '', unit: option?.unit || prev.unit, estimatedCost: option?.cost || prev.estimatedCost }));
                       }}
-                      className="w-full h-9 px-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                      className="w-full h-9 px-2 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                     >
                       <option value="">Select linked item</option>
                       {linkedOptions.map(option => (
@@ -422,7 +422,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                         step="0.5"
                         value={form.quantity}
                         onChange={e => set('quantity', e.target.value)}
-                        className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                        className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
                     <div>
@@ -432,7 +432,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                         placeholder="lbs, each..."
                         value={form.unit}
                         onChange={e => set('unit', e.target.value)}
-                        className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                        className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -448,7 +448,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                       placeholder="Temp in F"
                       value={form.temperature}
                       onChange={e => set('temperature', e.target.value)}
-                      className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                      className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                     />
                   </div>
                 )}
@@ -465,7 +465,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                           placeholder="0.00"
                           value={form.estimatedCost}
                           onChange={e => set('estimatedCost', e.target.value)}
-                          className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                          className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                         />
                       </div>
                     )}
@@ -474,7 +474,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                       <select
                         value={form.reason}
                         onChange={e => set('reason', e.target.value)}
-                        className="w-full h-9 px-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                        className="w-full h-9 px-2 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                       >
                         {(type === 'waste' ? ['Expired', 'Overproduction', 'Dropped', 'Contaminated', 'Trimming/Prep', 'Temperature Abuse', 'Other'] : ['Out of stock', 'Quality issue', 'Prep shortage', 'Vendor shortage', 'Other']).map(reason => (
                           <option key={reason}>{reason}</option>
@@ -491,7 +491,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                       <select
                         value={form.priority}
                         onChange={e => set('priority', e.target.value)}
-                        className="w-full h-9 px-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                        className="w-full h-9 px-2 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                       >
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
@@ -504,7 +504,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                       <select
                         value={form.department}
                         onChange={e => set('department', e.target.value)}
-                        className="w-full h-9 px-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                        className="w-full h-9 px-2 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                       >
                         <option value="BOH">BOH</option>
                         <option value="FOH">FOH</option>
@@ -523,7 +523,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                       placeholder="e.g. Walk-in Cooler, Line 2..."
                       value={form.location}
                       onChange={e => set('location', e.target.value)}
-                      className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
+                      className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none"
                     />
                   </div>
                 )}
@@ -532,7 +532,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background px-3 py-3 text-xs font-bold text-muted-foreground transition-all hover:border-primary/50 hover:text-primary">
                     <Camera className="h-4 w-4" />
                     {files.length ? `${files.length} file${files.length === 1 ? '' : 's'} attached` : 'Attach photo/file'}
-                    <input type="file" accept="image/*,.pdf" multiple className="hidden" onChange={(event) => setFiles(Array.from(event.target.files || []))} />
+                    <input type="file" accept="image/*,.pdf" multiple className="ops-input hidden" onChange={(event) => setFiles(Array.from(event.target.files || []))} />
                   </label>
                 )}
 
@@ -543,7 +543,7 @@ export default function LogCreateModal({ onClose, onCreated }) {
                     value={form.notes}
                     onChange={e => set('notes', e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none resize-none"
+                    className="w-full px-3 py-2 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none resize-none"
                   />
                 </div>
 

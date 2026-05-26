@@ -10,6 +10,7 @@ import PurchasedItemDetail from '@/components/purchased-items/PurchasedItemDetai
 import PurchasedItemForm from '@/components/purchased-items/PurchasedItemForm';
 import VendorImportFlow from '@/components/purchased-items/VendorImportFlow';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { cn } from '@/lib/utils';
 
 const CATEGORY_LABELS = {
   protein: 'Protein', produce: 'Produce', dairy: 'Dairy',
@@ -36,7 +37,7 @@ function SummaryCard({ items, isAdmin }) {
   const missingConversion = active.filter(i => !i.recipeUnit || !i.conversionFactor);
 
   return (
-    <div className="card-glass border border-border rounded-xl p-4 mb-3">
+    <div className="card-glass border border-border rounded-2xl p-4 mb-3">
       <div className="flex items-start justify-between mb-3">
         <div>
           <h2 className="text-sm font-extrabold text-foreground">Purchased Items</h2>
@@ -45,25 +46,25 @@ function SummaryCard({ items, isAdmin }) {
         <Package className="h-5 w-5 text-primary shrink-0 mt-0.5" />
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-        <div className="bg-muted/50 rounded-lg p-2 text-center">
+        <div className="bg-muted/50 rounded-2xl p-2 text-center">
           <p className="text-lg font-extrabold text-foreground">{items.length}</p>
           <p className="text-[9px] font-bold text-muted-foreground uppercase">Total</p>
         </div>
-        <div className="bg-primary/10 rounded-lg p-2 text-center">
+        <div className="bg-primary/10 rounded-2xl p-2 text-center">
           <p className="text-lg font-extrabold text-primary">{active.length}</p>
           <p className="text-[9px] font-bold text-muted-foreground uppercase">Active</p>
         </div>
         {isAdmin && (
           <>
-            <div className={`rounded-lg p-2 text-center ${missingCost.length > 0 ? 'bg-amber-500/10' : 'bg-muted/50'}`}>
+            <div className={`rounded-2xl p-2 text-center ${missingCost.length > 0 ? 'bg-amber-500/10' : 'bg-muted/50'}`}>
               <p className={`text-lg font-extrabold ${missingCost.length > 0 ? 'text-amber-400' : 'text-foreground'}`}>{missingCost.length}</p>
               <p className="text-[9px] font-bold text-muted-foreground uppercase">No Cost</p>
             </div>
-            <div className={`rounded-lg p-2 text-center ${missingVendor.length > 0 ? 'bg-amber-500/10' : 'bg-muted/50'}`}>
+            <div className={`rounded-2xl p-2 text-center ${missingVendor.length > 0 ? 'bg-amber-500/10' : 'bg-muted/50'}`}>
               <p className={`text-lg font-extrabold ${missingVendor.length > 0 ? 'text-amber-400' : 'text-foreground'}`}>{missingVendor.length}</p>
               <p className="text-[9px] font-bold text-muted-foreground uppercase">No Vendor</p>
             </div>
-            <div className={`rounded-lg p-2 text-center ${missingConversion.length > 0 ? 'bg-red-500/10' : 'bg-muted/50'}`}>
+            <div className={`rounded-2xl p-2 text-center ${missingConversion.length > 0 ? 'bg-red-500/10' : 'bg-muted/50'}`}>
               <p className={`text-lg font-extrabold ${missingConversion.length > 0 ? 'text-red-400' : 'text-foreground'}`}>{missingConversion.length}</p>
               <p className="text-[9px] font-bold text-muted-foreground uppercase">No Conversion</p>
             </div>
@@ -86,7 +87,7 @@ function ItemCard({ item, onClick, isAdmin }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left bg-card border rounded-xl overflow-hidden active:scale-[0.99] transition-all ${item.active === false ? 'opacity-60 border-border' : 'border-border'}`}
+      className={`w-full text-left bg-card border rounded-2xl overflow-hidden active:scale-[0.99] transition-all ${item.active === false ? 'opacity-60 border-border' : 'border-border'}`}
     >
       <div className="px-4 py-3">
         <div className="flex items-start justify-between gap-2">
@@ -220,7 +221,7 @@ export default function PurchasedItems() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setShowImport(true); haptics.medium(); }}
-              className="h-8 px-3 rounded-lg border border-border/60 card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95"
+              className="h-8 px-3 rounded-2xl border border-border/60 card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95"
             >
               <Upload className="h-3.5 w-3.5 text-primary" /> Import
             </button>
@@ -245,7 +246,7 @@ export default function PurchasedItems() {
               <div className="flex gap-1.5">
                 <button
                   onClick={() => { setShowImport(true); haptics.medium(); }}
-                  className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-muted text-muted-foreground border border-border flex items-center gap-1"
+                  className="text-[10px] font-bold px-2.5 py-1.5 rounded-2xl bg-muted text-muted-foreground border border-border flex items-center gap-1"
                 >
                   <Upload className="h-3 w-3" /> Import
                 </button>
@@ -266,20 +267,22 @@ export default function PurchasedItems() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search purchased items…"
-              className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
             />
           </div>
 
-          <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
-            {FILTERS.map(f => (
-              <button
-                key={f.key}
-                onClick={() => setActiveFilter(f.key)}
-                className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${activeFilter === f.key ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="w-full overflow-x-auto no-scrollbar pb-1 px-4 -mx-4">
+            <div className="pill-slider-container">
+              {FILTERS.map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => setActiveFilter(f.key)}
+                  className={cn('glass-pill', activeFilter === f.key && 'glow-active')}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -291,7 +294,7 @@ export default function PurchasedItems() {
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
           items.length === 0 ? (
-            <div className="flex flex-col items-center text-center py-14 px-6 card-glass border border-border rounded-xl">
+            <div className="flex flex-col items-center text-center py-14 px-6 card-glass border border-border rounded-2xl">
               <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
                 <Package className="h-8 w-8 text-primary/60" />
               </div>
@@ -317,7 +320,7 @@ export default function PurchasedItems() {
               )}
             </div>
           ) : (
-            <div className="text-center py-12 card-glass border border-border rounded-xl">
+            <div className="text-center py-12 card-glass border border-border rounded-2xl">
               <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm text-muted-foreground font-semibold">No items match your search</p>
             </div>

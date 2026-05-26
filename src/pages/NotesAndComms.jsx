@@ -73,7 +73,7 @@ function FeedRow({ thread, acknowledged, onAck, isAdmin, onResolve }) {
   return (
     <div className={cn('rounded-2xl border overflow-hidden transition-colors', acknowledged ? 'border-border/30 bg-card/50' : 'border-border bg-card')}>
       <button onClick={() => setExpanded(v => !v)} className="w-full flex items-start gap-3 p-4 text-left">
-        <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', meta.bg)}>
+        <div className={cn('h-9 w-9 rounded-2xl flex items-center justify-center shrink-0', meta.bg)}>
           <Icon className={cn('h-4 w-4', meta.color)} />
         </div>
         <div className="flex-1 min-w-0">
@@ -98,12 +98,12 @@ function FeedRow({ thread, acknowledged, onAck, isAdmin, onResolve }) {
         <div className="px-4 pb-4 space-y-3 border-t border-border/30 pt-3">
           <p className="text-sm text-foreground leading-relaxed">{thread.body}</p>
           {thread.requires_acknowledgement && !acknowledged && (
-            <button onClick={onAck} className="w-full h-10 rounded-xl bg-primary text-sm font-bold text-primary-foreground flex items-center justify-center gap-2">
+            <button onClick={onAck} className="w-full h-10 rounded-2xl bg-primary text-sm font-bold text-primary-foreground flex items-center justify-center gap-2">
               <CheckCircle2 className="h-4 w-4" /> Acknowledge
             </button>
           )}
           {isAdmin && thread.status !== 'resolved' && (
-            <button onClick={onResolve} className="w-full h-9 rounded-xl border border-border/60 text-xs font-bold text-muted-foreground flex items-center justify-center gap-2">
+            <button onClick={onResolve} className="w-full h-9 rounded-2xl border border-border/60 text-xs font-bold text-muted-foreground flex items-center justify-center gap-2">
               <Reply className="h-3.5 w-3.5" /> Mark resolved
             </button>
           )}
@@ -119,7 +119,7 @@ function PrivateRow({ item, onDelete }) {
   const Icon = meta.icon;
   return (
     <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/25 last:border-0">
-      <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', meta.bg)}>
+      <div className={cn('h-9 w-9 rounded-2xl flex items-center justify-center shrink-0', meta.bg)}>
         <Icon className={cn('h-4 w-4', meta.color)} />
       </div>
       <div className="flex-1 min-w-0">
@@ -128,7 +128,7 @@ function PrivateRow({ item, onDelete }) {
           {meta.label} · Private · {formatTime(item.created_at)}
         </p>
       </div>
-      <button onClick={() => onDelete(item.id)} className="h-10 w-10 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-red-400 transition-colors shrink-0">
+      <button onClick={() => onDelete(item.id)} className="h-10 w-10 flex items-center justify-center rounded-2xl text-muted-foreground/30 hover:text-red-400 transition-colors shrink-0">
         <X className="h-3.5 w-3.5" />
       </button>
     </div>
@@ -311,27 +311,26 @@ export default function NotesAndComms() {
       <DesktopPageHeader title="Notes & Comms" subtitle="Capture, share, and track everything from one place." />
 
       {/* ══ TAB BAR ═════════════════════════════════════════════════════ */}
-      <div className="flex shrink-0 overflow-x-auto scrollbar-hide border-b border-border bg-background">
-        {TABS.map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              'relative shrink-0 flex items-center gap-1.5 px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap',
-              activeTab === tab ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            {tab}
-            {badges[tab] > 0 && (
-              <span className="inline-flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-primary/20 text-primary text-[10px] font-black px-1">
-                {badges[tab]}
-              </span>
-            )}
-            {activeTab === tab && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-            )}
-          </button>
-        ))}
+      <div className="px-4 py-3 bg-background border-b border-border">
+        <div className="view-slider-container w-full max-w-2xl">
+          {TABS.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn('view-slider-tab', activeTab === tab && 'active')}
+            >
+              <div className="flex items-center gap-1.5">
+                {tab}
+                {badges[tab] > 0 && (
+                  <span className={cn('text-[9px] font-black rounded-full px-1 py-0 leading-none flex items-center',
+                    activeTab === tab ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground'
+                  )}>{badges[tab]}</span>
+                )}
+              </div>
+              <div className="view-slider-dot" />
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -354,7 +353,7 @@ export default function NotesAndComms() {
                     key={type}
                     onClick={() => setItemType(type)}
                     className={cn(
-                      'flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl border text-[11px] font-bold transition-all',
+                      'flex flex-col items-center gap-1 py-2.5 px-1 rounded-2xl border text-[11px] font-bold transition-all',
                       itemType === type
                         ? 'bg-primary/15 border-primary/40 text-primary'
                         : 'border-border/50 text-muted-foreground/60 hover:text-muted-foreground hover:border-border'
@@ -375,13 +374,13 @@ export default function NotesAndComms() {
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
                   placeholder={activePlaceholder}
                   rows={4}
-                  className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/40 resize-none transition-colors"
+                  className="w-full bg-background border border-border rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/40 resize-none transition-colors"
                 />
               </div>
 
               {/* Attach + char count */}
               <div className="flex items-center justify-between px-3 pb-3 pt-1.5">
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border border-border/60 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
                   <Paperclip className="h-3.5 w-3.5" /> Attach
                 </button>
                 <span className="text-xs text-muted-foreground/40 tabular-nums">
@@ -405,7 +404,7 @@ export default function NotesAndComms() {
                       if (value === 'private') { setRequiresAck(false); }
                     }}
                     className={cn(
-                      'flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border text-center transition-all',
+                      'flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl border text-center transition-all',
                       visibility === value ? active : 'border-border/40 text-muted-foreground/50 hover:text-muted-foreground hover:border-border'
                     )}
                   >
@@ -426,7 +425,7 @@ export default function NotesAndComms() {
 
               {/* Requires Ack */}
               <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/30">
-                <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                <div className="h-9 w-9 rounded-2xl bg-muted flex items-center justify-center shrink-0">
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -453,7 +452,7 @@ export default function NotesAndComms() {
               {/* Assign to Station */}
               <div className="border-b border-border/30">
                 <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
-                  <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                  <div className="h-9 w-9 rounded-2xl bg-muted flex items-center justify-center shrink-0">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -469,7 +468,7 @@ export default function NotesAndComms() {
                     <select
                       value={stationId}
                       onChange={e => setStationId(e.target.value)}
-                      className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground outline-none"
+                      className="w-full bg-background border border-border rounded-2xl px-3 py-2 text-sm text-foreground outline-none"
                     >
                       <option value="">No specific station</option>
                       {stations.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -480,7 +479,7 @@ export default function NotesAndComms() {
 
               {/* Add Reminder */}
               <div className="flex items-center gap-3 px-4 py-3.5">
-                <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                <div className="h-9 w-9 rounded-2xl bg-muted flex items-center justify-center shrink-0">
                   <CalendarDays className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -519,7 +518,7 @@ export default function NotesAndComms() {
                     onClick={() => handleShortcut(key)}
                     className="flex flex-col items-center gap-2 p-3 hover:bg-muted/30 transition-colors"
                   >
-                    <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center', bg)}>
+                    <div className={cn('h-9 w-9 rounded-2xl flex items-center justify-center', bg)}>
                       <Icon className={cn('h-4 w-4', color)} />
                     </div>
                     <div className="text-center">
@@ -554,7 +553,7 @@ export default function NotesAndComms() {
                 </div>
                 <button
                   onClick={() => setActiveTab('Capture')}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white active:scale-[0.97] transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-bold text-white active:scale-[0.97] transition-all"
                   style={{
                     background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
                     boxShadow: '0 0 0 1px rgba(255,107,0,0.3)',
@@ -596,9 +595,9 @@ export default function NotesAndComms() {
                 const meta = TYPE_META[thread.type] || TYPE_META.announcement;
                 const Icon = meta.icon;
                 return (
-                  <div key={thread.id} className="rounded-2xl border border-amber-500/25 bg-card overflow-hidden">
+                  <div key={thread.id} className="ops-panel -amber-500/25 overflow-hidden">
                     <div className="flex items-start gap-3 p-4">
-                      <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', meta.bg)}>
+                      <div className={cn('h-9 w-9 rounded-2xl flex items-center justify-center shrink-0', meta.bg)}>
                         <Icon className={cn('h-4 w-4', meta.color)} />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -614,7 +613,7 @@ export default function NotesAndComms() {
                     <div className="px-4 pb-4">
                       <button
                         onClick={() => acknowledgeThread(thread)}
-                        className="w-full h-10 rounded-xl bg-primary text-sm font-bold text-primary-foreground flex items-center justify-center gap-2"
+                        className="w-full h-10 rounded-2xl bg-primary text-sm font-bold text-primary-foreground flex items-center justify-center gap-2"
                       >
                         <CheckCircle2 className="h-4 w-4" /> Acknowledge
                       </button>
@@ -631,28 +630,25 @@ export default function NotesAndComms() {
           <div className="px-4 py-4 space-y-4 pb-8 max-w-2xl lg:max-w-none lg:px-6">
 
             {/* Filter chips */}
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-              {[
-                { id: 'all',           label: 'All' },
-                { id: 'private',       label: 'Private' },
-                { id: 'shared',        label: 'Shared' },
-                { id: 'tasks',         label: 'Tasks' },
-                { id: 'issues',        label: 'Issues' },
-                { id: 'announcements', label: 'Announcements' },
-              ].map(f => (
-                <button
-                  key={f.id}
-                  onClick={() => setHistoryFilter(f.id)}
-                  className={cn(
-                    'shrink-0 h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap border transition-all',
-                    historyFilter === f.id
-                      ? 'bg-primary/15 border-primary/30 text-primary'
-                      : 'border-border/40 text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  {f.label}
-                </button>
-              ))}
+            <div className="w-full overflow-x-auto no-scrollbar pb-1">
+              <div className="pill-slider-container">
+                {[
+                  { id: 'all',           label: 'All' },
+                  { id: 'private',       label: 'Private' },
+                  { id: 'shared',        label: 'Shared' },
+                  { id: 'tasks',         label: 'Tasks' },
+                  { id: 'issues',        label: 'Issues' },
+                  { id: 'announcements', label: 'Announcements' },
+                ].map(f => (
+                  <button
+                    key={f.id}
+                    onClick={() => setHistoryFilter(f.id)}
+                    className={cn('glass-pill', historyFilter === f.id && 'glow-active')}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {loading ? (
@@ -683,7 +679,7 @@ export default function NotesAndComms() {
                   const Icon = meta.icon;
                   return (
                     <div key={`thread-${item.id}`} className="flex items-center gap-3 px-4 py-3.5">
-                      <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', meta.bg)}>
+                      <div className={cn('h-9 w-9 rounded-2xl flex items-center justify-center shrink-0', meta.bg)}>
                         <Icon className={cn('h-4 w-4', meta.color)} />
                       </div>
                       <div className="flex-1 min-w-0">

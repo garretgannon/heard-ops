@@ -69,7 +69,7 @@ export default function R365UploadStep({ onComplete }) {
         onClick={() => inputRef.current?.click()}
         className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${dragging ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 hover:bg-muted/30"}`}
       >
-        <input ref={inputRef} type="file" accept=".pdf" className="hidden" onChange={(e) => handleFile(e.target.files[0])} />
+        <input ref={inputRef} type="file" accept=".pdf" className="ops-input hidden" onChange={(e) => handleFile(e.target.files[0])} />
         {loading ? (
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-10 w-10 text-primary animate-spin" />

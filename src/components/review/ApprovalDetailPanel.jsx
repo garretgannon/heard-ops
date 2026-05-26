@@ -82,7 +82,7 @@ export default function ApprovalDetailPanel({ approval, onClose, onApprove, onDe
           <>
             <textarea value={denyNotes} onChange={e => setDenyNotes(e.target.value)}
               placeholder="Why are you denying this?" rows={3}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground resize-none" />
             <div className="flex gap-2">
               <button onClick={() => { setShowDenyNotes(false); setDenyNotes(''); }}
                 className="flex-1 py-2 rounded-lg border border-border text-sm font-bold text-foreground hover:bg-secondary">

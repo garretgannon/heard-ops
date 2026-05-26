@@ -341,7 +341,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
   return (
     <div className="app-card overflow-hidden p-0">
       <div className="flex items-start gap-3 p-3">
-        <TaskVisual type="sidework" name={task.name} step={task.station} imageUrl={task.image_url} compact className="h-14 w-14 shrink-0 rounded-xl border border-border/50" />
+        <TaskVisual type="sidework" name={task.name} step={task.station} imageUrl={task.image_url} compact className="h-14 w-14 shrink-0 rounded-2xl border border-border/50" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300">Side Work</span>
@@ -373,7 +373,7 @@ function SideWorkTaskCard({ task, onComplete, completing, navigate }) {
         )}>
           <Camera className="h-3.5 w-3.5" />
           {uploading ? "…" : photoUrl ? "Retake" : task.requires_photo ? "Photo*" : "Photo"}
-          <input type="file" accept="image/*" capture="environment" className="hidden"
+          <input type="file" accept="image/*" capture="environment" className="ops-input hidden"
             onChange={e => e.target.files[0] && handlePhotoCapture(e.target.files[0])} />
         </label>
         {task.chef_approval_required && (
@@ -581,7 +581,7 @@ function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
             <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">Photo Task</p>
             <h2 className="truncate text-lg font-black text-foreground">Assign work from a photo</h2>
           </div>
-          <button onClick={resetAndClose} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/60 text-muted-foreground">
+          <button onClick={resetAndClose} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-border/60 text-muted-foreground">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -593,7 +593,7 @@ function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
               type="file"
               accept="image/*"
               capture="environment"
-              className="hidden"
+              className="ops-input hidden"
               onChange={(event) => handleFile(event.target.files?.[0])}
             />
             {photoPreview ? (
@@ -615,20 +615,20 @@ function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Clean broken sushi case"
-              className="h-12 w-full rounded-xl border border-border/60 bg-background px-3 text-base font-bold text-foreground outline-none focus:border-primary/50"
+              className="h-12 w-full rounded-2xl border border-border/60 bg-background px-3 text-base font-bold text-foreground outline-none focus:border-primary/50"
             />
             <textarea
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               placeholder="Add context, location details, or safety notes..."
-              className="min-h-20 w-full resize-none rounded-xl border border-border/60 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
+              className="min-h-20 w-full resize-none rounded-2xl border border-border/60 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
             />
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Type</span>
-              <select value={taskType} onChange={(event) => setTaskType(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+              <select value={taskType} onChange={(event) => setTaskType(event.target.value)} className="h-11 w-full rounded-2xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
                 <option value="cleaning_task">Cleaning</option>
                 <option value="maintenance_check">Maintenance / Fix</option>
                 <option value="sidework_task">Side work</option>
@@ -636,7 +636,7 @@ function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
             </label>
             <label className="space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Priority</span>
-              <select value={priority} onChange={(event) => setPriority(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+              <select value={priority} onChange={(event) => setPriority(event.target.value)} className="h-11 w-full rounded-2xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
                 <option value="medium">Normal</option>
                 <option value="high">High</option>
                 <option value="critical">Critical</option>
@@ -647,7 +647,7 @@ function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Station</span>
-              <select value={stationId} onChange={(event) => setStationId(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+              <select value={stationId} onChange={(event) => setStationId(event.target.value)} className="h-11 w-full rounded-2xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
                 <option value="">{loadingLists ? "Loading..." : "Any station"}</option>
                 {stations.map((station) => (
                   <option key={station.id} value={station.id}>{station.name}</option>
@@ -656,7 +656,7 @@ function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
             </label>
             <label className="space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Person</span>
-              <select value={assigneeEmail} onChange={(event) => setAssigneeEmail(event.target.value)} className="h-11 w-full rounded-xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
+              <select value={assigneeEmail} onChange={(event) => setAssigneeEmail(event.target.value)} className="h-11 w-full rounded-2xl border border-border/60 bg-background px-3 text-sm font-bold text-foreground">
                 <option value="">{loadingLists ? "Loading..." : "Anyone"}</option>
                 {employees.map((employee) => (
                   <option key={employee.id || employee.email} value={employee.email}>{employee.full_name || employee.name || employee.email}</option>
@@ -671,7 +671,7 @@ function PhotoTaskSheet({ open, onClose, onCreated, currentUser, toast }) {
             type="button"
             onClick={saveTask}
             disabled={saving || !title.trim()}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-black text-primary-foreground disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-black text-primary-foreground disabled:opacity-50"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
             {saving ? "Assigning..." : "Assign Task"}
@@ -862,7 +862,7 @@ export default function StaffTasks() {
           <button
             type="button"
             onClick={() => setShowPhotoTask(true)}
-            className="h-8 px-3 rounded-lg border border-primary/30 bg-primary/10 text-xs font-bold text-primary flex items-center gap-1.5 hover:bg-primary/15 active:scale-95 transition-all"
+            className="h-8 px-3 rounded-2xl border border-primary/30 bg-primary/10 text-xs font-bold text-primary flex items-center gap-1.5 hover:bg-primary/15 active:scale-95 transition-all"
           >
             <Camera className="h-3.5 w-3.5" />
             Photo Assign Task
@@ -880,7 +880,7 @@ export default function StaffTasks() {
             <button
               type="button"
               onClick={() => setShowPhotoTask(true)}
-              className="flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-black text-primary-foreground active:scale-95"
+              className="flex h-10 shrink-0 items-center gap-1.5 rounded-2xl bg-primary px-3 text-xs font-black text-primary-foreground active:scale-95"
             >
               <Camera className="h-4 w-4" />
               Assign
@@ -892,7 +892,7 @@ export default function StaffTasks() {
       <div className="mx-auto max-w-[1100px] space-y-4 overflow-x-hidden px-4 py-3 lg:px-6 lg:pt-14">
         {/* Shift summary card */}
         {data && (
-          <div className="card-glass flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border border-border p-3 sm:gap-4">
+          <div className="card-glass flex min-w-0 items-center gap-3 overflow-hidden rounded-2xl border border-border p-3 sm:gap-4">
             <div className="shrink-0 border-r border-border pr-3 text-center sm:pr-4">
               <p className="text-2xl font-bold text-primary">{data.shiftScore}</p>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Shift Score</p>
@@ -915,21 +915,23 @@ export default function StaffTasks() {
         )}
 
         {/* Filter chips */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
+        <div className="w-full overflow-x-auto no-scrollbar pb-1">
+          <div className="pill-slider-container">
             {FILTERS.map(f => (
               <button
                 key={f.id}
                 onClick={() => { haptics.light(); setFilter(f.id); }}
                 className={cn(
-                  "flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200",
-                  filter === f.id
+                  "glass-pill",
+              filter === f.id
                     ? "glow-active"
-                    : "card-glass border border-border/40 text-muted-foreground glow-interactive"
+                    :  ""
                 )}
               >
                 {f.label}
               </button>
             ))}
+          </div>
         </div>
 
         {/* Task groups */}

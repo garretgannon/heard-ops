@@ -14,7 +14,7 @@ function JobCodeCard({ jobCode, onEdit, onDelete }) {
   };
 
   return (
-    <div className="card-glass border border-border rounded-lg p-3.5 flex items-center justify-between">
+    <div className="card-glass border border-border rounded-2xl p-3.5 flex items-center justify-between">
       <div>
         <p className="font-bold text-sm text-foreground">{jobCode.name}</p>
         <div className="flex gap-2 mt-1.5">
@@ -27,10 +27,10 @@ function JobCodeCard({ jobCode, onEdit, onDelete }) {
         </div>
       </div>
       <div className="flex gap-2">
-        <button onClick={() => onEdit(jobCode)} className="p-2 hover:bg-muted rounded-lg transition-all">
+        <button onClick={() => onEdit(jobCode)} className="p-2 hover:bg-muted rounded-2xl transition-all">
           <Edit2 className="h-4 w-4 text-secondary-text" />
         </button>
-        <button onClick={() => onDelete(jobCode.id)} className="p-2 hover:bg-muted rounded-lg transition-all">
+        <button onClick={() => onDelete(jobCode.id)} className="p-2 hover:bg-muted rounded-2xl transition-all">
           <Trash2 className="h-4 w-4 text-red-400" />
         </button>
       </div>
@@ -110,14 +110,14 @@ export default function JobCodes() {
               placeholder="Search job codes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-secondary-text"
+              className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground placeholder:text-secondary-text"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1">
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+              className="px-3 py-1.5 bg-background border border-border rounded-2xl text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
             >
               <option value="all">All Departments</option>
               <option value="BOH">BOH</option>
@@ -128,7 +128,7 @@ export default function JobCodes() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+              className="px-3 py-1.5 bg-background border border-border rounded-2xl text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>

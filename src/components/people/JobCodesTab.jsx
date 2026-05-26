@@ -98,14 +98,14 @@ export default function JobCodesTab() {
             placeholder="Search job codes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-secondary-text"
+            className="w-full pl-10 pr-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-secondary-text"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto">
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+            className="px-3 py-1.5 liquid-card rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
           >
             <option value="all">All Departments</option>
             <option value="BOH">BOH</option>
@@ -116,7 +116,7 @@ export default function JobCodesTab() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-1.5 bg-background border border-border rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
+            className="px-3 py-1.5 liquid-card rounded-lg text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary shrink-0"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>

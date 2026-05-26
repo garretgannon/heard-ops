@@ -128,7 +128,7 @@ export default function StationForm({ station, onSave, onClose }) {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="ops-input w-full"
           placeholder="e.g., Grill, Fryer, Host Stand"
         />
       </div>
@@ -141,7 +141,7 @@ export default function StationForm({ station, onSave, onClose }) {
           name="department"
           value={formData.department}
           onChange={handleChange}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           {departments.map(d => (
             <option key={d} value={d}>{d}</option>
@@ -158,7 +158,7 @@ export default function StationForm({ station, onSave, onClose }) {
           value={formData.description}
           onChange={handleChange}
           rows="2"
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground resize-none"
           placeholder="Optional notes about this station"
         />
       </div>
@@ -169,7 +169,7 @@ export default function StationForm({ station, onSave, onClose }) {
           name="isActive"
           checked={formData.isActive}
           onChange={handleChange}
-          className="rounded"
+          className="ops-input rounded"
         />
         <label className="text-sm font-semibold text-foreground">Active</label>
       </div>

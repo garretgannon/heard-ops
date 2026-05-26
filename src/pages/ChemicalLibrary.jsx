@@ -79,7 +79,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
     >
       {/* Header */}
       <div className="flex items-start gap-3 px-4 pt-4 pb-3 border-b border-border/20 shrink-0">
-        <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0 text-lg', cat.color)}>
+        <div className={cn('h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 text-lg', cat.color)}>
           <Beaker className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
@@ -93,29 +93,29 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
           {chemical.vendor && <p className="text-[10px] text-muted-foreground/60 mt-0.5">Vendor {chemical.vendor}</p>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <button onClick={() => onEdit(chemical)} className="h-10 w-10 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
+          <button onClick={() => onEdit(chemical)} className="h-10 w-10 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
             <Edit2 className="h-3.5 w-3.5" />
           </button>
-          <button onClick={onClose} className="h-10 w-10 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
+          <button onClick={onClose} className="h-10 w-10 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0.5 px-4 pt-2 pb-0 shrink-0 border-b border-border/20">
-        {DETAIL_TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={cn(
-              'pb-2 px-2 text-xs font-bold transition-colors border-b-2',
-              tab === t ? 'text-foreground border-primary' : 'text-muted-foreground border-transparent hover:text-foreground/70',
-            )}
-          >
-            {t}
-          </button>
-        ))}
+      <div className="px-4 pb-3 border-b border-border/20">
+        <div className="view-slider-container w-full max-w-sm">
+          {DETAIL_TABS.map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={cn('view-slider-tab', tab === t && 'active')}
+            >
+              {t}
+              <div className="view-slider-dot" />
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab content */}
@@ -141,7 +141,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
               </div>
             ))}
             {chemical.hazard_warnings && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-2xl">
                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-red-400 mb-1">Hazard Warnings</p>
                 <p className="text-xs text-red-300/80 leading-relaxed">{chemical.hazard_warnings}</p>
               </div>
@@ -152,7 +152,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
         {/* ── SDS ─────────────────────────────────────────────── */}
         {tab === 'SDS' && (
           <>
-            <div className={cn('flex items-center gap-2 p-3 rounded-xl border', sds.dot === 'bg-green-400' ? 'bg-green-500/10 border-green-500/25' : 'bg-red-500/10 border-red-500/25')}>
+            <div className={cn('flex items-center gap-2 p-3 rounded-2xl border', sds.dot === 'bg-green-400' ? 'bg-green-500/10 border-green-500/25' : 'bg-red-500/10 border-red-500/25')}>
               <div className={cn('h-2 w-2 rounded-full', sds.dot)} />
               <p className={cn('text-xs font-bold', sds.cls)}>{sds.label}</p>
               {sds.sub && <p className="text-[10px] text-muted-foreground ml-auto">{sds.sub}</p>}
@@ -162,7 +162,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
                 href={chemical.sds_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/25 rounded-xl hover:bg-blue-500/15 transition-colors"
+                className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/25 rounded-2xl hover:bg-blue-500/15 transition-colors"
               >
                 <FileText className="h-5 w-5 text-blue-400 shrink-0" />
                 <div>
@@ -172,14 +172,14 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
                 <Download className="h-4 w-4 text-blue-400 ml-auto" />
               </a>
             ) : (
-              <div className="p-4 rounded-xl border border-border/30 bg-white/[0.02] text-center">
+              <div className="p-4 rounded-2xl border border-border/30 bg-white/[0.02] text-center">
                 <FileText className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-xs font-bold text-foreground">No SDS attached</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">Add an SDS URL in the chemical form.</p>
               </div>
             )}
             {chemical.expiration_date && (
-              <div className="flex items-center justify-between px-3 py-2 rounded-xl border border-border/30 bg-white/[0.02]">
+              <div className="flex items-center justify-between px-3 py-2 rounded-2xl border border-border/30 bg-white/[0.02]">
                 <p className="text-xs text-muted-foreground">Expiration Date</p>
                 <p className="text-xs font-bold text-foreground">{new Date(chemical.expiration_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
               </div>
@@ -197,7 +197,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
               </div>
             )}
             {(chemical.dilution_ratio || chemical.dilution_instructions) && (
-              <div className="p-3 bg-blue-500/10 border border-blue-500/25 rounded-xl">
+              <div className="p-3 bg-blue-500/10 border border-blue-500/25 rounded-2xl">
                 <p className="text-[10px] font-black text-blue-400 mb-1">
                   Dilution{chemical.dilution_ratio ? ` — 1:${chemical.dilution_ratio}` : ''}
                 </p>
@@ -228,7 +228,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
                 <p className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/60 mb-2">Used At Stations</p>
                 <div className="flex flex-wrap gap-1.5">
                   {allLocations.map(name => (
-                    <span key={name} className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/[0.05] border border-border/40 text-foreground">
+                    <span key={name} className="text-[10px] font-bold px-2.5 py-1 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground">
                       {name}
                     </span>
                   ))}
@@ -240,7 +240,7 @@ function ChemicalDetailPanel({ chemical, areas, stations, equipment, onClose, on
                 <p className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/60 mb-2">Linked Equipment</p>
                 <div className="flex flex-wrap gap-1.5">
                   {equipNames.map(name => (
-                    <span key={name} className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/[0.05] border border-border/40 text-foreground">
+                    <span key={name} className="text-[10px] font-bold px-2.5 py-1 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground">
                       {name}
                     </span>
                   ))}
@@ -279,7 +279,7 @@ function ChemicalRow({ chemical, areas, stations, onSelect, onEdit, onDelete, is
         style={{ gridTemplateColumns: '3fr 110px 130px 160px 140px 80px 90px' }}>
         {/* Chemical */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center shrink-0', cat.color)}>
+          <div className={cn('h-7 w-7 rounded-2xl flex items-center justify-center shrink-0', cat.color)}>
             <Beaker className="h-3.5 w-3.5" />
           </div>
           <div className="min-w-0">
@@ -337,13 +337,13 @@ function ChemicalRow({ chemical, areas, stations, onSelect, onEdit, onDelete, is
         <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
           <button
             onClick={() => onSelect(chemical)}
-            className="h-9 px-2 rounded-lg bg-white/[0.05] border border-border/30 text-[10px] font-bold text-foreground hover:bg-white/[0.08] transition-colors"
+            className="h-9 px-2 rounded-2xl bg-white/[0.05] border border-border/30 text-[10px] font-bold text-foreground hover:bg-white/[0.08] transition-colors"
           >
             View
           </button>
           <button
             onClick={() => onDelete(chemical.id)}
-            className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground/40 hover:text-red-400 transition-colors"
+            className="h-9 w-9 rounded-2xl flex items-center justify-center text-muted-foreground/40 hover:text-red-400 transition-colors"
           >
             <Trash2 className="h-3 w-3" />
           </button>
@@ -352,7 +352,7 @@ function ChemicalRow({ chemical, areas, stations, onSelect, onEdit, onDelete, is
 
       {/* Mobile row */}
       <div className="lg:hidden flex items-center gap-3 px-4 py-3 w-full">
-        <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center shrink-0', cat.color)}>
+        <div className={cn('h-8 w-8 rounded-2xl flex items-center justify-center shrink-0', cat.color)}>
           <Beaker className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">
@@ -464,15 +464,15 @@ function EmptyChemicals({ onAdd, isAdmin }) {
                 <div className="flex items-center gap-1.5"><Plus className="h-3.5 w-3.5" /><span className="text-xs font-bold">Add Chemical</span></div>
                 <span className="text-[10px] opacity-70 font-normal">Manual entry</span>
               </button>
-              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
                 <div className="flex items-center gap-1.5"><Upload className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Upload SDS</span></div>
                 <span className="text-[10px] text-muted-foreground font-normal">Attach PDF document</span>
               </button>
-              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
                 <div className="flex items-center gap-1.5"><FileText className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Import Chemical List</span></div>
                 <span className="text-[10px] text-muted-foreground font-normal">CSV or spreadsheet</span>
               </button>
-              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+              <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
                 <div className="flex items-center gap-1.5"><Wrench className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs font-bold">Link to Equipment</span></div>
                 <span className="text-[10px] text-muted-foreground font-normal">Connect to stations</span>
               </button>
@@ -554,7 +554,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
     }
   };
 
-  const inputCls = 'w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50';
+  const inputCls = 'w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground focus:outline-none focus:border-primary/50';
   const labelCls = 'block text-xs font-bold text-foreground mb-1';
 
   return (
@@ -567,7 +567,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
           <h2 className="text-sm font-extrabold text-foreground">{chemical ? 'Edit Chemical' : 'New Chemical'}</h2>
-          <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hidden lg:flex"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="h-8 w-8 rounded-2xl bg-muted flex items-center justify-center hidden lg:flex"><X className="h-4 w-4" /></button>
           <div className="w-16 lg:hidden" />
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-4">
@@ -632,7 +632,7 @@ function ChemicalForm({ chemical, onSave, onClose }) {
         </div>
         <div className="shrink-0 bg-card border-t border-border px-4 py-3 flex gap-2 pb-[max(12px,env(safe-area-inset-bottom))]">
           <button onClick={save} disabled={saving} className="flex-1 btn-primary text-sm h-10">{saving ? '…' : 'Save'}</button>
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl border border-border/50 text-sm font-bold text-muted-foreground hover:text-foreground">Cancel</button>
+          <button onClick={onClose} className="flex-1 h-10 rounded-2xl border border-border/50 text-sm font-bold text-muted-foreground hover:text-foreground">Cancel</button>
         </div>
       </div>
     </>
@@ -738,7 +738,7 @@ export default function ChemicalLibrary() {
           <div className="flex items-center gap-2">
             <div className="relative hidden lg:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search chemicals…" className="w-48 pl-9 pr-3 py-2 card-glass border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary/50" />
+              <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search chemicals…" className="w-48 pl-9 pr-3 py-2 card-glass border border-border rounded-2xl text-xs text-foreground focus:outline-none focus:border-primary/50" />
             </div>
             {isAdmin && (
               <>
@@ -748,7 +748,7 @@ export default function ChemicalLibrary() {
                 >
                   <Plus className="h-3.5 w-3.5" /> Add Chemical
                 </button>
-                <button className="h-8 px-3 rounded-lg border border-border/60 card-glass text-xs font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
+                <button className="h-8 px-3 rounded-2xl border border-border/60 card-glass text-xs font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95">
                   <Upload className="h-3.5 w-3.5" /> Upload SDS
                 </button>
               </>
@@ -758,10 +758,7 @@ export default function ChemicalLibrary() {
       />
 
       {/* ── MOBILE STICKY HEADER (search + filters only — Layout handles back/title) */}
-      <div
-        className="lg:hidden sticky top-0 z-20 -mx-4"
-        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-      >
+      <div className="lg:hidden sticky top-0 z-20 -mx-4 ">
         {/* Search */}
         <div className="px-4 pt-2 pb-2">
           <div className="relative">
@@ -770,28 +767,30 @@ export default function ChemicalLibrary() {
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
               placeholder="Search chemicals..."
-              className="w-full pl-10 pr-3 py-2.5 rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+              className="w-full pl-10 pr-3 py-2.5 rounded-2xl text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
             />
           </div>
         </div>
         {/* Filter chips */}
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide px-4 pb-3">
-          <button
-            onClick={() => { setFilterCat('all'); setPage(1); }}
-            className={cn('shrink-0 h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all', filterCat === 'all' ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground')}
-          >
-            All
-          </button>
-          {Object.entries(CATEGORIES).map(([k, v]) => (
+        <div className="w-full overflow-x-auto no-scrollbar px-4 pb-3">
+          <div className="pill-slider-container">
             <button
-              key={k}
-              onClick={() => { setFilterCat(k); setPage(1); }}
-              className={cn('shrink-0 h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all', filterCat === k ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground')}
+              onClick={() => { setFilterCat('all'); setPage(1); }}
+              className={cn('glass-pill', filterCat === 'all' && 'glow-active')}
             >
-              {v.label}
+              All
             </button>
-          ))}
+            {Object.entries(CATEGORIES).map(([k, v]) => (
+              <button
+                key={k}
+                onClick={() => { setFilterCat(k); setPage(1); }}
+                className={cn('glass-pill', filterCat === k && 'glow-active')}
+              >
+                {v.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -800,13 +799,15 @@ export default function ChemicalLibrary() {
         className="hidden lg:block bg-card border-b border-border sticky top-[112px] z-20 px-4 py-2.5"
         style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
       >
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
-          <button onClick={() => { setFilterCat('all'); setPage(1); }} className={cn('shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all', filterCat === 'all' ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>All</button>
-          {Object.entries(CATEGORIES).map(([k, v]) => (
-            <button key={k} onClick={() => { setFilterCat(k); setPage(1); }} className={cn('shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all', filterCat === k ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive')}>
-              {v.label}
-            </button>
-          ))}
+        <div className="w-full overflow-x-auto no-scrollbar">
+          <div className="pill-slider-container">
+            <button onClick={() => { setFilterCat('all'); setPage(1); }} className={cn('glass-pill', filterCat === 'all' && 'glow-active')}>All</button>
+            {Object.entries(CATEGORIES).map(([k, v]) => (
+              <button key={k} onClick={() => { setFilterCat(k); setPage(1); }} className={cn('glass-pill', filterCat === k && 'glow-active')}>
+                {v.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -831,7 +832,7 @@ export default function ChemicalLibrary() {
                   { label: 'Assigned Stations', value: stats.assigned,sub: 'Across all areas',    color: stats.assigned > 0 ? 'text-blue-400' : 'text-foreground' },
                   { label: 'Safety Checks Due', value: stats.expiring + stats.missing > 3 ? Math.floor((stats.expiring + stats.missing) / 3) : stats.expiring, sub: 'This week', color: 'text-muted-foreground' },
                 ].map(({ label, value, sub, color }) => (
-                  <div key={label} className="card-glass border border-border/60 rounded-xl px-3 py-3" style={{ ...CARD_GLASS }}>
+                  <div key={label} className="card-glass border border-border/60 rounded-2xl px-3 py-3" style={{ ...CARD_GLASS }}>
                     <p className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground mb-0.5">{label}</p>
                     <p className={cn('text-xl font-extrabold', color)}>{value}</p>
                     <p className="text-[9px] text-muted-foreground mt-0.5">{sub}</p>
@@ -875,11 +876,11 @@ export default function ChemicalLibrary() {
                       Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
                     </p>
                     <div className="flex items-center gap-1">
-                      <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="h-7 w-7 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30">‹</button>
+                      <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="h-7 w-7 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30">‹</button>
                       {Array.from({ length: Math.min(pageCount, 4) }, (_, i) => i + 1).map(p => (
-                        <button key={p} onClick={() => setPage(p)} className={cn('h-7 w-7 rounded-lg border text-xs font-bold', p === page ? 'bg-primary border-primary text-white' : 'border-border/40 text-muted-foreground hover:text-foreground')}>{p}</button>
+                        <button key={p} onClick={() => setPage(p)} className={cn('h-7 w-7 rounded-2xl border text-xs font-bold', p === page ? 'bg-primary border-primary text-white' : 'border-border/40 text-muted-foreground hover:text-foreground')}>{p}</button>
                       ))}
-                      <button disabled={page === pageCount} onClick={() => setPage(p => p + 1)} className="h-7 w-7 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30">›</button>
+                      <button disabled={page === pageCount} onClick={() => setPage(p => p + 1)} className="h-7 w-7 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30">›</button>
                     </div>
                   </div>
                 )}
@@ -900,7 +901,7 @@ export default function ChemicalLibrary() {
                       const stNms = (c.assigned_stations || []).map(id => stations.find(s => s.id === id)?.name).filter(Boolean);
                       return (
                         <button key={c.id} onClick={() => setSelected(c)} className="flex items-center gap-3 px-4 py-3 w-full text-left hover:bg-white/[0.02]">
-                          <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center shrink-0', cat.color)}>
+                          <div className={cn('h-8 w-8 rounded-2xl flex items-center justify-center shrink-0', cat.color)}>
                             <Beaker className="h-4 w-4" />
                           </div>
                           <div className="flex-1 min-w-0">

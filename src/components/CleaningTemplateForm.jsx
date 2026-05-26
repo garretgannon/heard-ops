@@ -213,13 +213,13 @@ export default function CleaningTemplateForm({ template, onSave }) {
           placeholder="Template name (e.g. Closing Line Cleaning)"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
         />
 
         <select
           value={formData.department}
           onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           <option value="FOH">Front of House</option>
           <option value="BOH">Back of House</option>
@@ -230,13 +230,13 @@ export default function CleaningTemplateForm({ template, onSave }) {
           placeholder="Area (e.g. Cook Line)"
           value={formData.area}
           onChange={(e) => setFormData({ ...formData, area: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
         />
 
         <select
           value={formData.station}
           onChange={(e) => setFormData({ ...formData, station: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           <option value="">Select Station</option>
           {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
@@ -245,7 +245,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
         <select
           value={formData.jobCode}
           onChange={(e) => setFormData({ ...formData, jobCode: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           <option value="">Select Job Code</option>
           {jobCodes.map(j => <option key={j.id} value={j.name}>{j.name}</option>)}
@@ -254,7 +254,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
         <select
           value={formData.shift}
           onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           {SHIFTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
@@ -262,7 +262,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
         <select
           value={formData.frequency}
           onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
         </select>
@@ -316,7 +316,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
           placeholder="Notes / Instructions"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
           rows="2"
         />
       </div>
@@ -352,14 +352,14 @@ export default function CleaningTemplateForm({ template, onSave }) {
             placeholder="Task name (e.g. Degrease flat top)"
             value={newItem.taskName}
             onChange={(e) => setNewItem({ ...newItem, taskName: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
           />
 
           <textarea
             placeholder="Description (optional)"
             value={newItem.description}
             onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
             rows="1"
           />
 
@@ -367,14 +367,14 @@ export default function CleaningTemplateForm({ template, onSave }) {
             type="time"
             value={newItem.dueTime}
             onChange={(e) => setNewItem({ ...newItem, dueTime: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
           />
 
           <div className="grid grid-cols-2 gap-2">
             <select
               value={newItem.priority}
               onChange={(e) => setNewItem({ ...newItem, priority: e.target.value })}
-              className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
             >
               {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
@@ -382,7 +382,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
             <select
               value={newItem.frequency}
               onChange={(e) => setNewItem({ ...newItem, frequency: e.target.value })}
-              className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
             >
               {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
             </select>
@@ -392,7 +392,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
             placeholder="Supplies needed (optional)"
             value={newItem.suppliesNeeded}
             onChange={(e) => setNewItem({ ...newItem, suppliesNeeded: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
             rows="1"
           />
 
@@ -400,7 +400,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
             placeholder="Safety notes (optional)"
             value={newItem.safetyNotes}
             onChange={(e) => setNewItem({ ...newItem, safetyNotes: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
             rows="1"
           />
 
@@ -408,7 +408,7 @@ export default function CleaningTemplateForm({ template, onSave }) {
             placeholder="Instructions (optional)"
             value={newItem.instructions}
             onChange={(e) => setNewItem({ ...newItem, instructions: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
             rows="1"
           />
 

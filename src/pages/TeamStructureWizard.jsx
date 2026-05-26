@@ -319,7 +319,7 @@ export default function TeamStructureWizard() {
         <aside className="hidden lg:flex w-[260px] shrink-0 flex-col gap-4 pt-2">
           {step > 0 && step < 8 && (
             <div
-              className="p-4 rounded-xl flex flex-col gap-3"
+              className="p-4 rounded-2xl flex flex-col gap-3"
               style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, position: 'sticky', top: 100 }}
             >
               <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">Setup Progress</p>

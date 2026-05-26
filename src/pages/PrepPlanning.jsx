@@ -67,7 +67,7 @@ function StatusCard({ label, value, sub, icon: Icon, iconClass, border, bg, acti
     <div className={cn('flex flex-col gap-2 rounded-2xl border p-3.5', border)} style={{ background: bg }}>
       <div className="flex items-center justify-between">
         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-        <div className={cn('h-6 w-6 rounded-lg flex items-center justify-center shrink-0', iconClass)}>
+        <div className={cn('h-6 w-6 rounded-2xl flex items-center justify-center shrink-0', iconClass)}>
           <Icon className="h-3 w-3" />
         </div>
       </div>
@@ -78,7 +78,7 @@ function StatusCard({ label, value, sub, icon: Icon, iconClass, border, bg, acti
       {action && (
         <button
           onClick={action.onClick}
-          className={cn('flex items-center justify-center gap-1.5 rounded-xl border py-1.5 text-[11px] font-black transition-all active:scale-[0.97]', action.className)}
+          className={cn('flex items-center justify-center gap-1.5 rounded-2xl border py-1.5 text-[11px] font-black transition-all active:scale-[0.97]', action.className)}
           style={action.style}
         >
           {action.icon && <action.icon className="h-3 w-3" />}
@@ -96,7 +96,7 @@ function StationCard({ station, index, belowPar, tasks, assigned }) {
 
   return (
     <div
-      className={cn('rounded-xl border p-3 flex flex-col gap-2', hasProblem ? sc.border : 'border-border/30')}
+      className={cn('rounded-2xl border p-3 flex flex-col gap-2', hasProblem ? sc.border : 'border-border/30')}
       style={cardBg}
     >
       <div className="flex items-center justify-between">
@@ -477,7 +477,7 @@ export default function PrepPlanning() {
             </div>
             <button
               onClick={startCount}
-              className="flex items-center justify-center gap-2 w-full rounded-xl py-3.5 text-[15px] font-black text-white active:scale-[0.97] transition-all"
+              className="flex items-center justify-center gap-2 w-full rounded-2xl py-3.5 text-[15px] font-black text-white active:scale-[0.97] transition-all"
               style={{
                 background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
                 boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.12)',
@@ -739,7 +739,7 @@ export default function PrepPlanning() {
                     {attentionItems.map(item => (
                       <div
                         key={item.id}
-                        className="flex items-center justify-between gap-3 rounded-xl border border-border/40 px-3.5 py-3"
+                        className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 px-3.5 py-3"
                         style={cardBg}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
@@ -771,7 +771,7 @@ export default function PrepPlanning() {
                     { icon: Calendar, title: 'Review BEO details',        sub: 'BEOs impact prep quantities and timing.' },
                   ].map(({ icon: Icon, title, sub }, i) => (
                     <div key={i} className={cn('flex items-start gap-3 px-4 py-3', i > 0 && 'border-t border-border/20')}>
-                      <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="h-7 w-7 rounded-2xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0 mt-0.5">
                         <Icon className="h-3.5 w-3.5 text-primary" />
                       </div>
                       <div>
@@ -819,7 +819,7 @@ export default function PrepPlanning() {
                   </p>
                   <button
                     onClick={startCount}
-                    className="mt-3.5 flex items-center justify-center gap-1.5 w-full rounded-xl py-2 text-xs font-black text-white active:scale-[0.97] transition-all"
+                    className="mt-3.5 flex items-center justify-center gap-1.5 w-full rounded-2xl py-2 text-xs font-black text-white active:scale-[0.97] transition-all"
                     style={{
                       background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
                       boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
@@ -838,7 +838,7 @@ export default function PrepPlanning() {
                       <button
                         key={session.id}
                         onClick={() => { haptics.light(); navigate(`/prep-count/${session.id}`); }}
-                        className="flex w-full items-center justify-between gap-2 rounded-xl border border-border/40 px-3 py-2.5 text-left active:scale-[0.98] transition-all hover:border-border/60"
+                        className="flex w-full items-center justify-between gap-2 rounded-2xl border border-border/40 px-3 py-2.5 text-left active:scale-[0.98] transition-all hover:border-border/60"
                         style={cardBg}
                       >
                         <div className="flex-1 min-w-0">
@@ -860,7 +860,7 @@ export default function PrepPlanning() {
                   {countSessions.length > 6 && (
                     <button
                       onClick={() => navigate('/prep-count')}
-                      className="w-full rounded-xl border border-border/30 py-2.5 text-[11px] font-bold text-muted-foreground hover:text-foreground hover:border-border/50 transition-all"
+                      className="w-full rounded-2xl border border-border/30 py-2.5 text-[11px] font-bold text-muted-foreground hover:text-foreground hover:border-border/50 transition-all"
                       style={cardBg}
                     >
                       View All Sessions
@@ -931,7 +931,7 @@ export default function PrepPlanning() {
               {(templates.length > 0 || lastSession) && (
                 <button
                   onClick={() => { haptics.light(); navigate('/prep-plan-templates'); }}
-                  className="mt-2 w-full rounded-xl border border-border/30 py-2 text-[11px] font-bold text-muted-foreground hover:text-foreground hover:border-border/50 transition-all"
+                  className="mt-2 w-full rounded-2xl border border-border/30 py-2 text-[11px] font-bold text-muted-foreground hover:text-foreground hover:border-border/50 transition-all"
                   style={cardBg}
                 >
                   View All Inputs

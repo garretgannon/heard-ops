@@ -21,7 +21,7 @@ export default function ShiftModeHeader() {
       <div className="flex items-center justify-between gap-4 mb-3">
         <button
           onClick={() => navigate('/')}
-          className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center transition-all active:scale-95"
+          className="h-8 w-8 rounded-2xl hover:bg-secondary flex items-center justify-center transition-all active:scale-95"
         >
           <ChevronLeft className="h-5 w-5 text-muted-foreground" />
         </button>
@@ -33,7 +33,7 @@ export default function ShiftModeHeader() {
           </p>
         </div>
 
-        <button className="h-8 w-8 rounded-lg hover:bg-secondary flex items-center justify-center transition-all active:scale-95">
+        <button className="h-8 w-8 rounded-2xl hover:bg-secondary flex items-center justify-center transition-all active:scale-95">
           <Settings className="h-5 w-5 text-muted-foreground" />
         </button>
       </div>

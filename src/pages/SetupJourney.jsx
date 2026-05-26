@@ -152,7 +152,7 @@ function ModuleCard({ module, status, expanded, onToggle }) {
         onClick={onToggle}
         className="w-full flex items-center gap-3 px-4 py-3.5 text-left"
       >
-        <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${colors.bg} ${colors.border} border`}>
+        <div className={`h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 ${colors.bg} ${colors.border} border`}>
           <span className="text-xl">{module.emoji}</span>
         </div>
         <div className="flex-1 min-w-0">
@@ -180,7 +180,7 @@ function ModuleCard({ module, status, expanded, onToggle }) {
           >
             <div className="px-4 pb-4 space-y-3 border-t border-border/30 pt-3">
               <p className="text-sm text-muted-foreground">{module.desc}</p>
-              <div className={`flex items-start gap-2 rounded-xl px-3 py-2.5 ${colors.bg}`}>
+              <div className={`flex items-start gap-2 rounded-2xl px-3 py-2.5 ${colors.bg}`}>
                 <Zap className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${colors.text}`} />
                 <p className={`text-xs font-medium ${colors.text}`}>{module.why}</p>
               </div>
@@ -242,7 +242,7 @@ export default function SetupJourney() {
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">Build your operating system</p>
           </div>
-          <button onClick={() => navigate('/')} className="text-xs font-bold text-primary px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20">
+          <button onClick={() => navigate('/')} className="text-xs font-bold text-primary px-3 py-1.5 rounded-2xl bg-primary/10 border border-primary/20">
             Go to App →
           </button>
         </div>
@@ -284,7 +284,7 @@ export default function SetupJourney() {
             </h2>
             <div className="space-y-2">
               {suggestions.slice(0, 3).map((s, i) => (
-                <div key={i} className="flex items-start gap-3 bg-yellow-500/5 border border-yellow-500/15 rounded-xl px-3.5 py-3">
+                <div key={i} className="flex items-start gap-3 bg-yellow-500/5 border border-yellow-500/15 rounded-2xl px-3.5 py-3">
                   <span className="text-base shrink-0">{s.icon}</span>
                   <p className="text-xs text-yellow-200/80">{s.text}</p>
                 </div>

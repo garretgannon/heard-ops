@@ -136,7 +136,7 @@ aesthetic. Show the action clearly with no text overlays. High contrast. Cinemat
           <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg card-glass border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary transition-all">
             {uploadingPhoto ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
             Photo
-            <input type="file" accept="image/*" className="hidden"
+            <input type="file" accept="image/*" className="ops-input hidden"
               onChange={e => e.target.files[0] && uploadFile(e.target.files[0], "photo")} />
           </label>
 
@@ -144,7 +144,7 @@ aesthetic. Show the action clearly with no text overlays. High contrast. Cinemat
           <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg card-glass border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary transition-all">
             {uploadingVideo ? <Loader2 className="h-3 w-3 animate-spin" /> : <Video className="h-3 w-3" />}
             Video
-            <input type="file" accept="video/*" className="hidden"
+            <input type="file" accept="video/*" className="ops-input hidden"
               onChange={e => e.target.files[0] && uploadFile(e.target.files[0], "video")} />
           </label>
 
@@ -152,7 +152,7 @@ aesthetic. Show the action clearly with no text overlays. High contrast. Cinemat
           <label className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg card-glass border border-border text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-amber-500/60 transition-all">
             {uploadingAnnotation ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3" />}
             Annotate
-            <input type="file" accept="image/*" className="hidden"
+            <input type="file" accept="image/*" className="ops-input hidden"
               onChange={e => e.target.files[0] && uploadFile(e.target.files[0], "annotation")} />
           </label>
 

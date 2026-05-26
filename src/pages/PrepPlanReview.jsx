@@ -5,6 +5,9 @@ import { ChevronLeft, Check, X, Edit2 } from 'lucide-react';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
+import { posSync } from '@/lib/posSync';
+import { TrendingUp, TrendingDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function PrepPlanReview() {
   const { id } = useParams();
@@ -21,7 +24,39 @@ export default function PrepPlanReview() {
   const loadPlan = async () => {
     try {
       const data = await base44.entities.PrepPlan?.get?.(id);
-      if (data) setPlan(data);
+      if (data && data.items) {
+        if (posSync.isConnected()) {
+          // Fetch velocity for all items
+          const updatedItems = await Promise.all(data.items.map(async (item) => {
+            // Very naive category matching for the mock
+            let mockCategory = 'default';
+            const nameLower = (item.item_name || '').toLowerCase();
+            if (nameLower.includes('burger') || nameLower.includes('patty')) mockCategory = 'burger_patties';
+            if (nameLower.includes('fries')) mockCategory = 'fries';
+            if (nameLower.includes('salad')) mockCategory = 'salad_mix';
+
+            const velocity = await posSync.getSalesVelocity(mockCategory);
+            if (velocity && velocity.status === 'selling_fast') {
+              // Increase recommended par by 20%
+              item.pos_velocity = velocity;
+              item.pos_adjustment_quantity = Math.ceil(item.recommended_prep * 0.2);
+              item.final_prep_quantity = item.recommended_prep + item.pos_adjustment_quantity;
+            } else if (velocity && velocity.status === 'slow') {
+              item.pos_velocity = velocity;
+              item.pos_adjustment_quantity = -Math.floor(item.recommended_prep * 0.2);
+              item.final_prep_quantity = Math.max(0, item.recommended_prep + item.pos_adjustment_quantity);
+            } else {
+              item.final_prep_quantity = item.recommended_prep;
+            }
+            return item;
+          }));
+          data.items = updatedItems;
+        } else {
+          // Fallback if not connected
+          data.items = data.items.map(i => ({ ...i, final_prep_quantity: i.recommended_prep }));
+        }
+        setPlan(data);
+      }
     } catch (e) {
       toast.error('Failed to load prep plan');
     }
@@ -84,7 +119,7 @@ export default function PrepPlanReview() {
       <DesktopPageHeader title="Review Prep Plan" subtitle="Review and approve prep plan details" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate('/prep-planning')} className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted">
+        <button onClick={() => navigate('/prep-planning')} className="h-8 w-8 rounded-2xl border border-border flex items-center justify-center hover:bg-muted">
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
@@ -97,7 +132,7 @@ export default function PrepPlanReview() {
       <div className="app-page-narrow space-y-3">
         {plan.items && plan.items.length > 0 ? (
           plan.items.map((item, idx) => (
-            <div key={idx} className="card-glass border border-border rounded-lg p-4">
+            <div key={idx} className="card-glass border border-border rounded-2xl p-4">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
                   <p className="font-bold text-foreground text-sm">{item.item_name}</p>
@@ -128,9 +163,24 @@ export default function PrepPlanReview() {
                     <span className="font-bold">+ {item.manager_adjustment_quantity} {item.unit}</span>
                   </div>
                 )}
+                {item.pos_adjustment_quantity ? (
+                  <div className={cn("flex justify-between", item.pos_adjustment_quantity > 0 ? "text-purple-400" : "text-amber-400")}>
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      {item.pos_adjustment_quantity > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      POS Live Velocity ({item.pos_velocity?.ratePerHour}/hr):
+                    </span>
+                    <span className="font-bold">
+                      {item.pos_adjustment_quantity > 0 ? '+' : ''} {item.pos_adjustment_quantity} {item.unit}
+                    </span>
+                  </div>
+                ) : null}
                 <div className="border-t border-border/50 pt-1 mt-1 flex justify-between font-bold text-foreground">
                   <span>Recommended:</span>
-                  <span>{item.recommended_prep} {item.unit}</span>
+                  <span>
+                    {item.pos_adjustment_quantity 
+                      ? (item.recommended_prep + item.pos_adjustment_quantity) 
+                      : item.recommended_prep} {item.unit}
+                  </span>
                 </div>
               </div>
 
@@ -174,7 +224,7 @@ export default function PrepPlanReview() {
 
         {/* Notes */}
         {plan.notes && (
-          <div className="card-glass border border-border rounded-lg p-3">
+          <div className="card-glass border border-border rounded-2xl p-3">
             <p className="text-xs font-bold text-muted-foreground mb-1">Notes</p>
             <p className="text-sm text-foreground">{plan.notes}</p>
           </div>

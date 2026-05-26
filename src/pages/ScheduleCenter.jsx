@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { addDays, startOfWeek, format, isSameDay, parseISO } from 'date-fns';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
+import { posSync } from '@/lib/posSync';
 
 import ScheduleGrid from '@/components/schedule/ScheduleGrid';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
@@ -125,7 +126,16 @@ export default function ScheduleCenter() {
           return { id: `shift-emp-${i}`, name, email: matchingShift?.employee_email || '', role: matchingShift?.role || '' };
         });
       const merged = normalized.length > 0 ? [...normalized, ...extra] : [...extra, ...FAKE_EMPLOYEES];
-      setEmployees(merged);
+      
+      let clockIns = [];
+      if (posSync.isConnected()) {
+        clockIns = await posSync.getLiveClockIns();
+      }
+
+      setEmployees(merged.map(emp => ({
+        ...emp,
+        isClockedIn: clockIns.includes(`usr_${emp.id}`) || clockIns.includes(emp.id)
+      })));
     } catch (error) {
       console.error('Failed to load schedule data:', error);
       toast.error('Failed to load schedule');
@@ -478,52 +488,62 @@ export default function ScheduleCenter() {
       <DesktopPageHeader title="Schedule" subtitle="Staff shifts, assignments, and weekly planning" />
 
       {/* ── MOBILE HEADER ─────────────────────────────────────────── */}
-      <div
-        className="lg:hidden sticky top-0 z-30"
-        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 1px 16px rgba(0,0,0,0.6)' }}
-      >
-        <div className="px-4 pt-3 pb-3 space-y-3">
+      <div className="lg:hidden sticky top-0 z-30">
+        <div className="px-4 pt-2 pb-4 flex flex-col gap-3.5">
 
           {/* Date pill + action buttons */}
           <div className="flex items-center gap-2">
             <div
-              className="flex items-center gap-1.5 rounded-full border border-border/40 px-3 py-1.5 shrink-0"
-              style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
+              className="h-[38px] flex items-center justify-center gap-1.5 rounded-full px-3.5 shrink-0"
+              style={{ 
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)', 
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                backdropFilter: 'blur(22px) saturate(160%)', 
+                WebkitBackdropFilter: 'blur(22px) saturate(160%)' 
+              }}
             >
               <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-[12px] font-semibold text-muted-foreground">{format(new Date(), 'EEE, MMM d')}</span>
             </div>
             <button
               onClick={() => setShowMassAdd(true)}
-              className="flex items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-bold text-primary flex-1"
-              style={{ border: '1px solid rgba(255,107,0,0.55)', background: 'transparent' }}
+              className="h-[38px] flex items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-bold text-primary flex-1 active:scale-95 transition-all"
+              style={{ 
+                background: 'linear-gradient(180deg, rgba(255,107,0,0.12) 0%, rgba(255,107,0,0.04) 100%)',
+                border: '1px solid rgba(255,107,0,0.3)',
+                boxShadow: 'inset 0 1px 0 rgba(255,107,0,0.15)'
+              }}
             >
               <Plus className="h-3.5 w-3.5" />
               Add Shift
             </button>
             <button
               onClick={() => navigate('/schedule-import')}
-              className="rounded-full px-4 py-1.5 text-[13px] font-semibold text-muted-foreground shrink-0"
-              style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+              className="h-[38px] flex items-center justify-center rounded-full px-4 text-[13px] font-semibold text-muted-foreground shrink-0 active:scale-95 transition-all"
+              style={{ 
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)', 
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                backdropFilter: 'blur(22px) saturate(160%)', 
+                WebkitBackdropFilter: 'blur(22px) saturate(160%)'
+              }}
             >
               Import
             </button>
           </div>
 
           {/* Stats — unified single card with dividers */}
-          <div
-            className="flex rounded-xl border border-border/30 overflow-hidden"
-            style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
-          >
+          <div className="flex items-center rounded-full overflow-hidden border border-border bg-card shadow-sm mt-0.5">
             {[
-              { label: 'Hours',     value: `${totalHours.toFixed(0)}h`, color: 'text-foreground' },
-              { label: 'Staff',     value: new Set(weekShifts.map(s => s.employee_email).filter(Boolean)).size || 0, color: 'text-foreground' },
-              { label: 'Labor',     value: '$0',          color: 'text-green-400' },
-              { label: 'Conflicts', value: conflictCount, color: conflictCount > 0 ? 'text-red-400' : 'text-foreground' },
-            ].map(({ label, value, color }, i) => (
-              <div key={label} className={cn('flex-1 py-2.5 text-center', i > 0 && 'border-l border-border/30')}>
-                <p className={cn('text-[15px] font-black leading-none tabular-nums', color)}>{value}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+              { label: 'HOURS',     value: `${totalHours.toFixed(0)}h`, labelColor: 'text-muted-foreground/60', valColor: 'text-foreground/80' },
+              { label: 'STAFF',     value: new Set(weekShifts.map(s => s.employee_email).filter(Boolean)).size || 0, labelColor: 'text-muted-foreground/60', valColor: 'text-foreground/80' },
+              { label: 'LABOR',     value: '$0',          labelColor: 'text-green-500/70', valColor: 'text-green-400' },
+              { label: 'CONFLICTS', value: conflictCount, labelColor: conflictCount > 0 ? 'text-red-400/80' : 'text-muted-foreground/60', valColor: conflictCount > 0 ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]' : 'text-foreground/80' },
+            ].map(({ label, value, labelColor, valColor }, i, arr) => (
+              <div key={label} className="flex-1 flex flex-col items-center justify-center py-2.5" style={i < arr.length - 1 ? { borderRight: '1px solid rgba(255,255,255,0.08)' } : {}}>
+                <span className={cn('text-[15px] font-bold leading-none tabular-nums', valColor)}>{value}</span>
+                <span className={cn('text-[10px] font-medium mt-0.5 leading-none', labelColor)}>{label}</span>
               </div>
             ))}
           </div>
@@ -540,23 +560,23 @@ export default function ScheduleCenter() {
               <div className="flex items-center gap-2.5">
                 <h1 className="text-2xl font-black tracking-tight text-foreground shrink-0">Schedule</h1>
                 {isExpanded ? (
-                  <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                  <button onClick={() => setIsExpanded(false)} className="h-8 w-8 rounded-2xl border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                     <Minimize className="h-3.5 w-3.5" />
                   </button>
                 ) : (
-                  <button onClick={() => setIsExpanded(true)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                  <button onClick={() => setIsExpanded(true)} className="h-8 w-8 rounded-2xl border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                     <Expand className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
               <div className="flex items-center gap-1.5">
-                <button onClick={() => setCurrentWeek(addDays(currentWeek, -7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                <button onClick={() => setCurrentWeek(addDays(currentWeek, -7))} className="h-8 w-8 rounded-2xl border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                   <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
-                <button onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))} className="h-8 px-2.5 rounded-lg border border-border/50 hover:bg-card text-xs font-bold text-muted-foreground transition-colors">
+                <button onClick={() => setCurrentWeek(startOfWeek(new Date(), { weekStartsOn: 1 }))} className="h-8 px-2.5 rounded-2xl border border-border/50 hover:bg-card text-xs font-bold text-muted-foreground transition-colors">
                   Today
                 </button>
-                <button onClick={() => setCurrentWeek(addDays(currentWeek, 7))} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+                <button onClick={() => setCurrentWeek(addDays(currentWeek, 7))} className="h-8 w-8 rounded-2xl border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                   <ChevronRight className="h-3.5 w-3.5" />
                 </button>
                 <div className="w-px h-5 bg-border/30" />
@@ -564,20 +584,20 @@ export default function ScheduleCenter() {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button onClick={() => setShowSearch(s => !s)} className="h-8 w-8 rounded-lg border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+              <button onClick={() => setShowSearch(s => !s)} className="h-8 w-8 rounded-2xl border border-border hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                 <Search className="h-3.5 w-3.5" />
               </button>
-              <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }} className={cn('h-8 px-2.5 rounded-lg border flex items-center gap-1.5 text-xs font-bold transition-colors', pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+              <button onClick={(e) => { e.stopPropagation(); setShowRequestOff(true); }} className={cn('h-8 px-2.5 rounded-2xl border flex items-center gap-1.5 text-xs font-bold transition-colors', pendingTimeOff > 0 ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                 <Bell className="h-3.5 w-3.5" />
                 {pendingTimeOff > 0 && pendingTimeOff}
               </button>
               {isAdmin && (
-                <button onClick={() => setShowMassAdd(true)} className="h-10 px-3 rounded-lg bg-primary/10 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all">
+                <button onClick={() => setShowMassAdd(true)} className="h-10 px-3 rounded-2xl bg-primary/10 text-primary border border-primary/30 text-xs font-bold flex items-center gap-1.5 hover:bg-primary/20 transition-all">
                   <Plus className="h-3.5 w-3.5" /> Add
                 </button>
               )}
               <div className="w-px h-5 bg-border/30" />
-              <button onClick={handlePublish} disabled={publishing} className={cn('h-10 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border/50 text-muted-foreground hover:bg-card')}>
+              <button onClick={handlePublish} disabled={publishing} className={cn('h-10 px-3 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-60', draftCount > 0 ? 'bg-primary text-white hover:brightness-110' : 'border border-border/50 text-muted-foreground hover:bg-card')}>
                 <Download className="h-3.5 w-3.5" />
                 {publishing ? '…' : draftCount > 0 ? `Pub ${draftCount}` : 'Done'}
               </button>
@@ -593,14 +613,14 @@ export default function ScheduleCenter() {
                 { label: 'Time Off', value: pendingTimeOff, suffix: '', color: pendingTimeOff > 0 ? 'text-amber-400' : 'text-muted-foreground/50' },
                 { label: 'Labor',    value: '$0',          suffix: '', color: 'text-green-400' },
               ].map(({ label, value, suffix, color }) => (
-                <div key={label} className="rounded-xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
+                <div key={label} className="rounded-2xl border border-border/40 px-2.5 py-2" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
                   <p className={cn('text-sm font-extrabold leading-none tabular-nums', color)}>{value}{suffix}</p>
                   <p className="mt-1 truncate text-[10px] text-muted-foreground">{label}</p>
                 </div>
               ))}
               <button
                 onClick={() => { if (conflictCount === 0) return; const firstId = Object.keys(shiftConflicts)[0]; const shift = shifts.find(s => s.id === firstId); if (shift) { setSelectedShiftDetail(shift); setSelectedShiftIds([shift.id]); } }}
-                className={cn('rounded-xl border px-2.5 py-2 text-left transition-all', conflictCount > 0 ? 'border-red-500/30 hover:border-red-500/50 hover:bg-red-500/5 cursor-pointer' : 'border-border/40 cursor-default')}
+                className={cn('rounded-2xl border px-2.5 py-2 text-left transition-all', conflictCount > 0 ? 'border-red-500/30 hover:border-red-500/50 hover:bg-red-500/5 cursor-pointer' : 'border-border/40 cursor-default')}
                 style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}
               >
                 <p className={cn('text-sm font-extrabold leading-none tabular-nums', conflictCount > 0 ? 'text-red-400' : 'text-muted-foreground/50')}>{conflictCount}</p>
@@ -616,12 +636,12 @@ export default function ScheduleCenter() {
             <div className="flex items-center justify-between pt-2 border-t border-border/20">
               <div className="flex items-center gap-2.5">
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                  <button onClick={(e) => { e.stopPropagation(); setShowGroupPanel(p => !p); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-2xl border text-[11px] font-bold flex items-center gap-1.5 transition-colors', groupBy !== 'employee' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <Grid3x3 className="h-3 w-3" />
                     <span>Group: {groupBy === 'employee' ? 'Employee' : groupBy === 'department' ? 'Dept' : groupBy === 'station' ? 'Station' : 'Role'}</span>
                   </button>
                   {showGroupPanel && (
-                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-9 left-0 z-50 w-44 rounded-2xl border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
                       {[['employee','Employee'],['station','Station Lane'],['role','Role'],['department','Department']].map(([val, label]) => (
                         <button key={val} onClick={() => { setGroupBy(val); setShowGroupPanel(false); }} className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors', groupBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
                           {groupBy === val && <Check className="h-3 w-3" />}
@@ -632,12 +652,12 @@ export default function ScheduleCenter() {
                   )}
                 </div>
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setShowSortPanel(p => !p); setShowGroupPanel(false); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', sortBy !== 'default' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                  <button onClick={(e) => { e.stopPropagation(); setShowSortPanel(p => !p); setShowGroupPanel(false); setShowFilterPanel(false); }} className={cn('h-7 px-2.5 rounded-2xl border text-[11px] font-bold flex items-center gap-1.5 transition-colors', sortBy !== 'default' ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <ArrowDownAZ className="h-3 w-3" />
                     <span>Sort{sortBy !== 'default' ? `: ${sortBy === 'firstName' ? 'First' : 'Last'}` : ''}</span>
                   </button>
                   {showSortPanel && (
-                    <div className="absolute top-9 left-0 z-50 w-40 rounded-lg border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-9 left-0 z-50 w-40 rounded-2xl border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
                       {[['default','Default order'],['firstName','First name'],['lastName','Last name']].map(([val, label]) => (
                         <button key={val} onClick={() => { setSortBy(val); setShowSortPanel(false); }} className={cn('w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors', sortBy === val ? 'bg-primary/15 text-primary' : 'hover:bg-secondary text-foreground')}>
                           {sortBy === val && <Check className="h-3 w-3" />}
@@ -648,12 +668,12 @@ export default function ScheduleCenter() {
                   )}
                 </div>
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); setShowSortPanel(false); }} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                  <button onClick={(e) => { e.stopPropagation(); setShowFilterPanel(p => !p); setShowGroupPanel(false); setShowSortPanel(false); }} className={cn('h-7 px-2.5 rounded-2xl border text-[11px] font-bold flex items-center gap-1.5 transition-colors', filterDepts.length > 0 ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                     <Filter className="h-3 w-3" />
                     <span>Filter {filterDepts.length > 0 && `(${filterDepts.length})`}</span>
                   </button>
                   {showFilterPanel && (
-                    <div className="absolute top-9 left-0 z-50 w-44 rounded-lg border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-9 left-0 z-50 w-44 rounded-2xl border border-border card-glass shadow-lg p-1.5 space-y-0.5" onClick={e => e.stopPropagation()}>
                       {DEPARTMENTS.map(d => (
                         <button key={d} onClick={() => setFilterDepts(p => p.includes(d) ? p.filter(x => x !== d) : [...p, d])} className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium text-foreground hover:bg-secondary transition-colors">
                           <div className={cn('h-3.5 w-3.5 rounded border flex items-center justify-center', filterDepts.includes(d) ? 'bg-primary border-primary' : 'border-border')}>
@@ -667,20 +687,20 @@ export default function ScheduleCenter() {
                   )}
                 </div>
                 <div className="w-px h-4 bg-border/20" />
-                <button onClick={() => setShowTemplateModal(true)} className="h-7 px-2.5 rounded-lg border border-border/50 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-card transition-colors">
+                <button onClick={() => setShowTemplateModal(true)} className="h-7 px-2.5 rounded-2xl border border-border/50 text-[11px] font-bold text-muted-foreground flex items-center gap-1.5 hover:bg-card transition-colors">
                   <LayoutTemplate className="h-3 w-3" /> Templates
                 </button>
-                <button onClick={() => setShowShortcuts(p => !p)} className={cn('h-7 px-2.5 rounded-lg border text-[11px] font-bold flex items-center gap-1.5 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
+                <button onClick={() => setShowShortcuts(p => !p)} className={cn('h-7 px-2.5 rounded-2xl border text-[11px] font-bold flex items-center gap-1.5 transition-colors', showShortcuts ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border/50 text-muted-foreground hover:bg-card')}>
                   <Keyboard className="h-3 w-3" /> Shortcuts
                 </button>
                 {clipboard && (
-                  <div className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border border-green-500/30 bg-green-500/10 text-[11px] font-bold text-green-400">
+                  <div className="flex items-center gap-1.5 h-7 px-2.5 rounded-2xl border border-green-500/30 bg-green-500/10 text-[11px] font-bold text-green-400">
                     <span>Copied: {clipboard.role || 'Shift'}</span>
                     <button onClick={() => setClipboard(null)} className="text-green-400/60 hover:text-green-400 ml-0.5">✕</button>
                   </div>
                 )}
               </div>
-              <button onClick={loadScheduleData} className="h-7 w-7 rounded-lg border border-border/50 hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
+              <button onClick={loadScheduleData} className="h-7 w-7 rounded-2xl border border-border/50 hover:bg-card flex items-center justify-center text-muted-foreground transition-colors">
                 <RefreshCw className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -743,7 +763,7 @@ export default function ScheduleCenter() {
             <div className="w-full space-y-3">
               <button
                 onClick={() => setShowMassAdd(true)}
-                className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
+                className="w-full rounded-2xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
                 style={{
                   background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
                   boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.12)',
@@ -753,7 +773,7 @@ export default function ScheduleCenter() {
               </button>
               <button
                 onClick={() => navigate('/schedule-import')}
-                className="w-full rounded-xl py-4 text-[15px] font-semibold text-foreground active:scale-[0.97] transition-all"
+                className="w-full rounded-2xl py-4 text-[15px] font-semibold text-foreground active:scale-[0.97] transition-all"
                 style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
               >
                 Import Schedule

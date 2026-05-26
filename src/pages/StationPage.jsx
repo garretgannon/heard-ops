@@ -46,7 +46,7 @@ function StationPrepTemplatesSection({ stationId, stationName }) {
   if (assignments.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-border/40 overflow-hidden mt-2">
+    <div className="rounded-2xl border border-border/40 overflow-hidden mt-2">
       <button
         type="button"
         onClick={() => setExpanded(e => !e)}
@@ -209,9 +209,9 @@ function EquipmentRow({ item, cleaningTemplates, inventoryItems, onRefresh }) {
     : [];
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border/40" style={{ ...GLASS }}>
+    <div className="overflow-hidden rounded-2xl border border-border/40" style={{ ...GLASS }}>
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-white/[0.03]">
-        <span className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center" style={{ background: meta.bg }}>
+        <span className="shrink-0 h-7 w-7 rounded-2xl flex items-center justify-center" style={{ background: meta.bg }}>
           <Icon className={cn('h-3.5 w-3.5', meta.iconColor)} />
         </span>
         <div className="min-w-0 flex-1">
@@ -241,7 +241,7 @@ function EquipmentRow({ item, cleaningTemplates, inventoryItems, onRefresh }) {
               </button>
             </div>
             {hasInventory && (
-              <div className="space-y-2 rounded-lg border border-border/40 p-2.5" style={{ ...GLASS }}>
+              <div className="space-y-2 rounded-2xl border border-border/40 p-2.5" style={{ ...GLASS }}>
                 <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Items stored here</p>
                 {linkedItems.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
@@ -254,9 +254,9 @@ function EquipmentRow({ item, cleaningTemplates, inventoryItems, onRefresh }) {
                   </div>
                 )}
                 <div className="relative">
-                  <input value={itemSearch} onChange={(e) => setItemSearch(e.target.value)} placeholder="Search items to add…" className="h-8 w-full rounded-lg border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50" />
+                  <input value={itemSearch} onChange={(e) => setItemSearch(e.target.value)} placeholder="Search items to add…" className="h-8 w-full rounded-2xl border border-border/60 bg-background px-3 text-xs font-semibold text-foreground outline-none focus:border-primary/50" />
                   {searchResults.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-44 overflow-y-auto rounded-xl border border-border bg-popover shadow-2xl">
+                    <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-44 overflow-y-auto rounded-2xl border border-border bg-popover shadow-2xl">
                       {searchResults.map((pi) => (
                         <button key={pi.id} type="button" onClick={() => addItem(pi.id)} className="flex w-full items-center justify-between gap-2 px-3 py-2 text-xs hover:bg-muted/60">
                           <span className="font-semibold text-foreground">{pi.itemName}</span>
@@ -280,7 +280,7 @@ function EquipmentRow({ item, cleaningTemplates, inventoryItems, onRefresh }) {
               </button>
             </div>
             {hasTemp && (
-              <select value={item.temp_check_frequency_minutes || ''} onChange={(e) => updateField('temp_check_frequency_minutes', e.target.value ? Number(e.target.value) : null)} className="h-8 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none">
+              <select value={item.temp_check_frequency_minutes || ''} onChange={(e) => updateField('temp_check_frequency_minutes', e.target.value ? Number(e.target.value) : null)} className="h-8 w-full rounded-2xl border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none">
                 <option value="">Manual only</option>
                 <option value="30">Every 30 min</option>
                 <option value="60">Every hour</option>
@@ -299,7 +299,7 @@ function EquipmentRow({ item, cleaningTemplates, inventoryItems, onRefresh }) {
               </button>
             </div>
             {hasCleaning && cleaningTemplates.length > 0 && (
-              <select value={item.cleaning_template_id || ''} onChange={(e) => { const t = cleaningTemplates.find((o) => o.id === e.target.value); updateFields({ cleaning_template_id: t?.id || '', cleaning_template_name: t?.name || '' }); }} className="h-8 w-full rounded-lg border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none">
+              <select value={item.cleaning_template_id || ''} onChange={(e) => { const t = cleaningTemplates.find((o) => o.id === e.target.value); updateFields({ cleaning_template_id: t?.id || '', cleaning_template_name: t?.name || '' }); }} className="h-8 w-full rounded-2xl border border-border/60 bg-background px-2 text-xs font-semibold text-foreground outline-none">
                 <option value="">No template linked</option>
                 {cleaningTemplates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
@@ -345,19 +345,19 @@ function AddEquipmentForm({ station, area, onSave, onCancel }) {
   const TypeIcon = meta.icon;
 
   return (
-    <div className="space-y-3 rounded-xl border border-primary/25 bg-primary/5 p-3">
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Equipment name" className="h-12 w-full rounded-xl border border-border/60 bg-background px-4 text-base font-semibold text-foreground outline-none focus:border-primary/50" />
+    <div className="space-y-3 rounded-2xl border border-primary/25 bg-primary/5 p-3">
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Equipment name" className="h-12 w-full rounded-2xl border border-border/60 bg-background px-4 text-base font-semibold text-foreground outline-none focus:border-primary/50" />
       <div className="flex items-center gap-2">
-        <span className="h-12 w-12 shrink-0 rounded-xl flex items-center justify-center" style={{ background: meta.bg }}>
+        <span className="h-12 w-12 shrink-0 rounded-2xl flex items-center justify-center" style={{ background: meta.bg }}>
           <TypeIcon className={cn('h-5 w-5', meta.iconColor)} />
         </span>
-        <select value={type} onChange={(e) => setType(e.target.value)} className="h-12 flex-1 rounded-xl border border-border/60 bg-background px-3 text-base font-semibold text-foreground outline-none">
+        <select value={type} onChange={(e) => setType(e.target.value)} className="h-12 flex-1 rounded-2xl border border-border/60 bg-background px-3 text-base font-semibold text-foreground outline-none">
           {EQUIPMENT_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={saving || !name.trim()} className="flex-1 rounded-xl bg-primary px-3 py-3 text-sm font-black text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : 'Add Equipment'}</button>
-        <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-border/60 px-3 py-3 text-sm font-black text-muted-foreground">Cancel</button>
+        <button type="button" onClick={save} disabled={saving || !name.trim()} className="flex-1 rounded-2xl bg-primary px-3 py-3 text-sm font-black text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : 'Add Equipment'}</button>
+        <button type="button" onClick={onCancel} className="flex-1 rounded-2xl border border-border/60 px-3 py-3 text-sm font-black text-muted-foreground">Cancel</button>
       </div>
     </div>
   );
@@ -567,28 +567,28 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
 
   // ── Shared add-item form (Prep / Sidework) ────────────────────────────────
   const renderAddItemForm = (onAdd, placeholder, showQty = false) => (
-    <div className="space-y-2 rounded-xl border border-primary/25 bg-primary/5 p-3">
+    <div className="space-y-2 rounded-2xl border border-primary/25 bg-primary/5 p-3">
       <input
         value={newItemName}
         onChange={e => setNewItemName(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && onAdd()}
         placeholder={placeholder}
         autoFocus
-        className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary/50"
+        className="h-10 w-full rounded-2xl border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary/50"
       />
       {showQty && (
         <input
           value={newItemQty}
           onChange={e => setNewItemQty(e.target.value)}
           placeholder="Qty / amount (optional)"
-          className="h-10 w-full rounded-lg border border-border/60 bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50"
+          className="h-10 w-full rounded-2xl border border-border/60 bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50"
         />
       )}
       <div className="flex gap-2">
-        <button type="button" onClick={onAdd} disabled={saving || !newItemName.trim()} className="flex-1 h-10 rounded-lg bg-primary text-xs font-black text-primary-foreground disabled:opacity-50">
+        <button type="button" onClick={onAdd} disabled={saving || !newItemName.trim()} className="flex-1 h-10 rounded-2xl bg-primary text-xs font-black text-primary-foreground disabled:opacity-50">
           {saving ? 'Adding…' : 'Add'}
         </button>
-        <button type="button" onClick={() => { setAddingItem(false); setNewItemName(''); setNewItemQty(''); }} className="flex-1 h-10 rounded-lg border border-border/60 text-xs font-black text-muted-foreground">
+        <button type="button" onClick={() => { setAddingItem(false); setNewItemName(''); setNewItemQty(''); }} className="flex-1 h-10 rounded-2xl border border-border/60 text-xs font-black text-muted-foreground">
           Cancel
         </button>
       </div>
@@ -602,12 +602,12 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
         {addingEquipment ? (
           <AddEquipmentForm station={station} area={null} onSave={async () => { await onEquipmentRefresh(); setAddingEquipment(false); }} onCancel={() => setAddingEquipment(false)} />
         ) : (
-          <button type="button" onClick={() => setAddingEquipment(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
+          <button type="button" onClick={() => setAddingEquipment(true)} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
             <Plus className="h-3.5 w-3.5" /> Add Equipment
           </button>
         )}
         {equipment.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/50 px-3 py-5 text-center text-xs font-semibold text-muted-foreground">No equipment assigned to this station yet.</div>
+          <div className="rounded-2xl border border-dashed border-border/50 px-3 py-5 text-center text-xs font-semibold text-muted-foreground">No equipment assigned to this station yet.</div>
         ) : equipment.map(item => (
           <EquipmentRow key={item.id} item={item} cleaningTemplates={cleaningTemplates} inventoryItems={inventoryItems} onRefresh={onEquipmentRefresh} />
         ))}
@@ -625,7 +625,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
     return (
       <div className="max-w-full space-y-2 overflow-x-hidden">
         {addingItem ? renderAddItemForm(addPrepItem, 'Item name…', true) : (
-          <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
+          <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
             <Plus className="h-3.5 w-3.5" /> Add prep item
           </button>
         )}
@@ -633,13 +633,13 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{doneCount}/{data.length} complete</p>
         )}
         {(!data || data.length === 0) && !addingItem && (
-          <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
+          <div className="rounded-2xl border border-dashed border-border/50 px-3 py-8 text-center">
             <p className="text-sm font-semibold text-muted-foreground">No prep items for this station</p>
             <p className="text-xs text-muted-foreground mt-1">Add one above or create from the prep list page</p>
           </div>
         )}
         {(data || []).map(item => (
-          <button key={item.id} type="button" onClick={() => togglePrepItem(item)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ ...GLASS }}>
+          <button key={item.id} type="button" onClick={() => togglePrepItem(item)} className="flex w-full items-center gap-3 rounded-2xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ ...GLASS }}>
             <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', item.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
               {item.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
             </div>
@@ -666,7 +666,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
     return (
       <div className="max-w-full space-y-2 overflow-x-hidden">
         {addingItem ? renderAddItemForm(addSideworkTask, 'Task name…') : (
-          <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
+          <button type="button" onClick={() => setAddingItem(true)} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2.5 text-xs font-black text-primary hover:bg-primary/8">
             <Plus className="h-3.5 w-3.5" /> Add sidework task
           </button>
         )}
@@ -674,13 +674,13 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{doneCount}/{data.length} complete</p>
         )}
         {(!data || data.length === 0) && !addingItem && (
-          <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
+          <div className="rounded-2xl border border-dashed border-border/50 px-3 py-8 text-center">
             <p className="text-sm font-semibold text-muted-foreground">No sidework tasks for this station today</p>
             <p className="text-xs text-muted-foreground mt-1">Add one above or create from the sidework page</p>
           </div>
         )}
         {(data || []).map(task => (
-          <button key={task.id} type="button" onClick={() => toggleSideworkTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ ...GLASS }}>
+          <button key={task.id} type="button" onClick={() => toggleSideworkTask(task)} className="flex w-full items-center gap-3 rounded-2xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ ...GLASS }}>
             <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
               {task.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
             </div>
@@ -706,7 +706,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
     return (
       <div className="max-w-full space-y-3 overflow-x-hidden">
         {tempEquipment.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
+          <div className="rounded-2xl border border-dashed border-border/50 px-3 py-8 text-center">
             <Thermometer className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-sm font-semibold text-muted-foreground">No temperature monitoring set up</p>
             <p className="text-xs text-muted-foreground mt-1">Enable temp tracking on equipment via the Equipment tab</p>
@@ -725,9 +725,9 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
                   : `${threshold.min}–${threshold.max}°F`
                 : null;
               return (
-                <div key={eq.id} className={cn('rounded-xl border p-3 space-y-2.5', logged && !logged.in_range ? 'border-red-500/40' : 'border-border/40')} style={{ ...GLASS }}>
+                <div key={eq.id} className={cn('rounded-2xl border p-3 space-y-2.5', logged && !logged.in_range ? 'border-red-500/40' : 'border-border/40')} style={{ ...GLASS }}>
                   <div className="flex items-center gap-3">
-                    <span className="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: m.bg }}>
+                    <span className="shrink-0 h-8 w-8 rounded-2xl flex items-center justify-center" style={{ background: m.bg }}>
                       <EqIcon className={cn('h-4 w-4', m.iconColor)} />
                     </span>
                     <div className="flex-1 min-w-0">
@@ -744,7 +744,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
                     )}
                   </div>
                   {logged && !logged.in_range && (
-                    <div className="flex items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+                    <div className="flex items-center gap-2 rounded-2xl bg-red-500/10 border border-red-500/20 px-3 py-2">
                       <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
                       <p className="text-xs font-bold text-red-400">Out of range — corrective action required. Target: {rangeLabel}</p>
                     </div>
@@ -757,13 +757,13 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
                       onChange={e => setTempInputs(prev => ({ ...prev, [eq.id]: e.target.value }))}
                       onKeyDown={e => e.key === 'Enter' && logTemp(eq)}
                       placeholder="Enter °F"
-                      className="h-10 flex-1 rounded-lg border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-blue-500/50"
+                      className="h-10 flex-1 rounded-2xl border border-border/60 bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-blue-500/50"
                     />
                     <button
                       type="button"
                       onClick={() => logTemp(eq)}
                       disabled={tempSaving[eq.id] || !tempInputs[eq.id]}
-                      className="h-10 px-4 rounded-lg bg-blue-500/20 border border-blue-500/30 text-xs font-black text-blue-400 disabled:opacity-40 active:scale-95"
+                      className="h-10 px-4 rounded-2xl bg-blue-500/20 border border-blue-500/30 text-xs font-black text-blue-400 disabled:opacity-40 active:scale-95"
                     >
                       {tempSaving[eq.id] ? '…' : 'Log'}
                     </button>
@@ -787,14 +787,14 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{doneCount}/{data.length} complete</p>
         )}
         {(!data || data.length === 0) && (
-          <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
+          <div className="rounded-2xl border border-dashed border-border/50 px-3 py-8 text-center">
             <Sparkles className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-sm font-semibold text-muted-foreground">No cleaning tasks today</p>
             <p className="text-xs text-muted-foreground mt-1">Tasks appear here when generated for this station</p>
           </div>
         )}
         {(data || []).map(task => (
-          <button key={task.id} type="button" onClick={() => toggleCleaningTask(task)} className="flex w-full items-center gap-3 rounded-xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ ...GLASS }}>
+          <button key={task.id} type="button" onClick={() => toggleCleaningTask(task)} className="flex w-full items-center gap-3 rounded-2xl border border-border/40 p-3 text-left active:scale-[0.98] transition-transform" style={{ ...GLASS }}>
             <div className={cn('h-5 w-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all', task.status === 'completed' ? 'border-green-500 bg-green-500/20' : 'border-border/60')}>
               {task.status === 'completed' && <CheckCircle2 className="h-3 w-3 text-green-400" />}
             </div>
@@ -833,7 +833,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
             value={chemSearch}
             onChange={e => setChemSearch(e.target.value)}
             placeholder="Search chemicals to assign…"
-            className="h-10 w-full rounded-xl border border-border/60 bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary/50"
+            className="h-10 w-full rounded-2xl border border-border/60 bg-background pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary/50"
           />
           {chemSearch && (
             <button onClick={() => setChemSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -844,7 +844,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
 
         {/* Search results dropdown */}
         {searchResults.length > 0 && (
-          <div className="rounded-xl border border-border/60 bg-popover overflow-hidden shadow-xl">
+          <div className="rounded-2xl border border-border/60 bg-popover overflow-hidden shadow-xl">
             {searchResults.map(chem => (
               <button key={chem.id} type="button" onClick={() => assignChemical(chem)} disabled={saving}
                 className="flex w-full min-w-0 items-center justify-between gap-2 border-b border-border/30 px-4 py-3 text-sm last:border-0 hover:bg-muted/50">
@@ -860,7 +860,7 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
 
         {/* Assigned chemicals */}
         {(!data || data.length === 0) && !chemSearch && (
-          <div className="rounded-xl border border-dashed border-border/50 px-3 py-8 text-center">
+          <div className="rounded-2xl border border-dashed border-border/50 px-3 py-8 text-center">
             <Beaker className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
             <p className="text-sm font-semibold text-muted-foreground">No chemicals assigned to this station</p>
             <p className="text-xs text-muted-foreground mt-1">Search above to assign chemicals</p>
@@ -871,8 +871,8 @@ function WorkflowSheetContent({ workflow, station, equipment, cleaningTemplates,
           <>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{data.length} assigned</p>
             {(data || []).map(chem => (
-              <div key={chem.id} className="flex min-w-0 items-center gap-3 rounded-xl border border-border/40 p-3" style={{ ...GLASS }}>
-                <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+              <div key={chem.id} className="flex min-w-0 items-center gap-3 rounded-2xl border border-border/40 p-3" style={{ ...GLASS }}>
+                <div className="h-8 w-8 rounded-2xl bg-purple-500/15 flex items-center justify-center shrink-0">
                   <Beaker className="h-4 w-4 text-purple-400" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -1097,7 +1097,7 @@ export default function StationPage() {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px] bg-card border-b border-border">
-          <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50">
+          <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-2xl border border-border/50">
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
           <div className="h-4 w-40 skeleton rounded flex-1" />
@@ -1124,14 +1124,14 @@ export default function StationPage() {
 
       {/* ── Mobile fixed header ──────────────────────────────────────────────── */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 h-[60px] bg-card border-b border-border/50 backdrop-blur-md">
-        <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 active:scale-95">
+        <button onClick={() => navigate('/operational-map')} className="flex h-9 w-9 items-center justify-center rounded-2xl border border-border/50 active:scale-95">
           <ChevronLeft className="h-5 w-5 text-foreground" />
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-black tracking-tight text-foreground leading-none truncate">{station.name}</h1>
           {area && <p className="text-[11px] text-muted-foreground/70 mt-0.5 leading-none">{area.name}</p>}
         </div>
-        <button onClick={loadData} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 active:scale-95">
+        <button onClick={loadData} className="flex h-9 w-9 items-center justify-center rounded-2xl border border-border/50 active:scale-95">
           <RefreshCw className="h-4 w-4 text-muted-foreground" />
         </button>
       </header>
@@ -1159,15 +1159,15 @@ export default function StationPage() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button onClick={() => setShowEditForm(true)}
-                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground bg-secondary hover:bg-secondary/80 transition-all">
+                className="flex items-center gap-1.5 h-9 px-3.5 rounded-2xl border border-border/50 text-xs font-bold text-foreground bg-secondary hover:bg-secondary/80 transition-all">
                 <Edit2 className="h-3.5 w-3.5" /> Edit Station
               </button>
               <button onClick={() => setActiveWorkflow('equipment')}
-                className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-border/50 text-xs font-bold text-foreground bg-secondary hover:bg-secondary/80 transition-all">
+                className="flex items-center gap-1.5 h-9 px-3.5 rounded-2xl border border-border/50 text-xs font-bold text-foreground bg-secondary hover:bg-secondary/80 transition-all">
                 <Package className="h-3.5 w-3.5" /> Assign Items
               </button>
               <button onClick={() => setActiveWorkflow('prep')}
-                className="flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all">
+                className="flex items-center gap-1.5 h-9 px-4 rounded-2xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all">
                 <ClipboardCheck className="h-3.5 w-3.5" /> Start Checklist
               </button>
             </div>
@@ -1223,7 +1223,7 @@ export default function StationPage() {
 
             {/* ── Issue Alert ───────────────────────────────────────────────── */}
             {totalIssues > 0 ? (
-              <div className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/8 px-4 py-3">
+              <div className="flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/8 px-4 py-3">
                 <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{totalIssues} issue{totalIssues !== 1 ? 's' : ''} flagged</p>
@@ -1232,12 +1232,12 @@ export default function StationPage() {
                   </p>
                 </div>
                 <button onClick={() => setActiveWorkflow('equipment')}
-                  className="shrink-0 text-xs font-black text-amber-400 border border-amber-500/40 rounded-lg px-3 py-1.5 hover:bg-amber-500/10 transition-all flex items-center gap-1">
+                  className="shrink-0 text-xs font-black text-amber-400 border border-amber-500/40 rounded-2xl px-3 py-1.5 hover:bg-amber-500/10 transition-all flex items-center gap-1">
                   View <ChevronRight className="h-3 w-3" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3 rounded-xl border border-green-500/25 bg-green-500/8 px-4 py-2.5">
+              <div className="flex items-center gap-3 rounded-2xl border border-green-500/25 bg-green-500/8 px-4 py-2.5">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-green-400" />
                 <p className="text-xs font-bold text-foreground">No open issues — station is ready for service.</p>
               </div>
@@ -1254,7 +1254,7 @@ export default function StationPage() {
                   const countLabel = wd?.altLabel || (hasData ? `${wd.done}/${wd.total}` : '—');
                   return (
                     <button key={wid} type="button" onClick={() => setActiveWorkflow(wid)}
-                      className="flex flex-col items-center gap-1.5 rounded-xl border border-border/40 px-2 py-3.5 text-center transition-all active:scale-[0.97] hover:border-primary/30 hover:bg-white/[0.02]"
+                      className="flex flex-col items-center gap-1.5 rounded-2xl border border-border/40 px-2 py-3.5 text-center transition-all active:scale-[0.97] hover:border-primary/30 hover:bg-white/[0.02]"
                       style={CARD}>
                       <WIcon className={cn('h-4 w-4', complete ? 'text-green-400' : 'text-primary/70')} />
                       <span className="text-[10px] font-black text-foreground/80 leading-none">{label}</span>
@@ -1317,7 +1317,7 @@ export default function StationPage() {
               {maintenanceEquipment.map(eq => (
                 <button key={eq.id} onClick={() => setActiveWorkflow('equipment')}
                   className="flex w-full items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0 text-left hover:bg-white/[0.02]">
-                  <span className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                  <span className="h-8 w-8 rounded-2xl bg-amber-500/15 flex items-center justify-center shrink-0">
                     <Wrench className="h-4 w-4 text-amber-400" />
                   </span>
                   <div className="flex-1 min-w-0">
@@ -1333,7 +1333,7 @@ export default function StationPage() {
                 const isHigh = issue.priority === 'critical' || issue.priority === 'high';
                 return (
                   <div key={issue.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0">
-                    <span className={cn('h-8 w-8 rounded-lg flex items-center justify-center shrink-0', isHigh ? 'bg-red-500/15' : 'bg-amber-500/15')}>
+                    <span className={cn('h-8 w-8 rounded-2xl flex items-center justify-center shrink-0', isHigh ? 'bg-red-500/15' : 'bg-amber-500/15')}>
                       <AlertTriangle className={cn('h-4 w-4', isHigh ? 'text-red-400' : 'text-amber-400')} />
                     </span>
                     <div className="flex-1 min-w-0">
@@ -1378,7 +1378,7 @@ export default function StationPage() {
                     return (
                       <button key={eq.id} onClick={() => setActiveWorkflow('equipment')}
                         className="flex w-full items-center gap-3 px-4 py-3 border-b border-border/20 last:border-0 text-left hover:bg-white/[0.02]">
-                        <span className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: meta.bg }}>
+                        <span className="h-8 w-8 rounded-2xl flex items-center justify-center shrink-0" style={{ background: meta.bg }}>
                           <EqIcon className={cn('h-4 w-4', meta.iconColor)} />
                         </span>
                         <div className="flex-1 min-w-0">
@@ -1453,7 +1453,7 @@ export default function StationPage() {
                   { label: 'Edit Station',   icon: Edit2,           onClick: () => setShowEditForm(true) },
                 ].map(({ label, icon: Icon, onClick, primary }) => (
                   <button key={label} onClick={onClick}
-                    className={cn('flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-center transition-all hover:bg-white/[0.03] active:scale-95',
+                    className={cn('flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 text-center transition-all hover:bg-white/[0.03] active:scale-95',
                       primary ? 'border-primary/40 bg-primary/8 text-primary' : 'border-border/40 text-muted-foreground hover:text-foreground')}>
                     <Icon className="h-4 w-4" />
                     <span className="text-[10px] font-bold leading-tight">{label}</span>
@@ -1479,7 +1479,7 @@ export default function StationPage() {
                     { label: 'Issues', value: String(totalIssues), color: totalIssues > 0 ? 'text-red-400' : 'text-green-400' },
                     { label: 'Temp checks', value: String(tempEquipment.length), color: 'text-blue-400' },
                   ].map(({ label, value, color }) => (
-                    <div key={label} className="rounded-xl p-2.5 bg-secondary/40 border border-border/40">
+                    <div key={label} className="rounded-2xl p-2.5 bg-secondary/40 border border-border/40">
                       <p className={cn('text-sm font-black truncate', color)}>{value}</p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mt-0.5">{label}</p>
                     </div>

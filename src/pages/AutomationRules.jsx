@@ -89,12 +89,12 @@ export default function AutomationRules() {
               placeholder="Search templates..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 card-glass border border-border/40 rounded-lg text-xs text-foreground placeholder:text-muted-foreground/50"
+              className="w-full pl-10 pr-3 py-2 card-glass border border-border/40 rounded-2xl text-xs text-foreground placeholder:text-muted-foreground/50"
             />
           </div>
           <button
             onClick={() => { setEditingTemplate(null); setShowBuilder(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-xs hover:brightness-110 transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-2xl font-bold text-xs hover:brightness-110 transition-all"
           >
             <Plus className="h-3.5 w-3.5" />
             Create Template
@@ -115,7 +115,7 @@ export default function AutomationRules() {
           {filtered.map(template => (
             <div
               key={template.id}
-              className="card-glass border border-border/40 rounded-lg p-4 flex items-center justify-between group hover:border-border/60 transition-all"
+              className="card-glass border border-border/40 rounded-2xl p-4 flex items-center justify-between group hover:border-border/60 transition-all"
             >
               <div className="flex-1">
                 <p className="font-bold text-sm text-foreground">{template.template_name}</p>
@@ -132,19 +132,19 @@ export default function AutomationRules() {
               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                 <button
                   onClick={() => handleToggleActive(template)}
-                  className={`p-2 rounded-lg transition-all ${template.is_active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}
+                  className={`p-2 rounded-2xl transition-all ${template.is_active ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'}`}
                 >
                   <Power className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => handleEdit(template)}
-                  className="p-2 hover:bg-muted rounded-lg transition-all"
+                  className="p-2 hover:bg-muted rounded-2xl transition-all"
                 >
                   <Edit2 className="h-4 w-4 text-secondary-text" />
                 </button>
                 <button
                   onClick={() => handleDelete(template.id)}
-                  className="p-2 hover:bg-muted rounded-lg transition-all"
+                  className="p-2 hover:bg-muted rounded-2xl transition-all"
                 >
                   <Trash2 className="h-4 w-4 text-red-400" />
                 </button>

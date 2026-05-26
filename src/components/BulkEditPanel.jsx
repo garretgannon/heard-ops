@@ -57,7 +57,7 @@ export default function BulkEditPanel({ selectedIds, items, currentStationId, on
   };
 
   return (
-    <div className="bg-card border border-primary/30 rounded-2xl p-5 space-y-4">
+    <div className="liquid-card -primary/30 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <p className="font-semibold text-sm">Bulk Edit</p>

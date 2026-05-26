@@ -56,18 +56,18 @@ export default function ScheduleImport() {
       </div>
 
       <div className="app-page space-y-3">
-        <div className="card-glass border border-border rounded-xl p-3 space-y-2">
+        <div className="card-glass border border-border rounded-2xl p-3 space-y-2">
           <p className="text-xs font-bold text-foreground mb-2">Import Type</p>
           <button
             onClick={() => { haptics.medium?.(); setImportType('r365'); }}
-            className="w-full bg-primary/10 border border-primary/20 text-primary font-bold py-3 rounded-lg text-sm flex items-center justify-between px-3"
+            className="w-full bg-primary/10 border border-primary/20 text-primary font-bold py-3 rounded-2xl text-sm flex items-center justify-between px-3"
           >
             <span>R365 Schedule</span>
             <ChevronRight className="h-4 w-4" />
           </button>
           <button
             onClick={() => { haptics.medium?.(); setImportType('csv'); }}
-            className="w-full bg-muted text-foreground font-bold py-3 rounded-lg text-sm flex items-center justify-between px-3"
+            className="w-full bg-muted text-foreground font-bold py-3 rounded-2xl text-sm flex items-center justify-between px-3"
           >
             <span>CSV/Excel</span>
             <ChevronRight className="h-4 w-4" />
@@ -76,7 +76,7 @@ export default function ScheduleImport() {
 
         <button
           onClick={() => { haptics.light?.(); navigate('/schedule'); }}
-          className="w-full card-glass border border-border text-foreground font-bold py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+          className="w-full card-glass border border-border text-foreground font-bold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"
         >
           <Calendar className="h-5 w-5" /> View Schedule
         </button>
@@ -90,7 +90,7 @@ export default function ScheduleImport() {
 
             <div className="space-y-2">
               {batches.map(batch => (
-                <div key={batch.id} className="card-glass border border-border rounded-lg p-3">
+                <div key={batch.id} className="card-glass border border-border rounded-2xl p-3">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <p className="text-xs font-bold text-foreground">{batch.fileName}</p>
                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${

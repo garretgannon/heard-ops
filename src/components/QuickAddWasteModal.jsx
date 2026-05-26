@@ -46,7 +46,7 @@ function PhotoField({ label, url, onUpload, onClear }) {
   return (
     <div>
       <p className="mb-1.5 text-xs font-bold text-muted-foreground">{label}</p>
-      <input ref={ref} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => handleFile(e.target.files[0])} />
+      <input ref={ref} type="file" accept="image/*" capture="environment" className="ops-input hidden" onChange={e => handleFile(e.target.files[0])} />
       <button
         type="button"
         onClick={() => ref.current?.click()}

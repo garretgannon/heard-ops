@@ -231,15 +231,12 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border transition-colors duration-300",
+        "liquid-card overflow-hidden transition-colors duration-300",
         viewed
           ? isClear ? "border-green-500/20" : "border-amber-500/25"
           : count > 0 ? "border-amber-500/20" : "border-border/40"
       )}
-      style={{
-        background: "hsl(var(--card))",
-        boxShadow: "none",
-      }}
+      
     >
       <button
         type="button"
@@ -288,8 +285,7 @@ function IntelCard({ id, icon: Icon, label, count, severity = "neutral", childre
 function IntelRow({ title, meta, severity = "neutral" }) {
   const dot = severity === "critical" ? "bg-red-400/80" : severity === "warning" ? "bg-amber-400/80" : "bg-border/60";
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border/20 px-3 py-2.5 lg:px-4 lg:py-3"
-      style={{ background: "rgba(255,255,255,0.02)" }}>
+    <div className="liquid-card flex items-start gap-3 border border-border/20 px-3 py-2.5 lg:px-4 lg:py-3">
       <div className={cn("mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full", dot)} />
       <div className="min-w-0">
         <p className="text-sm lg:text-[15px] font-semibold text-foreground leading-snug">{title}</p>
@@ -319,7 +315,7 @@ function MobileIntelDetail({ title, empty, items, renderItem }) {
           {items.map((item, index) => {
             const row = renderItem(item);
             return (
-              <div key={item.id || `${title}-${index}`} className="rounded-xl border border-border/35 bg-white/[0.025] px-3 py-2.5">
+              <div key={item.id || `${title}-${index}`} className="liquid-card border border-border/35 px-3 py-2.5">
                 <p className="text-sm font-bold leading-snug text-foreground">{row.title}</p>
                 {row.meta && <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{row.meta}</p>}
               </div>
@@ -348,8 +344,8 @@ function DutyCard({ config, checked, locked, onToggle, xpFloat, onXpDone }) {
         }}
         transition={{ duration: 0.25 }}
         className={cn(
-          "ops-panel flex w-full items-center gap-3 px-4 py-3 text-left lg:px-5 lg:py-3.5",
-          checked && "ops-panel-success"
+          "liquid-card flex w-full items-center gap-3 px-4 py-3 text-left lg:px-5 lg:py-3.5",
+          checked && "liquid-card-success"
         )}
       >
         {/* Status icon */}
@@ -358,7 +354,7 @@ function DutyCard({ config, checked, locked, onToggle, xpFloat, onXpDone }) {
             backgroundColor: checked ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.04)",
             borderColor: checked ? "rgba(34,197,94,0.5)" : locked ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.15)",
           }}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl border"
         >
           <AnimatePresence mode="wait">
             {checked
@@ -445,7 +441,7 @@ function ShiftComplete({ shiftXp, checkedDuties, shift, onDismiss }) {
         </div>
 
         {/* Stats */}
-        <div className="ops-panel">
+        <div className="liquid-card">
           <div
             className="border-b border-border/30 py-4 bg-primary/5"
           >
@@ -1182,7 +1178,7 @@ export default function ManagerShift() {
             <button
               type="button"
               onClick={() => load({ quiet: true })}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 transition-all"
+              className="flex h-8 w-8 items-center justify-center rounded-2xl border border-border/50 transition-all"
             >
               <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
             </button>
@@ -1220,7 +1216,7 @@ export default function ManagerShift() {
                 <div className="lg:hidden space-y-5">
 
                   {/* ─ Shift Intel ─ */}
-                  <div className="glass-panel overflow-hidden">
+                  <div className="liquid-card overflow-hidden">
                     {/* Section header */}
                     <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/[0.06]">
                       <div>
@@ -1370,7 +1366,7 @@ export default function ManagerShift() {
                   </div>
 
                   {/* ─ Briefing Notes (primary field) ─ */}
-                  <div className="glass-panel overflow-hidden">
+                  <div className="liquid-card overflow-hidden">
                     <div className="px-4 pt-4 pb-2 flex items-center justify-between">
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Your Briefing</p>
@@ -1420,7 +1416,7 @@ export default function ManagerShift() {
                   </div>
 
                   {/* ─ Pre-Shift Context (scope + auto-imported) ─ */}
-                  <div className="glass-panel overflow-hidden">
+                  <div className="liquid-card overflow-hidden">
                     <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5 border-b border-white/[0.06]">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Pre-Shift Context</p>
                       <button type="button" onClick={() => load({ quiet: true })}
@@ -1443,7 +1439,7 @@ export default function ManagerShift() {
                             return (
                               <button key={p.id} type="button"
                                 onClick={() => { selectProfile(p); load({ quiet: true }); }}
-                                className={cn('flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98]', isSelected ? 'border-primary/50 bg-primary/8' : 'border-white/[0.08]')}
+                                className={cn('flex flex-col items-start rounded-2xl border px-3 py-2.5 text-left transition-all active:scale-[0.98]', isSelected ? 'border-primary/50 bg-primary/8' : 'border-white/[0.08]')}
                                 style={isSelected ? { boxShadow: '0 0 8px rgba(255,107,0,0.15)' } : undefined}>
                                 <span className={cn('text-[13px] font-black', isSelected ? 'text-primary' : 'text-foreground')}>{p.shortName || p.name}</span>
                                 <span className="text-[11px] text-muted-foreground">{cnt} staff</span>
@@ -1537,7 +1533,7 @@ export default function ManagerShift() {
                   </div>
 
                   {/* ─ Pre-Shift Notes (dept fields) ─ */}
-                  <div className={cn('glass-panel overflow-hidden', preShiftSaved && 'ring-1 ring-green-500/20')}>
+                  <div className={cn('liquid-card overflow-hidden', preShiftSaved && 'ring-1 ring-green-500/20')}>
                     <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/[0.06]">
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Shift Notes</p>
@@ -1564,7 +1560,7 @@ export default function ManagerShift() {
                             onChange={e => updatePreShiftField(field, e.target.value)}
                             rows={field === 'notes' ? 4 : (rows || 2)}
                             placeholder={placeholder}
-                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground/30 outline-none transition-all focus:border-primary/40 focus:ring-1 focus:ring-primary/15 resize-none leading-relaxed"
+                            className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.03] px-3 py-2.5 text-[14px] text-foreground placeholder:text-muted-foreground/30 outline-none transition-all focus:border-primary/40 focus:ring-1 focus:ring-primary/15 resize-none leading-relaxed"
                           />
                         </label>
                       ))}
@@ -1638,7 +1634,7 @@ export default function ManagerShift() {
 
                     {/* Right: Sticky action panel */}
                     <div className="sticky top-[120px] space-y-3">
-                      <div className={cn("ops-panel p-4", acknowledged && "ops-panel-success")}>
+                      <div className={cn("liquid-card p-4", acknowledged && "liquid-card-success")}>
                         <div className="flex items-start gap-3">
                           {acknowledged ? <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400 mt-0.5" /> : <Sparkles className="h-5 w-5 shrink-0 text-primary mt-0.5" />}
                           <div className="flex-1 min-w-0">
@@ -1666,7 +1662,7 @@ export default function ManagerShift() {
                               </div>
                             </div>
                             <button type="button" onClick={acknowledgeBriefing} disabled={!allCardsViewed}
-                              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white transition-all active:scale-[0.98] disabled:opacity-40"
+                              className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-black text-white transition-all active:scale-[0.98] disabled:opacity-40"
                               style={allCardsViewed ? { background: "hsl(var(--primary))", border: "1px solid hsl(var(--primary))", color: "#fff" } : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>
                               <Shield className="h-4 w-4" />
                               {allCardsViewed ? "Acknowledge & Start Shift" : "Review all sections to continue"}
@@ -1675,14 +1671,14 @@ export default function ManagerShift() {
                         )}
                         {acknowledged && (
                           <button type="button" onClick={() => setActiveStage("run")}
-                            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/8 py-2.5 text-sm font-black text-primary transition-all active:scale-[0.98]">
+                            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/8 py-2.5 text-sm font-black text-primary transition-all active:scale-[0.98]">
                             <Activity className="h-4 w-4" /> Move to Ops
                           </button>
                         )}
                       </div>
 
                       {/* Shift snapshot */}
-                      <div className="ops-panel">
+                      <div className="liquid-card">
                         <div className="px-4 py-3 border-b border-border/30">
                           <h2 className="text-sm font-black text-foreground">Shift Snapshot</h2>
                           <p className="text-[10px] text-muted-foreground mt-0.5">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
@@ -1717,12 +1713,7 @@ export default function ManagerShift() {
 
                   {/* Shift Health Pulse Card */}
                   <div
-                    className="mb-3 p-5 overflow-hidden"
-                    style={{
-                      background: 'hsl(var(--card))',
-                      border: '1px solid rgba(255,107,0,0.22)',
-                      borderRadius: '12px',
-                    }}
+                    className="liquid-card mb-3 p-5 overflow-hidden border-primary/30"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div>
@@ -1735,7 +1726,7 @@ export default function ManagerShift() {
                         </p>
                       </div>
                       <div
-                        className="p-2.5 rounded-xl border border-primary/25 bg-primary/10"
+                        className="p-2.5 rounded-2xl border border-primary/25 bg-primary/10"
                       >
                         <Activity
                           className="h-5 w-5 text-primary"
@@ -1774,13 +1765,13 @@ export default function ManagerShift() {
 
                     {/* Mini stats */}
                     <div className="mt-3 grid grid-cols-2 gap-2">
-                      <div className="rounded-xl p-3 bg-secondary/35 border border-border/50">
+                      <div className="liquid-card p-3 border border-border/50">
                         <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mb-1">Duties Done</p>
                         <p className="text-lg font-black text-foreground">
                           {checkedDuties.length}<span className="text-muted-foreground/50 text-sm font-semibold">/{DUTIES.length}</span>
                         </p>
                       </div>
-                      <div className="rounded-xl p-3 bg-secondary/35 border border-border/50">
+                      <div className="liquid-card p-3 border border-border/50">
                         <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mb-1">Open Issues</p>
                         <p className={cn('text-lg font-black', totals.critical > 0 ? 'text-red-400' : 'text-muted-foreground/30')}>
                           {totals.critical}
@@ -1799,8 +1790,7 @@ export default function ManagerShift() {
                     {/* ─ Page 3: Running Tasks (duty checklist) ─ */}
                     <div className="w-full shrink-0 snap-center">
                       <div
-                        className="overflow-hidden rounded-2xl border border-border/40"
-                        style={{ background: "hsl(var(--card))" }}
+                        className="liquid-card overflow-hidden"
                       >
                         {/* Header */}
                         <div className="flex items-center justify-between px-4 pt-4 pb-3">
@@ -1863,7 +1853,7 @@ export default function ManagerShift() {
                                 key={path}
                                 type="button"
                                 onClick={() => navigate(path)}
-                                className="flex items-center justify-between gap-2 rounded-xl border border-border/40 px-3 py-2.5 text-left transition-all active:scale-[0.98]"
+                                className="flex items-center justify-between gap-2 rounded-2xl border border-border/40 px-3 py-2.5 text-left transition-all active:scale-[0.98]"
                                 style={{ background: "hsl(var(--input))" }}
                               >
                                 <div>

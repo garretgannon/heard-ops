@@ -81,7 +81,7 @@ export default function AssignmentAuthorityEditor() {
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 placeholder="e.g. Line Cook, Prep Cook, Dishwasher"
-                className="min-w-0 flex-1 rounded border border-primary/50 bg-card px-2.5 py-2 text-xs text-foreground outline-none sm:py-1"
+                className="liquid-card min-w-0 flex-1 rounded -primary/50 px-2.5 py-2 text-xs text-foreground outline-none sm:py-1"
               />
               <div className="flex gap-1.5">
                 <button

@@ -116,14 +116,14 @@ export default function BathroomChecklistLogForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Location *</label>
           <select value={form.location} onChange={e => setForm({ ...form, location: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             {BATHROOM_LOCATIONS.map(loc => <option key={loc} value={loc}>{loc}</option>)}
           </select>
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Area</label>
           <select value={form.area} onChange={e => setForm({ ...form, area: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             <option value="">Select area...</option>
             {areas.map(a => <option key={a} value={a}>{a}</option>)}
           </select>
@@ -134,17 +134,17 @@ export default function BathroomChecklistLogForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Completed by</label>
           <input type="text" value={form.completed_by} disabled
-            className="w-full h-9 px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground" />
+            className="ops-input w-full bg-muted text-muted-foreground" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Date</label>
           <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Time</label>
           <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -225,7 +225,7 @@ export default function BathroomChecklistLogForm({ onSave, loading }) {
               value={form.notes}
               onChange={e => setForm({ ...form, notes: e.target.value })}
               rows={2}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none"
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none"
             />
           </div>
         )}

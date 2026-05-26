@@ -98,7 +98,7 @@ function ItemRow({ item, idx, templateType, onChange, onRemove }) {
               value={item.description || ''}
               onChange={e => onChange(idx, 'description', e.target.value)}
               rows={2}
-              className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary resize-none"
+              className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary resize-none"
             />
           </div>
 
@@ -107,17 +107,17 @@ function ItemRow({ item, idx, templateType, onChange, onRemove }) {
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Qty</label>
                 <input type="number" value={item.quantity || ''} onChange={e => onChange(idx, 'quantity', e.target.value)}
-                  className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                  className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Unit</label>
                 <input type="text" value={item.unit || ''} onChange={e => onChange(idx, 'unit', e.target.value)} placeholder="lbs, oz…"
-                  className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                  className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Par Level</label>
                 <input type="number" value={item.par_level || ''} onChange={e => onChange(idx, 'par_level', e.target.value)}
-                  className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                  className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
               </div>
             </div>
           )}
@@ -127,12 +127,12 @@ function ItemRow({ item, idx, templateType, onChange, onRemove }) {
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Chemical / Tool</label>
                 <input type="text" value={item.cleaning_chemical || ''} onChange={e => onChange(idx, 'cleaning_chemical', e.target.value)}
-                  className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                  className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Frequency</label>
                 <input type="text" value={item.cleaning_frequency || ''} onChange={e => onChange(idx, 'cleaning_frequency', e.target.value)} placeholder="Daily, Weekly…"
-                  className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                  className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
               </div>
             </div>
           )}
@@ -142,12 +142,12 @@ function ItemRow({ item, idx, templateType, onChange, onRemove }) {
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Reason</label>
                 <input type="text" value={item.waste_reason || ''} onChange={e => onChange(idx, 'waste_reason', e.target.value)}
-                  className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                  className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Cost Impact ($)</label>
                 <input type="number" value={item.waste_cost_impact || ''} onChange={e => onChange(idx, 'waste_cost_impact', e.target.value)}
-                  className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                  className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
               </div>
             </div>
           )}
@@ -156,7 +156,7 @@ function ItemRow({ item, idx, templateType, onChange, onRemove }) {
             <div>
               <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Required Question</label>
               <input type="text" value={item.handoff_question || ''} onChange={e => onChange(idx, 'handoff_question', e.target.value)} placeholder="What needs to be communicated?"
-                className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary" />
+                className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary" />
             </div>
           )}
 
@@ -164,7 +164,7 @@ function ItemRow({ item, idx, templateType, onChange, onRemove }) {
             <div>
               <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Event Task Notes</label>
               <textarea value={item.beo_task_notes || ''} onChange={e => onChange(idx, 'beo_task_notes', e.target.value)} rows={2}
-                className="w-full px-2 py-1.5 rounded bg-background border border-border text-xs text-foreground focus:outline-none focus:border-primary resize-none" />
+                className="w-full px-2 py-1.5 rounded liquid-card text-xs text-foreground focus:outline-none focus:border-primary resize-none" />
             </div>
           )}
 

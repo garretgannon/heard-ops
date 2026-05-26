@@ -160,7 +160,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Area / Station</label>
         <input type="text" placeholder="e.g. Walk-in Cooler, Line 2..." value={form.area_station}
           onChange={e => setForm({ ...form, area_station: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Temperature Reading */}
@@ -178,7 +178,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Unit</label>
-          <input type="text" value="°F" disabled className="w-full h-9 px-3 bg-muted border border-border rounded-lg sm:text-sm text-base text-muted-foreground" />
+          <input type="text" value="°F" disabled className="ops-input w-full bg-muted sm: text-base text-muted-foreground" />
         </div>
       </div>
 
@@ -217,13 +217,13 @@ export default function TemperatureLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Recorded By</label>
           <input type="text" value={form.recorded_by}
             onChange={e => setForm({ ...form, recorded_by: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Assigned To</label>
           <input type="text" placeholder="Role / Station / Employee..." value={form.assigned_to}
             onChange={e => setForm({ ...form, assigned_to: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -232,7 +232,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Date / Time Recorded</label>
         <input type="datetime-local" value={form.logged_at}
           onChange={e => setForm({ ...form, logged_at: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Photo Upload */}
@@ -251,7 +251,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
               <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground font-bold">Click to upload photo</p>
             </div>
-            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="ops-input hidden" />
           </label>
         )}
       </div>
@@ -273,7 +273,7 @@ export default function TemperatureLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Notes</label>
         <textarea placeholder="Additional details..." value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg sm:text-sm text-base text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Save Button */}

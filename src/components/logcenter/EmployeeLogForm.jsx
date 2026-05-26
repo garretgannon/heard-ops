@@ -110,7 +110,7 @@ export default function EmployeeLogForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Category *</label>
           <select value={form.log_category} onChange={e => setForm({ ...form, log_category: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             {LOG_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
@@ -118,7 +118,7 @@ export default function EmployeeLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Date/Time *</label>
           <input type="datetime-local" value={form.date_time}
             onChange={e => setForm({ ...form, date_time: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -126,7 +126,7 @@ export default function EmployeeLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Created By</label>
         <input type="text" value={form.created_by}
           onChange={e => setForm({ ...form, created_by: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       <div>
@@ -154,7 +154,7 @@ export default function EmployeeLogForm({ onSave, loading }) {
               <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground font-bold">Click to upload photo</p>
             </div>
-            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="ops-input hidden" />
           </label>
         )}
       </div>
@@ -169,7 +169,7 @@ export default function EmployeeLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Follow-up Date</label>
           <input type="date" value={form.follow_up_date}
             onChange={e => setForm({ ...form, follow_up_date: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       )}
 

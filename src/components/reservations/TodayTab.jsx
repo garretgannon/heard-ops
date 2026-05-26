@@ -7,7 +7,7 @@ import { haptics } from '@/utils/haptics';
 
 const today = () => new Date().toISOString().split('T')[0];
 
-const CARD_BG = 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)';
+// (CARD_BG removed to use universal card-glass)
 
 const TIME_GROUPS = [
   { label: 'Morning',    start: 0,  end: 11 },
@@ -56,8 +56,7 @@ function UpcomingSnapshot({ reservations, beos, onViewCalendar }) {
 
   return (
     <div
-      className="overflow-hidden rounded-2xl border border-border/40"
-      style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+      className="overflow-hidden rounded-2xl liquid-card"
     >
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <div>
@@ -132,8 +131,7 @@ function EmptyToday({ reservations, beos, onAddReservation, onAddBEO, onImport, 
     <div className="space-y-3">
       {/* Main CTA card */}
       <div
-        className="overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: CARD_BG, boxShadow: '0 1px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.025)' }}
+        className="overflow-hidden rounded-2xl liquid-card"
       >
         {/* Hero — stacked on mobile, side-by-side on desktop */}
         <div className="flex flex-col lg:flex-row items-center lg:items-center gap-6 lg:gap-12 px-6 py-8 lg:py-10">
@@ -257,10 +255,10 @@ function TimelineCard({ item, isAdmin, onSelectBEO, onEditReservation }) {
         else if (!isBEO && onEditReservation) onEditReservation(item);
       }}
       className={cn(
-        'w-full text-left bg-card border rounded-xl p-3 active:scale-[0.98] transition-all',
+        'w-full text-left liquid-card rounded-xl p-4 active:scale-[0.98] transition-all hover:border-border',
         isBEO         ? 'border-blue-500/30'
         : isLargeParty ? 'border-amber-500/30'
-        :                'border-border',
+        :                '',
       )}
     >
       <div className="flex items-start gap-2.5">

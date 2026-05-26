@@ -14,7 +14,7 @@ const CATEGORIES = [
   ['bakery','Bakery'],['seafood','Seafood'],['other','Other'],
 ];
 
-const FIELD_CLASS = 'w-full px-3 py-2.5 bg-background border border-border/60 rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-colors';
+const FIELD_CLASS = 'w-full px-3 py-2.5 liquid-card/60 rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/20 transition-colors';
 const LABEL_CLASS = 'block text-xs font-semibold text-foreground/80 mb-1.5';
 const SECTION_TITLE_CLASS = 'text-sm font-black tracking-tight text-foreground mb-4';
 

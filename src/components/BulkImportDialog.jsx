@@ -155,7 +155,7 @@ export default function BulkImportDialog({ open, onOpenChange, type, onImportCom
               <input
                 type="file"
                 accept=".csv"
-                className="hidden"
+                className="ops-input hidden"
                 onChange={handleFileSelect}
               />
             </label>

@@ -224,7 +224,7 @@ export default function LogsCenter() {
           {isAdmin && (
             <button
               onClick={generateDummyLogs}
-              className="glow-interactive h-8 px-3 rounded-lg border border-border/60 card-glass text-foreground font-bold text-xs active:scale-95 transition-all flex items-center gap-1"
+              className="glow-interactive h-8 px-3 rounded-2xl border border-border/60 card-glass text-foreground font-bold text-xs active:scale-95 transition-all flex items-center gap-1"
               title="Generate test logs"
             >
               <Wand2 className="h-3.5 w-3.5" />
@@ -233,7 +233,7 @@ export default function LogsCenter() {
           )}
           <button
             onClick={handleExport}
-            className="h-8 px-3 rounded-lg border border-border/60 card-glass text-foreground font-bold text-xs active:scale-95 transition-all flex items-center gap-1"
+            className="h-8 px-3 rounded-2xl border border-border/60 card-glass text-foreground font-bold text-xs active:scale-95 transition-all flex items-center gap-1"
           >
             <Download className="h-3.5 w-3.5" /> Export
           </button>
@@ -300,9 +300,9 @@ export default function LogsCenter() {
               <button
                 key={card.id}
                 onClick={() => setActiveFilter(card.filter)}
-                className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-card/50 hover:border-border/70 transition-colors text-left"
+                className="flex items-center gap-3 p-4 rounded-2xl border border-border/40 bg-card/50 hover:border-border/70 transition-colors text-left"
               >
-                <div className={cn('h-10 w-10 rounded-xl border flex items-center justify-center shrink-0', card.iconBg)}>
+                <div className={cn('h-10 w-10 rounded-2xl border flex items-center justify-center shrink-0', card.iconBg)}>
                   <Icon className={cn('h-5 w-5', card.iconColor)} />
                 </div>
                 <div className="min-w-0">
@@ -315,97 +315,109 @@ export default function LogsCenter() {
           })}
         </div>
 
-        {/* Mobile stat chips */}
-        <div className="lg:hidden grid grid-cols-4 gap-2 px-4 py-3 border-b border-border/20">
-          {[
-            { id: 'all',             icon: Clock,         label: 'Today',  value: todaysLogs.length,                                                   color: 'text-blue-400'  },
-            { id: 'needs_attention', icon: CheckSquare,   label: 'Review', value: logs.filter(l => l.requires_review || l.status === 'open').length,    color: 'text-amber-400' },
-            { id: 'temperature',     icon: Thermometer,   label: 'Temps',  value: todayTemps.length,                                                    color: 'text-red-400'   },
-            { id: 'incident',        icon: AlertTriangle, label: 'Issues', value: openIssues.length,                                                    color: 'text-red-400'   },
-          ].map(stat => {
-            const Icon = stat.icon;
-            return (
-              <button
-                key={stat.id}
-                onClick={() => setActiveFilter(stat.id)}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-xl border border-border/20 active:scale-95 transition-all"
-                style={{ background: 'rgba(255,255,255,0.04)' }}
-              >
-                <Icon className={`h-4 w-4 ${stat.color}`} />
-                <p className="text-sm font-black text-foreground">{stat.value}</p>
-                <p className="text-[9px] font-bold text-muted-foreground text-center leading-tight">{stat.label}</p>
-              </button>
-            );
-          })}
-        </div>
+        {/* ── MOBILE HEADER ─────────────────────────────────────────── */}
+        <div className="lg:hidden sticky top-0 z-30 bg-background/95 backdrop-blur-xl border-b border-border/10 pb-4">
+          <div className="px-4 pt-2 flex flex-col gap-3.5">
 
-        {/* View Tabs */}
-        <div className="border-b border-border/20 px-4 pt-4 pb-2.5 flex items-center gap-1 overflow-x-auto scrollbar-hide">
-          {[
-            { id: 'feed', label: 'Feed' },
-            { id: 'review', label: 'Review' },
-            { id: 'calendar', label: 'Calendar' },
-            { id: 'analytics', label: 'Analytics' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => { haptics.light?.(); setViewMode(tab.id); }}
-              className={cn(
-              'flex-shrink-0 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200',
-              viewMode === tab.id ? 'glow-active' : 'text-muted-foreground hover:text-foreground'
-            )}
-            >
-              {tab.label}
-            </button>
-          ))}
-          <div className="flex-1 lg:hidden" />
-          <button
-            onClick={() => setShowTypeSelector(true)}
-            className="lg:hidden btn-primary h-8 px-3 text-xs flex items-center gap-1 flex-shrink-0"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">New</span>
-            <span className="sm:hidden">+</span>
-          </button>
-        </div>
-
-        {/* Search & Filters — mobile only */}
-        <div className="lg:hidden border-b border-border/20 px-4 py-2.5 space-y-2">
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
-              <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-8 pl-8 pr-3 rounded-lg card-glass border border-border/40 text-foreground text-xs focus:outline-none focus:border-primary"
-              />
-            </div>
-            <button
-              onClick={() => setShowAdvancedFilters(true)}
-              className={`h-8 px-2 rounded-lg border transition-all flex items-center gap-1 text-xs font-semibold ${
-                Object.keys(advancedFilters).length > 0
-                  ? 'glow-active'
-                  : 'bg-card border-border/40 text-muted-foreground glow-interactive'
-              }`}
-            >
-              <Settings className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-1 pt-4 pl-1 scrollbar-hide">
-            {QUICK_FILTER_CHIPS.map((chip) => (
+            {/* Top Row: Search & Primary Action */}
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search logs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-[38px] pl-9 pr-3 rounded-full border border-border/40 text-[13px] text-foreground focus:outline-none focus:border-primary transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                />
+              </div>
               <button
-                key={chip.id}
-                onClick={() => { haptics.light?.(); setActiveFilter(chip.id); }}
+                onClick={() => setShowAdvancedFilters(true)}
                 className={cn(
-                  'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
-                  activeFilter === chip.id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
+                  "h-[38px] w-[38px] flex items-center justify-center rounded-full border transition-all active:scale-95 shrink-0",
+                  Object.keys(advancedFilters).length > 0
+                    ? "bg-primary/10 border-primary/30 text-primary"
+                    : "bg-white/[0.03] border-white/[0.08] text-muted-foreground hover:bg-white/[0.06]"
                 )}
               >
-                {chip.label}
+                <Settings className="h-4 w-4" />
               </button>
-            ))}
+              <button
+                onClick={() => setShowTypeSelector(true)}
+                className="h-[38px] flex items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-bold text-primary active:scale-95 transition-all shrink-0"
+                style={{ 
+                  background: 'linear-gradient(180deg, rgba(255,107,0,0.12) 0%, rgba(255,107,0,0.04) 100%)',
+                  border: '1px solid rgba(255,107,0,0.3)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,107,0,0.15)'
+                }}
+              >
+                <Plus className="h-3.5 w-3.5" />
+                New Log
+              </button>
+            </div>
+
+            {/* Quick Filters (Pills) */}
+            <div className="w-full overflow-x-auto no-scrollbar pb-1">
+              <div className="pill-slider-container">
+                {QUICK_FILTER_CHIPS.map((chip) => (
+                  <button
+                    key={chip.id}
+                    onClick={() => { haptics.light?.(); setActiveFilter(chip.id); }}
+                    className={cn(
+                      'glass-pill transition-all active:scale-95',
+                      activeFilter === chip.id && 'glow-active'
+                    )}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Stats Card */}
+            <div className="flex items-center rounded-full overflow-hidden border border-border bg-card shadow-sm mt-0.5">
+              {[
+                { id: 'incident',        label: 'ISSUES', value: openIssues.length,                                                    labelColor: openIssues.length > 0 ? 'text-red-400/80' : 'text-muted-foreground/60', valColor: openIssues.length > 0 ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]' : 'text-foreground/80' },
+                { id: 'temperature',     label: 'TEMPS',  value: todayTemps.length,                                                    labelColor: failedTemps.length > 0 ? 'text-red-400/80' : 'text-cyan-400/80', valColor: failedTemps.length > 0 ? 'text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]' : 'text-cyan-400' },
+                { id: 'needs_attention', label: 'REVIEW', value: logs.filter(l => l.requires_review || l.status === 'open').length,    labelColor: 'text-amber-400/80', valColor: 'text-amber-400' },
+                { id: 'all',             label: 'TODAY',  value: todaysLogs.length,                                                   labelColor: 'text-muted-foreground/60', valColor: 'text-foreground/80' },
+              ].map((stat, i, arr) => (
+                <button
+                  key={stat.id}
+                  onClick={() => setActiveFilter(stat.id)}
+                  className="flex-1 flex flex-col items-center justify-center py-2.5 active:bg-white/[0.02]"
+                  style={i < arr.length - 1 ? { borderRight: '1px solid rgba(255,255,255,0.08)' } : {}}
+                >
+                  <span className={cn('text-[15px] font-bold leading-none tabular-nums', stat.valColor)}>{stat.value}</span>
+                  <span className={cn('text-[10px] font-medium mt-0.5 leading-none', stat.labelColor)}>{stat.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* View Tabs */}
+            <div className="flex p-1 rounded-xl bg-white/[0.04] border border-white/[0.08] mt-1">
+              {[
+                { id: 'feed', label: 'Feed' },
+                { id: 'review', label: 'Review' },
+                { id: 'calendar', label: 'Calendar' },
+                { id: 'analytics', label: 'Analytics' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => { haptics.light?.(); setViewMode(tab.id); }}
+                  className={cn(
+                    'flex-1 h-[30px] rounded-lg text-[12px] font-bold transition-all duration-200',
+                    viewMode === tab.id
+                      ? 'bg-white/[0.12] text-foreground shadow-sm border border-white/[0.05]'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
           </div>
         </div>
 
@@ -423,12 +435,12 @@ export default function LogsCenter() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-8 pl-8 pr-3 rounded-lg card-glass border border-border/40 text-foreground text-xs focus:outline-none focus:border-primary"
+                  className="w-full h-8 pl-8 pr-3 rounded-2xl card-glass border border-border/40 text-foreground text-xs focus:outline-none focus:border-primary"
                 />
               </div>
               <button
                 onClick={() => setShowAdvancedFilters(true)}
-                className={`h-8 px-2 rounded-lg border transition-all flex items-center gap-1 text-xs font-semibold ${
+                className={`h-8 px-2 rounded-2xl border transition-all flex items-center gap-1 text-xs font-semibold ${
                   Object.keys(advancedFilters).length > 0
                     ? 'glow-active'
                     : 'bg-card border-border/40 text-muted-foreground glow-interactive'
@@ -437,19 +449,21 @@ export default function LogsCenter() {
                 <Settings className="h-3.5 w-3.5" />
               </button>
             </div>
-            <div className="hidden lg:flex gap-1.5 overflow-x-auto pb-3 mb-1 pt-4 pl-1 scrollbar-hide">
-              {QUICK_FILTER_CHIPS.map((chip) => (
-                <button
-                  key={chip.id}
-                  onClick={() => { haptics.light?.(); setActiveFilter(chip.id); }}
-                  className={cn(
-                    'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
-                    activeFilter === chip.id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
-                  )}
-                >
-                  {chip.label}
-                </button>
-              ))}
+            <div className="hidden lg:block w-full overflow-x-auto no-scrollbar pb-3 mb-1 pt-4 pl-1">
+              <div className="pill-slider-container">
+                {QUICK_FILTER_CHIPS.map((chip) => (
+                  <button
+                    key={chip.id}
+                    onClick={() => { haptics.light?.(); setActiveFilter(chip.id); }}
+                    className={cn(
+                      'glass-pill',
+                      activeFilter === chip.id && 'glow-active'
+                    )}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
             </div>
             {viewMode === 'feed' && (
               filteredLogs.length === 0 && (activeFilter !== 'all' || searchQuery.trim()) ? (
@@ -463,7 +477,7 @@ export default function LogsCenter() {
                   </div>
                   <button
                     onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-muted/30 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-muted/30 transition-colors"
                   >
                     Clear filters
                   </button>
@@ -509,7 +523,7 @@ export default function LogsCenter() {
                   <button
                     key={type}
                     onClick={() => openQuickLog(type)}
-                    className={cn('flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs font-bold transition-colors', color)}
+                    className={cn('flex items-center gap-1.5 px-2.5 py-2 rounded-2xl border text-xs font-bold transition-colors', color)}
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" /> {label}
                   </button>
@@ -565,7 +579,7 @@ export default function LogsCenter() {
                     <button
                       key={type}
                       onClick={() => setActiveFilter(type)}
-                      className="w-full flex items-center justify-between hover:bg-muted/20 rounded-lg px-1 py-0.5 transition-colors"
+                      className="w-full flex items-center justify-between hover:bg-muted/20 rounded-2xl px-1 py-0.5 transition-colors"
                     >
                       <div className="flex items-center gap-2">
                         <Icon className={cn('h-3.5 w-3.5', color)} />

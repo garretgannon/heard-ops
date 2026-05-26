@@ -62,7 +62,7 @@ export default function ShiftMetricsBar({ stats, tasks, selectedMetric, onMetric
             key={m.id}
             onClick={() => onMetricClick(isSelected ? null : m.id)}
             className={cn(
-              'p-3 rounded-lg border transition-all hover:scale-105 active:scale-95 text-left',
+              'p-3 rounded-2xl border transition-all hover:scale-105 active:scale-95 text-left',
               isSelected ? `${m.color} ring-2 ring-offset-1 ring-offset-background` : `${m.color} opacity-75 hover:opacity-100`
             )}
           >

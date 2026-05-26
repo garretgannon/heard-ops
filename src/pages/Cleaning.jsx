@@ -79,7 +79,7 @@ export default function Cleaning() {
           {isAdmin && (
             <button
               onClick={() => navigate('/cleaning-templates')}
-              className="mt-1 flex items-center gap-1.5 h-9 px-3 rounded-xl text-xs font-bold text-muted-foreground border border-border/50 hover:bg-white/5 active:scale-95 transition-all shrink-0"
+              className="mt-1 flex items-center gap-1.5 h-9 px-3 rounded-2xl text-xs font-bold text-muted-foreground border border-border/50 hover:bg-white/5 active:scale-95 transition-all shrink-0"
             >
               <Settings className="h-3.5 w-3.5" /> Templates
             </button>
@@ -175,7 +175,7 @@ export default function Cleaning() {
             {isAdmin && (
               <button
                 onClick={() => navigate('/cleaning-templates')}
-                className="mx-auto mt-2 flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-bold text-primary active:scale-95 transition-all"
+                className="mx-auto mt-2 flex items-center gap-2 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-bold text-primary active:scale-95 transition-all"
               >
                 <Settings className="h-3.5 w-3.5" /> Set up templates
               </button>

@@ -45,7 +45,7 @@ export default function CalendarTab({ reservations, beos, onSelectBEO, onAddEven
   return (
     <div className="space-y-3">
       {/* Month Navigator */}
-      <div className="card-glass border border-border rounded-xl overflow-hidden">
+      <div className="liquid-card overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <button onClick={prevMonth} className="p-1.5 rounded-lg bg-muted"><ChevronLeft className="h-4 w-4 text-muted-foreground" /></button>
           <span className="text-sm font-extrabold text-foreground">{MONTHS[month]} {year}</span>
@@ -91,41 +91,37 @@ export default function CalendarTab({ reservations, beos, onSelectBEO, onAddEven
           {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
         </p>
         {selectedRes.length === 0 && selectedBEOList.length === 0 ? (
-          <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-            <div className="flex flex-col items-center py-7 px-4 gap-3">
-              <div className="relative">
-                <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
-                  <Calendar className="h-7 w-7 text-muted-foreground/50" />
-                </div>
-                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
-                  <X className="h-3 w-3 text-muted-foreground" />
-                </div>
+          <div className="liquid-card overflow-hidden p-8 flex flex-col items-center justify-center gap-4 mt-2">
+            <div className="relative">
+              <div className="h-14 w-14 rounded-full bg-muted/50 border border-border/50 flex items-center justify-center">
+                <Calendar className="h-7 w-7 text-muted-foreground/50" />
               </div>
-              <p className="text-[13px] text-muted-foreground">No events scheduled</p>
-              <div className="flex flex-col gap-2 w-full mt-1">
-                {onAddEvent && (
-                  <button
-                    onClick={() => { onAddEvent(); haptics.medium(); }}
-                    className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
-                    style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
-                  >
-                    <Plus className="h-3.5 w-3.5" /> Add Event to This Date
-                  </button>
-                )}
+              <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-card border border-border flex items-center justify-center shadow-sm">
+                <X className="h-3 w-3 text-muted-foreground" />
+              </div>
+            </div>
+            <p className="text-[13px] font-semibold text-foreground">No events scheduled</p>
+            <div className="flex flex-col gap-2 w-full max-w-[240px] mt-2">
+              {onAddEvent && (
                 <button
-                  onClick={() => { setSelectedDate(today()); haptics.light(); }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
-                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
+                  onClick={() => { onAddEvent(); haptics.medium(); }}
+                  className="w-full btn-primary h-10 flex items-center justify-center gap-1.5"
                 >
-                  Go to Today
+                  <Plus className="h-4 w-4" /> Add Event to This Date
                 </button>
-              </div>
+              )}
+              <button
+                onClick={() => { setSelectedDate(today()); haptics.light(); }}
+                className="w-full btn-secondary h-10 flex items-center justify-center gap-1.5"
+              >
+                Go to Today
+              </button>
             </div>
           </div>
         ) : (
           <div className="space-y-2">
             {selectedRes.map(r => (
-              <div key={r.id} className="card-glass border border-border rounded-lg px-3 py-2.5 flex items-center gap-2">
+              <div key={r.id} className="liquid-card px-4 py-3 flex items-center gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{r.name}</p>
                   <p className="text-xs text-muted-foreground">{r.time} · <Users className="h-2.5 w-2.5 inline" /> {r.partySize}</p>
@@ -134,7 +130,7 @@ export default function CalendarTab({ reservations, beos, onSelectBEO, onAddEven
               </div>
             ))}
             {selectedBEOList.map(b => (
-              <button key={b.id} onClick={() => onSelectBEO(b)} className="w-full text-left bg-card border border-blue-500/20 rounded-lg px-3 py-2.5 flex items-center gap-2 active:scale-[0.99]">
+              <button key={b.id} onClick={() => onSelectBEO(b)} className="w-full text-left liquid-card px-4 py-3 flex items-center gap-2 active:scale-[0.99] hover:border-border transition-all">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{b.eventName}</p>
                   <p className="text-xs text-muted-foreground">{b.startTime} · <Users className="h-2.5 w-2.5 inline" /> {b.guestCount}</p>

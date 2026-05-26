@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import BuildCardCosting from '@/components/buildcards/BuildCardCosting';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
+import { cn } from '@/lib/utils';
 
 const CATEGORIES = ['all','appetizer','entree','sandwich','salad','dessert','cocktail','na-drink','archived'];
 const CATEGORY_LABELS = { 'na-drink': 'NA Drink', appetizer: 'Appetizer', entree: 'Entree', sandwich: 'Sandwich', salad: 'Salad', dessert: 'Dessert', cocktail: 'Cocktail' };
@@ -32,7 +33,7 @@ function BuildCardCard({ card, onClick }) {
   const isEightySix = card.availabilityStatus === 'eighty-six';
   const isLow = card.availabilityStatus === 'low';
   return (
-    <button onClick={onClick} className={`w-full text-left bg-card border rounded-xl overflow-hidden active:scale-[0.99] transition-all ${AVAIL_STYLE[card.availabilityStatus] !== undefined ? AVAIL_STYLE[card.availabilityStatus] : 'border-border'}`}>
+    <button onClick={onClick} className={`w-full text-left bg-card border rounded-2xl overflow-hidden active:scale-[0.99] transition-all ${AVAIL_STYLE[card.availabilityStatus] !== undefined ? AVAIL_STYLE[card.availabilityStatus] : 'border-border'}`}>
       <div className="px-4 py-3">
         <div className="flex items-start justify-between gap-2 mb-1">
           <div className="flex-1 min-w-0">
@@ -51,9 +52,16 @@ function BuildCardCard({ card, onClick }) {
           {card.menuPrice && <span className="ml-auto font-bold text-foreground">${card.menuPrice}</span>}
         </div>
         {(isEightySix || isLow) && (
-          <div className={`mt-2 flex items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-lg w-fit ${isEightySix ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'}`}>
-            <AlertCircle className="h-3 w-3" />
-            {isEightySix ? `86'd${card.eightySixReason ? ` — ${card.eightySixReason}` : ''}` : 'Low Stock'}
+          <div className="flex flex-wrap gap-2 mt-2">
+            <div className={`flex items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-2xl w-fit ${isEightySix ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'}`}>
+              <AlertCircle className="h-3 w-3" />
+              {isEightySix ? `86'd${card.eightySixReason ? ` — ${card.eightySixReason}` : ''}` : 'Low Stock'}
+            </div>
+            {isEightySix && card.pos_synced && (
+              <div className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                <Link2 className="h-3 w-3" /> Synced to POS
+              </div>
+            )}
           </div>
         )}
         {card.allergens?.length > 0 && (
@@ -87,7 +95,7 @@ function SectionBlock({ title, children }) {
 function SpecChip({ label, value }) {
   if (!value) return null;
   return (
-    <div className="bg-muted rounded-lg px-3 py-2 text-center">
+    <div className="bg-muted rounded-2xl px-3 py-2 text-center">
       <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-xs font-bold text-foreground mt-0.5">{value}</p>
     </div>
@@ -124,7 +132,7 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+        <button onClick={onClose} className="h-8 w-8 rounded-2xl bg-muted flex items-center justify-center">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="flex-1 min-w-0">
@@ -139,21 +147,28 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
       <div className="flex-1 overflow-y-auto pb-28 px-4 py-4 space-y-1">
         {/* 86 / Availability Banner */}
         {(isEightySix || isLow) && (
-          <div className={`flex items-center gap-2 rounded-xl px-3 py-2.5 mb-2 ${isEightySix ? 'bg-red-500/10 border border-red-500/30' : 'bg-amber-500/10 border border-amber-500/30'}`}>
-            <AlertCircle className={`h-4 w-4 shrink-0 ${isEightySix ? 'text-red-400' : 'text-amber-400'}`} />
-            <div>
-              <p className={`text-sm font-bold ${isEightySix ? 'text-red-300' : 'text-amber-300'}`}>{isEightySix ? "Currently 86'd" : 'Low Stock'}</p>
-              {card.eightySixReason && <p className="text-xs text-muted-foreground">{card.eightySixReason}</p>}
+          <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl px-4 py-3 mb-2 ${isEightySix ? 'bg-red-500/10 border border-red-500/30' : 'bg-amber-500/10 border border-amber-500/30'}`}>
+            <div className="flex items-center gap-2">
+              <AlertCircle className={`h-5 w-5 shrink-0 ${isEightySix ? 'text-red-400' : 'text-amber-400'}`} />
+              <div>
+                <p className={`text-sm font-bold ${isEightySix ? 'text-red-300' : 'text-amber-300'}`}>{isEightySix ? "Currently 86'd" : 'Low Stock'}</p>
+                {card.eightySixReason && <p className="text-xs text-muted-foreground">{card.eightySixReason}</p>}
+              </div>
             </div>
+            {isEightySix && card.pos_synced && (
+              <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 w-fit">
+                <Link2 className="h-4 w-4" /> Synced to POS
+              </div>
+            )}
           </div>
         )}
 
         {/* Plating Photo */}
         <SectionBlock title="Plating Photo">
           {card.platingImageUrl ? (
-            <img src={card.platingImageUrl} alt="Plating" className="w-full rounded-xl object-cover max-h-48 border border-border" />
+            <img src={card.platingImageUrl} alt="Plating" className="w-full rounded-2xl object-cover max-h-48 border border-border" />
           ) : (
-            <div className="w-full h-28 rounded-xl bg-muted border border-border border-dashed flex flex-col items-center justify-center gap-1.5">
+            <div className="w-full h-28 rounded-2xl bg-muted border border-border border-dashed flex flex-col items-center justify-center gap-1.5">
               <Camera className="h-5 w-5 text-muted-foreground opacity-50" />
               <p className="text-[11px] text-muted-foreground">No plating photo added.</p>
             </div>
@@ -177,12 +192,12 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
           <SectionBlock title="Allergens & Dietary">
             <div className="flex flex-wrap gap-1.5">
               {card.allergens.map(a => (
-                <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
+                <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-2xl bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" />{a}
                 </span>
               ))}
               {card.dietaryFlags?.map(f => (
-                <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
+                <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-2xl bg-primary/15 text-primary border border-primary/20">{f}</span>
               ))}
             </div>
           </SectionBlock>
@@ -194,7 +209,7 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
             {components.length === 0 ? (
               <p className="text-xs text-muted-foreground italic">No components added.</p>
             ) : (
-              <div className="border border-border rounded-xl overflow-hidden">
+              <div className="border border-border rounded-2xl overflow-hidden">
                 <div className="grid grid-cols-[1fr_auto_auto] bg-muted/40 px-3 py-1.5 gap-2">
                   <span className="text-[9px] font-bold text-muted-foreground uppercase">Component</span>
                   <span className="text-[9px] font-bold text-muted-foreground uppercase text-right w-14">Qty / Unit</span>
@@ -234,7 +249,7 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
         {/* Plating & Presentation */}
         {(card.platingNotes || card.expoNotes) && (
           <SectionBlock title="Plating & Expo Notes">
-            <div className="bg-muted/30 border border-border rounded-xl p-3 space-y-2 text-sm">
+            <div className="bg-muted/30 border border-border rounded-2xl p-3 space-y-2 text-sm">
               {card.platingNotes && <p><span className="font-bold text-foreground">Plating:</span> <span className="text-muted-foreground">{card.platingNotes}</span></p>}
               {card.expoNotes && <p><span className="font-bold text-foreground">Expo:</span> <span className="text-muted-foreground">{card.expoNotes}</span></p>}
             </div>
@@ -246,7 +261,7 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
           <SectionBlock title="Modifiers">
             <div className="space-y-1.5">
               {modifiers.map(mod => (
-                <div key={mod.id} className={`flex items-start gap-2 rounded-lg px-3 py-2 border ${mod.allergyRelevant ? 'border-red-500/20 bg-red-500/5' : 'border-border bg-muted/20'}`}>
+                <div key={mod.id} className={`flex items-start gap-2 rounded-2xl px-3 py-2 border ${mod.allergyRelevant ? 'border-red-500/20 bg-red-500/5' : 'border-border bg-muted/20'}`}>
                   {mod.allergyRelevant && <AlertTriangle className="h-3 w-3 text-red-400 mt-0.5 shrink-0" />}
                   <div>
                     <p className="text-xs font-bold text-foreground">{mod.modifierName}</p>
@@ -263,7 +278,7 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
           <SectionBlock title="Linked Recipes">
             <div className="space-y-1.5">
               {linkedRecipes.map(rec => (
-                <div key={rec.id} className="flex items-center gap-2 bg-muted/30 border border-border rounded-lg px-3 py-2">
+                <div key={rec.id} className="flex items-center gap-2 bg-muted/30 border border-border rounded-2xl px-3 py-2">
                   <Link2 className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span className="text-xs font-bold text-foreground">{rec.name}</span>
                   <span className="ml-auto text-[10px] text-muted-foreground capitalize">{rec.category}</span>
@@ -281,7 +296,7 @@ function BuildCardDetail({ card, onClose, onEdit, onDuplicate, onArchive, isAdmi
         {/* Notes */}
         {card.notes && (
           <SectionBlock title="Notes">
-            <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-xl p-3">{card.notes}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-2xl p-3">{card.notes}</p>
           </SectionBlock>
         )}
       </div>
@@ -359,31 +374,31 @@ function BuildCardForm({ card, onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center"><X className="h-4 w-4 text-muted-foreground" /></button>
+        <button onClick={onClose} className="h-8 w-8 rounded-2xl bg-muted flex items-center justify-center"><X className="h-4 w-4 text-muted-foreground" /></button>
         <h2 className="flex-1 text-sm font-extrabold text-foreground">{card ? 'Edit Build Card' : 'New Build Card'}</h2>
         <button onClick={save} disabled={saving} className="btn-primary text-xs px-4 h-8">{saving ? 'Saving…' : 'Save'}</button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-10">
         <div className="space-y-2">
-          <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Menu item name *" className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-sm text-foreground font-bold" />
+          <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Menu item name *" className="w-full px-3 py-2.5 bg-background border border-border rounded-2xl text-sm text-foreground font-bold" />
           <div className="grid grid-cols-2 gap-2">
-            <select value={form.category} onChange={e => set('category', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select value={form.category} onChange={e => set('category', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
               <option value="">Category</option>
               {['appetizer','entree','sandwich','salad','dessert','cocktail','na-drink','other'].map(c => <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>)}
             </select>
-            <input value={form.station} onChange={e => set('station', e.target.value)} placeholder="Station" className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <input value={form.station} onChange={e => set('station', e.target.value)} placeholder="Station" className="px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <select value={form.status} onChange={e => set('status', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select value={form.status} onChange={e => set('status', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
               <option value="draft">Draft</option><option value="active">Active</option><option value="archived">Archived</option>
             </select>
-            <select value={form.availabilityStatus} onChange={e => set('availabilityStatus', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select value={form.availabilityStatus} onChange={e => set('availabilityStatus', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
               <option value="available">Available</option><option value="low">Low Stock</option><option value="eighty-six">86'd</option>
             </select>
           </div>
           {form.availabilityStatus === 'eighty-six' && (
-            <input value={form.eightySixReason} onChange={e => set('eightySixReason', e.target.value)} placeholder="86 reason" className="w-full px-3 py-2 bg-background border border-red-500/30 rounded-lg text-sm text-foreground" />
+            <input value={form.eightySixReason} onChange={e => set('eightySixReason', e.target.value)} placeholder="86 reason" className="w-full px-3 py-2 bg-background border border-red-500/30 rounded-2xl text-sm text-foreground" />
           )}
         </div>
 
@@ -391,9 +406,9 @@ function BuildCardForm({ card, onSave, onClose }) {
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Specs</p>
           <div className="grid grid-cols-2 gap-2">
             {[['menuPrice','Menu Price','number'],['plateVessel','Plate / Vessel','text'],['fireTime','Fire Time','text'],['portionSize','Portion Size','text']].map(([k,l,t]) => (
-              <input key={k} type={t} value={form[k]} onChange={e => set(k, e.target.value)} placeholder={l} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input key={k} type={t} value={form[k]} onChange={e => set(k, e.target.value)} placeholder={l} className="px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
             ))}
-            <select value={form.spiceLevel} onChange={e => set('spiceLevel', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select value={form.spiceLevel} onChange={e => set('spiceLevel', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
               {SPICE_LEVELS.map(l => <option key={l} value={l} className="capitalize">{l}</option>)}
             </select>
           </div>
@@ -403,12 +418,12 @@ function BuildCardForm({ card, onSave, onClose }) {
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Allergens</p>
           <div className="flex flex-wrap gap-1.5">
             {ALLERGEN_LIST.map(a => (
-              <button key={a} onClick={() => toggleArr('allergens', a)} className={`text-xs px-2.5 py-1 rounded-lg border font-bold transition-all ${form.allergens?.includes(a) ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-muted border-border text-muted-foreground'}`}>{a}</button>
+              <button key={a} onClick={() => toggleArr('allergens', a)} className={`text-xs px-2.5 py-1 rounded-2xl border font-bold transition-all ${form.allergens?.includes(a) ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-muted border-border text-muted-foreground'}`}>{a}</button>
             ))}
           </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
             {DIETARY_FLAGS.map(f => (
-              <button key={f} onClick={() => toggleArr('dietaryFlags', f)} className={`text-xs px-2.5 py-1 rounded-lg border font-bold transition-all ${form.dietaryFlags?.includes(f) ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-muted border-border text-muted-foreground'}`}>{f}</button>
+              <button key={f} onClick={() => toggleArr('dietaryFlags', f)} className={`text-xs px-2.5 py-1 rounded-2xl border font-bold transition-all ${form.dietaryFlags?.includes(f) ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-muted border-border text-muted-foreground'}`}>{f}</button>
             ))}
           </div>
         </div>
@@ -422,12 +437,12 @@ function BuildCardForm({ card, onSave, onClose }) {
           <div className="space-y-2">
             {components.filter(c => !c._deleted).map((comp, idx) => (
               <div key={idx} className="flex gap-1.5 items-center">
-                <input value={comp.componentName} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, componentName: e.target.value, _dirty: true} : x))} placeholder="Component" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                <input type="number" value={comp.quantity} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty: true} : x))} placeholder="Qty" className="w-12 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                <select value={comp.unit} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty: true} : x))} className="w-16 px-1 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground">
+                <input value={comp.componentName} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, componentName: e.target.value, _dirty: true} : x))} placeholder="Component" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-2xl text-xs text-foreground" />
+                <input type="number" value={comp.quantity} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, quantity: e.target.value, _dirty: true} : x))} placeholder="Qty" className="w-12 px-2 py-1.5 bg-background border border-border rounded-2xl text-xs text-foreground" />
+                <select value={comp.unit} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, unit: e.target.value, _dirty: true} : x))} className="w-16 px-1 py-1.5 bg-background border border-border rounded-2xl text-xs text-foreground">
                   <option value="">Unit</option>{UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
-                <input value={comp.placementInstruction} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, placementInstruction: e.target.value, _dirty: true} : x))} placeholder="Placement" className="w-20 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input value={comp.placementInstruction} onChange={e => setComponents(p => p.map((x,i) => i===idx ? {...x, placementInstruction: e.target.value, _dirty: true} : x))} placeholder="Placement" className="w-20 px-2 py-1.5 bg-background border border-border rounded-2xl text-xs text-foreground" />
                 <button onClick={() => setComponents(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="text-red-400 px-1"><X className="h-3.5 w-3.5" /></button>
               </div>
             ))}
@@ -444,7 +459,7 @@ function BuildCardForm({ card, onSave, onClose }) {
             {steps.filter(s => !s._deleted).map((step, idx) => (
               <div key={idx} className="flex gap-2 items-start">
                 <div className="h-6 w-6 rounded-full bg-primary/20 text-primary text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-1">{idx+1}</div>
-                <textarea value={step.instruction} onChange={e => setSteps(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Step instruction…" rows={2} className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground resize-none" />
+                <textarea value={step.instruction} onChange={e => setSteps(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Step instruction…" rows={2} className="flex-1 px-2 py-1.5 bg-background border border-border rounded-2xl text-xs text-foreground resize-none" />
                 <button onClick={() => setSteps(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="text-red-400 px-1 mt-1"><X className="h-3.5 w-3.5" /></button>
               </div>
             ))}
@@ -460,8 +475,8 @@ function BuildCardForm({ card, onSave, onClose }) {
           <div className="space-y-2">
             {modifiers.filter(m => !m._deleted).map((mod, idx) => (
               <div key={idx} className="flex gap-1.5 items-center">
-                <input value={mod.modifierName} onChange={e => setModifiers(p => p.map((x,i) => i===idx ? {...x, modifierName: e.target.value, _dirty: true} : x))} placeholder="Modifier name" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
-                <input value={mod.instruction} onChange={e => setModifiers(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Instructions" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground" />
+                <input value={mod.modifierName} onChange={e => setModifiers(p => p.map((x,i) => i===idx ? {...x, modifierName: e.target.value, _dirty: true} : x))} placeholder="Modifier name" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-2xl text-xs text-foreground" />
+                <input value={mod.instruction} onChange={e => setModifiers(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Instructions" className="flex-1 px-2 py-1.5 bg-background border border-border rounded-2xl text-xs text-foreground" />
                 <label className="flex items-center gap-1 text-[10px] text-red-400 font-bold shrink-0">
                   <input type="checkbox" checked={mod.allergyRelevant} onChange={e => setModifiers(p => p.map((x,i) => i===idx ? {...x, allergyRelevant: e.target.checked, _dirty: true} : x))} className="rounded" />Allergy
                 </label>
@@ -473,9 +488,9 @@ function BuildCardForm({ card, onSave, onClose }) {
 
         {/* Plating / Expo Notes */}
         <div className="space-y-2">
-          <textarea value={form.platingNotes} onChange={e => set('platingNotes', e.target.value)} placeholder="Plating notes (garnish, sauce placement, visual check…)" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
-          <textarea value={form.expoNotes} onChange={e => set('expoNotes', e.target.value)} placeholder="Expo notes" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
-          <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Additional notes (optional)" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+          <textarea value={form.platingNotes} onChange={e => set('platingNotes', e.target.value)} placeholder="Plating notes (garnish, sauce placement, visual check…)" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground resize-none" />
+          <textarea value={form.expoNotes} onChange={e => set('expoNotes', e.target.value)} placeholder="Expo notes" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground resize-none" />
+          <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Additional notes (optional)" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground resize-none" />
         </div>
       </div>
     </div>
@@ -561,23 +576,27 @@ export default function BuildCards() {
 
           <div className="relative mb-2.5">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search build cards…" className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search build cards…" className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           </div>
 
-          <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
-            {CATEGORIES.map(c => (
-              <button key={c} onClick={() => setFilterCat(c)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${filterCat === c ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>
-                {CATEGORY_LABELS[c] || c}
-              </button>
-            ))}
+          <div className="w-full overflow-x-auto no-scrollbar pb-1 px-4 -mx-4">
+            <div className="pill-slider-container">
+              {CATEGORIES.map(c => (
+                <button key={c} onClick={() => setFilterCat(c)} className={cn('glass-pill', filterCat === c && 'glow-active')}>
+                  {CATEGORY_LABELS[c] || c}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-1.5 overflow-x-auto px-4 pb-2.5">
-          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
-          {STATIONS.map(s => (
-            <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s}</button>
-          ))}
+        <div className="w-full overflow-x-auto no-scrollbar pb-2.5 px-4">
+          <div className="pill-slider-container">
+            <button onClick={() => setFilterStation('')} className={cn('glass-pill', !filterStation && 'glow-active')}>All Stations</button>
+            {STATIONS.map(s => (
+              <button key={s} onClick={() => setFilterStation(filterStation === s ? '' : s)} className={cn('glass-pill', filterStation === s && 'glow-active')}>{s}</button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -585,7 +604,7 @@ export default function BuildCards() {
         {loading ? (
           <div className="text-center py-10 text-muted-foreground text-sm">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 card-glass border border-border rounded-xl">
+          <div className="text-center py-12 card-glass border border-border rounded-2xl">
             <Utensils className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
             <p className="text-sm text-muted-foreground">No build cards found</p>
             {isAdmin && <button onClick={() => { setEditing(null); setShowForm(true); }} className="mt-3 btn-primary text-xs px-4 py-2 flex items-center gap-1 mx-auto"><Plus className="h-3.5 w-3.5" />Create Build Card</button>}

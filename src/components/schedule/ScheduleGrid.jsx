@@ -320,11 +320,18 @@ function EmployeeRow({ employee, weekDays, shifts, selectedShiftIds, onSelectShi
     <div className={cn('grid border-t border-border/20', isEven ? 'bg-background/50' : 'bg-background/30')} style={{ gridTemplateColumns: '240px repeat(7, 1fr)' }}>
       {/* Compact Employee Cell */}
       <div className="flex items-center gap-2 px-3 py-2 border-r border-border/30 sticky left-0 z-10 bg-inherit">
-        <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-[10px] font-extrabold text-primary">
-          {(employee.name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+        <div className="relative">
+          <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 text-[10px] font-extrabold text-primary">
+            {(employee.name || '?').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+          </div>
+          {employee.isClockedIn && (
+            <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-card" title="Clocked in via POS" />
+          )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-foreground truncate leading-tight">{employee.name}</p>
+          <p className="text-xs font-bold text-foreground truncate leading-tight flex items-center gap-1.5">
+            {employee.name}
+          </p>
           {totalHours > 0 && <p className={cn('text-[9px] font-bold whitespace-nowrap mt-0.5', totalHours > 40 ? 'text-red-400' : 'text-muted-foreground/60')}>{totalHours.toFixed(1)}h</p>}
         </div>
       </div>

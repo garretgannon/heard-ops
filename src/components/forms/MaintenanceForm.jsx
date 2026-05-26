@@ -130,7 +130,7 @@ export default function MaintenanceForm({ open, onClose, onSaved }) {
               <label className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border p-10 cursor-pointer active:bg-secondary/40 transition-colors">
                 <Camera className="h-8 w-8 text-muted-foreground" />
                 <span className="text-sm font-semibold text-muted-foreground">{uploading ? "Uploading…" : "Tap to add photo"}</span>
-                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhoto} />
+                <input type="file" accept="image/*" capture="environment" className="ops-input hidden" onChange={handlePhoto} />
               </label>
             )}
             <BigTextarea label="Additional Notes" placeholder="Anything else to add?" value={form.notes} onChange={set("notes")} />

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Users, ChevronRight, Edit2, Trash2, CheckCircle2, ClipboardList, Plus, Upload } from 'lucide-react';
+import { Search, Users, ChevronRight, ChevronDown, Edit2, Trash2, CheckCircle2, ClipboardList, Plus, Upload, X } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 
 const STATUS_COLOR = {
   inquiry: 'bg-muted text-muted-foreground',
@@ -17,7 +18,7 @@ function BEOCard({ beo, isAdmin, onSelect, onEdit, onDelete }) {
   return (
     <button
       onClick={() => onSelect(beo)}
-      className="w-full text-left bg-card border border-blue-500/20 rounded-xl p-3 active:scale-[0.98] transition-all"
+      className="w-full text-left liquid-card p-4 hover:border-border transition-all active:scale-[0.98]"
     >
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
@@ -80,55 +81,62 @@ export default function BEOsTab({ beos, isAdmin, onSelect, onEdit, onRefresh, on
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search events…"
-            className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
-          />
-        </div>
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
-          {['all','tentative','confirmed','in-production','ready'].map(s => (
-            <button
-              key={s}
-              onClick={() => setFilterStatus(s)}
-              className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${filterStatus === s ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search events..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full h-11 pl-10 pr-4 bg-transparent border-none text-sm text-foreground focus:outline-none placeholder:text-muted-foreground/50 liquid-card"
+            />
+          </div>
+          <div className="relative w-full sm:w-40 shrink-0">
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              className="w-full h-11 pl-4 pr-10 bg-transparent border-none text-sm text-foreground focus:outline-none appearance-none liquid-card"
             >
-              {s.replace(/-/g, ' ')}
-            </button>
-          ))}
+              <option value="all">All Status</option>
+              <option value="tentative">Tentative</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="in-production">In Production</option>
+              <option value="ready">Ready</option>
+            </select>
+            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-          <div className="flex flex-col items-center py-8 px-4 gap-3">
-            <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+        <div className="liquid-card overflow-hidden p-8 flex flex-col items-center justify-center gap-4">
+          <div className="relative">
+            <div className="h-14 w-14 rounded-full bg-muted/50 border border-border/50 flex items-center justify-center">
               <ClipboardList className="h-7 w-7 text-muted-foreground/50" />
             </div>
-            <p className="text-[14px] font-semibold text-foreground">No BEOs found</p>
-            <div className="flex flex-col gap-2 w-full mt-1">
-              {onAdd && (
-                <button
-                  onClick={() => { onAdd(); haptics.medium(); }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
-                  style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
-                >
-                  <Plus className="h-3.5 w-3.5" /> Create BEO
-                </button>
-              )}
-              {onImport && (
-                <button
-                  onClick={() => { onImport(); haptics.medium(); }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
-                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
-                >
-                  <Upload className="h-3.5 w-3.5" /> Upload PDF
-                </button>
-              )}
+            <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-card border border-border flex items-center justify-center shadow-sm">
+              <X className="h-3 w-3 text-muted-foreground" />
             </div>
+          </div>
+          <p className="text-[14px] font-semibold text-foreground">No BEOs found</p>
+          <div className="flex flex-col gap-2 w-full max-w-[240px] mt-2">
+            {onAdd && (
+              <button
+                onClick={() => { onAdd(); haptics.medium(); }}
+                className="w-full btn-primary h-10 flex items-center justify-center gap-1.5"
+              >
+                <Plus className="h-4 w-4" /> Create BEO
+              </button>
+            )}
+            {onImport && (
+              <button
+                onClick={() => { onImport(); haptics.medium(); }}
+                className="w-full btn-secondary h-10 flex items-center justify-center gap-1.5"
+              >
+                <Upload className="h-4 w-4" /> Upload PDF
+              </button>
+            )}
           </div>
         </div>
       ) : (

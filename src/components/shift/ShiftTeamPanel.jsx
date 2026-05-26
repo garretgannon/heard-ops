@@ -37,7 +37,7 @@ export default function ShiftTeamPanel({ tasks, selectedEmployee, onSelectEmploy
   });
 
   return (
-    <div className="rounded-xl border border-border/30 card-glass p-4">
+    <div className="liquid-card p-4">
       <h3 className="font-bold text-foreground text-sm mb-3">Shift Team</h3>
       <div className="space-y-2">
         {employeeList.length === 0 ? (
@@ -48,7 +48,7 @@ export default function ShiftTeamPanel({ tasks, selectedEmployee, onSelectEmploy
               key={emp.id}
               onClick={() => onSelectEmployee(selectedEmployee?.id === emp.id ? null : emp)}
               className={cn(
-                'w-full text-left p-2.5 rounded-lg border transition-all active:scale-95',
+                'w-full text-left p-2.5 rounded-2xl border transition-all active:scale-95',
                 selectedEmployee?.id === emp.id
                   ? 'bg-primary/15 border-primary/30'
                   : 'bg-muted/40 border-border/30 hover:border-border/50'

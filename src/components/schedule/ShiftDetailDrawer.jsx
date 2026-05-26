@@ -122,7 +122,7 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
             <select value={form.employee_email} onChange={e => {
               const emp = employees.find(em => em.email === e.target.value);
               setForm(f => ({ ...f, employee_email: e.target.value, employee_name: emp?.name || f.employee_name }));
-            }} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            }} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
               {employees.map(e => <option key={e.id} value={e.email}>{e.name}</option>)}
             </select>
           </div>
@@ -131,7 +131,7 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Date</label>
             <input type="date" value={form.date} onChange={e => setForm(f => ({...f, date: e.target.value}))}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
           </div>
 
           {/* Time */}
@@ -141,9 +141,9 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
             </label>
             <div className="grid grid-cols-2 gap-2">
               <input type="time" value={form.start_time} onChange={e => setForm(f => ({...f, start_time: e.target.value}))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               <input type="time" value={form.end_time} onChange={e => setForm(f => ({...f, end_time: e.target.value}))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
           </div>
 
@@ -151,7 +151,7 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Role</label>
             <select value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
               <option value="">No role</option>
               {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
@@ -161,7 +161,7 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Area</label>
             <select value={form.area} onChange={e => setForm(f => ({...f, area: e.target.value}))}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
               <option value="">Select area…</option>
               {areas.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
             </select>
@@ -176,7 +176,7 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
                 const s = stations.find(st => st.name === e.target.value);
                 setForm(f => ({ ...f, station: e.target.value, station_id: s?.id || '' }));
               }}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
             >
               <option value="">Select station…</option>
               {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
@@ -201,7 +201,7 @@ export default function ShiftDetailDrawer({ shift, employees, conflicts, onClose
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1.5">Notes</label>
             <textarea value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))}
-              rows={2} placeholder="Add notes…" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none" />
+              rows={2} placeholder="Add notes…" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground resize-none" />
           </div>
         </div>
 

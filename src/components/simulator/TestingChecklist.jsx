@@ -85,7 +85,7 @@ export default function TestingChecklist({ onClose }) {
                 value={item.notes || ''}
                 onChange={(e) => updateChecklistItem(item.id, { notes: e.target.value })}
                 placeholder="Add notes..."
-                className="mt-3 w-full p-2 rounded-lg bg-background border border-border text-xs text-foreground placeholder-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="mt-3 w-full p-2 rounded-lg liquid-card text-xs text-foreground placeholder-muted-foreground resize-none focus:outline-none focus:ring-1 focus:ring-purple-500"
                 rows={2}
               />
             </motion.div>

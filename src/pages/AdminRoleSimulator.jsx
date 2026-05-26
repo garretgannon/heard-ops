@@ -50,7 +50,7 @@ export default function AdminRoleSimulator() {
             {isSimulating && (
               <button
                 onClick={handleExit}
-                className="h-10 px-3 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm flex items-center gap-2 active:scale-95 transition-all"
+                className="h-10 px-3 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400 font-semibold text-sm flex items-center gap-2 active:scale-95 transition-all"
               >
                 <LogOut className="h-4 w-4" />
                 Exit Simulation
@@ -58,7 +58,7 @@ export default function AdminRoleSimulator() {
             )}
           </div>
           {isSimulating && (
-            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-2.5 text-sm text-purple-300">
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-2.5 text-sm text-purple-300">
               Currently simulating as: <span className="font-bold">{getRoleDefinition(simulatedRole)?.label}</span>
             </div>
           )}
@@ -88,7 +88,7 @@ export default function AdminRoleSimulator() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
                     <div className={cn(
-                      "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
+                      "h-10 w-10 rounded-2xl flex items-center justify-center shrink-0",
                       isActive ? 'bg-primary/20' : 'bg-muted'
                     )}>
                       {IconComponent && <IconComponent className={cn("h-5 w-5", isActive ? 'text-primary' : 'text-secondary-text')} />}
@@ -101,7 +101,7 @@ export default function AdminRoleSimulator() {
                     </div>
                   </div>
                   <div className={cn(
-                    "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-all",
+                    "h-8 w-8 rounded-2xl flex items-center justify-center shrink-0 transition-all",
                     isActive ? 'bg-primary text-primary-foreground' : 'bg-muted group-hover:bg-border',
                     (hoveredRole === roleKey || isActive) && 'scale-110'
                   )}>
@@ -134,7 +134,7 @@ export default function AdminRoleSimulator() {
         </div>
 
         {/* Info Section */}
-        <div className="mt-8 space-y-4 p-4 rounded-xl card-glass border border-border/50">
+        <div className="mt-8 space-y-4 p-4 rounded-2xl card-glass border border-border/50">
           <h3 className="font-bold text-foreground">How Role Simulation Works</h3>
           <ul className="space-y-2 text-sm text-secondary-text">
             <li className="flex gap-2">

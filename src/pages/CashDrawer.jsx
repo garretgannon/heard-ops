@@ -147,14 +147,14 @@ function DenomRow({ denom, qty, onDecrement, onIncrement, onChange }) {
     <div className="flex items-center gap-3 py-2.5 border-b border-border/20 last:border-0">
       <span className="w-24 text-sm font-black text-foreground shrink-0">{denom.label}</span>
       <div className="flex items-center gap-2 shrink-0">
-        <button onClick={onDecrement} className="h-10 w-10 rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-border/80 active:scale-95 transition-all">
+        <button onClick={onDecrement} className="h-10 w-10 rounded-2xl border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-border/80 active:scale-95 transition-all">
           <Minus className="h-4 w-4" />
         </button>
         <input
           type="number" min="0" value={qty || ''} onChange={e => onChange(e.target.value)} placeholder="0"
-          className="w-16 h-10 text-center text-sm font-black bg-background border border-border rounded-xl text-foreground outline-none focus:border-amber-500/50 tabular-nums"
+          className="w-16 h-10 text-center text-sm font-black bg-background border border-border rounded-2xl text-foreground outline-none focus:border-amber-500/50 tabular-nums"
         />
-        <button onClick={onIncrement} className="h-10 w-10 rounded-xl border border-border flex items-center justify-center text-muted-foreground hover:border-amber-500/50 hover:text-amber-400 active:scale-95 transition-all">
+        <button onClick={onIncrement} className="h-10 w-10 rounded-2xl border border-border flex items-center justify-center text-muted-foreground hover:border-amber-500/50 hover:text-amber-400 active:scale-95 transition-all">
           <Plus className="h-4 w-4" />
         </button>
       </div>
@@ -180,7 +180,7 @@ function MobileDenomRow({ denom, qty, onDecrement, onIncrement, onChange }) {
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onDecrement}
-          className="h-11 w-11 rounded-xl bg-muted flex items-center justify-center active:scale-95 transition-transform"
+          className="h-11 w-11 rounded-2xl bg-muted flex items-center justify-center active:scale-95 transition-transform"
         >
           <Minus className="h-4 w-4 text-foreground" />
         </button>
@@ -190,11 +190,11 @@ function MobileDenomRow({ denom, qty, onDecrement, onIncrement, onChange }) {
           value={qty || ''}
           onChange={e => onChange(e.target.value)}
           placeholder="0"
-          className="w-12 h-11 text-center text-base font-black bg-background border border-border/60 rounded-xl text-foreground outline-none focus:border-primary/50 tabular-nums"
+          className="w-12 h-11 text-center text-base font-black bg-background border border-border/60 rounded-2xl text-foreground outline-none focus:border-primary/50 tabular-nums"
         />
         <button
           onClick={onIncrement}
-          className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center active:scale-95 transition-transform"
+          className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center active:scale-95 transition-transform"
         >
           <Plus className="h-5 w-5 text-primary-foreground" />
         </button>
@@ -339,7 +339,7 @@ export default function CashDrawer() {
     }
   }
 
-  const fieldCls = 'w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-amber-500/50';
+  const fieldCls = 'w-full bg-background border border-border rounded-2xl px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-amber-500/50';
 
   return (
     <div className="app-screen">
@@ -356,7 +356,7 @@ export default function CashDrawer() {
             <div className="p-4">
               <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground mb-3">Count Details</p>
               <div className="flex items-start gap-3">
-                <div className={cn('h-11 w-11 rounded-xl flex items-center justify-center shrink-0', activeCountType.bg)}>
+                <div className={cn('h-11 w-11 rounded-2xl flex items-center justify-center shrink-0', activeCountType.bg)}>
                   <CountIcon className={cn('h-5 w-5', activeCountType.color)} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -372,7 +372,7 @@ export default function CashDrawer() {
                 <button
                   onClick={() => setShowSetup(v => !v)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold shrink-0 transition-colors',
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-2xl border text-xs font-semibold shrink-0 transition-colors',
                     showSetup ? 'bg-primary/10 border-primary/30 text-primary' : 'border-border text-foreground'
                   )}
                 >
@@ -400,7 +400,7 @@ export default function CashDrawer() {
             {/* Variance badge when expected is set */}
             {variance !== null && (
               <div className={cn(
-                'mx-4 mb-4 flex items-center justify-between rounded-xl px-4 py-2.5 border',
+                'mx-4 mb-4 flex items-center justify-between rounded-2xl px-4 py-2.5 border',
                 flagged ? 'bg-red-500/10 border-red-500/25' : 'bg-emerald-500/10 border-emerald-500/25'
               )}>
                 <span className={cn('text-xs font-bold', flagged ? 'text-red-400' : 'text-emerald-400')}>
@@ -426,7 +426,7 @@ export default function CashDrawer() {
                       key={ct.value}
                       onClick={() => setCountType(ct.value)}
                       className={cn(
-                        'flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors',
+                        'flex-1 py-2.5 rounded-2xl text-xs font-bold border transition-colors',
                         countType === ct.value ? ct.active : 'text-muted-foreground border-border hover:text-foreground'
                       )}
                     >
@@ -445,7 +445,7 @@ export default function CashDrawer() {
                       key={d}
                       onClick={() => { setDrawer(d); setCustomDrawer(''); }}
                       className={cn(
-                        'py-2.5 rounded-xl text-xs font-bold border transition-colors',
+                        'py-2.5 rounded-2xl text-xs font-bold border transition-colors',
                         drawer === d ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'text-muted-foreground border-border hover:text-foreground'
                       )}
                     >
@@ -455,7 +455,7 @@ export default function CashDrawer() {
                   <button
                     onClick={() => setDrawer('__custom__')}
                     className={cn(
-                      'py-2.5 rounded-xl text-xs font-bold border transition-colors col-span-3',
+                      'py-2.5 rounded-2xl text-xs font-bold border transition-colors col-span-3',
                       drawer === '__custom__' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'text-muted-foreground border-border hover:text-foreground'
                     )}
                   >
@@ -480,7 +480,7 @@ export default function CashDrawer() {
                       key={s.value}
                       onClick={() => setShift(s.value)}
                       className={cn(
-                        'flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors',
+                        'flex-1 py-2.5 rounded-2xl text-xs font-bold border transition-colors',
                         shift === s.value ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'text-muted-foreground border-border hover:text-foreground'
                       )}
                     >
@@ -516,7 +516,7 @@ export default function CashDrawer() {
 
               <button
                 onClick={() => setShowSetup(false)}
-                className="w-full h-11 rounded-xl bg-primary text-sm font-bold text-primary-foreground"
+                className="w-full h-11 rounded-2xl bg-primary text-sm font-bold text-primary-foreground"
               >
                 Done
               </button>
@@ -577,14 +577,14 @@ export default function CashDrawer() {
                 <div className="grid grid-cols-2 gap-1.5">
                   {DRAWER_OPTIONS.map(d => (
                     <button key={d} onClick={() => { setDrawer(d); setCustomDrawer(''); }}
-                      className={cn('py-2.5 rounded-xl text-xs font-bold border transition-colors',
+                      className={cn('py-2.5 rounded-2xl text-xs font-bold border transition-colors',
                         drawer === d ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'text-muted-foreground border-border hover:border-border/80 hover:text-foreground'
                       )}>
                       {d}
                     </button>
                   ))}
                   <button onClick={() => setDrawer('__custom__')}
-                    className={cn('py-2.5 rounded-xl text-xs font-bold border transition-colors col-span-2',
+                    className={cn('py-2.5 rounded-2xl text-xs font-bold border transition-colors col-span-2',
                       drawer === '__custom__' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'text-muted-foreground border-border hover:border-border/80 hover:text-foreground'
                     )}>
                     Other…
@@ -600,7 +600,7 @@ export default function CashDrawer() {
                 <div className="flex gap-1.5">
                   {SHIFT_OPTIONS.map(s => (
                     <button key={s.value} onClick={() => setShift(s.value)}
-                      className={cn('flex-1 py-2.5 rounded-xl text-xs font-bold border transition-colors',
+                      className={cn('flex-1 py-2.5 rounded-2xl text-xs font-bold border transition-colors',
                         shift === s.value ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'text-muted-foreground border-border hover:border-border/80 hover:text-foreground'
                       )}>
                       {s.label}
@@ -676,12 +676,12 @@ export default function CashDrawer() {
                 <span className="text-xs font-medium text-muted-foreground">Expected</span>
                 <span className="text-sm font-bold tabular-nums text-muted-foreground">{expectedAmt !== null ? fmtMoney(expectedAmt) : '—'}</span>
               </div>
-              <div className="rounded-xl bg-card border border-border/60 px-4 py-5 text-center">
+              <div className="rounded-2xl bg-card border border-border/60 px-4 py-5 text-center">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50 mb-1.5">Total Counted</p>
                 <p className="text-4xl font-black text-foreground tabular-nums leading-none">{fmtMoney(total)}</p>
               </div>
               {variance !== null ? (
-                <div className={cn('flex items-center justify-between rounded-xl px-4 py-3 border',
+                <div className={cn('flex items-center justify-between rounded-2xl px-4 py-3 border',
                   flagged ? 'bg-red-500/10 border-red-500/25' : 'bg-emerald-500/10 border-emerald-500/25')}>
                   <div className="flex items-center gap-2">
                     {flagged ? <AlertTriangle className="h-3.5 w-3.5 text-red-400" /> : <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
@@ -698,7 +698,7 @@ export default function CashDrawer() {
                 </div>
               )}
               <button onClick={handleSubmit} disabled={saving || !drawerName.trim()}
-                className="w-full py-3.5 rounded-xl bg-amber-500 text-white text-sm font-black disabled:opacity-30 transition-opacity">
+                className="w-full py-3.5 rounded-2xl bg-amber-500 text-white text-sm font-black disabled:opacity-30 transition-opacity">
                 {saving ? 'Saving…' : 'Review & Submit Count'}
               </button>
               <p className="text-[11px] text-muted-foreground/40 text-center leading-snug">Submit when the drawer count is complete.</p>
@@ -712,7 +712,7 @@ export default function CashDrawer() {
                   <p className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground">Shift Chain</p>
                 </div>
                 {priorCount && (
-                  <div className="rounded-xl bg-card border border-border/50 px-3.5 py-3 space-y-1.5">
+                  <div className="rounded-2xl bg-card border border-border/50 px-3.5 py-3 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 capitalize">{priorCount.shift} ↑ prior</span>
                       <span className="text-sm font-black text-foreground tabular-nums">{fmtMoney(priorCount.total || 0)}</span>
@@ -733,7 +733,7 @@ export default function CashDrawer() {
                   <div className="flex-1 h-px bg-amber-500/20" />
                 </div>
                 {nextCount && (
-                  <div className="rounded-xl bg-card border border-border/40 px-3.5 py-3 space-y-1.5 opacity-70">
+                  <div className="rounded-2xl bg-card border border-border/40 px-3.5 py-3 space-y-1.5 opacity-70">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 capitalize">{nextCount.shift} ↓ already counted</span>
                       <span className="text-sm font-black text-foreground tabular-nums">{fmtMoney(nextCount.total || 0)}</span>
@@ -759,7 +759,7 @@ export default function CashDrawer() {
                   </div>
                   {total > 0 && (
                     <button onClick={() => setDepositAmt(total.toFixed(2))}
-                      className="px-3 py-2.5 rounded-xl border border-border text-xs font-bold text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-400 transition-colors shrink-0">
+                      className="px-3 py-2.5 rounded-2xl border border-border text-xs font-bold text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-400 transition-colors shrink-0">
                       = Total
                     </button>
                   )}
@@ -815,14 +815,14 @@ export default function CashDrawer() {
         <button
           onClick={saveDraft}
           disabled={saving || !drawerName.trim()}
-          className="flex-1 h-12 rounded-xl border border-border text-sm font-bold text-foreground disabled:opacity-30 flex items-center justify-center gap-2 transition-opacity"
+          className="flex-1 h-12 rounded-2xl border border-border text-sm font-bold text-foreground disabled:opacity-30 flex items-center justify-center gap-2 transition-opacity"
         >
           <Save className="h-4 w-4" /> Save Draft
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving || !drawerName.trim()}
-          className="flex-1 h-12 rounded-xl bg-primary text-sm font-bold text-primary-foreground disabled:opacity-30 flex items-center justify-center gap-2 transition-opacity"
+          className="flex-1 h-12 rounded-2xl bg-primary text-sm font-bold text-primary-foreground disabled:opacity-30 flex items-center justify-center gap-2 transition-opacity"
         >
           <Lock className="h-4 w-4" /> Close Drawer
         </button>

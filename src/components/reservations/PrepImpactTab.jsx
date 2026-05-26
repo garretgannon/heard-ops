@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Zap, CheckCircle2, Plus, Clock, BarChart2, ChefHat, ConciergeBell } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 
 const today = () => new Date().toISOString().split('T')[0];
 
@@ -13,7 +14,7 @@ const STATUS_COLOR = {
 
 function PrepItemCard({ item, beoName, onStatusChange, isAdmin }) {
   return (
-    <div className="card-glass border border-border rounded-xl p-3">
+    <div className="liquid-card p-3">
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -37,7 +38,7 @@ function PrepItemCard({ item, beoName, onStatusChange, isAdmin }) {
             value={item.status || 'pending'}
             onChange={e => onStatusChange(item.id, e.target.value)}
             onClick={e => e.stopPropagation()}
-            className="text-[10px] px-2 py-1 bg-background border border-border rounded-lg text-foreground shrink-0"
+            className="text-[10px] px-2 py-1 liquid-card text-foreground shrink-0 focus:outline-none focus:border-border"
           >
             <option value="pending">Pending</option>
             <option value="in-progress">In Progress</option>
@@ -117,46 +118,46 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh, 
   return (
     <div className="space-y-4">
       {/* Group by filter */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1">
-        {['event','station','date'].map(g => (
-          <button
-            key={g}
-            onClick={() => setGroupBy(g)}
-            className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${groupBy === g ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}
-          >
-            By {g}
-          </button>
-        ))}
+      <div className="w-full overflow-x-auto no-scrollbar pb-1">
+        <div className="pill-slider-container">
+          {['event','station','date'].map(g => (
+            <button
+              key={g}
+              onClick={() => setGroupBy(g)}
+              className={cn('glass-pill transition-all active:scale-95', groupBy === g && 'glow-active')}
+            >
+              By {g}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* BEO sections with generate button */}
       {upcomingBEOs.length === 0 && (
-        <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-          <div className="flex flex-col items-center py-8 px-4 gap-3">
-            <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
+        <div className="liquid-card overflow-hidden p-8 flex flex-col items-center justify-center gap-4 mt-2">
+          <div className="relative">
+            <div className="h-14 w-14 rounded-full bg-muted/50 border border-border/50 flex items-center justify-center">
               <BarChart2 className="h-7 w-7 text-muted-foreground/50" />
             </div>
-            <p className="text-[14px] font-semibold text-foreground">No prep impact today</p>
-            <div className="flex flex-col gap-2 w-full mt-1">
-              {onAddBEO && (
-                <button
-                  onClick={() => { onAddBEO(); haptics.medium(); }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
-                  style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add Event
-                </button>
-              )}
-              {onViewPrepPlanning && (
-                <button
-                  onClick={() => { onViewPrepPlanning(); haptics.medium(); }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
-                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
-                >
-                  View Prep Planning
-                </button>
-              )}
-            </div>
+          </div>
+          <p className="text-[13px] font-semibold text-foreground">No prep impact today</p>
+          <div className="flex flex-col gap-2 w-full max-w-[240px] mt-2">
+            {onAddBEO && (
+              <button
+                onClick={() => { onAddBEO(); haptics.medium(); }}
+                className="w-full btn-primary h-10 flex items-center justify-center gap-1.5"
+              >
+                <Plus className="h-4 w-4" /> Add Event
+              </button>
+            )}
+            {onViewPrepPlanning && (
+              <button
+                onClick={() => { onViewPrepPlanning(); haptics.medium(); }}
+                className="w-full btn-secondary h-10 flex items-center justify-center gap-1.5"
+              >
+                View Prep Planning
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -215,7 +216,7 @@ export default function PrepImpactTab({ beos, reservations, isAdmin, onRefresh, 
           const textColor = level === 'High' ? 'text-red-400' : level === 'Medium' ? 'text-amber-400' : 'text-green-400';
           const iconColor = level === 'High' ? 'text-red-400' : level === 'Medium' ? 'text-amber-400' : 'text-green-400';
           return (
-            <div key={label} className={`rounded-2xl border border-border/30 p-4 flex flex-col gap-1 ${colorClass.split(' ')[1]}`} style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
+            <div key={label} className={`liquid-card p-4 flex flex-col gap-1 ${colorClass.split(' ')[1]}`}>
               <div className="flex items-center gap-1.5 mb-1">
                 <Icon className={`h-4 w-4 ${iconColor} shrink-0`} />
                 <span className="text-[11px] font-semibold text-muted-foreground">{label}</span>

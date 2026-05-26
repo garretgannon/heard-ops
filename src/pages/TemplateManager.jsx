@@ -175,19 +175,31 @@ export default function TemplateManager() {
           {isAdmin && (
             <button
               onClick={() => { setSelectedTemplate(null); setActiveModal('create'); }}
-              className="h-10 px-3 rounded-lg bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 active:scale-95 transition-all shrink-0"
+              className="h-10 px-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm flex items-center gap-2 active:scale-95 transition-all shrink-0"
             >
               <Plus className="h-4 w-4" /> New Template
             </button>
           )}
         </div>
 
-        {/* Metric Cards */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          <MetricCard label="Total" value={metrics.total} onClick={() => { setStatusFilter('all'); }} active={statusFilter === 'all'} />
-          <MetricCard label="Active" value={metrics.active} onClick={() => { setStatusFilter('active'); }} active={statusFilter === 'active'} />
-          <MetricCard label="Draft" value={metrics.draft} onClick={() => { setStatusFilter('draft'); }} active={statusFilter === 'draft'} />
-          <MetricCard label="Needs Setup" value={metrics.needsSetup} onClick={() => { setStatusFilter('needs_setup'); }} active={statusFilter === 'needs_setup'} />
+                {/* Metric Cards */}
+        <div className="metric-pill-container mb-4">
+          <button onClick={() => setStatusFilter('all')} className="metric-pill-item hover:bg-white/5 transition-all">
+            <span className={cn('metric-pill-value', statusFilter === 'all' ? 'text-primary' : 'text-foreground')}>{metrics.total}</span>
+            <span className="metric-pill-label">Total</span>
+          </button>
+          <button onClick={() => setStatusFilter('active')} className="metric-pill-item hover:bg-white/5 transition-all">
+            <span className={cn('metric-pill-value', statusFilter === 'active' ? 'text-primary' : 'text-green-400')}>{metrics.active}</span>
+            <span className="metric-pill-label">Active</span>
+          </button>
+          <button onClick={() => setStatusFilter('draft')} className="metric-pill-item hover:bg-white/5 transition-all">
+            <span className={cn('metric-pill-value', statusFilter === 'draft' ? 'text-primary' : 'text-amber-400')}>{metrics.draft}</span>
+            <span className="metric-pill-label">Draft</span>
+          </button>
+          <button onClick={() => setStatusFilter('needs_setup')} className="metric-pill-item hover:bg-white/5 transition-all">
+            <span className={cn('metric-pill-value', statusFilter === 'needs_setup' ? 'text-primary' : 'text-red-400')}>{metrics.needsSetup}</span>
+            <span className="metric-pill-label">Issues</span>
+          </button>
         </div>
 
         {/* Toolbar */}
@@ -199,11 +211,11 @@ export default function TemplateManager() {
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-muted/50 border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full pl-9 pr-3 py-2 bg-muted/50 border border-border rounded-2xl text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div className="flex gap-2 flex-wrap">
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="px-3 py-1.5 bg-muted/50 border border-border rounded-lg text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="px-3 py-1.5 bg-muted/50 border border-border rounded-2xl text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary">
               <option value="type">Sort: Type</option>
               <option value="name">Sort: Name</option>
               <option value="role">Sort: Role</option>
@@ -213,11 +225,13 @@ export default function TemplateManager() {
         </div>
 
         {/* Type Filter Chips */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
-          <FilterChip label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
-          {TEMPLATE_TYPES.map(t => (
-            <FilterChip key={t.id} label={t.label} active={filter === t.id} onClick={() => setFilter(t.id)} />
-          ))}
+        <div className="w-full overflow-x-auto no-scrollbar pb-1">
+          <div className="pill-slider-container">
+            <FilterChip label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
+            {TEMPLATE_TYPES.map(t => (
+              <FilterChip key={t.id} label={t.label} active={filter === t.id} onClick={() => setFilter(t.id)} />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -231,7 +245,7 @@ export default function TemplateManager() {
             {isAdmin && (
               <button
                 onClick={() => { setSelectedTemplate(null); setActiveModal('create'); }}
-                className="mt-4 px-4 py-2 rounded-lg bg-primary/15 text-primary text-sm font-bold hover:bg-primary/25 transition-all"
+                className="mt-4 px-4 py-2 rounded-2xl bg-primary/15 text-primary text-sm font-bold hover:bg-primary/25 transition-all"
               >
                 Create Template
               </button>
@@ -254,7 +268,7 @@ export default function TemplateManager() {
             ].filter(Boolean);
 
             return (
-              <div key={template.id} className="border border-border/40 rounded-xl overflow-hidden transition-all hover:border-border/60" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
+              <div key={template.id} className="border border-border/40 rounded-2xl overflow-hidden transition-all hover:border-border/60" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
                 {/* Row 1: type badge + name + actions */}
                 <div className="px-3 pt-3 pb-2.5 flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
@@ -272,16 +286,16 @@ export default function TemplateManager() {
                   </div>
                   {isAdmin && (
                     <div className="flex items-center gap-1 shrink-0 pt-0.5">
-                      <button onClick={() => setPreviewTemplate(template)} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all active:scale-90" title="Preview">
+                      <button onClick={() => setPreviewTemplate(template)} className="h-7 w-7 flex items-center justify-center rounded-2xl text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all active:scale-90" title="Preview">
                         <Eye className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => { setSelectedTemplate(template); setActiveModal('edit'); }} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all active:scale-90" title="Edit">
+                      <button onClick={() => { setSelectedTemplate(template); setActiveModal('edit'); }} className="h-7 w-7 flex items-center justify-center rounded-2xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all active:scale-90" title="Edit">
                         <Edit2 className="h-3 w-3" />
                       </button>
-                      <button onClick={() => handleDuplicate(template)} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all active:scale-90" title="Duplicate">
+                      <button onClick={() => handleDuplicate(template)} className="h-7 w-7 flex items-center justify-center rounded-2xl text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all active:scale-90" title="Duplicate">
                         <Copy className="h-3 w-3" />
                       </button>
-                      <button onClick={() => handleDelete(template.id)} className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-90" title="Delete">
+                      <button onClick={() => handleDelete(template.id)} className="h-7 w-7 flex items-center justify-center rounded-2xl text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-90" title="Delete">
                         <Trash2 className="h-3 w-3" />
                       </button>
                     </div>
@@ -345,8 +359,8 @@ function FilterChip({ label, active, onClick }) {
   return (
     <button onClick={onClick}
       className={cn(
-        'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
-        active ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
+        'glass-pill',
+              active ? 'glow-active' :  ''
       )}>
       {label}
     </button>
@@ -358,7 +372,7 @@ function MetricCard({ label, value, onClick, active }) {
     <button
       onClick={onClick}
       className={cn(
-        'p-2 rounded-lg text-center font-bold transition-all active:scale-95',
+        'p-2 rounded-2xl text-center font-bold transition-all active:scale-95',
         active
           ? 'bg-primary/15 text-primary border border-primary/30'
           : 'bg-muted/50 text-muted-foreground border border-border hover:bg-muted/70'

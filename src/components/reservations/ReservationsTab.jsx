@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Search, Star, AlertTriangle, Users, Edit2, Trash2, Plus, Calendar, Upload, X } from 'lucide-react';
+import { Search, Star, AlertTriangle, Users, Edit2, Trash2, Plus, Calendar, Upload, X, ChevronDown } from 'lucide-react';
 import { haptics } from '@/utils/haptics';
 
 const STATUS_COLOR = {
@@ -17,7 +17,7 @@ const today = () => new Date().toISOString().split('T')[0];
 function ReservationCard({ res, isAdmin, onEdit, onDelete }) {
   const isLarge = (res.partySize || 0) >= 8;
   return (
-    <div className={`bg-card border rounded-xl p-3 ${isLarge ? 'border-amber-500/30' : 'border-border'}`}>
+    <div className={`liquid-card p-4 transition-all ${isLarge ? 'border-amber-500/30' : ''}`}>
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -78,7 +78,7 @@ export default function ReservationsTab({ reservations, isAdmin, onEdit, onRefre
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search reservations…"
-            className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+            className="w-full pl-9 pr-3 py-2 liquid-card text-sm text-foreground focus:outline-none focus:border-border"
           />
         </div>
         <div className="flex gap-2 items-center">
@@ -86,53 +86,52 @@ export default function ReservationsTab({ reservations, isAdmin, onEdit, onRefre
             type="date"
             value={filterDate}
             onChange={e => setFilterDate(e.target.value)}
-            className="flex-1 px-3 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+            className="flex-1 px-3 py-1.5 liquid-card text-xs text-foreground focus:outline-none focus:border-border"
           />
-          <select
-            value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value)}
-            className="flex-1 px-3 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
-          >
-            <option value="all">All Status</option>
-            {['booked','confirmed','seated','completed','cancelled','no-show'].map(s => (
-              <option key={s} value={s} className="capitalize">{s}</option>
-            ))}
-          </select>
+          <div className="relative w-full sm:w-40 shrink-0">
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+              className="w-full h-11 pl-4 pr-10 bg-transparent border-none text-sm text-foreground focus:outline-none appearance-none liquid-card"
+            >
+              <option value="all">All Status</option>
+              {['booked','confirmed','seated','completed','cancelled','no-show'].map(s => (
+                <option key={s} value={s} className="capitalize">{s}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(160deg, rgba(11,17,24,0.98) 0%, rgba(6,9,13,0.98) 100%)' }}>
-          <div className="flex flex-col items-center py-8 px-4 gap-3">
-            <div className="relative">
-              <div className="h-14 w-14 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
-                <Calendar className="h-7 w-7 text-muted-foreground/50" />
-              </div>
-              <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-muted border border-border flex items-center justify-center">
-                <X className="h-3 w-3 text-muted-foreground" />
-              </div>
+        <div className="liquid-card overflow-hidden p-8 flex flex-col items-center justify-center gap-4">
+          <div className="relative">
+            <div className="h-14 w-14 rounded-full bg-muted/50 border border-border/50 flex items-center justify-center">
+              <Calendar className="h-7 w-7 text-muted-foreground/50" />
             </div>
-            <p className="text-[14px] font-semibold text-foreground">No reservations found</p>
-            <div className="flex flex-col gap-2 w-full mt-1">
-              {onAdd && (
-                <button
-                  onClick={() => { onAdd(); haptics.medium(); }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
-                  style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add Reservation
-                </button>
-              )}
-              {onImport && (
-                <button
-                  onClick={() => { onImport(); haptics.medium(); }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
-                  style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
-                >
-                  <Upload className="h-3.5 w-3.5" /> Import from Calendar
-                </button>
-              )}
+            <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-card border border-border flex items-center justify-center shadow-sm">
+              <X className="h-3 w-3 text-muted-foreground" />
             </div>
+          </div>
+          <p className="text-[14px] font-semibold text-foreground">No reservations found</p>
+          <div className="flex flex-col gap-2 w-full max-w-[240px] mt-2">
+            {onAdd && (
+              <button
+                onClick={() => { onAdd(); haptics.medium(); }}
+                className="w-full btn-primary h-10 flex items-center justify-center gap-1.5"
+              >
+                <Plus className="h-4 w-4" /> Add Reservation
+              </button>
+            )}
+            {onImport && (
+              <button
+                onClick={() => { onImport(); haptics.medium(); }}
+                className="w-full btn-secondary h-10 flex items-center justify-center gap-1.5"
+              >
+                <Upload className="h-4 w-4" /> Import from Calendar
+              </button>
+            )}
           </div>
         </div>
       ) : (

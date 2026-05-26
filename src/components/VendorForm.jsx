@@ -100,7 +100,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
           <div className="space-y-2">
@@ -109,7 +109,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
               type="text"
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
               type="text"
               value={formData.contact_person}
               onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
           <div className="space-y-2">
@@ -130,7 +130,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
           <div className="space-y-2">
@@ -151,7 +151,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
               type="text"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
         </div>
@@ -161,7 +161,7 @@ export default function VendorForm({ vendor, onClose, onSave }) {
           <textarea
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+            className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             rows="2"
           />
         </div>

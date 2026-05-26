@@ -78,19 +78,19 @@ export default function OnboardingSimulator() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowChecklist(!showChecklist)}
-              className="px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30 hover:bg-purple-500/30 transition-all"
+              className="px-3 py-1.5 rounded-2xl bg-purple-500/20 text-purple-300 text-xs font-bold border border-purple-500/30 hover:bg-purple-500/30 transition-all"
             >
               Checklist
             </button>
             <button
               onClick={() => setShowFriction(!showFriction)}
-              className="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 hover:bg-amber-500/30 transition-all"
+              className="px-3 py-1.5 rounded-2xl bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 hover:bg-amber-500/30 transition-all"
             >
               Friction Log
             </button>
             <button
               onClick={handleReset}
-              className="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 text-xs font-bold border border-red-500/30 hover:bg-red-500/30 transition-all flex items-center gap-1"
+              className="px-3 py-1.5 rounded-2xl bg-red-500/20 text-red-300 text-xs font-bold border border-red-500/30 hover:bg-red-500/30 transition-all flex items-center gap-1"
             >
               <RotateCcw className="h-3 w-3" /> Reset
             </button>

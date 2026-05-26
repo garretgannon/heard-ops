@@ -22,7 +22,7 @@ export default function ShiftStationProgress({ tasks }) {
   }).filter((s) => s.total > 0);
 
   return (
-    <div className="rounded-xl border border-border/30 card-glass p-4">
+    <div className="liquid-card p-4">
       <h3 className="font-bold text-foreground text-sm mb-3">Station Progress</h3>
       <div className="space-y-2">
         {stationStats.length === 0 ? (
@@ -31,7 +31,7 @@ export default function ShiftStationProgress({ tasks }) {
           stationStats.map((s) => (
             <div
               key={s.station}
-              className="p-2 rounded-lg bg-muted/40 border border-border/30 hover:border-border/50 transition-all cursor-pointer"
+              className="p-2 rounded-2xl bg-muted/40 border border-border/30 hover:border-border/50 transition-all cursor-pointer"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold text-foreground">{s.station}</span>

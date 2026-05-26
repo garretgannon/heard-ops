@@ -59,19 +59,18 @@ export default function BottomSheet({ open, onClose, title, children, className 
               "fixed bottom-0 left-0 right-0 z-[1001] flex w-full max-w-full flex-col overflow-hidden",
               "rounded-t-[28px]",
               "max-h-[90vh]",
+              "bg-background/95 backdrop-blur-xl border-t border-border/50",
               className
             )}
             style={{
               paddingBottom: "env(safe-area-inset-bottom, 16px)",
-              background: "hsl(var(--card))",
-              borderTop: "1px solid hsl(var(--border))",
-              boxShadow: "0 -8px 40px rgba(0, 0, 0, 0.5)",
+              boxShadow: "0 -8px 40px rgba(0, 0, 0, 0.6)",
             }}
           >
             {/* Drag handle + header row */}
             <div className="flex min-w-0 items-center justify-between px-5 shrink-0" style={{ paddingTop: "14px" }}>
               {/* Centered drag handle */}
-              <div className="absolute left-1/2 -translate-x-1/2 top-3.5 w-9 h-[3px] rounded-full pointer-events-none" style={{ background: "rgba(255,255,255,0.18)" }} />
+              <div className="absolute left-1/2 -translate-x-1/2 top-3 w-10 h-1 rounded-full bg-border/60 pointer-events-none" />
 
               {title
                 ? <p className="min-w-0 truncate pr-3 text-[17px] font-bold text-white tracking-tight leading-snug">{title}</p>

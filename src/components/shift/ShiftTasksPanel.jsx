@@ -41,7 +41,7 @@ export default function ShiftTasksPanel({ tasks, selectedEmployee, onTaskUpdate 
 
   if (tasks.length === 0 && selectedEmployee) {
     return (
-      <div className="rounded-xl border border-border/30 card-glass p-8 text-center">
+      <div className="liquid-card p-8 text-center">
         <p className="text-sm text-muted-foreground">{selectedEmployee.name} has no assigned tasks</p>
       </div>
     );
@@ -49,7 +49,7 @@ export default function ShiftTasksPanel({ tasks, selectedEmployee, onTaskUpdate 
 
   if (tasks.length === 0) {
     return (
-      <div className="rounded-xl border border-border/30 card-glass p-8 text-center">
+      <div className="liquid-card p-8 text-center">
         <p className="text-sm font-semibold text-foreground mb-2">No shift plan assigned</p>
         <p className="text-xs text-muted-foreground">Create or assign tasks to start tracking this shift.</p>
       </div>
@@ -57,7 +57,7 @@ export default function ShiftTasksPanel({ tasks, selectedEmployee, onTaskUpdate 
   }
 
   return (
-    <div className="rounded-xl border border-border/30 card-glass p-4">
+    <div className="liquid-card p-4">
       <h3 className="font-bold text-foreground text-sm mb-3">
         {selectedEmployee ? `${selectedEmployee.name}'s Tasks` : 'Active Shift Tasks'}
       </h3>
@@ -71,7 +71,7 @@ export default function ShiftTasksPanel({ tasks, selectedEmployee, onTaskUpdate 
             <div
               key={task.id}
               className={cn(
-                'p-3 rounded-lg border transition-all',
+                'p-3 rounded-2xl border transition-all',
                 isCompleted ? 'bg-green-500/5 border-green-500/20' : 'bg-muted/40 border-border/30'
               )}
             >

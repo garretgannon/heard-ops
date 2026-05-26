@@ -321,7 +321,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
               <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm font-bold text-foreground mb-1">Upload CSV or Excel</p>
               <p className="text-xs text-muted-foreground mb-3">Drag and drop or click to select a file</p>
-              <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={e => handleFile(e.target.files[0])} />
+              <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="ops-input hidden" onChange={e => handleFile(e.target.files[0])} />
               <button onClick={() => fileRef.current?.click()} disabled={fileLoading} className="btn-primary text-sm px-4 py-2">{fileLoading ? 'Reading...' : 'Choose File'}</button>
             </div>
 
@@ -423,7 +423,7 @@ export default function ImportFlow({ onClose, onComplete, user }) {
               {issueRows.map((row, idx) => {
                 const globalIdx = previewRows.indexOf(row);
                 return (
-                  <div key={idx} className="bg-card border border-amber-500/30 rounded-xl p-3">
+                  <div key={idx} className="liquid-card -amber-500/30 p-3">
                     <p className="text-xs font-bold text-foreground">{row.mapped.itemName || `Row ${row.mapped._rowIndex}`}</p>
                     <p className="text-[10px] text-amber-400 mb-2">{row.issues.join(' · ')}</p>
                     <div className="flex gap-1.5 flex-wrap">

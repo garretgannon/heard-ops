@@ -121,7 +121,7 @@ export default function EmployeeEditDrawer({ employee, employees, onClose, onSav
             <select
               value={form.manager_id}
               onChange={e => handleManagerChange(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
             >
               <option value="">— No manager assigned —</option>
               {otherEmployees.map(e => (
@@ -189,7 +189,7 @@ export default function EmployeeEditDrawer({ employee, employees, onClose, onSav
               onChange={e => set('notes', e.target.value)}
               rows={2}
               placeholder="Internal notes..."
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none"
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground resize-none"
             />
           </Section>
         </div>
@@ -221,7 +221,7 @@ function Input({ label, value, onChange, type = 'text' }) {
     <div>
       <label className="text-[10px] font-bold text-muted-foreground block mb-1">{label}</label>
       <input type={type} value={value || ''} onChange={e => onChange(e.target.value)}
-        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
     </div>
   );
 }
@@ -231,7 +231,7 @@ function SelectInput({ label, value, onChange, options, placeholder }) {
     <div>
       <label className="text-[10px] font-bold text-muted-foreground block mb-1">{label}</label>
       <select value={value || ''} onChange={e => onChange(e.target.value)}
-        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+        className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
         {placeholder && <option value="">{placeholder}</option>}
         {options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>
@@ -273,7 +273,7 @@ function CertInput({ value, onChange }) {
       <div className="flex gap-2">
         <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
           placeholder="Add certification (e.g. ServSafe)"
-          className="flex-1 px-3 py-1.5 bg-background border border-border rounded-lg text-sm text-foreground" />
+          className="flex-1 px-3 py-1.5 liquid-card rounded-lg text-sm text-foreground" />
         <button onClick={add} className="px-3 py-1.5 bg-primary/20 text-primary text-xs font-bold rounded-lg">Add</button>
       </div>
     </div>

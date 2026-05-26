@@ -20,8 +20,7 @@ import ReservationForm from '@/components/reservations/ReservationForm';
 import BEOForm from '@/components/reservations/BEOForm';
 import DesktopPageHeader from '@/components/DesktopPageHeader';
 
-const CARD_BG = 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)';
-const CARD_GLASS = { background: CARD_BG, backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' };
+// (CARD_GLASS removed in favor of universal liquid-card class)
 const TABS = ['Today', 'Reservations', 'BEOs', 'Calendar', 'Impact'];
 const todayStr = () => new Date().toISOString().split('T')[0];
 
@@ -42,7 +41,7 @@ const IMPACT_STYLE = {
 // ─── Overview card ─────────────────────────────────────────────────────────
 function OverviewChip({ label, value, icon: Icon, iconColor = 'text-muted-foreground', color = 'text-foreground', bg = 'bg-white/[0.04]' }) {
   return (
-    <div className={cn('flex flex-col items-center px-2 py-3 rounded-xl gap-0.5 w-full', bg)}>
+    <div className={cn('flex flex-col items-center px-2 py-3 rounded-2xl gap-0.5 w-full', bg)}>
       {Icon && <Icon className={cn('h-4 w-4 mb-1', iconColor)} />}
       <span className={cn('text-xl font-extrabold leading-tight', color)}>{value}</span>
       <span className="text-[9px] font-bold text-muted-foreground text-center leading-tight">{label}</span>
@@ -52,7 +51,7 @@ function OverviewChip({ label, value, icon: Icon, iconColor = 'text-muted-foregr
 
 function ImpactChip({ level, label, icon: Icon, emptyNote }) {
   return (
-    <div className={cn('flex flex-col items-center px-2 py-3 rounded-xl gap-0.5 w-full', IMPACT_STYLE[level])}>
+    <div className={cn('flex flex-col items-center px-2 py-3 rounded-2xl gap-0.5 w-full', IMPACT_STYLE[level])}>
       {Icon && <Icon className="h-4 w-4 mb-1" />}
       <span className="text-sm font-extrabold leading-tight">{level}</span>
       <span className="text-[9px] font-bold text-center leading-tight opacity-80">{label}</span>
@@ -76,7 +75,7 @@ function OverviewCard({ reservations, beos }) {
   const { prep, service } = impactLevel(todayBEOs.length, largeParties, totalCovers);
 
   return (
-    <div className="card-glass border border-border rounded-xl p-3 mb-3 w-full">
+    <div className="liquid-card overflow-hidden mb-6 p-3 w-full">
       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">{"Today's Overview"}</p>
       <div className="grid grid-cols-4 lg:grid-cols-8 gap-2">
         <OverviewChip
@@ -156,10 +155,7 @@ function ImportModal({ onClose, onManualReservation, onManualBEO }) {
       style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div
-        className="w-full max-w-sm rounded-2xl border border-border/50 overflow-hidden"
-        style={{ ...CARD_GLASS }}
-      >
+      <div className="w-full max-w-sm rounded-2xl border border-border/50 overflow-hidden liquid-card">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div>
@@ -168,7 +164,7 @@ function ImportModal({ onClose, onManualReservation, onManualBEO }) {
           </div>
           <button
             onClick={onClose}
-            className="h-7 w-7 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="h-7 w-7 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -190,7 +186,7 @@ function ImportModal({ onClose, onManualReservation, onManualBEO }) {
                   : 'hover:bg-white/[0.03] active:scale-[0.99]',
               )}
             >
-              <div className="h-8 w-8 rounded-lg bg-white/[0.05] border border-border/30 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="h-8 w-8 rounded-2xl bg-white/[0.05] border border-border/30 flex items-center justify-center shrink-0 mt-0.5">
                 <opt.icon className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="flex-1 min-w-0">
@@ -281,10 +277,7 @@ function AddEventDropdown({ onAddReservation, onAddBEO }) {
       </button>
 
       {open && (
-        <div
-          className="absolute right-0 top-full mt-1.5 w-56 rounded-xl border border-border/50 shadow-xl overflow-hidden z-50"
-          style={{ ...CARD_GLASS }}
-        >
+        <div className="absolute right-0 top-full mt-1.5 w-56 rounded-2xl border border-border/50 shadow-xl overflow-hidden z-50 liquid-card">
           <p className="px-3.5 pt-3 pb-2 text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground/60">
             Event type
           </p>
@@ -410,25 +403,7 @@ export default function ReservationsAndBEOs() {
       />
 
       {/* ── MOBILE HEADER ─────────────────────────────────────────── */}
-      <div
-        className="lg:hidden sticky top-0 z-10"
-        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-      >
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-4 pt-3 pb-1">
-          <button
-            onClick={() => navigate(-1)}
-            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/[0.06] border border-border/30"
-          >
-            <ChevronLeft className="h-4 w-4 text-foreground" />
-          </button>
-          <span className="text-[15px] font-black text-foreground">BEOs / Events</span>
-          <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-muted-foreground" />
-            <UserCircle className="h-6 w-6 text-muted-foreground" />
-          </div>
-        </div>
-
+      <div className="lg:hidden sticky top-0 z-10">
         {/* Context-aware add button */}
         {isAdmin && activeTab !== 'Impact' && (
           <div className="flex justify-end px-4 pt-1 pb-1">
@@ -449,42 +424,20 @@ export default function ReservationsAndBEOs() {
           </div>
         )}
 
-        {/* Tabs — underline style */}
-        <div className="flex overflow-x-auto scrollbar-hide px-4">
-          {TABS.map(tab => (
-            <button
-              key={tab}
-              onClick={() => { setActiveTab(tab); haptics.light(); }}
-              className={cn(
-                'shrink-0 px-1 mr-6 pb-2.5 text-[14px] font-semibold whitespace-nowrap transition-colors border-b-2',
-                activeTab === tab
-                  ? 'text-primary border-primary'
-                  : 'text-muted-foreground/60 border-transparent'
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── DESKTOP TABS ──────────────────────────────────────────── */}
-      <div className="hidden lg:block bg-card border-b border-border sticky top-[112px] z-10">
-        <div className="flex gap-1.5 overflow-x-auto pb-2 pt-4 px-6 scrollbar-hide">
-          {TABS.map(tab => (
-            <button
-              key={tab}
-              onClick={() => { setActiveTab(tab); haptics.light(); }}
-              className={cn(
-                'shrink-0 flex items-center px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all duration-200',
-                activeTab === tab
-                  ? 'glow-active'
-                  : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive',
-              )}
-            >
-              {tab}
-            </button>
-          ))}
+        {/* Tabs */}
+        <div className="px-4 pb-3">
+          <div className="view-slider-container w-full max-w-2xl">
+            {TABS.map(tab => (
+              <button
+                key={tab}
+                onClick={() => { setActiveTab(tab); haptics.light(); }}
+                className={cn('view-slider-tab', activeTab === tab && 'active')}
+              >
+                {tab}
+                <div className="view-slider-dot" />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -496,7 +449,7 @@ export default function ReservationsAndBEOs() {
           </div>
         ) : activeTab === 'Today' ? (
           todayEmpty ? (
-            <div className="rounded-2xl border border-border/30 overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)' }}>
+            <div className="liquid-card overflow-hidden">
               <div className="flex flex-col items-center py-12 px-6 text-center gap-5">
                 <div className="relative">
                   <div className="h-16 w-16 rounded-full bg-white/[0.05] border border-border/30 flex items-center justify-center">
@@ -515,14 +468,14 @@ export default function ReservationsAndBEOs() {
                 <div className="flex gap-2 w-full">
                   <button
                     onClick={() => { openBEOForm(); haptics.medium(); }}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl py-3 text-[13px] font-bold text-white active:scale-[0.98] transition-all"
                     style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)' }}
                   >
                     <Plus className="h-3.5 w-3.5" /> Add Event
                   </button>
                   <button
                     onClick={() => { setActiveTab('Calendar'); haptics.light(); }}
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl py-3 text-[13px] font-semibold text-foreground active:scale-[0.98] transition-all"
                     style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}
                   >
                     <CalendarDays className="h-3.5 w-3.5" /> Full Calendar

@@ -90,7 +90,7 @@ export default function ScheduleUpload({ onComplete }) {
               type="file"
               onChange={handleFileSelect}
               accept=".pdf,.csv,.xls,.xlsx"
-              className="hidden"
+              className="ops-input hidden"
               id="schedule-upload"
               disabled={loading}
             />

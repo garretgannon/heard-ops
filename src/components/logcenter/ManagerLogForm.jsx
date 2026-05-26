@@ -108,14 +108,14 @@ export default function ManagerLogForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Shift *</label>
           <select value={form.shift} onChange={e => setForm({ ...form, shift: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             {SHIFTS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Department</label>
           <select value={form.department} onChange={e => setForm({ ...form, department: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
           </select>
         </div>
@@ -126,13 +126,13 @@ export default function ManagerLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Manager on Duty</label>
           <input type="text" value={form.manager_on_duty}
             onChange={e => setForm({ ...form, manager_on_duty: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Date/Time *</label>
           <input type="datetime-local" value={form.date_time}
             onChange={e => setForm({ ...form, date_time: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -140,49 +140,49 @@ export default function ManagerLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Summary *</label>
         <textarea placeholder="Overview of shift..." value={form.summary}
           onChange={e => setForm({ ...form, summary: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Sales Notes</label>
         <textarea placeholder="Revenue, covers, avg check..." value={form.sales_notes}
           onChange={e => setForm({ ...form, sales_notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Staffing Notes</label>
         <textarea placeholder="Attendance, call-outs, performance..." value={form.staffing_notes}
           onChange={e => setForm({ ...form, staffing_notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Guest Notes</label>
         <textarea placeholder="Feedback, complaints, compliments..." value={form.guest_notes}
           onChange={e => setForm({ ...form, guest_notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Maintenance Notes</label>
         <textarea placeholder="Equipment issues, repairs needed..." value={form.maintenance_notes}
           onChange={e => setForm({ ...form, maintenance_notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Food Safety Notes</label>
         <textarea placeholder="Temperature checks, compliance issues..." value={form.food_safety_notes}
           onChange={e => setForm({ ...form, food_safety_notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Follow-up Tasks</label>
         <textarea placeholder="Action items for next shift or team..." value={form.follow_up_tasks}
           onChange={e => setForm({ ...form, follow_up_tasks: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       <button onClick={handleSave} disabled={loading}

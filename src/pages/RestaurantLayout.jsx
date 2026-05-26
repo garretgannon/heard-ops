@@ -52,18 +52,18 @@ function AreaForm({ area, onSave, onCancel }) {
         onChange={e => setName(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && handleSave()}
         placeholder="e.g. Kitchen, Dining Room, Bar, Patio"
-        className="flex-1 h-9 px-3 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        className="flex-1 h-9 px-3 rounded-2xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
       />
       <button
         onClick={handleSave}
         disabled={saving || !name.trim()}
-        className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
+        className="h-9 px-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
       >
         {saving ? '…' : area ? 'Save' : 'Add'}
       </button>
       <button
         onClick={onCancel}
-        className="h-9 w-9 rounded-lg border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
+        className="h-9 w-9 rounded-2xl border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
       >
         <X className="h-4 w-4" />
       </button>
@@ -103,12 +103,12 @@ function StationForm({ station, areaId, areas, onSave, onCancel }) {
         onChange={e => setName(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && handleSave()}
         placeholder="e.g. Grill Station, Fry Station, Bar"
-        className="flex-1 min-w-[160px] h-9 px-3 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        className="flex-1 min-w-[160px] h-9 px-3 rounded-2xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
       />
       <select
         value={department}
         onChange={e => setDepartment(e.target.value)}
-        className="h-9 px-2 rounded-lg border border-border bg-background text-sm text-foreground"
+        className="h-9 px-2 rounded-2xl border border-border bg-background text-sm text-foreground"
       >
         {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
       </select>
@@ -117,7 +117,7 @@ function StationForm({ station, areaId, areas, onSave, onCancel }) {
         <select
           value={selectedAreaId}
           onChange={e => setSelectedAreaId(e.target.value)}
-          className="h-9 px-2 rounded-lg border border-border bg-background text-sm text-foreground"
+          className="h-9 px-2 rounded-2xl border border-border bg-background text-sm text-foreground"
         >
           <option value="">No area</option>
           {areas.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -126,13 +126,13 @@ function StationForm({ station, areaId, areas, onSave, onCancel }) {
       <button
         onClick={handleSave}
         disabled={saving || !name.trim()}
-        className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
+        className="h-9 px-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50"
       >
         {saving ? '…' : station ? 'Save' : 'Add'}
       </button>
       <button
         onClick={onCancel}
-        className="h-9 w-9 rounded-lg border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
+        className="h-9 w-9 rounded-2xl border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
       >
         <X className="h-4 w-4" />
       </button>
@@ -188,7 +188,7 @@ function EquipmentForm({ equipment, stationId, onSave, onCancel }) {
         onChange={e => setName(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && handleSave()}
         placeholder="e.g. Fryer 1, Walk-in #2"
-        className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full h-10 px-3 rounded-2xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
       />
       <div className="space-y-1">
         <input
@@ -200,34 +200,34 @@ function EquipmentForm({ equipment, stationId, onSave, onCancel }) {
             if (!photoUrl) setPhotoUrl(getEquipmentAiPhoto(nextType));
           }}
           placeholder="Select or type equipment type…"
-          className="w-full h-11 px-3 rounded-lg border border-border bg-background text-sm text-foreground"
+          className="w-full h-11 px-3 rounded-2xl border border-border bg-background text-sm text-foreground"
         />
         <datalist id="equipment-type-options">
           {EQUIPMENT_TYPES.map(t => <option key={t} value={t} />)}
         </datalist>
         <p className="text-[11px] text-muted-foreground">Tip: start typing (e.g. “walk-in”, “prep”, “fryer”).</p>
       </div>
-      <label className="h-10 px-3 rounded-lg border border-border text-sm font-semibold text-muted-foreground hover:bg-secondary flex items-center justify-center cursor-pointer whitespace-nowrap">
+      <label className="h-10 px-3 rounded-2xl border border-border text-sm font-semibold text-muted-foreground hover:bg-secondary flex items-center justify-center cursor-pointer whitespace-nowrap">
         {uploadingPhoto ? 'Uploading…' : photoUrl ? 'Change Photo' : 'Add Photo'}
-        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
+        <input type="file" accept="image/*" className="ops-input hidden" onChange={handlePhotoSelect} />
       </label>
       <div className="flex gap-2">
         <button
           onClick={handleSave}
           disabled={saving || uploadingPhoto || !name.trim() || !type}
-          className="h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 whitespace-nowrap"
+          className="h-10 px-4 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold disabled:opacity-50 whitespace-nowrap"
         >
           {saving ? '…' : equipment ? 'Save' : 'Add'}
         </button>
         <button
           onClick={onCancel}
-          className="h-10 w-10 rounded-lg border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
+          className="h-10 w-10 rounded-2xl border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
       {photoUrl && (
-        <div className="lg:col-span-4 rounded-lg border border-border/60 bg-background/40 p-2 max-w-[220px]">
+        <div className="lg:col-span-4 rounded-2xl border border-border/60 bg-background/40 p-2 max-w-[220px]">
           <img src={photoUrl} alt="Equipment" className="h-24 w-full rounded-md object-cover" />
         </div>
       )}
@@ -312,7 +312,7 @@ export default function RestaurantLayout() {
       <div className="flex items-center gap-3 px-4 pt-4 pb-4">
         <button
           onClick={() => navigate('/my-restaurant')}
-          className="h-8 w-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary"
+          className="h-8 w-8 rounded-2xl border border-border flex items-center justify-center text-muted-foreground hover:bg-secondary"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
@@ -322,7 +322,7 @@ export default function RestaurantLayout() {
         </div>
         <button
           onClick={() => { setAddingArea(true); setEditingArea(null); }}
-          className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold"
+          className="flex items-center gap-1.5 h-9 px-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold"
         >
           <Plus className="h-4 w-4" />
           Add Area
@@ -331,7 +331,7 @@ export default function RestaurantLayout() {
 
       <div className="px-4 space-y-2">
         {addingArea && (
-          <div className="p-3 card-glass border border-border rounded-xl">
+          <div className="p-3 card-glass border border-border rounded-2xl">
             <AreaForm
               onSave={() => { setAddingArea(false); load(); }}
               onCancel={() => setAddingArea(false)}
@@ -345,7 +345,7 @@ export default function RestaurantLayout() {
           const isExpanded = expandedAreas.has(area.id);
 
           return (
-            <div key={area.id} className="card-glass border border-border rounded-xl overflow-hidden">
+            <div key={area.id} className="card-glass border border-border rounded-2xl overflow-hidden">
               {/* Area row */}
               {editingArea?.id === area.id ? (
                 <div className="p-3">
@@ -371,13 +371,13 @@ export default function RestaurantLayout() {
                   </span>
                   <button
                     onClick={e => { e.stopPropagation(); setEditingArea(area); setExpandedAreas(p => new Set([...p, area.id])); }}
-                    className="h-7 w-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground"
+                    className="h-7 w-7 rounded-2xl hover:bg-muted flex items-center justify-center text-muted-foreground"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={e => { e.stopPropagation(); deleteArea(area.id); }}
-                    className="h-7 w-7 rounded-lg hover:bg-muted flex items-center justify-center text-red-400"
+                    className="h-7 w-7 rounded-2xl hover:bg-muted flex items-center justify-center text-red-400"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -539,7 +539,7 @@ export default function RestaurantLayout() {
               {unassignedStations.map(station => (
                 <div key={station.id}>
                   {editingStation?.id === station.id ? (
-                    <div className="p-3 card-glass border border-border rounded-lg">
+                    <div className="p-3 card-glass border border-border rounded-2xl">
                       <StationForm
                         station={station}
                         areas={areas}
@@ -548,7 +548,7 @@ export default function RestaurantLayout() {
                       />
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3 px-4 py-2.5 card-glass border border-border/40 rounded-lg">
+                    <div className="flex items-center gap-3 px-4 py-2.5 card-glass border border-border/40 rounded-2xl">
                       <Layers className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                       <span className="text-sm font-semibold text-foreground flex-1">{station.name}</span>
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${DEPT_COLOR[station.department] || 'bg-muted text-muted-foreground'}`}>

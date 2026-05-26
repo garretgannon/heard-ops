@@ -52,7 +52,7 @@ function RecipeCard({ recipe, onClick }) {
   const costStatus = getCostStatus();
 
   return (
-    <button onClick={onClick} className="w-full text-left border border-border rounded-lg overflow-hidden hover:border-border/60 hover:brightness-105 transition-all active:scale-[0.98]" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
+    <button onClick={onClick} className="w-full text-left border border-border rounded-2xl overflow-hidden hover:border-border/60 hover:brightness-105 transition-all active:scale-[0.98]" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
       <div className="flex gap-0">
         {/* Photo thumbnail */}
         {recipe.photo_url ? (
@@ -136,7 +136,7 @@ function SectionBlock({ title, children }) {
 function SpecChip({ label, value }) {
   if (!value) return null;
   return (
-    <div className="bg-muted rounded-lg px-3 py-2 text-center">
+    <div className="bg-muted rounded-2xl px-3 py-2 text-center">
       <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
       <p className="text-xs font-bold text-foreground mt-0.5">{value}</p>
     </div>
@@ -166,7 +166,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
     <div className="fixed inset-0 bg-background z-50 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3 shrink-0 sticky top-0 z-10">
-        <button onClick={onClose} className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+        <button onClick={onClose} className="h-10 w-10 rounded-2xl bg-muted flex items-center justify-center shrink-0">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="flex-1 min-w-0">
@@ -191,10 +191,10 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
             <button onClick={() => onEdit(recipe)} className="btn-primary h-10 px-3 text-xs flex items-center gap-1.5">
               <Edit2 className="h-3.5 w-3.5" /> Edit
             </button>
-            <button onClick={() => onDuplicate(recipe)} className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title="Duplicate">
+            <button onClick={() => onDuplicate(recipe)} className="h-10 w-10 rounded-2xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title="Duplicate">
               <Copy className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
-            <button onClick={() => onArchive(recipe)} className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title={recipe.status === 'archived' ? 'Unarchive' : 'Archive'}>
+            <button onClick={() => onArchive(recipe)} className="h-10 w-10 rounded-2xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors" title={recipe.status === 'archived' ? 'Unarchive' : 'Archive'}>
               <Archive className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
           </div>
@@ -202,25 +202,25 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
       </div>
 
       {/* Multi-View Tabs */}
-      <div className="bg-card border-b border-border px-4 py-2 flex items-center gap-2 overflow-x-auto sticky top-[60px] z-10">
-        {RECIPE_TABS.map(tab => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all shrink-0',
-                activeTab === tab.id
-                  ? 'glow-active'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {tab.label}
-            </button>
-          );
-        })}
+      <div className="bg-card border-b border-border px-4 py-2 sticky top-[60px] z-10">
+        <div className="view-slider-container w-full max-w-4xl">
+          {RECIPE_TABS.map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn('view-slider-tab', activeTab === tab.id && 'active')}
+              >
+                <div className="flex items-center gap-1.5">
+                  <Icon className="h-3.5 w-3.5" />
+                  {tab.label}
+                </div>
+                <div className="view-slider-dot" />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -233,7 +233,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
             {/* Left: overview info */}
             <div className="space-y-4">
               {recipe.photo_url && (
-                <div className="relative rounded-xl overflow-hidden border border-border/40" style={{ height: 180 }}>
+                <div className="relative rounded-2xl overflow-hidden border border-border/40" style={{ height: 180 }}>
                   <img src={recipe.photo_url} alt={recipe.name} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   <div className="absolute bottom-3 left-3">
@@ -259,19 +259,19 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                 <SectionBlock title="Allergens & Dietary">
                   <div className="flex flex-wrap gap-1.5">
                     {recipe.allergens.map(a => (
-                      <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
+                      <span key={a} className="text-xs font-bold px-2.5 py-1 rounded-2xl bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" />{a}
                       </span>
                     ))}
                     {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.map(f => (
-                      <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
+                      <span key={f} className="text-xs font-bold px-2.5 py-1 rounded-2xl bg-primary/15 text-primary border border-primary/20">{f}</span>
                     ))}
                   </div>
                 </SectionBlock>
               )}
               {recipe.notes && (
                 <SectionBlock title="Notes">
-                  <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-xl p-3">{recipe.notes}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 rounded-2xl p-3">{recipe.notes}</p>
                 </SectionBlock>
               )}
             </div>
@@ -281,7 +281,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                 <RecipeCosting recipe={recipe} ingredients={ingredients} onCostCalculated={setTotalCost} />
               )}
               {!loading && !isAdmin && (
-                <div className="text-center py-6 text-muted-foreground text-sm bg-muted/20 rounded-xl">
+                <div className="text-center py-6 text-muted-foreground text-sm bg-muted/20 rounded-2xl">
                   <p>Costing data available to managers and admin only</p>
                 </div>
               )}
@@ -299,7 +299,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                   {ingredients.length === 0 ? (
                     <p className="text-xs text-muted-foreground italic">No ingredients added.</p>
                   ) : (
-                    <div className="border border-border rounded-xl overflow-hidden">
+                    <div className="border border-border rounded-2xl overflow-hidden">
                       <div className="grid grid-cols-[1fr_auto_auto] bg-muted/40 px-3 py-1.5 gap-2">
                         <span className="text-[9px] font-bold text-muted-foreground uppercase">Ingredient</span>
                         <span className="text-[9px] font-bold text-muted-foreground uppercase text-right w-14">Qty / Unit</span>
@@ -326,7 +326,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
               </SectionBlock>
               {recipe.shelfLife && (
                 <SectionBlock title="Storage & Labeling">
-                  <div className="bg-muted/30 border border-border rounded-xl p-3 space-y-1.5 text-sm">
+                  <div className="bg-muted/30 border border-border rounded-2xl p-3 space-y-1.5 text-sm">
                     <p><span className="font-bold text-foreground">Shelf Life:</span> <span className="text-muted-foreground">{recipe.shelfLife}</span></p>
                     {recipe.labelingInstructions && <p><span className="font-bold text-foreground">Label:</span> <span className="text-muted-foreground">{recipe.labelingInstructions}</span></p>}
                   </div>
@@ -335,7 +335,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
             </div>
             {/* Right: build card / service mode */}
             <div className="space-y-4">
-              <div className="bg-primary/10 border border-primary/30 rounded-xl p-3">
+              <div className="bg-primary/10 border border-primary/30 rounded-2xl p-3">
                 <p className="text-xs text-primary font-bold">🔥 Build Card</p>
                 <p className="text-[10px] text-primary/80 mt-0.5">Assembly steps for service and line execution</p>
               </div>
@@ -345,7 +345,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                     <SectionBlock title="Assembly Steps">
                       <div className="space-y-2">
                         {steps.map((step, i) => (
-                          <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-lg">
+                          <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-2xl">
                             <div className="h-6 w-6 rounded-full bg-primary/20 text-primary text-xs font-extrabold flex items-center justify-center shrink-0">{i + 1}</div>
                             <p className="text-sm text-foreground flex-1">{step.instruction}</p>
                           </div>
@@ -357,12 +357,12 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                   )}
                   {recipe.platingNotes && (
                     <SectionBlock title="Plating Instructions">
-                      <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.platingNotes}</p>
+                      <p className="text-sm bg-muted/20 p-3 rounded-2xl text-foreground leading-relaxed">{recipe.platingNotes}</p>
                     </SectionBlock>
                   )}
                   {recipe.buildCardNotes && (
                     <SectionBlock title="Assembly Notes">
-                      <p className="text-sm bg-muted/20 p-3 rounded-lg text-foreground leading-relaxed">{recipe.buildCardNotes}</p>
+                      <p className="text-sm bg-muted/20 p-3 rounded-2xl text-foreground leading-relaxed">{recipe.buildCardNotes}</p>
                     </SectionBlock>
                   )}
                 </>
@@ -375,13 +375,13 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
         {activeTab === 'info' && (
           <div className="space-y-4">
             <SectionBlock title="Training Materials">
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-3">
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-3 mb-3">
                 <p className="text-xs text-blue-400 font-bold">📚 SOPs & Quality Standards</p>
               </div>
               {!loading && steps.length > 0 ? (
                 <div className="space-y-2 mb-4">
                   {steps.map((step, i) => (
-                    <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-lg">
+                    <div key={step.id} className="flex gap-3 bg-muted/20 p-3 rounded-2xl">
                       <div className="h-6 w-6 rounded-full bg-blue-500/20 text-blue-400 text-xs font-extrabold flex items-center justify-center shrink-0">{i + 1}</div>
                       <p className="text-sm text-foreground flex-1">{step.instruction}</p>
                     </div>
@@ -391,7 +391,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                 <p className="text-xs text-muted-foreground italic mb-4">No execution steps defined</p>
               )}
               <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Quality Standards</p>
-              <p className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-lg">
+              <p className="text-sm text-muted-foreground bg-muted/20 p-3 rounded-2xl">
                 {recipe.notes || 'No quality standards documented'}
               </p>
             </SectionBlock>
@@ -401,7 +401,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-2">
                     {recipe.allergens.map(a => (
-                      <span key={a} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1.5">
+                      <span key={a} className="text-sm font-bold px-3 py-1.5 rounded-2xl bg-red-500/15 text-red-400 border border-red-500/20 flex items-center gap-1.5">
                         <AlertTriangle className="h-4 w-4" /> {a}
                       </span>
                     ))}
@@ -409,7 +409,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
                   {Array.isArray(recipe.dietaryFlags) && recipe.dietaryFlags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {recipe.dietaryFlags.map(f => (
-                        <span key={f} className="text-sm font-bold px-3 py-1.5 rounded-lg bg-primary/15 text-primary border border-primary/20">{f}</span>
+                        <span key={f} className="text-sm font-bold px-3 py-1.5 rounded-2xl bg-primary/15 text-primary border border-primary/20">{f}</span>
                       ))}
                     </div>
                   )}
@@ -421,7 +421,7 @@ function RecipeDetail({ recipe, onClose, onEdit, onDuplicate, onArchive, isAdmin
 
             <SectionBlock title="Station & Metadata">
               {recipe.station && (
-                <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 mb-3">
+                <div className="bg-primary/10 border border-primary/30 rounded-2xl p-3 mb-3">
                   <p className="text-sm font-bold text-primary">📍 {recipe.station}</p>
                 </div>
               )}
@@ -666,14 +666,14 @@ function RecipeForm({ recipe, onSave, onClose }) {
     }
   };
 
-  const fieldCls = "w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40";
+  const fieldCls = "w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40";
   const labelCls = "text-xs font-bold text-muted-foreground block mb-1.5";
 
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 lg:px-6 py-3 flex items-center gap-3 shrink-0">
-        <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
+        <button onClick={onClose} className="h-8 w-8 rounded-2xl bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors">
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="flex-1 min-w-0">
@@ -691,12 +691,19 @@ function RecipeForm({ recipe, onSave, onClose }) {
       </div>
 
       {/* Mobile horizontal tabs */}
-      <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto px-3 pt-4 pb-2 shrink-0 scrollbar-hide" style={{ background: 'rgba(5,8,14,0.97)' }}>
-        {tabs.map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={cn('flex-shrink-0 flex items-center px-3 py-1.5 rounded-lg border text-xs font-semibold capitalize whitespace-nowrap transition-all', activeTab === tab ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive')}>
-            {tab}
-          </button>
-        ))}
+      <div className="lg:hidden px-3 pt-4 pb-2 shrink-0 bg-background/95">
+        <div className="view-slider-container w-full">
+          {tabs.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn('view-slider-tab capitalize', activeTab === tab && 'active')}
+            >
+              {tab}
+              <div className="view-slider-dot" />
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Body: sidebar + content on desktop */}
@@ -709,7 +716,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                'w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all capitalize',
+                'w-full text-left px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all capitalize',
                 activeTab === tab
                   ? 'bg-primary/15 text-primary border border-primary/25'
                   : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground border border-transparent'
@@ -730,22 +737,22 @@ function RecipeForm({ recipe, onSave, onClose }) {
                 {/* Photo upload */}
                 <div>
                   <label className={labelCls}>Recipe Photo</label>
-                  <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={e => handlePhotoUpload(e.target.files[0])} />
+                  <input ref={photoInputRef} type="file" accept="image/*" className="ops-input hidden" onChange={e => handlePhotoUpload(e.target.files[0])} />
                   {form.photo_url ? (
-                    <div className="relative rounded-xl overflow-hidden border border-border/60 bg-muted/20" style={{ height: 220 }}>
+                    <div className="relative rounded-2xl overflow-hidden border border-border/60 bg-muted/20" style={{ height: 220 }}>
                       <img src={form.photo_url} alt="Recipe" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-3 right-3 flex gap-2">
-                        <button type="button" onClick={() => photoInputRef.current?.click()} className="h-8 px-3 rounded-lg bg-black/60 text-white text-xs font-bold backdrop-blur-sm border border-white/10 hover:bg-black/80 flex items-center gap-1.5">
+                        <button type="button" onClick={() => photoInputRef.current?.click()} className="h-8 px-3 rounded-2xl bg-black/60 text-white text-xs font-bold backdrop-blur-sm border border-white/10 hover:bg-black/80 flex items-center gap-1.5">
                           <Camera className="h-3.5 w-3.5" /> Replace
                         </button>
-                        <button type="button" onClick={() => set('photo_url', '')} className="h-8 w-8 rounded-lg bg-black/60 text-white backdrop-blur-sm border border-white/10 hover:bg-red-500/60 flex items-center justify-center">
+                        <button type="button" onClick={() => set('photo_url', '')} className="h-8 w-8 rounded-2xl bg-black/60 text-white backdrop-blur-sm border border-white/10 hover:bg-red-500/60 flex items-center justify-center">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => photoInputRef.current?.click()} disabled={photoUploading} className="w-full rounded-xl border border-dashed border-border/60 bg-muted/10 hover:bg-muted/20 transition-colors flex flex-col items-center justify-center gap-2 py-10 text-muted-foreground hover:text-foreground">
+                    <button type="button" onClick={() => photoInputRef.current?.click()} disabled={photoUploading} className="w-full rounded-2xl border border-dashed border-border/60 bg-muted/10 hover:bg-muted/20 transition-colors flex flex-col items-center justify-center gap-2 py-10 text-muted-foreground hover:text-foreground">
                       {photoUploading
                         ? <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                         : <><Camera className="h-7 w-7 opacity-40" /><span className="text-sm font-semibold">Add a photo</span><span className="text-xs opacity-60">Click to upload</span></>
@@ -797,7 +804,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                           type="button"
                           onClick={() => toggleArr('recipeTypes', value)}
                           className={cn(
-                            'flex items-start gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-all',
+                            'flex items-start gap-2.5 px-3 py-2.5 rounded-2xl border text-left transition-all',
                             checked
                               ? 'bg-primary/15 border-primary/40 text-foreground'
                               : 'bg-muted/20 border-border/50 text-muted-foreground hover:border-border hover:text-foreground'
@@ -900,12 +907,12 @@ function RecipeForm({ recipe, onSave, onClose }) {
                   </button>
                 </div>
                 {ingredients.filter(i => !i._deleted).length === 0 ? (
-                  <div className="text-center py-10 border border-dashed border-border/50 rounded-xl">
+                  <div className="text-center py-10 border border-dashed border-border/50 rounded-2xl">
                     <p className="text-sm text-muted-foreground">No ingredients yet</p>
                     <button onClick={addIngredient} className="mt-3 text-xs font-bold text-primary">+ Add first ingredient</button>
                   </div>
                 ) : (
-                  <div className="border border-border rounded-xl overflow-hidden">
+                  <div className="border border-border rounded-2xl overflow-hidden">
                     <div className="grid grid-cols-[1fr_80px_90px_44px] gap-2 px-3 py-2 bg-muted/40 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                       <span>Ingredient</span><span>Qty</span><span>Unit</span><span />
                     </div>
@@ -943,14 +950,14 @@ function RecipeForm({ recipe, onSave, onClose }) {
                         </div>
                         {/* Picker dropdown */}
                         {linkingIdx === rawIdx && (
-                          <div className="mx-3 mb-3 border border-primary/30 bg-card rounded-xl overflow-hidden shadow-lg">
+                          <div className="ops-panel mx-3 mb-3 -primary/30 overflow-hidden shadow-lg">
                             <div className="p-2 border-b border-border/50">
                               <input
                                 autoFocus
                                 value={linkSearch}
                                 onChange={e => setLinkSearch(e.target.value)}
                                 placeholder="Search purchased items or recipes…"
-                                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary/40"
+                                className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm focus:outline-none focus:ring-1 focus:ring-primary/40"
                               />
                             </div>
                             <div className="max-h-52 overflow-y-auto">
@@ -1009,16 +1016,16 @@ function RecipeForm({ recipe, onSave, onClose }) {
                     </button>
                   </div>
                   {steps.filter(s => !s._deleted).length === 0 ? (
-                    <div className="text-center py-10 border border-dashed border-border/50 rounded-xl">
+                    <div className="text-center py-10 border border-dashed border-border/50 rounded-2xl">
                       <p className="text-sm text-muted-foreground">No steps yet</p>
                       <button onClick={addStep} className="mt-3 text-xs font-bold text-primary">+ Add first step</button>
                     </div>
                   ) : (
                     <div className="space-y-3">
                       {steps.filter(s => !s._deleted).map((step, idx) => (
-                        <div key={idx} className="flex gap-3 items-start bg-muted/20 rounded-xl p-3 border border-border/40">
+                        <div key={idx} className="flex gap-3 items-start bg-muted/20 rounded-2xl p-3 border border-border/40">
                           <div className="h-7 w-7 rounded-full bg-primary/20 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</div>
-                          <textarea value={step.instruction} onChange={e => setSteps(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Describe this step…" rows={2} className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary/40" />
+                          <textarea value={step.instruction} onChange={e => setSteps(p => p.map((x,i) => i===idx ? {...x, instruction: e.target.value, _dirty: true} : x))} placeholder="Describe this step…" rows={2} className="flex-1 px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-primary/40" />
                           <button onClick={() => setSteps(p => p.map((x,i) => i===idx ? {...x, _deleted: true} : x))} className="text-red-400 hover:text-red-300 mt-1 shrink-0">
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -1050,7 +1057,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                   <p className="text-xs text-muted-foreground leading-relaxed">Define conversions for units that can't normally be converted — e.g., 1 head = 12 oz, 1 each = 3.5 oz. These are applied in cost calculations for this recipe.</p>
                 </div>
                 {(form.unitConversions || []).length === 0 ? (
-                  <div className="text-center py-10 border border-dashed border-border/50 rounded-xl">
+                  <div className="text-center py-10 border border-dashed border-border/50 rounded-2xl">
                     <p className="text-sm text-muted-foreground">No custom conversions defined</p>
                     <button onClick={addConversion} className="mt-3 text-xs font-bold text-primary">+ Add a conversion</button>
                   </div>
@@ -1060,7 +1067,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                       <span>From Unit</span><span /><span>To Unit</span><span>Factor (×)</span><span />
                     </div>
                     {(form.unitConversions || []).map((conv, i) => (
-                      <div key={i} className="grid grid-cols-[1fr_24px_1fr_96px_32px] gap-2 items-center bg-muted/20 rounded-xl px-3 py-2.5 border border-border/40">
+                      <div key={i} className="grid grid-cols-[1fr_24px_1fr_96px_32px] gap-2 items-center bg-muted/20 rounded-2xl px-3 py-2.5 border border-border/40">
                         <input
                           value={conv.fromUnit}
                           onChange={e => updateConversion(i, 'fromUnit', e.target.value)}
@@ -1088,10 +1095,10 @@ function RecipeForm({ recipe, onSave, onClose }) {
                     ))}
                   </div>
                 )}
-                <button onClick={addConversion} className="w-full border border-dashed border-border/50 rounded-xl py-2.5 text-xs font-bold text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={addConversion} className="w-full border border-dashed border-border/50 rounded-2xl py-2.5 text-xs font-bold text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors flex items-center justify-center gap-1.5">
                   <Plus className="h-3.5 w-3.5" /> Add Conversion
                 </button>
-                <div className="rounded-xl border border-border/30 bg-muted/10 p-4 space-y-2">
+                <div className="rounded-2xl border border-border/30 bg-muted/10 p-4 space-y-2">
                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">How It Works</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">Set the <span className="font-bold text-foreground">From Unit</span> (how you measure it in this recipe), the <span className="font-bold text-foreground">To Unit</span> (how it's priced in your purchasing system), and the <span className="font-bold text-foreground">Factor</span> — how many To Units equal one From Unit.</p>
                   <p className="text-xs text-muted-foreground">Example: from <span className="font-bold text-foreground">head</span> → to <span className="font-bold text-foreground">oz</span>, factor <span className="font-bold text-foreground">12</span> means 1 head = 12 oz.</p>
@@ -1106,7 +1113,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                   <label className={labelCls}>Allergens</label>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {ALLERGEN_LIST.map(a => (
-                      <button key={a} onClick={() => toggleArr('allergens', a)} className={cn('px-3 py-1.5 rounded-lg border text-sm font-bold transition-all', form.allergens?.includes(a) ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-muted/50 border-border text-muted-foreground hover:text-foreground')}>{a}</button>
+                      <button key={a} onClick={() => toggleArr('allergens', a)} className={cn('px-3 py-1.5 rounded-2xl border text-sm font-bold transition-all', form.allergens?.includes(a) ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-muted/50 border-border text-muted-foreground hover:text-foreground')}>{a}</button>
                     ))}
                   </div>
                 </div>
@@ -1114,7 +1121,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                   <label className={labelCls}>Dietary Flags</label>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {DIETARY_FLAGS.map(f => (
-                      <button key={f} onClick={() => toggleArr('dietaryFlags', f)} className={cn('px-3 py-1.5 rounded-lg border text-sm font-bold transition-all', form.dietaryFlags?.includes(f) ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-muted/50 border-border text-muted-foreground hover:text-foreground')}>{f}</button>
+                      <button key={f} onClick={() => toggleArr('dietaryFlags', f)} className={cn('px-3 py-1.5 rounded-2xl border text-sm font-bold transition-all', form.dietaryFlags?.includes(f) ? 'bg-primary/20 border-primary/40 text-primary' : 'bg-muted/50 border-border text-muted-foreground hover:text-foreground')}>{f}</button>
                     ))}
                   </div>
                 </div>
@@ -1124,7 +1131,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
             {/* REVIEW TAB */}
             {activeTab === 'review' && (
               <div className="space-y-4">
-                <div className="rounded-xl border border-border bg-card/40 overflow-hidden">
+                <div className="rounded-2xl border border-border bg-card/40 overflow-hidden">
                   {[
                     { label: 'Name', ok: !!form.name, value: form.name || 'Missing' },
                     { label: 'Yield', ok: !!form.yieldAmount, value: form.yieldAmount ? `${form.yieldAmount} ${form.yieldUnit || ''}` : 'Not set' },
@@ -1141,7 +1148,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                     </div>
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground bg-muted/20 rounded-xl p-4">
+                <p className="text-sm text-muted-foreground bg-muted/20 rounded-2xl p-4">
                   Save as Draft to continue editing, or Approve to publish this recipe.
                 </p>
                 <div className="flex gap-3">
@@ -1161,13 +1168,13 @@ function RecipeForm({ recipe, onSave, onClose }) {
           <div className="w-full max-w-sm bg-card rounded-2xl border border-border overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <h3 className="font-bold text-foreground text-sm">Manage Categories</h3>
-              <button onClick={() => { setShowCatManager(false); setEditingCat(null); }} className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center">
+              <button onClick={() => { setShowCatManager(false); setEditingCat(null); }} className="h-7 w-7 rounded-2xl bg-muted flex items-center justify-center">
                 <X className="h-3.5 w-3.5 text-muted-foreground" />
               </button>
             </div>
             <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
               {formCategories.map(cat => (
-                <div key={cat} className="flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-2">
+                <div key={cat} className="flex items-center gap-2 bg-muted/30 rounded-2xl px-3 py-2">
                   {editingCat?.original === cat ? (
                     <input
                       autoFocus
@@ -1195,7 +1202,7 @@ function RecipeForm({ recipe, onSave, onClose }) {
                   onChange={e => setNewCatInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addCategory()}
                   placeholder="New category name…"
-                  className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  className="flex-1 px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
                 />
                 <button onClick={addCategory} className="btn-primary px-3 h-9 text-sm">Add</button>
               </div>
@@ -1282,11 +1289,11 @@ export default function Recipes() {
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-52 pl-9 pr-3 py-2 card-glass border border-border rounded-lg text-xs text-foreground" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-52 pl-9 pr-3 py-2 card-glass border border-border rounded-2xl text-xs text-foreground" />
             </div>
             {isAdmin && (
               <div className="flex items-center gap-2">
-                <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-8 px-3 rounded-lg bg-muted text-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
+                <button onClick={() => { haptics.light(); navigate('/recipe-bulk-import'); }} className="h-8 px-3 rounded-2xl bg-muted text-foreground text-xs font-bold flex items-center gap-1.5 active:scale-95">
                   <Sparkles className="h-3.5 w-3.5" /> Bulk Import
                 </button>
                 <button onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }} className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5">
@@ -1309,7 +1316,7 @@ export default function Recipes() {
               {['all', ...categories].map(c => {
                 const count = c === 'all' ? recipes.filter(r => r.status !== 'archived').length : recipes.filter(r => r.category === c && r.status !== 'archived').length;
                 return (
-                  <button key={c} onClick={() => setFilterCat(c)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === c ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                  <button key={c} onClick={() => setFilterCat(c)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-2xl text-xs font-semibold transition-all ${filterCat === c ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                     <span className="capitalize">{c}</span>
                     <span className={`text-[9px] font-bold ${filterCat === c ? 'text-primary/60' : 'text-muted-foreground'}`}>{count}</span>
                   </button>
@@ -1325,7 +1332,7 @@ export default function Recipes() {
               {stationsList.map(s => {
                 const count = recipes.filter(r => r.station === s.name && r.status !== 'archived').length;
                 return (
-                  <button key={s.id} onClick={() => setFilterStation(filterStation === s.name ? '' : s.name)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterStation === s.name ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+                  <button key={s.id} onClick={() => setFilterStation(filterStation === s.name ? '' : s.name)} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-2xl text-xs font-semibold transition-all ${filterStation === s.name ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                     <span>{s.name}</span>
                     <span className={`text-[9px] font-bold ${filterStation === s.name ? 'text-primary/60' : 'text-muted-foreground'}`}>{count}</span>
                   </button>
@@ -1338,11 +1345,11 @@ export default function Recipes() {
           <div>
             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 px-2">STATUS</p>
             <div className="space-y-0.5">
-              <button onClick={() => setFilterCat('all')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'all' ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+              <button onClick={() => setFilterCat('all')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-2xl text-xs font-semibold transition-all ${filterCat === 'all' ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                 <span>Active</span>
                 <span className={`text-[9px] font-bold ${filterCat === 'all' ? 'text-primary/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status !== 'archived').length}</span>
               </button>
-              <button onClick={() => setFilterCat('archived')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${filterCat === 'archived' ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
+              <button onClick={() => setFilterCat('archived')} className={`w-full flex items-center justify-between px-3 py-1.5 rounded-2xl text-xs font-semibold transition-all ${filterCat === 'archived' ? 'bg-primary/15 text-primary border border-primary/30' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}>
                 <span>Archived</span>
                 <span className={`text-[9px] font-bold ${filterCat === 'archived' ? 'text-primary/60' : 'text-muted-foreground'}`}>{recipes.filter(r => r.status === 'archived').length}</span>
               </button>
@@ -1411,19 +1418,23 @@ export default function Recipes() {
           <p className="text-[11px] text-muted-foreground mb-3">Multi-view operational recipe system</p>
           <div className="relative mb-2.5">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search recipes…" className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-4 px-4">
-            {['all', ...categories, 'archived'].map(c => (
-              <button key={c} onClick={() => setFilterCat(c)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold capitalize whitespace-nowrap transition-all duration-200 ${filterCat === c ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{c}</button>
-            ))}
+          <div className="w-full overflow-x-auto no-scrollbar pb-1 px-4 -mx-4">
+            <div className="pill-slider-container">
+              {['all', ...categories, 'archived'].map(c => (
+                <button key={c} onClick={() => setFilterCat(c)} className={cn('glass-pill', filterCat === c && 'glow-active')}>{c}</button>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="flex gap-1.5 overflow-x-auto px-4 pb-2.5">
-          <button onClick={() => setFilterStation('')} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${!filterStation ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>All Stations</button>
-          {stationsList.map(s => (
-            <button key={s.id} onClick={() => setFilterStation(filterStation === s.name ? '' : s.name)} className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${filterStation === s.name ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'}`}>{s.name}</button>
-          ))}
+        <div className="w-full overflow-x-auto no-scrollbar pb-2.5 px-4">
+          <div className="pill-slider-container">
+            <button onClick={() => setFilterStation('')} className={cn('glass-pill', !filterStation && 'glow-active')}>All Stations</button>
+            {stationsList.map(s => (
+              <button key={s.id} onClick={() => setFilterStation(filterStation === s.name ? '' : s.name)} className={cn('glass-pill', filterStation === s.name && 'glow-active')}>{s.name}</button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -1445,7 +1456,7 @@ export default function Recipes() {
                 <div className="flex flex-col gap-3 w-full max-w-xs">
                   <button
                     onClick={() => { setEditing(null); setShowForm(true); haptics.medium(); }}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black text-white active:scale-[0.97] transition-all"
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[14px] font-black text-white active:scale-[0.97] transition-all"
                     style={{
                       background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
                       boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 16px rgba(255,107,0,0.15)',
@@ -1455,7 +1466,7 @@ export default function Recipes() {
                   </button>
                   <button
                     onClick={() => { navigate('/recipe-bulk-import'); haptics.light(); }}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-foreground active:scale-[0.97] transition-all"
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[14px] font-semibold text-foreground active:scale-[0.97] transition-all"
                     style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'transparent' }}
                   >
                     <Sparkles className="h-4 w-4" /> Bulk Import
@@ -1464,7 +1475,7 @@ export default function Recipes() {
               )}
             </div>
           ) : (
-            <div className="text-center py-12 card-glass border border-border rounded-xl">
+            <div className="text-center py-12 card-glass border border-border rounded-2xl">
               <ChefHat className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-sm text-muted-foreground">No recipes match your search</p>
             </div>

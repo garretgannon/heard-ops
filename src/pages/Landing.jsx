@@ -59,9 +59,9 @@ function FeatureCard({ item }) {
   return (
     <motion.div
       variants={fadeUp}
-      className="group rounded-xl border border-white/[0.07] bg-white/[0.03] p-5 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.05]"
+      className="group rounded-2xl border border-white/[0.07] bg-white/[0.03] p-5 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.05]"
     >
-      <div className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl border ${item.bg} ${item.color}`}>
+      <div className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-2xl border ${item.bg} ${item.color}`}>
         <Icon className="h-5 w-5" />
       </div>
       <h3 className="mb-1.5 text-sm font-black text-white">{item.title}</h3>
@@ -73,8 +73,8 @@ function FeatureCard({ item }) {
 function PainCard({ item }) {
   const Icon = item.icon;
   return (
-    <motion.div variants={fadeUp} className="flex gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-500/25 bg-red-500/10 text-red-400">
+    <motion.div variants={fadeUp} className="flex gap-4 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-red-500/25 bg-red-500/10 text-red-400">
         <Icon className="h-4 w-4" />
       </div>
       <div>
@@ -119,14 +119,14 @@ function MockDashboard() {
       <div className="grid gap-px bg-white/[0.04] md:grid-cols-2">
         <div className="space-y-2 bg-[#060C11] p-4">
           <p className="mb-2 text-[9px] font-black uppercase tracking-[0.16em] text-slate-500">Next Action</p>
-          <div className="rounded-xl border border-[#FF6B00]/25 bg-[#FF6B00]/6 p-3">
+          <div className="rounded-2xl border border-[#FF6B00]/25 bg-[#FF6B00]/6 p-3">
             <div className="mb-1.5 flex items-center justify-between">
               <p className="text-sm font-black text-white">Check Pantry station</p>
               <ArrowRight className="h-3.5 w-3.5 text-[#FF6B00]" />
             </div>
             <p className="text-xs text-slate-400">Ranch in progress, pico not started. Both due before 11:00 AM.</p>
           </div>
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
             <div className="mb-1.5 flex items-center justify-between">
               <p className="text-sm font-black text-white">Review handoff from AM</p>
               <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
@@ -142,8 +142,8 @@ function MockDashboard() {
               { label: '86\'d: Salmon + Risotto', detail: 'Updated 2 minutes ago', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/25', Icon: Flame },
               { label: 'Maintenance: Walk-in fan', detail: 'Open issue — unresolved', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/25', Icon: Wrench },
             ].map(item => (
-              <div key={item.label} className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${item.bg} ${item.color}`}>
+              <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl border ${item.bg} ${item.color}`}>
                   <item.Icon className="h-3.5 w-3.5" />
                 </span>
                 <div className="min-w-0">
@@ -183,7 +183,7 @@ export default function Landing() {
             <button onClick={login} className="px-3 py-1.5 text-sm font-bold text-slate-400 transition-colors hover:text-white">
               Sign In
             </button>
-            <button onClick={login} className="rounded-lg bg-[#FF6B00] px-4 py-1.5 text-sm font-bold text-white transition-all hover:bg-[#CC4400] active:scale-95">
+            <button onClick={login} className="rounded-2xl bg-[#FF6B00] px-4 py-1.5 text-sm font-bold text-white transition-all hover:bg-[#CC4400] active:scale-95">
               Get Started
             </button>
           </div>
@@ -250,14 +250,14 @@ export default function Landing() {
         >
           <button
             onClick={login}
-            className="flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-black text-white transition-all active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-2xl px-8 py-3.5 text-base font-black text-white transition-all active:scale-95"
             style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)', boxShadow: '0 0 0 1px rgba(255,107,0,0.4), 0 0 24px rgba(255,107,0,0.25)' }}
           >
             Start Free <ArrowRight className="h-4 w-4" />
           </button>
           <button
             onClick={login}
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.04] px-8 py-3.5 text-base font-black text-slate-300 transition-all hover:border-white/[0.18] hover:bg-white/[0.07] hover:text-white active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-white/[0.1] bg-white/[0.04] px-8 py-3.5 text-base font-black text-slate-300 transition-all hover:border-white/[0.18] hover:bg-white/[0.07] hover:text-white active:scale-95"
           >
             View Demo
           </button>
@@ -339,7 +339,7 @@ export default function Landing() {
             {/* Manager flow */}
             <motion.div variants={fadeUp} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
               <div className="mb-4 flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#FF6B00]/30 bg-[#FF6B00]/10">
+                <div className="flex h-8 w-8 items-center justify-center rounded-2xl border border-[#FF6B00]/30 bg-[#FF6B00]/10">
                   <Shield className="h-4 w-4 text-[#FF6B00]" />
                 </div>
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-[#FF6B00]">Manager Flow</p>
@@ -351,7 +351,7 @@ export default function Landing() {
                   { step: '03', text: 'Walk stations, log checks, approve tasks' },
                   { step: '04', text: 'Write closing handoff for next manager' },
                 ].map(item => (
-                  <div key={item.step} className="flex items-center gap-3 rounded-lg border border-white/[0.05] bg-white/[0.02] px-4 py-3">
+                  <div key={item.step} className="flex items-center gap-3 rounded-2xl border border-white/[0.05] bg-white/[0.02] px-4 py-3">
                     <span className="text-[10px] font-black tabular-nums text-[#FF6B00]/70">{item.step}</span>
                     <p className="text-sm font-semibold text-slate-300">{item.text}</p>
                   </div>
@@ -361,7 +361,7 @@ export default function Landing() {
             {/* Staff flow */}
             <motion.div variants={fadeUp} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
               <div className="mb-4 flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/30 bg-blue-500/10">
+                <div className="flex h-8 w-8 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-500/10">
                   <Users className="h-4 w-4 text-blue-400" />
                 </div>
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-400">Staff Flow</p>
@@ -373,7 +373,7 @@ export default function Landing() {
                   { step: '03', text: 'Log temps, submit required proof photos' },
                   { step: '04', text: 'Complete station sign-off and earn XP' },
                 ].map(item => (
-                  <div key={item.step} className="flex items-center gap-3 rounded-lg border border-white/[0.05] bg-white/[0.02] px-4 py-3">
+                  <div key={item.step} className="flex items-center gap-3 rounded-2xl border border-white/[0.05] bg-white/[0.02] px-4 py-3">
                     <span className="text-[10px] font-black tabular-nums text-blue-400/70">{item.step}</span>
                     <p className="text-sm font-semibold text-slate-300">{item.text}</p>
                   </div>
@@ -395,7 +395,7 @@ export default function Landing() {
               <motion.div
                 key={item}
                 variants={fadeUp}
-                className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 text-sm font-bold text-slate-300 transition-all hover:border-[#FF6B00]/35 hover:text-white"
+                className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 text-sm font-bold text-slate-300 transition-all hover:border-[#FF6B00]/35 hover:text-white"
               >
                 {item}
               </motion.div>
@@ -420,14 +420,14 @@ export default function Landing() {
             <div className="flex flex-col justify-center gap-3 sm:flex-row">
               <button
                 onClick={login}
-                className="flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-base font-black text-white transition-all active:scale-95"
+                className="flex items-center justify-center gap-2 rounded-2xl px-8 py-4 text-base font-black text-white transition-all active:scale-95"
                 style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)', boxShadow: '0 0 0 1px rgba(255,107,0,0.4), 0 0 32px rgba(255,107,0,0.3)' }}
               >
                 Start Free <ArrowRight className="h-4 w-4" />
               </button>
               <button
                 onClick={login}
-                className="flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.04] px-8 py-4 text-base font-black text-slate-300 transition-all hover:border-white/[0.18] hover:text-white active:scale-95"
+                className="flex items-center justify-center gap-2 rounded-2xl border border-white/[0.1] bg-white/[0.04] px-8 py-4 text-base font-black text-slate-300 transition-all hover:border-white/[0.18] hover:text-white active:scale-95"
               >
                 View Demo
               </button>

@@ -147,7 +147,7 @@ export default function EmployeeEditModal({ employee, linkedRecords = {}, isAdmi
                   type="text"
                   value={formData.employee_number || `EMP-${formData.id?.slice(0, 4).toUpperCase() || 'N/A'}`}
                   disabled
-                  className="w-full h-10 px-3 rounded-lg border border-border bg-secondary text-muted-foreground text-sm opacity-60"
+                  className="ops-input w-full text-muted-foreground opacity-60"
                 />
               </div>
 

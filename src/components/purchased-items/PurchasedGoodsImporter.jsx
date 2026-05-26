@@ -333,7 +333,7 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
                   <select
                     value={mapping[header] || ''}
                     onChange={e => setMapping(p => ({ ...p, [header]: e.target.value || null }))}
-                    className="w-40 px-2 py-1 bg-background border border-border rounded-lg text-xs text-foreground"
+                    className="w-40 px-2 py-1 liquid-card rounded-lg text-xs text-foreground"
                   >
                     <option value="">— Skip —</option>
                     {[...REQUIRED_FIELDS, ...OPTIONAL_FIELDS].map(field => (
@@ -415,7 +415,7 @@ export default function PurchasedGoodsImporter({ onClose, onComplete }) {
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3 flex gap-2">
         {step === 1 && (
           <>
-            <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => handleFile(e.target.files[0])} />
+            <input ref={fileRef} type="file" accept=".csv" className="ops-input hidden" onChange={e => handleFile(e.target.files[0])} />
             <button onClick={() => fileRef.current?.click()} className="flex-1 btn-primary text-sm">Choose File</button>
             <button onClick={downloadTemplate} className="btn-secondary text-sm px-3 flex items-center gap-1">
               <Download className="h-4 w-4" />

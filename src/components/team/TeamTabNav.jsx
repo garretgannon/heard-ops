@@ -17,38 +17,20 @@ export default function TeamTabNav({ activeTab, onTabChange, isAdmin = false }) 
 
   return (
     <div className="overflow-x-auto no-scrollbar lg:sticky lg:top-[72px] lg:z-20 px-4 lg:px-8 py-3">
-      <div className="flex gap-2 min-w-min">
+      <div className="view-slider-container w-full max-w-4xl">
         {tabs.map(({ id, label, icon: IconComponent }) => {
           const isActive = activeTab === id;
           return (
             <button
               key={id}
               onClick={() => { haptics.light?.(); onTabChange?.(id); }}
-              className="flex items-center gap-1.5 whitespace-nowrap transition-all active:scale-95"
-              style={{
-                height: '32px',
-                paddingLeft: '14px',
-                paddingRight: '14px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: 600,
-                letterSpacing: '0.01em',
-                background: isActive
-                  ? 'rgba(255,107,0,0.15)'
-                  : 'rgba(255,255,255,0.06)',
-                border: isActive
-                  ? '1px solid rgba(255,107,0,0.35)'
-                  : '1px solid rgba(255,255,255,0.08)',
-                color: isActive
-                  ? '#FF6B00'
-                  : 'rgba(255,255,255,0.45)',
-                boxShadow: isActive
-                  ? '0 0 12px rgba(255,107,0,0.15)'
-                  : 'none',
-              }}
+              className={cn('view-slider-tab', isActive && 'active')}
             >
-              <IconComponent style={{ width: 13, height: 13, strokeWidth: 2 }} />
-              <span>{label}</span>
+              <div className="flex items-center gap-1.5">
+                <IconComponent className="h-3.5 w-3.5" />
+                <span>{label}</span>
+              </div>
+              <div className="view-slider-dot" />
             </button>
           );
         })}

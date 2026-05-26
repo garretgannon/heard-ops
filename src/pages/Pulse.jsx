@@ -96,7 +96,7 @@ export default function Pulse() {
         <div className="w-full space-y-3 max-w-xs">
           <button
             onClick={() => navigate('/setup')}
-            className="w-full rounded-xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
+            className="w-full rounded-2xl py-4 text-[15px] font-black text-white active:scale-[0.97] transition-all"
             style={{
               background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
               boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 12px rgba(255,107,0,0.12)',
@@ -106,7 +106,7 @@ export default function Pulse() {
           </button>
           <button
             onClick={() => navigate('/logs')}
-            className="w-full rounded-xl py-4 text-[15px] font-semibold text-foreground active:scale-[0.97] transition-all"
+            className="w-full rounded-2xl py-4 text-[15px] font-semibold text-foreground active:scale-[0.97] transition-all"
             style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'transparent' }}
           >
             View Logs
@@ -124,7 +124,7 @@ export default function Pulse() {
         <header className="flex items-start justify-between gap-4 pt-1">
           <div className="flex items-center gap-3">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 shrink-0"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border/50 shrink-0"
               style={{ background: 'rgba(255,107,0,0.1)', boxShadow: '0 0 16px rgba(255,107,0,0.15)' }}
             >
               <img src={PULSE_ICON_URL} alt="Pulse" className="h-6 w-6 object-contain" />
@@ -136,7 +136,7 @@ export default function Pulse() {
           </div>
           <button
             onClick={() => loadMetrics({ quiet: true })}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-2xl border border-border/50 transition-all"
             style={{ background: 'rgba(255,255,255,0.04)' }}
           >
             <RefreshCw className={cn('h-4 w-4 text-muted-foreground', refreshing && 'animate-spin')} />
@@ -205,7 +205,7 @@ export default function Pulse() {
               <button
                 key={path}
                 onClick={() => navigate(path)}
-                className="rounded-xl border border-border/40 px-3 py-3 text-left transition-all active:scale-[0.97]"
+                className="rounded-2xl border border-border/40 px-3 py-3 text-left transition-all active:scale-[0.97]"
                 style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)' }}
               >
                 <p className="text-sm font-black text-foreground">{label}</p>

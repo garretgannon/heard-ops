@@ -131,7 +131,7 @@ export default function RolesManager() {
             value={newRoleLabel}
             onChange={e => setNewRoleLabel(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addRole()}
-            className="flex-1 bg-background border border-border/40 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+            className="flex-1 liquid-card/40 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
           />
           <button onClick={addRole} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:brightness-110">Create</button>
           <button onClick={() => setShowAddForm(false)} className="px-3 py-2 rounded-lg card-glass border border-border/40 text-muted-foreground font-bold text-xs hover:text-foreground">Cancel</button>
@@ -204,7 +204,7 @@ export default function RolesManager() {
                                   "flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all",
                                   enabled
                                     ? "bg-green-500/10 border border-green-500/20"
-                                    : "bg-background border border-border/30 hover:border-border/50"
+                                    : "liquid-card/30 hover:border-border/50"
                                 )}
                               >
                                 <span className={cn("font-medium text-left", enabled ? "text-foreground" : "text-muted-foreground")}>

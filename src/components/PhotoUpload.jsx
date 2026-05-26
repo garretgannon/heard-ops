@@ -57,7 +57,7 @@ export default function PhotoUpload({ onUpload, existingUrl, className }) {
         accept="image/*"
         capture="environment"
 
-        className="hidden"
+        className="ops-input hidden"
         onChange={handleChange}
       />
       {uploading ? (

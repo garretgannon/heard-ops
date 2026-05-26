@@ -58,13 +58,16 @@ function BellButton({ count, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="relative h-10 w-10 flex items-center justify-center rounded-xl transition-all active:scale-90"
-      style={{ background: count > 0 ? 'rgba(255,107,0,0.12)' : 'rgba(255,107,0,0.08)' }}
+      className="relative h-[38px] w-[38px] flex items-center justify-center rounded-full transition-all active:scale-95"
+      style={{ 
+        background: count > 0 ? 'rgba(255,107,0,0.12)' : 'rgba(255,255,255,0.04)',
+        border: count > 0 ? '1px solid rgba(255,107,0,0.25)' : '1px solid rgba(255,255,255,0.08)',
+      }}
       aria-label={`Approvals${count > 0 ? ` (${count} pending)` : ''}`}
     >
-      <Bell style={{ color: count > 0 ? '#FF6B00' : '#94A3B8', width: 19, height: 19 }} />
+      <Bell style={{ color: count > 0 ? '#FF6B00' : '#A1A1AA', width: 18, height: 18 }} />
       {count > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary"
+        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary shadow-sm"
           style={{ fontSize: '9px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
           {count > 9 ? '9+' : count}
         </span>
@@ -231,20 +234,15 @@ export default function Layout() {
         style={{
           paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)",
           height: "calc(72px + env(safe-area-inset-top, 0px))",
-          background: "rgba(19, 22, 31, 0.35)",
+          background: "hsl(var(--background) / 0.35)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
       >
         {isMobile && isSecondary ? (
-          /* Secondary page: logo + Back | Title | Actions */
+          /* Secondary page: Back | Title | Actions */
           <>
-            <div className="flex items-center gap-2 shrink-0">
-              <img
-                src={BRAND_ASSETS.logoMark}
-                alt="heardOS"
-                className="h-9 w-auto max-w-[132px] object-contain shrink-0 select-none"
-              />
+            <div className="flex items-center gap-2 shrink-0 w-[88px]">
               <button
                 onClick={goBack}
                 className="flex items-center gap-0.5 h-8 pl-1 pr-2.5 rounded-lg active:scale-95 transition-all"
@@ -260,14 +258,14 @@ export default function Layout() {
               {pageTitle}
             </p>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center justify-end gap-1.5 shrink-0 w-[88px]">
               <BellButton count={approvalCount} onClick={() => setShowApprovalDeck(true)} />
               <Link
                 to="/profile"
-                className="h-10 w-10 flex items-center justify-center rounded-xl transition-colors"
-                style={{ background: 'rgba(255,107,0,0.08)' }}
+                className="h-[38px] w-[38px] flex items-center justify-center rounded-full transition-all active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <UserCircle style={{ color: '#94A3B8', width: 19, height: 19 }} />
+                <UserCircle style={{ color: '#A1A1AA', width: 18, height: 18 }} />
               </Link>
             </div>
           </>
@@ -289,10 +287,10 @@ export default function Layout() {
               <BellButton count={approvalCount} onClick={() => setShowApprovalDeck(true)} />
               <Link
                 to="/profile"
-                className="h-10 w-10 flex items-center justify-center rounded-xl transition-colors"
-                style={{ background: 'rgba(255,107,0,0.08)' }}
+                className="h-[38px] w-[38px] flex items-center justify-center rounded-full transition-all active:scale-95"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <UserCircle style={{ color: '#94A3B8', width: 19, height: 19 }} />
+                <UserCircle style={{ color: '#A1A1AA', width: 18, height: 18 }} />
               </Link>
             </div>
           </>
@@ -306,10 +304,10 @@ export default function Layout() {
           collapsed ? "w-[60px]" : "w-[240px]"
         )}
         style={{
-          background: 'rgba(19, 22, 31, 0.45)',
-          backdropFilter: 'blur(40px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-          borderRight: '1px solid hsl(var(--border))',
+          background: "hsl(var(--background) / 0.45)",
+          backdropFilter: "blur(40px) saturate(180%)",
+          WebkitBackdropFilter: "blur(40px) saturate(180%)",
+          borderRight: "1px solid hsl(var(--border))",
         }}
       >
         {/* Orange brand accent line at top */}
@@ -602,7 +600,7 @@ export default function Layout() {
           collapsed ? "left-[60px]" : "left-[240px]"
         )}
         style={{
-          background: "rgba(19, 22, 31, 0.35)",
+          background: "hsl(var(--background) / 0.35)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}

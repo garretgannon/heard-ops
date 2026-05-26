@@ -179,13 +179,13 @@ function HelperPanel({ step = 1 }) {
       </div>
       {!showAll && (
         <div className="flex gap-2 px-5 pb-4">
-          {definitions.map(d => <button key={d.id} onClick={() => setTab(d.id)} className={`flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${tab === d.id ? 'bg-primary text-white' : 'bg-muted/60 text-muted-foreground hover:text-foreground'}`}>{d.label}</button>)}
+          {definitions.map(d => <button key={d.id} onClick={() => setTab(d.id)} className={`flex-1 py-2 rounded-2xl text-xs font-bold transition-colors ${tab === d.id ? 'bg-primary text-white' : 'bg-muted/60 text-muted-foreground hover:text-foreground'}`}>{d.label}</button>)}
         </div>
       )}
       {!showAll && (
         <div className="px-5 pb-4">
           {definitions.filter(d => d.id === tab).map(d => (
-            <div key={d.id} className={`rounded-xl border ${d.border} ${d.bg} p-4 space-y-1.5`}>
+            <div key={d.id} className={`rounded-2xl border ${d.border} ${d.bg} p-4 space-y-1.5`}>
               <div className="flex items-center gap-2">
                 {d.icon ? <d.icon className={`h-4 w-4 ${d.iconClass}`} /> : <div className="h-4 w-4 rounded-full border-2 border-green-400 flex items-center justify-center"><div className="h-1.5 w-1.5 rounded-full bg-green-400" /></div>}
                 <p className="font-bold text-sm text-foreground">{d.label}</p>
@@ -199,7 +199,7 @@ function HelperPanel({ step = 1 }) {
       {showAll && (
         <div className="px-5 pb-4 space-y-2">
           {definitions.map(d => (
-            <div key={d.id} className={`rounded-xl border ${d.border} ${d.bg} px-4 py-3`}>
+            <div key={d.id} className={`rounded-2xl border ${d.border} ${d.bg} px-4 py-3`}>
               <div className="flex items-center gap-2 mb-1">
                 {d.icon ? <d.icon className={`h-4 w-4 ${d.iconClass}`} /> : <div className="h-4 w-4 rounded-full border-2 border-green-400 flex items-center justify-center"><div className="h-1.5 w-1.5 rounded-full bg-green-400" /></div>}
                 <p className="font-bold text-sm text-foreground">{d.label}</p>
@@ -213,7 +213,7 @@ function HelperPanel({ step = 1 }) {
       <div className="px-5 pb-5 border-t border-border/30 pt-4">
         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2.5">Example</p>
         <div className="space-y-1.5">
-          <div className="rounded-xl border border-primary/25 bg-primary/5 px-3 py-2.5">
+          <div className="rounded-2xl border border-primary/25 bg-primary/5 px-3 py-2.5">
             <div className="flex items-center gap-2">
               <MapPin className="h-3 w-3 text-primary shrink-0" />
               <span className="text-[11px] font-bold text-primary flex-1">Kitchen Line</span>
@@ -225,7 +225,7 @@ function HelperPanel({ step = 1 }) {
             <ArrowRight className="h-3 w-3 text-muted-foreground/40" />
             <span className="text-[10px] text-muted-foreground/50">contains</span>
           </div>
-          <div className="rounded-xl border border-blue-500/25 bg-blue-500/5 px-3 py-2.5 ml-4">
+          <div className="rounded-2xl border border-blue-500/25 bg-blue-500/5 px-3 py-2.5 ml-4">
             <div className="flex items-center gap-2">
               <Layers className="h-3 w-3 text-blue-400 shrink-0" />
               <span className="text-[11px] font-bold text-blue-400 flex-1">Fryer, Grill</span>
@@ -267,7 +267,7 @@ function RightProgressPanel({ step, activeArea, activeStationName, equipmentPlan
             { Icon: step === 3 ? Package : Zap, color: 'bg-green-500/10', iconColor: 'text-green-400', label: step === 3 ? 'Equipment' : 'Workflow', def: step === 3 ? 'what the station uses or checks.' : 'what the station must do.' },
           ].map(({ Icon, color, iconColor, label, def }) => (
             <div key={label} className="flex items-start gap-2.5">
-              <div className={`h-7 w-7 rounded-lg ${color} flex items-center justify-center shrink-0`}><Icon className={`h-3.5 w-3.5 ${iconColor}`} /></div>
+              <div className={`h-7 w-7 rounded-2xl ${color} flex items-center justify-center shrink-0`}><Icon className={`h-3.5 w-3.5 ${iconColor}`} /></div>
               <p className="text-xs text-foreground pt-1"><span className="font-bold">{label}</span> = <span className="text-muted-foreground">{def}</span></p>
             </div>
           ))}
@@ -300,7 +300,7 @@ function RightProgressPanel({ step, activeArea, activeStationName, equipmentPlan
         {activeArea && activeStationName ? (
           <>
             <div className="flex items-center gap-2 mb-3">
-              <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+              <div className="h-8 w-8 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
                 <activeArea.icon className="h-4 w-4 text-primary" />
               </div>
               <div>
@@ -349,8 +349,8 @@ function AreasStationsPanel({ selectedAreas, stationPlan, activeKey, onSelect, e
           const isExpanded = expanded.has(area.slug);
           return (
             <div key={area.slug}>
-              <button onClick={() => toggle(area.slug)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-secondary/40 transition-colors group">
-                <div className="h-7 w-7 rounded-lg bg-primary/15 flex items-center justify-center shrink-0"><area.icon className="h-3.5 w-3.5 text-primary" /></div>
+              <button onClick={() => toggle(area.slug)} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-2xl text-left hover:bg-secondary/40 transition-colors group">
+                <div className="h-7 w-7 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0"><area.icon className="h-3.5 w-3.5 text-primary" /></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-foreground truncate">{area.name}</p>
                   <p className="text-[10px] text-muted-foreground">{stations.length} station{stations.length !== 1 ? 's' : ''}</p>
@@ -365,7 +365,7 @@ function AreasStationsPanel({ selectedAreas, stationPlan, activeKey, onSelect, e
                 const hasItems = step === 3 ? (ep.selected.size + ep.custom.length > 0) : (wp.selected.size + wp.custom.length > 0);
                 return (
                   <button key={key} onClick={() => onSelect(key)}
-                    className={`w-full flex items-center gap-2 pl-10 pr-3 py-2 rounded-xl text-left transition-colors ${isActive ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'}`}>
+                    className={`w-full flex items-center gap-2 pl-10 pr-3 py-2 rounded-2xl text-left transition-colors ${isActive ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'}`}>
                     <Layers className={`h-3 w-3 shrink-0 ${isActive ? 'text-white/70' : 'text-muted-foreground/50'}`} />
                     <span className={`text-xs font-semibold flex-1 truncate ${isActive ? 'text-white' : 'text-foreground'}`}>{name}</span>
                     {hasItems && <Check className={`h-3 w-3 shrink-0 ${isActive ? 'text-white/80' : 'text-green-400'}`} />}
@@ -375,7 +375,7 @@ function AreasStationsPanel({ selectedAreas, stationPlan, activeKey, onSelect, e
             </div>
           );
         })}
-        <button onClick={onAddArea} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 border-dashed border-border/40 text-muted-foreground hover:border-border hover:text-foreground transition-colors mt-1">
+        <button onClick={onAddArea} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-2xl border-2 border-dashed border-border/40 text-muted-foreground hover:border-border hover:text-foreground transition-colors mt-1">
           <Plus className="h-3.5 w-3.5" /><span className="text-xs font-semibold">Add Area</span>
         </button>
       </div>
@@ -392,7 +392,7 @@ function AreaCard({ name, icon: Icon, selected, existing, group, onToggle }) {
     <button
       onClick={existing ? undefined : onToggle}
       disabled={existing}
-      className={`relative w-full flex items-center gap-3 px-3 py-3 rounded-xl border transition-colors text-left group ${
+      className={`relative w-full flex items-center gap-3 px-3 py-3 rounded-2xl border transition-colors text-left group ${
         existing
           ? 'border-green-500/20 bg-green-500/5 cursor-default'
           : sel
@@ -402,7 +402,7 @@ function AreaCard({ name, icon: Icon, selected, existing, group, onToggle }) {
           : 'border-border/40 bg-card hover:border-border/70'
       }`}
     >
-      <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+      <div className={`h-9 w-9 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${
         existing ? 'bg-green-500/10' :
         sel ? (isBOH ? 'bg-primary/15' : 'bg-blue-500/15') :
         'bg-muted/50 group-hover:bg-muted/80'
@@ -436,11 +436,11 @@ function AreaCard({ name, icon: Icon, selected, existing, group, onToggle }) {
 function StationRow({ name, icon: Icon, selected, existing, onToggle }) {
   return (
     <button onClick={existing ? undefined : onToggle} disabled={existing}
-      className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border transition-colors text-left group ${
+      className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl border transition-colors text-left group ${
         existing ? 'border-border/30 bg-card/40 opacity-50 cursor-default' :
         selected ? 'border-primary bg-primary/10' : 'border-border/40 bg-card hover:border-border/70'
       }`}>
-      <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${selected && !existing ? 'bg-primary/15' : 'bg-muted/50'}`}>
+      <div className={`h-8 w-8 rounded-2xl flex items-center justify-center shrink-0 ${selected && !existing ? 'bg-primary/15' : 'bg-muted/50'}`}>
         <Icon className={`h-4 w-4 ${selected && !existing ? 'text-primary' : 'text-muted-foreground'}`} />
       </div>
       <span className="text-sm font-semibold text-foreground flex-1 truncate">{name}</span>
@@ -776,18 +776,18 @@ export default function RestaurantSetupWizard() {
                 <input autoFocus value={customAreaName} onChange={e => setCustomAreaName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') addCustomArea(); if (e.key === 'Escape') setShowCustomInput(false); }}
                   placeholder="e.g. Rooftop Bar…"
-                  className="flex-1 h-10 px-3 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
-                <select value={customAreaGroup} onChange={e => setCustomAreaGroup(e.target.value)} className="h-10 px-2 rounded-xl border border-border bg-background text-sm text-foreground">
+                  className="flex-1 h-10 px-3 rounded-2xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
+                <select value={customAreaGroup} onChange={e => setCustomAreaGroup(e.target.value)} className="h-10 px-2 rounded-2xl border border-border bg-background text-sm text-foreground">
                   <option value="BOH">BOH</option><option value="FOH">FOH</option><option value="Bar">Bar</option>
                 </select>
-                <button onClick={addCustomArea} disabled={!customAreaName.trim()} className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-bold disabled:opacity-40">Add</button>
-                <button onClick={() => setShowCustomInput(false)} className="h-10 w-10 rounded-xl border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"><X className="h-4 w-4" /></button>
+                <button onClick={addCustomArea} disabled={!customAreaName.trim()} className="h-10 px-4 rounded-2xl bg-primary text-white text-sm font-bold disabled:opacity-40">Add</button>
+                <button onClick={() => setShowCustomInput(false)} className="h-10 w-10 rounded-2xl border border-border text-muted-foreground hover:bg-secondary flex items-center justify-center"><X className="h-4 w-4" /></button>
               </div>
             )}
             {selectedAreas.filter(a => a.isCustom).length > 0 && (
               <div className={`flex flex-wrap gap-1.5 ${showCustomInput ? 'mt-2' : ''}`}>
                 {selectedAreas.filter(a => a.isCustom).map(a => (
-                  <div key={a.slug} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/30">
+                  <div key={a.slug} className="flex items-center gap-1.5 px-2.5 py-1 rounded-2xl bg-primary/10 border border-primary/30">
                     <span className="text-xs font-semibold text-primary">{a.name}</span>
                     <button onClick={() => setSelectedAreas(p => p.filter(x => x.slug !== a.slug))} className="text-muted-foreground hover:text-red-400 ml-0.5"><X className="h-3 w-3" /></button>
                   </div>
@@ -820,7 +820,7 @@ export default function RestaurantSetupWizard() {
         </div>
         <button
           onClick={() => setShowCustomInput(true)}
-          className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap"
+          className="h-10 px-4 rounded-2xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap"
         >
           <Plus className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Add Custom</span>
@@ -828,7 +828,7 @@ export default function RestaurantSetupWizard() {
         <button
           onClick={() => { setActiveAreaSlug(selectedAreas[0]?.slug || null); setStep(2); }}
           disabled={selectedAreas.length === 0}
-          className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-black disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0 whitespace-nowrap"
+          className="h-10 px-5 rounded-2xl bg-primary text-white text-sm font-black disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0 whitespace-nowrap"
         >
           Continue to Stations <ChevronRight className="h-4 w-4" />
         </button>
@@ -864,7 +864,7 @@ export default function RestaurantSetupWizard() {
                 const isActive = a.slug === activeAreaSlug;
                 return (
                   <button key={a.slug} onClick={() => setActiveAreaSlug(a.slug)}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-colors border ${isActive ? 'glow-active border-primary/30' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/40'}`}>
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-left transition-colors border ${isActive ? 'glow-active border-primary/30' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/40'}`}>
                     <a.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                     <span className={`text-xs font-bold flex-1 truncate ${isActive ? 'text-foreground' : ''}`}>{a.name}</span>
                     {count > 0 && <Check className="h-3.5 w-3.5 text-green-400 shrink-0" />}
@@ -887,11 +887,11 @@ export default function RestaurantSetupWizard() {
               })}
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0"><activeArea.icon className="h-5 w-5 text-primary" /></div>
+              <div className="h-10 w-10 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0"><activeArea.icon className="h-5 w-5 text-primary" /></div>
               <div><h3 className="text-lg font-black text-foreground">{activeArea.name}</h3><p className="text-xs text-muted-foreground">Select stations within this area.</p></div>
             </div>
             {activeArea.bothType === 'station' ? (
-              <div className="rounded-xl border border-border/40 bg-card/40 p-5 text-center space-y-1.5">
+              <div className="rounded-2xl border border-border/40 bg-card/40 p-5 text-center space-y-1.5">
                 <Layers className="h-7 w-7 text-muted-foreground/30 mx-auto" />
                 <p className="text-sm font-bold text-foreground">{activeArea.name} will be a work position only.</p>
                 <p className="text-xs text-muted-foreground">Move to the next area or continue.</p>
@@ -919,13 +919,13 @@ export default function RestaurantSetupWizard() {
                       onChange={e => setStationPlan(prev => ({ ...prev, [activeArea.slug]: { ...(prev[activeArea.slug] || { selectedStations: new Set(), customStations: [] }), customInput: e.target.value } }))}
                       onKeyDown={e => e.key === 'Enter' && addCustomStation(activeArea.slug)}
                       placeholder="Station name…"
-                      className="flex-1 h-10 px-3 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
-                    <button onClick={() => addCustomStation(activeArea.slug)} disabled={!(plan.customInput || '').trim()} className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-bold disabled:opacity-40">Add</button>
+                      className="flex-1 h-10 px-3 rounded-2xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
+                    <button onClick={() => addCustomStation(activeArea.slug)} disabled={!(plan.customInput || '').trim()} className="h-10 px-4 rounded-2xl bg-primary text-white text-sm font-bold disabled:opacity-40">Add</button>
                   </div>
                   {plan.customStations.length > 0 && (
                     <div className="mt-2 space-y-1.5">
                       {plan.customStations.map(name => (
-                        <div key={name} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-primary/10 border border-primary/30">
+                        <div key={name} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-primary/10 border border-primary/30">
                           <Layers className="h-3.5 w-3.5 text-primary shrink-0" />
                           <span className="text-sm font-medium text-foreground flex-1">{name}</span>
                           <button onClick={() => removeCustomStation(activeArea.slug, name)} className="text-muted-foreground hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
@@ -942,12 +942,12 @@ export default function RestaurantSetupWizard() {
                 <p className="text-[11px] text-muted-foreground mb-3">Some areas also function as a work station themselves.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {bothCandidatesInSelection.map(area => (
-                    <div key={area.slug} className="rounded-xl border border-border/50 bg-card p-3.5">
+                    <div key={area.slug} className="rounded-2xl border border-border/50 bg-card p-3.5">
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="h-7 w-7 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0"><area.icon className="h-3.5 w-3.5 text-green-400" /></div>
+                        <div className="h-7 w-7 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0"><area.icon className="h-3.5 w-3.5 text-green-400" /></div>
                         <span className="text-sm font-bold text-foreground">{area.name}</span>
                       </div>
-                      <div className="flex rounded-lg border border-border/50 overflow-hidden">
+                      <div className="flex rounded-2xl border border-border/50 overflow-hidden">
                         {[{ v: 'area', label: 'Area' }, { v: 'station', label: 'Station' }, { v: 'both', label: 'Both' }].map(({ v, label }) => (
                           <button key={v} onClick={() => setBothType(area.slug, v)}
                             className={`flex-1 py-2 text-xs font-bold transition-colors border-r border-border/30 last:border-r-0 ${area.bothType === v ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'}`}>
@@ -979,10 +979,10 @@ export default function RestaurantSetupWizard() {
               <p className="text-xs text-muted-foreground">Select stations for your areas above</p>
             )}
           </div>
-          <button onClick={() => setStep(1)} className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
+          <button onClick={() => setStep(1)} className="h-10 px-4 rounded-2xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
-          <button onClick={() => advanceToStep(3)} className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-black flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
+          <button onClick={() => advanceToStep(3)} className="h-10 px-5 rounded-2xl bg-primary text-white text-sm font-black flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
             Save &amp; Continue <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -1007,7 +1007,7 @@ export default function RestaurantSetupWizard() {
             const ep = getEquipPlan(key);
             return (
               <button key={key} onClick={() => setActiveStationKey(key)}
-                className={`shrink-0 flex flex-col items-start px-3 py-2 rounded-xl border text-xs font-bold transition-colors ${isActive ? 'glow-active border-primary/30' : 'border-border/40 bg-card text-muted-foreground'}`}>
+                className={`shrink-0 flex flex-col items-start px-3 py-2 rounded-2xl border text-xs font-bold transition-colors ${isActive ? 'glow-active border-primary/30' : 'border-border/40 bg-card text-muted-foreground'}`}>
                 <span className={isActive ? 'text-foreground' : ''}>{name}</span>
                 <span className="text-[10px] text-muted-foreground/60 font-normal">{areaName}</span>
                 {(ep.selected.size + ep.custom.length) > 0 && <Check className="h-3 w-3 text-green-400 mt-0.5" />}
@@ -1021,11 +1021,11 @@ export default function RestaurantSetupWizard() {
           <div className="lg:hidden mb-4 rounded-2xl border border-border/50 bg-card overflow-hidden">
             <div className="grid grid-cols-2 divide-x divide-border/30">
               <div className="flex items-center gap-3 px-4 py-3">
-                <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0"><activeArea.icon className="h-4 w-4 text-primary" /></div>
+                <div className="h-8 w-8 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0"><activeArea.icon className="h-4 w-4 text-primary" /></div>
                 <div><p className="text-sm font-bold text-foreground">{activeArea.name}</p><p className="text-[11px] text-muted-foreground">Area</p></div>
               </div>
               <div className="flex items-center gap-3 px-4 py-3">
-                <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0"><Layers className="h-4 w-4 text-blue-400" /></div>
+                <div className="h-8 w-8 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0"><Layers className="h-4 w-4 text-blue-400" /></div>
                 <div><p className="text-sm font-bold text-foreground">{stationName}</p><p className="text-[11px] text-muted-foreground">Station</p></div>
               </div>
             </div>
@@ -1033,8 +1033,8 @@ export default function RestaurantSetupWizard() {
         )}
 
         {/* Mobile: equipment definition chip */}
-        <div className="lg:hidden mb-4 flex items-center gap-3 px-4 py-3 rounded-xl border border-border/50 bg-card">
-          <div className="h-8 w-8 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0"><Package className="h-4 w-4 text-green-400" /></div>
+        <div className="lg:hidden mb-4 flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-card">
+          <div className="h-8 w-8 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0"><Package className="h-4 w-4 text-green-400" /></div>
           <p className="text-sm text-foreground flex-1"><span className="font-bold">Equipment</span> = what the station uses or checks.</p>
           <Lightbulb className="h-4 w-4 text-amber-400 shrink-0" />
         </div>
@@ -1068,13 +1068,13 @@ export default function RestaurantSetupWizard() {
               <div className="rounded-2xl border border-border/50 bg-card overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
                   <p className="text-sm font-bold text-foreground">Equipment assigned to {stationName} ({assignedAll.length})</p>
-                  <button className="flex items-center gap-1.5 text-xs font-bold text-primary px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors">
+                  <button className="flex items-center gap-1.5 text-xs font-bold text-primary px-3 py-1.5 rounded-2xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors">
                     <Zap className="h-3 w-3" /> Quick Add
                   </button>
                 </div>
                 <div className="p-4 grid grid-cols-2 lg:grid-cols-3 gap-2">
                   {assignedAll.map(name => (
-                    <div key={name} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-green-500/25 bg-green-500/5 group">
+                    <div key={name} className="flex items-center gap-2 px-3 py-2 rounded-2xl border border-green-500/25 bg-green-500/5 group">
                       <Package className="h-4 w-4 text-green-400 shrink-0" />
                       <span className="text-sm font-semibold text-foreground flex-1 truncate">{name}</span>
                       <button onClick={() => removeEquipItem(activeStationKey, name)} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-400"><X className="h-3.5 w-3.5" /></button>
@@ -1091,14 +1091,14 @@ export default function RestaurantSetupWizard() {
                 <p className="text-sm font-bold text-foreground mb-3">Suggested equipment for {stationName}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {suggestions.map(({ name, desc }) => (
-                    <div key={name} className="rounded-xl border border-border/50 bg-card p-4 flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-muted/50 flex items-center justify-center shrink-0"><Package className="h-5 w-5 text-muted-foreground" /></div>
+                    <div key={name} className="rounded-2xl border border-border/50 bg-card p-4 flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0"><Package className="h-5 w-5 text-muted-foreground" /></div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-foreground leading-tight">{name}</p>
                         {desc && <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>}
                       </div>
                       <button onClick={() => addEquipItem(activeStationKey, name)}
-                        className="shrink-0 h-7 px-3 rounded-lg border border-blue-500/40 bg-blue-500/10 text-xs font-bold text-blue-400 hover:bg-blue-500/20 transition-colors">
+                        className="shrink-0 h-7 px-3 rounded-2xl border border-blue-500/40 bg-blue-500/10 text-xs font-bold text-blue-400 hover:bg-blue-500/20 transition-colors">
                         + Add
                       </button>
                     </div>
@@ -1109,7 +1109,7 @@ export default function RestaurantSetupWizard() {
 
             {/* No suggestions */}
             {suggestions.length === 0 && assignedAll.length === 0 && (
-              <div className="rounded-xl border border-border/40 bg-card/40 p-6 text-center">
+              <div className="rounded-2xl border border-border/40 bg-card/40 p-6 text-center">
                 <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
                 <p className="text-sm font-bold text-foreground">No suggestions for {stationName}</p>
                 <p className="text-xs text-muted-foreground mt-1">Add custom equipment below or skip for now.</p>
@@ -1123,9 +1123,9 @@ export default function RestaurantSetupWizard() {
                 <input value={equipCustomInput} onChange={e => setEquipCustomInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addCustomEquip(activeStationKey)}
                   placeholder="Enter equipment name"
-                  className="flex-1 h-10 px-3 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
+                  className="flex-1 h-10 px-3 rounded-2xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
                 <button onClick={() => addCustomEquip(activeStationKey)} disabled={!equipCustomInput.trim()}
-                  className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-bold disabled:opacity-40 flex items-center gap-1.5 hover:bg-primary/90">
+                  className="h-10 px-4 rounded-2xl bg-primary text-white text-sm font-bold disabled:opacity-40 flex items-center gap-1.5 hover:bg-primary/90">
                   + Add Custom
                 </button>
               </div>
@@ -1153,13 +1153,13 @@ export default function RestaurantSetupWizard() {
               <p className="text-xs text-muted-foreground">Add equipment above or skip for now</p>
             )}
           </div>
-          <button onClick={() => navigate('/setup-journey')} className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors shrink-0">
+          <button onClick={() => navigate('/setup-journey')} className="h-10 px-4 rounded-2xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors shrink-0">
             Skip
           </button>
-          <button onClick={() => setStep(2)} className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
+          <button onClick={() => setStep(2)} className="h-10 px-4 rounded-2xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
-          <button onClick={() => advanceToStep(4)} className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-black flex items-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
+          <button onClick={() => advanceToStep(4)} className="h-10 px-5 rounded-2xl bg-primary text-white text-sm font-black flex items-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
             Save &amp; Continue <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -1190,7 +1190,7 @@ export default function RestaurantSetupWizard() {
             const wp = getWfPlan(key);
             return (
               <button key={key} onClick={() => setActiveStationKey(key)}
-                className={`shrink-0 flex flex-col items-start px-3 py-2 rounded-xl border text-xs font-bold transition-colors ${isActive ? 'glow-active border-primary/30' : 'border-border/40 bg-card text-muted-foreground'}`}>
+                className={`shrink-0 flex flex-col items-start px-3 py-2 rounded-2xl border text-xs font-bold transition-colors ${isActive ? 'glow-active border-primary/30' : 'border-border/40 bg-card text-muted-foreground'}`}>
                 <span className={isActive ? 'text-foreground' : ''}>{name}</span>
                 <span className="text-[10px] text-muted-foreground/60 font-normal">{areaName}</span>
               </button>
@@ -1201,12 +1201,12 @@ export default function RestaurantSetupWizard() {
         {/* Mobile: context card */}
         {activeArea && stationName && (
           <div className="lg:hidden mb-4 rounded-2xl border border-border/50 bg-card p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0"><activeArea.icon className="h-5 w-5 text-primary" /></div>
+            <div className="h-10 w-10 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0"><activeArea.icon className="h-5 w-5 text-primary" /></div>
             <div className="flex-1">
               <p className="text-base font-black text-foreground">{stationName}</p>
               <p className="text-xs text-muted-foreground">{activeArea.name}</p>
             </div>
-            <button onClick={() => setStep(2)} className="text-xs font-bold text-blue-400 px-3 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10">✏ Change</button>
+            <button onClick={() => setStep(2)} className="text-xs font-bold text-blue-400 px-3 py-1.5 rounded-2xl border border-blue-500/30 bg-blue-500/10">✏ Change</button>
           </div>
         )}
 
@@ -1245,7 +1245,7 @@ export default function RestaurantSetupWizard() {
                     const isAssigned = wfPlan.selected.has(wf.name);
                     return (
                       <button key={wf.name} onClick={() => toggleWorkflow(activeStationKey, wf.name)}
-                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-colors text-left ${isAssigned ? 'border-green-500/25 bg-green-500/5' : 'border-border/40 bg-card/50 opacity-50'}`}>
+                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border transition-colors text-left ${isAssigned ? 'border-green-500/25 bg-green-500/5' : 'border-border/40 bg-card/50 opacity-50'}`}>
                         <wf.icon className={`h-4 w-4 shrink-0 ${isAssigned ? 'text-green-400' : 'text-muted-foreground'}`} />
                         <span className="text-xs font-semibold text-foreground flex-1 truncate">{wf.name}</span>
                         <Check className={`h-3.5 w-3.5 shrink-0 ${isAssigned ? 'text-green-400' : 'text-muted-foreground/30'}`} />
@@ -1253,7 +1253,7 @@ export default function RestaurantSetupWizard() {
                     );
                   })}
                   {wfPlan.custom.map(name => (
-                    <div key={name} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-green-500/25 bg-green-500/5">
+                    <div key={name} className="flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border border-green-500/25 bg-green-500/5">
                       <Zap className="h-4 w-4 text-green-400 shrink-0" />
                       <span className="text-xs font-semibold text-foreground flex-1 truncate">{name}</span>
                       <button onClick={() => setWorkflowPlan(prev => { const p = getWfPlan(activeStationKey); return { ...prev, [activeStationKey]: { ...p, custom: p.custom.filter(c => c !== name) } }; })}
@@ -1267,7 +1267,7 @@ export default function RestaurantSetupWizard() {
             {/* When should this run */}
             <div className="rounded-2xl border border-border/50 bg-card p-4">
               <p className="text-sm font-bold text-foreground mb-3">When should this run?</p>
-              <div className="flex rounded-xl border border-border/50 overflow-hidden">
+              <div className="flex rounded-2xl border border-border/50 overflow-hidden">
                 {SCHEDULES.map(({ v, label, icon: Icon }) => (
                   <button key={v} onClick={() => setSchedule(activeStationKey, v)}
                     className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors border-r border-border/30 last:border-r-0 ${wfPlan.schedule === v ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'}`}>
@@ -1290,14 +1290,14 @@ export default function RestaurantSetupWizard() {
                 <p className="text-sm font-bold text-foreground mb-3">Suggested Workflows</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {suggestedWfs.map(({ name, desc, icon: Icon }) => (
-                    <div key={name} className="rounded-xl border border-border/50 bg-card p-4 flex items-start gap-3">
-                      <div className="h-9 w-9 rounded-lg bg-muted/50 flex items-center justify-center shrink-0"><Icon className="h-4 w-4 text-muted-foreground" /></div>
+                    <div key={name} className="rounded-2xl border border-border/50 bg-card p-4 flex items-start gap-3">
+                      <div className="h-9 w-9 rounded-2xl bg-muted/50 flex items-center justify-center shrink-0"><Icon className="h-4 w-4 text-muted-foreground" /></div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-foreground leading-tight">{name}</p>
                         {desc && <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>}
                       </div>
                       <button onClick={() => toggleWorkflow(activeStationKey, name)}
-                        className="shrink-0 h-7 px-3 rounded-lg border border-blue-500/40 bg-blue-500/10 text-xs font-bold text-blue-400 hover:bg-blue-500/20 transition-colors">
+                        className="shrink-0 h-7 px-3 rounded-2xl border border-blue-500/40 bg-blue-500/10 text-xs font-bold text-blue-400 hover:bg-blue-500/20 transition-colors">
                         + Add
                       </button>
                     </div>
@@ -1307,8 +1307,8 @@ export default function RestaurantSetupWizard() {
             )}
 
             {/* Workflow definition (mobile) */}
-            <div className="lg:hidden flex items-center gap-3 px-4 py-3 rounded-xl border border-border/50 bg-card">
-              <div className="h-8 w-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0"><Zap className="h-4 w-4 text-blue-400" /></div>
+            <div className="lg:hidden flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-card">
+              <div className="h-8 w-8 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0"><Zap className="h-4 w-4 text-blue-400" /></div>
               <p className="text-sm text-foreground flex-1"><span className="font-bold">Workflow</span> = what the station must do. Checklists, logs, and tasks your team follows.</p>
             </div>
 
@@ -1319,9 +1319,9 @@ export default function RestaurantSetupWizard() {
                 <input value={wfCustomInput} onChange={e => setWfCustomInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addCustomWf(activeStationKey)}
                   placeholder="Enter workflow name"
-                  className="flex-1 h-10 px-3 rounded-xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
+                  className="flex-1 h-10 px-3 rounded-2xl border border-border bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
                 <button onClick={() => addCustomWf(activeStationKey)} disabled={!wfCustomInput.trim()}
-                  className="h-10 px-4 rounded-xl bg-primary text-white text-sm font-bold disabled:opacity-40 flex items-center gap-1.5 hover:bg-primary/90">
+                  className="h-10 px-4 rounded-2xl bg-primary text-white text-sm font-bold disabled:opacity-40 flex items-center gap-1.5 hover:bg-primary/90">
                   + Add Custom
                 </button>
               </div>
@@ -1329,7 +1329,7 @@ export default function RestaurantSetupWizard() {
 
             {/* Mobile summary */}
             {assignedWfs.length > 0 && (
-              <div className="lg:hidden flex items-center gap-3 px-4 py-3 rounded-xl border border-green-500/30 bg-green-500/5">
+              <div className="lg:hidden flex items-center gap-3 px-4 py-3 rounded-2xl border border-green-500/30 bg-green-500/5">
                 <Check className="h-5 w-5 text-green-400 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-green-400">{assignedWfs.length} workflow{assignedWfs.length !== 1 ? 's' : ''} selected</p>
@@ -1340,7 +1340,7 @@ export default function RestaurantSetupWizard() {
             )}
 
             {assignedWfs.length === 0 && (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-2.5">
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-2.5">
                 <AlertCircle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-200/80">This station has no workflows yet. You can add them later from the station page.</p>
               </div>
@@ -1368,10 +1368,10 @@ export default function RestaurantSetupWizard() {
               <p className="text-xs text-muted-foreground">Assign workflows above or continue</p>
             )}
           </div>
-          <button onClick={() => setStep(3)} className="h-10 px-4 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
+          <button onClick={() => setStep(3)} className="h-10 px-4 rounded-2xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-1.5 shrink-0">
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
-          <button onClick={() => setStep(5)} className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-black flex items-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
+          <button onClick={() => setStep(5)} className="h-10 px-5 rounded-2xl bg-primary text-white text-sm font-black flex items-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98] shrink-0">
             Continue to Review <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -1415,7 +1415,7 @@ export default function RestaurantSetupWizard() {
 
         {/* Warnings */}
         {(stationsWithNoEquip.length > 0 || stationsWithNoWf.length > 0) && (
-          <div className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 space-y-1">
+          <div className="mb-5 rounded-2xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 space-y-1">
             <div className="flex items-center gap-2 mb-1"><AlertCircle className="h-4 w-4 text-amber-400" /><p className="text-sm font-bold text-foreground">Heads up</p></div>
             {stationsWithNoEquip.length > 0 && <p className="text-xs text-muted-foreground">{stationsWithNoEquip.length} station{stationsWithNoEquip.length !== 1 ? 's have' : ' has'} no equipment — you can add it later from each station page.</p>}
             {stationsWithNoWf.length > 0   && <p className="text-xs text-muted-foreground">{stationsWithNoWf.length} station{stationsWithNoWf.length !== 1 ? 's have' : ' has'} no workflows — you can add them later.</p>}
@@ -1475,11 +1475,11 @@ export default function RestaurantSetupWizard() {
         </div>
 
         <div className="flex gap-3 pb-8 lg:pb-0">
-          <button onClick={() => setStep(4)} className="h-12 px-5 rounded-xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-2">
+          <button onClick={() => setStep(4)} className="h-12 px-5 rounded-2xl border border-border/60 text-sm font-bold text-muted-foreground hover:bg-secondary transition-colors flex items-center gap-2">
             <ChevronLeft className="h-4 w-4" /> Back
           </button>
           <button onClick={handleSave} disabled={saving || (newAreas === 0 && newStations === 0)}
-            className="flex-1 h-12 rounded-xl bg-primary text-white text-sm font-black disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98]">
+            className="flex-1 h-12 rounded-2xl bg-primary text-white text-sm font-black disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors active:scale-[0.98]">
             {saving ? 'Saving…' : <><span>Save Setup</span><ChevronRight className="h-4 w-4" /></>}
           </button>
         </div>
@@ -1520,7 +1520,7 @@ export default function RestaurantSetupWizard() {
             <div className="flex items-center justify-between mb-2">
               <h1 className="text-2xl font-black text-foreground">Restaurant Setup Wizard</h1>
               <button onClick={() => navigate('/setup-journey')}
-                className="flex items-center gap-2 text-sm font-bold text-muted-foreground px-4 py-2 rounded-xl border border-border/60 hover:bg-secondary transition-colors">
+                className="flex items-center gap-2 text-sm font-bold text-muted-foreground px-4 py-2 rounded-2xl border border-border/60 hover:bg-secondary transition-colors">
                 <X className="h-4 w-4" /> Exit Setup
               </button>
             </div>

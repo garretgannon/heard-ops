@@ -41,7 +41,7 @@ export default function AdminCommandCenter() {
             <button
               key={s.id}
               onClick={() => setActive(s.id)}
-              className={cn('flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all', active === s.id ? 'glow-active' : 'text-muted-foreground glow-interactive')}
+              className={cn('flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all', active === s.id ? 'glow-active' : 'text-muted-foreground glow-interactive')}
             >
               <Icon className="h-3.5 w-3.5" />
               {s.label}

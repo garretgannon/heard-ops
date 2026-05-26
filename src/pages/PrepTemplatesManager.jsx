@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   return (
-    <div className="card-glass border border-border rounded-lg p-3.5 space-y-2.5">
+    <div className="card-glass border border-border rounded-2xl p-3.5 space-y-2.5">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
           <p className="font-bold text-sm text-foreground">{template.name}</p>
@@ -116,12 +116,12 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
               onFocus={() => { setActivePickerIdx(idx); setPickerSearch(item.itemName); }}
               onBlur={() => setTimeout(() => setActivePickerIdx(null), 150)}
               onKeyDown={e => handleNameKeyDown(e, idx)}
-              className={`w-full h-10 px-2.5 bg-background border rounded-lg text-xs text-foreground focus:outline-none ${isDup ? 'border-amber-500/60' : item.linked_recipe_id ? 'border-primary/50' : 'border-border focus:border-primary'}`}
+              className={`w-full h-10 px-2.5 bg-background border rounded-2xl text-xs text-foreground focus:outline-none ${isDup ? 'border-amber-500/60' : item.linked_recipe_id ? 'border-primary/50' : 'border-border focus:border-primary'}`}
               autoComplete="off"
             />
             {isDup && <span className="absolute right-1.5 top-1 text-[9px] text-amber-400 font-bold">DUP</span>}
             {activePickerIdx === idx && recipes.length > 0 && (
-              <div className="absolute left-0 right-0 top-full z-50 mt-0.5 max-h-36 overflow-y-auto rounded-lg border border-border/60 bg-card shadow-lg">
+              <div className="absolute left-0 right-0 top-full z-50 mt-0.5 max-h-36 overflow-y-auto rounded-2xl border border-border/60 bg-card shadow-lg">
                 {filteredRecipes.map(r => (
                   <button
                     key={r.id}
@@ -147,14 +147,14 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
             value={item.quantity}
             onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value) || '')}
             onKeyDown={e => handleEnter(e, idx)}
-            className="w-full h-10 px-2 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none text-center"
+            className="w-full h-10 px-2 bg-background border border-border rounded-2xl text-xs text-foreground focus:border-primary focus:outline-none text-center"
           />
           <select
             data-field="unit"
             value={item.unit || 'lbs'}
             onChange={e => updateItem(idx, 'unit', e.target.value)}
             onKeyDown={e => handleEnter(e, idx)}
-            className="w-full h-10 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            className="w-full h-10 px-1.5 bg-background border border-border rounded-2xl text-xs text-foreground focus:border-primary focus:outline-none"
           >
             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
           </select>
@@ -163,7 +163,7 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
             value={item.priority || 'medium'}
             onChange={e => updateItem(idx, 'priority', e.target.value)}
             onKeyDown={e => handleEnter(e, idx)}
-            className="w-full h-10 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            className="w-full h-10 px-1.5 bg-background border border-border rounded-2xl text-xs text-foreground focus:border-primary focus:outline-none"
           >
             <option value="high">🔴 High</option>
             <option value="medium">🟡 Med</option>
@@ -191,7 +191,7 @@ function BulkItemEntry({ items, onChange, recipes = [] }) {
         </div>
         );
       })}
-      <button onClick={() => addRow(items.length - 1)} className="w-full h-10 mt-1 border border-dashed border-border rounded-lg text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1.5">
+      <button onClick={() => addRow(items.length - 1)} className="w-full h-10 mt-1 border border-dashed border-border rounded-2xl text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1.5">
         <Plus className="h-3.5 w-3.5" /> Add item <span className="text-[10px] opacity-60">(or press Enter on any row)</span>
       </button>
     </div>
@@ -286,13 +286,13 @@ function TemplateForm({ template, onSave, onCancel }) {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="card-glass border border-border rounded-lg p-4 space-y-4">
+    <div className="card-glass border border-border rounded-2xl p-4 space-y-4">
       <input
         type="text"
         placeholder="Template Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+        className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
       />
 
       <div className="grid grid-cols-2 gap-3">
@@ -301,25 +301,25 @@ function TemplateForm({ template, onSave, onCancel }) {
           placeholder="Station"
           value={station}
           onChange={(e) => setStation(e.target.value)}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
         />
         <input
           type="text"
           placeholder="Job Code"
           value={jobCode}
           onChange={(e) => setJobCode(e.target.value)}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <select value={shift} onChange={(e) => setShift(e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+        <select value={shift} onChange={(e) => setShift(e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
           <option value="all">All Shifts</option>
           <option value="opening">Opening</option>
           <option value="mid">Mid</option>
           <option value="closing">Closing</option>
         </select>
-        <select value={repeatType} onChange={(e) => setRepeatType(e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+        <select value={repeatType} onChange={(e) => setRepeatType(e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
           <option value="once">One Time</option>
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
@@ -360,7 +360,7 @@ function TemplateForm({ template, onSave, onCancel }) {
         placeholder="Notes / Instructions"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+        className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
         rows={3}
       />
 
@@ -481,15 +481,15 @@ export default function PrepTemplatesManager() {
                   placeholder="Search..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                  className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
                 />
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setShowArchived(false)} className={`text-xs font-bold px-3 py-2 rounded-lg ${!showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <button onClick={() => setShowArchived(false)} className={`text-xs font-bold px-3 py-2 rounded-2xl ${!showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 Active
               </button>
-              <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-2 rounded-lg ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+              <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-2 rounded-2xl ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                 Archived
               </button>
               <button
@@ -510,14 +510,14 @@ export default function PrepTemplatesManager() {
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="text-xs font-bold px-3 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
+                className="text-xs font-bold px-3 py-2 rounded-2xl bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
               >
                 <Download className="h-3 w-3" />
                 Template
               </button>
               <button
                 onClick={() => { haptics.light(); setShowImport(true); }}
-                className="text-xs font-bold px-3 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
+                className="text-xs font-bold px-3 py-2 rounded-2xl bg-muted text-muted-foreground hover:bg-muted/80 flex items-center gap-1"
               >
                 <Upload className="h-3 w-3" />
                 Import
@@ -543,7 +543,7 @@ export default function PrepTemplatesManager() {
               <div className="flex flex-col gap-3 w-full max-w-xs">
                 <button
                   onClick={() => setIsCreating(true)}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-black text-white active:scale-[0.97] transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[14px] font-black text-white active:scale-[0.97] transition-all"
                   style={{
                     background: 'linear-gradient(135deg, #FF6B00 0%, #CC4400 100%)',
                     boxShadow: '0 0 0 1px rgba(255,107,0,0.35), 0 0 16px rgba(255,107,0,0.15)',
@@ -553,7 +553,7 @@ export default function PrepTemplatesManager() {
                 </button>
                 <button
                   onClick={() => setShowImport(true)}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-foreground active:scale-[0.97] transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[14px] font-semibold text-foreground active:scale-[0.97] transition-all"
                   style={{ border: '1px solid rgba(255,255,255,0.12)', background: 'transparent' }}
                 >
                   <Upload className="h-4 w-4" /> Import from CSV

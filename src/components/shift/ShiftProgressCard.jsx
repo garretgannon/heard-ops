@@ -14,7 +14,7 @@ export default function ShiftProgressCard({ completedCount, totalCount, status, 
   const statusConfig = getStatusColor();
 
   return (
-    <div className="card-glass border border-border/40 rounded-2xl p-5 space-y-4">
+    <div className="liquid-card p-5 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>

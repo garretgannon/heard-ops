@@ -7,6 +7,7 @@ import { haptics } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/useToast';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { posSync } from '@/lib/posSync';
 
 const NOTIFY_ROLES = [
   { id: 'managers', label: 'Managers' },
@@ -51,7 +52,7 @@ function PhotoField({ label, url, onUpload, onClear }) {
   return (
     <div>
       <p className="mb-1.5 text-xs font-bold text-muted-foreground">{label}</p>
-      <input ref={ref} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => handleFile(e.target.files[0])} />
+      <input ref={ref} type="file" accept="image/*" capture="environment" className="ops-input hidden" onChange={e => handleFile(e.target.files[0])} />
       <button
         type="button"
         onClick={() => ref.current?.click()}
@@ -106,6 +107,12 @@ export default function QuickAddEightySixModal({ open, onClose, onSuccess }) {
     haptics.medium?.();
     setSaving(true);
     try {
+      let posSynced = false;
+      if (posSync.isConnected()) {
+        const syncRes = await posSync.sync86ToPOS(itemName.trim(), reason.trim());
+        posSynced = syncRes.success;
+      }
+
       await base44.entities.EightySixItem.create({
         item_name: itemName.trim(),
         reason: reason.trim(),
@@ -116,8 +123,9 @@ export default function QuickAddEightySixModal({ open, onClose, onSuccess }) {
         notify_roles: notifyRoles,
         photo_url: photoUrl || undefined,
         status: 'active',
+        pos_synced: posSynced,
       });
-      toast('86 item logged');
+      toast(posSynced ? '86 item logged & Synced to POS' : '86 item logged');
       onSuccess?.();
       handleClose();
     } catch {

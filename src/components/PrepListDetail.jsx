@@ -415,7 +415,7 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                     <img src={item.master_photo_url} alt="Reference" className="h-12 w-12 rounded-lg object-cover border border-border" />
                     <label className="absolute inset-0 rounded-lg bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100">
                       <Upload className="h-3.5 w-3.5 text-white" />
-                      <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && uploadMasterPhoto(item.id, e.target.files[0])} />
+                      <input type="file" accept="image/*" className="ops-input hidden" onChange={e => e.target.files[0] && uploadMasterPhoto(item.id, e.target.files[0])} />
                     </label>
                   </div>
                 ) : (
@@ -423,7 +423,7 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
                     {uploadingMasterFor === item.id
                       ? <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                       : <><Upload className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-[9px] text-muted-foreground">Ref</span></>}
-                    <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && uploadMasterPhoto(item.id, e.target.files[0])} />
+                    <input type="file" accept="image/*" className="ops-input hidden" onChange={e => e.target.files[0] && uploadMasterPhoto(item.id, e.target.files[0])} />
                   </label>
                 )}
               </div>
@@ -519,23 +519,23 @@ export default function PrepListDetail({ prepList, station, items, onBack, onRef
               {bulkRows.map((row, i) => (
                 <div key={i} className="grid grid-cols-12 gap-2 items-center">
                   <div className="col-span-4">
-                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.name} onChange={e => updateBulkRow(i, "name", e.target.value)} placeholder="e.g., Dice onions" />
+                    <input className="ops-input w-full focus: focus:ring-1 focus:ring-ring" value={row.name} onChange={e => updateBulkRow(i, "name", e.target.value)} placeholder="e.g., Dice onions" />
                   </div>
                   <div className="col-span-2">
-                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.quantity} onChange={e => updateBulkRow(i, "quantity", e.target.value)} placeholder="5" />
+                    <input className="ops-input w-full focus: focus:ring-1 focus:ring-ring" value={row.quantity} onChange={e => updateBulkRow(i, "quantity", e.target.value)} placeholder="5" />
                   </div>
                   <div className="col-span-2">
-                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.unit} onChange={e => updateBulkRow(i, "unit", e.target.value)} placeholder="lbs" />
+                    <input className="ops-input w-full focus: focus:ring-1 focus:ring-ring" value={row.unit} onChange={e => updateBulkRow(i, "unit", e.target.value)} placeholder="lbs" />
                   </div>
                   <div className="col-span-2">
-                    <select className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.priority} onChange={e => updateBulkRow(i, "priority", e.target.value)}>
+                    <select className="w-full h-8 px-2 rounded-lg liquid-card text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.priority} onChange={e => updateBulkRow(i, "priority", e.target.value)}>
                       <option value="high">High</option>
                       <option value="medium">Medium</option>
                       <option value="low">Low</option>
                     </select>
                   </div>
                   <div className="col-span-1">
-                    <input className="w-full h-8 px-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring" value={row.notes} onChange={e => updateBulkRow(i, "notes", e.target.value)} placeholder="…" />
+                    <input className="ops-input w-full focus: focus:ring-1 focus:ring-ring" value={row.notes} onChange={e => updateBulkRow(i, "notes", e.target.value)} placeholder="…" />
                   </div>
                   <div className="col-span-1 flex justify-center">
                     {bulkRows.length > 1 && (

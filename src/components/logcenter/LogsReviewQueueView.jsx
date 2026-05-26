@@ -16,7 +16,7 @@ export default function LogsReviewQueueView({ logs, onLogClick }) {
         <button
           key={log.id}
           onClick={() => onLogClick?.(log)}
-          className="w-full text-left p-4 rounded-lg bg-card border border-purple-500/30 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all active:scale-95"
+          className="liquid-card w-full text-left p-4 -purple-500/30 hover:-purple-500/50 hover:bg-purple-500/5 transition-all active:scale-95"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">

@@ -58,8 +58,8 @@ const healthBorder = { success: 'border-green-500/30', warning: 'border-amber-50
 
 function SummaryCard({ label, value, icon: Icon, color }) {
   return (
-    <div className="ops-panel px-4 py-4 flex flex-col gap-1.5">
-      <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center', color === 'green' && 'bg-green-500/15', color === 'amber' && 'bg-amber-500/15', color === 'red' && 'bg-red-500/15', color === 'default' && 'bg-primary/15')}>
+    <div className="liquid-card px-4 py-4 flex flex-col gap-1.5">
+      <div className={cn('h-7 w-7 rounded-2xl flex items-center justify-center', color === 'green' && 'bg-green-500/15', color === 'amber' && 'bg-amber-500/15', color === 'red' && 'bg-red-500/15', color === 'default' && 'bg-primary/15')}>
         <Icon className={cn('h-3.5 w-3.5', color === 'green' && 'text-green-400', color === 'amber' && 'text-amber-400', color === 'red' && 'text-red-400', color === 'default' && 'text-primary')} />
       </div>
       <p className="text-xl font-black text-foreground">{value}</p>
@@ -94,8 +94,8 @@ function StationListCard({ station, equipment, isSelected, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="ops-panel w-full text-left px-4 py-3 transition-all duration-200 active:scale-[0.99] hover:brightness-110"
-      style={{ ...GLASS_BASE, ...(isSelected ? HEALTH_SELECTED[health.color] : {}) }}
+      className="liquid-card w-full text-left px-4 py-3 transition-all duration-200 active:scale-[0.99] hover:brightness-110"
+      style={isSelected ? HEALTH_SELECTED[health.color] : {}}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -212,7 +212,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {onClose && (
-              <button onClick={onClose} className="h-7 w-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground lg:hidden">
+              <button onClick={onClose} className="h-7 w-7 rounded-2xl hover:bg-muted flex items-center justify-center text-muted-foreground lg:hidden">
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -233,7 +233,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
         {/* Mini metrics */}
         <div className="mt-3 grid grid-cols-3 gap-1.5">
           {metrics.map(m => (
-            <div key={m.label} className="rounded-lg p-2 text-center bg-secondary/30 border border-border/50">
+            <div key={m.label} className="rounded-2xl p-2 text-center bg-secondary/30 border border-border/50">
               <p className={cn('text-base font-black', m.color === 'red' ? 'text-red-400' : 'text-foreground')}>{m.value}</p>
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">{m.label}</p>
             </div>
@@ -249,7 +249,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
           <div className="space-y-1.5">
             <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Issues</p>
             {blockers.map(b => (
-              <div key={b} className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/8 px-2.5 py-2">
+              <div key={b} className="flex items-center gap-2 rounded-2xl border border-amber-500/25 bg-amber-500/8 px-2.5 py-2">
                 <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400" />
                 <p className="text-xs font-semibold text-foreground">{b}</p>
               </div>
@@ -265,7 +265,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
               {eq.map(e => {
                 const configured = isEquipmentConfigured(e);
                 return (
-                  <div key={e.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-secondary/20 border border-border/40">
+                  <div key={e.id} className="flex items-center gap-2 rounded-2xl px-2.5 py-2 bg-secondary/20 border border-border/40">
                     {configured
                       ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-400" />
                       : <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400/70" />}
@@ -283,7 +283,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
         )}
 
         {eq.length === 0 && (
-          <div className="rounded-lg border border-dashed border-border/40 p-4 text-center">
+          <div className="rounded-2xl border border-dashed border-border/40 p-4 text-center">
             <p className="text-xs text-muted-foreground">No equipment assigned yet</p>
           </div>
         )}
@@ -294,7 +294,7 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
         {onViewDetail && (
           <button
             onClick={onViewDetail}
-            className="w-full flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-black text-primary transition-all active:scale-[0.98] bg-primary/10 border border-primary/25"
+            className="w-full flex items-center justify-center gap-1.5 rounded-2xl py-2.5 text-xs font-black text-primary transition-all active:scale-[0.98] bg-primary/10 border border-primary/25"
           >
             <ChevronRight className="h-3.5 w-3.5" /> View Full Station Detail
           </button>
@@ -302,13 +302,13 @@ function DetailPanel({ station, equipment, onEdit, onDelete, onClose, onViewDeta
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(station)}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-foreground transition-all active:scale-[0.98] bg-secondary border border-border"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl py-2 text-xs font-bold text-foreground transition-all active:scale-[0.98] bg-secondary border border-border"
           >
             <Edit2 className="h-3.5 w-3.5" /> Edit
           </button>
           <button
             onClick={() => onDelete(station.id)}
-            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-red-400 transition-all active:scale-[0.98] bg-red-500/10 border border-red-500/25"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl py-2 text-xs font-bold text-red-400 transition-all active:scale-[0.98] bg-red-500/10 border border-red-500/25"
           >
             <Trash2 className="h-3.5 w-3.5" /> Delete
           </button>
@@ -498,7 +498,7 @@ export default function Stations() {
       <DesktopPageHeader title="Stations" subtitle="Kitchen and service station readiness" />
 
       {/* Mobile header */}
-      <div className="lg:hidden px-4 pt-5 pb-4 flex flex-col gap-3 glass-header sticky top-0 z-10">
+      <div className="lg:hidden px-4 pt-5 pb-4 flex flex-col gap-3">
         {/* Title row — matches dashboard */}
         <div className="px-1">
           <p className="text-[11px] font-black uppercase tracking-[0.14em] text-muted-foreground">
@@ -515,36 +515,36 @@ export default function Stations() {
             placeholder="Search stations..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pl-10 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none rounded-2xl border border-border bg-card"
+            className="w-full h-11 pl-10 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none rounded-2xl border border-white/10 bg-white/5 focus:bg-white/10 focus:border-white/20 transition-all"
           />
         </div>
 
         {/* Filter chips */}
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-          {FILTERS.map(f => {
-            const isActive = activeFilter === f.id;
-            return (
-              <button
-                key={f.id}
-                onClick={() => { haptics.light?.(); setActiveFilter(f.id); }}
-                className={cn(
-                  "flex items-center whitespace-nowrap transition-all active:scale-95 h-6 px-2.5 rounded text-[11px] font-semibold tracking-wide border",
-                  isActive
-                    ? "bg-primary/10 border-primary/30 text-primary"
-                    : "glass-segmented text-muted-foreground"
-                )}
-              >
-                {f.label}
-              </button>
-            );
-          })}
+        <div className="w-full overflow-x-auto no-scrollbar pb-1">
+          <div className="pill-slider-container">
+            {FILTERS.map(f => {
+              const isActive = activeFilter === f.id;
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => { haptics.light?.(); setActiveFilter(f.id); }}
+                  className={cn(
+                    "glass-pill transition-all active:scale-95",
+                    isActive && "glow-active"
+                  )}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      <div className="ops-page ops-stack">
+      <div className="app-page lg:max-w-none lg:px-6">
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <div key={i} className="skeleton h-24 rounded-xl" />)}
+            {[1, 2, 3].map(i => <div key={i} className="skeleton h-24 rounded-2xl" />)}
           </div>
         ) : (
           <>
@@ -569,22 +569,24 @@ export default function Stations() {
                       placeholder="Search stations..."
                       value={search}
                       onChange={e => setSearch(e.target.value)}
-                      className="w-full pl-10 pr-3 py-2 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border bg-card"
+                      className="w-full pl-10 pr-3 py-2 rounded-2xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-white/10 bg-white/5 focus:bg-white/10 focus:border-white/20 transition-all"
                     />
                   </div>
-                  <div className="flex gap-1.5 pt-1 pl-0.5">
-                    {FILTERS.map(f => (
-                      <button
-                        key={f.id}
-                        onClick={() => setActiveFilter(f.id)}
-                        className={cn(
-                          'shrink-0 px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all',
-                          activeFilter === f.id ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
-                        )}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
+                  <div className="w-full overflow-x-auto no-scrollbar pt-1 pl-0.5">
+                    <div className="pill-slider-container">
+                      {FILTERS.map(f => (
+                        <button
+                          key={f.id}
+                          onClick={() => setActiveFilter(f.id)}
+                          className={cn(
+                            'glass-pill',
+                            activeFilter === f.id && 'glow-active'
+                          )}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -611,7 +613,7 @@ export default function Stations() {
 
               {/* Right: sticky detail panel */}
               <div className="sticky top-[72px] self-start">
-                <div className="ops-panel overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
+                <div className="liquid-card overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
                   <DetailPanel
                     station={syncedSelected}
                     equipment={equipment}
@@ -702,12 +704,12 @@ export default function Stations() {
                     onChange={e => setBulkRows(prev => prev.map((r, ri) => ri === i ? { ...r, name: e.target.value } : r))}
                     onKeyDown={e => { if (e.key === 'Enter') setBulkRows(prev => [...prev, { name: '', department: 'BOH' }]); }}
                     placeholder={`Station name ${i + 1}`}
-                    className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                    className="flex-1 px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
                   />
                   <select
                     value={row.department}
                     onChange={e => setBulkRows(prev => prev.map((r, ri) => ri === i ? { ...r, department: e.target.value } : r))}
-                    className="px-2 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                    className="px-2 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
                   >
                     {['BOH', 'FOH', 'Bar', 'Management'].map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
@@ -716,7 +718,7 @@ export default function Stations() {
                   </button>
                 </div>
               ))}
-              <button onClick={() => setBulkRows(prev => [...prev, { name: '', department: 'BOH' }])} className="w-full mt-1 h-9 rounded-lg border border-dashed border-border text-xs font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1">
+              <button onClick={() => setBulkRows(prev => [...prev, { name: '', department: 'BOH' }])} className="w-full mt-1 h-9 rounded-2xl border border-dashed border-border text-xs font-bold text-muted-foreground hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-1">
                 <Plus className="h-3.5 w-3.5" /> Add Row
               </button>
             </div>

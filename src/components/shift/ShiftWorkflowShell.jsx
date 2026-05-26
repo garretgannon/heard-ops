@@ -19,7 +19,7 @@ export function ShiftStageNav({ stages, activeStage, onStageChange, trailing, cl
               onClick={() => onStageChange(stage.id)}
               className={cn(
                 'inline-flex items-center gap-1.5 border font-black transition-all active:scale-[0.98]',
-                compact ? 'rounded-full px-3 py-1.5 text-[11px]' : 'rounded-lg px-3 py-1.5 text-xs',
+                compact ? 'rounded-full px-3 py-1.5 text-[11px]' : 'rounded-2xl px-3 py-1.5 text-xs',
                 isActive
                   ? 'border-primary/45 bg-primary/12 text-primary'
                   : isDone
@@ -68,7 +68,7 @@ export function ShiftNextActionCard({ action }) {
       type="button"
       disabled={!action.onClick}
       onClick={action.onClick}
-      className="ops-panel flex w-full items-center gap-3 px-4 py-3 text-left transition-all active:scale-[0.99] disabled:cursor-default"
+      className="liquid-card flex w-full items-center gap-3 px-4 py-3 text-left transition-all active:scale-[0.99] disabled:cursor-default"
     >
       <div className={cn('ops-icon-box shrink-0', action.tone === 'text-primary' && 'ops-icon-box-accent')}>
         <Icon className={cn('h-4 w-4', action.tone)} />
@@ -99,7 +99,7 @@ export function ShiftMobileGuide({
   const active = stages[activeIdx] || stages[0];
 
   return (
-    <div className="lg:hidden sticky top-0 z-30 px-4 pt-3 pb-2.5 glass-header">
+    <div className="lg:hidden sticky top-0 z-30 px-4 pt-3 pb-2.5 ">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</p>
@@ -112,7 +112,7 @@ export function ShiftMobileGuide({
           <button
             type="button"
             onClick={onRefresh}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-white/[0.04] transition-all"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-white/[0.04] transition-all"
             aria-label="Refresh"
           >
             <RefreshCw className={cn('h-4 w-4 text-muted-foreground', refreshing && 'animate-spin')} />

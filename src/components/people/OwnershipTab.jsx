@@ -136,7 +136,7 @@ function OwnerSelect({ value, employees, saving, onChange, compact }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         disabled={saving}
-        className={`appearance-none bg-background border border-border rounded-lg text-foreground pr-6 transition-all ${
+        className={`appearance-none liquid-card rounded-lg text-foreground pr-6 transition-all ${
           compact ? 'text-[10px] px-2 py-1' : 'text-xs px-2.5 py-1.5'
         } ${value ? 'border-orange-500/40 text-orange-300' : ''}`}
       >

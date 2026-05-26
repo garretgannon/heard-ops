@@ -76,29 +76,29 @@ export default function QuickAddPrepItemModal({ onClose, onSuccess }) {
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-bold text-foreground mb-1">Item Name *</label>
-            <input value={form.item_name} onChange={e => setForm(p => ({ ...p, item_name: e.target.value }))} placeholder="e.g. Diced Onions" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <input value={form.item_name} onChange={e => setForm(p => ({ ...p, item_name: e.target.value }))} placeholder="e.g. Diced Onions" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
           </div>
 
           <div>
             <label className="block text-xs font-bold text-foreground mb-1">Station *</label>
-            <input value={form.station} onChange={e => setForm(p => ({ ...p, station: e.target.value }))} placeholder="e.g. Grill" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <input value={form.station} onChange={e => setForm(p => ({ ...p, station: e.target.value }))} placeholder="e.g. Grill" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">Par Qty *</label>
-              <input type="number" value={form.par_quantity} onChange={e => setForm(p => ({ ...p, par_quantity: e.target.value }))} placeholder="5" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input type="number" value={form.par_quantity} onChange={e => setForm(p => ({ ...p, par_quantity: e.target.value }))} placeholder="5" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">Unit *</label>
-              <input value={form.unit} onChange={e => setForm(p => ({ ...p, unit: e.target.value }))} placeholder="lb" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input value={form.unit} onChange={e => setForm(p => ({ ...p, unit: e.target.value }))} placeholder="lb" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">Shift</label>
-              <select value={form.shift} onChange={e => setForm(p => ({ ...p, shift: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <select value={form.shift} onChange={e => setForm(p => ({ ...p, shift: e.target.value }))} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
                 <option value="opening">Opening</option>
                 <option value="mid">Mid</option>
                 <option value="closing">Closing</option>
@@ -107,18 +107,18 @@ export default function QuickAddPrepItemModal({ onClose, onSuccess }) {
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">Due Time</label>
-              <input type="time" value={form.due_time} onChange={e => setForm(p => ({ ...p, due_time: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input type="time" value={form.due_time} onChange={e => setForm(p => ({ ...p, due_time: e.target.value }))} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">Role</label>
-              <input value={form.assigned_role} onChange={e => setForm(p => ({ ...p, assigned_role: e.target.value }))} placeholder="e.g. Cook" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input value={form.assigned_role} onChange={e => setForm(p => ({ ...p, assigned_role: e.target.value }))} placeholder="e.g. Cook" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">Batch Size</label>
-              <input type="number" value={form.batch_size} onChange={e => setForm(p => ({ ...p, batch_size: e.target.value }))} placeholder="Optional" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input type="number" value={form.batch_size} onChange={e => setForm(p => ({ ...p, batch_size: e.target.value }))} placeholder="Optional" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
           </div>
 

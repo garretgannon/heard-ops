@@ -120,25 +120,25 @@ function ModuleCard({ mod, completions, assignments, onEdit, onDelete, onPlay, o
         <div className="flex gap-2 pt-1">
           <button
             onClick={() => onPlay(mod)}
-            className="flex-1 h-10 rounded-lg border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
+            className="flex-1 h-10 rounded-2xl border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
           >
             <Play className="h-3 w-3" /> Preview
           </button>
           <button
             onClick={() => onAssign(mod)}
-            className="flex-1 h-10 rounded-lg border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
+            className="flex-1 h-10 rounded-2xl border border-border/40 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-border/80 flex items-center justify-center gap-1 transition-all"
           >
             <Users className="h-3 w-3" /> Assign
           </button>
           <button
             onClick={() => onEdit(mod)}
-            className="h-10 px-3 rounded-lg border border-border/40 bg-card/60 text-muted-foreground hover:text-foreground hover:border-border/80 transition-all"
+            className="h-10 px-3 rounded-2xl border border-border/40 bg-card/60 text-muted-foreground hover:text-foreground hover:border-border/80 transition-all"
           >
             <Edit2 className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => onDelete(mod.id)}
-            className="h-10 px-3 rounded-lg border border-border/40 bg-card/60 text-destructive hover:bg-destructive/10 hover:border-destructive/40 transition-all"
+            className="h-10 px-3 rounded-2xl border border-border/40 bg-card/60 text-destructive hover:bg-destructive/10 hover:border-destructive/40 transition-all"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -192,7 +192,7 @@ function AssignModal({ module, onClose, onSuccess }) {
           <h2 className="text-sm font-bold">Assign Training</h2>
           <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
         </div>
-        <div className="rounded-lg border border-border/30 bg-muted/30 px-3 py-2">
+        <div className="rounded-2xl border border-border/30 bg-muted/30 px-3 py-2">
           <p className="text-xs text-muted-foreground">Module</p>
           <p className="text-sm font-bold text-foreground">{module.title}</p>
         </div>
@@ -204,7 +204,7 @@ function AssignModal({ module, onClose, onSuccess }) {
               value={form.assignedToEmployeeName}
               onChange={e => setForm(f => ({ ...f, assignedToEmployeeName: e.target.value }))}
               placeholder="Jane Smith"
-              className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-sm focus:outline-none focus:border-primary/60"
+              className="w-full px-3 py-2 rounded-2xl border border-border/50 bg-background text-sm focus:outline-none focus:border-primary/60"
             />
           </div>
           <div>
@@ -214,7 +214,7 @@ function AssignModal({ module, onClose, onSuccess }) {
               value={form.assignee_email}
               onChange={e => setForm(f => ({ ...f, assignee_email: e.target.value }))}
               placeholder="jane@restaurant.com"
-              className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-sm focus:outline-none focus:border-primary/60"
+              className="w-full px-3 py-2 rounded-2xl border border-border/50 bg-background text-sm focus:outline-none focus:border-primary/60"
             />
           </div>
           <div>
@@ -223,12 +223,12 @@ function AssignModal({ module, onClose, onSuccess }) {
               type="date"
               value={form.dueDate}
               onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))}
-              className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-sm focus:outline-none focus:border-primary/60"
+              className="w-full px-3 py-2 rounded-2xl border border-border/50 bg-background text-sm focus:outline-none focus:border-primary/60"
             />
           </div>
         </div>
         <div className="flex gap-2 pt-2">
-          <button onClick={onClose} className="flex-1 h-10 rounded-xl bg-muted font-semibold text-sm hover:bg-muted/80 transition-all">Cancel</button>
+          <button onClick={onClose} className="flex-1 h-10 rounded-2xl bg-muted font-semibold text-sm hover:bg-muted/80 transition-all">Cancel</button>
           <button onClick={handleSave} disabled={saving} className="flex-1 btn-primary h-10 text-sm disabled:opacity-50">
             {saving ? 'Assigning…' : 'Assign'}
           </button>
@@ -325,7 +325,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
           <p className="text-[13px] text-muted-foreground/60">Modules, assignments, and completions</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={openImport} className="h-8 px-3 rounded-lg border border-border/60 card-glass text-foreground font-bold text-xs flex items-center gap-1">
+          <button onClick={openImport} className="h-8 px-3 rounded-2xl border border-border/60 card-glass text-foreground font-bold text-xs flex items-center gap-1">
             <Upload className="h-3.5 w-3.5" /> Import
           </button>
           <button onClick={() => setShowBuilder(true)} className="btn-primary h-8 px-3 text-xs flex items-center gap-1.5">
@@ -335,10 +335,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
       </div>
 
       {/* ── MOBILE TOP BAR ──────────────────────────────────────────────── */}
-      <div
-        className="lg:hidden sticky top-0 z-10"
-        style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-      >
+      <div className="lg:hidden sticky top-0 z-10 ">
         <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => navigate(-1)}
@@ -415,17 +412,29 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
       <div className={cn('flex-1 lg:overflow-y-auto', modules.length === 0 && !search ? 'hidden lg:flex lg:flex-col' : '')}>
         <div className="px-4 lg:px-8 py-4 space-y-4 pb-28 lg:pb-8">
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard icon={BookOpen} label="Total" value={modules.length} sub={`${published.length} published`} />
-            <StatCard icon={CheckCircle2} label="This Week" value={thisWeek.length} sub="completions" color="text-green-400" />
-            <StatCard icon={AlertCircle} label="Overdue" value={overdue.length} sub="assignments" color={overdue.length > 0 ? 'text-red-400' : 'text-muted-foreground'} />
-            <StatCard icon={Award} label="Certifications" value={certifications.length} sub="total issued" color="text-amber-400" />
+                    {/* Stats */}
+          <div className="metric-pill-container">
+            <div className="metric-pill-item">
+              <span className="metric-pill-value text-foreground">{modules.length}</span>
+              <span className="metric-pill-label">Total</span>
+            </div>
+            <div className="metric-pill-item">
+              <span className="metric-pill-value text-green-400">{thisWeek.length}</span>
+              <span className="metric-pill-label">This Wk</span>
+            </div>
+            <div className="metric-pill-item">
+              <span className="metric-pill-value text-red-400">{overdue.length}</span>
+              <span className="metric-pill-label">Overdue</span>
+            </div>
+            <div className="metric-pill-item">
+              <span className="metric-pill-value text-amber-400">{certifications.length}</span>
+              <span className="metric-pill-label">Certs</span>
+            </div>
           </div>
 
           {/* Mobile new module button */}
           <div className="flex gap-2 lg:hidden">
-            <button onClick={openImport} className="h-9 px-4 rounded-xl border border-border/50 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-all">
+            <button onClick={openImport} className="h-9 px-4 rounded-2xl border border-border/50 bg-card/60 text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-all">
               <Upload className="h-3.5 w-3.5" /> Import
             </button>
             <button onClick={() => setShowBuilder(true)} className="flex-1 btn-primary h-9 text-xs flex items-center justify-center gap-1.5">
@@ -434,19 +443,19 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 pt-4 pl-1 scrollbar-hide">
-            {ADMIN_TABS.map(t => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={cn(
-                  'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
-                  tab === t.id ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
+          <div className="w-full pt-4 pb-1">
+            <div className="view-slider-container w-full max-w-4xl">
+              {ADMIN_TABS.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={cn('view-slider-tab', tab === t.id && 'active')}
+                >
+                  {t.label}
+                  <div className="view-slider-dot" />
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Search (modules tabs only) */}
@@ -458,7 +467,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
                 placeholder="Search modules…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full h-8 pl-8 pr-3 rounded-lg card-glass border border-border/40 text-foreground text-xs focus:outline-none focus:border-primary"
+                className="w-full h-8 pl-8 pr-3 rounded-2xl card-glass border border-border/40 text-foreground text-xs focus:outline-none focus:border-primary"
               />
             </div>
           )}
@@ -507,7 +516,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
                   const mod = modules.find(m => m.id === (a.moduleId || a.module_id));
                   const isOverdue = a.dueDate && new Date(a.dueDate) < new Date() && a.status !== 'complete';
                   return (
-                    <div key={a.id} className="flex items-center gap-3 rounded-xl border border-border/30 bg-card/60 px-4 py-3">
+                    <div key={a.id} className="flex items-center gap-3 rounded-2xl border border-border/30 bg-card/60 px-4 py-3">
                       <div className={cn('w-2 h-2 rounded-full shrink-0', {
                         'bg-green-400': a.status === 'complete',
                         'bg-red-400': isOverdue,
@@ -545,7 +554,7 @@ function AdminView({ modules, assignments, completions, certifications, onRefres
                 completions.map(c => {
                   const mod = modules.find(m => m.id === (c.moduleId || c.module_id));
                   return (
-                    <div key={c.id} className="flex items-center gap-3 rounded-xl border border-border/30 bg-card/60 px-4 py-3">
+                    <div key={c.id} className="flex items-center gap-3 rounded-2xl border border-border/30 bg-card/60 px-4 py-3">
                       <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-foreground truncate">{mod?.title || c.module_title || 'Training'}</p>
@@ -605,7 +614,7 @@ function EmployeeAssignmentCard({ assignment, module, isComplete, onPlay }) {
     >
       <div className="flex items-start gap-3">
         <div className={cn(
-          'w-9 h-9 rounded-xl flex items-center justify-center shrink-0',
+          'w-9 h-9 rounded-2xl flex items-center justify-center shrink-0',
           isComplete ? 'bg-green-500/20' : isOverdue ? 'bg-red-500/20' : 'bg-primary/15'
         )}>
           {isComplete
@@ -729,7 +738,7 @@ function EmployeeView({ modules, assignments, completions, user, onRefresh }) {
                     onClick={() => !done && setPlayingModule(mod)}
                     className="w-full flex items-center gap-3 rounded-2xl border border-border/30 bg-card/60 px-4 py-3 text-left hover:border-border/60 transition-all"
                   >
-                    <span className={cn('w-8 h-8 rounded-xl flex items-center justify-center shrink-0', done ? 'bg-green-500/20' : 'bg-muted')}>
+                    <span className={cn('w-8 h-8 rounded-2xl flex items-center justify-center shrink-0', done ? 'bg-green-500/20' : 'bg-muted')}>
                       {done ? <CheckCircle2 className="h-4 w-4 text-green-400" /> : <BookOpen className="h-4 w-4 text-muted-foreground" />}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -756,7 +765,7 @@ function EmployeeView({ modules, assignments, completions, user, onRefresh }) {
               {doneAssignments.map(a => {
                 const mod = modules.find(m => m.id === (a.moduleId || a.module_id));
                 return (
-                  <div key={a.id} className="flex items-center gap-3 rounded-xl border border-green-500/20 bg-green-500/5 px-4 py-3">
+                  <div key={a.id} className="flex items-center gap-3 rounded-2xl border border-green-500/20 bg-green-500/5 px-4 py-3">
                     <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-foreground truncate">{mod?.title || a.moduleName || 'Training'}</p>

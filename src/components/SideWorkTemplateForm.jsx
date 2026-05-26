@@ -58,7 +58,7 @@ function BulkTaskEntry({ items, onChange }) {
               if (e.key === 'Enter') { e.preventDefault(); addRow(idx); }
               if (e.key === 'Backspace' && item.taskName === '' && items.length > 1) { e.preventDefault(); removeRow(idx); }
             }}
-            className="w-full h-8 px-2.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            className="w-full h-8 px-2.5 liquid-card rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
             autoComplete="off"
           />
           <input
@@ -66,13 +66,13 @@ function BulkTaskEntry({ items, onChange }) {
             value={item.dueTime || ''}
             onChange={e => update(idx, 'dueTime', e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addRow(idx); } }}
-            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            className="w-full h-8 px-1.5 liquid-card rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
           />
           <select
             value={item.priority || 'medium'}
             onChange={e => update(idx, 'priority', e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addRow(idx); } }}
-            className="w-full h-8 px-1.5 bg-background border border-border rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
+            className="w-full h-8 px-1.5 liquid-card rounded-lg text-xs text-foreground focus:border-primary focus:outline-none"
           >
             <option value="high">🔴 High</option>
             <option value="medium">🟡 Med</option>
@@ -335,13 +335,13 @@ export default function SideWorkTemplateForm({ template, onSave }) {
           placeholder="Template name (e.g. Closing Server Side Work)"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
         />
 
         <select
           value={formData.department}
           onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           <option value="FOH">Front of House</option>
           <option value="BOH">Back of House</option>
@@ -359,7 +359,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
               station: station?.name || ''
             });
           }}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           <option value="">Select Station</option>
           {stations.map(s => <option key={s.id} value={s.id}>{s.area_name ? `${s.area_name} / ${s.name}` : s.name}</option>)}
@@ -375,7 +375,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
               jobCode: jobCode?.name || ''
             });
           }}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           <option value="">Select Job Code</option>
           {jobCodes.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
@@ -384,7 +384,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
         <select
           value={formData.shift}
           onChange={(e) => setFormData({ ...formData, shift: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           {SHIFTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
@@ -438,7 +438,7 @@ export default function SideWorkTemplateForm({ template, onSave }) {
           placeholder="Notes / Instructions"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder:text-muted-foreground"
           rows="2"
         />
       </div>

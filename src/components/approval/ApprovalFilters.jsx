@@ -1,35 +1,30 @@
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { haptics } from '@/utils/haptics';
 
 const FILTERS = [
   { id: 'all', label: 'All' },
-  { id: 'urgent', label: 'Urgent' },
+  { id: 'timeoff', label: 'Staffing' },
   { id: 'prep', label: 'Prep' },
   { id: 'temperature', label: 'Temps' },
   { id: 'maintenance', label: 'Maintenance' },
-  { id: 'employee', label: 'Employees' },
-  { id: 'schedule', label: 'Schedule' },
-  { id: 'waste', label: 'Inventory' },
+  { id: 'financial', label: 'Financial' },
 ];
 
 export default function ApprovalFilters({ currentFilter, onFilterChange }) {
   return (
-    <div className="overflow-x-auto pb-1 pt-4 pl-1">
-      <div className="flex gap-1.5">
+    <div className="w-full overflow-x-auto no-scrollbar pb-1">
+      <div className="pill-slider-container">
         {FILTERS.map(filter => (
-          <motion.button
+          <button
             key={filter.id}
-            onClick={() => onFilterChange(filter.id)}
-            layout
+            onClick={() => { haptics.light?.(); onFilterChange(filter.id); }}
             className={cn(
-              'flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200',
-              currentFilter === filter.id
-                ? 'glow-active'
-                : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
+              'glass-pill transition-all active:scale-95',
+              currentFilter === filter.id && 'glow-active'
             )}
           >
             {filter.label}
-          </motion.button>
+          </button>
         ))}
       </div>
     </div>

@@ -42,14 +42,14 @@ function DutyCard({ config, checked, locked, onToggle }) {
         backgroundColor: checked ? "rgba(34,197,94,0.06)" : "transparent",
       }}
       transition={{ duration: 0.2 }}
-      className="ops-panel flex w-full items-center gap-3 px-4 py-3 text-left"
+      className="liquid-card flex w-full items-center gap-3 px-4 py-3 text-left"
     >
       <motion.div
         animate={{
           backgroundColor: checked ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.04)",
           borderColor: checked ? "rgba(34,197,94,0.5)" : locked ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.15)",
         }}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl border"
       >
         {checked
           ? <Check className="h-4 w-4 text-green-400" />
@@ -111,7 +111,7 @@ export default function ManagerShiftDesktopRun({
         </div>
 
         {/* Briefing form card */}
-        <div className="ops-panel overflow-hidden">
+        <div className="liquid-card overflow-hidden">
           {/* Scope row */}
           <div className="flex items-center justify-between gap-3 border-b border-border/20 px-4 py-3">
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground shrink-0">Shift Scope</p>
@@ -175,7 +175,7 @@ export default function ManagerShiftDesktopRun({
                   onChange={e => updatePreShiftField(field, e.target.value)}
                   rows={rows}
                   placeholder={placeholder}
-                  className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                  className="w-full rounded-[1.25rem] border border-border/50 bg-white/5 px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
                 />
               </label>
             ))}
@@ -183,7 +183,7 @@ export default function ManagerShiftDesktopRun({
             {/* Publish / save */}
             {preShiftPublished ? (
               <>
-                <div className="flex items-center justify-center gap-2 rounded-xl border border-green-500/30 bg-green-500/8 py-3 text-sm font-black text-green-400">
+                <div className="flex items-center justify-center gap-2 rounded-2xl border border-green-500/30 bg-green-500/8 py-3 text-sm font-black text-green-400">
                   <CheckCircle2 className="h-4 w-4" /> Published to Staff
                 </div>
                 <button type="button" onClick={publishBriefing} className="w-full py-1.5 text-center text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">
@@ -193,7 +193,7 @@ export default function ManagerShiftDesktopRun({
             ) : (
               <>
                 <button type="button" onClick={publishBriefing}
-                  className="btn-primary flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
+                  className="btn-primary flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-black text-white active:scale-[0.98] transition-all"
                 >
                   Publish to Staff
                 </button>
@@ -209,7 +209,7 @@ export default function ManagerShiftDesktopRun({
       {/* ── Right: Sticky panel — duties + quick nav ── */}
       <div className="sticky top-[120px] space-y-3">
         {/* Duties */}
-        <div className="ops-panel overflow-hidden">
+        <div className="liquid-card overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/20">
             <div className="flex items-center gap-2.5">
               <Target className="h-4 w-4 text-primary" />
@@ -261,7 +261,7 @@ export default function ManagerShiftDesktopRun({
             { label: "Approvals", sub: "Pending reviews",   path: "/approvals",       icon: ClipboardCheck },
           ].map(({ label, sub, path, icon: Icon }) => (
             <button key={path} type="button" onClick={() => navigate(path)}
-              className="ops-panel ops-panel-interactive flex items-center justify-between gap-2 px-3 py-3 text-left">
+              className="liquid-card liquid-card-interactive flex items-center justify-between gap-2 px-3 py-3 text-left">
               <div>
                 <div className="flex items-center gap-1.5">
                   <Icon className="h-3.5 w-3.5 text-primary" />

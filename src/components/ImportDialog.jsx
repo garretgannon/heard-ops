@@ -182,7 +182,7 @@ export default function ImportDialog({ open, onOpenChange, type, onImport }) {
               <input
                 type="file"
                 accept=".csv,.xlsx,.xls"
-                className="hidden"
+                className="ops-input hidden"
                 onChange={e => e.target.files[0] && handleFile(e.target.files[0])}
               />
             </label>

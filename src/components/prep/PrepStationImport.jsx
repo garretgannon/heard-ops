@@ -292,7 +292,7 @@ export default function PrepStationImport({ isOpen, onClose, onImportComplete })
                   <p className="text-sm font-bold text-foreground">{parsing ? 'Parsing…' : 'Click to upload file'}</p>
                   <p className="text-xs text-muted-foreground mt-1">Excel (.xlsx) or CSV</p>
                 </div>
-                <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileSelect} className="hidden" />
+                <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileSelect} className="ops-input hidden" />
               </label>
               {file && !parsing && (
                 <p className="text-xs text-muted-foreground">📄 {file.name} — {rawRows.length} data rows found</p>

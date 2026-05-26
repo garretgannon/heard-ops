@@ -87,7 +87,7 @@ export default function ApprovalDetailSheet({ approval, onApprove, onDeny, onClo
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
           {/* Submission info */}
-          <div className="rounded-lg bg-background border border-border/30 p-4 space-y-3">
+          <div className="rounded-lg liquid-card/30 p-4 space-y-3">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span className="text-xs">Submitted {submittedAt}</span>

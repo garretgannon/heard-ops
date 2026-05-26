@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Plus, Edit2, Copy, Archive, MoreVertical, Search, Wind, Snowflake, Flame, Thermometer } from 'lucide-react';
@@ -28,10 +29,10 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   const color = cat.color || 'blue';
 
   return (
-    <div className="card-glass border border-border rounded-lg p-3 space-y-2">
+    <div className="card-glass border border-border rounded-2xl p-3 space-y-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className={`h-7 w-7 rounded-lg flex items-center justify-center bg-${color}-500/15 shrink-0`}>
+          <div className={`h-7 w-7 rounded-2xl flex items-center justify-center bg-${color}-500/15 shrink-0`}>
             <Icon className={`h-3.5 w-3.5 text-${color}-400`} />
           </div>
           <div className="min-w-0">
@@ -142,22 +143,22 @@ export default function TemperatureLogTemplates() {
       <div className="lg:hidden bg-card border-b border-border p-4 sticky top-0 z-10">
         <h1 className="text-2xl font-black tracking-tight text-foreground mb-3">Temperature Log Templates</h1>
 
-        <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1">
-          {CATEGORY_FILTERS.map(([val, label]) => (
-            <button key={val} onClick={() => setFilterCategory(val)}
-              className={`flex-shrink-0 h-7 px-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-                filterCategory === val ? 'glow-active' : 'card-glass border border-border/40 text-muted-foreground glow-interactive'
-              }`}>
-              {label}
-            </button>
-          ))}
+        <div className="w-full overflow-x-auto no-scrollbar pb-1">
+          <div className="pill-slider-container">
+            {CATEGORY_FILTERS.map(([val, label]) => (
+              <button key={val} onClick={() => setFilterCategory(val)}
+                className={cn('glass-pill', filterCategory === val && 'glow-active')}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input type="text" placeholder="Search templates..." value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
         </div>
       </div>
 

@@ -44,7 +44,7 @@ function FileChip({ file, onRemove }) {
   const isImage = file.type.startsWith('image/');
   const isPDF = file.type === 'application/pdf';
   return (
-    <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2 text-sm">
+    <div className="flex items-center gap-2 bg-card border border-border rounded-2xl px-3 py-2 text-sm">
       {isImage
         ? <ImageIcon className="h-3.5 w-3.5 text-blue-400 shrink-0" />
         : isPDF
@@ -219,7 +219,7 @@ export default function RecipeBulkImport() {
               onChange={e => setRawText(e.target.value)}
               placeholder={EXAMPLE_TEXT}
               rows={12}
-              className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 resize-none focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+              className="w-full bg-card border border-border rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/40 resize-none focus:outline-none focus:ring-1 focus:ring-primary font-mono"
             />
 
             {/* Drop zone */}
@@ -228,7 +228,7 @@ export default function RecipeBulkImport() {
               onDragLeave={() => setDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 cursor-pointer transition-all ${
+              className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-6 cursor-pointer transition-all ${
                 dragging
                   ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-primary/50 hover:bg-muted/40'
@@ -242,7 +242,7 @@ export default function RecipeBulkImport() {
                 type="file"
                 multiple
                 accept="image/*,.pdf,.txt,.md"
-                className="hidden"
+                className="ops-input hidden"
                 onChange={e => { processFiles(e.target.files); e.target.value = ''; }}
               />
             </div>
@@ -261,7 +261,7 @@ export default function RecipeBulkImport() {
             )}
 
             {error && (
-              <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-2xl px-3 py-2">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 {error}
               </div>
@@ -270,7 +270,7 @@ export default function RecipeBulkImport() {
             <button
               onClick={handleParse}
               disabled={!canParse}
-              className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.98] transition-transform"
+              className="w-full h-11 rounded-2xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.98] transition-transform"
             >
               <Sparkles className="h-4 w-4" />
               Parse Recipes
@@ -308,7 +308,7 @@ export default function RecipeBulkImport() {
               {recipes.map((recipe, i) => {
                 if (removed.has(i)) return null;
                 return (
-                  <div key={i} className="bg-card border border-border rounded-xl px-4 py-3 flex items-start gap-3">
+                  <div key={i} className="bg-card border border-border rounded-2xl px-4 py-3 flex items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="font-bold text-sm text-foreground">{recipe.name || 'Untitled Recipe'}</span>
@@ -346,7 +346,7 @@ export default function RecipeBulkImport() {
             <button
               onClick={handleCreate}
               disabled={visibleCount === 0}
-              className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.98] transition-transform"
+              className="w-full h-11 rounded-2xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.98] transition-transform"
             >
               <Plus className="h-4 w-4" />
               Create {visibleCount} Recipe{visibleCount !== 1 ? 's' : ''}
@@ -384,13 +384,13 @@ export default function RecipeBulkImport() {
               )}
             </div>
             <div className="flex flex-col gap-2 w-full max-w-xs">
-              <button onClick={() => navigate('/recipes')} className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2">
+              <button onClick={() => navigate('/recipes')} className="w-full h-11 rounded-2xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2">
                 <ChefHat className="h-4 w-4" />
                 View Recipes
               </button>
               <button
                 onClick={() => { setStage('input'); setRawText(''); setAttachedFiles([]); setRecipes([]); setResults({ created: 0, failed: 0 }); }}
-                className="w-full h-11 rounded-xl bg-muted text-foreground font-bold text-sm"
+                className="w-full h-11 rounded-2xl bg-muted text-foreground font-bold text-sm"
               >
                 Import More
               </button>

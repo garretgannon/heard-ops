@@ -195,18 +195,18 @@ export default function PrepTemplateBuilder() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Template Name *</label>
-              <input value={template.template_name} onChange={e => setTemplate(p => ({ ...p, template_name: e.target.value }))} placeholder="e.g. Opening Line Prep" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input value={template.template_name} onChange={e => setTemplate(p => ({ ...p, template_name: e.target.value }))} placeholder="e.g. Opening Line Prep" className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Station *</label>
-              <select value={template.station} onChange={e => setTemplate(p => ({ ...p, station: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <select value={template.station} onChange={e => setTemplate(p => ({ ...p, station: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
                 <option value="">Select station…</option>
                 {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Shift</label>
-              <select value={template.shift} onChange={e => setTemplate(p => ({ ...p, shift: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <select value={template.shift} onChange={e => setTemplate(p => ({ ...p, shift: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
                 <option value="opening">Opening</option>
                 <option value="mid">Mid</option>
                 <option value="closing">Closing</option>
@@ -215,14 +215,14 @@ export default function PrepTemplateBuilder() {
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Role</label>
-              <select value={template.assigned_role} onChange={e => setTemplate(p => ({ ...p, assigned_role: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <select value={template.assigned_role} onChange={e => setTemplate(p => ({ ...p, assigned_role: e.target.value }))} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground">
                 <option value="">Select role…</option>
                 {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-foreground mb-2">Equipment / Storage</label>
-              <input value={template.department_location} onChange={e => setTemplate(p => ({ ...p, department_location: e.target.value }))} placeholder="Optional" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input value={template.department_location} onChange={e => setTemplate(p => ({ ...p, department_location: e.target.value }))} placeholder="Optional" className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
             </div>
           </div>
 
@@ -233,7 +233,7 @@ export default function PrepTemplateBuilder() {
                 <button
                   key={idx}
                   onClick={() => toggleRecurringDay(idx)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-3 py-1.5 rounded-2xl text-xs font-bold transition-all ${
                     template.recurring_days.includes(idx)
                       ? 'bg-primary text-white'
                       : 'bg-background border border-border text-foreground hover:border-border/60'
@@ -247,7 +247,7 @@ export default function PrepTemplateBuilder() {
 
           <div>
             <label className="block text-xs font-bold text-foreground mb-2">Notes / Instructions</label>
-            <textarea value={template.notes} onChange={e => setTemplate(p => ({ ...p, notes: e.target.value }))} placeholder="e.g. Check quality before starting shift…" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+            <textarea value={template.notes} onChange={e => setTemplate(p => ({ ...p, notes: e.target.value }))} placeholder="e.g. Check quality before starting shift…" rows={2} className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
           </div>
 
           <div className="flex items-center gap-3 pt-2">
@@ -275,7 +275,7 @@ export default function PrepTemplateBuilder() {
 
           {template.items && template.items.length > 0 && (
             <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="overflow-x-auto border border-border/30 rounded-lg">
+              <div className="overflow-x-auto border border-border/30 rounded-2xl">
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-border/30 bg-background/50">
@@ -318,7 +318,7 @@ export default function PrepTemplateBuilder() {
                                             items[idx].item_name = e.target.value;
                                             setTemplate(p => ({ ...p, items }));
                                           }}
-                                          className="flex-1 px-3 py-1.5 bg-primary/10 border border-primary/30 rounded-lg text-sm font-bold text-primary uppercase tracking-wide placeholder-primary/40"
+                                          className="flex-1 px-3 py-1.5 bg-primary/10 border border-primary/30 rounded-2xl text-sm font-bold text-primary uppercase tracking-wide placeholder-primary/40"
                                           placeholder="Section name"
                                         />
                                         <button onClick={() => deleteRow(idx)} className="h-8 w-8 rounded border border-border hover:bg-red-500/10 hover:text-red-500 flex items-center justify-center text-muted-foreground transition-colors" title="Delete">
@@ -443,7 +443,7 @@ export default function PrepTemplateBuilder() {
           )}
 
           {/* Add Row Form */}
-          <div className="bg-background/50 rounded-lg p-4 space-y-3 border border-border/30">
+          <div className="bg-background/50 rounded-2xl p-4 space-y-3 border border-border/30">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-muted-foreground uppercase">Add New Row</p>
               <button onClick={addHeader} className="text-xs font-bold px-2.5 py-1 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-colors">

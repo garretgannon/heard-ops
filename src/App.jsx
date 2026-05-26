@@ -37,6 +37,7 @@ const Cleaning = lazy(() => import('./pages/Cleaning'));
 const InventorySimplified = lazy(() => import('./pages/InventorySimplified'));
 const Vendors = lazy(() => import('./pages/Vendors'));
 const Reports = lazy(() => import('./pages/Reports'));
+const Integrations = lazy(() => import('./pages/Integrations'));
 const Profile = lazy(() => import('./pages/Profile'));
 const MyRestaurant = lazy(() => import('./pages/MyRestaurant'));
 const NotificationSettings = lazy(() => import('./pages/NotificationSettings'));
@@ -199,6 +200,9 @@ function AuthenticatedRoutes({ user, isAdmin }) {
           <Route path="/restaurant-setup-wizard" element={<RestaurantSetupWizard />} />
           <Route path="/team-structure-wizard" element={<TeamStructureWizard />} />
           <Route path="/notepad" element={<Navigate to="/notes-comms" replace />} />
+          <Route path="/vendors" element={<PermissionGate permission={PERMISSIONS.VIEW_VENDORS}><Vendors /></PermissionGate>} />
+          <Route path="/reports" element={<PermissionGate permission={PERMISSIONS.VIEW_REPORTS}><Reports /></PermissionGate>} />
+          <Route path="/integrations" element={<Integrations />} />
           <Route path="/cash-drawer" element={<CashDrawer />} />
           <Route path="/automation-rules" element={<AutomationRules />} />
           <Route path="/profile" element={<Profile />} />

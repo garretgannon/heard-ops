@@ -91,7 +91,7 @@ function BriefSection({ id, icon: Icon, label, count = 0, children, onViewed }) 
   };
 
   return (
-    <div className="ops-panel">
+    <div className="liquid-card">
       <button type="button" onClick={toggle} className="flex w-full items-center justify-between px-4 py-3 text-left">
         <div className="flex items-center gap-2.5">
           <Icon className={cn('h-4 w-4 shrink-0', viewed ? 'text-green-400/70' : 'text-primary')} />
@@ -126,7 +126,7 @@ function BriefSection({ id, icon: Icon, label, count = 0, children, onViewed }) 
 
 function BriefRow({ title, meta }) {
   return (
-    <div className="ops-panel-soft flex items-start gap-3 px-3 py-2.5">
+    <div className="liquid-card-soft flex items-start gap-3 px-3 py-2.5">
       <div className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-border/60" />
       <div className="min-w-0">
         <p className="text-sm font-semibold text-foreground leading-snug">{title}</p>
@@ -151,7 +151,7 @@ function TaskCard({ item, checked, onToggle }) {
       type="button"
       onClick={onToggle}
       layout
-      className="flex w-full items-center gap-3 overflow-hidden rounded-xl border px-4 py-3 text-left transition-colors active:scale-[0.98]"
+      className="flex w-full items-center gap-3 overflow-hidden rounded-2xl border px-4 py-3 text-left transition-colors active:scale-[0.98]"
       animate={{ borderColor: checked ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.08)' }}
       style={{
         background: checked
@@ -165,7 +165,7 @@ function TaskCard({ item, checked, onToggle }) {
           backgroundColor: checked ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
           borderColor: checked ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.15)',
         }}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl border"
       >
         <AnimatePresence mode="wait">
           {checked
@@ -197,7 +197,7 @@ function TaskCard({ item, checked, onToggle }) {
 
 function WorkSection({ icon: Icon, iconColor = 'text-primary', label, done, total, children }) {
   return (
-    <div className="ops-panel">
+    <div className="liquid-card">
       <div className="flex items-center justify-between border-b border-border/20 px-4 py-3.5">
         <div className="flex items-center gap-2.5">
           <Icon className={cn('h-4 w-4', iconColor)} />
@@ -448,7 +448,7 @@ export default function StaffShift() {
             <span className={cn('text-xs font-bold', progressPct === 100 ? 'text-green-400' : 'text-muted-foreground')}>
               {doneTasks}/{totalTasks} tasks
             </span>
-            <button type="button" onClick={() => load({ quiet: true })} className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/50 transition-all">
+            <button type="button" onClick={() => load({ quiet: true })} className="flex h-8 w-8 items-center justify-center rounded-2xl border border-border/50 transition-all">
               <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', refreshing && 'animate-spin')} />
             </button>
           </>
@@ -488,8 +488,8 @@ export default function StaffShift() {
               <>
                 {/* Published briefing banner */}
                 {data.preShift ? (
-                  <div className="ops-panel flex items-center gap-3 border-primary/25 px-4 py-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+                  <div className="liquid-card flex items-center gap-3 -primary/25 px-4 py-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-primary/15">
                       <Sparkles className="h-3.5 w-3.5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -504,8 +504,8 @@ export default function StaffShift() {
                     <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary" />
                   </div>
                 ) : (
-                  <div className="ops-panel flex items-center gap-3 px-4 py-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-muted/40">
+                  <div className="liquid-card flex items-center gap-3 px-4 py-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-muted/40">
                       <Sparkles className="h-3.5 w-3.5 text-muted-foreground/50" />
                     </div>
                     <div>
@@ -516,7 +516,7 @@ export default function StaffShift() {
                 )}
 
                 {/* Quick snapshot */}
-                <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
+                <div className="liquid-card grid grid-cols-3 divide-x divide-/20">
                   {[
                     { label: "86'd",  value: data.eightySix.length,  color: data.eightySix.length > 0  ? 'text-foreground' : 'text-muted-foreground/40' },
                     { label: 'Events', value: data.events.length,     color: data.events.length > 0     ? 'text-foreground' : 'text-muted-foreground/40' },
@@ -697,7 +697,7 @@ export default function StaffShift() {
                         return (
                           <div
                             key={eq.id}
-                            className="flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors border-border"
+                            className="flex items-center gap-3 rounded-2xl border px-4 py-3 transition-colors border-border"
                             style={{
                               background: logged ? 'rgba(34,197,94,0.06)' : 'hsl(var(--card))',
                             }}
@@ -707,7 +707,7 @@ export default function StaffShift() {
                                 backgroundColor: logged ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
                                 borderColor: logged ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.15)',
                               }}
-                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
+                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl border"
                             >
                               {logged
                                 ? <Check className="h-4 w-4 text-green-400" />
@@ -736,13 +736,13 @@ export default function StaffShift() {
                                   onChange={e => setTempInputs(prev => ({ ...prev, [eq.id]: e.target.value }))}
                                   onKeyDown={e => e.key === 'Enter' && logTemp(eq)}
                                   placeholder="°F"
-                                  className="w-16 rounded-lg border border-border/50 bg-background px-2 py-1.5 text-center text-sm font-bold text-foreground outline-none focus:border-primary/50"
+                                  className="w-16 rounded-2xl border border-border/50 bg-background px-2 py-1.5 text-center text-sm font-bold text-foreground outline-none focus:border-primary/50"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => logTemp(eq)}
                                   disabled={!tempInputs[eq.id]}
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-500/30 bg-blue-500/15 disabled:opacity-40 transition-all active:scale-95"
+                                  className="flex h-8 w-8 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-500/15 disabled:opacity-40 transition-all active:scale-95"
                                 >
                                   <Check className="h-3.5 w-3.5 text-blue-400" />
                                 </button>
@@ -756,7 +756,7 @@ export default function StaffShift() {
 
                   {/* Empty state */}
                   {totalTasks === 0 && (
-                    <div className="ops-panel flex flex-col items-center gap-3 py-12 text-center">
+                    <div className="liquid-card flex flex-col items-center gap-3 py-12 text-center">
                       <CheckCircle2 className="h-8 w-8 text-green-400/50" />
                       <p className="text-sm font-bold text-foreground">No tasks assigned yet</p>
                       <p className="text-xs text-muted-foreground">Check back or ask your manager.</p>
@@ -777,7 +777,7 @@ export default function StaffShift() {
                   <button
                     type="button"
                     onClick={() => { haptics.light(); setActiveStage('close'); }}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/40 py-3 text-xs font-black text-muted-foreground bg-secondary/35 active:scale-95 transition-all"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border/40 py-3 text-xs font-black text-muted-foreground bg-secondary/35 active:scale-95 transition-all"
                   >
                     Skip to Close-Out
                   </button>
@@ -789,7 +789,7 @@ export default function StaffShift() {
             {activeStage === 'close' && (
               <>
                 {/* Shift summary scorecard */}
-                <div className="ops-panel grid grid-cols-3 divide-x divide-border/20">
+                <div className="liquid-card grid grid-cols-3 divide-x divide-/20">
                   {[
                     { label: 'Completed', value: doneTasks,             color: doneTasks > 0 ? 'text-foreground' : 'text-muted-foreground/40' },
                     { label: 'Remaining', value: totalTasks - doneTasks, color: totalTasks - doneTasks > 0 ? 'text-primary' : 'text-muted-foreground/40' },
@@ -803,7 +803,7 @@ export default function StaffShift() {
                 </div>
 
                 {/* Sign-off card */}
-                <div className="ops-panel">
+                <div className="liquid-card">
                   <div className="flex items-start gap-2.5 border-b border-border/20 px-4 pt-4 pb-3">
                     <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <div>
@@ -821,13 +821,13 @@ export default function StaffShift() {
                       rows={4}
                       placeholder="Issues, notes, or anything to flag for the next shift… (optional)"
                       disabled={shiftDone}
-                      className="w-full resize-none rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                      className="w-full resize-none rounded-2xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
                     />
                     <button
                       type="button"
                       onClick={signOff}
                       disabled={signingOff || shiftDone}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black disabled:opacity-60 active:scale-[0.98] transition-all"
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-black disabled:opacity-60 active:scale-[0.98] transition-all"
                       style={{
                         background: shiftDone
                           ? 'rgba(34,197,94,0.15)'

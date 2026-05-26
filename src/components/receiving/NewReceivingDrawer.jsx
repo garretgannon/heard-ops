@@ -131,7 +131,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                 value={newVendor.name}
                 onChange={e => setNewVendor(v => ({ ...v, name: e.target.value }))}
                 placeholder="e.g. Sysco, US Foods…"
-                className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
               />
             </div>
             <div>
@@ -139,7 +139,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
               <select
                 value={newVendor.category}
                 onChange={e => setNewVendor(v => ({ ...v, category: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
               >
                 {VENDOR_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
@@ -151,7 +151,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                   value={newVendor.contact_person}
                   onChange={e => setNewVendor(v => ({ ...v, contact_person: e.target.value }))}
                   placeholder="Name"
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                  className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
                 />
               </div>
               <div>
@@ -160,7 +160,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                   value={newVendor.phone}
                   onChange={e => setNewVendor(v => ({ ...v, phone: e.target.value }))}
                   placeholder="(555) 000-0000"
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                  className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
                 />
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                 value={newVendor.email}
                 onChange={e => setNewVendor(v => ({ ...v, email: e.target.value }))}
                 placeholder="orders@vendor.com"
-                className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
               />
             </div>
             <div className="flex gap-2 pt-2">
@@ -225,7 +225,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                 }}
                 onFocus={() => setShowVendorDropdown(true)}
                 placeholder="Search vendors…"
-                className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground pr-9"
+                className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground pr-9"
               />
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               {showVendorDropdown && (
@@ -265,7 +265,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                 value={form.invoice_number}
                 onChange={e => setForm(f => ({ ...f, invoice_number: e.target.value }))}
                 placeholder="e.g. INV-00123"
-                className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
               />
             </div>
             <div>
@@ -274,7 +274,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                 type="date"
                 value={form.invoice_date}
                 onChange={e => setForm(f => ({ ...f, invoice_date: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
               />
             </div>
           </div>
@@ -295,7 +295,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                     value={form[key]}
                     onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                     placeholder="0.00"
-                    className="w-full pl-6 pr-2 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                    className="w-full pl-6 pr-2 py-2.5 liquid-card rounded-xl text-sm text-foreground"
                   />
                 </div>
               </div>
@@ -309,7 +309,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
               value={form.received_by}
               onChange={e => setForm(f => ({ ...f, received_by: e.target.value }))}
               placeholder="Your name"
-              className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+              className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
             />
           </div>
 
@@ -351,7 +351,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                 <select
                   value={issue.issue_type}
                   onChange={e => setIssue(i => ({ ...i, issue_type: e.target.value }))}
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                  className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
                 >
                   <option value="">Select issue type…</option>
                   {ISSUE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -364,7 +364,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                   onChange={e => setIssue(i => ({ ...i, description: e.target.value }))}
                   placeholder="Describe the issue…"
                   rows={3}
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground resize-none"
+                  className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground resize-none"
                 />
               </div>
               <div>
@@ -376,7 +376,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
                     value={issue.credit_requested}
                     onChange={e => setIssue(i => ({ ...i, credit_requested: e.target.value }))}
                     placeholder="0.00"
-                    className="w-full pl-6 pr-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground"
+                    className="w-full pl-6 pr-3 py-2.5 liquid-card rounded-xl text-sm text-foreground"
                   />
                 </div>
               </div>
@@ -391,7 +391,7 @@ export default function NewReceivingDrawer({ vendors, user, onSave, onClose, onV
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               placeholder="Any additional notes…"
               rows={2}
-              className="w-full px-3 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground resize-none"
+              className="w-full px-3 py-2.5 liquid-card rounded-xl text-sm text-foreground resize-none"
             />
           </div>
         </div>

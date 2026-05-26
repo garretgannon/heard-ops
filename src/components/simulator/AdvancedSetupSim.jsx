@@ -206,7 +206,7 @@ export default function AdvancedSetupSim({ onBack }) {
         </div>
 
         {/* Placeholder content */}
-        <div className="h-32 rounded-lg bg-background border border-border/50 flex items-center justify-center mb-4">
+        <div className="h-32 rounded-lg liquid-card/50 flex items-center justify-center mb-4">
           <p className="text-muted-foreground text-sm">Step content simulated</p>
         </div>
 

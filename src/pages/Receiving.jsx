@@ -38,10 +38,10 @@ function sumAmounts(arr) {
 
 function StatCard({ icon: Icon, label, count, amount, iconClass }) {
   return (
-    <div className="card-glass border border-border/50 rounded-xl p-4 flex-1 min-w-0">
+    <div className="card-glass border border-border/50 rounded-2xl p-4 flex-1 min-w-0">
       <div className="flex items-start justify-between mb-2">
         <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground leading-tight">{label}</p>
-        <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center shrink-0', iconClass)}>
+        <div className={cn('h-7 w-7 rounded-2xl flex items-center justify-center shrink-0', iconClass)}>
           <Icon className="h-3.5 w-3.5" />
         </div>
       </div>
@@ -65,7 +65,7 @@ function InvoiceRow({ invoice, issues, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left card-glass border border-border/50 rounded-xl px-4 py-3 hover:border-primary/30 hover:brightness-110 transition-all active:scale-[0.99]"
+      className="w-full text-left card-glass border border-border/50 rounded-2xl px-4 py-3 hover:border-primary/30 hover:brightness-110 transition-all active:scale-[0.99]"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -192,7 +192,7 @@ export default function Receiving() {
         </div>
         <button
           onClick={() => { haptics.medium(); setShowNew(true); }}
-          className="btn-primary h-9 w-9 rounded-xl flex items-center justify-center p-0"
+          className="btn-primary h-9 w-9 rounded-2xl flex items-center justify-center p-0"
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -237,7 +237,7 @@ export default function Receiving() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search vendor or invoice #…"
-            className="w-full pl-9 pr-4 py-2 bg-muted/40 border border-border/50 rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+            className="w-full pl-9 pr-4 py-2 bg-muted/40 border border-border/50 rounded-2xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">

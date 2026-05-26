@@ -340,7 +340,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
                       className={`w-full text-xs px-2 py-1.5 rounded-lg text-left transition-all ${
                         selectedTemplate === t.id
                           ? 'bg-primary text-primary-foreground font-bold'
-                          : 'bg-background border border-border text-foreground hover:bg-muted'
+                          : 'liquid-card text-foreground hover:bg-muted'
                       }`}
                     >
                       {t.name}
@@ -361,7 +361,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
                     <select
                       value={field || ''}
                       onChange={e => setColumnMapping(p => ({ ...p, [colIdx]: e.target.value }))}
-                      className="w-32 px-2 py-1 bg-background border border-border rounded-lg text-xs text-foreground"
+                      className="w-32 px-2 py-1 liquid-card rounded-lg text-xs text-foreground"
                     >
                       <option value="">— Skip —</option>
                       {Object.keys(COLUMN_KEYWORDS).map(k => <option key={k} value={k}>{k}</option>)}
@@ -384,7 +384,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
                   value={templateName}
                   onChange={e => setTemplateName(e.target.value)}
                   placeholder="Template name (e.g., Sysco, Toast)"
-                  className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+                  className="w-full px-2 py-1.5 liquid-card rounded-lg text-xs text-foreground"
                 />
                 <div className="flex gap-2">
                   <button onClick={saveAsTemplate} className="flex-1 btn-primary text-xs py-1.5">Save</button>
@@ -418,7 +418,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
                 type="date"
                 value={weekStart}
                 onChange={e => setWeekStart(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
               />
             </div>
 
@@ -434,14 +434,14 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
                 <div key={idx} className={`bg-card border rounded px-3 py-2 text-xs transition-all ${row.issues.length > 0 ? 'border-red-500/30' : 'border-border'} ${editingIdx === idx ? 'ring-2 ring-primary' : ''}`}>
                   {editingIdx === idx && pdfParsed ? (
                     <div className="space-y-2">
-                      <input type="text" value={row.mapped.employee_name} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.employee_name = e.target.value; setPreviewRows(nr); }} placeholder="Employee" className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      <input type="text" value={row.mapped.employee_name} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.employee_name = e.target.value; setPreviewRows(nr); }} placeholder="Employee" className="w-full px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       <div className="grid grid-cols-2 gap-2">
-                        <input type="date" value={row.mapped.date} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.date = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
-                        <input type="text" value={row.mapped.role} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.role = e.target.value; setPreviewRows(nr); }} placeholder="Role" className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="date" value={row.mapped.date} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.date = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
+                        <input type="text" value={row.mapped.role} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.role = e.target.value; setPreviewRows(nr); }} placeholder="Role" className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <input type="time" value={row.mapped.start_time} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.start_time = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
-                        <input type="time" value={row.mapped.end_time} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.end_time = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="time" value={row.mapped.start_time} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.start_time = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
+                        <input type="time" value={row.mapped.end_time} onChange={e => { const nr = [...previewRows]; nr[idx].mapped.end_time = e.target.value; setPreviewRows(nr); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       </div>
                       <button onClick={() => setEditingIdx(null)} className="w-full py-1 bg-primary text-primary-foreground rounded text-xs font-bold">Done</button>
                     </div>
@@ -486,7 +486,7 @@ export default function ScheduleImportFlow({ onClose, onComplete, user }) {
       </div>
 
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
-        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx,.pdf" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
+        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx,.pdf" className="ops-input hidden" onChange={e => { handleFile(e.target.files[0]); }} />
         {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose File</button>}
         {step === 4 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Schedule</button>}
       </div>

@@ -101,7 +101,7 @@ export default function FastCompleteFlow({ item, onComplete, onCancel }) {
             type="file"
             accept="image/*"
             capture="environment"
-            className="hidden"
+            className="ops-input hidden"
             onChange={handleFileSelect}
           />
           <div className="absolute bottom-8 left-0 right-0 flex gap-3 px-6 justify-center">

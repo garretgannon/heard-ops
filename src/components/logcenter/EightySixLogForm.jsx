@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import LogTagManager from './LogTagManager';
 import { createLogTags } from '@/hooks/useLogTags';
 import { toast } from 'sonner';
+import { posSync } from '@/lib/posSync';
 
 const NOTIFY_ROLES = [
   { id: 'managers', label: 'Managers' },
@@ -102,6 +103,12 @@ export default function EightySixLogForm({ onSave, loading }) {
       ? `${form.expected_return_date}T${form.expected_return_time}`
       : null;
 
+    let posSynced = false;
+    if (posSync.isConnected()) {
+      const syncRes = await posSync.sync86ToPOS(form.item_name, form.reason);
+      posSynced = syncRes.success;
+    }
+
     base44.entities.EightySixItem.create({
       item_name: form.item_name,
       reason: form.reason,
@@ -116,6 +123,7 @@ export default function EightySixLogForm({ onSave, loading }) {
       photo_url: photoUrl,
       notes: form.notes,
       status: 'active',
+      pos_synced: posSynced,
     }).then(async (created) => {
       if (selectedTags.length > 0) {
         await createLogTags(created.id, 'eighty_six', selectedTags);
@@ -174,7 +182,7 @@ export default function EightySixLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Date/Time Started *</label>
           <input type="datetime-local" value={form.date_time_started}
             onChange={e => setForm({ ...form, date_time_started: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className={`text-xs font-bold block mb-1 ${errors.logged_by ? 'text-red-400' : 'text-secondary-text'}`}>
@@ -195,13 +203,13 @@ export default function EightySixLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Expected Return Date (Optional)</label>
           <input type="date" value={form.expected_return_date}
             onChange={e => setForm({ ...form, expected_return_date: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Expected Return Time (Optional)</label>
           <input type="time" value={form.expected_return_time}
             onChange={e => setForm({ ...form, expected_return_time: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -210,7 +218,7 @@ export default function EightySixLogForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Linked Recipe/Menu Item (Optional)</label>
           <select value={form.linked_recipe_id} onChange={e => setForm({ ...form, linked_recipe_id: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             <option value="">Select recipe...</option>
             {recipes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
           </select>
@@ -218,7 +226,7 @@ export default function EightySixLogForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Linked Inventory Item (Optional)</label>
           <select value={form.linked_inventory_item_id} onChange={e => setForm({ ...form, linked_inventory_item_id: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             <option value="">Select item...</option>
             {inventoryItems.map(i => <option key={i.id} value={i.id}>{i.name || i.itemName}</option>)}
           </select>
@@ -241,7 +249,7 @@ export default function EightySixLogForm({ onSave, loading }) {
               <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground font-bold">Click to upload photo</p>
             </div>
-            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="ops-input hidden" />
           </label>
         )}
       </div>
@@ -268,7 +276,7 @@ export default function EightySixLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Notes (Optional)</label>
         <textarea placeholder="Additional details..." value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Tags */}

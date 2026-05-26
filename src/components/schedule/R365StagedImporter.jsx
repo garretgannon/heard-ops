@@ -237,9 +237,9 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
             <p className="text-xs text-muted-foreground">Map your schedule columns to app fields.</p>
             <div className="card-glass border border-border rounded-lg p-3 space-y-2">
               <label className="text-xs font-bold text-foreground block">Week Start Date</label>
-              <input type="date" value={weekStart} onChange={e => setWeekStart(e.target.value)} className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground" />
+              <input type="date" value={weekStart} onChange={e => setWeekStart(e.target.value)} className="w-full px-2 py-1.5 liquid-card rounded text-xs text-foreground" />
               <label className="text-xs font-bold text-foreground block mt-2">Week Starts On</label>
-              <select value={weekStartsOnMonday ? 'monday' : 'sunday'} onChange={e => setWeekStartsOnMonday(e.target.value === 'monday')} className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground">
+              <select value={weekStartsOnMonday ? 'monday' : 'sunday'} onChange={e => setWeekStartsOnMonday(e.target.value === 'monday')} className="w-full px-2 py-1.5 liquid-card rounded text-xs text-foreground">
                 <option value="monday">Monday</option>
                 <option value="sunday">Sunday</option>
               </select>
@@ -257,7 +257,7 @@ export default function R365StagedImporter({ onClose, onComplete, user }) {
       </div>
 
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
-        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx,.pdf" className="hidden" onChange={e => { handleUpload(e.target.files[0]); }} />
+        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx,.pdf" className="ops-input hidden" onChange={e => { handleUpload(e.target.files[0]); }} />
         {step === 'upload' && <button onClick={() => fileRef.current?.click()} disabled={loading} className="w-full btn-primary text-sm disabled:opacity-50">{loading ? 'Loading...' : 'Choose File'}</button>}
         {step === 'raw_preview' && <button onClick={() => setStep('upload')} className="w-full btn-secondary text-sm">Choose Different File</button>}
       </div>

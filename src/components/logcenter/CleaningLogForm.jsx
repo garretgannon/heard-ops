@@ -132,7 +132,7 @@ export default function CleaningLogForm({ onSave, loading }) {
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Checklist/Template Used</label>
         <select value={form.template_id} onChange={e => handleTemplateChange(e.target.value)}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
           <option value="">Select template...</option>
           {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
@@ -155,7 +155,7 @@ export default function CleaningLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Date/Time *</label>
           <input type="datetime-local" value={form.logged_at}
             onChange={e => setForm({ ...form, logged_at: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -186,12 +186,12 @@ export default function CleaningLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Assigned Role</label>
           <input type="text" placeholder="e.g. Dishwasher, Busser..." value={form.assigned_role}
             onChange={e => setForm({ ...form, assigned_role: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Station</label>
           <select value={form.assigned_station} onChange={e => setForm({ ...form, assigned_station: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             <option value="">Select station...</option>
             {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
           </select>
@@ -214,7 +214,7 @@ export default function CleaningLogForm({ onSave, loading }) {
               <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground font-bold">Click to upload photo</p>
             </div>
-            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="ops-input hidden" />
           </label>
         )}
       </div>
@@ -224,7 +224,7 @@ export default function CleaningLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Notes (Optional)</label>
         <textarea placeholder="Any observations or additional details..." value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Issues Found */}
@@ -232,7 +232,7 @@ export default function CleaningLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Issues Found (Optional)</label>
         <textarea placeholder="Any problems discovered during cleaning..." value={form.issues_found}
           onChange={e => setForm({ ...form, issues_found: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Supplies Needed */}
@@ -240,7 +240,7 @@ export default function CleaningLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Supplies Needed (Optional)</label>
         <textarea placeholder="Any supplies that need to be restocked..." value={form.supplies_needed}
           onChange={e => setForm({ ...form, supplies_needed: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Manager Review Required */}

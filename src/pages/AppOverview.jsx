@@ -147,7 +147,7 @@ function PulseRing({ value }) {
 
 function PrepCard({ item }) {
   return (
-    <Link to="/tasks?tab=prep" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-xl border border-border bg-card">
+    <Link to="/tasks?tab=prep" className="glow-interactive relative h-44 w-[154px] shrink-0 overflow-hidden rounded-2xl border border-border bg-card">
       <TaskVisual type="prep" name={item.name} imageUrl={item.image} className="h-full w-full" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
       <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-2">
@@ -168,7 +168,7 @@ function PrepCard({ item }) {
 function ActionRow({ item }) {
   const Icon = item.icon;
   return (
-    <Link to={item.href} className="ops-panel ops-panel-interactive flex items-center gap-3 px-4 py-3">
+    <Link to={item.href} className="liquid-card liquid-card-interactive flex items-center gap-3 px-4 py-3">
       <span className={cn('status-marker status-marker-md shrink-0', item.statusClass)}>
         <Icon className="h-4 w-4" />
       </span>
@@ -276,13 +276,13 @@ function SwipeApprovalCard({ approval, index, total, onApprove, onDeny, onViewDe
 
         {/* Tinder stamps */}
         {showApproveStamp && (
-          <div className="absolute left-6 top-10 -rotate-12 rounded-xl px-4 py-2"
+          <div className="absolute left-6 top-10 -rotate-12 rounded-2xl px-4 py-2"
             style={{ border: '3px solid rgba(74,222,128,0.45)' }}>
             <span className="text-lg font-black uppercase tracking-[0.18em] text-green-400">Approve</span>
           </div>
         )}
         {showDenyStamp && (
-          <div className="absolute right-6 top-10 rotate-12 rounded-xl px-4 py-2"
+          <div className="absolute right-6 top-10 rotate-12 rounded-2xl px-4 py-2"
             style={{ border: '3px solid rgba(248,113,113,0.85)' }}>
             <span className="text-lg font-black uppercase tracking-[0.18em] text-red-400">Deny</span>
           </div>
@@ -316,14 +316,14 @@ function SwipeApprovalCard({ approval, index, total, onApprove, onDeny, onViewDe
         <button
           onPointerDown={e => e.stopPropagation()}
           onClick={onDeny}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-extrabold text-red-400 border border-red-500/30 bg-red-500/10 hover:bg-red-500/15 transition-all active:scale-[0.97]"
+          className="flex h-12 items-center justify-center gap-2 rounded-2xl text-sm font-extrabold text-red-400 border border-red-500/30 bg-red-500/10 hover:bg-red-500/15 transition-all active:scale-[0.97]"
         >
           <X className="h-4 w-4" /> Send Back
         </button>
         <button
           onPointerDown={e => e.stopPropagation()}
           onClick={onApprove}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-extrabold text-green-400 border border-green-500/30 bg-green-500/15 hover:bg-green-500/20 transition-all active:scale-[0.97]"
+          className="flex h-12 items-center justify-center gap-2 rounded-2xl text-sm font-extrabold text-green-400 border border-green-500/30 bg-green-500/15 hover:bg-green-500/20 transition-all active:scale-[0.97]"
         >
           <Check className="h-4 w-4" /> Approve
         </button>
@@ -571,7 +571,7 @@ export default function AppOverview() {
 
         {/* Setup progress banner — admin only, hides when complete or dismissed */}
         {isAdmin && setupProgress && !setupDismissed && (
-          <section className="ops-panel ops-panel-interactive flex items-center gap-4 px-4 py-3">
+          <section className="liquid-card liquid-card-interactive flex items-center gap-4 px-4 py-3">
             <div className="ops-icon-box ops-icon-box-accent shrink-0">
               <Rocket className="h-3.5 w-3.5 text-primary" />
             </div>
@@ -709,16 +709,16 @@ export default function AppOverview() {
               </div>
               {/* Mini stats */}
               <div className="grid grid-cols-3 gap-1">
-                <div className="rounded-xl py-1.5 text-center bg-green-500/10 border border-green-500/20">
+                <div className="rounded-2xl py-1.5 text-center bg-green-500/10 border border-green-500/20">
                   <p className="text-sm font-extrabold text-green-400">{metrics.completedTasks}</p>
                   <p className="text-[9px] font-medium text-muted-foreground/75 mt-0.5">Done</p>
                 </div>
-                <div className="rounded-xl py-1.5 text-center bg-primary/10 border border-primary/20">
+                <div className="rounded-2xl py-1.5 text-center bg-primary/10 border border-primary/20">
                   <p className="text-sm font-extrabold text-primary">{pendingApprovals}</p>
                   <p className="text-[9px] font-medium text-muted-foreground/75 mt-0.5">Pending</p>
                 </div>
                 <div className={cn(
-                  "rounded-xl py-1.5 text-center border transition-colors",
+                  "rounded-2xl py-1.5 text-center border transition-colors",
                   issueCount > 0 ? "bg-red-500/10 border-red-500/20" : "bg-muted/30 border-border"
                 )}>
                   <p className={cn('text-sm font-extrabold', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground/40')}>{issueCount}</p>
@@ -879,7 +879,7 @@ export default function AppOverview() {
                     <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{sub}</p>
                   </div>
                   <span
-                    className="shrink-0 px-4 py-2 rounded-xl text-xs font-black text-white whitespace-nowrap"
+                    className="shrink-0 px-4 py-2 rounded-2xl text-xs font-black text-white whitespace-nowrap"
                     style={{ background: accent, boxShadow: `0 0 16px ${btnGlow}` }}
                   >
                     {btnLabel}
@@ -926,7 +926,7 @@ export default function AppOverview() {
                 </div>
 
                 {/* Tasks */}
-                <Link to="/tasks" className="ops-metric-card ops-panel-interactive block">
+                <Link to="/tasks" className="ops-metric-card liquid-card-interactive block">
                   <div className="ops-metric-topline">
                     <span className="ops-icon-box">
                       <CheckCircle2 className={cn('h-3.5 w-3.5', overdueTasks > 0 ? 'text-amber-400' : 'text-green-400')} />
@@ -964,7 +964,7 @@ export default function AppOverview() {
                 </div>
 
                 {/* Issues */}
-                <Link to="/logs" className="ops-metric-card ops-panel-interactive block">
+                <Link to="/logs" className="ops-metric-card liquid-card-interactive block">
                   <div className="ops-metric-topline">
                     <span className="ops-icon-box">
                       <AlertCircle className={cn('h-3.5 w-3.5', issueCount > 0 ? 'text-red-400' : 'text-muted-foreground')} />
@@ -1002,7 +1002,7 @@ export default function AppOverview() {
                       <div className="space-y-2">
                         {approvalQueue.slice(0, 8).map((approval) => (
                           <div key={`${approval.sourceModule}:${approval.sourceId || approval.id}`}
-                            className="ops-panel flex items-center gap-3 px-3 py-2.5">
+                            className="liquid-card flex items-center gap-3 px-3 py-2.5">
                             <span className={cn('status-marker status-marker-sm shrink-0',
                               approval.approval_type === 'temperature' ? 'status-warning' :
                               approval.approval_type === 'prep' ? 'status-info' :
@@ -1015,15 +1015,15 @@ export default function AppOverview() {
                               <p className="text-xs text-muted-foreground capitalize">{(approval.approval_type || '').replace(/_/g, ' ')}{approval.created_by ? ` · ${approval.created_by}` : ''}</p>
                             </div>
                             <div className="flex gap-1.5 shrink-0">
-                              <button onClick={() => handleApprove(approval)} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors">Approve</button>
-                              <button onClick={() => { setDenialDrawer({ approval }); setDetailSheet(null); }} className="text-xs font-bold px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">Deny</button>
+                              <button onClick={() => handleApprove(approval)} className="text-xs font-bold px-2.5 py-1 rounded-2xl bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors">Approve</button>
+                              <button onClick={() => { setDenialDrawer({ approval }); setDetailSheet(null); }} className="text-xs font-bold px-2.5 py-1 rounded-2xl bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">Deny</button>
                             </div>
                           </div>
                         ))}
                       </div>
                     </section>
                   ) : (
-                    <div className="ops-panel ops-panel-success flex items-center gap-3 px-5 py-4">
+                    <div className="liquid-card liquid-card-success flex items-center gap-3 px-5 py-4">
                       <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0" />
                       <div>
                         <p className="text-sm font-black text-foreground">Approval Queue Clear</p>
@@ -1053,7 +1053,7 @@ export default function AppOverview() {
                       <div className="space-y-2">
                         {prepQueue.slice(0, 4).map((item) => (
                           <Link key={item.name} to="/tasks?tab=prep"
-                            className="ops-panel ops-panel-interactive flex items-center gap-3 px-3 py-2.5">
+                            className="liquid-card liquid-card-interactive flex items-center gap-3 px-3 py-2.5">
                             <span className={cn('status-marker status-marker-sm shrink-0', item.statusClass)} />
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm font-bold text-foreground">{item.name}</p>
@@ -1074,7 +1074,7 @@ export default function AppOverview() {
                 <div className="sticky top-[120px] space-y-4">
 
                   {/* Today at a Glance */}
-                  <div className="ops-panel">
+                  <div className="liquid-card">
                     <div className="px-4 py-3 border-b border-border/30">
                       <h2 className="text-sm font-black text-foreground">Today at a Glance</h2>
                       <p className="text-[10px] text-muted-foreground mt-0.5">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</p>
@@ -1124,7 +1124,7 @@ export default function AppOverview() {
                   </div>
 
                   {/* Recent Activity */}
-                  <div className="ops-panel">
+                  <div className="liquid-card">
                     <div className="px-4 py-3 border-b border-border/30 flex items-center justify-between">
                       <h2 className="text-sm font-black text-foreground">Recent Activity</h2>
                       <Link to="/logs" className="text-xs font-black text-primary">View all</Link>
@@ -1149,7 +1149,7 @@ export default function AppOverview() {
                   </div>
 
                   {/* Quick links */}
-                  <div className="ops-panel">
+                  <div className="liquid-card">
                     <div className="px-4 py-3 border-b border-border/30">
                       <h2 className="text-sm font-black text-foreground">Quick Access</h2>
                     </div>
@@ -1192,7 +1192,7 @@ export default function AppOverview() {
               </div>
               <button
                 onClick={() => setShowApprovalDeck(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.08] transition-colors hover:bg-white/[0.12]"
+                className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/[0.08] transition-colors hover:bg-white/[0.12]"
               >
                 <X className="h-4 w-4 text-foreground" />
               </button>

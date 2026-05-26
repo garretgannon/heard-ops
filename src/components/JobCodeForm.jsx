@@ -55,7 +55,7 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="ops-input w-full"
           placeholder="e.g., Cook, Server, Bartender"
         />
       </div>
@@ -66,7 +66,7 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
           name="department"
           value={formData.department}
           onChange={handleChange}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
@@ -78,7 +78,7 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
           name="maps_to_role"
           value={formData.maps_to_role}
           onChange={handleChange}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
         >
           <option value="">— None —</option>
           {SYSTEM_ROLES.map(r => (
@@ -95,13 +95,13 @@ export default function JobCodeForm({ jobCode, onSave, onClose }) {
           value={formData.description}
           onChange={handleChange}
           rows="2"
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground resize-none"
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground resize-none"
           placeholder="Optional notes"
         />
       </div>
 
       <div className="flex items-center gap-2">
-        <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} className="rounded" />
+        <input type="checkbox" name="isActive" checked={formData.isActive} onChange={handleChange} className="ops-input rounded" />
         <label className="text-sm font-semibold text-foreground">Active</label>
       </div>
 

@@ -101,21 +101,21 @@ export default function TemperatureLogTemplateForm({ template, onSave }) {
       {sel && (
         <>
           {/* Name */}
-          <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Template name *" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+          <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Template name *" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
 
           {/* Cooling-specific fields */}
           {sel === 'cooling-log' && (
             <div className="space-y-2 bg-blue-500/5 border border-blue-500/20 rounded-xl p-3">
               <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">Cooling Log Settings</p>
-              <input value={form.foodItem} onChange={e => set('foodItem', e.target.value)} placeholder="Food item or product group (e.g. Chicken Stock)" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input value={form.foodItem} onChange={e => set('foodItem', e.target.value)} placeholder="Food item or product group (e.g. Chicken Stock)" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs font-bold text-muted-foreground block mb-1">2-Hr Target Max (°F)</label>
-                  <input type="number" value={form.twoHourTarget} onChange={e => set('twoHourTarget', parseFloat(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  <input type="number" value={form.twoHourTarget} onChange={e => set('twoHourTarget', parseFloat(e.target.value))} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-muted-foreground block mb-1">6-Hr Target Max (°F)</label>
-                  <input type="number" value={form.sixHourTarget} onChange={e => set('sixHourTarget', parseFloat(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  <input type="number" value={form.sixHourTarget} onChange={e => set('sixHourTarget', parseFloat(e.target.value))} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
                 </div>
               </div>
             </div>
@@ -128,24 +128,24 @@ export default function TemperatureLogTemplateForm({ template, onSave }) {
               {equipment.length > 0 && (
                 <div>
                   <label className="text-xs font-bold text-muted-foreground block mb-1">Link to Equipment (optional)</label>
-                  <select value={form.equipmentId} onChange={e => { const eq = equipment.find(x => x.id === e.target.value); if (eq) selectEquipment(eq); else set('equipmentId', ''); }} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+                  <select value={form.equipmentId} onChange={e => { const eq = equipment.find(x => x.id === e.target.value); if (eq) selectEquipment(eq); else set('equipmentId', ''); }} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
                     <option value="">Select equipment or enter manually</option>
                     {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
                   </select>
                 </div>
               )}
-              <input value={form.equipmentName} onChange={e => set('equipmentName', e.target.value)} placeholder="Equipment name" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input value={form.equipmentName} onChange={e => set('equipmentName', e.target.value)} placeholder="Equipment name" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs font-bold text-muted-foreground block mb-1">Target Min (°F)</label>
-                  <input type="number" value={form.targetMin} onChange={e => set('targetMin', parseFloat(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  <input type="number" value={form.targetMin} onChange={e => set('targetMin', parseFloat(e.target.value))} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-muted-foreground block mb-1">Target Max (°F)</label>
-                  <input type="number" value={form.targetMax} onChange={e => set('targetMax', parseFloat(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  <input type="number" value={form.targetMax} onChange={e => set('targetMax', parseFloat(e.target.value))} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
                 </div>
               </div>
-              <select value={form.frequency} onChange={e => set('frequency', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <select value={form.frequency} onChange={e => set('frequency', e.target.value)} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
                 {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
               </select>
             </div>
@@ -155,13 +155,13 @@ export default function TemperatureLogTemplateForm({ template, onSave }) {
           {sel === 'hot-holding' && (
             <div className="space-y-2 bg-orange-500/5 border border-orange-500/20 rounded-xl p-3">
               <p className="text-xs font-bold text-orange-400 uppercase tracking-widest">Hot Holding Settings</p>
-              <input value={form.foodItem} onChange={e => set('foodItem', e.target.value)} placeholder="Food item (e.g. Chicken, Soup, Rice)" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
-              <input value={form.holdingLocation} onChange={e => set('holdingLocation', e.target.value)} placeholder="Holding location (e.g. Steam table, Hot box)" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              <input value={form.foodItem} onChange={e => set('foodItem', e.target.value)} placeholder="Food item (e.g. Chicken, Soup, Rice)" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
+              <input value={form.holdingLocation} onChange={e => set('holdingLocation', e.target.value)} placeholder="Holding location (e.g. Steam table, Hot box)" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               <div>
                 <label className="text-xs font-bold text-muted-foreground block mb-1">Minimum Holding Temp (°F)</label>
-                <input type="number" value={form.hotTargetMin} onChange={e => set('hotTargetMin', parseFloat(e.target.value))} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                <input type="number" value={form.hotTargetMin} onChange={e => set('hotTargetMin', parseFloat(e.target.value))} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               </div>
-              <select value={form.frequency} onChange={e => set('frequency', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              <select value={form.frequency} onChange={e => set('frequency', e.target.value)} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
                 {FREQUENCIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
               </select>
             </div>
@@ -169,16 +169,16 @@ export default function TemperatureLogTemplateForm({ template, onSave }) {
 
           {/* Shared: Station, Job Code, Shift */}
           <div className="grid grid-cols-2 gap-2">
-            <select value={form.station} onChange={e => set('station', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select value={form.station} onChange={e => set('station', e.target.value)} className="px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
               <option value="">Station</option>
               {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
             </select>
-            <select value={form.jobCode} onChange={e => set('jobCode', e.target.value)} className="px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            <select value={form.jobCode} onChange={e => set('jobCode', e.target.value)} className="px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
               <option value="">Job Code</option>
               {jobCodes.map(j => <option key={j.id} value={j.name}>{j.name}</option>)}
             </select>
           </div>
-          <select value={form.shift} onChange={e => set('shift', e.target.value)} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+          <select value={form.shift} onChange={e => set('shift', e.target.value)} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
             {SHIFTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
 
@@ -207,7 +207,7 @@ export default function TemperatureLogTemplateForm({ template, onSave }) {
             ))}
           </div>
 
-          <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Notes / instructions (optional)" className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" rows="2" />
+          <textarea value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Notes / instructions (optional)" className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" rows="2" />
 
           <button onClick={handleSave} disabled={loading} className="w-full btn-primary py-3 font-bold rounded-lg">
             {loading ? 'Saving...' : template ? 'Update Template' : 'Create Template'}

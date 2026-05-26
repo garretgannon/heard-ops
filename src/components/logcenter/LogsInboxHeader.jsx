@@ -39,10 +39,7 @@ export default function LogsInboxHeader({ logs, onStatClick }) {
   ];
 
   return (
-    <div
-      className="lg:hidden sticky top-0 z-10"
-      style={{ background: '#000000', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-    >
+    <div className="lg:hidden sticky top-0 z-10 ">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <button

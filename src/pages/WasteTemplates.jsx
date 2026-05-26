@@ -28,7 +28,7 @@ function TemplateCard({ template, onEdit, onDuplicate, onArchive }) {
   const active = isTemplateActive(template);
 
   return (
-    <div className="card-glass border border-border rounded-lg p-3.5 space-y-2.5">
+    <div className="card-glass border border-border rounded-2xl p-3.5 space-y-2.5">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="font-bold text-sm text-foreground truncate">{template.name}</p>
@@ -162,15 +162,15 @@ export default function WasteTemplates() {
               placeholder="Search templates..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder:text-secondary-text"
+              className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground placeholder:text-secondary-text"
             />
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowArchived(false)} className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${!showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+          <button onClick={() => setShowArchived(false)} className={`text-xs font-bold px-3 py-1.5 rounded-2xl transition-all ${!showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
             Active
           </button>
-          <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+          <button onClick={() => setShowArchived(true)} className={`text-xs font-bold px-3 py-1.5 rounded-2xl transition-all ${showArchived ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
             Archived
           </button>
         </div>

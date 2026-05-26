@@ -170,7 +170,7 @@ export default function Reports() {
                   {Object.entries(data.tasksByType).length > 0 && (
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       {Object.entries(data.tasksByType).slice(0, 6).map(([type, counts]) => (
-                        <div key={type} className="flex items-center justify-between rounded-xl border border-border/30 px-3 py-2" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
+                        <div key={type} className="flex items-center justify-between rounded-2xl border border-border/30 px-3 py-2" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)', backdropFilter: 'blur(22px) saturate(160%)', WebkitBackdropFilter: 'blur(22px) saturate(160%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 24px rgba(0,0,0,0.28)' }}>
                           <span className="text-xs text-muted-foreground capitalize">{type.replace(/_/g, ' ')}</span>
                           <span className="text-xs font-black text-foreground">{counts.done}/{counts.total}</span>
                         </div>

@@ -72,7 +72,7 @@ export default function DemoRestaurantSim({ onBack }) {
           {['Owner', 'Manager', 'Chef', 'Lead', 'Cook', 'Server', 'Dishwasher', 'Host'].map((role) => (
             <div
               key={role}
-              className="p-2 rounded-lg bg-background border border-border text-xs font-bold text-center text-muted-foreground"
+              className="p-2 rounded-lg liquid-card text-xs font-bold text-center text-muted-foreground"
             >
               {role}
             </div>

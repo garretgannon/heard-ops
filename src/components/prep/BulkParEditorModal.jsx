@@ -91,7 +91,7 @@ export default function BulkParEditorModal({ station, shift, onClose, onSave }) 
                           type="number"
                           value={defaultPar || ''}
                           onChange={e => updatePar(template.id, 'default_par', parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm font-bold text-foreground"
+                          className="w-full px-2 py-1.5 liquid-card rounded text-sm font-bold text-foreground"
                         />
                       </div>
                       <div>
@@ -100,7 +100,7 @@ export default function BulkParEditorModal({ station, shift, onClose, onSave }) 
                           type="number"
                           value={minPar || ''}
                           onChange={e => updatePar(template.id, 'minimum_par', parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm font-bold text-foreground"
+                          className="w-full px-2 py-1.5 liquid-card rounded text-sm font-bold text-foreground"
                         />
                       </div>
                       <div>
@@ -109,7 +109,7 @@ export default function BulkParEditorModal({ station, shift, onClose, onSave }) 
                           type="number"
                           value={batchSize || ''}
                           onChange={e => updatePar(template.id, 'batch_size', parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1.5 bg-background border border-border rounded text-sm font-bold text-foreground"
+                          className="w-full px-2 py-1.5 liquid-card rounded text-sm font-bold text-foreground"
                         />
                       </div>
                     </div>

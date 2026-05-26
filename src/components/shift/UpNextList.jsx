@@ -39,7 +39,7 @@ export default function UpNextList({ tasks, onViewAll }) {
             <div
               key={task.id}
               className={cn(
-                'flex items-start gap-2.5 px-3 py-2 rounded-lg border transition-all',
+                'flex items-start gap-2.5 px-3 py-2 rounded-2xl border transition-all',
                 idx === 0 ? 'bg-primary/10 border-primary/30 ring-1 ring-primary/40' : cn('bg-card', config.color)
               )}
             >
@@ -70,7 +70,7 @@ export default function UpNextList({ tasks, onViewAll }) {
       {/* View Full Plan Link */}
       <button
         onClick={() => navigate('/tasks')}
-        className="w-full mx-4 lg:mx-0 h-9 rounded-lg border border-border/30 card-glass text-muted-foreground font-semibold text-xs hover:border-border/50 transition-all active:scale-95"
+        className="w-full mx-4 lg:mx-0 h-9 liquid-card text-muted-foreground font-semibold text-xs hover: transition-all active:scale-95"
       >
         View Shift Plan
       </button>

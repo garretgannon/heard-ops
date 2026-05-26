@@ -21,7 +21,7 @@ export default function MobileSelect({ label, value, options, onChange, placehol
         onClick={() => !disabled && setOpen(!open)}
         disabled={disabled}
         className={cn(
-          'w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-left font-medium flex items-center justify-between',
+          'w-full px-3 py-2 liquid-card rounded-lg text-sm text-left font-medium flex items-center justify-between',
           'active:scale-95 transition-all',
           disabled && 'opacity-50 cursor-not-allowed',
           open && 'border-primary/50 bg-card'

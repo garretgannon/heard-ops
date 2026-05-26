@@ -95,12 +95,12 @@ function StationCard({ station, eq, isSelected, onClick }) {
     <button
       onClick={onClick}
       className={cn(
-        'relative w-full text-left rounded-xl border bg-card border-border p-3 transition-all duration-150 active:scale-[0.97] flex flex-col gap-2',
+        'liquid-card relative w-full text-left p-3 transition-all duration-150 active:scale-[0.97] flex flex-col gap-2',
         isSelected ? glowColor[color] : 'border-border/40 hover:border-border/70'
       )}
       style={{
         ...GLASS,
-        background: isSelected ? bgColor[color] : 'hsl(var(--card))',
+        ...(isSelected ? { background: bgColor[color] } : {})
       }}
     >
       <div className="flex items-start justify-between gap-1.5">
@@ -161,7 +161,7 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
               {badgeLabel[color]}
             </span>
             {onClose && (
-              <button onClick={onClose} className="h-7 w-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground lg:hidden">
+              <button onClick={onClose} className="h-7 w-7 rounded-2xl hover:bg-muted flex items-center justify-center text-muted-foreground lg:hidden">
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -184,7 +184,7 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
             { label: 'Temp Checks', value: tempEq.length },
             { label: 'Issues', value: issueCount, hi: issueCount > 0 },
           ].map(m => (
-            <div key={m.label} className="rounded-lg p-2 text-center" style={{ background: 'rgba(0,0,0,0.3)' }}>
+            <div key={m.label} className="rounded-2xl p-2 text-center" style={{ background: 'rgba(0,0,0,0.3)' }}>
               <p className={cn('text-base font-black', m.hi ? 'text-red-400' : 'text-foreground')}>{m.value}</p>
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5 leading-tight">{m.label}</p>
             </div>
@@ -198,7 +198,7 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
           <div className="space-y-1.5">
             <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Issues</p>
             {blockers.map((b, idx) => (
-              <div key={idx} className={cn('flex items-center gap-2 rounded-lg px-2.5 py-2',
+              <div key={idx} className={cn('flex items-center gap-2 rounded-2xl px-2.5 py-2',
                 b.severity === 'critical' ? 'border border-red-500/20 bg-red-500/8' :
                 b.severity === 'warning'  ? 'border border-amber-500/20 bg-amber-500/8' :
                 'border border-slate-500/15 bg-slate-500/8'
@@ -221,7 +221,7 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
             </p>
             <div className="space-y-1">
               {eq.map(e => (
-                <div key={e.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2 border border-border/30" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                <div key={e.id} className="flex items-center gap-2 rounded-2xl px-2.5 py-2 border border-border/30" style={{ background: 'rgba(0,0,0,0.2)' }}>
                   {isEquipmentConfigured(e)
                     ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-400" />
                     : <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400/70" />}
@@ -236,7 +236,7 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-border/40 p-4 text-center">
+          <div className="rounded-2xl border border-dashed border-border/40 p-4 text-center">
             <p className="text-xs text-muted-foreground">No equipment assigned</p>
           </div>
         )}
@@ -246,7 +246,7 @@ function DetailPanel({ station, allEquipment, onNavigate, onClose }) {
       <div className="p-3 border-t border-border/30 shrink-0">
         <button
           onClick={() => onNavigate(station.id)}
-          className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary/10 border border-primary/25 py-2.5 text-xs font-black text-primary hover:bg-primary/15 transition-all"
+          className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary/10 border border-primary/25 py-2.5 text-xs font-black text-primary hover:bg-primary/15 transition-all"
         >
           <ExternalLink className="h-3.5 w-3.5" /> Open Station Details
         </button>
@@ -360,11 +360,6 @@ export default function OperationalMap() {
       {/* Mobile header */}
       <div
         className="lg:hidden px-5 pt-6 pb-4 flex flex-col gap-4"
-        style={{
-          background: "rgba(19, 22, 31, 0.35)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-        }}
       >
         {/* Title row */}
         <div className="flex items-center justify-between gap-3">
@@ -398,44 +393,36 @@ export default function OperationalMap() {
         </div>
 
         {/* Area filter chips */}
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
-          {tabs.map(tab => {
-            const isActive = activeAreaId === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveAreaId(tab.id)}
-                className="flex items-center whitespace-nowrap transition-all active:scale-95"
-                style={{
-                  height: '24px',
-                  paddingLeft: '10px',
-                  paddingRight: '10px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  letterSpacing: '0.01em',
-                  background: isActive ? 'rgba(255,107,0,0.15)' : 'rgba(255,255,255,0.06)',
-                  border: isActive ? '1px solid rgba(255,107,0,0.30)' : '1px solid rgba(255,255,255,0.07)',
-                  color: isActive ? '#FF6B00' : 'rgba(255,255,255,0.4)',
-                  flexShrink: 0,
-                }}
-              >
-                {tab.name}
-              </button>
-            );
-          })}
+        <div className="w-full overflow-x-auto no-scrollbar pb-1">
+          <div className="pill-slider-container">
+            {tabs.map(tab => {
+              const isActive = activeAreaId === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveAreaId(tab.id)}
+                  className={cn(
+                    "glass-pill transition-all active:scale-95",
+                    isActive && "glow-active"
+                  )}
+                >
+                  {tab.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       <div className="ops-page ops-stack">
         {loading ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 pt-2">
-            {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton h-24 rounded-xl" />)}
+            {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton h-24 rounded-2xl" />)}
           </div>
         ) : (
           <>
             {/* Mobile-only summary strip — single pill row */}
-            <div className="lg:hidden flex items-center rounded-2xl overflow-hidden border border-border bg-card shadow-sm">
+            <div className="lg:hidden flex items-center rounded-full overflow-hidden border border-border bg-card shadow-sm">
               {[
                 { label: 'Total',     value: stats.total,  color: 'text-foreground' },
                 { label: 'Ready',     value: stats.ready,  color: 'text-green-400' },
@@ -479,7 +466,7 @@ export default function OperationalMap() {
                       value={search}
                       onChange={e => setSearch(e.target.value)}
                       placeholder="Search stations or equipment..."
-                      className="w-full pl-10 pr-3 py-2 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border bg-secondary"
+                      className="w-full pl-10 pr-3 py-2 rounded-2xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border bg-secondary"
                     />
                     {search && (
                       <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -487,10 +474,10 @@ export default function OperationalMap() {
                       </button>
                     )}
                   </div>
-                  <button onClick={loadData} className="h-9 w-9 rounded-lg border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0">
+                  <button onClick={loadData} className="h-9 w-9 rounded-2xl border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0">
                     <RefreshCw className="h-4 w-4" />
                   </button>
-                  <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-9 px-3 rounded-lg bg-primary text-white text-xs font-bold flex items-center gap-1.5 shrink-0 hover:bg-primary/90 transition-all">
+                  <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-9 px-3 rounded-2xl bg-primary text-white text-xs font-bold flex items-center gap-1.5 shrink-0 hover:bg-primary/90 transition-all">
                     <Plus className="h-3.5 w-3.5" /> Add Stations
                   </button>
                 </div>
@@ -502,7 +489,7 @@ export default function OperationalMap() {
                       key={tab.id}
                       onClick={() => setActiveAreaId(tab.id)}
                       className={cn(
-                        'shrink-0 px-3 py-1.5 rounded-lg border text-xs font-semibold whitespace-nowrap transition-all',
+                        'shrink-0 px-3 py-1.5 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all',
                         activeAreaId === tab.id ? 'glow-active' : 'border-transparent text-muted-foreground hover:text-foreground glow-interactive'
                       )}
                     >
@@ -554,10 +541,10 @@ export default function OperationalMap() {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder="Search..."
-                    className="w-full pl-10 pr-3 py-2 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border bg-secondary"
+                    className="w-full pl-10 pr-3 py-2 rounded-2xl text-sm text-foreground placeholder:text-muted-foreground outline-none border border-border bg-secondary"
                   />
                 </div>
-                <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-10 px-3 rounded-lg bg-primary text-white text-xs font-bold flex items-center gap-1.5 shrink-0">
+                <button onClick={() => navigate('/restaurant-setup-wizard')} className="h-10 px-3 rounded-2xl bg-primary text-white text-xs font-bold flex items-center gap-1.5 shrink-0">
                   <Plus className="h-3.5 w-3.5" /> Add
                 </button>
               </div>

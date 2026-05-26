@@ -273,7 +273,7 @@ export default function VendorImportFlow({ onClose, onComplete }) {
               value={vendorName}
               onChange={e => setVendorName(e.target.value)}
               placeholder="Enter vendor name (e.g., US Foods, Sysco)"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
             />
             <p className="text-[10px] text-muted-foreground">All items in this file will be tagged with this vendor.</p>
           </div>
@@ -335,7 +335,7 @@ export default function VendorImportFlow({ onClose, onComplete }) {
       </div>
 
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
-        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx" className="hidden" onChange={e => { handleFile(e.target.files[0]); setStep(2); }} />
+        <input ref={fileRef} type="file" accept=".csv,.xls,.xlsx" className="ops-input hidden" onChange={e => { handleFile(e.target.files[0]); setStep(2); }} />
         {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose File</button>}
         {step === 2 && <button onClick={() => setStep(3)} disabled={!vendorName} className="w-full btn-primary text-sm disabled:opacity-50">Continue to Step 3</button>}
         {step === 3 && <button onClick={buildPreview} className="w-full btn-primary text-sm">Preview Import</button>}

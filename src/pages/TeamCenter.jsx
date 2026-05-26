@@ -165,13 +165,13 @@ const isMounted = useRef(true);
                 placeholder="Search team..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 rounded-lg border border-border/30 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary w-56"
+                className="pl-9 pr-4 py-2 rounded-2xl border border-border/30 bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary w-56"
               />
             </div>
             {isAdmin && (
               <button
                 onClick={() => setShowAddEmployee(true)}
-                className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
+                className="h-9 px-4 rounded-2xl bg-primary text-primary-foreground text-sm font-bold flex items-center gap-2 hover:brightness-110 transition-all"
               >
                 <Plus className="h-4 w-4" /> Add Employee
               </button>
@@ -225,7 +225,7 @@ const isMounted = useRef(true);
 
         {activeTab === 'permissions' && (
           <div className="space-y-3">
-            <div className="card-glass border border-border rounded-xl overflow-hidden">
+            <div className="card-glass border border-border rounded-2xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-sm font-bold text-foreground">Permissions & Visibility</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Define what each role can see and do in the app</p>
@@ -234,7 +234,7 @@ const isMounted = useRef(true);
                 <RolePermissionBuilder />
               </div>
             </div>
-            <div className="card-glass border border-border rounded-xl overflow-hidden">
+            <div className="card-glass border border-border rounded-2xl overflow-hidden">
               <div className="px-4 py-3 border-b border-border/40">
                 <p className="text-sm font-bold text-foreground">Assignment Authority</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Who can assign tasks to whom</p>

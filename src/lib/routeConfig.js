@@ -216,6 +216,14 @@ export const moreNavSections = [
       { label: "Profile & Settings", detail: "Account preferences",       path: "/profile",       icon: Settings,  status: "status-neutral" },
     ],
   },
+  {
+    title: "System",
+    items: [
+      { path: "/integrations",    label: "Integrations",      detail: "POS and 3rd party connections", icon: Settings,    status: "status-info", adminOnly: true },
+      { path: "/settings",        label: "General Settings",  detail: "Store details and prefs",       icon: Settings,    status: "status-neutral", adminOnly: true },
+      { path: "/notifications",   label: "Notifications",     detail: "Alerts and routing rules",      icon: Bell,        status: "status-neutral", adminOnly: true },
+    ],
+  },
 ];
 
 export const morePrimaryActions = [

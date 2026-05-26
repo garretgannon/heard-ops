@@ -87,7 +87,7 @@ export default function RolesManagerTab() {
 
       {/* Add New Role */}
       {showAdd && (
-        <div className="bg-card border border-primary/40 rounded-xl p-4 space-y-3">
+        <div className="liquid-card -primary/40 p-4 space-y-3">
           <p className="text-xs font-bold text-primary uppercase">New Role</p>
           <div className="grid grid-cols-2 gap-2">
             <input

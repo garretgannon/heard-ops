@@ -128,7 +128,7 @@ export default function StationPrepAssignments({ templateId, templateName }) {
           <select
             value={form.station_id}
             onChange={e => setForm(f => ({ ...f, station_id: e.target.value }))}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
           >
             <option value="">Select station…</option>
             {available.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -144,7 +144,7 @@ export default function StationPrepAssignments({ templateId, templateName }) {
                 placeholder="e.g. 5"
                 value={form.override_par}
                 onChange={e => setForm(f => ({ ...f, override_par: e.target.value }))}
-                className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+                className="w-full px-2 py-1.5 liquid-card rounded-lg text-xs text-foreground"
               />
             </div>
             <div>
@@ -154,7 +154,7 @@ export default function StationPrepAssignments({ templateId, templateName }) {
                 placeholder="e.g. lbs"
                 value={form.override_unit}
                 onChange={e => setForm(f => ({ ...f, override_unit: e.target.value }))}
-                className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+                className="w-full px-2 py-1.5 liquid-card rounded-lg text-xs text-foreground"
               />
             </div>
             <div>
@@ -164,7 +164,7 @@ export default function StationPrepAssignments({ templateId, templateName }) {
                 placeholder="e.g. 1"
                 value={form.display_order}
                 onChange={e => setForm(f => ({ ...f, display_order: e.target.value }))}
-                className="w-full px-2 py-1.5 bg-background border border-border rounded-lg text-xs text-foreground"
+                className="w-full px-2 py-1.5 liquid-card rounded-lg text-xs text-foreground"
               />
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function StationPrepAssignments({ templateId, templateName }) {
               placeholder="Station-specific instructions (optional)"
               value={form.override_notes}
               onChange={e => setForm(f => ({ ...f, override_notes: e.target.value }))}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
             />
           </div>
           <div className="flex gap-2 pt-1">
@@ -260,7 +260,7 @@ function AssignmentRow({ assignment: a, onRemove, onToggleActive, onUpdateOverri
                 value={editPar}
                 onChange={e => setEditPar(e.target.value)}
                 onBlur={() => saveField('override_par', editPar)}
-                className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground"
+                className="w-full px-2 py-1.5 liquid-card rounded text-xs text-foreground"
               />
             </div>
             <div>
@@ -270,7 +270,7 @@ function AssignmentRow({ assignment: a, onRemove, onToggleActive, onUpdateOverri
                 value={editUnit}
                 onChange={e => setEditUnit(e.target.value)}
                 onBlur={() => saveField('override_unit', editUnit)}
-                className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground"
+                className="w-full px-2 py-1.5 liquid-card rounded text-xs text-foreground"
               />
             </div>
             <div>
@@ -280,7 +280,7 @@ function AssignmentRow({ assignment: a, onRemove, onToggleActive, onUpdateOverri
                 value={editOrder}
                 onChange={e => setEditOrder(e.target.value)}
                 onBlur={() => saveField('display_order', editOrder)}
-                className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground"
+                className="w-full px-2 py-1.5 liquid-card rounded text-xs text-foreground"
               />
             </div>
           </div>
@@ -291,7 +291,7 @@ function AssignmentRow({ assignment: a, onRemove, onToggleActive, onUpdateOverri
               value={editNotes}
               onChange={e => setEditNotes(e.target.value)}
               onBlur={() => saveField('override_notes', editNotes)}
-              className="w-full px-2 py-1.5 bg-background border border-border rounded text-xs text-foreground"
+              className="w-full px-2 py-1.5 liquid-card rounded text-xs text-foreground"
             />
           </div>
           <p className="text-[10px] text-muted-foreground/60">Fields save automatically on blur.</p>

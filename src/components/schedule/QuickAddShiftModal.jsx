@@ -131,12 +131,12 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">Start</label>
               <input type="time" value={form.start_time} onChange={e => setForm(f => ({...f, start_time: e.target.value}))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">End</label>
               <input type="time" value={form.end_time} onChange={e => setForm(f => ({...f, end_time: e.target.value}))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
           </div>
 
@@ -154,7 +154,7 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
               <select
                 value={form.role}
                 onChange={e => setForm(f => ({...f, role: e.target.value}))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
               >
                 <option value="">Select role…</option>
                 {eligibleRoles.map(r => <option key={r} value={r}>{r}</option>)}
@@ -165,7 +165,7 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
           <div>
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">Area (optional)</label>
             <select value={form.area} onChange={e => setForm(f => ({...f, area: e.target.value}))}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
               <option value="">Select area…</option>
               {areas.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
             </select>
@@ -179,7 +179,7 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
                 const s = stations.find(st => st.name === e.target.value);
                 setForm(f => ({ ...f, station: e.target.value, station_id: s?.id || '' }));
               }}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground"
             >
               <option value="">Select station…</option>
               {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
@@ -190,7 +190,7 @@ export default function QuickAddShiftModal({ employee, day, onSave, onClose }) {
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">Notes (optional)</label>
             <input type="text" value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))}
               placeholder="Any notes…"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
           </div>
 
           {calcHours() > 0 && (

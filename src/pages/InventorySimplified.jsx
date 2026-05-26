@@ -68,7 +68,7 @@ function KpiCard({ label, value, sub, labelColor = 'text-muted-foreground', colo
       onClick={onClick}
       disabled={!onClick}
       className={cn(
-        'card-glass border rounded-xl px-3.5 py-3 text-left transition-all',
+        'card-glass border rounded-2xl px-3.5 py-3 text-left transition-all',
         borderColor,
         onClick && 'hover:bg-white/[0.03] active:scale-[0.98]',
       )}
@@ -86,7 +86,7 @@ function SessionKpiCard({ name, due, status }) {
   const st = statusOf(status);
   return (
     <div
-      className="card-glass border border-border/60 rounded-xl px-3.5 py-3 text-left"
+      className="card-glass border border-border/60 rounded-2xl px-3.5 py-3 text-left"
       style={{ ...CARD_GLASS }}
     >
       <p className="text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground mb-1">Active Count Session</p>
@@ -157,7 +157,7 @@ function StationRow({ station, count, onAction }) {
       {/* Action — all orange */}
       <button
         onClick={() => onAction(station, count)}
-        className="text-[11px] font-black px-3 py-1.5 rounded-lg border border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 transition-colors text-center"
+        className="text-[11px] font-black px-3 py-1.5 rounded-2xl border border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 transition-colors text-center"
       >
         {isNotStarted ? 'Start' : isComplete ? 'Review' : 'Continue'}
       </button>
@@ -239,7 +239,7 @@ function EmptyInventory({ onStartSession, onViewPurchasedItems }) {
             </button>
             <button
               onClick={() => { onViewPurchasedItems(); haptics.medium(); }}
-              className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]"
+              className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]"
             >
               <div className="flex items-center gap-1.5">
                 <Package className="h-3.5 w-3.5 text-muted-foreground" />
@@ -247,14 +247,14 @@ function EmptyInventory({ onStartSession, onViewPurchasedItems }) {
               </div>
               <span className="text-[10px] text-muted-foreground font-normal">Master item database</span>
             </button>
-            <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+            <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
               <div className="flex items-center gap-1.5">
                 <Upload className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-xs font-bold">Import Items</span>
               </div>
               <span className="text-[10px] text-muted-foreground font-normal">CSV or invoice import</span>
             </button>
-            <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
+            <button className="flex flex-col items-center justify-center gap-0.5 h-auto py-2.5 px-3 rounded-2xl bg-white/[0.05] border border-border/40 text-foreground hover:bg-white/[0.07] transition-colors active:scale-[0.98]">
               <div className="flex items-center gap-1.5">
                 <ClipboardList className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-xs font-bold">Count Tasks</span>
@@ -296,7 +296,7 @@ function CountTasksView({ todayCounts, sessionMeta, currentUser, onOpenCount, on
         <div className="flex items-center gap-3 px-4 pt-4 pb-3">
           <button
             onClick={onBack}
-            className="h-8 w-8 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground"
+            className="h-8 w-8 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -309,7 +309,7 @@ function CountTasksView({ todayCounts, sessionMeta, currentUser, onOpenCount, on
               key={id}
               onClick={() => setTab(id)}
               className={cn(
-                'flex-1 h-8 text-xs font-bold rounded-lg transition-colors',
+                'flex-1 h-8 text-xs font-bold rounded-2xl transition-colors',
                 tab === id ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground',
               )}
             >
@@ -321,7 +321,7 @@ function CountTasksView({ todayCounts, sessionMeta, currentUser, onOpenCount, on
 
       {/* Active Session Banner */}
       {sessionMeta.name && (
-        <div className="shrink-0 mx-4 mt-3 px-4 py-3 rounded-xl border border-border/40 flex items-center gap-3" style={{ ...CARD_GLASS }}>
+        <div className="shrink-0 mx-4 mt-3 px-4 py-3 rounded-2xl border border-border/40 flex items-center gap-3" style={{ ...CARD_GLASS }}>
           <div className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-black text-foreground">Active Session</p>
@@ -400,7 +400,7 @@ function ReviewCountView({ count, purchasedItems, onBack, onApprove, onSendBack,
         <div className="flex items-center gap-3 px-4 pt-4 pb-2">
           <button
             onClick={onBack}
-            className="h-8 w-8 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground"
+            className="h-8 w-8 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -440,7 +440,7 @@ function ReviewCountView({ count, purchasedItems, onBack, onApprove, onSendBack,
               key={id}
               onClick={() => setTab(id)}
               className={cn(
-                'px-3 py-1 text-[10px] font-bold rounded-lg transition-colors',
+                'px-3 py-1 text-[10px] font-bold rounded-2xl transition-colors',
                 tab === id ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground',
               )}
             >
@@ -486,14 +486,14 @@ function ReviewCountView({ count, purchasedItems, onBack, onApprove, onSendBack,
         <button
           onClick={onSendBack}
           disabled={saving}
-          className="flex-1 h-11 rounded-xl border border-border/50 text-sm font-bold text-muted-foreground hover:text-foreground hover:border-border/70 transition-colors flex items-center justify-center gap-2"
+          className="flex-1 h-11 rounded-2xl border border-border/50 text-sm font-bold text-muted-foreground hover:text-foreground hover:border-border/70 transition-colors flex items-center justify-center gap-2"
         >
           <Send className="h-3.5 w-3.5" /> Send Back
         </button>
         <button
           onClick={onApprove}
           disabled={saving}
-          className="flex-1 h-11 rounded-xl bg-green-500/80 hover:bg-green-500 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+          className="flex-1 h-11 rounded-2xl bg-green-500/80 hover:bg-green-500 text-white text-sm font-bold transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
         >
           <ThumbsUp className="h-3.5 w-3.5" /> Approve
         </button>
@@ -538,7 +538,7 @@ function ExceptionsView({ todayCounts, onBack }) {
         <div className="flex items-center gap-3 px-4 pt-4 pb-3">
           <button
             onClick={onBack}
-            className="h-8 w-8 rounded-lg border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground"
+            className="h-8 w-8 rounded-2xl border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -819,7 +819,7 @@ export default function InventorySimplified() {
             </button>
             <button
               onClick={() => { setView('count-tasks'); haptics.light(); }}
-              className="h-8 px-3 rounded-lg border border-border/60 card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95"
+              className="h-8 px-3 rounded-2xl border border-border/60 card-glass text-xs font-bold text-foreground flex items-center gap-1.5 hover:bg-muted active:scale-95"
             >
               <ClipboardList className="h-3.5 w-3.5 text-primary" /> Count Tasks
             </button>
@@ -834,7 +834,7 @@ export default function InventorySimplified() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setView('count-tasks'); haptics.light(); }}
-              className="h-8 px-3 rounded-lg border border-border/60 card-glass text-xs font-bold text-muted-foreground flex items-center gap-1.5"
+              className="h-8 px-3 rounded-2xl border border-border/60 card-glass text-xs font-bold text-muted-foreground flex items-center gap-1.5"
             >
               <ClipboardList className="h-3 w-3" /> Tasks
             </button>
@@ -977,7 +977,7 @@ export default function InventorySimplified() {
                           <button
                             onClick={() => handleStationAction(station, count)}
                             className={cn(
-                              'text-[10px] font-black px-2.5 py-1.5 rounded-lg border transition-colors shrink-0',
+                              'text-[10px] font-black px-2.5 py-1.5 rounded-2xl border transition-colors shrink-0',
                               !count || count.status === 'not_started'
                                 ? 'btn-primary border-transparent'
                                 : isComplete
@@ -1024,7 +1024,7 @@ export default function InventorySimplified() {
                     {attentionItems.slice(0, 3).map((item, i) => (
                       <div
                         key={i}
-                        className="shrink-0 w-40 rounded-xl border border-border/40 bg-white/[0.02] px-3 py-2.5"
+                        className="shrink-0 w-40 rounded-2xl border border-border/40 bg-white/[0.02] px-3 py-2.5"
                       >
                         <div className="flex items-center gap-1.5 mb-1">
                           <div className={cn('h-2 w-2 rounded-full shrink-0', item.type === 'out' ? 'bg-red-400' : 'bg-amber-400')} />
@@ -1057,7 +1057,7 @@ export default function InventorySimplified() {
                       onClick={() => { onClick(); haptics.light(); }}
                       className="flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.03] transition-colors active:scale-[0.99]"
                     >
-                      <div className="h-7 w-7 rounded-lg bg-white/[0.05] border border-border/30 flex items-center justify-center shrink-0">
+                      <div className="h-7 w-7 rounded-2xl bg-white/[0.05] border border-border/30 flex items-center justify-center shrink-0">
                         <Icon className="h-3.5 w-3.5 text-primary/70" />
                       </div>
                       <div>

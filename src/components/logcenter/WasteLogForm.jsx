@@ -153,7 +153,7 @@ export default function WasteLogForm({ onSave, loading }) {
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Unit *</label>
           <select value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
           </select>
         </div>
@@ -208,13 +208,13 @@ export default function WasteLogForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Waste Date *</label>
           <input type="date" value={form.waste_date}
             onChange={e => setForm({ ...form, waste_date: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label className="text-xs font-bold text-secondary-text block mb-1">Time</label>
           <input type="time" value={form.waste_time}
             onChange={e => setForm({ ...form, waste_time: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       </div>
 
@@ -223,14 +223,14 @@ export default function WasteLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Estimated Cost ($) (Optional)</label>
         <input type="number" step="0.01" placeholder="0.00" value={form.estimated_cost}
           onChange={e => setForm({ ...form, estimated_cost: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Linked Purchased Item */}
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Linked Inventory Item (Optional)</label>
         <select value={form.purchased_item_id} onChange={e => setForm({ ...form, purchased_item_id: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
           <option value="">Select item...</option>
           {items.map(i => <option key={i.id} value={i.id}>{i.itemName || i.item_name}</option>)}
         </select>
@@ -240,7 +240,7 @@ export default function WasteLogForm({ onSave, loading }) {
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Linked Recipe (Optional)</label>
         <select value={form.recipe_id} onChange={e => setForm({ ...form, recipe_id: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
           <option value="">Select recipe...</option>
           {recipes.map(r => <option key={r.id} value={r.id}>{r.name || r.title}</option>)}
         </select>
@@ -262,7 +262,7 @@ export default function WasteLogForm({ onSave, loading }) {
               <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground font-bold">Click to upload photo</p>
             </div>
-            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="ops-input hidden" />
           </label>
         )}
       </div>
@@ -272,7 +272,7 @@ export default function WasteLogForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Notes (Optional)</label>
         <textarea placeholder="Additional context or details..." value={form.notes}
           onChange={e => setForm({ ...form, notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Manager Review Required */}

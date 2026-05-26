@@ -158,7 +158,7 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
             type="text"
             value={formData.template_name}
             onChange={(e) => setFormData({ ...formData, template_name: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+            className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             placeholder="e.g. Daily Fryer Temperature Check"
           />
         </div>
@@ -168,7 +168,7 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+            className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             rows="2"
             placeholder="What is this template for?"
           />
@@ -180,7 +180,7 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
           <select
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+            className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
           >
             {CATEGORIES.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
@@ -276,7 +276,7 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
               type="time"
               value={formData.due_time}
               onChange={(e) => setFormData({ ...formData, due_time: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
           <div className="space-y-2">
@@ -285,7 +285,7 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
               type="number"
               value={formData.due_window_minutes}
               onChange={(e) => setFormData({ ...formData, due_window_minutes: parseInt(e.target.value) })}
-              className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
             />
           </div>
         </div>
@@ -301,7 +301,7 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
                 className={`text-xs px-2.5 py-1 rounded-lg transition-all ${
                   formData.required_proof_type.includes(proof)
                     ? 'bg-primary/30 border border-primary/50 text-primary'
-                    : 'bg-background border border-border/40 text-muted-foreground hover:text-foreground'
+                    : 'liquid-card/40 text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {proof}
@@ -327,7 +327,7 @@ export default function AutomationTemplateBuilder({ template, onClose }) {
           <select
             value={formData.priority}
             onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-            className="w-full px-3 py-2 bg-background border border-border/40 rounded-lg text-sm text-foreground"
+            className="w-full px-3 py-2 liquid-card/40 rounded-lg text-sm text-foreground"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>

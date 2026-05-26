@@ -257,13 +257,13 @@ export default function FilterPanel({ filters, onChange, currentUser, isOpen, on
                   <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">From</label>
                   <input type="date" value={filters.dateFrom}
                     onChange={e => onChange({ ...filters, dateFrom: e.target.value, datePreset: "" })}
-                    className="w-full h-7 px-2 bg-background border border-border rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none" />
+                    className="w-full h-7 px-2 liquid-card rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none" />
                 </div>
                 <div className="flex-1">
                   <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">To</label>
                   <input type="date" value={filters.dateTo}
                     onChange={e => onChange({ ...filters, dateTo: e.target.value, datePreset: "" })}
-                    className="w-full h-7 px-2 bg-background border border-border rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none" />
+                    className="w-full h-7 px-2 liquid-card rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none" />
                 </div>
               </div>
             </div>
@@ -333,7 +333,7 @@ export default function FilterPanel({ filters, onChange, currentUser, isOpen, on
                   <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{label}</label>
                   <input type="text" value={filters[key]} onChange={e => set(key, e.target.value)}
                     placeholder={`Filter by ${label.toLowerCase()}...`}
-                    className="w-full h-7 px-2 bg-background border border-border rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5" />
+                    className="w-full h-7 px-2 liquid-card rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5" />
                 </div>
               ))}
             </div>
@@ -345,7 +345,7 @@ export default function FilterPanel({ filters, onChange, currentUser, isOpen, on
               <div>
                 <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Station</label>
                 <select value={filters.station} onChange={e => set("station", e.target.value)}
-                  className="w-full h-7 px-2 bg-background border border-border rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5">
+                  className="w-full h-7 px-2 liquid-card rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5">
                   <option value="">All Stations</option>
                   {stations.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                 </select>
@@ -353,7 +353,7 @@ export default function FilterPanel({ filters, onChange, currentUser, isOpen, on
               <div>
                 <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Area</label>
                 <select value={filters.area} onChange={e => set("area", e.target.value)}
-                  className="w-full h-7 px-2 bg-background border border-border rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5">
+                  className="w-full h-7 px-2 liquid-card rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5">
                   <option value="">All Areas</option>
                   {areas.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
                 </select>
@@ -362,7 +362,7 @@ export default function FilterPanel({ filters, onChange, currentUser, isOpen, on
                 <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Equipment</label>
                 <input type="text" value={filters.equipment} onChange={e => set("equipment", e.target.value)}
                   placeholder="Equipment name..."
-                  className="w-full h-7 px-2 bg-background border border-border rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5" />
+                  className="w-full h-7 px-2 liquid-card rounded-lg text-[11px] text-foreground focus:border-primary focus:outline-none mt-0.5" />
               </div>
             </div>
           </Section>

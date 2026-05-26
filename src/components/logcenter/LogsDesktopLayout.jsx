@@ -93,7 +93,7 @@ export default function LogsDesktopLayout({
               placeholder="Search logs, equipment, notes, tags…"
               value={search}
               onChange={e => onSearchChange(e.target.value)}
-              className="w-full h-10 pl-10 pr-10 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none"
+              className="w-full h-10 pl-10 pr-10 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none"
             />
             {search && (
               <button

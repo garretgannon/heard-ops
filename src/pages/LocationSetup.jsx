@@ -59,10 +59,10 @@ function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCan
   };
 
   return (
-    <div className="space-y-3 p-3 bg-background/80 border border-border rounded-xl mt-2">
+    <div className="space-y-3 p-3 bg-background/80 border border-border rounded-2xl mt-2">
       <input autoFocus value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
         placeholder="Equipment name *"
-        className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
+        className="w-full px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground" />
       <div>
         <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Type *</p>
         {EQUIPMENT_CATEGORIES.map(cat => (
@@ -87,14 +87,14 @@ function EquipmentForm({ areaId, areaName, stationId, stationName, onSave, onCan
       </div>
       <div className="grid grid-cols-2 gap-2">
         <input value={form.modelNumber} onChange={e => setForm(p => ({ ...p, modelNumber: e.target.value }))} placeholder="Model #"
-          className="px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
+          className="px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground" />
         <input value={form.serialNumber} onChange={e => setForm(p => ({ ...p, serialNumber: e.target.value }))} placeholder="Serial #"
-          className="px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground" />
+          className="px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground" />
       </div>
       <select value={form.vendorId} onChange={e => {
         const vendor = vendors.find(v => v.id === e.target.value);
         setForm(p => ({ ...p, vendorId: e.target.value, vendorName: vendor?.name || '' }));
-      }} className="w-full px-3 py-2 card-glass border border-border rounded-lg text-sm text-foreground">
+      }} className="w-full px-3 py-2 card-glass border border-border rounded-2xl text-sm text-foreground">
         <option value="">Select Vendor (optional)</option>
         {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
       </select>
@@ -119,7 +119,7 @@ function EquipmentRow({ item, onDelete, onEdit }) {
   const isCold = COLD_TYPES.includes(item.equipmentType);
 
   return (
-    <div className="flex items-center gap-2 px-3 py-2 bg-background/60 border border-border/50 rounded-lg group flex-wrap">
+    <div className="flex items-center gap-2 px-3 py-2 bg-background/60 border border-border/50 rounded-2xl group flex-wrap">
       <div className="h-6 w-6 rounded bg-muted flex items-center justify-center shrink-0">
         <Wrench className="h-3 w-3 text-muted-foreground" />
       </div>
@@ -234,7 +234,7 @@ function AreaBlock({ area, stations, equipment, vendors, selectedStationId, onDe
   };
 
   return (
-    <div className={`border ${color.border} rounded-xl overflow-hidden mb-3`}>
+    <div className={`border ${color.border} rounded-2xl overflow-hidden mb-3`}>
       {/* Area Header */}
       <div className={`${color.bg} px-4 py-3 flex items-center gap-2`}>
         <button onClick={() => setExpanded(!expanded)} className={color.text}>
@@ -278,9 +278,9 @@ function AreaBlock({ area, stations, equipment, vendors, selectedStationId, onDe
               <Layers className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <input autoFocus value={newStationName} onChange={e => setNewStationName(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') saveStation(); if (e.key === 'Escape') setAddingStation(false); }}
-                placeholder="Station name" className="flex-1 px-2 py-1.5 bg-background border border-primary/50 rounded-lg text-sm text-foreground" />
+                placeholder="Station name" className="flex-1 px-2 py-1.5 bg-background border border-primary/50 rounded-2xl text-sm text-foreground" />
               <select value={newStationDept} onChange={e => setNewStationDept(e.target.value)}
-                className="px-2 py-1.5 bg-background border border-border rounded-lg text-sm text-foreground">
+                className="px-2 py-1.5 bg-background border border-border rounded-2xl text-sm text-foreground">
                 {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
               <button onClick={saveStation} className="text-green-400 p-1"><Check className="h-4 w-4" /></button>
@@ -436,12 +436,12 @@ export default function LocationSetup() {
           <>
             {/* Add Area Form */}
             {addingArea && (
-              <div className="p-4 card-glass border border-border rounded-xl mb-4 space-y-3">
+              <div className="p-4 card-glass border border-border rounded-2xl mb-4 space-y-3">
                 <p className="text-sm font-bold text-foreground">New Area</p>
                 <input autoFocus value={newAreaName} onChange={e => setNewAreaName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') addArea(); if (e.key === 'Escape') setAddingArea(false); }}
                   placeholder="e.g. Kitchen, Bar, Dish Pit, Walk-in Hall"
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground" />
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Color</p>
                   <div className="flex gap-2 flex-wrap">
@@ -493,7 +493,7 @@ export default function LocationSetup() {
 
             {/* Unassigned equipment */}
             {unassignedEquip.length > 0 && (
-              <div className="border border-dashed border-border rounded-xl p-4 mt-2">
+              <div className="border border-dashed border-border rounded-2xl p-4 mt-2">
                 <p className="text-xs font-bold text-muted-foreground uppercase mb-2">⚠️ Unassigned Equipment ({unassignedEquip.length})</p>
                 <div className="space-y-1">
                   {unassignedEquip.map(e => (

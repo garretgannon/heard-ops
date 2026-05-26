@@ -89,7 +89,7 @@ export default function TemperatureMonitoring() {
           </div>
           <button
             onClick={() => { setSelectedItem(null); setShowForm(true); }}
-            className="h-11 px-4 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
+            className="h-11 px-4 rounded-2xl bg-primary text-primary-foreground font-bold text-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
           >
             <Plus className="h-5 w-5" /> Add Item
           </button>
@@ -113,7 +113,7 @@ export default function TemperatureMonitoring() {
                   {typeItems.map((item) => (
                     <div
                       key={item.id}
-                      className="p-4 rounded-lg border bg-card border-blue-500/20 transition-all"
+                      className="p-4 rounded-2xl border bg-card border-blue-500/20 transition-all"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">

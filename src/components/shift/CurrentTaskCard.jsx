@@ -41,7 +41,7 @@ export default function CurrentTaskCard({
 
   if (!task) {
     return (
-      <div className="card-glass border border-border/30 rounded-xl p-5 text-center space-y-3 shadow-lg">
+      <div className="liquid-card p-5 text-center space-y-3">
         <CheckCircle2 className="h-12 w-12 text-green-400 mx-auto" />
         <div>
           <p className="font-bold text-foreground">All tasks complete!</p>
@@ -91,9 +91,9 @@ export default function CurrentTaskCard({
   return (
     <div className="space-y-4">
       {/* Task Card */}
-      <div className="card-glass border border-border/30 rounded-xl p-5 space-y-4 shadow-lg">
+      <div className="liquid-card p-5 space-y-4">
         {/* Type Badge */}
-        <div className={cn('inline-block px-2.5 py-1 rounded-lg border text-[10px] font-bold', taskTypeColor)}>
+        <div className={cn('inline-block px-2.5 py-1 rounded-2xl border text-[10px] font-bold', taskTypeColor)}>
           {TASK_TYPE_ICONS[task.type]} {task.type.replace('_', ' ')}
         </div>
 
@@ -135,7 +135,7 @@ export default function CurrentTaskCard({
 
         {/* Photo Required Badge */}
         {task.photo_required && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30">
             <Camera className="h-4 w-4 text-amber-400" />
             <span className="text-xs font-semibold text-amber-400">Photo proof required</span>
           </div>
@@ -143,7 +143,7 @@ export default function CurrentTaskCard({
 
         {/* Manager Review Badge */}
         {task.manager_review_required && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-purple-500/10 border border-purple-500/30">
             <AlertCircle className="h-4 w-4 text-purple-400" />
             <span className="text-xs font-semibold text-purple-400">Requires manager review</span>
           </div>
@@ -154,7 +154,7 @@ export default function CurrentTaskCard({
           {isStartable ? (
             <button
               onClick={() => onStart?.(task.id)}
-              className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:brightness-110"
+              className="w-full h-12 rounded-2xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:brightness-110"
             >
               <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
               Start Task
@@ -162,7 +162,7 @@ export default function CurrentTaskCard({
           ) : isInProgress ? (
            <button
              onClick={handleComplete}
-             className="w-full h-12 rounded-xl bg-green-600 text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:brightness-110"
+             className="w-full h-12 rounded-2xl bg-green-600 text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:brightness-110"
            >
              <CheckCircle2 className="h-5 w-5" />
              {task.type === 'temperature' ? 'Log Temperature' : 'Complete Task'}
@@ -173,14 +173,14 @@ export default function CurrentTaskCard({
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleUnableClick}
-              className="h-10 rounded-lg border border-border/30 card-glass text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
+              className="h-10 liquid-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
             >
               Unable to Complete
             </button>
             {!isStartable && (
               <button
                 onClick={() => onSkip?.(task.id)}
-                className="h-10 rounded-lg border border-border/30 card-glass text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
+                className="h-10 liquid-card text-foreground font-semibold text-xs hover:bg-secondary transition-all active:scale-95"
               >
                 Skip for Now
               </button>
@@ -203,25 +203,25 @@ export default function CurrentTaskCard({
 
       {/* Unable to Complete Dialog */}
       {showActions && (
-        <div className="space-y-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+        <div className="space-y-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/30">
           <p className="text-sm font-semibold text-foreground">Why can't you complete this?</p>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="Equipment broken, ingredient unavailable, etc."
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full px-3 py-2 rounded-2xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
             rows="2"
           />
           <div className="flex gap-2">
             <button
               onClick={() => setShowActions(false)}
-              className="flex-1 h-9 rounded-lg border border-border card-glass text-foreground font-semibold text-xs"
+              className="flex-1 h-9 liquid-card text-foreground font-semibold text-xs"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmitUnable}
-              className="flex-1 h-9 rounded-lg bg-red-600 text-white font-semibold text-xs hover:brightness-110"
+              className="flex-1 h-9 rounded-2xl bg-red-600 text-white font-semibold text-xs hover:brightness-110"
             >
               Submit Issue
             </button>

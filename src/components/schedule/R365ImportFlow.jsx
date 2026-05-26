@@ -184,14 +184,14 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
                 <div key={idx} className="card-glass border border-border rounded-lg p-3 space-y-2">
                   {editingIdx === idx ? (
                     <div className="space-y-2">
-                      <input type="text" value={shift.raw_employee_name} onChange={e => { const ns = [...shifts]; ns[idx].raw_employee_name = e.target.value; setShifts(ns); }} placeholder="Employee" className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      <input type="text" value={shift.raw_employee_name} onChange={e => { const ns = [...shifts]; ns[idx].raw_employee_name = e.target.value; setShifts(ns); }} placeholder="Employee" className="w-full px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       <div className="grid grid-cols-2 gap-2">
-                        <input type="date" value={shift.shift_date || ''} onChange={e => { const ns = [...shifts]; ns[idx].shift_date = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
-                        <input type="text" value={shift.raw_role || ''} onChange={e => { const ns = [...shifts]; ns[idx].raw_role = e.target.value; setShifts(ns); }} placeholder="Role" className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="date" value={shift.shift_date || ''} onChange={e => { const ns = [...shifts]; ns[idx].shift_date = e.target.value; setShifts(ns); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
+                        <input type="text" value={shift.raw_role || ''} onChange={e => { const ns = [...shifts]; ns[idx].raw_role = e.target.value; setShifts(ns); }} placeholder="Role" className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <input type="time" value={shift.parsed_start_time || ''} onChange={e => { const ns = [...shifts]; ns[idx].parsed_start_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
-                        <input type="time" value={shift.parsed_end_time === 'CLOSE' ? '' : (shift.parsed_end_time || '')} onChange={e => { const ns = [...shifts]; ns[idx].parsed_end_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="time" value={shift.parsed_start_time || ''} onChange={e => { const ns = [...shifts]; ns[idx].parsed_start_time = e.target.value; setShifts(ns); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
+                        <input type="time" value={shift.parsed_end_time === 'CLOSE' ? '' : (shift.parsed_end_time || '')} onChange={e => { const ns = [...shifts]; ns[idx].parsed_end_time = e.target.value; setShifts(ns); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       </div>
                       <button onClick={() => setEditingIdx(null)} className="w-full py-1 bg-primary text-primary-foreground rounded text-xs font-bold">Done</button>
                     </div>
@@ -248,14 +248,14 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
                 <div key={idx} className={`bg-card border rounded px-2 py-1.5 text-xs transition-all ${shift.status === 'error' ? 'border-red-500/30' : shift.status === 'warning' ? 'border-amber-500/30' : 'border-border'}`}>
                   {editingIdx === idx ? (
                     <div className="space-y-2">
-                      <input type="text" value={shift.raw_employee_name} onChange={e => { const ns = [...shifts]; ns[idx].raw_employee_name = e.target.value; setShifts(ns); }} placeholder="Employee" className="w-full px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                      <input type="text" value={shift.raw_employee_name} onChange={e => { const ns = [...shifts]; ns[idx].raw_employee_name = e.target.value; setShifts(ns); }} placeholder="Employee" className="w-full px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       <div className="grid grid-cols-2 gap-2">
-                        <input type="date" value={shift.shift_date || ''} onChange={e => { const ns = [...shifts]; ns[idx].shift_date = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
-                        <input type="text" value={shift.raw_role || ''} onChange={e => { const ns = [...shifts]; ns[idx].raw_role = e.target.value; setShifts(ns); }} placeholder="Role" className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="date" value={shift.shift_date || ''} onChange={e => { const ns = [...shifts]; ns[idx].shift_date = e.target.value; setShifts(ns); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
+                        <input type="text" value={shift.raw_role || ''} onChange={e => { const ns = [...shifts]; ns[idx].raw_role = e.target.value; setShifts(ns); }} placeholder="Role" className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <input type="time" value={shift.parsed_start_time || ''} onChange={e => { const ns = [...shifts]; ns[idx].parsed_start_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
-                        <input type="time" value={shift.parsed_end_time === 'CLOSE' ? '' : (shift.parsed_end_time || '')} onChange={e => { const ns = [...shifts]; ns[idx].parsed_end_time = e.target.value; setShifts(ns); }} className="px-2 py-1 bg-background border border-border rounded text-xs text-foreground" />
+                        <input type="time" value={shift.parsed_start_time || ''} onChange={e => { const ns = [...shifts]; ns[idx].parsed_start_time = e.target.value; setShifts(ns); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
+                        <input type="time" value={shift.parsed_end_time === 'CLOSE' ? '' : (shift.parsed_end_time || '')} onChange={e => { const ns = [...shifts]; ns[idx].parsed_end_time = e.target.value; setShifts(ns); }} className="px-2 py-1 liquid-card rounded text-xs text-foreground" />
                       </div>
                       <button onClick={() => setEditingIdx(null)} className="w-full py-1 bg-primary text-primary-foreground rounded text-xs font-bold">Done</button>
                     </div>
@@ -307,7 +307,7 @@ export default function R365ImportFlow({ onClose, onComplete, user }) {
       </div>
 
       <div className="sticky bottom-0 bg-card border-t border-border px-4 py-3">
-        <input ref={fileRef} type="file" accept=".pdf" className="hidden" onChange={e => { handleFile(e.target.files[0]); }} />
+        <input ref={fileRef} type="file" accept=".pdf" className="ops-input hidden" onChange={e => { handleFile(e.target.files[0]); }} />
         {step === 1 && <button onClick={() => fileRef.current?.click()} className="w-full btn-primary text-sm">Choose PDF</button>}
         {step === 3 && <button onClick={doImport} disabled={shifts.filter(s => s.status !== 'skipped').length === 0} className="w-full btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed">Import {shifts.filter(s => s.status !== 'skipped').length} Shift{shifts.filter(s => s.status !== 'skipped').length !== 1 ? 's' : ''}</button>}
         {step === 4 && <button onClick={onComplete} className="w-full btn-primary text-sm">View Schedule</button>}

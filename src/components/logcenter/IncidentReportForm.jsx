@@ -133,14 +133,14 @@ export default function IncidentReportForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Date and Time of Incident *</label>
         <input type="datetime-local" value={form.incident_date}
           onChange={e => setForm({ ...form, incident_date: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Location / Area */}
       <div>
         <label className="text-xs font-bold text-secondary-text block mb-1">Location / Area</label>
         <select value={form.location_area} onChange={e => setForm({ ...form, location_area: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none">
           <option value="">Select area...</option>
           {areas.map(a => <option key={a.id} value={a.name}>{a.name}</option>)}
         </select>
@@ -187,7 +187,7 @@ export default function IncidentReportForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Reported By</label>
         <input type="text" value={form.reported_by}
           onChange={e => setForm({ ...form, reported_by: e.target.value })}
-          className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+          className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
       </div>
 
       {/* Manager Notified */}
@@ -201,7 +201,7 @@ export default function IncidentReportForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">People Involved (Optional)</label>
         <textarea placeholder="Names and roles of people involved..." value={form.people_involved}
           onChange={e => setForm({ ...form, people_involved: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Witnesses (Optional) */}
@@ -209,7 +209,7 @@ export default function IncidentReportForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Witnesses (Optional)</label>
         <textarea placeholder="Names of witnesses..." value={form.witnesses}
           onChange={e => setForm({ ...form, witnesses: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Photo Upload (Optional) */}
@@ -228,7 +228,7 @@ export default function IncidentReportForm({ onSave, loading }) {
               <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
               <p className="text-xs text-muted-foreground font-bold">Click to upload photo</p>
             </div>
-            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+            <input type="file" accept="image/*" onChange={handlePhotoSelect} className="ops-input hidden" />
           </label>
         )}
       </div>
@@ -245,7 +245,7 @@ export default function IncidentReportForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Follow-up Owner</label>
           <input type="text" placeholder="Name or role..." value={form.follow_up_owner}
             onChange={e => setForm({ ...form, follow_up_owner: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       )}
 
@@ -255,7 +255,7 @@ export default function IncidentReportForm({ onSave, loading }) {
           <label className="text-xs font-bold text-secondary-text block mb-1">Follow-up Due Date</label>
           <input type="date" value={form.follow_up_due_date}
             onChange={e => setForm({ ...form, follow_up_due_date: e.target.value })}
-            className="w-full h-9 px-3 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
+            className="w-full h-9 px-3 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none" />
         </div>
       )}
 
@@ -264,7 +264,7 @@ export default function IncidentReportForm({ onSave, loading }) {
         <label className="text-xs font-bold text-secondary-text block mb-1">Resolution Notes (Optional)</label>
         <textarea placeholder="How was the incident resolved?..." value={form.resolution_notes}
           onChange={e => setForm({ ...form, resolution_notes: e.target.value })} rows={2}
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
+          className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground focus:border-primary focus:outline-none resize-none" />
       </div>
 
       {/* Save Button */}

@@ -90,17 +90,17 @@ export default function MassAddModal({ employees, weekDays, onSave, onClose }) {
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground block mb-1">Start Time</label>
                 <input type="time" value={form.start_time} onChange={e => setForm(f => ({...f, start_time: e.target.value}))}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground block mb-1">End Time</label>
                 <input type="time" value={form.end_time} onChange={e => setForm(f => ({...f, end_time: e.target.value}))}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-muted-foreground block mb-1">Role</label>
                 <select value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+                  className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
                   <option value="">Select role…</option>
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
@@ -109,7 +109,7 @@ export default function MassAddModal({ employees, weekDays, onSave, onClose }) {
                 <label className="text-[10px] font-bold text-muted-foreground block mb-1">Station (opt)</label>
                 <input type="text" value={form.station} onChange={e => setForm(f => ({...f, station: e.target.value}))}
                   placeholder="Station…"
-                  className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                  className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               </div>
             </div>
           </div>

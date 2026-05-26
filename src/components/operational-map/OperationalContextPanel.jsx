@@ -381,21 +381,21 @@ export default function OperationalContextPanel({
             placeholder="Equipment name"
             value={equipName}
             onChange={(e) => setEquipName(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <textarea
             placeholder="Description (optional)"
             value={equipDesc}
             onChange={(e) => setEquipDesc(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
           />
           <input
             type="text"
             placeholder="Vendor ID (optional)"
             value={equipVendor}
             onChange={(e) => setEquipVendor(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <button
             onClick={handleAddEquipment}
@@ -455,14 +455,14 @@ export default function OperationalContextPanel({
             placeholder="Area name"
             value={areaName}
             onChange={(e) => setAreaName(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <textarea
             placeholder="Description (optional)"
             value={areaDesc}
             onChange={(e) => setAreaDesc(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
           />
           <button
             onClick={handleAddArea}
@@ -525,14 +525,14 @@ export default function OperationalContextPanel({
             placeholder="Station name"
             value={stationName}
             onChange={(e) => setStationName(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <textarea
             placeholder="Description (optional)"
             value={stationDesc}
             onChange={(e) => setStationDesc(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
           />
           <button
             onClick={handleAddStation}
@@ -572,14 +572,14 @@ export default function OperationalContextPanel({
             placeholder="Area name"
             value={editAreaName}
             onChange={(e) => setEditAreaName(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <textarea
             placeholder="Description (optional)"
             value={editAreaDesc}
             onChange={(e) => setEditAreaDesc(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
           />
           <button
             onClick={handleEditArea}
@@ -619,14 +619,14 @@ export default function OperationalContextPanel({
             placeholder="Station name"
             value={editStationName}
             onChange={(e) => setEditStationName(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <textarea
             placeholder="Description (optional)"
             value={editStationDesc}
             onChange={(e) => setEditStationDesc(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
           />
           <button
             onClick={handleEditStation}
@@ -666,14 +666,14 @@ export default function OperationalContextPanel({
             placeholder="Equipment name"
             value={editEquipName}
             onChange={(e) => setEditEquipName(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground"
           />
           <textarea
             placeholder="Description (optional)"
             value={editEquipDesc}
             onChange={(e) => setEditEquipDesc(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
+            className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground placeholder-muted-foreground resize-none"
           />
           <button
             onClick={handleEditEquipment}

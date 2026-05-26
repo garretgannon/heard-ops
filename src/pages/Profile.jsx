@@ -82,7 +82,7 @@ export default function Profile() {
             return (
               <div key={group.title} className="overflow-hidden rounded-2xl border border-border/40 p-4" style={cardStyle}>
                 <div className="flex items-start gap-3 mb-3">
-                  <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', group.bg)}>
+                  <div className={cn('h-10 w-10 rounded-2xl flex items-center justify-center shrink-0', group.bg)}>
                     <Icon className={cn('h-5 w-5', group.color)} />
                   </div>
                   <div>
@@ -106,7 +106,7 @@ export default function Profile() {
         {/* System Information */}
         <div className="overflow-hidden rounded-2xl border border-border/40 p-4 mb-4" style={cardStyle}>
           <div className="flex items-start gap-3 mb-3">
-            <div className="h-10 w-10 rounded-xl bg-white/5 border border-border/40 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-2xl bg-white/5 border border-border/40 flex items-center justify-center shrink-0">
               <Info className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>
@@ -129,7 +129,7 @@ export default function Profile() {
           <div className="overflow-hidden rounded-2xl border border-border/40 p-4 mb-4" style={cardStyle}>
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <div className="h-10 w-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
                   <Utensils className="h-5 w-5 text-primary" />
                 </div>
                 <div>
@@ -158,7 +158,7 @@ export default function Profile() {
         {/* Account actions */}
         <div className="flex gap-3">
           <div className="flex-1 overflow-hidden rounded-2xl border border-border/40 p-3 flex items-center gap-3" style={cardStyle}>
-            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
               <span className="text-base font-extrabold text-primary">{user?.full_name?.charAt(0) || 'U'}</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -167,7 +167,7 @@ export default function Profile() {
               <span className="text-[10px] font-bold text-primary uppercase">{user?.role}</span>
             </div>
           </div>
-          <button onClick={handleLogout} className="h-auto px-4 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 font-bold text-sm flex items-center gap-2 active:scale-95 hover:bg-red-500/15">
+          <button onClick={handleLogout} className="h-auto px-4 rounded-2xl border border-red-500/30 bg-red-500/10 text-red-400 font-bold text-sm flex items-center gap-2 active:scale-95 hover:bg-red-500/15">
             <LogOut className="h-4 w-4" /> Sign Out
           </button>
         </div>
@@ -184,7 +184,7 @@ export default function Profile() {
           }}
         >
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all active:scale-95" style={{ background: 'rgba(255,255,255,0.04)' }}>
+            <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-2xl border border-border/50 transition-all active:scale-95" style={{ background: 'rgba(255,255,255,0.04)' }}>
               <ChevronLeft className="h-5 w-5 text-foreground" />
             </button>
             <h1 className="text-2xl font-black tracking-tight text-foreground">Profile</h1>
@@ -206,7 +206,7 @@ export default function Profile() {
             <div className="overflow-hidden rounded-2xl border border-border/40 p-4" style={cardStyle}>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <div className="h-9 w-9 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
                     <Utensils className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
@@ -247,8 +247,8 @@ export default function Profile() {
             <h2 className="text-xl font-black text-foreground">Delete Account?</h2>
             <p className="text-sm text-muted-foreground">This action cannot be undone. All your data will be permanently deleted.</p>
             <div className="flex gap-2">
-              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting} className="flex-1 h-10 rounded-xl border border-border/50 text-sm font-black text-foreground active:scale-95 disabled:opacity-50 transition-all" style={cardStyle}>Cancel</button>
-              <button onClick={handleDeleteAccount} disabled={deleting} className="flex-1 h-10 rounded-xl border border-red-500/35 bg-red-500/15 text-sm font-black text-red-400 active:scale-95 disabled:opacity-50 transition-all">
+              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting} className="flex-1 h-10 rounded-2xl border border-border/50 text-sm font-black text-foreground active:scale-95 disabled:opacity-50 transition-all" style={cardStyle}>Cancel</button>
+              <button onClick={handleDeleteAccount} disabled={deleting} className="flex-1 h-10 rounded-2xl border border-red-500/35 bg-red-500/15 text-sm font-black text-red-400 active:scale-95 disabled:opacity-50 transition-all">
                 {deleting ? <div className="h-4 w-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin mx-auto" /> : 'Delete'}
               </button>
             </div>

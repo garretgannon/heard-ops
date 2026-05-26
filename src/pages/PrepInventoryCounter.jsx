@@ -138,7 +138,7 @@ export default function PrepInventoryCounter() {
       <DesktopPageHeader title="Prep Inventory Count" subtitle="Count and record prep quantities" />
       {/* Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate('/prep-planning')} className="h-8 w-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted">
+        <button onClick={() => navigate('/prep-planning')} className="h-8 w-8 rounded-2xl border border-border flex items-center justify-center hover:bg-muted">
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
@@ -151,12 +151,12 @@ export default function PrepInventoryCounter() {
       <div className="app-page-narrow space-y-4">
         {/* Station Select */}
         {!station && (
-          <div className="card-glass border border-border rounded-lg p-4 mb-4">
+          <div className="card-glass border border-border rounded-2xl p-4 mb-4">
             <label className="block text-xs font-bold text-foreground mb-2">Select Station</label>
             <select
               value={station}
               onChange={e => { setStation(e.target.value); setCounts([]); }}
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground"
+              className="w-full px-3 py-2 bg-background border border-border rounded-2xl text-sm text-foreground"
             >
               <option value="">Choose station…</option>
               {stations.map(s => (
@@ -172,7 +172,7 @@ export default function PrepInventoryCounter() {
             {counts.map((count, idx) => {
               const template = templates.find(t => t.id === count.template_id);
               return (
-                <div key={idx} className="card-glass border border-border rounded-lg p-3">
+                <div key={idx} className="card-glass border border-border rounded-2xl p-3">
                   <div className="mb-2">
                     <p className="font-semibold text-sm text-foreground">{count.item_name}</p>
                     <p className="text-xs text-muted-foreground">Par: {template?.default_par} {count.unit}</p>
@@ -207,7 +207,7 @@ export default function PrepInventoryCounter() {
 
         {/* Session Notes */}
         {station && (
-          <div className="card-glass border border-border rounded-lg p-3">
+          <div className="card-glass border border-border rounded-2xl p-3">
             <label className="text-[10px] font-bold text-muted-foreground block mb-1">Session Notes</label>
             <textarea
               value={sessionNotes}

@@ -65,7 +65,7 @@ export default function GlobalBottomNav() {
             className="w-[52px] h-[52px] rounded-full flex items-center justify-center glass-fab pointer-events-auto interactive-button overflow-hidden hover:scale-105 active:scale-95 transition-transform"
             aria-label="Quick Add"
           >
-            <img src="/brand/quick-add-logo.png" alt="Quick Add" className="w-8 h-8 object-contain" />
+            <img src="/brand/quick-add-logo.png" alt="Quick Add" className="w-[52px] h-[52px] object-cover scale-[1.3]" />
           </button>
 
           <div className="w-full pointer-events-auto">

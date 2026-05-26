@@ -17,8 +17,7 @@ export default function ManagerShiftMobileClose({
   return (
     <div className="lg:hidden space-y-3">
       {/* Scorecard */}
-      <div className="grid grid-cols-3 divide-x divide-border/20 overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: "hsl(var(--card))" }}>
+      <div className="liquid-card grid grid-cols-3 divide-x divide-border/20 overflow-hidden">
         {[
           { label: "REQUIRED",   sub: "Items needing review",    value: debriefItems.length,                                                            color: debriefItems.length > 0 ? "text-primary" : "text-green-400" },
           { label: "REVIEWED",   sub: "Resolved or cleared",     value: `${debriefCompleteCount}/${debriefItems.length}`,                               color: debriefCompleteCount === debriefItems.length ? "text-green-400" : "text-foreground" },
@@ -33,8 +32,7 @@ export default function ManagerShiftMobileClose({
       </div>
 
       {/* Required Close Review */}
-      <div className="overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: "hsl(var(--card))" }}>
+      <div className="liquid-card overflow-hidden">
         <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
           <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div>
@@ -78,12 +76,12 @@ export default function ManagerShiftMobileClose({
                 <div className="grid grid-cols-2 gap-2">
                   <button type="button"
                     onClick={() => updateDebriefReview(item.key, { status: "no_follow_up", requiresNote: item.requiresNote })}
-                    className={cn("rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                    className={cn("rounded-2xl border px-3 py-2 text-xs font-black transition-all",
                       review.status === "no_follow_up" ? "border-green-500/40 bg-green-500/12 text-green-400" : "border-border/40 text-muted-foreground"
                     )}>No Follow-Up</button>
                   <button type="button"
                     onClick={() => updateDebriefReview(item.key, { status: "follow_up", requiresNote: true })}
-                    className={cn("rounded-lg border px-3 py-2 text-xs font-black transition-all",
+                    className={cn("rounded-2xl border px-3 py-2 text-xs font-black transition-all",
                       review.status === "follow_up" ? "border-amber-500/40 bg-amber-500/12 text-amber-400" : "border-border/40 text-muted-foreground"
                     )}>Follow-Up Needed</button>
                 </div>
@@ -94,12 +92,12 @@ export default function ManagerShiftMobileClose({
                       onChange={e => updateDebriefReview(item.key, { note: e.target.value, requiresNote: needsNote })}
                       rows={2} maxLength={500}
                       placeholder="Resolution or next action required..."
-                      className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                      className="w-full rounded-[1.25rem] border border-border/50 bg-white/5 px-3 py-2 text-xs text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
                     />
                     <div className="flex items-center justify-between">
                       <div className="flex gap-1.5">
-                        <button type="button" className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 text-muted-foreground/50"><Camera className="h-3.5 w-3.5" /></button>
-                        <button type="button" className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 text-muted-foreground/50"><Mic className="h-3.5 w-3.5" /></button>
+                        <button type="button" className="flex h-7 w-7 items-center justify-center rounded-2xl border border-border/40 text-muted-foreground/50"><Camera className="h-3.5 w-3.5" /></button>
+                        <button type="button" className="flex h-7 w-7 items-center justify-center rounded-2xl border border-border/40 text-muted-foreground/50"><Mic className="h-3.5 w-3.5" /></button>
                       </div>
                       <span className={cn("text-[10px] font-bold", noteLen > 450 ? "text-amber-400" : "text-muted-foreground/50")}>{noteLen}/500</span>
                     </div>
@@ -112,8 +110,7 @@ export default function ManagerShiftMobileClose({
       </div>
 
       {/* Handoff notes */}
-      <div className="overflow-hidden rounded-2xl border border-border/40"
-        style={{ background: "hsl(var(--card))" }}>
+      <div className="liquid-card overflow-hidden">
         <div className="flex items-start gap-2.5 px-4 pt-4 pb-3">
           <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div>
@@ -127,7 +124,7 @@ export default function ManagerShiftMobileClose({
             onChange={e => setHandoffNotes(e.target.value)}
             rows={5}
             placeholder="Open items, guest issues, staffing notes, anything to watch…"
-            className="w-full rounded-xl border border-border/50 bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+            className="w-full rounded-[1.25rem] border border-border/50 bg-white/5 px-3 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
           />
         </div>
       </div>

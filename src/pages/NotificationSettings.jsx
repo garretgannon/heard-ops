@@ -94,7 +94,7 @@ function PermissionBanner({ permission, onRequest, requesting }) {
       <button
         onClick={onRequest}
         disabled={requesting}
-        className="shrink-0 rounded-xl border border-primary/50 bg-primary/20 px-3 py-1.5 text-xs font-black text-primary transition-all active:scale-95 disabled:opacity-50"
+        className="shrink-0 rounded-2xl border border-primary/50 bg-primary/20 px-3 py-1.5 text-xs font-black text-primary transition-all active:scale-95 disabled:opacity-50"
       >
         {requesting ? '…' : 'Allow'}
       </button>
@@ -160,7 +160,7 @@ export default function NotificationSettings() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/50 transition-all active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-2xl border border-border/50 transition-all active:scale-95"
             style={{ background: 'rgba(255,255,255,0.04)' }}
           >
             <ChevronLeft className="h-5 w-5 text-foreground" />
@@ -177,7 +177,7 @@ export default function NotificationSettings() {
         </div>
         <button
           onClick={handleTest}
-          className="flex items-center gap-2 h-8 px-3 rounded-lg border border-border/50 text-xs font-bold text-foreground transition-all active:scale-95"
+          className="flex items-center gap-2 h-8 px-3 rounded-2xl border border-border/50 text-xs font-bold text-foreground transition-all active:scale-95"
           style={cardStyle}
         >
           <Send className="h-3 w-3" /> Send Test
@@ -196,7 +196,7 @@ export default function NotificationSettings() {
         <div className="overflow-hidden rounded-2xl border border-border/40 p-4" style={cardStyle}>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', prefs.enabled ? 'bg-primary/15' : 'bg-white/5 border border-border/40')}>
+              <div className={cn('h-10 w-10 rounded-2xl flex items-center justify-center shrink-0', prefs.enabled ? 'bg-primary/15' : 'bg-white/5 border border-border/40')}>
                 {prefs.enabled
                   ? <Bell className="h-5 w-5 text-primary" style={{ filter: 'drop-shadow(0 0 4px rgba(255,107,0,0.5))' }} />
                   : <BellOff className="h-5 w-5 text-muted-foreground" />
@@ -227,7 +227,7 @@ export default function NotificationSettings() {
               <div className="overflow-hidden rounded-2xl border border-border/40 divide-y divide-border/30" style={cardStyle}>
                 {CATEGORIES.map(({ key, label, description, icon: Icon, color, bg }) => (
                   <div key={key} className="flex items-center gap-3 p-4">
-                    <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', bg)}>
+                    <div className={cn('h-9 w-9 rounded-2xl flex items-center justify-center shrink-0', bg)}>
                       <Icon className={cn('h-4 w-4', color)} />
                     </div>
                     <div className="flex-1 min-w-0">

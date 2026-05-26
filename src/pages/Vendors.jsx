@@ -78,18 +78,18 @@ export default function Vendors() {
 
       {/* Filters */}
       <div className="hidden lg:flex items-center gap-2 px-4 py-3 border-b border-border/30 lg:mt-14">
-        <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
+        <select value={filterCat} onChange={e => setFilterCat(e.target.value)} className="h-8 px-3 rounded-2xl card-glass border border-border text-xs text-foreground">
           <option value="">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{CAT_LABELS[c] || c}</option>)}
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="h-8 px-3 rounded-lg card-glass border border-border text-xs text-foreground">
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="h-8 px-3 rounded-2xl card-glass border border-border text-xs text-foreground">
           <option value="">All Vendors</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vendors..." className="w-full h-8 pl-8 pr-3 card-glass border border-border rounded-lg text-xs text-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vendors..." className="w-full h-8 pl-8 pr-3 card-glass border border-border rounded-2xl text-xs text-foreground" />
         </div>
         <span className="text-xs text-muted-foreground ml-auto">Showing {filtered.length} vendors</span>
       </div>
@@ -98,7 +98,7 @@ export default function Vendors() {
       <div className="lg:hidden px-4 py-3">
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vendors..." className="w-full h-9 pl-8 pr-3 bg-background border border-border rounded-lg text-sm text-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search vendors..." className="w-full h-9 pl-8 pr-3 bg-background border border-border rounded-2xl text-sm text-foreground" />
         </div>
       </div>
 
@@ -108,7 +108,7 @@ export default function Vendors() {
           <div className="flex items-center justify-center h-32"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
         ) : filtered.length === 0 ? (
           vendors.length === 0 ? (
-            <div className="flex flex-col items-center text-center py-16 px-6 card-glass border border-border rounded-xl">
+            <div className="flex flex-col items-center text-center py-16 px-6 card-glass border border-border rounded-2xl">
               <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
                 <Truck className="h-8 w-8 text-primary/60" />
               </div>
@@ -126,7 +126,7 @@ export default function Vendors() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-16 card-glass border border-border rounded-xl">
+            <div className="text-center py-16 card-glass border border-border rounded-2xl">
               <Truck className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-40" />
               <p className="text-sm font-semibold text-foreground mb-1">No vendors match</p>
               <p className="text-xs text-muted-foreground">Try adjusting your search or filters</p>
@@ -139,11 +139,11 @@ export default function Vendors() {
               {filtered.map(vendor => {
                 const vendorEquip = equipment.filter(e => e.vendorId === vendor.id);
                 return (
-                  <div key={vendor.id} className="card-glass border border-border rounded-lg p-4 space-y-3 hover:border-primary/30 transition-colors">
+                  <div key={vendor.id} className="card-glass border border-border rounded-2xl p-4 space-y-3 hover:border-primary/30 transition-colors">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                        <div className="h-10 w-10 rounded-2xl bg-primary/15 flex items-center justify-center shrink-0">
                           <span className="text-xs font-extrabold text-primary">{vendor.name.charAt(0)}</span>
                         </div>
                         <div className="min-w-0">
@@ -169,12 +169,12 @@ export default function Vendors() {
                     {/* Actions */}
                     <div className="flex gap-2 pt-2">
                       {vendor.phone && (
-                        <a href={`tel:${vendor.phone}`} className="flex-1 h-10 rounded-lg bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
+                        <a href={`tel:${vendor.phone}`} className="flex-1 h-10 rounded-2xl bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
                           <Phone className="h-3.5 w-3.5" /> Call
                         </a>
                       )}
                       {vendor.email && (
-                        <a href={`mailto:${vendor.email}`} className="flex-1 h-10 rounded-lg bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
+                        <a href={`mailto:${vendor.email}`} className="flex-1 h-10 rounded-2xl bg-muted text-xs font-bold text-foreground flex items-center justify-center gap-1 hover:bg-primary/15 active:scale-95 transition-all">
                           <Mail className="h-3.5 w-3.5" /> Email
                         </a>
                       )}

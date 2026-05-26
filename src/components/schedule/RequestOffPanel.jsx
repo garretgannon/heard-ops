@@ -240,19 +240,19 @@ export default function RequestOffPanel({ onClose, employees }) {
             <select value={form.employee_email} onChange={e => {
               const emp = employees.find(em => em.email === e.target.value);
               setForm(f => ({ ...f, employee_email: e.target.value, employee_name: emp?.name || '' }));
-            }} className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground">
+            }} className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground">
               <option value="">Select employee…</option>
               {employees.map(e => <option key={e.id} value={e.email}>{e.name}</option>)}
             </select>
             <div className="grid grid-cols-2 gap-2">
               <input type="date" value={form.start_date} onChange={e => setForm(f => ({...f, start_date: e.target.value}))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
               <input type="date" value={form.end_date} onChange={e => setForm(f => ({...f, end_date: e.target.value}))}
-                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+                className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             </div>
             <input type="text" value={form.reason} onChange={e => setForm(f => ({...f, reason: e.target.value}))}
               placeholder="Reason (optional)"
-              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-foreground" />
+              className="w-full px-3 py-2 liquid-card rounded-lg text-sm text-foreground" />
             <div className="flex gap-2">
               <button onClick={() => setShowAdd(false)} className="flex-1 py-2 rounded-lg border border-border text-xs font-bold text-foreground">Cancel</button>
               <button onClick={handleAdd} className="flex-1 py-2 rounded-lg bg-primary text-white text-xs font-bold">Submit</button>

@@ -98,7 +98,7 @@ export default function PrepCommandCenter({ isOpen, onClose, onSuccess }) {
                       setPrepItems(newItems);
                     }}
                     placeholder="0"
-                    className="w-full p-1.5 rounded text-sm bg-background border border-border text-foreground text-center"
+                    className="w-full p-1.5 rounded text-sm liquid-card text-foreground text-center"
                   />
                 </div>
 
@@ -112,7 +112,7 @@ export default function PrepCommandCenter({ isOpen, onClose, onSuccess }) {
                       newItems[idx].priority = e.target.value;
                       setPrepItems(newItems);
                     }}
-                    className="w-full p-1.5 rounded text-sm bg-background border border-border text-foreground"
+                    className="w-full p-1.5 rounded text-sm liquid-card text-foreground"
                   >
                     {PRIORITY_LEVELS.map(({ label, value }) => (
                       <option key={value} value={value}>{label}</option>
@@ -130,7 +130,7 @@ export default function PrepCommandCenter({ isOpen, onClose, onSuccess }) {
                   newItems[idx].dueTime = e.target.value;
                   setPrepItems(newItems);
                 }}
-                className="w-full p-1.5 rounded text-sm bg-background border border-border text-foreground"
+                className="w-full p-1.5 rounded text-sm liquid-card text-foreground"
               />
             </div>
           ))}

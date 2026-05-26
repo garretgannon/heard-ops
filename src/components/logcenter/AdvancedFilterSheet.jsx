@@ -57,7 +57,7 @@ export default function AdvancedFilterSheet({ isOpen, onClose, filters, onApplyF
       />
 
       {/* Sheet */}
-      <div className="relative w-screen max-w-full bg-card rounded-t-2xl max-h-[80vh] overflow-y-auto overflow-x-hidden box-border">
+      <div className="liquid-card relative w-screen max-w-full rounded-t-2xl max-h-[80vh] overflow-y-auto overflow-x-hidden box-">
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border/20 px-4 py-4 flex items-center justify-between w-full box-border">
           <h2 className="text-lg font-bold text-foreground">Advanced Filters</h2>
