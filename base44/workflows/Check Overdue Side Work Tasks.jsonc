@@ -1,0 +1,44 @@
+{
+  "name": "Check Overdue Side Work Tasks",
+  "description": "Every 15 minutes, checks all today's pending/in-progress side work tasks. If a task has passed its due time, it's marked Overdue (high priority), logged in Shift Handoff prep concerns, and surfaced as an Issue in Needs Attention. Recurring tasks stay overdue until manually completed.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 15,
+      "interval_unit": "minutes",
+      "interval_anchor": "2026-05-04T23:14:09.594000",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "check_overdue_side_work_tasks",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "checkOverdueSideWork",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "checkOverdueSideWork"
+  }
+}

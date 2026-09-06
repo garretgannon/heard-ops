@@ -1,0 +1,38 @@
+{
+  "name": "Temp Alert \u2192 Create Critical Issue",
+  "description": "",
+  "trigger": {
+    "condition": "${ ((.trigger.data.is_above_range == true) or (.trigger.data.is_below_range == true)) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create",
+        "update"
+      ],
+      "entity_name": "TempLogEntry"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "temp_alert_create_critical_issue",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "handleTempAlert",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "handleTempAlert"
+  }
+}
